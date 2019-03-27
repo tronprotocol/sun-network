@@ -262,7 +262,7 @@ run {
 }
 
 shadowJar {
-    baseName = 'java-tron'
+    baseName = 'sun-network'
     classifier = null
     version = null
 }
