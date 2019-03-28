@@ -108,11 +108,7 @@ public class AssetIssueCapsule implements ProtoCapsule<AssetIssueContract> {
   }
 
   public byte[] createDbKeyFinal(Manager manager) {
-    if (manager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      return createDbKey();
-    } else {
       return createDbV2Key();
-    }
   }
 
   public static String createDbKeyString(String name, long order) {

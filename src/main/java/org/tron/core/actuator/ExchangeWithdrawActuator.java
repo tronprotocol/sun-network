@@ -164,11 +164,10 @@ public class ExchangeWithdrawActuator extends AbstractActuator {
 
     long anotherTokenQuant;
 
-    if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 1) {
-      if (!Arrays.equals(tokenID, "_".getBytes()) && !TransactionUtil.isNumber(tokenID)) {
-        throw new ContractValidateException("token id is not a valid number");
-      }
+    if (!Arrays.equals(tokenID, "_".getBytes()) && !TransactionUtil.isNumber(tokenID)) {
+      throw new ContractValidateException("token id is not a valid number");
     }
+
 
     if (!Arrays.equals(tokenID, firstTokenID) && !Arrays.equals(tokenID, secondTokenID)) {
       throw new ContractValidateException("token is not in exchange");

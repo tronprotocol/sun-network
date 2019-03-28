@@ -280,22 +280,11 @@ public class Manager {
   }
 
   public ExchangeStore getExchangeStoreFinal() {
-    if (getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      return getExchangeStore();
-    } else {
       return getExchangeV2Store();
-    }
   }
 
   public void putExchangeCapsule(ExchangeCapsule exchangeCapsule) {
-    if (getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      getExchangeStore().put(exchangeCapsule.createDbKey(), exchangeCapsule);
-      ExchangeCapsule exchangeCapsuleV2 = new ExchangeCapsule(exchangeCapsule.getData());
-      exchangeCapsuleV2.resetTokenWithID(this);
-      getExchangeV2Store().put(exchangeCapsuleV2.createDbKey(), exchangeCapsuleV2);
-    } else {
       getExchangeV2Store().put(exchangeCapsule.createDbKey(), exchangeCapsule);
-    }
   }
 
   public List<TransactionCapsule> getPendingTransactions() {
@@ -1225,7 +1214,7 @@ public class Manager {
     }
 
     trace.finalization();
-    if (Objects.nonNull(blockCap) && getDynamicPropertiesStore().supportVM()) {
+    if (Objects.nonNull(blockCap)) {
       trxCap.setResult(trace.getRuntime());
     }
     transactionStore.put(trxCap.getTransactionId().getBytes(), trxCap);
@@ -1670,11 +1659,7 @@ public class Manager {
   }
 
   public AssetIssueStore getAssetIssueStoreFinal() {
-    if (getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      return getAssetIssueStore();
-    } else {
-      return getAssetIssueV2Store();
-    }
+    return getAssetIssueV2Store();
   }
 
   public void setAssetIssueStore(AssetIssueStore assetIssueStore) {

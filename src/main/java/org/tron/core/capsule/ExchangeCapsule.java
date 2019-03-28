@@ -140,25 +140,6 @@ public class ExchangeCapsule implements ProtoCapsule<Exchange> {
     return buyTokenQuant;
   }
 
-  //be carefully, this function should be used only before AllowSameTokenName proposal is not active
-  public void resetTokenWithID(Manager manager) {
-    if (manager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      byte[] firstTokenName = this.exchange.getFirstTokenId().toByteArray();
-      byte[] secondTokenName = this.exchange.getSecondTokenId().toByteArray();
-      byte[] firstTokenID = firstTokenName;
-      byte[] secondTokenID = secondTokenName;
-      if (!Arrays.equals(firstTokenName, "_".getBytes())) {
-        firstTokenID = manager.getAssetIssueStore().get(firstTokenName).getId().getBytes();
-      }
-      if (!Arrays.equals(secondTokenName, "_".getBytes())) {
-        secondTokenID = manager.getAssetIssueStore().get(secondTokenName).getId().getBytes();
-      }
-      this.exchange = this.exchange.toBuilder()
-          .setFirstTokenId(ByteString.copyFrom(firstTokenID))
-          .setSecondTokenId(ByteString.copyFrom(secondTokenID))
-          .build();
-    }
-  }
 
   @Override
   public byte[] getData() {

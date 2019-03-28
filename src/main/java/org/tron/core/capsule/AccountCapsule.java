@@ -459,15 +459,10 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     Map<String, Long> assetMap;
     String nameKey;
     Long currentAmount;
-    if (manager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      assetMap = this.account.getAssetMap();
-      nameKey = ByteArray.toStr(key);
-      currentAmount = assetMap.get(nameKey);
-    } else {
-      String tokenID = ByteArray.toStr(key);
-      assetMap = this.account.getAssetV2Map();
-      currentAmount = assetMap.get(tokenID);
-    }
+
+    String tokenID = ByteArray.toStr(key);
+    assetMap = this.account.getAssetV2Map();
+    currentAmount = assetMap.get(tokenID);
 
     return amount > 0 && null != currentAmount && amount <= currentAmount;
   }
@@ -493,32 +488,15 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
    * reduce asset amount.
    */
   public boolean reduceAssetAmountV2(byte[] key, long amount, Manager manager) {
-    //key is token name
-    if (manager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      Map<String, Long> assetMap = this.account.getAssetMap();
-      AssetIssueCapsule assetIssueCapsule = manager.getAssetIssueStore().get(key);
-      String tokenID = assetIssueCapsule.getId();
-      String nameKey = ByteArray.toStr(key);
-      Long currentAmount = assetMap.get(nameKey);
-      if (amount > 0 && null != currentAmount && amount <= currentAmount) {
-        this.account = this.account.toBuilder()
-            .putAsset(nameKey, Math.subtractExact(currentAmount, amount))
-            .putAssetV2(tokenID, Math.subtractExact(currentAmount, amount))
-            .build();
-        return true;
-      }
-    }
     //key is token id
-    if (manager.getDynamicPropertiesStore().getAllowSameTokenName() == 1) {
-      String tokenID = ByteArray.toStr(key);
-      Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
-      Long currentAmount = assetMapV2.get(tokenID);
-      if (amount > 0 && null != currentAmount && amount <= currentAmount) {
-        this.account = this.account.toBuilder()
-            .putAssetV2(tokenID, Math.subtractExact(currentAmount, amount))
-            .build();
-        return true;
-      }
+    String tokenID = ByteArray.toStr(key);
+    Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
+    Long currentAmount = assetMapV2.get(tokenID);
+    if (amount > 0 && null != currentAmount && amount <= currentAmount) {
+      this.account = this.account.toBuilder()
+          .putAssetV2(tokenID, Math.subtractExact(currentAmount, amount))
+          .build();
+      return true;
     }
 
     return false;
@@ -543,33 +521,17 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
    * add asset amount.
    */
   public boolean addAssetAmountV2(byte[] key, long amount, Manager manager) {
-    //key is token name
-    if (manager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      Map<String, Long> assetMap = this.account.getAssetMap();
-      AssetIssueCapsule assetIssueCapsule = manager.getAssetIssueStore().get(key);
-      String tokenID = assetIssueCapsule.getId();
-      String nameKey = ByteArray.toStr(key);
-      Long currentAmount = assetMap.get(nameKey);
-      if (currentAmount == null) {
-        currentAmount = 0L;
-      }
-      this.account = this.account.toBuilder()
-          .putAsset(nameKey, Math.addExact(currentAmount, amount))
-          .putAssetV2(tokenID, Math.addExact(currentAmount, amount))
-          .build();
+
+    String tokenIDStr = ByteArray.toStr(key);
+    Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
+    Long currentAmount = assetMapV2.get(tokenIDStr);
+    if (currentAmount == null) {
+      currentAmount = 0L;
     }
-    //key is token id
-    if (manager.getDynamicPropertiesStore().getAllowSameTokenName() == 1) {
-      String tokenIDStr = ByteArray.toStr(key);
-      Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
-      Long currentAmount = assetMapV2.get(tokenIDStr);
-      if (currentAmount == null) {
-        currentAmount = 0L;
-      }
-      this.account = this.account.toBuilder()
-          .putAssetV2(tokenIDStr, Math.addExact(currentAmount, amount))
-          .build();
-    }
+    this.account = this.account.toBuilder()
+        .putAssetV2(tokenIDStr, Math.addExact(currentAmount, amount))
+        .build();
+
     return true;
   }
 

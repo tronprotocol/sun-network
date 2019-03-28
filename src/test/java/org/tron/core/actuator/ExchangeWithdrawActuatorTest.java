@@ -259,7 +259,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameCloseSuccessExchangeWithdraw() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "abc";
@@ -333,7 +333,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void oldNotUpdateSuccessExchangeWithdraw() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "abc";
@@ -352,7 +352,7 @@ public class ExchangeWithdrawActuatorTest {
         OWNER_ADDRESS_FIRST, exchangeId, String.valueOf(1), firstTokenQuant),
         dbManager);
     TransactionResultCapsule ret = new TransactionResultCapsule();
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     try {
       actuator.validate();
       actuator.execute(ret);
@@ -406,7 +406,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenSuccessExchangeWithdraw() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "123";
@@ -472,7 +472,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameCloseSuccessExchangeWithdraw2() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 2;
     String firstTokenId = "_";
@@ -545,7 +545,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenSuccessExchangeWithdraw2() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 2;
     String firstTokenId = "_";
@@ -609,7 +609,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameCloseInvalidAddress() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "abc";
@@ -651,7 +651,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenInvalidAddress() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "123";
@@ -694,7 +694,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameCloseNoAccount() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "abc";
@@ -738,7 +738,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenNoAccount() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "123";
@@ -781,7 +781,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameCloseExchangeNotExist() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 4;
     String firstTokenId = "abc";
@@ -824,7 +824,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenExchangeNotExist() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 4;
     String firstTokenId = "123";
@@ -867,7 +867,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameCloseAccountIsNotCreator() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "abc";
@@ -911,7 +911,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenAccountIsNotCreator() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "123";
@@ -955,7 +955,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameCloseTokenIsNotInExchange() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "_";
@@ -997,7 +997,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenTokenIsNotInExchange() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "_";
@@ -1039,7 +1039,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameCloseTokenBalanceZero() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "abc";
@@ -1090,7 +1090,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenTokenBalanceZero() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "123";
@@ -1141,7 +1141,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameCloseTokenQuantLessThanZero() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "abc";
@@ -1184,7 +1184,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenTokenQuantLessThanZero() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "123";
@@ -1227,7 +1227,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameCloseTnotherTokenQuantLessThanZero() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "abc";
@@ -1270,7 +1270,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenTnotherTokenQuantLessThanZero() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "123";
@@ -1313,7 +1313,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameCloseNotPreciseEnough() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "abc";
@@ -1366,7 +1366,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenNotPreciseEnough() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "123";
@@ -1419,7 +1419,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameCloseNotPreciseEnough2() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 3;
     String firstTokenId = "abc";
@@ -1472,7 +1472,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenNotPreciseEnough2() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 3;
     String firstTokenId = "123";
@@ -1525,7 +1525,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameCloseExchangeBalanceIsNotEnough() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "abc";
@@ -1568,7 +1568,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenExchangeBalanceIsNotEnough() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 1;
     String firstTokenId = "123";
@@ -1611,7 +1611,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameCloseExchangeBalanceIsNotEnough2() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     InitExchangeBeforeSameTokenNameActive();
     long exchangeId = 2;
     String firstTokenId = "_";
@@ -1653,7 +1653,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenExchangeBalanceIsNotEnough2() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 2;
     String firstTokenId = "_";
@@ -1695,7 +1695,7 @@ public class ExchangeWithdrawActuatorTest {
    */
   @Test
   public void SameTokenNameOpenInvalidParam() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     InitExchangeSameTokenNameActive();
     long exchangeId = 1;
     TransactionResultCapsule ret = new TransactionResultCapsule();

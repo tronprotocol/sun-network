@@ -132,7 +132,7 @@ public class UpdateAssetActuatorTest {
   }
 
   private void createAssertBeforSameTokenNameActive() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
 
     // address in accountStore and the owner of contract
     AccountCapsule accountCapsule =
@@ -156,7 +156,7 @@ public class UpdateAssetActuatorTest {
   }
 
   private void createAssertSameTokenNameActive() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
 
     // address in accountStore and the owner of contract
     AccountCapsule accountCapsule =
@@ -224,7 +224,7 @@ public class UpdateAssetActuatorTest {
   @Test
   public void oldNotUpdataSuccessUpdateAsset() {
     createAssertBeforSameTokenNameActive();
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     long tokenId = dbManager.getDynamicPropertiesStore().getTokenIdNum();
     TransactionResultCapsule ret = new TransactionResultCapsule();
     UpdateAssetActuator actuator;

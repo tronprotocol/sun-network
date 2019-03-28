@@ -74,7 +74,7 @@ public class TransferTokenTest {
 
 
   private long createAsset(String tokenName) {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     VMConfig.initAllowTvmTransferTrc10(1);
     long id = dbManager.getDynamicPropertiesStore().getTokenIdNum() + 1;
     dbManager.getDynamicPropertiesStore().saveTokenIdNum(id);
