@@ -456,9 +456,6 @@ public class Manager {
     }
     forkController.init(this);
 
-    if (Args.getInstance().isNeedToUpdateAsset() && needToUpdateAsset()) {
-      new AssetUpdateHelper(this).doWork();
-    }
     initCacheTxs();
     revokingStore.enable();
     validateSignService = Executors
@@ -509,6 +506,7 @@ public class Manager {
             this.genesisBlock.getBlockId().getByteString());
         this.dynamicPropertiesStore.saveLatestBlockHeaderTimestamp(
             this.genesisBlock.getTimeStamp());
+        this.dynamicPropertiesStore.saveTokenIdNum(2000000L);
         this.initAccount();
         this.initWitness();
         this.witnessController.initWits();

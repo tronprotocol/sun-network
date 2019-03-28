@@ -354,10 +354,6 @@ public class RuntimeImpl implements Runtime {
    **/
   private void create()
       throws ContractValidateException, VMIllegalException {
-    if (!deposit.getDbManager().getDynamicPropertiesStore().supportVM()) {
-      throw new ContractValidateException("vm work is off, need to be opened by the committee");
-    }
-
     CreateSmartContract contract = ContractCapsule.getSmartContractFromTransaction(trx);
     if (contract == null) {
       throw new ContractValidateException("Cannot get CreateSmartContract from transaction");
@@ -486,11 +482,6 @@ public class RuntimeImpl implements Runtime {
 
   private void call()
       throws ContractValidateException {
-
-    if (!deposit.getDbManager().getDynamicPropertiesStore().supportVM()) {
-      logger.info("vm work is off, need to be opened by the committee");
-      throw new ContractValidateException("VM work is off, need to be opened by the committee");
-    }
 
     Contract.TriggerSmartContract contract = ContractCapsule.getTriggerContractFromTransaction(trx);
     if (contract == null) {
