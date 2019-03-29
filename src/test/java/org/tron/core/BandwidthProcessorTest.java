@@ -114,8 +114,6 @@ public class BandwidthProcessorTest {
             ByteString.copyFrom(ByteArray.fromHexString(OWNER_ADDRESS)),
             AccountType.Normal,
             0L);
-    ownerCapsule.addAsset("1".getBytes(), 100L);
-    ownerCapsule.addAsset(ASSET_NAME_V2.getBytes(), 100L);
 
     AccountCapsule toAccountCapsule =
         new AccountCapsule(

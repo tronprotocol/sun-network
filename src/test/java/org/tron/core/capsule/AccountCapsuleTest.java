@@ -97,34 +97,6 @@ public class AccountCapsuleTest {
     }
   }
 
-  @Test
-  public void AssetAmountTest() {
-    //test AssetAmount ,addAsset and reduceAssetAmount function
-
-    String nameAdd = "TokenX";
-    long amountAdd = 222L;
-    boolean addBoolean = accountCapsuleTest
-        .addAssetAmount(nameAdd.getBytes(), amountAdd);
-
-    Assert.assertTrue(addBoolean);
-
-    long amountReduce = 22L;
-
-    boolean reduceBoolean = accountCapsuleTest
-        .reduceAssetAmount(ByteArray.fromString("TokenX"), amountReduce);
-    Assert.assertTrue(reduceBoolean);
-
-    String key = nameAdd;
-    long value = 11L;
-    boolean addAsssetBoolean = accountCapsuleTest.addAsset(key.getBytes(), value);
-    Assert.assertFalse(addAsssetBoolean);
-
-    String keyName = "TokenTest";
-    long amountValue = 33L;
-    boolean addAsssetTrue = accountCapsuleTest.addAsset(keyName.getBytes(), amountValue);
-    Assert.assertTrue(addAsssetTrue);
-  }
-
 
   public static byte[] randomBytes(int length) {
     //generate the random number

@@ -467,23 +467,6 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     return amount > 0 && null != currentAmount && amount <= currentAmount;
   }
 
-
-  /**
-   * reduce asset amount.
-   */
-  public boolean reduceAssetAmount(byte[] key, long amount) {
-    Map<String, Long> assetMap = this.account.getAssetMap();
-    String nameKey = ByteArray.toStr(key);
-    Long currentAmount = assetMap.get(nameKey);
-    if (amount > 0 && null != currentAmount && amount <= currentAmount) {
-      this.account = this.account.toBuilder()
-          .putAsset(nameKey, Math.subtractExact(currentAmount, amount)).build();
-      return true;
-    }
-
-    return false;
-  }
-
   /**
    * reduce asset amount.
    */
@@ -500,21 +483,6 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     }
 
     return false;
-  }
-
-  /**
-   * add asset amount.
-   */
-  public boolean addAssetAmount(byte[] key, long amount) {
-    Map<String, Long> assetMap = this.account.getAssetMap();
-    String nameKey = ByteArray.toStr(key);
-    Long currentAmount = assetMap.get(nameKey);
-    if (currentAmount == null) {
-      currentAmount = 0L;
-    }
-    this.account = this.account.toBuilder().putAsset(nameKey, Math.addExact(currentAmount, amount))
-        .build();
-    return true;
   }
 
   /**

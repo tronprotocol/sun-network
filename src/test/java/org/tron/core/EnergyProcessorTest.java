@@ -28,14 +28,14 @@ public class EnergyProcessorTest {
   private static Manager dbManager;
   private static final String dbPath = "EnergyProcessorTest";
   private static TronApplicationContext context;
-  private static final String ASSET_NAME;
+  private static final String ASSET_ID;
   private static final String CONTRACT_PROVIDER_ADDRESS;
   private static final String USER_ADDRESS;
 
   static {
     Args.setParam(new String[]{"--output-directory", dbPath}, Constant.TEST_CONF);
     context = new TronApplicationContext(DefaultConfig.class);
-    ASSET_NAME = "test_token";
+    ASSET_ID = "1";
     CONTRACT_PROVIDER_ADDRESS =
         Wallet.getAddressPreFixString() + "548794500882809695a8a687866e76d4271a1abc";
     USER_ADDRESS = Wallet.getAddressPreFixString() + "abd4b9367799eaa3197fecb144eb71de1e049abc";
@@ -74,7 +74,7 @@ public class EnergyProcessorTest {
             ByteString.copyFrom(ByteArray.fromHexString(CONTRACT_PROVIDER_ADDRESS)),
             AccountType.Normal,
             0L);
-    contractProvierCapsule.addAsset(ASSET_NAME.getBytes(), 100L);
+    contractProvierCapsule.addAssetV2(ASSET_ID.getBytes(), 100L);
 
     AccountCapsule userCapsule =
         new AccountCapsule(
@@ -95,7 +95,7 @@ public class EnergyProcessorTest {
   private AssetIssueContract getAssetIssueContract() {
     return Contract.AssetIssueContract.newBuilder()
         .setOwnerAddress(ByteString.copyFrom(ByteArray.fromHexString(USER_ADDRESS)))
-        .setName(ByteString.copyFromUtf8(ASSET_NAME))
+        .setName(ByteString.copyFromUtf8(ASSET_ID))
         .setFreeAssetNetLimit(1000L)
         .setPublicFreeAssetNetLimit(1000L)
         .build();
