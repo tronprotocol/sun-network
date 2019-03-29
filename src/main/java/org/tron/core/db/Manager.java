@@ -76,7 +76,6 @@ import org.tron.core.config.Parameter.ChainConstant;
 import org.tron.core.config.args.Args;
 import org.tron.core.config.args.GenesisBlock;
 import org.tron.core.db.KhaosDatabase.KhaosBlock;
-import org.tron.core.db.api.AssetUpdateHelper;
 import org.tron.core.db2.core.ISession;
 import org.tron.core.db2.core.ITronChainBase;
 import org.tron.core.db2.core.SnapshotManager;
@@ -269,10 +268,6 @@ public class Manager {
 
   public ProposalStore getProposalStore() {
     return this.proposalStore;
-  }
-
-  public ExchangeStore getExchangeStore() {
-    return this.exchangeStore;
   }
 
   public ExchangeV2Store getExchangeV2Store() {
@@ -1650,9 +1645,6 @@ public class Manager {
     return getDynamicPropertiesStore().getMaintenanceSkipSlots();
   }
 
-  public AssetIssueStore getAssetIssueStore() {
-    return assetIssueStore;
-  }
 
   public AssetIssueV2Store getAssetIssueV2Store() {
     return assetIssueV2Store;

@@ -208,9 +208,9 @@ public class WalletTest {
 
   private static void buildAssetIssue() {
     AssetIssueContract.Builder builder = AssetIssueContract.newBuilder();
-    builder.setName(ByteString.copyFromUtf8("Asset1"));
+    builder.setName(ByteString.copyFromUtf8("Asset1")).setId("Asset1");
     Asset1 = new AssetIssueCapsule(builder.build());
-    manager.getAssetIssueStore().put(Asset1.createDbKey(), Asset1);
+    manager.getAssetIssueV2Store().put(Asset1.createDbV2Key(), Asset1);
   }
 
   private static void buildProposal() {
@@ -229,11 +229,11 @@ public class WalletTest {
     Exchange.Builder builder = Exchange.newBuilder();
     builder.setExchangeId(1L).setCreatorAddress(ByteString.copyFromUtf8("Address1"));
     ExchangeCapsule ExchangeCapsule = new ExchangeCapsule(builder.build());
-    manager.getExchangeStore().put(ExchangeCapsule.createDbKey(), ExchangeCapsule);
+    manager.getExchangeV2Store().put(ExchangeCapsule.createDbKey(), ExchangeCapsule);
 
     builder.setExchangeId(2L).setCreatorAddress(ByteString.copyFromUtf8("Address2"));
     ExchangeCapsule = new ExchangeCapsule(builder.build());
-    manager.getExchangeStore().put(ExchangeCapsule.createDbKey(), ExchangeCapsule);
+    manager.getExchangeV2Store().put(ExchangeCapsule.createDbKey(), ExchangeCapsule);
 
     manager.getDynamicPropertiesStore().saveLatestExchangeNum(2L);
 

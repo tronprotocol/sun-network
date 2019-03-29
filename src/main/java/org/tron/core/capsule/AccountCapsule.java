@@ -586,15 +586,6 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
   }
 
 
-  public Map<String, Long> getAssetMap() {
-    Map<String, Long> assetMap = this.account.getAssetMap();
-    if (assetMap.isEmpty()) {
-      assetMap = Maps.newHashMap();
-    }
-
-    return assetMap;
-  }
-
   public Map<String, Long> getAssetMapV2() {
     Map<String, Long> assetMap = this.account.getAssetV2Map();
     if (assetMap.isEmpty()) {

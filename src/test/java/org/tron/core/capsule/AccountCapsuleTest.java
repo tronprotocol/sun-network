@@ -108,22 +108,12 @@ public class AccountCapsuleTest {
 
     Assert.assertTrue(addBoolean);
 
-    Map<String, Long> assetMap = accountCapsuleTest.getAssetMap();
-    for (Map.Entry<String, Long> entry : assetMap.entrySet()) {
-      Assert.assertEquals(nameAdd, entry.getKey());
-      Assert.assertEquals(amountAdd, entry.getValue().longValue());
-    }
     long amountReduce = 22L;
 
     boolean reduceBoolean = accountCapsuleTest
         .reduceAssetAmount(ByteArray.fromString("TokenX"), amountReduce);
     Assert.assertTrue(reduceBoolean);
 
-    Map<String, Long> assetMapAfter = accountCapsuleTest.getAssetMap();
-    for (Map.Entry<String, Long> entry : assetMapAfter.entrySet()) {
-      Assert.assertEquals(nameAdd, entry.getKey());
-      Assert.assertEquals(amountAdd - amountReduce, entry.getValue().longValue());
-    }
     String key = nameAdd;
     long value = 11L;
     boolean addAsssetBoolean = accountCapsuleTest.addAsset(key.getBytes(), value);

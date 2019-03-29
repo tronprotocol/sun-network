@@ -181,8 +181,6 @@ public class UnfreezeAssetActuatorTest {
       Assert.assertEquals(ret.getInstance().getRet(), code.SUCESS);
       AccountCapsule owner = dbManager.getAccountStore()
           .get(ByteArray.fromHexString(OWNER_ADDRESS));
-      //V1 assert not exist
-      Assert.assertNull(owner.getAssetMap().get(assetName));
       //V2
       Assert.assertEquals(owner.getAssetMapV2().get(String.valueOf(tokenId)).longValue(),
           frozenBalance);
@@ -245,7 +243,7 @@ public class UnfreezeAssetActuatorTest {
         .setFrozenBalance(frozenBalance)
         .setExpireTime(now)
         .build();
-    account = account.toBuilder().addFrozenSupply(newFrozen).setAssetIssuedName(ByteString.EMPTY)
+    account = account.toBuilder().addFrozenSupply(newFrozen).setAssetIssuedID(ByteString.EMPTY)
         .build();
     AccountCapsule accountCapsule = new AccountCapsule(account);
     dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);

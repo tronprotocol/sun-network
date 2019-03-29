@@ -127,32 +127,6 @@ public class TransferAssetActuatorTest {
     }
   }
 
-  public void createAsset(String assetName) {
-    AccountCapsule ownerCapsule = dbManager.getAccountStore()
-        .get(ByteArray.fromHexString(OWNER_ADDRESS));
-    ownerCapsule.addAsset(assetName.getBytes(), OWNER_ASSET_BALANCE);
-
-    long id = dbManager.getDynamicPropertiesStore().getTokenIdNum() + 1;
-    dbManager.getDynamicPropertiesStore().saveTokenIdNum(id);
-    AssetIssueContract assetIssueContract =
-        AssetIssueContract.newBuilder()
-            .setOwnerAddress(ByteString.copyFrom(ByteArray.fromHexString(OWNER_ADDRESS)))
-            .setName(ByteString.copyFrom(ByteArray.fromString(assetName)))
-            .setId(Long.toString(id))
-            .setTotalSupply(TOTAL_SUPPLY)
-            .setTrxNum(TRX_NUM)
-            .setNum(NUM)
-            .setStartTime(START_TIME)
-            .setEndTime(END_TIME)
-            .setVoteScore(VOTE_SCORE)
-            .setDescription(ByteString.copyFrom(ByteArray.fromString(DESCRIPTION)))
-            .setUrl(ByteString.copyFrom(ByteArray.fromString(URL)))
-            .build();
-    AssetIssueCapsule assetIssueCapsule = new AssetIssueCapsule(assetIssueContract);
-    dbManager.getAccountStore().put(ownerCapsule.getAddress().toByteArray(), ownerCapsule);
-    dbManager.getAssetIssueStore()
-        .put(assetIssueCapsule.createDbKey(), assetIssueCapsule);
-  }
 
   private Any getContract(long sendCoin) {
     String assertName = ASSET_NAME;
@@ -253,9 +227,6 @@ public class TransferAssetActuatorTest {
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AccountCapsule toAccount =
           dbManager.getAccountStore().get(ByteArray.fromHexString(TO_ADDRESS));
-      // V1, data is not exist
-      Assert.assertNull(owner.getAssetMap().get(ASSET_NAME));
-      Assert.assertNull(toAccount.getAssetMap().get(ASSET_NAME));
       // check V2
       long tokenIdNum = dbManager.getDynamicPropertiesStore().getTokenIdNum();
       Assert.assertEquals(
@@ -289,9 +260,6 @@ public class TransferAssetActuatorTest {
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AccountCapsule toAccount =
           dbManager.getAccountStore().get(ByteArray.fromHexString(TO_ADDRESS));
-      // V1, data is not exist
-      Assert.assertNull(owner.getAssetMap().get(ASSET_NAME));
-      Assert.assertNull(toAccount.getAssetMap().get(ASSET_NAME));
       //check V2
       long tokenIdNum = dbManager.getDynamicPropertiesStore().getTokenIdNum();
       Assert.assertEquals(

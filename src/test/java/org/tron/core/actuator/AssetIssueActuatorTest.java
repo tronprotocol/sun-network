@@ -41,7 +41,7 @@ public class AssetIssueActuatorTest {
   private static final String dbPath = "output_assetIssue_test";
   private static final String OWNER_ADDRESS;
   private static final String OWNER_ADDRESS_SECOND;
-  private static final String NAME = "trx-my";
+  private static final String NAME = "1";
   private static final long TOTAL_SUPPLY = 10000L;
   private static final int TRX_NUM = 10000;
   private static final int NUM = 100000;
@@ -157,9 +157,6 @@ public class AssetIssueActuatorTest {
       Assert.assertEquals(owner.getBalance(), 0L);
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
           blackholeBalance + dbManager.getDynamicPropertiesStore().getAssetIssueFee());
-      // V1,Data is no longer update
-      Assert.assertFalse(
-          dbManager.getAssetIssueStore().has(ByteString.copyFromUtf8(NAME).toByteArray()));
       //V2
       long tokenIdNum = dbManager.getDynamicPropertiesStore().getTokenIdNum();
       byte[] assertKey = ByteArray.fromString(String.valueOf(tokenIdNum));
@@ -176,7 +173,6 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
     }
   }
 
@@ -212,7 +208,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(NAME));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -222,7 +218,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
   }
 
@@ -258,7 +254,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(NAME));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -268,7 +264,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
   }
 
@@ -304,7 +300,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(NAME));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -314,7 +310,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
   }
 
@@ -350,7 +346,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(NAME));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -360,7 +356,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
   }
 
@@ -396,7 +392,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(NAME));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -406,7 +402,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
   }
 
@@ -442,7 +438,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(NAME));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -452,7 +448,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
   }
 
@@ -478,6 +474,7 @@ public class AssetIssueActuatorTest {
     AssetIssueActuator actuator = new AssetIssueActuator(contract, dbManager);
     TransactionResultCapsule ret = new TransactionResultCapsule();
     long blackholeBalance = dbManager.getAccountStore().getBlackhole().getBalance();
+    long tokenIdNum = dbManager.getDynamicPropertiesStore().getTokenIdNum();
     try {
       actuator.validate();
       actuator.execute(ret);
@@ -488,7 +485,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(String.valueOf(tokenIdNum+1)));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -498,7 +495,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     //Too long name, throw exception. Max long is 32.
@@ -525,7 +522,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(String.valueOf(tokenIdNum+1)));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -535,7 +532,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     //Contain space, throw exception. Every character need readable .
@@ -562,7 +559,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(String.valueOf(tokenIdNum+1)));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -572,7 +569,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     //Contain chinese character, throw exception.
@@ -599,7 +596,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(String.valueOf(tokenIdNum+1)));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -609,7 +606,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     // 32 byte readable character just ok.
@@ -633,20 +630,19 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get("testname0123456789abcdefghijgklm".getBytes());
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(String.valueOf(tokenIdNum+1)));
       Assert.assertNotNull(assetIssueCapsule);
+      tokenIdNum ++;
 
       Assert.assertEquals(owner.getBalance(), 0L);
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
           blackholeBalance + dbManager.getDynamicPropertiesStore().getAssetIssueFee());
-      Assert.assertEquals(owner.getAssetMap().get("testname0123456789abcdefghijgklm").longValue(),
-          TOTAL_SUPPLY);
     } catch (ContractValidateException e) {
       Assert.assertFalse(e instanceof ContractValidateException);
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     createCapsule();
@@ -671,19 +667,19 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get("0".getBytes());
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(String.valueOf(tokenIdNum+1)));
       Assert.assertNotNull(assetIssueCapsule);
+      tokenIdNum ++;
 
       Assert.assertEquals(owner.getBalance(), 0L);
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
           blackholeBalance + dbManager.getDynamicPropertiesStore().getAssetIssueFee());
-      Assert.assertEquals(owner.getAssetMap().get("0").longValue(), TOTAL_SUPPLY);
     } catch (ContractValidateException e) {
       Assert.assertFalse(e instanceof ContractValidateException);
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
   }
 
@@ -708,6 +704,7 @@ public class AssetIssueActuatorTest {
 
     AssetIssueActuator actuator = new AssetIssueActuator(contract, dbManager);
     TransactionResultCapsule ret = new TransactionResultCapsule();
+    long tokenIdNum = dbManager.getDynamicPropertiesStore().getTokenIdNum();
     long blackholeBalance = dbManager.getAccountStore().getBlackhole().getBalance();
     try {
       actuator.validate();
@@ -719,7 +716,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(NAME));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -729,7 +726,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     String url256Bytes = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
@@ -757,7 +754,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(String.valueOf(tokenIdNum+1)));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -767,7 +764,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     // 256 byte readable character just ok.
@@ -791,19 +788,18 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(NAME.getBytes());
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(String.valueOf(tokenIdNum+1)));
       Assert.assertNotNull(assetIssueCapsule);
+      tokenIdNum ++;
       Assert.assertEquals(owner.getBalance(), 0L);
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
           blackholeBalance + dbManager.getDynamicPropertiesStore().getAssetIssueFee());
-      Assert.assertEquals(owner.getAssetMap().get(NAME).longValue(),
-          TOTAL_SUPPLY);
     } catch (ContractValidateException e) {
       Assert.assertFalse(e instanceof ContractValidateException);
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     createCapsule();
@@ -828,19 +824,18 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(NAME.getBytes());
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(String.valueOf(tokenIdNum+1)));
       Assert.assertNotNull(assetIssueCapsule);
-
+      tokenIdNum ++;
       Assert.assertEquals(owner.getBalance(), 0L);
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
           blackholeBalance + dbManager.getDynamicPropertiesStore().getAssetIssueFee());
-      Assert.assertEquals(owner.getAssetMap().get(NAME).longValue(), TOTAL_SUPPLY);
     } catch (ContractValidateException e) {
       Assert.assertFalse(e instanceof ContractValidateException);
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     createCapsule();
@@ -865,19 +860,19 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(NAME.getBytes());
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(String.valueOf(tokenIdNum+1)));
       Assert.assertNotNull(assetIssueCapsule);
+      tokenIdNum ++;
 
       Assert.assertEquals(owner.getBalance(), 0L);
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
           blackholeBalance + dbManager.getDynamicPropertiesStore().getAssetIssueFee());
-      Assert.assertEquals(owner.getAssetMap().get(NAME).longValue(), TOTAL_SUPPLY);
     } catch (ContractValidateException e) {
       Assert.assertFalse(e instanceof ContractValidateException);
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
   }
 
@@ -903,6 +898,7 @@ public class AssetIssueActuatorTest {
 
     AssetIssueActuator actuator = new AssetIssueActuator(contract, dbManager);
     TransactionResultCapsule ret = new TransactionResultCapsule();
+    long tokenIdNum = dbManager.getDynamicPropertiesStore().getTokenIdNum();
     long blackholeBalance = dbManager.getAccountStore().getBlackhole().getBalance();
     try {
       actuator.validate();
@@ -914,7 +910,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(String.valueOf(tokenIdNum+1)));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -924,7 +920,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     // 200 bytes character just ok.
@@ -948,20 +944,19 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(NAME.getBytes());
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(String.valueOf(tokenIdNum+1)));
+      tokenIdNum ++;
       Assert.assertNotNull(assetIssueCapsule);
 
       Assert.assertEquals(owner.getBalance(), 0L);
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
           blackholeBalance + dbManager.getDynamicPropertiesStore().getAssetIssueFee());
-      Assert.assertEquals(owner.getAssetMap().get(NAME).longValue(),
-          TOTAL_SUPPLY);
     } catch (ContractValidateException e) {
       Assert.assertFalse(e instanceof ContractValidateException);
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     createCapsule();
@@ -986,19 +981,19 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(NAME.getBytes());
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(String.valueOf(tokenIdNum+1)));
       Assert.assertNotNull(assetIssueCapsule);
+      tokenIdNum ++ ;
 
       Assert.assertEquals(owner.getBalance(), 0L);
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
           blackholeBalance + dbManager.getDynamicPropertiesStore().getAssetIssueFee());
-      Assert.assertEquals(owner.getAssetMap().get(NAME).longValue(), TOTAL_SUPPLY);
     } catch (ContractValidateException e) {
       Assert.assertFalse(e instanceof ContractValidateException);
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     createCapsule();
@@ -1023,19 +1018,19 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(NAME.getBytes());
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(String.valueOf(tokenIdNum+1)));
       Assert.assertNotNull(assetIssueCapsule);
+      tokenIdNum ++;
 
       Assert.assertEquals(owner.getBalance(), 0L);
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
           blackholeBalance + dbManager.getDynamicPropertiesStore().getAssetIssueFee());
-      Assert.assertEquals(owner.getAssetMap().get(NAME).longValue(), TOTAL_SUPPLY);
     } catch (ContractValidateException e) {
       Assert.assertFalse(e instanceof ContractValidateException);
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
   }
 
@@ -1075,7 +1070,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(NAME));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -1085,7 +1080,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     //frozen_amount < 0 throw exception.
@@ -1118,7 +1113,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(NAME));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -1128,7 +1123,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     long minFrozenSupplyTime = dbManager.getDynamicPropertiesStore().getMinFrozenSupplyTime();
@@ -1167,7 +1162,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(NAME));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -1177,7 +1172,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     //FrozenDays < 0 throw exception.
@@ -1212,7 +1207,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(NAME));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -1222,7 +1217,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     //FrozenDays >  maxFrozenSupplyTime throw exception.
@@ -1258,7 +1253,7 @@ public class AssetIssueActuatorTest {
       AccountCapsule owner =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(ByteArray.fromString(NAME));
+          dbManager.getAssetIssueV2Store().get(ByteArray.fromString(NAME));
       Assert.assertEquals(owner.getBalance(),
           dbManager.getDynamicPropertiesStore().getAssetIssueFee());
       Assert.assertEquals(dbManager.getAccountStore().getBlackhole().getBalance(),
@@ -1268,7 +1263,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     //frozen_amount = 1 and  frozenDays = 1 is OK
@@ -1299,7 +1294,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
   }
 
@@ -1331,7 +1326,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     //empty end time will throw exception
@@ -1356,7 +1351,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     //startTime == now, throw exception
@@ -1382,7 +1377,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     //startTime < now, throw exception
@@ -1408,7 +1403,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     //endTime == startTime, throw exception
@@ -1434,7 +1429,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     //endTime < startTime, throw exception
@@ -1460,7 +1455,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
 
     //right issue, will not throw exception
@@ -1483,13 +1478,12 @@ public class AssetIssueActuatorTest {
           .get(ByteArray.fromHexString(OWNER_ADDRESS));
       Assert.assertEquals(ret.getInstance().getRet(), code.SUCESS);
       Assert.assertEquals(account.getAssetIssuedName().toStringUtf8(), NAME);
-      Assert.assertEquals(account.getAssetMap().size(), 1);
     } catch (ContractValidateException e) {
       Assert.assertFalse(e instanceof ContractValidateException);
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
   }
 
@@ -1541,8 +1535,8 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(ASSET_NAME_SECOND));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(ASSET_NAME_SECOND));
     }
   }
 
@@ -1571,8 +1565,8 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(ASSET_NAME_SECOND));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(ASSET_NAME_SECOND));
     }
   }
 
@@ -1611,7 +1605,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
   }
 
@@ -1646,7 +1640,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
   }
 
@@ -1690,7 +1684,7 @@ public class AssetIssueActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getAssetIssueStore().delete(ByteArray.fromString(NAME));
+      dbManager.getAssetIssueV2Store().delete(ByteArray.fromString(NAME));
     }
   }
 

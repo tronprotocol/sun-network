@@ -93,7 +93,6 @@ public class IndexHelperTest {
                 .setName(ByteString.copyFrom("assetIssueName".getBytes()))
                 .setNum(12581)
                 .build());
-    dbManager.getAssetIssueStore().put("assetIssueName".getBytes(), assetIssueCapsule);
     indexHelper = context.getBean(IndexHelper.class);
   }
 
@@ -234,8 +233,6 @@ public class IndexHelperTest {
                 .setName(ByteString.copyFrom("assetIssueName".getBytes()))
                 .setNum(12581)
                 .build());
-    dbManager.getAssetIssueStore()
-        .put(assetIssueCapsule.createDbKey(), assetIssueCapsule);
     indexHelper.add(assetIssueCapsule.getInstance());
     int size = getIndexSizeOfAssetIssue();
     Assert.assertEquals("account index add", 1, size);

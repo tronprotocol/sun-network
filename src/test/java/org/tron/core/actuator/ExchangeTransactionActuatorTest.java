@@ -135,8 +135,6 @@ public class ExchangeTransactionActuatorTest {
             .setName(ByteString.copyFrom("def".getBytes()))
             .setId(String.valueOf(2L))
             .build());
-    dbManager.getAssetIssueStore().put(assetIssueCapsule1.createDbKey(), assetIssueCapsule1);
-    dbManager.getAssetIssueStore().put(assetIssueCapsule2.createDbKey(), assetIssueCapsule2);
     dbManager.getAssetIssueV2Store().put(assetIssueCapsule1.createDbV2Key(), assetIssueCapsule1);
     dbManager.getAssetIssueV2Store().put(assetIssueCapsule2.createDbV2Key(), assetIssueCapsule2);
 
@@ -157,8 +155,8 @@ public class ExchangeTransactionActuatorTest {
             "abc".getBytes(),
             "def".getBytes());
     exchangeCapsule2.setBalance(100000000L, 200000000L);
-    dbManager.getExchangeStore().put(exchangeCapsule.createDbKey(), exchangeCapsule);
-    dbManager.getExchangeStore().put(exchangeCapsule2.createDbKey(), exchangeCapsule2);
+    dbManager.getExchangeV2Store().put(exchangeCapsule.createDbKey(), exchangeCapsule);
+    dbManager.getExchangeV2Store().put(exchangeCapsule2.createDbKey(), exchangeCapsule2);
     //V2
     ExchangeCapsule exchangeCapsule3 =
         new ExchangeCapsule(
@@ -257,8 +255,6 @@ public class ExchangeTransactionActuatorTest {
       actuator.validate();
       actuator.execute(ret);
       Assert.assertEquals(ret.getInstance().getRet(), code.SUCESS);
-      // V1,Data is no longer update
-      Assert.assertFalse(dbManager.getExchangeStore().has(ByteArray.fromLong(exchangeId)));
 
       //V2
       exchangeV2Capsule = dbManager.getExchangeV2Store().get(ByteArray.fromLong(exchangeId));
@@ -286,8 +282,6 @@ public class ExchangeTransactionActuatorTest {
     } catch (ItemNotFoundException e) {
       Assert.assertFalse(e instanceof ItemNotFoundException);
     } finally {
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(1L));
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(2L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(1L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(2L));
     }
@@ -335,8 +329,6 @@ public class ExchangeTransactionActuatorTest {
       actuator.validate();
       actuator.execute(ret);
       Assert.assertEquals(ret.getInstance().getRet(), code.SUCESS);
-      // V1,Data is no longer update
-      Assert.assertFalse(dbManager.getExchangeStore().has(ByteArray.fromLong(exchangeId)));
 
       //V2
       exchangeCapsuleV2 = dbManager.getExchangeV2Store().get(ByteArray.fromLong(exchangeId));
@@ -362,8 +354,6 @@ public class ExchangeTransactionActuatorTest {
     } catch (ItemNotFoundException e) {
       Assert.assertFalse(e instanceof ItemNotFoundException);
     } finally {
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(1L));
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(2L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(1L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(2L));
     }
@@ -404,8 +394,6 @@ public class ExchangeTransactionActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(1L));
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(2L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(1L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(2L));
     }
@@ -449,8 +437,6 @@ public class ExchangeTransactionActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(1L));
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(2L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(1L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(2L));
     }
@@ -493,8 +479,6 @@ public class ExchangeTransactionActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(1L));
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(2L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(1L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(2L));
     }
@@ -537,8 +521,6 @@ public class ExchangeTransactionActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(1L));
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(2L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(1L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(2L));
     }
@@ -589,8 +571,6 @@ public class ExchangeTransactionActuatorTest {
     } catch (ItemNotFoundException e) {
       Assert.assertFalse(e instanceof ItemNotFoundException);
     } finally {
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(1L));
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(2L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(1L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(2L));
     }
@@ -633,8 +613,6 @@ public class ExchangeTransactionActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(1L));
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(2L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(1L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(2L));
     }
@@ -676,8 +654,6 @@ public class ExchangeTransactionActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(1L));
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(2L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(1L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(2L));
     }
@@ -718,8 +694,6 @@ public class ExchangeTransactionActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(1L));
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(2L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(1L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(2L));
     }
@@ -761,8 +735,6 @@ public class ExchangeTransactionActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(1L));
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(2L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(1L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(2L));
     }
@@ -813,8 +785,6 @@ public class ExchangeTransactionActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(1L));
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(2L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(1L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(2L));
     }
@@ -863,8 +833,6 @@ public class ExchangeTransactionActuatorTest {
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     } finally {
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(1L));
-      dbManager.getExchangeStore().delete(ByteArray.fromLong(2L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(1L));
       dbManager.getExchangeV2Store().delete(ByteArray.fromLong(2L));
     }

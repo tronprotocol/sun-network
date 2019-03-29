@@ -1315,43 +1315,43 @@ public class PrecompiledContracts {
   }
 
 
-  /**
-   * Native function for check Asset balance basing on targetAddress and Asset name. <br/> <br/>
-   *
-   * Input data[]: <br/> address targetAddress, byte[] assetName <br/>
-   *
-   * Output: <br/> balance <br/>
-   */
-  public static class GetTransferAssetNative extends PrecompiledContract {
-
-    @Override
-    public long getEnergyForData(byte[] data) {
-      return 200;
-    }
-
-    @Override
-    public Pair<Boolean, byte[]> execute(byte[] data) {
-
-      if (data == null || data.length != DataWord.DATAWORD_UNIT_SIZE * 2) {
-        return Pair.of(false, new DataWord(0).getData());
-      }
-
-      byte[] targetAddress = new byte[32];
-      System.arraycopy(data, 0, targetAddress, 0, 32);
-      // we already have a restrict for token name length, no more than 32 bytes. don't need to check again
-      byte[] name = new byte[32];
-      System.arraycopy(data, 32, name, 0, 32);
-      int length = name.length;
-      while (length > 0 && name[length - 1] == 0) {
-        length--;
-      }
-      name = ByteArray.subArray(name, 0, length);
-
-      long assetBalance = this.getDeposit().
-          getAccount(convertToTronAddress(new DataWord(targetAddress).getLast20Bytes())).
-          getAssetMap().get(ByteArray.toStr(name));
-
-      return Pair.of(true, new DataWord(Longs.toByteArray(assetBalance)).getData());
-    }
-  }
+//  /**
+//   * Native function for check Asset balance basing on targetAddress and Asset name. <br/> <br/>
+//   *
+//   * Input data[]: <br/> address targetAddress, byte[] assetName <br/>
+//   *
+//   * Output: <br/> balance <br/>
+//   */
+//  public static class GetTransferAssetNative extends PrecompiledContract {
+//
+//    @Override
+//    public long getEnergyForData(byte[] data) {
+//      return 200;
+//    }
+//
+//    @Override
+//    public Pair<Boolean, byte[]> execute(byte[] data) {
+//
+//      if (data == null || data.length != DataWord.DATAWORD_UNIT_SIZE * 2) {
+//        return Pair.of(false, new DataWord(0).getData());
+//      }
+//
+//      byte[] targetAddress = new byte[32];
+//      System.arraycopy(data, 0, targetAddress, 0, 32);
+//      // we already have a restrict for token name length, no more than 32 bytes. don't need to check again
+//      byte[] name = new byte[32];
+//      System.arraycopy(data, 32, name, 0, 32);
+//      int length = name.length;
+//      while (length > 0 && name[length - 1] == 0) {
+//        length--;
+//      }
+//      name = ByteArray.subArray(name, 0, length);
+//
+//      long assetBalance = this.getDeposit().
+//          getAccount(convertToTronAddress(new DataWord(targetAddress).getLast20Bytes())).
+//          getAssetMap().get(ByteArray.toStr(name));
+//
+//      return Pair.of(true, new DataWord(Longs.toByteArray(assetBalance)).getData());
+//    }
+//  }
 }

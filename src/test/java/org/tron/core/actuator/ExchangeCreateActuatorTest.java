@@ -151,11 +151,6 @@ public class ExchangeCreateActuatorTest {
                 .build());
     assetIssueCapsule2.setId(String.valueOf(2L));
 
-    dbManager.getAssetIssueStore()
-        .put(assetIssueCapsule1.getName().toByteArray(), assetIssueCapsule1);
-    dbManager.getAssetIssueStore()
-        .put(assetIssueCapsule2.getName().toByteArray(), assetIssueCapsule2);
-
     byte[] ownerAddress = ByteArray.fromHexString(OWNER_ADDRESS_FIRST);
     AccountCapsule accountCapsule = dbManager.getAccountStore().get(ownerAddress);
     accountCapsule.addAssetAmountV2(firstTokenId.getBytes(), firstTokenBalance, dbManager);
@@ -174,9 +169,6 @@ public class ExchangeCreateActuatorTest {
       Assert.assertEquals(ret.getInstance().getRet(), code.SUCESS);
       long id = 1;
       Assert.assertEquals(dbManager.getDynamicPropertiesStore().getLatestExchangeNum(), id);
-
-      // V1,Data is no longer update
-      Assert.assertFalse(dbManager.getExchangeStore().has(ByteArray.fromLong(id)));
 
       // check V2 version
       ExchangeCapsule exchangeCapsuleV2 = dbManager.getExchangeV2Store()
@@ -225,8 +217,6 @@ public class ExchangeCreateActuatorTest {
                 .setName(ByteString.copyFrom(secondTokenId.getBytes()))
                 .build());
     assetIssueCapsule.setId(String.valueOf(1L));
-    dbManager.getAssetIssueStore()
-        .put(assetIssueCapsule.getName().toByteArray(), assetIssueCapsule);
 
     byte[] ownerAddress = ByteArray.fromHexString(OWNER_ADDRESS_FIRST);
     AccountCapsule accountCapsule = dbManager.getAccountStore().get(ownerAddress);
@@ -245,8 +235,6 @@ public class ExchangeCreateActuatorTest {
       Assert.assertEquals(ret.getInstance().getRet(), code.SUCESS);
       long id = 1;
       Assert.assertEquals(dbManager.getDynamicPropertiesStore().getLatestExchangeNum(), id);
-      // V1,Data is no longer update
-      Assert.assertFalse(dbManager.getExchangeStore().has(ByteArray.fromLong(id)));
       // check V2 version
       ExchangeCapsule exchangeCapsuleV2 = dbManager.getExchangeV2Store()
           .get(ByteArray.fromLong(id));
