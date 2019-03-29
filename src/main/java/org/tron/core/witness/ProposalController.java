@@ -136,10 +136,11 @@ public class ProposalController {
           manager.getDynamicPropertiesStore().saveCreateNewAccountBandwidthRate(entry.getValue());
           break;
         }
-        case (9): {
-          manager.getDynamicPropertiesStore().saveAllowCreationOfContracts(entry.getValue());
-          break;
-        }
+        // default to allow
+//        case (9): {
+//          manager.getDynamicPropertiesStore().saveAllowCreationOfContracts(entry.getValue());
+//          break;
+//        }
         case (10): {
           if (manager.getDynamicPropertiesStore().getRemoveThePowerOfTheGr() == 0) {
             manager.getDynamicPropertiesStore().saveRemoveThePowerOfTheGr(entry.getValue());
@@ -158,14 +159,16 @@ public class ProposalController {
           manager.getDynamicPropertiesStore().saveMaxCpuTimeOfOneTx(entry.getValue());
           break;
         }
-        case (14): {
-          manager.getDynamicPropertiesStore().saveAllowUpdateAccountName(entry.getValue());
-          break;
-        }
-        case (15): {
-          manager.getDynamicPropertiesStore().saveAllowSameTokenName(entry.getValue());
-          break;
-        }
+        // default to allow update account name
+//        case (14): {
+//          manager.getDynamicPropertiesStore().saveAllowUpdateAccountName(entry.getValue());
+//          break;
+//        }
+        // default to allow same token
+//        case (15): {
+//          manager.getDynamicPropertiesStore().saveAllowSameTokenName(entry.getValue());
+//          break;
+//        }
         case (16): {
           manager.getDynamicPropertiesStore().saveAllowDelegateResource(entry.getValue());
           break;

@@ -281,7 +281,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getWitnessPayPerBlock();
     } catch (IllegalArgumentException e) {
-      this.saveWitnessPayPerBlock(32000000L);
+      this.saveWitnessPayPerBlock(0); // side chain equals to 0 by default
     }
 
     try {
@@ -502,24 +502,6 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       String contractType = "7fff1fc0033e0000000000000000000000000000000000000000000000000000";
       byte[] bytes = ByteArray.fromHexString(contractType);
       this.saveActiveDefaultOperations(bytes);
-    }
-
-    try {
-      this.getAllowSameTokenName();
-    } catch (IllegalArgumentException e) {
-      this.saveAllowSameTokenName(Args.getInstance().getAllowSameTokenName());
-    }
-
-    try {
-      this.getAllowUpdateAccountName();
-    } catch (IllegalArgumentException e) {
-      this.saveAllowUpdateAccountName(0);
-    }
-
-    try {
-      this.getAllowCreationOfContracts();
-    } catch (IllegalArgumentException e) {
-      this.saveAllowCreationOfContracts(Args.getInstance().getAllowCreationOfContracts());
     }
 
     try {
@@ -1282,37 +1264,6 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     return getAllowDelegateResource() == 1L;
   }
 
-  public void saveAllowUpdateAccountName(long rate) {
-    this.put(ALLOW_UPDATE_ACCOUNT_NAME,
-        new BytesCapsule(ByteArray.fromLong(rate)));
-  }
-
-  public long getAllowUpdateAccountName() {
-    return Optional.ofNullable(getUnchecked(ALLOW_UPDATE_ACCOUNT_NAME))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toLong)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found ALLOW_UPDATE_ACCOUNT_NAME"));
-  }
-
-  public void saveAllowSameTokenName(long rate) {
-    this.put(ALLOW_SAME_TOKEN_NAME,
-        new BytesCapsule(ByteArray.fromLong(rate)));
-  }
-
-  public long getAllowSameTokenName() {
-    return Optional.ofNullable(getUnchecked(ALLOW_SAME_TOKEN_NAME))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toLong)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found ALLOW_SAME_TOKEN_NAME"));
-  }
-
-  public void saveAllowCreationOfContracts(long allowCreationOfContracts) {
-    this.put(ALLOW_CREATION_OF_CONTRACTS,
-        new BytesCapsule(ByteArray.fromLong(allowCreationOfContracts)));
-  }
-
   public void saveTotalSignNum(int num) {
     this.put(DynamicPropertiesStore.TOTAL_SIGN_NUM,
         new BytesCapsule(ByteArray.fromInt(num)));
@@ -1337,18 +1288,6 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         .map(ByteArray::toLong)
         .orElseThrow(
             () -> new IllegalArgumentException("not found ALLOW_MULTI_SIGN"));
-  }
-
-  public long getAllowCreationOfContracts() {
-    return Optional.ofNullable(getUnchecked(ALLOW_CREATION_OF_CONTRACTS))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toLong)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found ALLOW_CREATION_OF_CONTRACTS"));
-  }
-
-  public boolean supportVM() {
-    return getAllowCreationOfContracts() == 1L;
   }
 
   public void saveBlockFilledSlots(int[] blockFilledSlots) {

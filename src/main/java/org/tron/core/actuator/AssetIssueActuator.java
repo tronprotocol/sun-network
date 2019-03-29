@@ -67,16 +67,10 @@ public class AssetIssueActuator extends AbstractActuator {
       assetIssueCapsuleV2.setId(Long.toString(tokenIdNum));
       dbManager.getDynamicPropertiesStore().saveTokenIdNum(tokenIdNum);
 
-      if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-        assetIssueCapsuleV2.setPrecision(0);
-        dbManager.getAssetIssueStore()
-            .put(assetIssueCapsule.createDbKey(), assetIssueCapsule);
-        dbManager.getAssetIssueV2Store()
-            .put(assetIssueCapsuleV2.createDbV2Key(), assetIssueCapsuleV2);
-      } else {
-        dbManager.getAssetIssueV2Store()
-            .put(assetIssueCapsuleV2.createDbV2Key(), assetIssueCapsuleV2);
-      }
+
+      dbManager.getAssetIssueV2Store()
+          .put(assetIssueCapsuleV2.createDbV2Key(), assetIssueCapsuleV2);
+
 
       dbManager.adjustBalance(ownerAddress, -fee);
       dbManager.adjustBalance(dbManager.getAccountStore().getBlackhole().getAddress().toByteArray(),
@@ -100,9 +94,6 @@ public class AssetIssueActuator extends AbstractActuator {
         remainSupply -= next.getFrozenAmount();
       }
 
-      if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-        accountCapsule.addAsset(assetIssueCapsule.createDbKey(), remainSupply);
-      }
       accountCapsule.setAssetIssuedName(assetIssueCapsule.createDbKey());
       accountCapsule.setAssetIssuedID(assetIssueCapsule.createDbV2Key());
       accountCapsule.addAssetV2(assetIssueCapsuleV2.createDbV2Key(), remainSupply);
@@ -161,15 +152,14 @@ public class AssetIssueActuator extends AbstractActuator {
       throw new ContractValidateException("Invalid assetName");
     }
 
-    if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() != 0) {
-      String name = assetIssueContract.getName().toStringUtf8().toLowerCase();
-      if (name.equals("trx")) {
-        throw new ContractValidateException("assetName can't be trx");
-      }
+    String name = assetIssueContract.getName().toStringUtf8().toLowerCase();
+    if (name.equals("trx")) {
+      throw new ContractValidateException("assetName can't be trx");
     }
 
+
     int precision = assetIssueContract.getPrecision();
-    if (precision != 0 && dbManager.getDynamicPropertiesStore().getAllowSameTokenName() != 0) {
+    if (precision != 0) {
       if (precision < 0 || precision > 6) {
         throw new ContractValidateException("precision cannot exceed 6");
       }
@@ -202,11 +192,6 @@ public class AssetIssueActuator extends AbstractActuator {
       throw new ContractValidateException("Start time should be greater than HeadBlockTime");
     }
 
-    if (this.dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 0
-        && this.dbManager.getAssetIssueStore().get(assetIssueContract.getName().toByteArray())
-        != null) {
-      throw new ContractValidateException("Token exists");
-    }
 
     if (assetIssueContract.getTotalSupply() <= 0) {
       throw new ContractValidateException("TotalSupply must greater than 0!");

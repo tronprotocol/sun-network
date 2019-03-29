@@ -139,34 +139,22 @@ public class StoreAPITest {
     assetIssue1 =
         getBuildAssetIssueContract(
             ASSETISSUE_NAME_ONE, ACCOUNT_ADDRESS_ONE, ASSETISSUE_START_ONE, ASSETISSUE_END_ONE);
-    addAssetIssueToStore(assetIssue1);
     assetIssue2 =
         getBuildAssetIssueContract(
             ASSETISSUE_NAME_TWO, ACCOUNT_ADDRESS_TWO, ASSETISSUE_START_TWO, ASSETISSUE_END_TWO);
-    addAssetIssueToStore(assetIssue2);
     assetIssue3 =
         getBuildAssetIssueContract(
             ASSETISSUE_NAME_THREE,
             ACCOUNT_ADDRESS_THREE,
             ASSETISSUE_START_THREE,
             ASSETISSUE_END_THREE);
-    addAssetIssueToStore(assetIssue3);
     assetIssue4 =
         getBuildAssetIssueContract(
             ASSETISSUE_NAME_FOUR, ACCOUNT_ADDRESS_ONE, ASSETISSUE_START_FOUR, ASSETISSUE_END_FOUR);
-    addAssetIssueToStore(assetIssue4);
-    dbManager.getAssetIssueStore().delete(ASSETISSUE_NAME_FOUR.getBytes());
-    dbManager.getAssetIssueStore().delete(ASSETISSUE_NAME_THREE.getBytes());
 
 
   }
 
-  private static void addAssetIssueToStore(AssetIssueContract assetIssueContract) {
-    AssetIssueCapsule assetIssueCapsule = new AssetIssueCapsule(assetIssueContract);
-    dbManager
-        .getAssetIssueStore()
-        .put(assetIssueCapsule.createDbKey(), assetIssueCapsule);
-  }
 
   private static void addAssetIssueToStoreV2(AssetIssueContract assetIssueContract, byte[] id) {
     AssetIssueCapsule assetIssueCapsule = new AssetIssueCapsule(assetIssueContract);
@@ -342,19 +330,6 @@ public class StoreAPITest {
     addAssetIssueToStoreV2(assetIssue1, id);
     AssetIssueCapsule assetIssueCapsule = dbManager.getAssetIssueV2Store().get(id);
     Assert.assertEquals(true, assetIssueCapsule.getName().equals(assetIssue1.getName()));
-  }
-
-  @Test
-  public void UpdateAssetV2() {
-    long tokenIdNum = dbManager.getDynamicPropertiesStore().getTokenIdNum();
-
-    for (AssetIssueCapsule assetIssueCapsule : dbManager.getAssetIssueStore().getAllAssetIssues()) {
-      dbManager.getAssetIssueV2Store().put(ByteArray.fromLong(tokenIdNum), assetIssueCapsule);
-      assetIssueCapsule.setId(String.valueOf(tokenIdNum));
-      tokenIdNum++;
-    }
-    Assert.assertEquals(2, dbManager.getAssetIssueV2Store().getAllAssetIssues().size());
-
   }
 
   @Test

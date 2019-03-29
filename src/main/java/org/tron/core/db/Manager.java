@@ -76,7 +76,6 @@ import org.tron.core.config.Parameter.ChainConstant;
 import org.tron.core.config.args.Args;
 import org.tron.core.config.args.GenesisBlock;
 import org.tron.core.db.KhaosDatabase.KhaosBlock;
-import org.tron.core.db.api.AssetUpdateHelper;
 import org.tron.core.db2.core.ISession;
 import org.tron.core.db2.core.ITronChainBase;
 import org.tron.core.db2.core.SnapshotManager;
@@ -271,31 +270,16 @@ public class Manager {
     return this.proposalStore;
   }
 
-  public ExchangeStore getExchangeStore() {
-    return this.exchangeStore;
-  }
-
   public ExchangeV2Store getExchangeV2Store() {
     return this.exchangeV2Store;
   }
 
   public ExchangeStore getExchangeStoreFinal() {
-    if (getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      return getExchangeStore();
-    } else {
       return getExchangeV2Store();
-    }
   }
 
   public void putExchangeCapsule(ExchangeCapsule exchangeCapsule) {
-    if (getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      getExchangeStore().put(exchangeCapsule.createDbKey(), exchangeCapsule);
-      ExchangeCapsule exchangeCapsuleV2 = new ExchangeCapsule(exchangeCapsule.getData());
-      exchangeCapsuleV2.resetTokenWithID(this);
-      getExchangeV2Store().put(exchangeCapsuleV2.createDbKey(), exchangeCapsuleV2);
-    } else {
       getExchangeV2Store().put(exchangeCapsule.createDbKey(), exchangeCapsule);
-    }
   }
 
   public List<TransactionCapsule> getPendingTransactions() {
@@ -456,9 +440,6 @@ public class Manager {
     }
     forkController.init(this);
 
-    if (Args.getInstance().isNeedToUpdateAsset() && needToUpdateAsset()) {
-      new AssetUpdateHelper(this).doWork();
-    }
     initCacheTxs();
     revokingStore.enable();
     validateSignService = Executors
@@ -509,6 +490,7 @@ public class Manager {
             this.genesisBlock.getBlockId().getByteString());
         this.dynamicPropertiesStore.saveLatestBlockHeaderTimestamp(
             this.genesisBlock.getTimeStamp());
+        this.dynamicPropertiesStore.saveTokenIdNum(2000000L);
         this.initAccount();
         this.initWitness();
         this.witnessController.initWits();
@@ -1227,7 +1209,7 @@ public class Manager {
     }
 
     trace.finalization();
-    if (Objects.nonNull(blockCap) && getDynamicPropertiesStore().supportVM()) {
+    if (Objects.nonNull(blockCap)) {
       trxCap.setResult(trace.getRuntime());
     }
     transactionStore.put(trxCap.getTransactionId().getBytes(), trxCap);
@@ -1663,20 +1645,13 @@ public class Manager {
     return getDynamicPropertiesStore().getMaintenanceSkipSlots();
   }
 
-  public AssetIssueStore getAssetIssueStore() {
-    return assetIssueStore;
-  }
 
   public AssetIssueV2Store getAssetIssueV2Store() {
     return assetIssueV2Store;
   }
 
   public AssetIssueStore getAssetIssueStoreFinal() {
-    if (getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      return getAssetIssueStore();
-    } else {
-      return getAssetIssueV2Store();
-    }
+    return getAssetIssueV2Store();
   }
 
   public void setAssetIssueStore(AssetIssueStore assetIssueStore) {

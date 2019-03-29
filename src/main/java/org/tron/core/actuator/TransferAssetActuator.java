@@ -147,11 +147,9 @@ public class TransferAssetActuator extends AbstractActuator {
     }
 
     Map<String, Long> asset;
-    if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      asset = ownerAccount.getAssetMap();
-    } else {
-      asset = ownerAccount.getAssetMapV2();
-    }
+
+    asset = ownerAccount.getAssetMapV2();
+
     if (asset.isEmpty()) {
       throw new ContractValidateException("Owner no asset!");
     }
@@ -166,11 +164,7 @@ public class TransferAssetActuator extends AbstractActuator {
 
     AccountCapsule toAccount = this.dbManager.getAccountStore().get(toAddress);
     if (toAccount != null) {
-      if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-        assetBalance = toAccount.getAssetMap().get(ByteArray.toStr(assetName));
-      } else {
-        assetBalance = toAccount.getAssetMapV2().get(ByteArray.toStr(assetName));
-      }
+      assetBalance = toAccount.getAssetMapV2().get(ByteArray.toStr(assetName));
       if (assetBalance != null) {
         try {
           assetBalance = Math.addExact(assetBalance, amount); //check if overflow
@@ -229,11 +223,8 @@ public class TransferAssetActuator extends AbstractActuator {
     }
 
     Map<String, Long> asset;
-    if (deposit.getDbManager().getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      asset = ownerAccount.getAssetMap();
-    } else {
-      asset = ownerAccount.getAssetMapV2();
-    }
+    asset = ownerAccount.getAssetMapV2();
+
     if (asset.isEmpty()) {
       throw new ContractValidateException("Owner no asset!");
     }
@@ -248,11 +239,8 @@ public class TransferAssetActuator extends AbstractActuator {
 
     AccountCapsule toAccount = deposit.getAccount(toAddress);
     if (toAccount != null) {
-      if (deposit.getDbManager().getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-        assetBalance = toAccount.getAssetMap().get(ByteArray.toStr(tokenIdWithoutLeadingZero));
-      } else {
-        assetBalance = toAccount.getAssetMapV2().get(ByteArray.toStr(tokenIdWithoutLeadingZero));
-      }
+      assetBalance = toAccount.getAssetMapV2().get(ByteArray.toStr(tokenIdWithoutLeadingZero));
+
       if (assetBalance != null) {
         try {
           assetBalance = Math.addExact(assetBalance, amount); //check if overflow

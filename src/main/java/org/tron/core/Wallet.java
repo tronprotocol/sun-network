@@ -457,9 +457,9 @@ public class Wallet {
       } else {
         dbManager.getTransactionIdCache().put(trx.getTransactionId(), true);
       }
-      if (dbManager.getDynamicPropertiesStore().supportVM()) {
-        trx.resetResult();
-      }
+
+      trx.resetResult();
+
       dbManager.pushTransaction(trx);
       tronNetService.broadcast(message);
       logger.info("Broadcast transaction {} successfully.", trx.getTransactionId());
@@ -794,11 +794,11 @@ public class Wallet {
             .setValue(dbManager.getDynamicPropertiesStore().getCreateNewAccountBandwidthRate())
             .build());
     //    ALLOW_CREATION_OF_CONTRACTS, // 0 / >0 ,9
-    builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
-            .setKey("getAllowCreationOfContracts")
-            .setValue(dbManager.getDynamicPropertiesStore().getAllowCreationOfContracts())
-            .build());
+//    builder.addChainParameter(
+//        Protocol.ChainParameters.ChainParameter.newBuilder()
+//            .setKey("getAllowCreationOfContracts")
+//            .setValue(dbManager.getDynamicPropertiesStore().getAllowCreationOfContracts())
+//            .build());
     //    REMOVE_THE_POWER_OF_THE_GR,  // 1 ,10
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
@@ -824,17 +824,17 @@ public class Wallet {
             .setValue(dbManager.getDynamicPropertiesStore().getMaxCpuTimeOfOneTx())
             .build());
     //    ALLOW_UPDATE_ACCOUNT_NAME, // 1, 14
-    builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
-            .setKey("getAllowUpdateAccountName")
-            .setValue(dbManager.getDynamicPropertiesStore().getAllowUpdateAccountName())
-            .build());
+//    builder.addChainParameter(
+//        Protocol.ChainParameters.ChainParameter.newBuilder()
+//            .setKey("getAllowUpdateAccountName")
+//            .setValue(dbManager.getDynamicPropertiesStore().getAllowUpdateAccountName())
+//            .build());
     //    ALLOW_SAME_TOKEN_NAME, // 1, 15
-    builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
-            .setKey("getAllowSameTokenName")
-            .setValue(dbManager.getDynamicPropertiesStore().getAllowSameTokenName())
-            .build());
+//    builder.addChainParameter(
+//        Protocol.ChainParameters.ChainParameter.newBuilder()
+//            .setKey("getAllowSameTokenName")
+//            .setValue(dbManager.getDynamicPropertiesStore().getAllowSameTokenName())
+//            .build());
     //    ALLOW_DELEGATE_RESOURCE, // 0, 16
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
@@ -963,21 +963,14 @@ public class Wallet {
 
     Map<String, Long> assetNetLimitMap = new HashMap<>();
     Map<String, Long> allFreeAssetNetUsage;
-    if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      allFreeAssetNetUsage = accountCapsule.getAllFreeAssetNetUsage();
-      allFreeAssetNetUsage.keySet().forEach(asset -> {
-        byte[] key = ByteArray.fromString(asset);
-        assetNetLimitMap
-            .put(asset, dbManager.getAssetIssueStore().get(key).getFreeAssetNetLimit());
-      });
-    } else {
-      allFreeAssetNetUsage = accountCapsule.getAllFreeAssetNetUsageV2();
-      allFreeAssetNetUsage.keySet().forEach(asset -> {
-        byte[] key = ByteArray.fromString(asset);
-        assetNetLimitMap
-            .put(asset, dbManager.getAssetIssueV2Store().get(key).getFreeAssetNetLimit());
-      });
-    }
+
+    allFreeAssetNetUsage = accountCapsule.getAllFreeAssetNetUsageV2();
+    allFreeAssetNetUsage.keySet().forEach(asset -> {
+      byte[] key = ByteArray.fromString(asset);
+      assetNetLimitMap
+          .put(asset, dbManager.getAssetIssueV2Store().get(key).getFreeAssetNetLimit());
+    });
+
 
     builder.setFreeNetUsed(accountCapsule.getFreeNetUsage())
         .setFreeNetLimit(freeNetLimit)
@@ -1021,21 +1014,14 @@ public class Wallet {
 
     Map<String, Long> assetNetLimitMap = new HashMap<>();
     Map<String, Long> allFreeAssetNetUsage;
-    if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      allFreeAssetNetUsage = accountCapsule.getAllFreeAssetNetUsage();
-      allFreeAssetNetUsage.keySet().forEach(asset -> {
-        byte[] key = ByteArray.fromString(asset);
-        assetNetLimitMap
-            .put(asset, dbManager.getAssetIssueStore().get(key).getFreeAssetNetLimit());
-      });
-    } else {
-      allFreeAssetNetUsage = accountCapsule.getAllFreeAssetNetUsageV2();
-      allFreeAssetNetUsage.keySet().forEach(asset -> {
-        byte[] key = ByteArray.fromString(asset);
-        assetNetLimitMap
-            .put(asset, dbManager.getAssetIssueV2Store().get(key).getFreeAssetNetLimit());
-      });
-    }
+
+    allFreeAssetNetUsage = accountCapsule.getAllFreeAssetNetUsageV2();
+    allFreeAssetNetUsage.keySet().forEach(asset -> {
+      byte[] key = ByteArray.fromString(asset);
+      assetNetLimitMap
+          .put(asset, dbManager.getAssetIssueV2Store().get(key).getFreeAssetNetLimit());
+    });
+
 
     builder.setFreeNetUsed(accountCapsule.getFreeNetUsage())
         .setFreeNetLimit(freeNetLimit)
@@ -1060,53 +1046,46 @@ public class Wallet {
       return null;
     }
 
-    if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      // fetch from old DB, same as old logic ops
-      AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueStore().get(assetName.toByteArray());
-      return assetIssueCapsule != null ? assetIssueCapsule.getInstance() : null;
+    // get asset issue by name from new DB
+    List<AssetIssueCapsule> assetIssueCapsuleList =
+        dbManager.getAssetIssueV2Store().getAllAssetIssues();
+    AssetIssueList.Builder builder = AssetIssueList.newBuilder();
+    assetIssueCapsuleList
+        .stream()
+        .filter(assetIssueCapsule -> assetIssueCapsule.getName().equals(assetName))
+        .forEach(
+            issueCapsule -> {
+              builder.addAssetIssue(issueCapsule.getInstance());
+            });
+
+    // check count
+    if (builder.getAssetIssueCount() > 1) {
+      throw new NonUniqueObjectException("get more than one asset, please use getassetissuebyid");
     } else {
-      // get asset issue by name from new DB
-      List<AssetIssueCapsule> assetIssueCapsuleList =
-          dbManager.getAssetIssueV2Store().getAllAssetIssues();
-      AssetIssueList.Builder builder = AssetIssueList.newBuilder();
-      assetIssueCapsuleList
-          .stream()
-          .filter(assetIssueCapsule -> assetIssueCapsule.getName().equals(assetName))
-          .forEach(
-              issueCapsule -> {
-                builder.addAssetIssue(issueCapsule.getInstance());
-              });
+      // fetch from DB by assetName as id
+      AssetIssueCapsule assetIssueCapsule =
+          dbManager.getAssetIssueV2Store().get(assetName.toByteArray());
 
-      // check count
-      if (builder.getAssetIssueCount() > 1) {
-        throw new NonUniqueObjectException("get more than one asset, please use getassetissuebyid");
-      } else {
-        // fetch from DB by assetName as id
-        AssetIssueCapsule assetIssueCapsule =
-            dbManager.getAssetIssueV2Store().get(assetName.toByteArray());
+      if (assetIssueCapsule != null) {
+        // check already fetch
+        if (builder.getAssetIssueCount() > 0
+            && builder.getAssetIssue(0).getId().equals(assetIssueCapsule.getInstance().getId())) {
+          return assetIssueCapsule.getInstance();
+        }
 
-        if (assetIssueCapsule != null) {
-          // check already fetch
-          if (builder.getAssetIssueCount() > 0
-              && builder.getAssetIssue(0).getId().equals(assetIssueCapsule.getInstance().getId())) {
-            return assetIssueCapsule.getInstance();
-          }
-
-          builder.addAssetIssue(assetIssueCapsule.getInstance());
-          // check count
-          if (builder.getAssetIssueCount() > 1) {
-            throw new NonUniqueObjectException(
-                "get more than one asset, please use getassetissuebyid");
-          }
+        builder.addAssetIssue(assetIssueCapsule.getInstance());
+        // check count
+        if (builder.getAssetIssueCount() > 1) {
+          throw new NonUniqueObjectException(
+              "get more than one asset, please use getassetissuebyid");
         }
       }
+    }
 
-      if (builder.getAssetIssueCount() > 0) {
-        return builder.getAssetIssue(0);
-      } else {
-        return null;
-      }
+    if (builder.getAssetIssueCount() > 0) {
+      return builder.getAssetIssue(0);
+    } else {
+      return null;
     }
   }
 

@@ -82,7 +82,7 @@ public class ExchangeCapsuleTest {
             "abc".getBytes(),
             "def".getBytes());
 
-    dbManager.getExchangeStore().put(exchangeCapsulee.createDbKey(), exchangeCapsulee);
+    dbManager.getExchangeV2Store().put(exchangeCapsulee.createDbKey(), exchangeCapsulee);
 
   }
 
@@ -95,7 +95,7 @@ public class ExchangeCapsuleTest {
 
     ExchangeCapsule exchangeCapsule;
     try {
-      exchangeCapsule = dbManager.getExchangeStore().get(key);
+      exchangeCapsule = dbManager.getExchangeV2Store().get(key);
       exchangeCapsule.setBalance(sellBalance, buyBalance);
 
       long sellQuant = 1_000_000L;

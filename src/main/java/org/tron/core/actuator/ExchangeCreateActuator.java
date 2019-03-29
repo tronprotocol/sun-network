@@ -57,29 +57,6 @@ public class ExchangeCreateActuator extends AbstractActuator {
 
       long id = dbManager.getDynamicPropertiesStore().getLatestExchangeNum() + 1;
       long now = dbManager.getHeadBlockTimeStamp();
-      if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-        //save to old asset store
-        ExchangeCapsule exchangeCapsule =
-            new ExchangeCapsule(
-                exchangeCreateContract.getOwnerAddress(),
-                id,
-                now,
-                firstTokenID,
-                secondTokenID
-            );
-        exchangeCapsule.setBalance(firstTokenBalance, secondTokenBalance);
-        dbManager.getExchangeStore().put(exchangeCapsule.createDbKey(), exchangeCapsule);
-
-        //save to new asset store
-        if (!Arrays.equals(firstTokenID, "_".getBytes())) {
-          String firstTokenRealID = dbManager.getAssetIssueStore().get(firstTokenID).getId();
-          firstTokenID = firstTokenRealID.getBytes();
-        }
-        if (!Arrays.equals(secondTokenID, "_".getBytes())) {
-          String secondTokenRealID = dbManager.getAssetIssueStore().get(secondTokenID).getId();
-          secondTokenID = secondTokenRealID.getBytes();
-        }
-      }
 
       {
         // only save to new asset store
@@ -156,14 +133,12 @@ public class ExchangeCreateActuator extends AbstractActuator {
     long firstTokenBalance = contract.getFirstTokenBalance();
     long secondTokenBalance = contract.getSecondTokenBalance();
 
-    if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 1) {
-      if (!Arrays.equals(firstTokenID, "_".getBytes()) && !TransactionUtil.isNumber(firstTokenID)) {
-        throw new ContractValidateException("first token id is not a valid number");
-      }
-      if (!Arrays.equals(secondTokenID, "_".getBytes()) && !TransactionUtil
-          .isNumber(secondTokenID)) {
-        throw new ContractValidateException("second token id is not a valid number");
-      }
+    if (!Arrays.equals(firstTokenID, "_".getBytes()) && !TransactionUtil.isNumber(firstTokenID)) {
+      throw new ContractValidateException("first token id is not a valid number");
+    }
+    if (!Arrays.equals(secondTokenID, "_".getBytes()) && !TransactionUtil
+        .isNumber(secondTokenID)) {
+      throw new ContractValidateException("second token id is not a valid number");
     }
 
     if (Arrays.equals(firstTokenID, secondTokenID)) {
