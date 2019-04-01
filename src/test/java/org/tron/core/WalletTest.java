@@ -33,16 +33,13 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.GrpcAPI.BlockList;
-import org.tron.api.GrpcAPI.ExchangeList;
 import org.tron.api.GrpcAPI.ProposalList;
 import org.tron.common.application.TronApplicationContext;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.FileUtil;
 import org.tron.common.utils.Utils;
-import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.ExchangeCapsule;
 import org.tron.core.capsule.ProposalCapsule;
@@ -52,7 +49,6 @@ import org.tron.core.config.Parameter.ChainParameters;
 import org.tron.core.config.args.Args;
 import org.tron.core.db.DynamicPropertiesStore;
 import org.tron.core.db.Manager;
-import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Contract.TransferContract;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Block;
@@ -106,7 +102,6 @@ public class WalletTest {
   public static final long TRANSACTION_TIMESTAMP_THREE = DateTime.now().minusDays(2).getMillis();
   public static final long TRANSACTION_TIMESTAMP_FOUR = DateTime.now().minusDays(1).getMillis();
   public static final long TRANSACTION_TIMESTAMP_FIVE = DateTime.now().getMillis();
-  private static AssetIssueCapsule Asset1;
 
   static {
     Args.setParam(new String[]{"-d", dbPath}, Constant.TEST_CONF);
@@ -205,13 +200,6 @@ public class WalletTest {
         .build();
   }
 
-
-  private static void buildAssetIssue() {
-    AssetIssueContract.Builder builder = AssetIssueContract.newBuilder();
-    builder.setName(ByteString.copyFromUtf8("Asset1")).setId("Asset1");
-    Asset1 = new AssetIssueCapsule(builder.build());
-    manager.getAssetIssueV2Store().put(Asset1.createDbV2Key(), Asset1);
-  }
 
   private static void buildProposal() {
     Proposal.Builder builder = Proposal.newBuilder();
@@ -353,24 +341,6 @@ public class WalletTest {
     Assert.assertTrue("getBlockByLatestNum2", blockByLatestNum.getBlockList().contains(block4));
   }
 
-  @Test
-  public void getPaginatedAssetIssueList() {
-    buildAssetIssue();
-    AssetIssueList assetList1 = wallet.getAssetIssueList(0, 100);
-    Assert.assertTrue("get Asset1", assetList1.getAssetIssue(0).getName().equals(Asset1.getName()));
-    try {
-      assetList1.getAssetIssue(1);
-    } catch (Exception e) {
-      Assert.assertTrue("AssetIssueList1 size should be 1", true);
-    }
-
-    AssetIssueList assetList2 = wallet.getAssetIssueList(0, 0);
-    try {
-      assetList2.getAssetIssue(0);
-    } catch (Exception e) {
-      Assert.assertTrue("AssetIssueList2 size should be 0", true);
-    }
-  }
 
   @Test
   public void getPaginatedProposalList() {
@@ -403,16 +373,6 @@ public class WalletTest {
     proposalList = wallet.getPaginatedProposalList(0, 1000000000L);
     Assert.assertEquals(2, proposalList.getProposalsCount());
 
-  }
-
-  @Test
-  public void getPaginatedExchangeList() {
-    buildExchange();
-    ExchangeList exchangeList = wallet.getPaginatedExchangeList(0, 100);
-    Assert.assertEquals("Address1",
-        exchangeList.getExchangesList().get(0).getCreatorAddress().toStringUtf8());
-    Assert.assertEquals("Address2",
-        exchangeList.getExchangesList().get(1).getCreatorAddress().toStringUtf8());
   }
 
   //@Test

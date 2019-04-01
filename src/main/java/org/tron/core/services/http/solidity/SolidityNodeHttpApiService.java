@@ -9,17 +9,12 @@ import org.springframework.stereotype.Component;
 import org.tron.common.application.Service;
 import org.tron.core.config.args.Args;
 import org.tron.core.services.http.GetAccountServlet;
-import org.tron.core.services.http.GetAssetIssueByIdServlet;
-import org.tron.core.services.http.GetAssetIssueByNameServlet;
-import org.tron.core.services.http.GetAssetIssueListByNameServlet;
-import org.tron.core.services.http.GetAssetIssueListServlet;
 import org.tron.core.services.http.GetBlockByNumServlet;
 import org.tron.core.services.http.GetDelegatedResourceAccountIndexServlet;
 import org.tron.core.services.http.GetDelegatedResourceServlet;
 import org.tron.core.services.http.GetExchangeByIdServlet;
 import org.tron.core.services.http.GetNodeInfoServlet;
 import org.tron.core.services.http.GetNowBlockServlet;
-import org.tron.core.services.http.GetPaginatedAssetIssueListServlet;
 import org.tron.core.services.http.GetTransactionCountByBlockNumServlet;
 import org.tron.core.services.http.ListExchangesServlet;
 import org.tron.core.services.http.ListWitnessesServlet;
@@ -58,16 +53,6 @@ public class SolidityNodeHttpApiService implements Service {
   @Autowired
   private ListWitnessesServlet listWitnessesServlet;
   @Autowired
-  private GetAssetIssueListServlet getAssetIssueListServlet;
-  @Autowired
-  private GetPaginatedAssetIssueListServlet getPaginatedAssetIssueListServlet;
-  @Autowired
-  private GetAssetIssueByNameServlet getAssetIssueByNameServlet;
-  @Autowired
-  private GetAssetIssueByIdServlet getAssetIssueByIdServlet;
-  @Autowired
-  private GetAssetIssueListByNameServlet getAssetIssueListByNameServlet;
-  @Autowired
   private GetNowBlockServlet getNowBlockServlet;
   @Autowired
   private GetBlockByNumServlet getBlockByNumServlet;
@@ -97,16 +82,6 @@ public class SolidityNodeHttpApiService implements Service {
       // same as FullNode
       context.addServlet(new ServletHolder(getAccountServlet), "/walletsolidity/getaccount");
       context.addServlet(new ServletHolder(listWitnessesServlet), "/walletsolidity/listwitnesses");
-      context.addServlet(new ServletHolder(getAssetIssueListServlet),
-          "/walletsolidity/getassetissuelist");
-      context.addServlet(new ServletHolder(getPaginatedAssetIssueListServlet),
-          "/walletsolidity/getpaginatedassetissuelist");
-      context.addServlet(new ServletHolder(getAssetIssueByNameServlet),
-          "/walletsolidity/getassetissuebyname");
-      context.addServlet(new ServletHolder(getAssetIssueByIdServlet),
-          "/walletsolidity/getassetissuebyid");
-      context.addServlet(new ServletHolder(getAssetIssueListByNameServlet),
-          "/walletsolidity/getassetissuelistbyname");
       context.addServlet(new ServletHolder(getNowBlockServlet), "/walletsolidity/getnowblock");
       context.addServlet(new ServletHolder(getBlockByNumServlet), "/walletsolidity/getblockbynum");
       context.addServlet(new ServletHolder(getDelegatedResourceServlet),

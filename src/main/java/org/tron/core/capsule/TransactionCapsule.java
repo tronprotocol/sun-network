@@ -15,8 +15,6 @@
 
 package org.tron.core.capsule;
 
-import static org.tron.protos.Contract.AssetIssueContract;
-import static org.tron.protos.Contract.VoteAssetContract;
 import static org.tron.protos.Contract.VoteWitnessContract;
 import static org.tron.protos.Contract.WitnessCreateContract;
 import static org.tron.protos.Contract.WitnessUpdateContract;
@@ -62,22 +60,14 @@ import org.tron.protos.Contract.AccountCreateContract;
 import org.tron.protos.Contract.AccountPermissionUpdateContract;
 import org.tron.protos.Contract.AccountUpdateContract;
 import org.tron.protos.Contract.CreateSmartContract;
-import org.tron.protos.Contract.ExchangeCreateContract;
-import org.tron.protos.Contract.ExchangeInjectContract;
-import org.tron.protos.Contract.ExchangeTransactionContract;
-import org.tron.protos.Contract.ExchangeWithdrawContract;
 import org.tron.protos.Contract.FreezeBalanceContract;
-import org.tron.protos.Contract.ParticipateAssetIssueContract;
 import org.tron.protos.Contract.ProposalApproveContract;
 import org.tron.protos.Contract.ProposalCreateContract;
 import org.tron.protos.Contract.ProposalDeleteContract;
 import org.tron.protos.Contract.SetAccountIdContract;
-import org.tron.protos.Contract.TransferAssetContract;
 import org.tron.protos.Contract.TransferContract;
 import org.tron.protos.Contract.TriggerSmartContract;
-import org.tron.protos.Contract.UnfreezeAssetContract;
 import org.tron.protos.Contract.UnfreezeBalanceContract;
-import org.tron.protos.Contract.UpdateAssetContract;
 import org.tron.protos.Contract.UpdateEnergyLimitContract;
 import org.tron.protos.Contract.UpdateSettingContract;
 import org.tron.protos.Contract.WithdrawBalanceContract;
@@ -172,14 +162,6 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
     createTransaction(witnessUpdateContract, ContractType.WitnessUpdateContract);
   }
 
-  public TransactionCapsule(TransferAssetContract transferAssetContract) {
-    createTransaction(transferAssetContract, ContractType.TransferAssetContract);
-  }
-
-  public TransactionCapsule(ParticipateAssetIssueContract participateAssetIssueContract) {
-    createTransaction(participateAssetIssueContract, ContractType.ParticipateAssetIssueContract);
-  }
-
   public TransactionCapsule(raw rawData, List<ByteString> signatureList) {
     this.transaction = Transaction.newBuilder().setRawData(rawData).addAllSignature(signatureList)
         .build();
@@ -227,11 +209,6 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
 
   public long getTimestamp() {
     return transaction.getRawData().getTimestamp();
-  }
-
-  @Deprecated
-  public TransactionCapsule(AssetIssueContract assetIssueContract) {
-    createTransaction(assetIssueContract, ContractType.AssetIssueContract);
   }
 
   public TransactionCapsule(com.google.protobuf.Message message, ContractType contractType) {
@@ -369,26 +346,14 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
         case TransferContract:
           owner = contractParameter.unpack(TransferContract.class).getOwnerAddress();
           break;
-        case TransferAssetContract:
-          owner = contractParameter.unpack(TransferAssetContract.class).getOwnerAddress();
-          break;
-        case VoteAssetContract:
-          owner = contractParameter.unpack(VoteAssetContract.class).getOwnerAddress();
-          break;
         case VoteWitnessContract:
           owner = contractParameter.unpack(VoteWitnessContract.class).getOwnerAddress();
           break;
         case WitnessCreateContract:
           owner = contractParameter.unpack(WitnessCreateContract.class).getOwnerAddress();
           break;
-        case AssetIssueContract:
-          owner = contractParameter.unpack(AssetIssueContract.class).getOwnerAddress();
-          break;
         case WitnessUpdateContract:
           owner = contractParameter.unpack(WitnessUpdateContract.class).getOwnerAddress();
-          break;
-        case ParticipateAssetIssueContract:
-          owner = contractParameter.unpack(ParticipateAssetIssueContract.class).getOwnerAddress();
           break;
         case AccountUpdateContract:
           owner = contractParameter.unpack(AccountUpdateContract.class).getOwnerAddress();
@@ -399,9 +364,6 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
         case UnfreezeBalanceContract:
           owner = contractParameter.unpack(UnfreezeBalanceContract.class).getOwnerAddress();
           break;
-        case UnfreezeAssetContract:
-          owner = contractParameter.unpack(UnfreezeAssetContract.class).getOwnerAddress();
-          break;
         case WithdrawBalanceContract:
           owner = contractParameter.unpack(WithdrawBalanceContract.class).getOwnerAddress();
           break;
@@ -410,9 +372,6 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
           break;
         case TriggerSmartContract:
           owner = contractParameter.unpack(Contract.TriggerSmartContract.class).getOwnerAddress();
-          break;
-        case UpdateAssetContract:
-          owner = contractParameter.unpack(UpdateAssetContract.class).getOwnerAddress();
           break;
         case ProposalCreateContract:
           owner = contractParameter.unpack(ProposalCreateContract.class).getOwnerAddress();
@@ -443,18 +402,6 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
           owner = contractParameter.unpack(UpdateEnergyLimitContract.class)
               .getOwnerAddress();
           break;
-        case ExchangeCreateContract:
-          owner = contractParameter.unpack(ExchangeCreateContract.class).getOwnerAddress();
-          break;
-        case ExchangeInjectContract:
-          owner = contractParameter.unpack(ExchangeInjectContract.class).getOwnerAddress();
-          break;
-        case ExchangeWithdrawContract:
-          owner = contractParameter.unpack(ExchangeWithdrawContract.class).getOwnerAddress();
-          break;
-        case ExchangeTransactionContract:
-          owner = contractParameter.unpack(ExchangeTransactionContract.class).getOwnerAddress();
-          break;
         case AccountPermissionUpdateContract:
           owner = contractParameter.unpack(AccountPermissionUpdateContract.class).getOwnerAddress();
           break;
@@ -477,12 +424,6 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
       switch (contract.getType()) {
         case TransferContract:
           to = contractParameter.unpack(TransferContract.class).getToAddress();
-          break;
-        case TransferAssetContract:
-          to = contractParameter.unpack(TransferAssetContract.class).getToAddress();
-          break;
-        case ParticipateAssetIssueContract:
-          to = contractParameter.unpack(ParticipateAssetIssueContract.class).getToAddress();
           break;
         // todo add other contract
 
@@ -675,18 +616,6 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
             transferContract = contract.getParameter()
                 .unpack(TransferContract.class);
             toStringBuff.append("transfer amount=").append(transferContract.getAmount())
-                .append("\n");
-          } catch (InvalidProtocolBufferException e) {
-            e.printStackTrace();
-          }
-        } else if (contract.getType().equals(ContractType.TransferAssetContract)) {
-          TransferAssetContract transferAssetContract;
-          try {
-            transferAssetContract = contract.getParameter()
-                .unpack(TransferAssetContract.class);
-            toStringBuff.append("transfer asset=").append(transferAssetContract.getAssetName())
-                .append("\n");
-            toStringBuff.append("transfer amount=").append(transferAssetContract.getAmount())
                 .append("\n");
           } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();

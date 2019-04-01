@@ -166,10 +166,9 @@ public class ProgramResult {
 
   public InternalTransaction addInternalTransaction(byte[] parentHash, int deep,
       byte[] senderAddress, byte[] transferAddress, long value, byte[] data, String note,
-      long nonce, Map<String, Long> token) {
+      long nonce) {
     InternalTransaction transaction = new InternalTransaction(parentHash, deep,
-        size(internalTransactions), senderAddress, transferAddress, value, data, note, nonce,
-        token);
+        size(internalTransactions), senderAddress, transferAddress, value, data, note, nonce);
     getInternalTransactions().add(transaction);
     return transaction;
   }

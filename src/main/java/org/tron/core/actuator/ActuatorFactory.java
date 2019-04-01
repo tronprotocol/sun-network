@@ -45,8 +45,6 @@ public class ActuatorFactory {
         return new UpdateAccountActuator(contract.getParameter(), manager);
       case TransferContract:
         return new TransferActuator(contract.getParameter(), manager);
-      case TransferAssetContract:
-        return new TransferAssetActuator(contract.getParameter(), manager);
       case VoteAssetContract:
         break;
       case VoteWitnessContract:
@@ -55,22 +53,14 @@ public class ActuatorFactory {
         return new WitnessCreateActuator(contract.getParameter(), manager);
       case AccountCreateContract:
         return new CreateAccountActuator(contract.getParameter(), manager);
-      case AssetIssueContract:
-        return new AssetIssueActuator(contract.getParameter(), manager);
-      case UnfreezeAssetContract:
-        return new UnfreezeAssetActuator(contract.getParameter(), manager);
       case WitnessUpdateContract:
         return new WitnessUpdateActuator(contract.getParameter(), manager);
-      case ParticipateAssetIssueContract:
-        return new ParticipateAssetIssueActuator(contract.getParameter(), manager);
       case FreezeBalanceContract:
         return new FreezeBalanceActuator(contract.getParameter(), manager);
       case UnfreezeBalanceContract:
         return new UnfreezeBalanceActuator(contract.getParameter(), manager);
       case WithdrawBalanceContract:
         return new WithdrawBalanceActuator(contract.getParameter(), manager);
-      case UpdateAssetContract:
-        return new UpdateAssetActuator(contract.getParameter(), manager);
       case ProposalCreateContract:
         return new ProposalCreateActuator(contract.getParameter(), manager);
       case ProposalApproveContract:
@@ -89,14 +79,6 @@ public class ActuatorFactory {
         return new UpdateSettingContractActuator(contract.getParameter(), manager);
       case UpdateEnergyLimitContract:
         return new UpdateEnergyLimitContractActuator(contract.getParameter(), manager);
-      case ExchangeCreateContract:
-        return new ExchangeCreateActuator(contract.getParameter(), manager);
-      case ExchangeInjectContract:
-        return new ExchangeInjectActuator(contract.getParameter(), manager);
-      case ExchangeWithdrawContract:
-        return new ExchangeWithdrawActuator(contract.getParameter(), manager);
-      case ExchangeTransactionContract:
-        return new ExchangeTransactionActuator(contract.getParameter(), manager);
       case AccountPermissionUpdateContract:
         return new AccountPermissionUpdateActuator(contract.getParameter(), manager);
       default:

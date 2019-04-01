@@ -52,7 +52,7 @@ public class AccountStoreTest {
     accountStore = context.getBean(AccountStore.class);
     AccountCapsule accountCapsule = new AccountCapsule(ByteString.copyFrom(address),
         ByteString.copyFrom(accountName),
-        AccountType.forNumber(1));
+        AccountType.forNumber(0));
     accountStore.put(data, accountCapsule);
   }
 

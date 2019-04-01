@@ -12,7 +12,6 @@ import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.tron.api.DatabaseGrpc.DatabaseImplBase;
 import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
-import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.GrpcAPI.BlockExtention;
 import org.tron.api.GrpcAPI.BlockReference;
 import org.tron.api.GrpcAPI.BytesMessage;
@@ -35,7 +34,6 @@ import org.tron.core.Wallet;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.config.args.Args;
 import org.tron.core.services.RpcApiService;
-import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.DynamicProperties;
@@ -191,58 +189,6 @@ public class RpcApiServiceOnSolidity implements Service {
     }
 
     @Override
-    public void getAssetIssueById(BytesMessage request,
-        StreamObserver<AssetIssueContract> responseObserver) {
-      walletOnSolidity.futureGet(
-          () -> rpcApiService.getWalletSolidityApi().getAssetIssueById(request, responseObserver)
-      );
-    }
-
-    @Override
-    public void getAssetIssueByName(BytesMessage request,
-        StreamObserver<AssetIssueContract> responseObserver) {
-      walletOnSolidity.futureGet(
-          () -> rpcApiService.getWalletSolidityApi().getAssetIssueByName(request, responseObserver)
-      );
-    }
-
-    @Override
-    public void getAssetIssueList(EmptyMessage request,
-        StreamObserver<AssetIssueList> responseObserver) {
-      walletOnSolidity.futureGet(
-          () -> rpcApiService.getWalletSolidityApi().getAssetIssueList(request, responseObserver)
-      );
-    }
-
-    @Override
-    public void getAssetIssueListByName(BytesMessage request,
-        StreamObserver<AssetIssueList> responseObserver) {
-      walletOnSolidity.futureGet(
-          () -> rpcApiService.getWalletSolidityApi()
-              .getAssetIssueListByName(request, responseObserver)
-      );
-    }
-
-    @Override
-    public void getPaginatedAssetIssueList(PaginatedMessage request,
-        StreamObserver<AssetIssueList> responseObserver) {
-      walletOnSolidity.futureGet(
-          () -> rpcApiService.getWalletSolidityApi()
-              .getPaginatedAssetIssueList(request, responseObserver)
-      );
-    }
-
-    @Override
-    public void getExchangeById(BytesMessage request,
-        StreamObserver<Exchange> responseObserver) {
-      walletOnSolidity.futureGet(
-          () -> rpcApiService.getWalletSolidityApi().getExchangeById(
-              request, responseObserver
-          )
-      );
-    }
-
-    @Override
     public void getNowBlock(EmptyMessage request, StreamObserver<Block> responseObserver) {
       walletOnSolidity.futureGet(
           () -> rpcApiService.getWalletSolidityApi().getNowBlock(request, responseObserver)
@@ -316,14 +262,6 @@ public class RpcApiServiceOnSolidity implements Service {
               .getTransactionInfoById(request, responseObserver)
       );
 
-    }
-
-    @Override
-    public void listExchanges(EmptyMessage request,
-        StreamObserver<ExchangeList> responseObserver) {
-      walletOnSolidity.futureGet(
-          () -> rpcApiService.getWalletSolidityApi().listExchanges(request, responseObserver)
-      );
     }
 
     @Override

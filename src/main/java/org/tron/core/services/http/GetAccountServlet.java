@@ -27,17 +27,7 @@ public class GetAccountServlet extends HttpServlet {
   private Manager dbManager;
 
   private String convertOutput(Account account) {
-    // convert asset id
-    if (account.getAssetIssuedID().isEmpty()) {
-      return JsonFormat.printToString(account);
-    } else {
-      JSONObject accountJson = JSONObject.parseObject(JsonFormat.printToString(account));
-      String assetId = accountJson.get("asset_issued_ID").toString();
-      accountJson.put(
-          "asset_issued_ID", ByteString.copyFrom(ByteArray.fromHexString(assetId)).toStringUtf8());
-      return accountJson.toJSONString();
-    }
-
+    return JsonFormat.printToString(account);
   }
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {

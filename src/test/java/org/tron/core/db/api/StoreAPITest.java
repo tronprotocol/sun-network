@@ -15,7 +15,6 @@ import org.tron.common.application.TronApplicationContext;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.FileUtil;
 import org.tron.core.capsule.AccountCapsule;
-import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.capsule.WitnessCapsule;
@@ -23,7 +22,6 @@ import org.tron.core.config.DefaultConfig;
 import org.tron.core.config.args.Args;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.NonUniqueObjectException;
-import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Contract.TransferContract;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
@@ -94,10 +92,6 @@ public class StoreAPITest {
   public static Transaction transaction4;
   public static Transaction transaction5;
   public static Transaction transaction6;
-  public static AssetIssueContract assetIssue1;
-  public static AssetIssueContract assetIssue2;
-  public static AssetIssueContract assetIssue3;
-  public static AssetIssueContract assetIssue4;
   private static Manager dbManager;
   private static StoreAPI storeAPI;
   private static TronApplicationContext context;
@@ -118,7 +112,6 @@ public class StoreAPITest {
     initAccount();
     initTransaction();
     initWitness();
-    initAssetIssue();
     initBlock();
     storeAPI = context.getBean(StoreAPI.class);
   }
@@ -132,46 +125,8 @@ public class StoreAPITest {
     FileUtil.deleteDir(new File(dbPath));
   }
 
-  /**
-   * initAssetIssue.
-   */
-  private static void initAssetIssue() {
-    assetIssue1 =
-        getBuildAssetIssueContract(
-            ASSETISSUE_NAME_ONE, ACCOUNT_ADDRESS_ONE, ASSETISSUE_START_ONE, ASSETISSUE_END_ONE);
-    assetIssue2 =
-        getBuildAssetIssueContract(
-            ASSETISSUE_NAME_TWO, ACCOUNT_ADDRESS_TWO, ASSETISSUE_START_TWO, ASSETISSUE_END_TWO);
-    assetIssue3 =
-        getBuildAssetIssueContract(
-            ASSETISSUE_NAME_THREE,
-            ACCOUNT_ADDRESS_THREE,
-            ASSETISSUE_START_THREE,
-            ASSETISSUE_END_THREE);
-    assetIssue4 =
-        getBuildAssetIssueContract(
-            ASSETISSUE_NAME_FOUR, ACCOUNT_ADDRESS_ONE, ASSETISSUE_START_FOUR, ASSETISSUE_END_FOUR);
 
 
-  }
-
-
-  private static void addAssetIssueToStoreV2(AssetIssueContract assetIssueContract, byte[] id) {
-    AssetIssueCapsule assetIssueCapsule = new AssetIssueCapsule(assetIssueContract);
-    dbManager
-        .getAssetIssueV2Store()
-        .put(id, assetIssueCapsule);
-  }
-
-  private static AssetIssueContract getBuildAssetIssueContract(
-      String name, String address, long start, long end) {
-    return AssetIssueContract.newBuilder()
-        .setName(ByteString.copyFrom(name.getBytes()))
-        .setOwnerAddress(ByteString.copyFrom(ByteArray.fromHexString(address)))
-        .setStartTime(start)
-        .setEndTime(end)
-        .build();
-  }
 
   /**
    * initTransaction.
@@ -322,14 +277,6 @@ public class StoreAPITest {
         .setAddress(ByteString.copyFrom(ByteArray.fromHexString(address)))
         .setAccountName(ByteString.copyFrom(name.getBytes()))
         .build();
-  }
-
-  @Test
-  public void addAssetIssueToStoreV2() {
-    byte[] id = ByteArray.fromString("100000");
-    addAssetIssueToStoreV2(assetIssue1, id);
-    AssetIssueCapsule assetIssueCapsule = dbManager.getAssetIssueV2Store().get(id);
-    Assert.assertEquals(true, assetIssueCapsule.getName().equals(assetIssue1.getName()));
   }
 
   @Test
