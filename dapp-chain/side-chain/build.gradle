@@ -262,7 +262,7 @@ run {
 }
 
 shadowJar {
-    baseName = 'sun-network'
+    baseName = 'side-chain'
     classifier = null
     version = null
 }
