@@ -1,0 +1,43 @@
+pragma solidity ^0.4.23;
+
+import "./TRC721Basic.sol";
+
+
+/**
+ * @title TRC-721 Non-Fungible Token Standard, optional enumeration extension
+ * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
+ */
+contract TRC721Enumerable is TRC721Basic {
+    function totalSupply() public view returns (uint256);
+
+    function tokenOfOwnerByIndex(
+        address _owner,
+        uint256 _index
+    )
+    public
+    view
+    returns (uint256 _tokenId);
+
+    function tokenByIndex(uint256 _index) public view returns (uint256);
+}
+
+
+/**
+ * @title TRC-721 Non-Fungible Token Standard, optional metadata extension
+ * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
+ */
+contract TRC721Metadata is TRC721Basic {
+    function name() public view returns (string _name);
+
+    function symbol() public view returns (string _symbol);
+
+    function tokenURI(uint256 _tokenId) public view returns (string);
+}
+
+
+/**
+ * @title TRC-721 Non-Fungible Token Standard, full implementation interface
+ * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
+ */
+contract TRC721 is TRC721Basic, TRC721Enumerable, TRC721Metadata {
+}
