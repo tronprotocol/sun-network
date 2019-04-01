@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # IDEA
 .idea
 *iml
@@ -55,3 +56,6 @@ Wallet
 
 # vm_trace
 dapp-chain/side-chain/vm_trace/
+=======
+.idea
+>>>>>>> e075076... complete standardtrc20
