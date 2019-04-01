@@ -1,9 +1,9 @@
 pragma solidity ^0.4.24;
 
-import "./token/TRC721/TRC721.sol";
-import "./token/TRC20/TRC20.sol";
-import "./math/SafeMath.sol";
-import "./token/TRC721/TRC721Receiver.sol";
+import "../common/token/TRC721/TRC721.sol";
+import "../common/token/TRC20/TRC20.sol";
+import "../common/math/SafeMath.sol";
+import "../common/token/TRC721/TRC721Receiver.sol";
 import "./TRC20Receiver.sol";
 import "./ValidatorManagerContract.sol";
 
