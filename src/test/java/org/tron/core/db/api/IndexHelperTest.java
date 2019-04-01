@@ -18,7 +18,6 @@ import org.tron.common.application.TronApplicationContext;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.FileUtil;
 import org.tron.core.capsule.AccountCapsule;
-import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.capsule.WitnessCapsule;
@@ -27,7 +26,6 @@ import org.tron.core.config.args.Args;
 import org.tron.core.db.Manager;
 import org.tron.core.db.api.index.AccountIndex;
 import org.tron.core.db.api.index.Index;
-import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.BlockHeader;
@@ -87,12 +85,6 @@ public class IndexHelperTest {
     dbManager
         .getTransactionStore()
         .put(transactionCapsule.getTransactionId().getBytes(), transactionCapsule);
-    AssetIssueCapsule assetIssueCapsule =
-        new AssetIssueCapsule(
-            AssetIssueContract.newBuilder()
-                .setName(ByteString.copyFrom("assetIssueName".getBytes()))
-                .setNum(12581)
-                .build());
     indexHelper = context.getBean(IndexHelper.class);
   }
 
@@ -120,9 +112,6 @@ public class IndexHelperTest {
 
     int sizeOfTransaction = getIndexSizeOfTransaction();
     Assert.assertEquals("transaction index num", 1, sizeOfTransaction);
-
-    int sizeOfAssetIssue = getIndexSizeOfAssetIssue();
-    Assert.assertEquals("assetIssue index num", 1, sizeOfAssetIssue);
   }
 
   @Ignore
@@ -221,31 +210,6 @@ public class IndexHelperTest {
   private int getIndexSizeOfTransaction() {
     Index.Iface<Transaction> transactionIndex = indexHelper.getTransactionIndex();
     ImmutableList<Transaction> accountImmutableList = ImmutableList.copyOf(transactionIndex);
-    return accountImmutableList.size();
-  }
-
-  @Ignore
-  @Test
-  public void addAndRemoveAssetIssue() {
-    AssetIssueCapsule assetIssueCapsule =
-        new AssetIssueCapsule(
-            AssetIssueContract.newBuilder()
-                .setName(ByteString.copyFrom("assetIssueName".getBytes()))
-                .setNum(12581)
-                .build());
-    indexHelper.add(assetIssueCapsule.getInstance());
-    int size = getIndexSizeOfAssetIssue();
-    Assert.assertEquals("account index add", 1, size);
-    indexHelper.remove(assetIssueCapsule.getInstance());
-    size = getIndexSizeOfAssetIssue();
-    Assert.assertEquals("account index remove", 0, size);
-  }
-
-  private int getIndexSizeOfAssetIssue() {
-    Index.Iface<AssetIssueContract> assetIssueContractIndex =
-        indexHelper.getAssetIssueIndex();
-    ImmutableList<AssetIssueContract> accountImmutableList =
-        ImmutableList.copyOf(assetIssueContractIndex);
     return accountImmutableList.size();
   }
 

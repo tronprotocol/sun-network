@@ -8,17 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.tron.common.application.Service;
 import org.tron.core.config.args.Args;
 import org.tron.core.services.interfaceOnSolidity.http.GetAccountOnSolidityServlet;
-import org.tron.core.services.interfaceOnSolidity.http.GetAssetIssueByIdOnSolidityServlet;
-import org.tron.core.services.interfaceOnSolidity.http.GetAssetIssueByNameOnSolidityServlet;
-import org.tron.core.services.interfaceOnSolidity.http.GetAssetIssueListByNameOnSolidityServlet;
-import org.tron.core.services.interfaceOnSolidity.http.GetAssetIssueListOnSolidityServlet;
 import org.tron.core.services.interfaceOnSolidity.http.GetBlockByNumOnSolidityServlet;
 import org.tron.core.services.interfaceOnSolidity.http.GetDelegatedResourceAccountIndexOnSolidityServlet;
 import org.tron.core.services.interfaceOnSolidity.http.GetDelegatedResourceOnSolidityServlet;
 import org.tron.core.services.interfaceOnSolidity.http.GetExchangeByIdOnSolidityServlet;
 import org.tron.core.services.interfaceOnSolidity.http.GetNodeInfoOnSolidityServlet;
 import org.tron.core.services.interfaceOnSolidity.http.GetNowBlockOnSolidityServlet;
-import org.tron.core.services.interfaceOnSolidity.http.GetPaginatedAssetIssueListOnSolidityServlet;
 import org.tron.core.services.interfaceOnSolidity.http.GetTransactionCountByBlockNumOnSolidityServlet;
 import org.tron.core.services.interfaceOnSolidity.http.ListExchangesOnSolidityServlet;
 import org.tron.core.services.interfaceOnSolidity.http.ListWitnessesOnSolidityServlet;
@@ -42,10 +37,6 @@ public class HttpApiOnSolidityService implements Service {
   @Autowired
   private ListWitnessesOnSolidityServlet listWitnessesOnSolidityServlet;
   @Autowired
-  private GetAssetIssueListOnSolidityServlet getAssetIssueListOnSolidityServlet;
-  @Autowired
-  private GetPaginatedAssetIssueListOnSolidityServlet getPaginatedAssetIssueListOnSolidityServlet;
-  @Autowired
   private GetNowBlockOnSolidityServlet getNowBlockOnSolidityServlet;
   @Autowired
   private GetBlockByNumOnSolidityServlet getBlockByNumOnSolidityServlet;
@@ -63,12 +54,6 @@ public class HttpApiOnSolidityService implements Service {
   private ListExchangesOnSolidityServlet listExchangesOnSolidityServlet;
   @Autowired
   private GetTransactionCountByBlockNumOnSolidityServlet getTransactionCountByBlockNumOnSolidityServlet;
-  @Autowired
-  private GetAssetIssueByNameOnSolidityServlet getAssetIssueByNameOnSolidityServlet;
-  @Autowired
-  private GetAssetIssueByIdOnSolidityServlet getAssetIssueByIdOnSolidityServlet;
-  @Autowired
-  private GetAssetIssueListByNameOnSolidityServlet getAssetIssueListByNameOnSolidityServlet;
 
   @Override
   public void init() {
@@ -92,16 +77,6 @@ public class HttpApiOnSolidityService implements Service {
       context.addServlet(new ServletHolder(accountOnSolidityServlet), "/walletsolidity/getaccount");
       context.addServlet(new ServletHolder(listWitnessesOnSolidityServlet),
           "/walletsolidity/listwitnesses");
-      context.addServlet(new ServletHolder(getAssetIssueListOnSolidityServlet),
-          "/walletsolidity/getassetissuelist");
-      context.addServlet(new ServletHolder(getPaginatedAssetIssueListOnSolidityServlet),
-          "/walletsolidity/getpaginatedassetissuelist");
-      context.addServlet(new ServletHolder(getAssetIssueByNameOnSolidityServlet),
-          "/walletsolidity/getassetissuebyname");
-      context.addServlet(new ServletHolder(getAssetIssueByIdOnSolidityServlet),
-          "/walletsolidity/getassetissuebyid");
-      context.addServlet(new ServletHolder(getAssetIssueListByNameOnSolidityServlet),
-          "/walletsolidity/getassetissuelistbyname");
       context.addServlet(new ServletHolder(getNowBlockOnSolidityServlet),
           "/walletsolidity/getnowblock");
       context.addServlet(new ServletHolder(getBlockByNumOnSolidityServlet),

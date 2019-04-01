@@ -6,7 +6,6 @@ import static org.apache.commons.lang3.ArrayUtils.getLength;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.tron.common.runtime.utils.MUtil.convertToTronAddress;
 import static org.tron.common.runtime.utils.MUtil.transfer;
-import static org.tron.common.runtime.utils.MUtil.transferToken;
 
 import com.google.protobuf.ByteString;
 import java.math.BigInteger;
@@ -386,12 +385,6 @@ public class RuntimeImpl implements Runtime {
     newSmartContract = newSmartContract.toBuilder()
         .setContractAddress(ByteString.copyFrom(contractAddress)).build();
     long callValue = newSmartContract.getCallValue();
-    long tokenValue = 0;
-    long tokenId = 0;
-    if (VMConfig.allowTvmTransferTrc10()) {
-      tokenValue = contract.getCallTokenValue();
-      tokenId = contract.getTokenId();
-    }
     byte[] callerAddress = contract.getOwnerAddress().toByteArray();
     // create vm to constructor smart contract
     try {
@@ -411,9 +404,6 @@ public class RuntimeImpl implements Runtime {
         if (callValue < 0) {
           throw new ContractValidateException("callValue must >= 0");
         }
-        if (tokenValue < 0) {
-          throw new ContractValidateException("tokenValue must >= 0");
-        }
         if (newSmartContract.getOriginEnergyLimit() <= 0) {
           throw new ContractValidateException("The originEnergyLimit must be > 0");
         }
@@ -421,8 +411,6 @@ public class RuntimeImpl implements Runtime {
       } else {
         energyLimit = getAccountEnergyLimitWithFloatRatio(creator, feeLimit, callValue);
       }
-
-      checkTokenValueAndId(tokenValue, tokenId);
 
       byte[] ops = newSmartContract.getBytecode().toByteArray();
       rootInternalTransaction = new InternalTransaction(trx, trxType);
@@ -434,7 +422,7 @@ public class RuntimeImpl implements Runtime {
       long vmShouldEndInUs = vmStartInUs + thisTxCPULimitInUs;
       ProgramInvoke programInvoke = programInvokeFactory
           .createProgramInvoke(TrxType.TRX_CONTRACT_CREATION_TYPE, executorType, trx,
-              tokenValue, tokenId, blockCap.getInstance(), deposit, vmStartInUs,
+              blockCap.getInstance(), deposit, vmStartInUs,
               vmShouldEndInUs, energyLimit);
       this.vm = new VM(config);
       this.program = new Program(ops, programInvoke, rootInternalTransaction, config,
@@ -467,13 +455,6 @@ public class RuntimeImpl implements Runtime {
     if (callValue > 0) {
       transfer(this.deposit, callerAddress, contractAddress, callValue);
     }
-    if (VMConfig.allowTvmTransferTrc10()) {
-      if (tokenValue > 0) {
-        transferToken(this.deposit, callerAddress, contractAddress, String.valueOf(tokenId),
-            tokenValue);
-      }
-    }
-
   }
 
   /**
@@ -501,24 +482,14 @@ public class RuntimeImpl implements Runtime {
     }
 
     long callValue = contract.getCallValue();
-    long tokenValue = 0;
-    long tokenId = 0;
-    if (VMConfig.allowTvmTransferTrc10()) {
-      tokenValue = contract.getCallTokenValue();
-      tokenId = contract.getTokenId();
-    }
 
     if (VMConfig.getEnergyLimitHardFork()) {
       if (callValue < 0) {
         throw new ContractValidateException("callValue must >= 0");
       }
-      if (tokenValue < 0) {
-        throw new ContractValidateException("tokenValue must >= 0");
-      }
     }
 
     byte[] callerAddress = contract.getOwnerAddress().toByteArray();
-    checkTokenValueAndId(tokenValue, tokenId);
 
     byte[] code = this.deposit.getCode(contractAddress);
     if (isNotEmpty(code)) {
@@ -547,7 +518,7 @@ public class RuntimeImpl implements Runtime {
       long vmShouldEndInUs = vmStartInUs + thisTxCPULimitInUs;
       ProgramInvoke programInvoke = programInvokeFactory
           .createProgramInvoke(TrxType.TRX_CONTRACT_CALL_TYPE, executorType, trx,
-              tokenValue, tokenId, blockCap.getInstance(), deposit, vmStartInUs,
+              blockCap.getInstance(), deposit, vmStartInUs,
               vmShouldEndInUs, energyLimit);
       if (isStaticCall) {
         programInvoke.setStaticCall();
@@ -574,12 +545,6 @@ public class RuntimeImpl implements Runtime {
 
     if (callValue > 0) {
       transfer(this.deposit, callerAddress, contractAddress, callValue);
-    }
-    if (VMConfig.allowTvmTransferTrc10()) {
-      if (tokenValue > 0) {
-        transferToken(this.deposit, callerAddress, contractAddress, String.valueOf(tokenId),
-            tokenValue);
-      }
     }
 
   }
@@ -750,24 +715,6 @@ public class RuntimeImpl implements Runtime {
       VMUtils.saveProgramTraceFile(config, txHash, traceContent);
     }
 
-  }
-
-  public void checkTokenValueAndId(long tokenValue, long tokenId) throws ContractValidateException {
-    if (VMConfig.allowTvmTransferTrc10()) {
-      if (VMConfig.allowMultiSign()) { //allowMultiSigns
-        // tokenid can only be 0
-        // or (MIN_TOKEN_ID, Long.Max]
-        if (tokenId <= VMConstant.MIN_TOKEN_ID && tokenId != 0) {
-          throw new ContractValidateException("tokenId must > " + VMConstant.MIN_TOKEN_ID);
-        }
-        // tokenid can only be 0 when tokenvalue = 0,
-        // or (MIN_TOKEN_ID, Long.Max]
-        if (tokenValue > 0 && tokenId == 0) {
-          throw new ContractValidateException("invalid arguments with tokenValue = " + tokenValue +
-              ", tokenId = " + tokenId);
-        }
-      }
-    }
   }
 
   public ProgramResult getResult() {

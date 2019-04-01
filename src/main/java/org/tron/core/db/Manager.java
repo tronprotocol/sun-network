@@ -124,10 +124,6 @@ public class Manager {
   @Autowired
   private WitnessStore witnessStore;
   @Autowired
-  private AssetIssueStore assetIssueStore;
-  @Autowired
-  private AssetIssueV2Store assetIssueV2Store;
-  @Autowired
   private DynamicPropertiesStore dynamicPropertiesStore;
   @Autowired
   @Getter
@@ -1646,18 +1642,6 @@ public class Manager {
   }
 
 
-  public AssetIssueV2Store getAssetIssueV2Store() {
-    return assetIssueV2Store;
-  }
-
-  public AssetIssueStore getAssetIssueStoreFinal() {
-    return getAssetIssueV2Store();
-  }
-
-  public void setAssetIssueStore(AssetIssueStore assetIssueStore) {
-    this.assetIssueStore = assetIssueStore;
-  }
-
   public void setBlockIndexStore(BlockIndexStore indexStore) {
     this.blockIndexStore = indexStore;
   }
@@ -1687,7 +1671,6 @@ public class Manager {
     closeOneStore(accountIndexStore);
     closeOneStore(witnessStore);
     closeOneStore(witnessScheduleStore);
-    closeOneStore(assetIssueStore);
     closeOneStore(dynamicPropertiesStore);
     closeOneStore(transactionStore);
     closeOneStore(codeStore);
@@ -1701,7 +1684,6 @@ public class Manager {
     closeOneStore(votesStore);
     closeOneStore(delegatedResourceStore);
     closeOneStore(delegatedResourceAccountIndexStore);
-    closeOneStore(assetIssueV2Store);
     closeOneStore(exchangeV2Store);
     logger.info("******** end to close db ********");
   }

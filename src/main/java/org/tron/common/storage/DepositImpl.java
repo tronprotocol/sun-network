@@ -15,7 +15,6 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.capsule.AccountCapsule;
-import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.capsule.ContractCapsule;
@@ -322,25 +321,6 @@ public class DepositImpl implements Deposit {
     return storage;
   }
 
-  @Override
-  public synchronized AssetIssueCapsule getAssetIssue(byte[] tokenId) {
-    byte[] tokenIdWithoutLeadingZero = ByteUtil.stripLeadingZeroes(tokenId);
-    Key key = Key.create(tokenIdWithoutLeadingZero);
-    if (assetIssueCache.containsKey(key)) {
-      return assetIssueCache.get(key).getAssetIssue();
-    }
-
-    AssetIssueCapsule assetIssueCapsule;
-    if (this.parent != null) {
-      assetIssueCapsule = parent.getAssetIssue(tokenIdWithoutLeadingZero);
-    } else {
-      assetIssueCapsule = this.dbManager.getAssetIssueStoreFinal().get(tokenIdWithoutLeadingZero);
-    }
-    if (assetIssueCapsule != null) {
-      assetIssueCache.put(key, Value.create(assetIssueCapsule.getData()));
-    }
-    return assetIssueCapsule;
-  }
 
   @Override
   public synchronized void putStorageValue(byte[] address, DataWord key, DataWord value) {
@@ -383,38 +363,6 @@ public class DepositImpl implements Deposit {
   }
 
   @Override
-  public synchronized long addTokenBalance(byte[] address, byte[] tokenId, long value) {
-    byte[] tokenIdWithoutLeadingZero = ByteUtil.stripLeadingZeroes(tokenId);
-    AccountCapsule accountCapsule = getAccount(address);
-    if (accountCapsule == null) {
-      accountCapsule = createAccount(address, AccountType.Normal);
-    }
-    long balance = accountCapsule.getAssetMapV2()
-        .getOrDefault(new String(tokenIdWithoutLeadingZero), new Long(0));
-    if (value == 0) {
-      return balance;
-    }
-
-    if (value < 0 && balance < -value) {
-      throw new RuntimeException(
-          StringUtil.createReadableString(accountCapsule.createDbKey())
-              + " insufficient balance");
-    }
-    if (value >= 0) {
-      accountCapsule.addAssetAmountV2(tokenIdWithoutLeadingZero, value, this.dbManager);
-    } else {
-      accountCapsule.reduceAssetAmountV2(tokenIdWithoutLeadingZero, -value, this.dbManager);
-    }
-//    accountCapsule.getAssetMap().put(new String(tokenIdWithoutLeadingZero), Math.addExact(balance, value));
-    Key key = Key.create(address);
-    Value V = Value.create(accountCapsule.getData(),
-        Type.VALUE_TYPE_DIRTY | accountCache.get(key).getType().getType());
-    accountCache.put(key, V);
-//    accountCapsule.addAssetAmount(tokenIdWithoutLeadingZero, value);
-    return accountCapsule.getAssetMapV2().get(new String(tokenIdWithoutLeadingZero));
-  }
-
-  @Override
   public synchronized long addBalance(byte[] address, long value) {
     AccountCapsule accountCapsule = getAccount(address);
     if (accountCapsule == null) {
@@ -437,22 +385,6 @@ public class DepositImpl implements Deposit {
         Type.VALUE_TYPE_DIRTY | accountCache.get(key).getType().getType());
     accountCache.put(key, val);
     return accountCapsule.getBalance();
-  }
-
-  /**
-   * @param address address
-   * @param tokenId tokenIdstr in assetV2map is a string like "1000001". So before using this
-   * function, we need to do some conversion. usually we will use a DataWord as input. so the byte
-   * tokenId should be like DataWord.shortHexWithoutZeroX().getbytes().
-   */
-  @Override
-  public synchronized long getTokenBalance(byte[] address, byte[] tokenId) {
-    AccountCapsule accountCapsule = getAccount(address);
-    if (accountCapsule == null) {
-      return 0;
-    }
-    String tokenStr = new String(ByteUtil.stripLeadingZeroes(tokenId));
-    return accountCapsule.getAssetMapV2().getOrDefault(tokenStr, 0L);
   }
 
   @Override

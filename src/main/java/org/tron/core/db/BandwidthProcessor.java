@@ -1,20 +1,13 @@
 package org.tron.core.db;
 
-import static org.tron.protos.Protocol.Transaction.Contract.ContractType.TransferAssetContract;
-
-import com.google.protobuf.ByteString;
 import java.util.List;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.tron.common.utils.ByteArray;
 import org.tron.core.Constant;
 import org.tron.core.capsule.AccountCapsule;
-import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.exception.AccountResourceInsufficientException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.TooBigTransactionResultException;
-import org.tron.protos.Contract.TransferAssetContract;
 import org.tron.protos.Contract.TransferContract;
 import org.tron.protos.Protocol.Transaction.Contract;
 
@@ -38,14 +31,6 @@ public class BandwidthProcessor extends ResourceProcessor {
     long oldFreeNetUsage = accountCapsule.getFreeNetUsage();
     long latestConsumeFreeTime = accountCapsule.getLatestConsumeFreeTime();
     accountCapsule.setFreeNetUsage(increase(oldFreeNetUsage, 0, latestConsumeFreeTime, now));
-
-    Map<String, Long> assetMapV2 = accountCapsule.getAssetMapV2();
-    assetMapV2.forEach((assetName, balance) -> {
-      long oldFreeAssetNetUsage = accountCapsule.getFreeAssetNetUsageV2(assetName);
-      long latestAssetOperationTime = accountCapsule.getLatestAssetOperationTimeV2(assetName);
-      accountCapsule.putFreeAssetNetUsageV2(assetName,
-          increase(oldFreeAssetNetUsage, 0, latestAssetOperationTime, now));
-    });
   }
 
   @Override
@@ -76,11 +61,6 @@ public class BandwidthProcessor extends ResourceProcessor {
 
       if (contractCreateNewAccount(contract)) {
         consumeForCreateNewAccount(accountCapsule, bytesSize, now, trace);
-        continue;
-      }
-
-      if (contract.getType() == TransferAssetContract && useAssetAccountNet(contract,
-          accountCapsule, now, bytesSize)) {
         continue;
       }
 
@@ -180,118 +160,9 @@ public class BandwidthProcessor extends ResourceProcessor {
         }
         toAccount = dbManager.getAccountStore().get(transferContract.getToAddress().toByteArray());
         return toAccount == null;
-      case TransferAssetContract:
-        TransferAssetContract transferAssetContract;
-        try {
-          transferAssetContract = contract.getParameter().unpack(TransferAssetContract.class);
-        } catch (Exception ex) {
-          throw new RuntimeException(ex.getMessage());
-        }
-        toAccount = dbManager.getAccountStore()
-            .get(transferAssetContract.getToAddress().toByteArray());
-        return toAccount == null;
       default:
         return false;
     }
-  }
-
-
-  private boolean useAssetAccountNet(Contract contract, AccountCapsule accountCapsule, long now,
-      long bytes)
-      throws ContractValidateException {
-
-    ByteString assetName;
-    try {
-      assetName = contract.getParameter().unpack(TransferAssetContract.class).getAssetName();
-    } catch (Exception ex) {
-      throw new RuntimeException(ex.getMessage());
-    }
-
-    AssetIssueCapsule assetIssueCapsule, assetIssueCapsuleV2;
-    assetIssueCapsule = dbManager.getAssetIssueStoreFinal().get(assetName.toByteArray());
-    if (assetIssueCapsule == null) {
-      throw new ContractValidateException("asset not exists");
-    }
-
-    String tokenName = ByteArray.toStr(assetName.toByteArray());
-    String tokenID = assetIssueCapsule.getId();
-    if (assetIssueCapsule.getOwnerAddress() == accountCapsule.getAddress()) {
-      return useAccountNet(accountCapsule, bytes, now);
-    }
-
-    long publicFreeAssetNetLimit = assetIssueCapsule.getPublicFreeAssetNetLimit();
-    long publicFreeAssetNetUsage = assetIssueCapsule.getPublicFreeAssetNetUsage();
-    long publicLatestFreeNetTime = assetIssueCapsule.getPublicLatestFreeNetTime();
-
-    long newPublicFreeAssetNetUsage = increase(publicFreeAssetNetUsage, 0,
-        publicLatestFreeNetTime, now);
-
-    if (bytes > (publicFreeAssetNetLimit - newPublicFreeAssetNetUsage)) {
-      logger.debug("The " + tokenID + " public free bandwidth is not enough");
-      return false;
-    }
-
-    long freeAssetNetLimit = assetIssueCapsule.getFreeAssetNetLimit();
-
-    long freeAssetNetUsage, latestAssetOperationTime;
-
-    freeAssetNetUsage = accountCapsule.getFreeAssetNetUsageV2(tokenID);
-    latestAssetOperationTime = accountCapsule.getLatestAssetOperationTimeV2(tokenID);
-
-
-    long newFreeAssetNetUsage = increase(freeAssetNetUsage, 0,
-        latestAssetOperationTime, now);
-
-    if (bytes > (freeAssetNetLimit - newFreeAssetNetUsage)) {
-      logger.debug("The " + tokenID + " free bandwidth is not enough");
-      return false;
-    }
-
-    AccountCapsule issuerAccountCapsule = dbManager.getAccountStore()
-        .get(assetIssueCapsule.getOwnerAddress().toByteArray());
-
-    long issuerNetUsage = issuerAccountCapsule.getNetUsage();
-    long latestConsumeTime = issuerAccountCapsule.getLatestConsumeTime();
-    long issuerNetLimit = calculateGlobalNetLimit(issuerAccountCapsule);
-
-    long newIssuerNetUsage = increase(issuerNetUsage, 0, latestConsumeTime, now);
-
-    if (bytes > (issuerNetLimit - newIssuerNetUsage)) {
-      logger.debug("The " + tokenID + " issuer'bandwidth is not enough");
-      return false;
-    }
-
-    latestConsumeTime = now;
-    latestAssetOperationTime = now;
-    publicLatestFreeNetTime = now;
-    long latestOperationTime = dbManager.getHeadBlockTimeStamp();
-
-    newIssuerNetUsage = increase(newIssuerNetUsage, bytes, latestConsumeTime, now);
-    newFreeAssetNetUsage = increase(newFreeAssetNetUsage,
-        bytes, latestAssetOperationTime, now);
-    newPublicFreeAssetNetUsage = increase(newPublicFreeAssetNetUsage, bytes,
-        publicLatestFreeNetTime, now);
-
-    issuerAccountCapsule.setNetUsage(newIssuerNetUsage);
-    issuerAccountCapsule.setLatestConsumeTime(latestConsumeTime);
-
-    assetIssueCapsule.setPublicFreeAssetNetUsage(newPublicFreeAssetNetUsage);
-    assetIssueCapsule.setPublicLatestFreeNetTime(publicLatestFreeNetTime);
-
-    accountCapsule.setLatestOperationTime(latestOperationTime);
-
-    accountCapsule.putLatestAssetOperationTimeMapV2(tokenID,
-        latestAssetOperationTime);
-    accountCapsule.putFreeAssetNetUsageV2(tokenID, newFreeAssetNetUsage);
-    dbManager.getAssetIssueV2Store().put(assetIssueCapsule.createDbV2Key(), assetIssueCapsule);
-
-
-    dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);
-    dbManager.getAccountStore().put(issuerAccountCapsule.createDbKey(),
-        issuerAccountCapsule);
-
-    return true;
-
   }
 
   public long calculateGlobalNetLimit(AccountCapsule accountCapsule) {

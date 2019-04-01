@@ -1,16 +1,13 @@
 package org.tron.core.db.api;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.core.capsule.AccountCapsule;
-import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.capsule.WitnessCapsule;
 import org.tron.core.db.api.index.Index;
-import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
@@ -31,9 +28,6 @@ public class IndexHelper {
   @Getter
   @Resource
   private Index.Iface<Account> accountIndex;
-  @Getter
-  @Resource
-  private Index.Iface<AssetIssueContract> assetIssueIndex;
 
   //@PostConstruct
   public void init() {
@@ -64,10 +58,6 @@ public class IndexHelper {
     //add(accountIndex, getKey(a));
   }
 
-  public void add(AssetIssueContract a) {
-    //add(assetIssueIndex, getKey(a));
-  }
-
   private <T> void update(Index.Iface<T> index, byte[] bytes) {
     index.update(bytes);
   }
@@ -86,10 +76,6 @@ public class IndexHelper {
 
   public void update(Account a) {
     //update(accountIndex, getKey(a));
-  }
-
-  public void update(AssetIssueContract a) {
-    //update(assetIssueIndex, getKey(a));
   }
 
   private <T> void remove(Index.Iface<T> index, byte[] bytes) {
@@ -112,10 +98,6 @@ public class IndexHelper {
     //remove(accountIndex, getKey(a));
   }
 
-  public void remove(AssetIssueContract a) {
-    //remove(assetIssueIndex, getKey(a));
-  }
-
   private byte[] getKey(Transaction t) {
     return new TransactionCapsule(t).getTransactionId().getBytes();
   }
@@ -132,7 +114,4 @@ public class IndexHelper {
     return new AccountCapsule(a).createDbKey();
   }
 
-  private byte[] getKey(AssetIssueContract a) {
-    return new AssetIssueCapsule(a).createDbKey();
-  }
 }

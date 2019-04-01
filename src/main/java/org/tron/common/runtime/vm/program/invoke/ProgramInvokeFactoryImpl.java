@@ -48,7 +48,7 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
   // Invocation by the wire tx
   @Override
   public ProgramInvoke createProgramInvoke(InternalTransaction.TrxType trxType,
-      ExecutorType executorType, Transaction tx, long tokenValue, long tokenId, Block block,
+      ExecutorType executorType, Transaction tx, Block block,
       Deposit deposit, long vmStartInUs,
       long vmShouldEndInUs, long energyLimit) throws ContractValidateException {
     byte[] contractAddress;
@@ -84,7 +84,7 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
       }
 
       return new ProgramInvokeImpl(contractAddress, ownerAddress, ownerAddress, balance, callValue,
-          tokenValue, tokenId, data, lastHash, coinbase, timestamp, number, deposit, vmStartInUs,
+           data, lastHash, coinbase, timestamp, number, deposit, vmStartInUs,
           vmShouldEndInUs, energyLimit);
 
     } else if (trxType == TRX_CONTRACT_CALL_TYPE) {
@@ -134,8 +134,7 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
           break;
       }
 
-      return new ProgramInvokeImpl(address, origin, caller, balance, callValue, tokenValue, tokenId,
-          data,
+      return new ProgramInvokeImpl(address, origin, caller, balance, callValue, data,
           lastHash, coinbase, timestamp, number, deposit, vmStartInUs, vmShouldEndInUs,
           energyLimit);
     }
@@ -148,7 +147,7 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
   @Override
   public ProgramInvoke createProgramInvoke(Program program, DataWord toAddress,
       DataWord callerAddress,
-      DataWord inValue, DataWord tokenValue, DataWord tokenId, long balanceInt, byte[] dataIn,
+      DataWord inValue, long balanceInt, byte[] dataIn,
       Deposit deposit, boolean isStaticCall, boolean byTestingSuite, long vmStartInUs,
       long vmShouldEndInUs, long energyLimit) {
 
@@ -165,7 +164,7 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
     DataWord number = program.getNumber();
     DataWord difficulty = program.getDifficulty();
 
-    return new ProgramInvokeImpl(address, origin, caller, balance, callValue, tokenValue, tokenId,
+    return new ProgramInvokeImpl(address, origin, caller, balance, callValue,
         data, lastHash, coinbase, timestamp, number, difficulty,
         deposit, program.getCallDeep() + 1, isStaticCall, byTestingSuite, vmStartInUs,
         vmShouldEndInUs, energyLimit);

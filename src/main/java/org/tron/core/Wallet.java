@@ -46,7 +46,6 @@ import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AccountNetMessage;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.Address;
-import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.GrpcAPI.BlockList;
 import org.tron.api.GrpcAPI.DelegatedResourceList;
 import org.tron.api.GrpcAPI.ExchangeList;
@@ -80,7 +79,6 @@ import org.tron.common.utils.Utils;
 import org.tron.core.actuator.Actuator;
 import org.tron.core.actuator.ActuatorFactory;
 import org.tron.core.capsule.AccountCapsule;
-import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.BlockCapsule.BlockId;
 import org.tron.core.capsule.ContractCapsule;
@@ -105,7 +103,6 @@ import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.DupTransactionException;
 import org.tron.core.exception.HeaderNotFound;
-import org.tron.core.exception.NonUniqueObjectException;
 import org.tron.core.exception.PermissionException;
 import org.tron.core.exception.SignatureFormatException;
 import org.tron.core.exception.StoreException;
@@ -117,7 +114,6 @@ import org.tron.core.exception.ValidateSignatureException;
 import org.tron.core.net.TronNetDelegate;
 import org.tron.core.net.TronNetService;
 import org.tron.core.net.message.TransactionMessage;
-import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.TransferContract;
 import org.tron.protos.Contract.TriggerSmartContract;
@@ -900,47 +896,6 @@ public class Wallet {
         .replace("_", "");
   }
 
-  public AssetIssueList getAssetIssueList() {
-    AssetIssueList.Builder builder = AssetIssueList.newBuilder();
-
-    dbManager.getAssetIssueStoreFinal().getAllAssetIssues()
-        .forEach(issueCapsule -> builder.addAssetIssue(issueCapsule.getInstance()));
-
-    return builder.build();
-  }
-
-
-  public AssetIssueList getAssetIssueList(long offset, long limit) {
-    AssetIssueList.Builder builder = AssetIssueList.newBuilder();
-
-    List<AssetIssueCapsule> assetIssueList =
-        dbManager.getAssetIssueStoreFinal().getAssetIssuesPaginated(offset, limit);
-
-    if (CollectionUtils.isEmpty(assetIssueList)) {
-      return null;
-    }
-
-    assetIssueList.forEach(issueCapsule -> builder.addAssetIssue(issueCapsule.getInstance()));
-    return builder.build();
-  }
-
-  public AssetIssueList getAssetIssueByAccount(ByteString accountAddress) {
-    if (accountAddress == null || accountAddress.isEmpty()) {
-      return null;
-    }
-
-    List<AssetIssueCapsule> assetIssueCapsuleList =
-        dbManager.getAssetIssueStoreFinal().getAllAssetIssues();
-
-    AssetIssueList.Builder builder = AssetIssueList.newBuilder();
-    assetIssueCapsuleList.stream()
-        .filter(assetIssueCapsule -> assetIssueCapsule.getOwnerAddress().equals(accountAddress))
-        .forEach(issueCapsule -> {
-          builder.addAssetIssue(issueCapsule.getInstance());
-        });
-
-    return builder.build();
-  }
 
   public AccountNetMessage getAccountNet(ByteString accountAddress) {
     if (accountAddress == null || accountAddress.isEmpty()) {
@@ -962,24 +917,13 @@ public class Wallet {
     long totalNetWeight = dbManager.getDynamicPropertiesStore().getTotalNetWeight();
 
     Map<String, Long> assetNetLimitMap = new HashMap<>();
-    Map<String, Long> allFreeAssetNetUsage;
-
-    allFreeAssetNetUsage = accountCapsule.getAllFreeAssetNetUsageV2();
-    allFreeAssetNetUsage.keySet().forEach(asset -> {
-      byte[] key = ByteArray.fromString(asset);
-      assetNetLimitMap
-          .put(asset, dbManager.getAssetIssueV2Store().get(key).getFreeAssetNetLimit());
-    });
-
 
     builder.setFreeNetUsed(accountCapsule.getFreeNetUsage())
         .setFreeNetLimit(freeNetLimit)
         .setNetUsed(accountCapsule.getNetUsage())
         .setNetLimit(netLimit)
         .setTotalNetLimit(totalNetLimit)
-        .setTotalNetWeight(totalNetWeight)
-        .putAllAssetNetUsed(allFreeAssetNetUsage)
-        .putAllAssetNetLimit(assetNetLimitMap);
+        .setTotalNetWeight(totalNetWeight);
     return builder.build();
   }
 
@@ -1013,15 +957,6 @@ public class Wallet {
     long storageUsage = accountCapsule.getAccountResource().getStorageUsage();
 
     Map<String, Long> assetNetLimitMap = new HashMap<>();
-    Map<String, Long> allFreeAssetNetUsage;
-
-    allFreeAssetNetUsage = accountCapsule.getAllFreeAssetNetUsageV2();
-    allFreeAssetNetUsage.keySet().forEach(asset -> {
-      byte[] key = ByteArray.fromString(asset);
-      assetNetLimitMap
-          .put(asset, dbManager.getAssetIssueV2Store().get(key).getFreeAssetNetLimit());
-    });
-
 
     builder.setFreeNetUsed(accountCapsule.getFreeNetUsage())
         .setFreeNetLimit(freeNetLimit)
@@ -1034,87 +969,10 @@ public class Wallet {
         .setTotalEnergyLimit(totalEnergyLimit)
         .setTotalEnergyWeight(totalEnergyWeight)
         .setStorageLimit(storageLimit)
-        .setStorageUsed(storageUsage)
-        .putAllAssetNetUsed(allFreeAssetNetUsage)
-        .putAllAssetNetLimit(assetNetLimitMap);
+        .setStorageUsed(storageUsage);
     return builder.build();
   }
 
-  public AssetIssueContract getAssetIssueByName(ByteString assetName)
-      throws NonUniqueObjectException {
-    if (assetName == null || assetName.isEmpty()) {
-      return null;
-    }
-
-    // get asset issue by name from new DB
-    List<AssetIssueCapsule> assetIssueCapsuleList =
-        dbManager.getAssetIssueV2Store().getAllAssetIssues();
-    AssetIssueList.Builder builder = AssetIssueList.newBuilder();
-    assetIssueCapsuleList
-        .stream()
-        .filter(assetIssueCapsule -> assetIssueCapsule.getName().equals(assetName))
-        .forEach(
-            issueCapsule -> {
-              builder.addAssetIssue(issueCapsule.getInstance());
-            });
-
-    // check count
-    if (builder.getAssetIssueCount() > 1) {
-      throw new NonUniqueObjectException("get more than one asset, please use getassetissuebyid");
-    } else {
-      // fetch from DB by assetName as id
-      AssetIssueCapsule assetIssueCapsule =
-          dbManager.getAssetIssueV2Store().get(assetName.toByteArray());
-
-      if (assetIssueCapsule != null) {
-        // check already fetch
-        if (builder.getAssetIssueCount() > 0
-            && builder.getAssetIssue(0).getId().equals(assetIssueCapsule.getInstance().getId())) {
-          return assetIssueCapsule.getInstance();
-        }
-
-        builder.addAssetIssue(assetIssueCapsule.getInstance());
-        // check count
-        if (builder.getAssetIssueCount() > 1) {
-          throw new NonUniqueObjectException(
-              "get more than one asset, please use getassetissuebyid");
-        }
-      }
-    }
-
-    if (builder.getAssetIssueCount() > 0) {
-      return builder.getAssetIssue(0);
-    } else {
-      return null;
-    }
-  }
-
-  public AssetIssueList getAssetIssueListByName(ByteString assetName) {
-    if (assetName == null || assetName.isEmpty()) {
-      return null;
-    }
-
-    List<AssetIssueCapsule> assetIssueCapsuleList =
-        dbManager.getAssetIssueStoreFinal().getAllAssetIssues();
-
-    AssetIssueList.Builder builder = AssetIssueList.newBuilder();
-    assetIssueCapsuleList.stream()
-        .filter(assetIssueCapsule -> assetIssueCapsule.getName().equals(assetName))
-        .forEach(issueCapsule -> {
-          builder.addAssetIssue(issueCapsule.getInstance());
-        });
-
-    return builder.build();
-  }
-
-  public AssetIssueContract getAssetIssueById(String assetId) {
-    if (assetId == null || assetId.isEmpty()) {
-      return null;
-    }
-    AssetIssueCapsule assetIssueCapsule = dbManager.getAssetIssueV2Store()
-        .get(ByteArray.fromString(assetId));
-    return assetIssueCapsule != null ? assetIssueCapsule.getInstance() : null;
-  }
 
   public NumberMessage totalTransaction() {
     NumberMessage.Builder builder = NumberMessage.newBuilder()

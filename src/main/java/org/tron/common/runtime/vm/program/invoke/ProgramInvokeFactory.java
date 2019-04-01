@@ -33,12 +33,12 @@ import org.tron.protos.Protocol.Transaction;
 public interface ProgramInvokeFactory {
 
   ProgramInvoke createProgramInvoke(InternalTransaction.TrxType trxType, ExecutorType executorType,
-      Transaction tx, long tokenValue, long tokenId, Block block, Deposit deposit, long vmStartInUs,
+      Transaction tx, Block block, Deposit deposit, long vmStartInUs,
       long vmShouldEndInUs,
       long energyLimit) throws ContractValidateException;
 
   ProgramInvoke createProgramInvoke(Program program, DataWord toAddress, DataWord callerAddress,
-      DataWord inValue, DataWord tokenValue, DataWord tokenId,
+      DataWord inValue,
       long balanceInt, byte[] dataIn, Deposit deposit, boolean staticCall, boolean byTestingSuite,
       long vmStartInUs, long vmShouldEndInUs, long energyLimit);
 

@@ -18,8 +18,6 @@ import org.tron.core.config.Parameter.ChainConstant;
 import org.tron.core.config.args.Args;
 import org.tron.core.db.EnergyProcessor;
 import org.tron.core.db.Manager;
-import org.tron.protos.Contract;
-import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.AccountType;
 
 @Slf4j
@@ -74,32 +72,14 @@ public class EnergyProcessorTest {
             ByteString.copyFrom(ByteArray.fromHexString(CONTRACT_PROVIDER_ADDRESS)),
             AccountType.Normal,
             0L);
-    contractProvierCapsule.addAssetV2(ASSET_ID.getBytes(), 100L);
 
-    AccountCapsule userCapsule =
-        new AccountCapsule(
-            ByteString.copyFromUtf8("asset"),
-            ByteString.copyFrom(ByteArray.fromHexString(USER_ADDRESS)),
-            AccountType.AssetIssue,
-            dbManager.getDynamicPropertiesStore().getAssetIssueFee());
 
     dbManager.getAccountStore().reset();
     dbManager.getAccountStore()
         .put(contractProvierCapsule.getAddress().toByteArray(), contractProvierCapsule);
-    dbManager.getAccountStore().put(userCapsule.getAddress().toByteArray(), userCapsule);
 
   }
 
-
-  //todo ,replaced by smartContract later
-  private AssetIssueContract getAssetIssueContract() {
-    return Contract.AssetIssueContract.newBuilder()
-        .setOwnerAddress(ByteString.copyFrom(ByteArray.fromHexString(USER_ADDRESS)))
-        .setName(ByteString.copyFromUtf8(ASSET_ID))
-        .setFreeAssetNetLimit(1000L)
-        .setPublicFreeAssetNetLimit(1000L)
-        .build();
-  }
 
   @Test
   public void testUseContractCreatorEnergy() throws Exception {
