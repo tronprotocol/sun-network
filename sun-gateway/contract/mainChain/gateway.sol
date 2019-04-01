@@ -4,16 +4,17 @@ import "../common/token/TRC721/TRC721.sol";
 import "../common/token/TRC20/TRC20.sol";
 import "../common/math/SafeMath.sol";
 import "../common/token/TRC721/TRC721Receiver.sol";
-import "./TRC20Receiver.sol";
+import "../common/token/TRC20/TRC20Receiver.sol";
+import "../common/token/TRC10/TRC10Receiver.sol";
 import "./ValidatorManagerContract.sol";
 
 
-contract Gateway is TRC20Receiver, TRC721Receiver, ValidatorManagerContract {
+contract Gateway is TRC10Receiver, TRC20Receiver, TRC721Receiver, ValidatorManagerContract {
 
     using SafeMath for uint256;
 
     struct Balance {
-        uint256 trx;
+        uint256 tron;
         mapping(uint256 => uint256) trc10;
         mapping(address => uint256) trc20;
         mapping(address => mapping(uint256 => bool)) trc721;
@@ -49,7 +50,7 @@ contract Gateway is TRC20Receiver, TRC721Receiver, ValidatorManagerContract {
 
     // Deposit functions
     function depositTRX() private {
-        balances[msg.sender].trx = balances[msg.sender].trx.add(msg.value);
+        balances[msg.sender].tron = balances[msg.sender].tron.add(msg.value);
     }
 
     function depositTRC721(address from, uint256 uid) private {
@@ -66,7 +67,7 @@ contract Gateway is TRC20Receiver, TRC721Receiver, ValidatorManagerContract {
     // Withdrawal functions
     function withdrawTRC10(uint256 amount, bytes sig, uint256 tokenId)
     external
-    isVerifiedByValidator(amount, contractAddress, sig)
+    isVerifiedByValidatorTrc10(amount, tokenId, sig)
     {
         balances[msg.sender].trc10[tokenId] = balances[msg.sender].trc10[tokenId].sub(amount);
         msg.sender.transferToken(tokenId, amount);
@@ -96,7 +97,7 @@ contract Gateway is TRC20Receiver, TRC721Receiver, ValidatorManagerContract {
     external
     isVerifiedByValidator(amount, address(this), sig)
     {
-        balances[msg.sender].trx = balances[msg.sender].trx.sub(amount);
+        balances[msg.sender].tron = balances[msg.sender].tron.sub(amount);
         msg.sender.transfer(amount);
         // ensure it's not reentrant
         emit TokenWithdrawn(msg.sender, TokenKind.TRX, address(0), amount);
@@ -118,7 +119,7 @@ contract Gateway is TRC20Receiver, TRC721Receiver, ValidatorManagerContract {
     {
         require(allowedTokens[msg.sender], "Not a valid token");
         depositTRC10(_from, amount);
-        emit TRC10Received(_from, amount, msg.sender);
+        emit TRC10Received(_from, amount, msg.tokenid);
         return TRC10_RECEIVED;
     }
 
@@ -149,7 +150,7 @@ contract Gateway is TRC20Receiver, TRC721Receiver, ValidatorManagerContract {
 
     // Returns all the TRX you own
     function getTRX(address owner) external view returns (uint256) {
-        return balances[owner].trx;
+        return balances[owner].tron;
     }
 
     // Returns all the TRC10 you own
