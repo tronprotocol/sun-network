@@ -557,7 +557,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getGateWayList();
     } catch (IllegalArgumentException e) {
-      this.saveGateWayList(null);
+      this.saveGateWayList(new ArrayList<>());
     }
   }
 
