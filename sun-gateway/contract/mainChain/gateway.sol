@@ -3,13 +3,12 @@ pragma solidity ^0.4.24;
 import "../common/token/TRC721/TRC721.sol";
 import "../common/token/TRC20/TRC20.sol";
 import "../common/math/SafeMath.sol";
-import "../common/token/TRC721/TRC721Receiver.sol";
-import "../common/token/TRC20/TRC20Receiver.sol";
-import "../common/token/TRC10/TRC10Receiver.sol";
+import "../common/token/TRC721/ITRC721Receiver.sol";
+import "../common/token/TRC20/ITRC20Receiver.sol";
 import "./ValidatorManagerContract.sol";
 
 
-contract Gateway is TRC10Receiver, TRC20Receiver, TRC721Receiver, ValidatorManagerContract {
+contract Gateway is TRC10Receiver, ITRC20Receiver, ITRC721Receiver, ValidatorManagerContract {
 
     using SafeMath for uint256;
 
