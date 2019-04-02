@@ -1,18 +1,17 @@
-pragma solidity ^0.4.23;
-
+pragma solidity ^0.4.24;
 
 /**
  * @title TRC721 token receiver interface
  * @dev Interface for any contract that wants to support safeTransfers
  *  from TRC721 asset contracts.
  */
-contract TRC721Receiver {
+contract ITRC721Receiver {
     /**
      * @dev Magic value to be returned upon successful reception of an NFT
      *  Equals to `bytes4(keccak256("onTRC721Received(address,uint256,bytes)"))`,
-     *  which can be also obtained as `TRC721Receiver(0).onTRC721Received.selector`
+     *  which can be also obtained as `ITRC721Receiver(0).onTRC721Received.selector`
      */
-    bytes4 constant TRC721_RECEIVED = 0xf0b9e5ba;
+    bytes4 constant _TRC721_RECEIVED = 0xcb912b1e;
 
     /**
      * @notice Handle the receipt of an NFT
@@ -26,11 +25,5 @@ contract TRC721Receiver {
      * @param _data Additional data with no specified format
      * @return `bytes4(keccak256("onTRC721Received(address,uint256,bytes)"))`
      */
-    function onTRC721Received(
-        address _from,
-        uint256 _tokenId,
-        bytes _data
-    )
-    public
-    returns (bytes4);
+    function onTRC721Received(address from, uint256 tokenId, bytes memory data) public returns (bytes4);
 }
