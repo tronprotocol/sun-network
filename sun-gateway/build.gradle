@@ -36,11 +36,20 @@ dependencies {
     compile group: 'io.grpc', name: 'grpc-stub', version: '1.14.0'
     // end google grpc
     compile group: 'com.google.api.grpc', name: 'googleapis-common-protos', version: '0.0.3'
+    // https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple
+    compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+    // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.6'
+    // https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients
+    compile group: 'org.apache.kafka', name: 'kafka-clients', version: '2.2.0'
 
-    // Use JUnit test framework
-    testCompile 'junit:junit:4.12'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    //compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.25'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    // https://mvnrepository.com/artifact/junit/junit
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
 }
-
 // In this section you declare where to find the dependencies of your project
 repositories {
     // Use jcenter for resolving your dependencies.
