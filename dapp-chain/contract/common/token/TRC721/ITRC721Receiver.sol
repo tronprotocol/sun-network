@@ -25,5 +25,5 @@ contract ITRC721Receiver {
      * @param _data Additional data with no specified format
      * @return `bytes4(keccak256("onTRC721Received(address,uint256,bytes)"))`
      */
-    function onTRC721Received(address from, uint256 tokenId, bytes memory data) public returns (bytes4);
+    function onTRC721Received(address from, uint256 tokenId, bytes memory txData) public returns (bytes4);
 }

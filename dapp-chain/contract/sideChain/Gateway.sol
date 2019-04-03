@@ -112,7 +112,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
 
     // 7. withdrawTRC10
     // 8. withdrawTRC20
-    function onTRC20Received(address from, uint256 value, bytes memory data) public returns (bytes4) {
+    function onTRC20Received(address from, uint256 value, bytes memory txData) public returns (bytes4) {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         if (mainChainAddress == address(0)) {
@@ -132,7 +132,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 9. withdrawTRC721
-    function onTRC721Received(address from, uint256 tokenId, bytes memory data) public returns (bytes4) {
+    function onTRC721Received(address from, uint256 tokenId, bytes memory txData) public returns (bytes4) {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "the trc721 must have been deposited");
