@@ -2,13 +2,17 @@ package org.tron.core.db;
 
 import static java.lang.Long.max;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.core.Constant;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.config.Parameter.AdaptiveResourceLimitConstants;
 import org.tron.core.exception.AccountResourceInsufficientException;
 import org.tron.core.exception.ContractValidateException;
+import org.tron.core.exception.TooBigTransactionResultException;
 import org.tron.protos.Protocol.Account.AccountResource;
+import org.tron.protos.Protocol.Transaction.Contract;
 
 @Slf4j(topic = "DB")
 public class EnergyProcessor extends ResourceProcessor {
@@ -140,6 +144,64 @@ public class EnergyProcessor extends ResourceProcessor {
     long newEnergyUsage = increase(energyUsage, 0, latestConsumeTime, now);
 
     return max(energyLimit - newEnergyUsage, 0); // us
+  }
+
+  public void bandwidthEnergyConsume(TransactionCapsule trx, TransactionTrace trace)
+      throws TooBigTransactionResultException, ContractValidateException {
+    List<Contract> contracts = trx.getInstance().getRawData().getContractList();
+    if (trx.getResultSerializedSize() > Constant.MAX_RESULT_SIZE_IN_TX * contracts.size()) {
+      throw new TooBigTransactionResultException();
+    }
+
+    long bytesSize;
+
+    bytesSize = trx.getInstance().toBuilder().clearRet().build().getSerializedSize();
+
+    for (Contract contract : contracts) {
+
+      bytesSize += Constant.MAX_RESULT_SIZE_IN_TX;
+
+      logger.debug("trxId {},bandwidth cost :{}", trx.getTransactionId(), bytesSize);
+      trace.setNetBill(bytesSize, 0);
+      byte[] address = TransactionCapsule.getOwner(contract);
+      AccountCapsule accountCapsule = dbManager.getAccountStore().get(address);
+      if (accountCapsule == null) {
+        throw new ContractValidateException("account not exists");
+      }
+
+      if (contractCreateNewAccount(contract)) {
+        setBillForCreateNewAccount(trace);
+        continue;
+      }
+
+      setEnergyForTransaction(bytesSize, trace);
+    }
+
+  }
+
+
+  public boolean contractCreateNewAccount(Contract contract) {
+    AccountCapsule toAccount;
+    switch (contract.getType()) {
+      case AccountCreateContract:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  public void setBillForCreateNewAccount(TransactionTrace trace) {
+    long fee = dbManager.getDynamicPropertiesStore().getCreateAccountFee();
+    long energyForCreateNewAccount = fee * dbManager.getDynamicPropertiesStore().getEnergyFee();
+    trace.setNetBill(0, energyForCreateNewAccount);
+    //dbManager.getDynamicPropertiesStore().addTotalCreateAccountCost(fee);
+  }
+
+  private void setEnergyForTransaction(long bytes,
+      TransactionTrace trace) {
+    long energyForBandWidth = dbManager.getDynamicPropertiesStore().getTransactionEnergyByteRate() * bytes;
+    trace.setNetBill(0, energyForBandWidth);
+    //dbManager.getDynamicPropertiesStore().addTotalTransactionCost(energyForBandWidth);
   }
 
 }

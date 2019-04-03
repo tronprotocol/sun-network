@@ -136,7 +136,7 @@ public class ProgramResultTest {
     return TVMTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, address, ABI, code, value,
             feeLimit, consumeUserResourcePercent, null,
-            deposit, null);
+            deposit, null,1);
   }
 
   private byte[] deployContractAAndGetItsAddress(byte[] calledContractAddress)
@@ -211,7 +211,7 @@ public class ProgramResultTest {
     return TVMTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, address, ABI, code, value,
             feeLimit, consumeUserResourcePercent, null,
-            deposit, null);
+            deposit, null,1);
   }
 
 
@@ -342,7 +342,7 @@ public class ProgramResultTest {
     return TVMTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, address, ABI, code, value,
             feeLimit, consumeUserResourcePercent, null,
-            deposit, null);
+            deposit, null,1);
   }
 
   private byte[] deployA()
@@ -383,7 +383,7 @@ public class ProgramResultTest {
     return TVMTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, address, ABI, code, value,
             feeLimit, consumeUserResourcePercent, null,
-            deposit, null);
+            deposit, null,1);
   }
 
 
@@ -445,7 +445,7 @@ public class ProgramResultTest {
     return TVMTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, address, ABI, code, value,
             feeLimit, consumeUserResourcePercent, null,
-            deposit, null);
+            deposit, null,1);
   }
 
   public void checkTransactionInfo(TransactionTrace trace, Transaction trx, BlockCapsule block,

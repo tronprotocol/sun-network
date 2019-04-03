@@ -50,10 +50,6 @@ public class UpdateEnergyLimitContractActuator extends AbstractActuator {
 
   @Override
   public boolean validate() throws ContractValidateException {
-    if (!VMConfig.getEnergyLimitHardFork()) {
-      throw new ContractValidateException(
-          "contract type error,unexpected type [UpdateEnergyLimitContract]");
-    }
     if (this.contract == null) {
       throw new ContractValidateException("No contract!");
     }

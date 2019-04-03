@@ -2,7 +2,6 @@ package org.tron.core.capsule;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.tron.common.runtime.config.VMConfig;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.Constant;
@@ -47,12 +46,12 @@ public class ReceiptCapsule {
     this.receipt = this.receipt.toBuilder().setNetUsage(netUsage).build();
   }
 
-  public void setNetFee(long netFee) {
-    this.receipt = this.receipt.toBuilder().setNetFee(netFee).build();
+  public void setNetEnergyCost(long netFee) {
+    this.receipt = this.receipt.toBuilder().setNetEnergyCost(netFee).build();
   }
 
-  public void addNetFee(long netFee) {
-    this.receipt = this.receipt.toBuilder().setNetFee(getNetFee() + netFee).build();
+  public void addNetEnergyCost(long netFee) {
+    this.receipt = this.receipt.toBuilder().setNetEnergyCost(getNetEnergyCost() + netFee).build();
   }
 
   public long getEnergyUsage() {
@@ -91,8 +90,8 @@ public class ReceiptCapsule {
     return this.receipt.getNetUsage();
   }
 
-  public long getNetFee() {
-    return this.receipt.getNetFee();
+  public long getNetEnergyCost() {
+    return this.receipt.getNetEnergyCost();
   }
 
   /**
@@ -122,12 +121,8 @@ public class ReceiptCapsule {
   private long getOriginUsage(Manager manager, AccountCapsule origin,
       long originEnergyLimit,
       EnergyProcessor energyProcessor, long originUsage) {
-
-    if (VMConfig.getEnergyLimitHardFork()) {
-      return Math.min(originUsage,
-          Math.min(energyProcessor.getAccountLeftEnergyFromFreeze(origin), originEnergyLimit));
-    }
-    return Math.min(originUsage, energyProcessor.getAccountLeftEnergyFromFreeze(origin));
+    return Math.min(originUsage,
+        Math.min(energyProcessor.getAccountLeftEnergyFromFreeze(origin), originEnergyLimit));
   }
 
   private void payEnergyBill(

@@ -128,7 +128,7 @@ public class InternalTransactionComplexTest {
     return TVMTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, address, ABI, code, value,
             feeLimit, consumeUserResourcePercent, null,
-            deposit, null);
+            deposit, null, 1);
   }
 
   // Just for the caller/called example above
@@ -162,7 +162,7 @@ public class InternalTransactionComplexTest {
     return TVMTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, address, ABI, code, value,
             feeLimit, consumeUserResourcePercent, null,
-            deposit, null);
+            deposit, null, 1);
   }
 
 

@@ -170,6 +170,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   // Side-chain gateway list
   private static final byte[] GATEWAY_ADDRESS_LIST = "GATEWAY_ADDRESS_LIST".getBytes();
 
+  private static final byte[] TRANSACTION_ENERGY_BYTE_RATE = "TRANSACTION_ENERGY_BYTE_RATE".getBytes();
+
 
   @Autowired
   private DynamicPropertiesStore(@Value("properties") String dbName) {
@@ -404,6 +406,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getTransactionEnergyByteRate();
+    } catch (IllegalArgumentException e) {
+      this.saveTransactionEnergyByteRate(10);
+      // 10 byte(bandwidth) == 1 energy   10 energy/byte
+    }
+
+    try {
       this.getAssetIssueFee();
     } catch (IllegalArgumentException e) {
       this.saveAssetIssueFee(1024000000L);
@@ -576,6 +585,19 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       result[i] = Integer.parseInt(s.substring(i, i + 1));
     }
     return result;
+  }
+
+  public long getTransactionEnergyByteRate() {
+    return Optional.ofNullable(getUnchecked(TRANSACTION_ENERGY_BYTE_RATE))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toInt)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found GATEWAY_ADDRESS_LIST"));
+  }
+
+  public void saveTransactionEnergyByteRate(int num) {
+    this.put(TRANSACTION_ENERGY_BYTE_RATE,
+        new BytesCapsule(ByteArray.fromInt(num)));
   }
 
   public List<byte[]> getGateWayList() {

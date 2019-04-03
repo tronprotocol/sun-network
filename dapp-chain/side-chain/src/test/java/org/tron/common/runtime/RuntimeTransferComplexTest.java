@@ -79,7 +79,7 @@ public class RuntimeTransferComplexTest {
     long consumeUserResourcePercent = 0;
 
     Transaction trx = TVMTestUtils.generateDeploySmartContractAndGetTransaction(
-        contractName, address, ABI, code, value, fee, consumeUserResourcePercent, null);
+        contractName, address, ABI, code, value, fee, consumeUserResourcePercent, null, 1);
     byte[] contractAddress = Wallet.generateContractAddress(trx);
     runtime = TVMTestUtils.processTransactionAndReturnRuntime(trx, deposit, null);
     Assert.assertNull(runtime.getRuntimeError());
@@ -107,7 +107,7 @@ public class RuntimeTransferComplexTest {
     long consumeUserResourcePercent = 0;
 
     Transaction trx = TVMTestUtils.generateDeploySmartContractAndGetTransaction(
-        contractName, address, ABI, code, value, fee, consumeUserResourcePercent, null);
+        contractName, address, ABI, code, value, fee, consumeUserResourcePercent, null,1);
     byte[] contractAddress = Wallet.generateContractAddress(trx);
     runtime = TVMTestUtils.processTransactionAndReturnRuntime(trx, deposit, null);
     Assert.assertNotNull(runtime.getRuntimeError().contains("REVERT"));
@@ -144,7 +144,7 @@ public class RuntimeTransferComplexTest {
     byte[] contractAddress = TVMTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, address, ABI, code, value,
             feeLimit, consumeUserResourcePercent, null,
-            deposit, null);
+            deposit, null,1);
 
     String selectorStr = "transferTo(address)";
     String params = "000000000000000000000000548794500882809695a8a687866e76d4271a1abc"; //TRANSFER_TO
@@ -358,7 +358,7 @@ public class RuntimeTransferComplexTest {
     byte[] contractAddress = TVMTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, address, ABI, code, value,
             feeLimit, consumeUserResourcePercent, null,
-            deposit, null);
+            deposit, null, 1);
     return contractAddress;
   }
 
@@ -412,7 +412,7 @@ public class RuntimeTransferComplexTest {
     byte[] contractAddress = TVMTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, callerAddress, callerABI,
             callerCode, value, feeLimit, consumeUserResourcePercent, null,
-            deposit, null);
+            deposit, null,1);
     return contractAddress;
   }
 
