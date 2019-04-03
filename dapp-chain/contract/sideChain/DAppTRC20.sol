@@ -2,12 +2,13 @@ pragma solidity ^0.4.24;
 
 import "../common/token/TRC20/TRC20.sol";
 import "../common/token/TRC20/ITRC20Receiver.sol";
+import "./IDApp.sol";
 
 /**
  * @title Full TRC20 Token for Sun Network DAppChains
  */
 
-contract DAppTRC20 is TRC20, ITRC20Receiver {
+contract DAppTRC20 is TRC20, ITRC20Receiver, IDApp {
     // Transfer Gateway contract address
     address public gateway;
 
@@ -28,9 +29,13 @@ contract DAppTRC20 is TRC20, ITRC20Receiver {
         _totalSupply = 0;
     }
 
-    function mint(address to, uint256 value) public {
-        require(to != address(0));
+    modifier onlyGateway {
         require(msg.sender == gateway);
+        _;
+    }
+
+    function mint(address to, uint256 value) public onlyGateway {
+        require(to != address(0));
 
         _totalSupply = _totalSupply.add(value);
         _balances[to] = _balances[to].add(value);

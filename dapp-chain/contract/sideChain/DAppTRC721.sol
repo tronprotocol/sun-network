@@ -2,12 +2,13 @@ pragma solidity ^0.4.24;
 
 import "../common/token/TRC721/TRC721.sol";
 import "../common/token/TRC721/ITRC721Receiver.sol";
+import "./IDApp.sol";
 
 /**
  * @title Full TRC721 Token for Sun Network DAppChains
  */
 
-contract DAppTRC721 is TRC721, ITRC721Receiver {
+contract DAppTRC721 is TRC721, ITRC721Receiver, IDApp {
     // Transfer Gateway contract address
     address public gateway;
 
@@ -25,15 +26,19 @@ contract DAppTRC721 is TRC721, ITRC721Receiver {
         symbol = _symbol;
     }
 
+    modifier onlyGateway {
+        require(msg.sender == gateway);
+        _;
+    }
+
     /**
          * @dev Internal function to mint a new token.
          * Reverts if the given token ID already exists.
          * @param to The address that will own the minted token
          * @param tokenId uint256 ID of the token to be minted
          */
-    function mint(address to, uint256 tokenId) public {
+    function mint(address to, uint256 tokenId) public onlyGateway {
         require(to != address(0));
-        require(msg.sender == gateway);
         require(!_exists(tokenId));
 
         _tokenOwner[tokenId] = to;
