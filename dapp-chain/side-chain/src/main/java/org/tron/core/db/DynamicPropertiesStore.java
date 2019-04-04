@@ -167,11 +167,18 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   private static final byte[] AVAILABLE_CONTRACT_TYPE = "AVAILABLE_CONTRACT_TYPE".getBytes();
   private static final byte[] ACTIVE_DEFAULT_OPERATIONS = "ACTIVE_DEFAULT_OPERATIONS".getBytes();
 
-  // Side-chain gateway list
+  /*
+   * Side-chain parameters.
+   */
+
+  // gateway list
   private static final byte[] GATEWAY_ADDRESS_LIST = "GATEWAY_ADDRESS_LIST".getBytes();
 
+  // basic value for energy: byte, also means energy: bandwidth (10:1)
   private static final byte[] TRANSACTION_ENERGY_BYTE_RATE = "TRANSACTION_ENERGY_BYTE_RATE".getBytes();
 
+  // Define the energy/byte rate, when create an account using frozen energy.
+  private static final byte[] CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE = "CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE".getBytes();
 
   @Autowired
   private DynamicPropertiesStore(@Value("properties") String dbName) {
@@ -400,6 +407,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getCreateNewAccountEnergyRate();
+    } catch (IllegalArgumentException e) {
+      this.saveCreateNewAccountEnergyRate(10);
+      // 10 byte(bandwidth) == 1 energy
+    }
+
+    try {
       this.getTransactionFee();
     } catch (IllegalArgumentException e) {
       this.saveTransactionFee(10L); // 10sun/byte
@@ -409,7 +423,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       this.getTransactionEnergyByteRate();
     } catch (IllegalArgumentException e) {
       this.saveTransactionEnergyByteRate(10);
-      // 10 byte(bandwidth) == 1 energy   10 energy/byte
+      // 10 byte(bandwidth) == 1 energy
     }
 
     try {
@@ -1053,7 +1067,20 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         .map(BytesCapsule::getData)
         .map(ByteArray::toLong)
         .orElseThrow(
-            () -> new IllegalArgumentException("not found CREATE_NsEW_ACCOUNT_BANDWIDTH_RATE2"));
+            () -> new IllegalArgumentException("not found CREATE_NEW_ACCOUNT_BANDWIDTH_RATE2"));
+  }
+
+  public void saveCreateNewAccountEnergyRate(long rate) {
+    this.put(CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE,
+        new BytesCapsule(ByteArray.fromLong(rate)));
+  }
+
+  public long getCreateNewAccountEnergyRate() {
+    return Optional.ofNullable(getUnchecked(CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found CREATE_NEW_ACCOUNT_ENERGY_RATE"));
   }
 
   public void saveTransactionFee(long fee) {

@@ -147,7 +147,7 @@ public class EnergyProcessor extends ResourceProcessor {
   }
 
   public void bandwidthEnergyConsume(TransactionCapsule trx, TransactionTrace trace)
-      throws TooBigTransactionResultException, ContractValidateException {
+      throws TooBigTransactionResultException, ContractValidateException, AccountResourceInsufficientException {
     List<Contract> contracts = trx.getInstance().getRawData().getContractList();
     if (trx.getResultSerializedSize() > Constant.MAX_RESULT_SIZE_IN_TX * contracts.size()) {
       throw new TooBigTransactionResultException();
@@ -169,19 +169,32 @@ public class EnergyProcessor extends ResourceProcessor {
         throw new ContractValidateException("account not exists");
       }
 
+      long now = dbManager.getWitnessController().getHeadSlot();
+
       if (contractCreateNewAccount(contract)) {
-        setBillForCreateNewAccount(trace);
+        consumeEnergyForCreateNewAccount(accountCapsule, bytesSize, now, trace);
         continue;
       }
 
-      setEnergyForTransaction(bytesSize, trace);
+      if (useAccountFrozenEnergy(accountCapsule, bytesSize, now)) {
+        continue;
+      }
+
+      if (useTransactionFee(accountCapsule, bytesSize, trace)) {
+        continue;
+      }
+
+      long fee = dbManager.getDynamicPropertiesStore().getTransactionFee() * bytesSize;
+      throw new AccountResourceInsufficientException(
+          "Account Insufficient energy[" + bytesSize + "] and balance["
+              + fee + "] to create new account");
+
     }
 
   }
 
 
   public boolean contractCreateNewAccount(Contract contract) {
-    AccountCapsule toAccount;
     switch (contract.getType()) {
       case AccountCreateContract:
         return true;
@@ -190,20 +203,90 @@ public class EnergyProcessor extends ResourceProcessor {
     }
   }
 
-  public void setBillForCreateNewAccount(TransactionTrace trace) {
+  public void consumeEnergyForCreateNewAccount(AccountCapsule accountCapsule, long bytes,
+      long now, TransactionTrace trace) throws AccountResourceInsufficientException {
+    boolean ret = consumeFreezeEnergyForCreateNewAccount(accountCapsule, bytes,now);
+
+    if (!ret) {
+      ret =consumeFeeForCreateNewAccount(accountCapsule, trace);
+      if (!ret) {
+        throw new AccountResourceInsufficientException();
+      }
+    }
+
     long fee = dbManager.getDynamicPropertiesStore().getCreateAccountFee();
     long energyForCreateNewAccount = fee * dbManager.getDynamicPropertiesStore().getEnergyFee();
     trace.setNetBill(0, energyForCreateNewAccount);
-    //dbManager.getDynamicPropertiesStore().addTotalCreateAccountCost(fee);
+    dbManager.getDynamicPropertiesStore().addTotalCreateAccountCost(fee);
   }
 
-  private void setEnergyForTransaction(long bytes,
+
+  public boolean consumeFreezeEnergyForCreateNewAccount(AccountCapsule accountCapsule, long bytes,
+      long now) {
+
+    long createNewAccountEnergyRatio = 1 / dbManager.getDynamicPropertiesStore().
+        getCreateNewAccountEnergyRate();
+
+    long energyLeftFromFreeze = getAccountLeftEnergyFromFreeze(accountCapsule);
+
+    if (bytes * createNewAccountEnergyRatio <= energyLeftFromFreeze) {
+      long latestConsumeTime = now;
+      long latestOperationTime = dbManager.getHeadBlockTimeStamp();
+      energyLeftFromFreeze = increase(energyLeftFromFreeze, bytes * createNewAccountEnergyRatio, latestConsumeTime,
+          now);
+      accountCapsule.setLatestConsumeTime(latestConsumeTime);
+      accountCapsule.setLatestOperationTime(latestOperationTime);
+      accountCapsule.setEnergyUsage(energyLeftFromFreeze);
+      dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);
+      return true;
+    }
+    return false;
+  }
+
+  public boolean consumeFeeForCreateNewAccount(AccountCapsule accountCapsule,
       TransactionTrace trace) {
-    long energyForBandWidth = dbManager.getDynamicPropertiesStore().getTransactionEnergyByteRate() * bytes;
-    trace.setNetBill(0, energyForBandWidth);
-    //dbManager.getDynamicPropertiesStore().addTotalTransactionCost(energyForBandWidth);
+    long fee = dbManager.getDynamicPropertiesStore().getCreateAccountFee();
+    if (consumeFee(accountCapsule, fee)) {
+      trace.setNetBill(0, fee);
+      dbManager.getDynamicPropertiesStore().addTotalCreateAccountCost(fee);
+      return true;
+    } else {
+      return false;
+    }
   }
 
+  private boolean useTransactionFee(AccountCapsule accountCapsule, long bytes,
+      TransactionTrace trace) {
+    long fee = dbManager.getDynamicPropertiesStore().getTransactionFee() * bytes;
+    if (consumeFee(accountCapsule, fee)) {
+      trace.setNetBill(0, fee);
+      dbManager.getDynamicPropertiesStore().addTotalTransactionCost(fee);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private boolean useAccountFrozenEnergy(AccountCapsule accountCapsule, long bytes, long now) {
+
+    long energyLeftFromFreeze = getAccountLeftEnergyFromFreeze(accountCapsule);
+
+    long rate = dbManager.getDynamicPropertiesStore().getCreateNewAccountEnergyRate();
+    if (bytes * 1 / rate > energyLeftFromFreeze) {
+      logger.debug("Energy is running out. now use TRX");
+      return false;
+    }
+
+    long latestConsumeTime = now;
+    long latestOperationTime = dbManager.getHeadBlockTimeStamp();
+    energyLeftFromFreeze = increase(energyLeftFromFreeze, bytes, latestConsumeTime, now);
+    accountCapsule.setNetUsage(energyLeftFromFreeze);
+    accountCapsule.setLatestOperationTime(latestOperationTime);
+    accountCapsule.setLatestConsumeTime(latestConsumeTime);
+
+    dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);
+    return true;
+  }
 }
 
 

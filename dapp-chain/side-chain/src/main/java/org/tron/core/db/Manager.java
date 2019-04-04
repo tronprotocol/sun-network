@@ -765,7 +765,7 @@ public class Manager {
 
 
   public void consumeBandwidthEnergy(TransactionCapsule trx, TransactionTrace trace)
-      throws ContractValidateException, TooBigTransactionResultException {
+      throws ContractValidateException, TooBigTransactionResultException, AccountResourceInsufficientException {
     EnergyProcessor processor = new EnergyProcessor(this);
     processor.bandwidthEnergyConsume(trx,trace);
   }

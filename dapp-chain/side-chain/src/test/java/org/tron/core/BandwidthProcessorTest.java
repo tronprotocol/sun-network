@@ -172,8 +172,8 @@ public class BandwidthProcessorTest {
     try {
       processor.consume(trx, trace);
 
-      Assert.assertEquals(trace.getReceipt().getNetEnergyCost(), 0);
-      Assert.assertEquals(trace.getReceipt().getNetUsage(), byteSize);
+      Assert.assertEquals(trace.getReceipt().getNetEnergyFee(), 0);
+      Assert.assertEquals(trace.getReceipt().getNetEnergyUsage(), byteSize);
       AccountCapsule fromAccount =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       Assert.assertNotNull(fromAccount);

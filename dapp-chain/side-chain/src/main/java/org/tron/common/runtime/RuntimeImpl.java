@@ -372,8 +372,7 @@ public class RuntimeImpl implements Runtime {
       if (newSmartContract.getOriginEnergyLimit() <= 0) {
         throw new ContractValidateException("The originEnergyLimit must be > 0");
       }
-      energyLimit = getAccountEnergyLimitWithFixRatio(creator, feeLimit, callValue)
-          - trace.getReceipt().getNetEnergyCost();
+      energyLimit = getAccountEnergyLimitWithFixRatio(creator, feeLimit, callValue);
       if (energyLimit < 0) {
         throw new ContractValidateException("not enough energy to initialize vm");
       }
@@ -474,8 +473,7 @@ public class RuntimeImpl implements Runtime {
       } else {
         AccountCapsule creator = this.deposit
             .getAccount(deployedContract.getInstance().getOriginAddress().toByteArray());
-        energyLimit = getTotalEnergyLimitWithFixRatio(creator, caller, contract, feeLimit, callValue)
-            - trace.getReceipt().getNetEnergyCost();
+        energyLimit = getTotalEnergyLimitWithFixRatio(creator, caller, contract, feeLimit, callValue);
         if (energyLimit < 0) {
           throw new ContractValidateException("not enough energy to initialize vm");
         }
