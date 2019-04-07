@@ -8,7 +8,7 @@ import java.math.BigInteger;
 public class Base58 {
 
   public static final char[] ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-      .toCharArray();
+    .toCharArray();
   private static final int[] INDEXES = new int[128];
 
   static {
@@ -113,7 +113,7 @@ public class Base58 {
   }
 
   /**
-   *  number -> number / 58, returns number % 58
+   * number -> number / 58, returns number % 58
    */
   private static byte divmod58(byte[] number, int startAt) {
     int remainder = 0;

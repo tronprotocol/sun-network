@@ -12,6 +12,7 @@ import org.tron.api.GrpcAPI.Return;
 import org.tron.api.GrpcAPI.Return.response_code;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.WalletGrpc;
+import org.tron.common.exception.RpcException;
 import org.tron.common.utils.ByteArray;
 import org.tron.protos.Contract;
 import org.tron.protos.Protocol.Account;
@@ -20,6 +21,7 @@ import org.tron.protos.Protocol.TransactionInfo;
 
 @Slf4j
 public class RpcClient {
+
   private WalletGrpc.WalletBlockingStub blockingStub;
 
   public RpcClient(String target) {
@@ -32,31 +34,42 @@ public class RpcClient {
   }
 
   public Optional<TransactionInfo> getTransactionInfoById(String txID) {
-    ByteString bsTxid = ByteString.copyFrom(ByteArray.fromHexString(txID));
-    BytesMessage request = BytesMessage.newBuilder().setValue(bsTxid).build();
+    BytesMessage request = BytesMessage.newBuilder()
+      .setValue(ByteString.copyFrom(ByteArray.fromHexString(txID))).build();
     TransactionInfo transactionInfo = blockingStub.getTransactionInfoById(request);
     return Optional.ofNullable(transactionInfo);
   }
 
-  public boolean broadcastTransaction(Transaction signaturedTransaction) {
-    int i = 10;
-    Return response = blockingStub.broadcastTransaction(signaturedTransaction);
-    while (response.getResult() == false && response.getCode() == response_code.SERVER_BUSY
-        && i > 0) {
-      i--;
-      response = blockingStub.broadcastTransaction(signaturedTransaction);
-      logger.info("repeate times = " + (11 - i));
-      try {
-        Thread.sleep(300);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
+  public boolean broadcastTransaction(Transaction signaturedTransaction) throws RpcException {
+
+    int maxRetry = 10;
+    for (int i = 0; i < maxRetry; i++) {
+
+      Return response = blockingStub.broadcastTransaction(signaturedTransaction);
+      if (response.getResult()) {
+        // true is success
+        return response.getResult();
+      } else {
+        // false is fail
+        if (response.getCode() == response_code.SERVER_BUSY) {
+          // when SERVER_BUSY, retry
+          logger.info("will retry {} time(s)", i + 1);
+          try {
+            Thread.sleep(300);
+          } catch (InterruptedException e) {
+            logger.error(e.getMessage(), e);
+          }
+        } else {
+          logger.info("server error, fail, code: {}, message", response.getCode(),
+            response.getMessage().toStringUtf8());
+          // fail, not retry
+          throw new RpcException("server error, fail");
+        }
       }
     }
-    if (!response.getResult()) {
-      logger.info("Code = " + response.getCode());
-      logger.info("Message = " + response.getMessage().toStringUtf8());
-    }
-    return response.getResult();
+    logger.error("broadcast transaction, exceed max retry, fail");
+    throw new RpcException("broadcast transaction, exceed max retry, fail");
+
   }
 
   public TransactionExtention createTransaction2(Contract.TransferContract contract) {

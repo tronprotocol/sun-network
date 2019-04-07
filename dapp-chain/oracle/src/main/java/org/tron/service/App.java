@@ -1,9 +1,11 @@
 package org.tron.service;
 
 
+import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.common.config.Args;
 import org.tron.service.task.ChainTask;
 
 ;
@@ -25,7 +27,11 @@ public class App {
   private static ExecutorService executor = Executors.newFixedThreadPool(fixedThreads);
 
   public static void main(String[] args) {
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     logger.info("start...");
+    Args arg = Args.getInstance();
+    arg.setParam(args);
+
     ChainTask mainChainTask = new ChainTask(mainGatewayAccount, mainGatewayAddress, fixedThreads);
     ChainTask sideChainTask = new ChainTask(sideChainGatewayAccount, sideChainGatewayAddress,
         fixedThreads);

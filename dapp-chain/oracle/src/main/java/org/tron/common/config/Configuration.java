@@ -30,14 +30,15 @@ public class Configuration {
     if (config == null) {
       File configFile = new File(configurationPath);
       logger.info("config file: " + configFile.getAbsolutePath());
-      if(configFile.exists()){
+      if (configFile.exists()) {
         try {
-          config = ConfigFactory.parseReader(new InputStreamReader(new FileInputStream(configFile)));
+          config = ConfigFactory
+            .parseReader(new InputStreamReader(new FileInputStream(configFile)));
           logger.info("use user defined config file in current dir");
         } catch (FileNotFoundException e) {
           logger.error("load user defined config file exception: " + e.getMessage());
         }
-      }else {
+      } else {
         config = ConfigFactory.load(configurationPath);
         logger.info("user defined config file doesn't exists, use default config file in jar");
       }

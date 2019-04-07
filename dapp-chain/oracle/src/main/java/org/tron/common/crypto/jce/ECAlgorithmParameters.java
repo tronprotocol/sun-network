@@ -38,7 +38,7 @@ public final class ECAlgorithmParameters {
       return Holder.INSTANCE.getParameterSpec(ECParameterSpec.class);
     } catch (InvalidParameterSpecException ex) {
       throw new AssertionError(
-          "Assumed correct key spec statically", ex);
+        "Assumed correct key spec statically", ex);
     }
   }
 
@@ -47,7 +47,7 @@ public final class ECAlgorithmParameters {
       return Holder.INSTANCE.getEncoded();
     } catch (IOException ex) {
       throw new AssertionError(
-          "Assumed algo params has been initialized", ex);
+        "Assumed algo params has been initialized", ex);
     }
   }
 
@@ -56,7 +56,7 @@ public final class ECAlgorithmParameters {
     private static final AlgorithmParameters INSTANCE;
 
     private static final ECGenParameterSpec SECP256K1_CURVE
-        = new ECGenParameterSpec(CURVE_NAME);
+      = new ECGenParameterSpec(CURVE_NAME);
 
     static {
       try {
@@ -64,10 +64,10 @@ public final class ECAlgorithmParameters {
         INSTANCE.init(SECP256K1_CURVE);
       } catch (NoSuchAlgorithmException ex) {
         throw new AssertionError(
-            "Assumed the JRE supports EC algorithm params", ex);
+          "Assumed the JRE supports EC algorithm params", ex);
       } catch (InvalidParameterSpecException ex) {
         throw new AssertionError(
-            "Assumed correct key spec statically", ex);
+          "Assumed correct key spec statically", ex);
       }
     }
   }

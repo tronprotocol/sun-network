@@ -27,17 +27,32 @@ public class Args {
   private String shellConfFileName = "";
 
   @Getter
-  private String fullNode;
+  private List<String> mainchainFullNodeList;
   @Getter
-  private List<String> fullNodeList;
+  private String mainchainFullNode;
   @Getter
-  private String solidity;
+  private String mainchainSolidity;
+
 
   @Getter
-  private  byte[] cooPrivateKey;
+  private List<String> sidechainFullNodeList;
+  @Getter
+  private String sidechainFullNode;
+  @Getter
+  private String sidechainSolidity;
+
 
   @Getter
-  private  byte[] bttContract;
+  private byte[] mainchainGateway;
+
+
+  @Getter
+  private byte[] sidechainGateway;
+
+
+  @Getter
+  private byte[] oraclePrivateKey;
+
 
   @Getter
   private Map<String, Properties> mysqlReadConfs = new HashMap<>();
@@ -48,29 +63,30 @@ public class Args {
   /**
    * set parameters.
    */
-  private Args() {}
+  private Args() {
+  }
 
   private void loadMysqlConf(Config config) {
     for (Map.Entry<String, ConfigValue> entry : config.getConfig("mysql").root().entrySet()) {
       String dbName = entry.getKey();
-      for (Map.Entry<String, ConfigValue> e: ((ConfigObject) entry.getValue()).entrySet()) {
+      for (Map.Entry<String, ConfigValue> e : ((ConfigObject) entry.getValue()).entrySet()) {
 
       }
-      ConfigObject common = (ConfigObject)(((ConfigObject) entry.getValue()).get("common"));
-      ConfigObject read = (ConfigObject)(((ConfigObject) entry.getValue()).get("read"));
-      ConfigObject write = (ConfigObject)(((ConfigObject) entry.getValue()).get("write"));
+      ConfigObject common = (ConfigObject) (((ConfigObject) entry.getValue()).get("common"));
+      ConfigObject read = (ConfigObject) (((ConfigObject) entry.getValue()).get("read"));
+      ConfigObject write = (ConfigObject) (((ConfigObject) entry.getValue()).get("write"));
 
       Properties readProperties = new Properties();
       Properties writeProperties = new Properties();
 
-      if (common != null && common.entrySet().size() > 0){
+      if (common != null && common.entrySet().size() > 0) {
         for (Map.Entry<String, ConfigValue> e : common.entrySet()) {
           readProperties.put(e.getKey(), e.getValue().unwrapped().toString());
           writeProperties.put(e.getKey(), e.getValue().unwrapped().toString());
         }
       }
 
-      if (write != null && write.entrySet().size() > 0){
+      if (write != null && write.entrySet().size() > 0) {
         for (Map.Entry<String, ConfigValue> e : write.entrySet()) {
           writeProperties.put(e.getKey(), e.getValue().unwrapped());
         }
@@ -78,7 +94,7 @@ public class Args {
       // 默认会有写的库
       mysqlWriteConfs.put(dbName, writeProperties);
 
-      if (read != null && read.entrySet().size() > 0){
+      if (read != null && read.entrySet().size() > 0) {
         for (Map.Entry<String, ConfigValue> e : read.entrySet()) {
           readProperties.put(e.getKey(), e.getValue().unwrapped());
         }
@@ -87,8 +103,9 @@ public class Args {
     }
   }
 
-  public static Args getInstance(){
-    if (instance == null){
+  public static Args getInstance() {
+    // TODO: fix singleton
+    if (instance == null) {
       instance = new Args();
     }
     return instance;
@@ -104,15 +121,21 @@ public class Args {
       confName = "config-sample.conf";
     }
     Config config = Configuration.getByPath(confName);
-    this.fullNode = config.getStringList("fullnode.iplist").get(0);
-    this.fullNodeList = config.getStringList("fullnode.iplist");
+    this.mainchainFullNodeList = config.getStringList("mainchain.fullnode.ip.list");
+    this.mainchainFullNode = this.mainchainFullNodeList.get(0);
+    this.mainchainSolidity = config.getStringList("mainchain.solitity.ip.list").get(0);
 
-    this.solidity = config.getStringList("solitity.iplist").get(0);
+    this.sidechainFullNodeList = config.getStringList("sidechain.fullnode.ip.list");
+    this.sidechainFullNode = this.sidechainFullNodeList.get(0);
+    this.sidechainSolidity = config.getStringList("sidechain.solitity.ip.list").get(0);
 
-    this.bttContract = WalletUtil.decodeFromBase58Check(config.getString("BTT_CONTRACT"));
-    this.cooPrivateKey = Hex.decode(config.getString("COO_PRIVATE_KEY"));
+    this.mainchainGateway = WalletUtil
+      .decodeFromBase58Check(config.getString("gateway.mainchain.address"));
+    this.sidechainGateway = WalletUtil
+      .decodeFromBase58Check(config.getString("gateway.sidechain.address"));
+    this.oraclePrivateKey = Hex.decode(config.getString("oracle.private.key"));
 
-    loadMysqlConf(config);
+    // loadMysqlConf(config);
   }
 
   public static void main(String[] args) {

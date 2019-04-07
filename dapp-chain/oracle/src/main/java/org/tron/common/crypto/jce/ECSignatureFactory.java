@@ -28,7 +28,7 @@ public final class ECSignatureFactory {
   public static final String RAW_ALGORITHM = "NONEwithECDSA";
 
   private static final String rawAlgorithmAssertionMsg =
-      "Assumed the JRE supports NONEwithECDSA signatures";
+    "Assumed the JRE supports NONEwithECDSA signatures";
 
   private ECSignatureFactory() {
   }
@@ -42,7 +42,7 @@ public final class ECSignatureFactory {
   }
 
   public static Signature getRawInstance(final String provider) throws
-      NoSuchProviderException {
+    NoSuchProviderException {
     try {
       return Signature.getInstance(RAW_ALGORITHM, provider);
     } catch (NoSuchAlgorithmException ex) {

@@ -57,3 +57,5 @@ Wallet
 /vm_trace/
 # solc
 contract/solc
+
+src/main/resources/config.conf
