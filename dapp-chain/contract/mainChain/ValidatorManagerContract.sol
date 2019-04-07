@@ -36,12 +36,12 @@ contract ValidatorManagerContract is Ownable {
         numValidators = _validators.length;
     }
 
-    modifier isVerifiedByValidator(uint256 num, address contractAddress, bytes sig) {
+    modifier isVerifiedByValidator(uint256 num, address _to, bytes sig) {
         // prevent replay attacks by adding the nonce in the sig
         // if a validator signs an invalid nonce,
         // it won't pass the signature verification
         // since the nonce in the hash is stored in the contract
-        bytes32 hash = keccak256(abi.encodePacked(msg.sender, contractAddress, nonces[msg.sender], num));
+        bytes32 hash = keccak256(abi.encodePacked(_to, nonces[_to], num));
         address sender = hash.recover(sig);
         require(sender == msg.sender, "Message not signed by a validator");
         _;

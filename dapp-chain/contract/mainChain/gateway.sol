@@ -32,7 +32,7 @@ contract Gateway is TRC10Receiver, ITRC20Receiver, ITRC721Receiver, ValidatorMan
         TRC20,
         TRC721
     }
-
+    
     /**
      * Event to log the withdrawal of a token from the Gateway.
      * @param owner Address of the entity that made the withdrawal.
@@ -96,7 +96,7 @@ contract Gateway is TRC10Receiver, ITRC20Receiver, ITRC721Receiver, ValidatorMan
 
     function withdrawTRC10(address _to, trcToken tokenId, uint256 amount, bytes sig)
     external
-    isVerifiedByValidator(amount, address(this), sig)
+    isVerifiedByValidator(amount, _to, sig)
     {
         balances.trc10[tokenId] = balances.trc10[tokenId].sub(amount);
         _to.transferToken(tokenId, amount);
