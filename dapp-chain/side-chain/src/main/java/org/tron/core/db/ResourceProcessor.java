@@ -51,7 +51,7 @@ abstract class ResourceProcessor {
     return getUsage(averageLastUsage, windowSize);
   }
 
-  private long divideCeil(long numerator, long denominator) {
+  protected long divideCeil(long numerator, long denominator) {
     return (numerator / denominator) + ((numerator % denominator) > 0 ? 1 : 0);
   }
 
