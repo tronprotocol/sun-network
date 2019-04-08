@@ -219,8 +219,8 @@ public class EnergyProcessor extends ResourceProcessor {
   public boolean consumeFreezeEnergyForCreateNewAccount(AccountCapsule accountCapsule, long bytes,
       long now, TransactionTrace trace) {
 
-    long createNewAccountEnergyRatio = 1 / dbManager.getDynamicPropertiesStore().
-        getCreateNewAccountEnergyRate();
+    long createNewAccountEnergyRatio = divideCeil(1 , dbManager.getDynamicPropertiesStore().
+        getCreateNewAccountEnergyRate());
 
     long energyLeftFromFreeze = getAccountLeftEnergyFromFreeze(accountCapsule);
 
@@ -270,7 +270,7 @@ public class EnergyProcessor extends ResourceProcessor {
     long energyLeftFromFreeze = getAccountLeftEnergyFromFreeze(accountCapsule);
 
     long rate = dbManager.getDynamicPropertiesStore().getTransactionEnergyByteRate();
-    long usage= ((rate == 0) ? 0 : (bytes / rate)) ;
+    long usage= ((rate == 0) ? 0 : divideCeil(bytes, rate)) ;
 
     if (usage > energyLeftFromFreeze) {
       logger.debug("Energy is running out. now use TRX");

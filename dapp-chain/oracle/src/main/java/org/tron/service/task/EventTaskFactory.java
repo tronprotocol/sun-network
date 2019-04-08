@@ -2,7 +2,8 @@ package org.tron.service.task;
 
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
-import org.tron.service.eventenum.EventType;
+import org.tron.service.eventenum.MainEventType;
+import org.tron.service.eventenum.SideEventType;
 import org.tron.service.task.mainchain.DepositTRC10Task;
 import org.tron.service.task.mainchain.DepositTRC20Task;
 import org.tron.service.task.mainchain.DepositTRC721Task;
@@ -12,8 +13,21 @@ import org.tron.service.task.mainchain.TokenWithdrawnTask;
 @Slf4j(topic = "task")
 public class EventTaskFactory {
 
-  static EventTask CreateTask(EventType eventSignature, JSONObject obj) {
+  static EventTask CreateTask(TaskEnum taskType,
+      JSONObject obj) {
+    switch (taskType) {
+      case MAIN_CHAIN:
+        return CreateMainChainTask(obj);
+      case SIDE_CHAIN:
+        return CreateSideChainTask(obj);
+    }
+    return null;
+  }
+
+  private static EventTask CreateMainChainTask(JSONObject obj) {
     EventTask task;
+    SideEventType eventSignature = SideEventType
+        .fromSignature(obj.get("eventSignature").toString());
     switch (eventSignature) {
       case TokenWithdrawn: {
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
@@ -53,6 +67,25 @@ public class EventTaskFactory {
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
         task = new DepositTRC721Task(dataMap.get("from").toString(),
             dataMap.get("uid").toString(), dataMap.get("contractAddress").toString());
+        return task;
+      }
+      default:
+        logger.info(String
+            .format("event:%s,signature:%s.",
+                obj.get("eventSignature").toString(), eventSignature.getSignature()));
+    }
+    return null;
+  }
+
+  static EventTask CreateSideChainTask(JSONObject obj) {
+    EventTask task;
+    MainEventType eventSignature = MainEventType
+        .fromSignature(obj.get("eventSignature").toString());
+    switch (eventSignature) {
+      case TRXReceived: {
+        JSONObject dataMap = (JSONObject) obj.get("dataMap");
+        task = new DepositTRXTask(dataMap.get("from").toString(),
+            dataMap.get("amount").toString());
         return task;
       }
       default:
