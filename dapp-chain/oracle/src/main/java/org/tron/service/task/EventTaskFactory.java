@@ -17,14 +17,14 @@ public class EventTaskFactory {
       JSONObject obj) {
     switch (taskType) {
       case MAIN_CHAIN:
-        return CreateMainChianTask(obj);
+        return CreateMainChainTask(obj);
       case SIDE_CHAIN:
-        return CreateSideChianTask(obj);
+        return CreateSideChainTask(obj);
     }
     return null;
   }
 
-  private static EventTask CreateSideChianTask(JSONObject obj) {
+  private static EventTask CreateMainChainTask(JSONObject obj) {
     EventTask task;
     SideEventType eventSignature = SideEventType
         .fromSignature(obj.get("eventSignature").toString());
@@ -77,7 +77,7 @@ public class EventTaskFactory {
     return null;
   }
 
-  static EventTask CreateMainChianTask(JSONObject obj) {
+  static EventTask CreateSideChainTask(JSONObject obj) {
     EventTask task;
     MainEventType eventSignature = MainEventType
         .fromSignature(obj.get("eventSignature").toString());
