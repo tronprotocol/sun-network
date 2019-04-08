@@ -6,7 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.Args;
+import org.tron.common.exception.ContractException;
 import org.tron.common.exception.RpcException;
+import org.tron.common.exception.TxNotFoundException;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.WalletUtil;
 
@@ -35,6 +37,7 @@ public class SideChainGatewayApi {
     public WalletClient getInstance() {
       return instance;
     }
+
 
   }
 
@@ -74,7 +77,11 @@ public class SideChainGatewayApi {
   }
 
 
-  public static void chackTxInfo(String trxId) {
+  public static byte[] getTxInfo(String trxId) throws ContractException, TxNotFoundException {
+    return GATEWAY_API.instance.getTxInfo(trxId);
+  }
+
+  public static void checkTxInfo(String trxId) {
 
   }
 

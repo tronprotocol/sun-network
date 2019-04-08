@@ -9,7 +9,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.tron.service.eventenum.EventType;
 import org.tron.service.kafka.KfkConsumer;
 
 @Slf4j(topic = "task")
@@ -17,13 +16,16 @@ public class ChainTask extends Thread {
 
   private String gatewayAddress;
   private String kfkServer;
+  private TaskEnum taskType;
 
   private ExecutorService executor;
 
-  public ChainTask(String gatewayAddress, String kfkServer, int fixedThreads) {
+  public ChainTask(TaskEnum taskType, String gatewayAddress,
+      String kfkServer, int fixedThreads) {
     super();
     this.gatewayAddress = gatewayAddress;
     this.kfkServer = kfkServer;
+    this.taskType = taskType;
     executor = Executors.newFixedThreadPool(fixedThreads);
   }
 
@@ -38,8 +40,7 @@ public class ChainTask extends Thread {
         if (!obj.get("contractAddress").toString().equals(gatewayAddress)) {
           continue;
         }
-        EventType eventSignature = EventType.fromSignature(obj.get("eventSignature").toString());
-        EventTask eventTask = EventTaskFactory.CreateTask(eventSignature, obj);
+        EventTask eventTask = EventTaskFactory.CreateTask(this.taskType, obj);
         if (Objects.isNull(eventTask)) {
           continue;
         }
