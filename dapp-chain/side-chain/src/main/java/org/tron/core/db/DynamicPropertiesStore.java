@@ -180,6 +180,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   // Define the energy/byte rate, when create an account using frozen energy.
   private static final byte[] CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE = "CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE".getBytes();
 
+  private static final byte[] ENERGY_CHARGING_SWITCH = "ENERGY_CHARGING_SWITCH".getBytes();
+
   @Autowired
   private DynamicPropertiesStore(@Value("properties") String dbName) {
     super(dbName);
@@ -582,6 +584,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     } catch (IllegalArgumentException e) {
       this.saveGateWayList(new ArrayList<>());
     }
+
+    try {
+      this.getEnergyChargingSwitch();
+    } catch (IllegalArgumentException e) {
+      this.saveEnergyChargingSwitch(0);
+    }
   }
 
   public String intArrayToString(int[] a) {
@@ -601,7 +609,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     return result;
   }
 
-  public long getTransactionEnergyByteRate() {
+  /**
+   *   Side-chain parameters
+   *
+   */
+
+
+  public int getTransactionEnergyByteRate() {
     return Optional.ofNullable(getUnchecked(TRANSACTION_ENERGY_BYTE_RATE))
         .map(BytesCapsule::getData)
         .map(ByteArray::toInt)
@@ -626,6 +640,24 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     this.put(GATEWAY_ADDRESS_LIST,
         new BytesCapsule(ByteArray.fromBytes21List(gateWayList)));
   }
+
+  public int getEnergyChargingSwitch(){
+    return Optional.ofNullable(getUnchecked(ENERGY_CHARGING_SWITCH))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toInt)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found ENERGY_CHARGING_SWITCH"));
+  }
+
+  public void saveEnergyChargingSwitch(int num) {
+    this.put(ENERGY_CHARGING_SWITCH,
+        new BytesCapsule(ByteArray.fromInt(num)));
+  }
+
+  /**
+   *   SideChain parameter end
+   */
+
 
   public void saveTokenIdNum(long num) {
     this.put(TOKEN_ID_NUM,

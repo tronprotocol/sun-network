@@ -162,7 +162,7 @@ public class EnergyProcessor extends ResourceProcessor {
       bytesSize += Constant.MAX_RESULT_SIZE_IN_TX;
 
       logger.debug("trxId {},bandwidth cost :{}", trx.getTransactionId(), bytesSize);
-      trace.setNetBill(bytesSize, 0);
+      //trace.setNetBill(bytesSize, 0);
       byte[] address = TransactionCapsule.getOwner(contract);
       AccountCapsule accountCapsule = dbManager.getAccountStore().get(address);
       if (accountCapsule == null) {
@@ -176,7 +176,7 @@ public class EnergyProcessor extends ResourceProcessor {
         continue;
       }
 
-      if (useAccountFrozenEnergy(accountCapsule, bytesSize, now)) {
+      if (useAccountFrozenEnergy(accountCapsule, bytesSize, now, trace)) {
         continue;
       }
 
@@ -205,7 +205,7 @@ public class EnergyProcessor extends ResourceProcessor {
 
   public void consumeEnergyForCreateNewAccount(AccountCapsule accountCapsule, long bytes,
       long now, TransactionTrace trace) throws AccountResourceInsufficientException {
-    boolean ret = consumeFreezeEnergyForCreateNewAccount(accountCapsule, bytes,now);
+    boolean ret = consumeFreezeEnergyForCreateNewAccount(accountCapsule, bytes, now, trace);
 
     if (!ret) {
       ret =consumeFeeForCreateNewAccount(accountCapsule, trace);
@@ -213,31 +213,28 @@ public class EnergyProcessor extends ResourceProcessor {
         throw new AccountResourceInsufficientException();
       }
     }
-
-    long fee = dbManager.getDynamicPropertiesStore().getCreateAccountFee();
-    long energyForCreateNewAccount = fee * dbManager.getDynamicPropertiesStore().getEnergyFee();
-    trace.setNetBill(0, energyForCreateNewAccount);
-    dbManager.getDynamicPropertiesStore().addTotalCreateAccountCost(fee);
   }
 
 
   public boolean consumeFreezeEnergyForCreateNewAccount(AccountCapsule accountCapsule, long bytes,
-      long now) {
+      long now, TransactionTrace trace) {
 
     long createNewAccountEnergyRatio = 1 / dbManager.getDynamicPropertiesStore().
         getCreateNewAccountEnergyRate();
 
     long energyLeftFromFreeze = getAccountLeftEnergyFromFreeze(accountCapsule);
 
-    if (bytes * createNewAccountEnergyRatio <= energyLeftFromFreeze) {
+    long usage = bytes * createNewAccountEnergyRatio;
+    if (usage <= energyLeftFromFreeze) {
       long latestConsumeTime = now;
       long latestOperationTime = dbManager.getHeadBlockTimeStamp();
-      energyLeftFromFreeze = increase(energyLeftFromFreeze, bytes * createNewAccountEnergyRatio, latestConsumeTime,
+      energyLeftFromFreeze = increase(energyLeftFromFreeze, usage, latestConsumeTime,
           now);
       accountCapsule.setLatestConsumeTime(latestConsumeTime);
       accountCapsule.setLatestOperationTime(latestOperationTime);
       accountCapsule.setEnergyUsage(energyLeftFromFreeze);
       dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);
+      trace.setNetBill(usage, 0);
       return true;
     }
     return false;
@@ -267,22 +264,26 @@ public class EnergyProcessor extends ResourceProcessor {
     }
   }
 
-  private boolean useAccountFrozenEnergy(AccountCapsule accountCapsule, long bytes, long now) {
+  private boolean useAccountFrozenEnergy(AccountCapsule accountCapsule, long bytes, long now,
+      TransactionTrace trace) {
 
     long energyLeftFromFreeze = getAccountLeftEnergyFromFreeze(accountCapsule);
 
-    long rate = dbManager.getDynamicPropertiesStore().getCreateNewAccountEnergyRate();
-    if (bytes * 1 / rate > energyLeftFromFreeze) {
+    long rate = dbManager.getDynamicPropertiesStore().getTransactionEnergyByteRate();
+    long usage= ((rate == 0) ? 0 : (bytes / rate)) ;
+
+    if (usage > energyLeftFromFreeze) {
       logger.debug("Energy is running out. now use TRX");
       return false;
     }
 
     long latestConsumeTime = now;
     long latestOperationTime = dbManager.getHeadBlockTimeStamp();
-    energyLeftFromFreeze = increase(energyLeftFromFreeze, bytes, latestConsumeTime, now);
+    energyLeftFromFreeze = increase(energyLeftFromFreeze, usage, latestConsumeTime, now);
     accountCapsule.setNetUsage(energyLeftFromFreeze);
     accountCapsule.setLatestOperationTime(latestOperationTime);
     accountCapsule.setLatestConsumeTime(latestConsumeTime);
+    trace.setNetBill(usage, 0);
 
     dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);
     return true;
