@@ -39,7 +39,7 @@ public class ChainTask extends Thread {
           continue;
         }
         EventType eventSignature = EventType.fromSignature(obj.get("eventSignature").toString());
-        EventTask eventTask = EventTashFactory.CreateTask(eventSignature, obj);
+        EventTask eventTask = EventTaskFactory.CreateTask(eventSignature, obj);
         if (Objects.isNull(eventTask)) {
           continue;
         }

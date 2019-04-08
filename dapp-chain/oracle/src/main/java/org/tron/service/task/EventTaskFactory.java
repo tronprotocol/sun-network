@@ -10,9 +10,9 @@ import org.tron.service.task.mainchain.DepositTRXTask;
 import org.tron.service.task.mainchain.TokenWithdrawnTask;
 
 @Slf4j(topic = "task")
-public class EventTashFactory {
+public class EventTaskFactory {
 
-  public static EventTask CreateTask(EventType eventSignature, JSONObject obj) {
+  static EventTask CreateTask(EventType eventSignature, JSONObject obj) {
     EventTask task;
     switch (eventSignature) {
       case TokenWithdrawn: {

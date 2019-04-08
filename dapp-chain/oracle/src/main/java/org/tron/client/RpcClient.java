@@ -15,32 +15,33 @@ import org.tron.api.WalletGrpc;
 import org.tron.common.exception.RpcException;
 import org.tron.common.utils.ByteArray;
 import org.tron.protos.Contract;
+import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 
 @Slf4j
-public class RpcClient {
+class RpcClient {
 
   private WalletGrpc.WalletBlockingStub blockingStub;
 
-  public RpcClient(String target) {
+  RpcClient(String target) {
     ManagedChannel channel = ManagedChannelBuilder.forTarget(target).usePlaintext(true).build();
     blockingStub = WalletGrpc.newBlockingStub(channel);
   }
 
-  public TransactionExtention triggerContract(Contract.TriggerSmartContract request) {
+  TransactionExtention triggerContract(Contract.TriggerSmartContract request) {
     return blockingStub.triggerContract(request);
   }
 
-  public Optional<TransactionInfo> getTransactionInfoById(String txID) {
+  Optional<TransactionInfo> getTransactionInfoById(String txID) {
     BytesMessage request = BytesMessage.newBuilder()
-      .setValue(ByteString.copyFrom(ByteArray.fromHexString(txID))).build();
+        .setValue(ByteString.copyFrom(ByteArray.fromHexString(txID))).build();
     TransactionInfo transactionInfo = blockingStub.getTransactionInfoById(request);
     return Optional.ofNullable(transactionInfo);
   }
 
-  public boolean broadcastTransaction(Transaction signaturedTransaction) throws RpcException {
+  boolean broadcastTransaction(Transaction signaturedTransaction) throws RpcException {
 
     int maxRetry = 10;
     for (int i = 0; i < maxRetry; i++) {
@@ -61,7 +62,7 @@ public class RpcClient {
           }
         } else {
           logger.info("server error, fail, code: {}, message", response.getCode(),
-            response.getMessage().toStringUtf8());
+              response.getMessage().toStringUtf8());
           // fail, not retry
           throw new RpcException("server error, fail");
         }
@@ -72,17 +73,23 @@ public class RpcClient {
 
   }
 
-  public TransactionExtention createTransaction2(Contract.TransferContract contract) {
+  TransactionExtention createTransaction2(Contract.TransferContract contract) {
     return blockingStub.createTransaction2(contract);
   }
 
-  public Account queryAccount(byte[] address) {
+  Account queryAccount(byte[] address) {
     ByteString addressBS = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBS).build();
     return blockingStub.getAccount(request);
   }
 
-  public AddressPrKeyPairMessage generateAddress(EmptyMessage emptyMessage) {
+  AddressPrKeyPairMessage generateAddress(EmptyMessage emptyMessage) {
     return blockingStub.generateAddress(emptyMessage);
+  }
+
+  AssetIssueContract getAssetIssueById(String assetId) {
+    ByteString assetIdBs = ByteString.copyFrom(assetId.getBytes());
+    BytesMessage request = BytesMessage.newBuilder().setValue(assetIdBs).build();
+    return blockingStub.getAssetIssueById(request);
   }
 }
