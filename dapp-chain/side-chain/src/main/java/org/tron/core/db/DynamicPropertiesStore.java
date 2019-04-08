@@ -586,7 +586,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found GATEWAY_ADDRESS_LIST"));
   }
 
-  public void saveGateWayList(ArrayList<byte[]> gateWayList) {
+  public void saveGateWayList(List<byte[]> gateWayList) {
     this.put(GATEWAY_ADDRESS_LIST,
         new BytesCapsule(ByteArray.fromBytes21List(gateWayList)));
   }

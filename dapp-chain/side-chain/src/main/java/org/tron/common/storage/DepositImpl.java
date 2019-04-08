@@ -5,6 +5,7 @@ import static org.tron.common.runtime.utils.MUtil.convertToTronAddress;
 import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
 import java.util.HashMap;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.Strings;
 import org.spongycastle.util.encoders.Hex;
@@ -168,6 +169,10 @@ public class DepositImpl implements Deposit {
     return getAccountStore().getBlackhole().getAddress().toByteArray();
   }
 
+  @Override
+  public List<byte[]> getGatewayList() {
+    return this.dbManager.getDynamicPropertiesStore().getGateWayList();
+  }
   @Override
   public WitnessCapsule getWitness(byte[] address) {
     Key key = new Key(address);
