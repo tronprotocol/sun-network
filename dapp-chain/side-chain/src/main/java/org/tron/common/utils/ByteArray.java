@@ -24,6 +24,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -119,5 +121,27 @@ public class ByteArray {
     byte[] result = new byte[end - start];
     System.arraycopy(input, start, result, 0, end - start);
     return result;
+  }
+
+
+  public static List<byte[]> toByte21List(byte[] input32) {
+    ArrayList<byte[]> list = new ArrayList<byte[]>();
+    for (int i=0; i< input32.length; i++){
+      byte[] element = new byte[21];
+      System.arraycopy(input32,i * 21, element,0,32);
+      list.add(element);
+    }
+    return list;
+  }
+
+  public static byte[] fromBytes21List(List<byte[]> list) {
+    byte[] data = new byte[21*list.size()];
+    for (int i=0; i< list.size();i++) {
+      if (list.get(i).length != 21) {
+        throw new IllegalArgumentException("should be 21 bytes for each element in the list");
+      }
+      System.arraycopy(list.get(i), 0, data, i*21, 21);
+    }
+    return data;
   }
 }

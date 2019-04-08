@@ -1,7 +1,9 @@
 package org.tron.core.db;
 
 import com.google.protobuf.ByteString;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
@@ -164,6 +166,9 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
 
   private static final byte[] AVAILABLE_CONTRACT_TYPE = "AVAILABLE_CONTRACT_TYPE".getBytes();
   private static final byte[] ACTIVE_DEFAULT_OPERATIONS = "ACTIVE_DEFAULT_OPERATIONS".getBytes();
+
+  // Side-chain gateway list
+  private static final byte[] GATEWAY_ADDRESS_LIST = "GATEWAY_ADDRESS_LIST".getBytes();
 
 
   @Autowired
@@ -548,6 +553,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     } catch (IllegalArgumentException e) {
       this.saveBlockEnergyUsage(0);
     }
+
+    try {
+      this.getGateWayList();
+    } catch (IllegalArgumentException e) {
+      this.saveGateWayList(new ArrayList<>());
+    }
   }
 
   public String intArrayToString(int[] a) {
@@ -567,6 +578,18 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     return result;
   }
 
+  public List<byte[]> getGateWayList() {
+    return Optional.ofNullable(getUnchecked(GATEWAY_ADDRESS_LIST))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toByte21List)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found GATEWAY_ADDRESS_LIST"));
+  }
+
+  public void saveGateWayList(ArrayList<byte[]> gateWayList) {
+    this.put(GATEWAY_ADDRESS_LIST,
+        new BytesCapsule(ByteArray.fromBytes21List(gateWayList)));
+  }
 
   public void saveTokenIdNum(long num) {
     this.put(TOKEN_ID_NUM,
