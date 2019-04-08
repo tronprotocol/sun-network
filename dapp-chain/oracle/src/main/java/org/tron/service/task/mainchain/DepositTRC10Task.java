@@ -6,18 +6,20 @@ import org.tron.service.task.EventTask;
 @Slf4j(topic = "mainChainTask")
 public class DepositTRC10Task implements EventTask {
 
-    private String from;
-    private String amount;
-    private String tokenId;
+  private String from;
+  private String amount;
+  private String tokenId;
 
-    public DepositTRC10Task(String from, String amount, String tokenId) {
-        this.from = from;
-        this.amount = amount;
-        this.tokenId = tokenId;
-    }
+  public DepositTRC10Task(String from, String amount, String tokenId) {
+    this.from = from;
+    this.amount = amount;
+    this.tokenId = tokenId;
+  }
 
-    @Override
-    public void run() {
-        logger.info("from:{},amount:{},tokenId:{}", this.from, this.amount, this.tokenId);
-    }
+  @Override
+  public void run() {
+    logger.info("from:{},amount:{},tokenId:{}", this.from, this.amount, this.tokenId);
+    // MainChainGatewayApi.deployDAppTRC20AndMapping()
+    // SideChainGatewayApi.deployDAppTRC20AndMapping();
+  }
 }

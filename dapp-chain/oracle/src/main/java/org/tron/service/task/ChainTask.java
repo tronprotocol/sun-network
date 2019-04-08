@@ -17,7 +17,6 @@ public class ChainTask extends Thread {
 
   private String gatewayAddress;
   private String kfkServer;
-  private int fixedThreads;
 
   private ExecutorService executor;
 
