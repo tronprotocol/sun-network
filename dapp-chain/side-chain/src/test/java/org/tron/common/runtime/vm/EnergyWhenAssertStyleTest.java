@@ -13,6 +13,7 @@ import org.tron.common.application.ApplicationFactory;
 import org.tron.common.application.TronApplicationContext;
 import org.tron.common.runtime.TVMTestResult;
 import org.tron.common.runtime.TVMTestUtils;
+import org.tron.common.runtime.config.VMConfig;
 import org.tron.common.runtime.vm.program.Program.IllegalOperationException;
 import org.tron.common.runtime.vm.program.Program.OutOfMemoryException;
 import org.tron.common.runtime.vm.program.Program.PrecompiledContractException;
@@ -57,6 +58,7 @@ public class EnergyWhenAssertStyleTest {
     deposit.createAccount(Hex.decode(OWNER_ADDRESS), AccountType.Normal);
     deposit.addBalance(Hex.decode(OWNER_ADDRESS), totalBalance);
     deposit.commit();
+    VMConfig.setVmResourceChargingOn(true);
   }
 
   // An assert-style exception is generated in the following situations:

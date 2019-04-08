@@ -1184,9 +1184,12 @@ public class Manager {
     TransactionTrace trace = new TransactionTrace(trxCap, this);
     trxCap.setTrxTrace(trace);
 
-    consumeBandwidthEnergy(trxCap, trace);
-    consumeMultiSignFee(trxCap, trace);
+    if (false) { //TODO: Implement Resource charging fork
+      consumeBandwidthEnergy(trxCap, trace);
+      consumeMultiSignFee(trxCap, trace);
+    }
 
+    VMConfig.handleProposalInVM(this);
     trace.init(blockCap, eventPluginLoaded);
     trace.checkIsConstant();
     trace.exec();

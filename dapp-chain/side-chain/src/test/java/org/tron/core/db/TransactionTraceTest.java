@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.tron.common.application.TronApplicationContext;
 import org.tron.common.runtime.TVMTestUtils;
+import org.tron.common.runtime.config.VMConfig;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.FileUtil;
 import org.tron.core.Wallet;
@@ -98,6 +99,7 @@ public class TransactionTraceTest {
     dbManager.getDynamicPropertiesStore().saveTotalEnergyWeight(100_000L);
 
     dbManager.getDynamicPropertiesStore().saveLatestBlockHeaderTimestamp(0);
+    VMConfig.setVmResourceChargingOn(true);
 
   }
 

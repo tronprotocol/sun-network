@@ -5,6 +5,7 @@ import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -33,6 +34,11 @@ import org.tron.common.runtime.Runtime;
 
 @Slf4j
 public class StorageTest extends VMTestBase {
+
+  @BeforeClass
+  public static void preTest(){
+    VMConfig.setVmResourceChargingOn(true);
+  }
 
 
   @Test

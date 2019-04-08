@@ -19,15 +19,14 @@ package org.tron.common.runtime.config;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.tron.common.utils.ForkController;
-import org.tron.core.config.Parameter.ForkBlockVersionConsts;
-import org.tron.core.config.Parameter.ForkBlockVersionEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.tron.core.config.args.Args;
 import org.tron.core.db.Manager;
 
 /**
  * For developer only
  */
+@Slf4j
 public class VMConfig {
 
   public static final int MAX_CODE_LENGTH = 1024 * 1024;
@@ -37,12 +36,20 @@ public class VMConfig {
   private boolean vmTraceCompressed = false;
   private boolean vmTrace = Args.getInstance().isVmTrace();
 
+  @Getter
+  @Setter
+  public static boolean isVmResourceChargingOn = false;
+
   private VMConfig() {
   }
 
   private static class SystemPropertiesInstance {
 
     private static final VMConfig INSTANCE = new VMConfig();
+  }
+
+  public static void handleProposalInVM(Manager dbManager) {
+    isVmResourceChargingOn = isChargingResourceProposalOn(dbManager);
   }
 
   public static VMConfig getInstance() {
@@ -57,5 +64,9 @@ public class VMConfig {
     return vmTraceCompressed;
   }
 
+  private static boolean isChargingResourceProposalOn(Manager dbManger){
+    //TODO: IMPLEMENT GET CHARGING PROPOSAL HERE
+    return false;
+  }
 
 }

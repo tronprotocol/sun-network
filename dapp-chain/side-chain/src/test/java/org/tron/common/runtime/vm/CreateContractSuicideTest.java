@@ -107,6 +107,7 @@ contract D {
   @Test
   public void testAAfterAllowMultiSignProposal()
       throws ContractExeException, ReceiptCheckErrException, VMIllegalException, ContractValidateException {
+    VMConfig.setVmResourceChargingOn(true);
     byte[] stats = new byte[27];
     Arrays.fill(stats, (byte) 1);
     byte[] address = Hex.decode(OWNER_ADDRESS);
