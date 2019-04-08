@@ -764,6 +764,13 @@ public class Manager {
   }
 
 
+  public void consumeBandwidthEnergy(TransactionCapsule trx, TransactionTrace trace)
+      throws ContractValidateException, TooBigTransactionResultException, AccountResourceInsufficientException {
+    EnergyProcessor processor = new EnergyProcessor(this);
+    processor.bandwidthEnergyConsume(trx,trace);
+  }
+
+
   /**
    * when switch fork need erase blocks on fork branch.
    */
@@ -1177,12 +1184,12 @@ public class Manager {
     TransactionTrace trace = new TransactionTrace(trxCap, this);
     trxCap.setTrxTrace(trace);
 
-    consumeBandwidth(trxCap, trace);
-    consumeMultiSignFee(trxCap, trace);
+    if (false) { //TODO: Implement Resource charging fork
+      consumeBandwidthEnergy(trxCap, trace);
+      consumeMultiSignFee(trxCap, trace);
+    }
 
-    VMConfig.initVmHardFork();
-    VMConfig.initAllowMultiSign(dynamicPropertiesStore.getAllowMultiSign());
-    VMConfig.initAllowTvmTransferTrc10(dynamicPropertiesStore.getAllowTvmTransferTrc10());
+    VMConfig.handleProposalInVM(this);
     trace.init(blockCap, eventPluginLoaded);
     trace.checkIsConstant();
     trace.exec();

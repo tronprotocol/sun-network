@@ -13,6 +13,7 @@ import org.tron.common.application.ApplicationFactory;
 import org.tron.common.application.TronApplicationContext;
 import org.tron.common.runtime.TVMTestResult;
 import org.tron.common.runtime.TVMTestUtils;
+import org.tron.common.runtime.config.VMConfig;
 import org.tron.common.storage.DepositImpl;
 import org.tron.common.utils.FileUtil;
 import org.tron.core.Constant;
@@ -24,6 +25,7 @@ import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.ReceiptCheckErrException;
 import org.tron.core.exception.VMIllegalException;
+import org.tron.protos.Contract;
 import org.tron.protos.Protocol.AccountType;
 
 @Slf4j
@@ -54,6 +56,7 @@ public class ChargeTest {
     deposit.createAccount(Hex.decode(OWNER_ADDRESS), AccountType.Normal);
     deposit.addBalance(Hex.decode(OWNER_ADDRESS), totalBalance);
     deposit.commit();
+    VMConfig.setVmResourceChargingOn(true);
   }
 
   // pragma solidity ^0.4.16;
@@ -167,18 +170,24 @@ public class ChargeTest {
 
     /* ======================================CALL testNegative() with -100 callvalue ================================ */
     triggerData = TVMTestUtils.parseABI("testNegative()", "");
-    result = TVMTestUtils
-        .triggerContractAndReturnTVMTestResult(Hex.decode(OWNER_ADDRESS),
-            contractAddress, triggerData, -100, feeLimit, dbManager, null);
+    try {
+      result = TVMTestUtils
+          .triggerContractAndReturnTVMTestResult(Hex.decode(OWNER_ADDRESS),
+              contractAddress, triggerData, -100, feeLimit, dbManager, null);
 
-    long expectEnergyUsageTotal3 = feeLimit / 100;
-    Assert.assertEquals(result.getReceipt().getEnergyUsageTotal(), expectEnergyUsageTotal3);
-    Assert.assertEquals(result.getRuntime().getResult().isRevert(), false);
-    Assert.assertTrue(
-        result.getRuntime().getResult().getException() instanceof ArithmeticException);
-    Assert.assertEquals(dbManager.getAccountStore().get(address).getBalance(),
-        totalBalance
-            - (expectEnergyUsageTotal + expectEnergyUsageTotal2 + expectEnergyUsageTotal3) * 100);
+      long expectEnergyUsageTotal3 = feeLimit / 100;
+      Assert.assertEquals(result.getReceipt().getEnergyUsageTotal(), expectEnergyUsageTotal3);
+      Assert.assertEquals(result.getRuntime().getResult().isRevert(), false);
+      Assert.assertTrue(
+          result.getRuntime().getResult().getException() instanceof ArithmeticException);
+      Assert.assertEquals(dbManager.getAccountStore().get(address).getBalance(),
+          totalBalance
+              - (expectEnergyUsageTotal + expectEnergyUsageTotal2 + expectEnergyUsageTotal3) * 100);
+    }
+    catch (Exception e){
+      Assert.assertTrue(e instanceof  ContractValidateException);
+      Assert.assertTrue(e.getMessage().contains("callValue must >= 0") );
+    }
 
   }
 

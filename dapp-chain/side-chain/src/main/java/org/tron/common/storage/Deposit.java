@@ -94,6 +94,8 @@ public interface Deposit {
 
   long getNextMaintenanceTime();
 
+  long getEnergyFee();
+
   TransactionCapsule getTransaction(byte[] trxHash);
 
   BlockCapsule getBlock(byte[] blockHash);

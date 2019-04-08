@@ -2,13 +2,17 @@ package org.tron.core.db;
 
 import static java.lang.Long.max;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.core.Constant;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.config.Parameter.AdaptiveResourceLimitConstants;
 import org.tron.core.exception.AccountResourceInsufficientException;
 import org.tron.core.exception.ContractValidateException;
+import org.tron.core.exception.TooBigTransactionResultException;
 import org.tron.protos.Protocol.Account.AccountResource;
+import org.tron.protos.Protocol.Transaction.Contract;
 
 @Slf4j(topic = "DB")
 public class EnergyProcessor extends ResourceProcessor {
@@ -142,6 +146,148 @@ public class EnergyProcessor extends ResourceProcessor {
     return max(energyLimit - newEnergyUsage, 0); // us
   }
 
+  public void bandwidthEnergyConsume(TransactionCapsule trx, TransactionTrace trace)
+      throws TooBigTransactionResultException, ContractValidateException, AccountResourceInsufficientException {
+    List<Contract> contracts = trx.getInstance().getRawData().getContractList();
+    if (trx.getResultSerializedSize() > Constant.MAX_RESULT_SIZE_IN_TX * contracts.size()) {
+      throw new TooBigTransactionResultException();
+    }
+
+    long bytesSize;
+
+    bytesSize = trx.getInstance().toBuilder().clearRet().build().getSerializedSize();
+
+    for (Contract contract : contracts) {
+
+      bytesSize += Constant.MAX_RESULT_SIZE_IN_TX;
+
+      logger.debug("trxId {},bandwidth cost :{}", trx.getTransactionId(), bytesSize);
+      //trace.setNetBill(bytesSize, 0);
+      byte[] address = TransactionCapsule.getOwner(contract);
+      AccountCapsule accountCapsule = dbManager.getAccountStore().get(address);
+      if (accountCapsule == null) {
+        throw new ContractValidateException("account not exists");
+      }
+
+      long now = dbManager.getWitnessController().getHeadSlot();
+
+      if (contractCreateNewAccount(contract)) {
+        consumeEnergyForCreateNewAccount(accountCapsule, bytesSize, now, trace);
+        continue;
+      }
+
+      if (useAccountFrozenEnergy(accountCapsule, bytesSize, now, trace)) {
+        continue;
+      }
+
+      if (useTransactionFee(accountCapsule, bytesSize, trace)) {
+        continue;
+      }
+
+      long fee = dbManager.getDynamicPropertiesStore().getTransactionFee() * bytesSize;
+      throw new AccountResourceInsufficientException(
+          "Account Insufficient energy[" + bytesSize + "] and balance["
+              + fee + "] to create new account");
+
+    }
+
+  }
+
+
+  public boolean contractCreateNewAccount(Contract contract) {
+    switch (contract.getType()) {
+      case AccountCreateContract:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  public void consumeEnergyForCreateNewAccount(AccountCapsule accountCapsule, long bytes,
+      long now, TransactionTrace trace) throws AccountResourceInsufficientException {
+    boolean ret = consumeFreezeEnergyForCreateNewAccount(accountCapsule, bytes, now, trace);
+
+    if (!ret) {
+      ret =consumeFeeForCreateNewAccount(accountCapsule, trace);
+      if (!ret) {
+        throw new AccountResourceInsufficientException();
+      }
+    }
+  }
+
+
+  public boolean consumeFreezeEnergyForCreateNewAccount(AccountCapsule accountCapsule, long bytes,
+      long now, TransactionTrace trace) {
+
+    long createNewAccountEnergyRatio = 1 / dbManager.getDynamicPropertiesStore().
+        getCreateNewAccountEnergyRate();
+
+    long energyLeftFromFreeze = getAccountLeftEnergyFromFreeze(accountCapsule);
+
+    long usage = bytes * createNewAccountEnergyRatio;
+    if (usage <= energyLeftFromFreeze) {
+      long latestConsumeTime = now;
+      long latestOperationTime = dbManager.getHeadBlockTimeStamp();
+      energyLeftFromFreeze = increase(energyLeftFromFreeze, usage, latestConsumeTime,
+          now);
+      accountCapsule.setLatestConsumeTime(latestConsumeTime);
+      accountCapsule.setLatestOperationTime(latestOperationTime);
+      accountCapsule.setEnergyUsage(energyLeftFromFreeze);
+      dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);
+      trace.setNetBill(usage, 0);
+      return true;
+    }
+    return false;
+  }
+
+  public boolean consumeFeeForCreateNewAccount(AccountCapsule accountCapsule,
+      TransactionTrace trace) {
+    long fee = dbManager.getDynamicPropertiesStore().getCreateAccountFee();
+    if (consumeFee(accountCapsule, fee)) {
+      trace.setNetBill(0, fee);
+      dbManager.getDynamicPropertiesStore().addTotalCreateAccountCost(fee);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private boolean useTransactionFee(AccountCapsule accountCapsule, long bytes,
+      TransactionTrace trace) {
+    long fee = dbManager.getDynamicPropertiesStore().getTransactionFee() * bytes;
+    if (consumeFee(accountCapsule, fee)) {
+      trace.setNetBill(0, fee);
+      dbManager.getDynamicPropertiesStore().addTotalTransactionCost(fee);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private boolean useAccountFrozenEnergy(AccountCapsule accountCapsule, long bytes, long now,
+      TransactionTrace trace) {
+
+    long energyLeftFromFreeze = getAccountLeftEnergyFromFreeze(accountCapsule);
+
+    long rate = dbManager.getDynamicPropertiesStore().getTransactionEnergyByteRate();
+    long usage= ((rate == 0) ? 0 : (bytes / rate)) ;
+
+    if (usage > energyLeftFromFreeze) {
+      logger.debug("Energy is running out. now use TRX");
+      return false;
+    }
+
+    long latestConsumeTime = now;
+    long latestOperationTime = dbManager.getHeadBlockTimeStamp();
+    energyLeftFromFreeze = increase(energyLeftFromFreeze, usage, latestConsumeTime, now);
+    accountCapsule.setNetUsage(energyLeftFromFreeze);
+    accountCapsule.setLatestOperationTime(latestOperationTime);
+    accountCapsule.setLatestConsumeTime(latestConsumeTime);
+    trace.setNetBill(usage, 0);
+
+    dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);
+    return true;
+  }
 }
 
 

@@ -623,9 +623,7 @@ public class VM {
          */
         case ADDRESS: {
           DataWord address = program.getContractAddress();
-          if (VMConfig.allowMultiSign()) { // allowMultiSigns proposal
-            address = new DataWord(address.getLast20Bytes());
-          }
+          address = new DataWord(address.getLast20Bytes());
 
           if (logger.isDebugEnabled()) {
             hint = ADDRESS_LOG + Hex.toHexString(address.getLast20Bytes());
@@ -652,9 +650,8 @@ public class VM {
         case ORIGIN: {
           DataWord originAddress = program.getOriginAddress();
 
-          if (VMConfig.allowMultiSign()) { //allowMultiSign proposal
-            originAddress = new DataWord(originAddress.getLast20Bytes());
-          }
+          originAddress = new DataWord(originAddress.getLast20Bytes());
+
 
           if (logger.isDebugEnabled()) {
             hint = ADDRESS_LOG + Hex.toHexString(originAddress.getLast20Bytes());

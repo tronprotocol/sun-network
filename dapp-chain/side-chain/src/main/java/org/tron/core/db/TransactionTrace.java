@@ -127,12 +127,12 @@ public class TransactionTrace {
 
   //set net bill
   public void setNetBill(long netUsage, long netFee) {
-    receipt.setNetUsage(netUsage);
-    receipt.setNetFee(netFee);
+    receipt.setNetEnergyUsage(netUsage);
+    receipt.setNetEnergyFee(netFee);
   }
 
   public void addNetBill(long netFee) {
-    receipt.addNetFee(netFee);
+    receipt.addNetEnergyFee(netFee);
   }
 
   public void exec()

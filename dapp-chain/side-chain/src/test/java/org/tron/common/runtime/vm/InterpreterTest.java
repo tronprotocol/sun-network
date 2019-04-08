@@ -22,6 +22,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tron.common.runtime.config.VMConfig;
 import org.tron.common.runtime.vm.program.InternalTransaction.TrxType;
 import org.tron.core.config.args.Args;
 import org.tron.core.exception.ContractValidateException;
@@ -38,7 +39,9 @@ public class InterpreterTest {
 
   @BeforeClass
   public static void init() {
+
     Args.getInstance().setDebug(true);
+    VMConfig.setVmResourceChargingOn(true);
   }
 
   @Test

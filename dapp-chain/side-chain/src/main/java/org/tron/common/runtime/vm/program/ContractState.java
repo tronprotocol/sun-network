@@ -263,6 +263,9 @@ public class ContractState implements Deposit, ProgramListenerAware {
   }
 
   @Override
+  public long getEnergyFee(){ return deposit.getEnergyFee(); }
+
+  @Override
   public BlockCapsule getBlock(byte[] blockHash) {
     return this.deposit.getBlock(blockHash);
   }

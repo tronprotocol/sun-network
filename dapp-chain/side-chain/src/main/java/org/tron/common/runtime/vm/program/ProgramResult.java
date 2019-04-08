@@ -8,6 +8,7 @@ import java.util.*;
 
 import lombok.Setter;
 import org.tron.common.logsfilter.trigger.ContractTrigger;
+import org.tron.common.runtime.config.VMConfig;
 import org.tron.common.runtime.vm.CallCreate;
 import org.tron.common.runtime.vm.DataWord;
 import org.tron.common.runtime.vm.LogInfo;
@@ -42,7 +43,9 @@ public class ProgramResult {
   private List<CallCreate> callCreateList;
 
   public void spendEnergy(long energy) {
-    energyUsed += energy;
+    if (VMConfig.isVmResourceChargingOn) {
+      energyUsed += energy;
+    }
   }
 
   public void setRevert() {
