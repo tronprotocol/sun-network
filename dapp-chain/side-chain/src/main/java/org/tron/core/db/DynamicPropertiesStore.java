@@ -180,6 +180,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   // Define the energy/byte rate, when create an account using frozen energy.
   private static final byte[] CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE = "CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE".getBytes();
 
+  // switch on to kick off energy charging
   private static final byte[] ENERGY_CHARGING_SWITCH = "ENERGY_CHARGING_SWITCH".getBytes();
 
   @Autowired
