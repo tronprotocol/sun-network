@@ -1,5 +1,6 @@
 package org.tron.common.storage;
 
+import java.util.List;
 import org.tron.common.runtime.vm.DataWord;
 import org.tron.common.runtime.vm.program.Storage;
 import org.tron.core.capsule.AccountCapsule;
@@ -98,5 +99,7 @@ public interface Deposit {
   BlockCapsule getBlock(byte[] blockHash);
 
   byte[] getBlackHoleAddress();
+
+  List<byte[]> getGatewayList();
 
 }
