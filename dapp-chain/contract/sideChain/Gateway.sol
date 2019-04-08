@@ -71,13 +71,12 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 3. depositTRC10
-    function depositTRC10(address to, uint256 trc10, uint256 value) public onlyOracle {
+    function depositTRC10(address to, uint256 trc10, uint256 value, string name, string symbol, uint8 decimals) public onlyOracle {
         // can only be called by oracle
         require(trc10 > 0, "trc10 must be greater than 0");
         address sideChainAddress = mainToSideTRC10Map[trc10];
         if (sideChainAddress == address(0)) {
-            // TODO: combine
-            sideChainAddress = new DAppTRC20(address(this), "TRC10_" + trc10, "TRC10_" + trc10, 6);
+            sideChainAddress = new DAppTRC20(address(this), name, symbol, decimals);
             mainToSideTRC10Map[trc10] = sideChainAddress;
             sideToMainTRC10Map[sideChainAddress] = trc10;
         }
@@ -166,22 +165,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         }
     }
 
-    //    function concatBytes(bytes32 b1, bytes32 b2) pure external returns (bytes memory) {
-    //        bytes memory result = new bytes(64);
-    //        assembly {
-    //            mstore(add(result, 32), b1)
-    //            mstore(add(result, 64), b2)
-    //        }
-    //        return result;
-    //    }
-
     function concatBytes(bytes memory b1, bytes memory b2) pure public returns (bytes memory r) {
-        r = new bytes(b1.length + b2.length + 1);
-        uint256 k = 0;
-        for (uint256 i = 0; i < b1.length; i++)
-            r[k++] = b1[i];
-        r[k++] = 0x41;
-        for (i = 0; i < b2.length; i++)
-            r[k++] = b2[i];
+        r = abi.encodePacked(b1, 0x41, b2);
     }
 }
