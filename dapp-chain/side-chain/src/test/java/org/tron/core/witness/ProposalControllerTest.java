@@ -54,14 +54,14 @@ public class ProposalControllerTest {
 
     ProposalCapsule proposalCapsule = new ProposalCapsule(
         Proposal.newBuilder().build());
-    Map<Long, Long> parameters = new HashMap<>();
+    Map<Long, String> parameters = new HashMap<>();
     DynamicPropertiesStore dynamicPropertiesStore = dbManager.getDynamicPropertiesStore();
     long accountUpgradeCostDefault = dynamicPropertiesStore.getAccountUpgradeCost();
     long createAccountFeeDefault = dynamicPropertiesStore.getCreateAccountFee();
     long transactionFeeDefault = dynamicPropertiesStore.getTransactionFee();
-    parameters.put(1L, accountUpgradeCostDefault + 1);
-    parameters.put(2L, createAccountFeeDefault + 1);
-    parameters.put(3L, transactionFeeDefault + 1);
+    parameters.put(1L, String.valueOf(accountUpgradeCostDefault + 1));
+    parameters.put(2L, String.valueOf(createAccountFeeDefault + 1));
+    parameters.put(3L, String.valueOf(transactionFeeDefault + 1));
     proposalCapsule.setParameters(parameters);
 
     proposalController.setDynamicParameters(proposalCapsule);

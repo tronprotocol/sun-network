@@ -642,6 +642,20 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         new BytesCapsule(ByteArray.fromBytes21List(gateWayList)));
   }
 
+  public void addToGateWayList(byte[] gateWayContractAddress) {
+    List<byte[]> list =  Optional.ofNullable(getUnchecked(GATEWAY_ADDRESS_LIST))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toByte21List)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found GATEWAY_ADDRESS_LIST"));
+    if(gateWayContractAddress.length != 21) {
+      throw new IllegalArgumentException("new added gate way address should be 21 bytes");
+    }
+    list.add(gateWayContractAddress);
+    this.put(GATEWAY_ADDRESS_LIST,
+        new BytesCapsule(ByteArray.fromBytes21List(list)));
+  }
+
   public int getEnergyChargingSwitch(){
     return Optional.ofNullable(getUnchecked(ENERGY_CHARGING_SWITCH))
         .map(BytesCapsule::getData)
@@ -650,9 +664,9 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found ENERGY_CHARGING_SWITCH"));
   }
 
-  public void saveEnergyChargingSwitch(int num) {
+  public void saveEnergyChargingSwitch(long num) {
     this.put(ENERGY_CHARGING_SWITCH,
-        new BytesCapsule(ByteArray.fromInt(num)));
+        new BytesCapsule(ByteArray.fromLong(num)));
   }
 
   /**
