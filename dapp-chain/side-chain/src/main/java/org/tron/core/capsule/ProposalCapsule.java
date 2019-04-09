@@ -57,11 +57,11 @@ public class ProposalCapsule implements ProtoCapsule<Proposal> {
         .build();
   }
 
-  public Map<Long, Long> getParameters() {
+  public Map<Long, String> getParameters() {
     return this.proposal.getParametersMap();
   }
 
-  public void setParameters(Map<Long, Long> parameters) {
+  public void setParameters(Map<Long, String> parameters) {
     this.proposal = this.proposal.toBuilder()
         .putAllParameters(parameters)
         .build();
