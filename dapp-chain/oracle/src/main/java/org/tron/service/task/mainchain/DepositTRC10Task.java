@@ -24,6 +24,7 @@ public class DepositTRC10Task implements EventTask {
       logger.info("from:{},amount:{},tokenId:{}", this.from, this.amount, this.tokenId);
       String sideContractAddress = SideChainGatewayApi
           .getMainToSideTRC10Map(Long.parseLong(this.tokenId));
+
     } catch (RpcException e) {
       logger.error("from:{},amount:{},tokenId:{}", this.from, this.amount, this.tokenId);
       e.printStackTrace();

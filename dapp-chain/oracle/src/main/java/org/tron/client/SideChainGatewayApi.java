@@ -31,19 +31,18 @@ public class SideChainGatewayApi {
 
     GatewayApi() {
       instance = new WalletClient(Args.getInstance().getSidechainFullNode(),
-          Args.getInstance().getOraclePrivateKey());
+        Args.getInstance().getOraclePrivateKey());
     }
 
     public WalletClient getInstance() {
       return instance;
     }
 
-
   }
 
   public static String deployDAppTRC20AndMapping(String txId, String name, String symbol,
-      int decimals)
-      throws RpcException {
+    int decimals)
+    throws RpcException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "deployDAppTRC20AndMapping(bytes,string,string,uint8)";
     List params = Arrays.asList(txId, name, symbol, decimals);
@@ -55,7 +54,7 @@ public class SideChainGatewayApi {
     String method = "mainToSideContractMap(address)";
     List params = Arrays.asList(address);
     byte[] ret = GATEWAY_API.getInstance()
-        .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
+      .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
     return AbiUtil.unpackAddress(ret);
   }
 
@@ -64,12 +63,12 @@ public class SideChainGatewayApi {
     String method = "mainToSideTRC10Map(uint256)";
     List params = Arrays.asList(tokenId);
     byte[] ret = MainChainGatewayApi.GatewayApi.GATEWAY_API.getInstance()
-        .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
+      .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
     return AbiUtil.unpackAddress(ret);
   }
 
   public static String mintToken(String contractAddress, String to, long value)
-      throws RpcException {
+    throws RpcException {
     byte[] contract = WalletUtil.decodeFromBase58Check(contractAddress);
     String method = "mint(address,uint256)";
     List params = Arrays.asList(to, value);
@@ -77,12 +76,8 @@ public class SideChainGatewayApi {
   }
 
 
-  public static byte[] getTxInfo(String trxId) throws ContractException, TxNotFoundException {
-    return GATEWAY_API.instance.getTxInfo(trxId);
-  }
-
-  public static void checkTxInfo(String trxId) {
-
+  public static byte[] checkTxInfo(String trxId) throws ContractException, TxNotFoundException {
+    return GATEWAY_API.instance.checkTxInfo(trxId);
   }
 
   public static void main(String[] args) {

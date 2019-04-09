@@ -191,7 +191,7 @@ public class WalletClient {
     return txId;
   }
 
-  public byte[] getTxInfo(String txId) throws TxNotFoundException, ContractException {
+  public byte[] checkTxInfo(String txId) throws TxNotFoundException, ContractException {
     int maxRetry = 3;
     for (int i = 0; i < maxRetry; i++) {
       Optional<TransactionInfo> transactionInfo = rpcCli.getTransactionInfoById(txId);

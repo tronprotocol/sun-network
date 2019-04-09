@@ -26,7 +26,7 @@ public class ChainTask extends Thread {
     this.gatewayAddress = gatewayAddress;
     this.kfkServer = kfkServer;
     this.taskType = taskType;
-    executor = Executors.newFixedThreadPool(fixedThreads);
+    this.executor = Executors.newFixedThreadPool(fixedThreads);
   }
 
   @Override
