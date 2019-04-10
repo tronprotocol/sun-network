@@ -56,6 +56,7 @@ public class TransactionTrace {
 
   private EnergyProcessor energyProcessor;
 
+  @Setter
   private InternalTransaction.TrxType trxType;
 
   private long txStartTimeInMs;
@@ -187,6 +188,15 @@ public class TransactionTrace {
         percent = Math.min(percent, Constant.ONE_HUNDRED);
         originEnergyLimit = contractCapsule.getOriginEnergyLimit();
         break;
+      case TRX_CONTRACT_CALL_TRANSFER_TYPE:
+        callContract = ContractCapsule
+            .getTriggerContractFromTransaction(trx.getInstance());
+        callerAccount = callContract.getOwnerAddress().toByteArray();
+
+        AccountCapsule caller = dbManager.getAccountStore().get(callerAccount);
+        receipt.payEnergyBill(dbManager, caller, receipt.getEnergyUsageTotal(),
+            energyProcessor, dbManager.getWitnessController().getHeadSlot());
+        return;
       default:
         return;
     }

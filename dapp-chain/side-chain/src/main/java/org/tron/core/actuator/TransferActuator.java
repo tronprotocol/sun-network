@@ -6,6 +6,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.storage.Deposit;
+import org.tron.common.storage.DepositImpl;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.TransactionResultCapsule;
@@ -155,10 +156,6 @@ public class TransferActuator extends AbstractActuator {
     }
 
     AccountCapsule toAccount = deposit.getAccount(toAddress);
-    if (toAccount == null) {
-      throw new ContractValidateException(
-          "Validate InternalTransfer error, no ToAccount. And not allowed to create account in smart contract.");
-    }
 
     long balance = ownerAccount.getBalance();
 
@@ -175,6 +172,9 @@ public class TransferActuator extends AbstractActuator {
       if (toAccount != null) {
         long toAddressBalance = Math.addExact(toAccount.getBalance(), amount);
       }
+      else {
+        long toAddressBalance = Math.addExact(0, amount);
+      }
     } catch (ArithmeticException e) {
       logger.debug(e.getMessage(), e);
       throw new ContractValidateException(e.getMessage());
@@ -182,6 +182,48 @@ public class TransferActuator extends AbstractActuator {
 
     return true;
   }
+
+  public static boolean executeForSmartContract(Deposit deposit, byte[] ownerAddress,
+      byte[] toAddress, long amount) throws ContractExeException {
+    try {
+
+      // if account with to_address does not exist, create it first.
+      AccountCapsule toAccount = deposit.getAccount(toAddress);
+      if (toAccount == null) {
+        toAccount = new AccountCapsule(ByteString.copyFrom(toAddress), AccountType.Normal,
+            deposit.getDbManager().getHeadBlockTimeStamp(), true, deposit.getDbManager());
+        deposit.putAccountValue(toAddress, toAccount);
+      }
+      deposit.addBalance(toAddress, amount);
+      deposit.addBalance(ownerAddress, -amount);
+    } catch (ArithmeticException e) {
+      logger.debug(e.getMessage(), e);
+      throw new ContractExeException(e.getMessage());
+    }
+    return true;
+  }
+
+  public static long executeAndReturnToAddressBalance(Deposit deposit, byte[] ownerAddress,
+      byte[] toAddress, long amount) throws ContractExeException {
+    long toBalance = 0;
+    try {
+
+      // if account with to_address does not exist, create it first.
+      AccountCapsule toAccount = deposit.getAccount(toAddress);
+      if (toAccount == null) {
+        toAccount = new AccountCapsule(ByteString.copyFrom(toAddress), AccountType.Normal,
+            deposit.getDbManager().getHeadBlockTimeStamp(), true, deposit.getDbManager());
+        deposit.putAccountValue(toAddress, toAccount);
+      }
+      toBalance = deposit.addBalance(toAddress, amount);
+      deposit.addBalance(ownerAddress, -amount);
+    } catch (ArithmeticException e) {
+      logger.debug(e.getMessage(), e);
+      throw new ContractExeException(e.getMessage());
+    }
+    return toBalance;
+  }
+
 
   @Override
   public ByteString getOwnerAddress() throws InvalidProtocolBufferException {

@@ -1117,9 +1117,9 @@ public class Wallet {
     ContractStore contractStore = dbManager.getContractStore();
     byte[] contractAddress = triggerSmartContract.getContractAddress().toByteArray();
     SmartContract.ABI abi = contractStore.getABI(contractAddress);
-    if (abi == null) {
-      throw new ContractValidateException("No contract or not a smart contract");
-    }
+//    if (abi == null) {
+//      throw new ContractValidateException("No contract or not a smart contract");
+//    }
 
     byte[] selector = getSelector(triggerSmartContract.getData().toByteArray());
 
@@ -1196,7 +1196,8 @@ public class Wallet {
 
   private static boolean isConstant(SmartContract.ABI abi, byte[] selector) {
 
-    if (selector == null || selector.length != 4 || abi.getEntrysList().size() == 0) {
+    if (abi == null ||selector == null || selector.length != 4
+        || abi.getEntrysList().size() == 0) {
       return false;
     }
 
