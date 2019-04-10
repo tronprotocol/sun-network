@@ -69,6 +69,7 @@ public class InternalTransaction {
     TRX_PRECOMPILED_TYPE,
     TRX_CONTRACT_CREATION_TYPE,
     TRX_CONTRACT_CALL_TYPE,
+    TRX_CONTRACT_CALL_TRANSFER_TYPE,
     TRX_UNKNOWN_TYPE,
   }
 
@@ -114,8 +115,14 @@ public class InternalTransaction {
       this.note = "call";
       this.value = contract.getCallValue();
       this.data = contract.getData().toByteArray();
-    } else {
-      // do nothing, just for running byte code
+    } else if (trxType == TrxType.TRX_CONTRACT_CALL_TRANSFER_TYPE){
+      TriggerSmartContract contract = ContractCapsule.getTriggerContractFromTransaction(trx);
+      this.sendAddress = contract.getOwnerAddress().toByteArray();
+      this.receiveAddress = contract.getContractAddress().toByteArray();
+      this.transferToAddress = this.receiveAddress.clone();
+      this.note = "call";
+      this.value = contract.getCallValue();
+      this.data = contract.getData().toByteArray();
     }
     this.hash = trxCap.getTransactionId().getBytes();
   }

@@ -79,7 +79,7 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
     checkGainer(_to,uid, contractAddress, sig)
     {
         require(balances.trc721[contractAddress][uid], "Does not own token");
-        TRC721(contractAddress).safeTransferFrom(address(this), _to, uid);
+        TRC721(contractAddress).transferFrom(address(this), _to, uid);
         delete balances.trc721[contractAddress][uid];
         emit TokenWithdrawn(_to, TokenKind.TRC721, contractAddress, uid);
     }
@@ -159,7 +159,7 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
     }
 
     // Returns TRC721 token by uid
-    function getNFT(address owner, uint256 uid, address contractAddress) external view returns (bool) {
+    function getNFT(uint256 uid, address contractAddress) external view returns (bool) {
         return balances.trc721[contractAddress][uid];
     }
 }
