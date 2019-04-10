@@ -215,7 +215,7 @@ message TXOutputs {
   repeated TXOutput outputs = 1;
 }
 
-message ResourceReceipt {
+message SideChainResourceReceipt {
   int64 energy_usage = 1;
   int64 energy_fee = 2;
   int64 origin_energy_usage = 3;
@@ -332,7 +332,7 @@ message TransactionInfo {
   int64 blockTimeStamp = 4;
   repeated bytes contractResult = 5;
   bytes contract_address = 6;
-  ResourceReceipt receipt = 7;
+  SideChainResourceReceipt receipt = 7;
   repeated Log log = 8;
   code result = 9;
   bytes resMessage = 10;

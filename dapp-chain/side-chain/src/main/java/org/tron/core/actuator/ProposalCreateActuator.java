@@ -21,7 +21,7 @@ import org.tron.core.config.args.Args;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
-import org.tron.protos.Contract.ProposalCreateContract;
+import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Protocol.Transaction.Result.code;
 
 @Slf4j(topic = "actuator")
@@ -35,8 +35,8 @@ public class ProposalCreateActuator extends AbstractActuator {
   public boolean execute(TransactionResultCapsule ret) throws ContractExeException {
     long fee = calcFee();
     try {
-      final ProposalCreateContract proposalCreateContract = this.contract
-          .unpack(ProposalCreateContract.class);
+      final SideChainProposalCreateContract proposalCreateContract = this.contract
+          .unpack(SideChainProposalCreateContract.class);
       long id = (Objects.isNull(getDeposit())) ?
           dbManager.getDynamicPropertiesStore().getLatestProposalNum() + 1 :
           getDeposit().getLatestProposalNum() + 1;
@@ -86,14 +86,14 @@ public class ProposalCreateActuator extends AbstractActuator {
     if (dbManager == null && (deposit == null || deposit.getDbManager() == null)) {
       throw new ContractValidateException("No dbManager!");
     }
-    if (!this.contract.is(ProposalCreateContract.class)) {
+    if (!this.contract.is(SideChainProposalCreateContract.class)) {
       throw new ContractValidateException(
-          "contract type error,expected type [ProposalCreateContract],real type[" + contract
+          "contract type error,expected type [SideChainProposalCreateContract],real type[" + contract
               .getClass() + "]");
     }
-    final ProposalCreateContract contract;
+    final SideChainProposalCreateContract contract;
     try {
-      contract = this.contract.unpack(ProposalCreateContract.class);
+      contract = this.contract.unpack(SideChainProposalCreateContract.class);
     } catch (InvalidProtocolBufferException e) {
       throw new ContractValidateException(e.getMessage());
     }
@@ -289,7 +289,7 @@ public class ProposalCreateActuator extends AbstractActuator {
 
   @Override
   public ByteString getOwnerAddress() throws InvalidProtocolBufferException {
-    return contract.unpack(ProposalCreateContract.class).getOwnerAddress();
+    return contract.unpack(SideChainProposalCreateContract.class).getOwnerAddress();
   }
 
   @Override

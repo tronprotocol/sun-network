@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tron.core.Wallet;
-import org.tron.protos.Contract.ProposalCreateContract;
+import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 
@@ -30,7 +30,7 @@ public class ProposalCreateServlet extends HttpServlet {
       String contract = request.getReader().lines()
           .collect(Collectors.joining(System.lineSeparator()));
       Util.checkBodySize(contract);
-      ProposalCreateContract.Builder build = ProposalCreateContract.newBuilder();
+      SideChainProposalCreateContract.Builder build = SideChainProposalCreateContract.newBuilder();
       JsonFormat.merge(contract, build);
       Transaction tx = wallet
           .createTransactionCapsule(build.build(), ContractType.ProposalCreateContract)
