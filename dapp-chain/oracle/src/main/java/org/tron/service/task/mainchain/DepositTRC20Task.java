@@ -22,10 +22,8 @@ public class DepositTRC20Task implements EventTask {
     logger
         .info("from:{},amount:{},contractAddress{}", this.from, this.amount, this.contractAddress);
     try {
-      String sideContractAddress = SideChainGatewayApi
-          .getMainToSideContractMap(this.contractAddress);
       String trxId = SideChainGatewayApi
-          .mintToken(sideContractAddress, this.from, this.amount);
+          .mintToken20(this.from, this.contractAddress, this.amount);
       SideChainGatewayApi.checkTxInfo(trxId);
     } catch (Exception e) {
       logger.error("from:{},amount:{},contractAddress{}", this.from, this.amount,
