@@ -104,7 +104,9 @@ public class WalletApi {
   private static byte addressPreFixByte = CommonConstant.ADD_PRE_FIX_BYTE_TESTNET;
   private static int rpcVersion = 0;
 
-  private static GrpcClient rpcCli = init();
+  private static GrpcClient rpcMain = initMain();
+  private static GrpcClient rpcSide = initSide();
+  private static GrpcClient rpcCli = rpcMain;
 
 //  static {
 //    new Timer().schedule(new TimerTask() {
@@ -118,26 +120,60 @@ public class WalletApi {
 //    }, 3 * 60 * 1000, 3 * 60 * 1000);
 //  }
 
-  public static GrpcClient init() {
+  public static GrpcClient initMain() {
     Config config = Configuration.getByPath("config.conf");
 
     String fullNode = "";
     String solidityNode = "";
-    if (config.hasPath("soliditynode.ip.list")) {
-      solidityNode = config.getStringList("soliditynode.ip.list").get(0);
+    if (config.hasPath("mainchain.soliditynode.ip.list")) {
+      solidityNode = config.getStringList("mainchain.soliditynode.ip.list").get(0);
     }
-    if (config.hasPath("fullnode.ip.list")) {
-      fullNode = config.getStringList("fullnode.ip.list").get(0);
+    if (config.hasPath("mainchain.fullnode.ip.list")) {
+      fullNode = config.getStringList("mainchain.fullnode.ip.list").get(0);
     }
-    if (config.hasPath("net.type") && "mainnet".equalsIgnoreCase(config.getString("net.type"))) {
+    if (config.hasPath("mainchain.net.type") && "mainnet".equalsIgnoreCase(config.getString("mainchain.net.type"))) {
       WalletApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     } else {
       WalletApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_TESTNET);
     }
-    if (config.hasPath("RPC_version")) {
-      rpcVersion = config.getInt("RPC_version");
+    if (config.hasPath("mainchain.RPC_version")) {
+      rpcVersion = config.getInt("mainchain.RPC_version");
     }
     return new GrpcClient(fullNode, solidityNode);
+  }
+
+  public static GrpcClient initSide() {
+    Config config = Configuration.getByPath("config.conf");
+
+    String fullNode = "";
+    String solidityNode = "";
+    if (config.hasPath("sidechain.soliditynode.ip.list")) {
+      solidityNode = config.getStringList("sidechain.soliditynode.ip.list").get(0);
+    }
+    if (config.hasPath("sidechain.fullnode.ip.list")) {
+      fullNode = config.getStringList("sidechain.fullnode.ip.list").get(0);
+    }
+    if (config.hasPath("sidechain.net.type") && "mainnet".equalsIgnoreCase(config.getString("sidechain.net.type"))) {
+      WalletApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    } else {
+      WalletApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_TESTNET);
+    }
+    if (config.hasPath("sidechain.RPC_version")) {
+      rpcVersion = config.getInt("sidechain.RPC_version");
+    }
+    return new GrpcClient(fullNode, solidityNode);
+  }
+
+  public static boolean isMainChain() {
+    return rpcCli == rpcMain;
+  }
+
+  public static void switch2Main() {
+    rpcCli = rpcMain;
+  }
+
+  public static void switch2Side() {
+    rpcCli = rpcSide;
   }
 
   public static String selectFullNode() {

@@ -2008,10 +2008,10 @@ public class Client {
     return cmdList.toArray(result);
   }
 
-  private void run() {
+  private void runMain() {
     Scanner in = new Scanner(System.in);
     System.out.println(" ");
-    System.out.println("Welcome to Tron Wallet-Cli");
+    System.out.println("Welcome to Tron Sun-Cli main chain");
     System.out.println("Please type one of the following commands to proceed.");
     System.out.println("Login, RegisterWallet or ImportWallet");
     System.out.println(" ");
@@ -2034,6 +2034,10 @@ public class Client {
         switch (cmdLowerCase) {
           case "help": {
             help();
+            break;
+          }
+          case "switch2side": {
+            switch2Side();
             break;
           }
           case "registerwallet": {
@@ -2400,6 +2404,77 @@ public class Client {
         logger.error(e.getMessage());
         e.printStackTrace();
       }
+    }
+  }
+
+
+  private void switch2Main() {
+    WalletApi.switch2Main();
+    return;
+  }
+
+
+  private void switch2Side() {
+    WalletApi.switch2Main();
+    return;
+  }
+
+  private void runSide() {
+    Scanner in = new Scanner(System.in);
+    System.out.println(" ");
+    System.out.println("Welcome to Tron Sun-Cli side chain");
+    System.out.println("Please type one of the following commands to proceed.");
+    System.out.println("Login, RegisterWallet or ImportWallet");
+    System.out.println(" ");
+    System.out.println(
+            "You may also use the Help command at anytime to display a full list of commands.");
+    System.out.println(" ");
+    while (in.hasNextLine()) {
+      String cmd = "";
+      try {
+        String cmdLine = in.nextLine().trim();
+        String[] cmdArray = getCmd(cmdLine);
+
+        cmd = cmdArray[0];
+        if ("".equals(cmd)) {
+          continue;
+        }
+        String[] parameters = Arrays.copyOfRange(cmdArray, 1, cmdArray.length);
+        String cmdLowerCase = cmd.toLowerCase();
+
+        switch (cmdLowerCase) {
+          case "switchtoMain": {
+            switch2Main();
+            break;
+          }
+
+//          case "help": {
+//            help();
+//            break;
+//          }
+          case "exit":
+          case "quit": {
+            System.out.println("Exit !!!");
+            return;
+          }
+          default: {
+            System.out.println("Invalid cmd: " + cmd);
+            help();
+          }
+        }
+      }  catch (Exception e) {
+        System.out.println(cmd + " failed!");
+        logger.error(e.getMessage());
+        e.printStackTrace();
+      }
+    }
+  }
+
+  private void run() {
+    if(WalletApi.isMainChain()) {
+      runMain();
+    } else {
+      runSide();
     }
   }
 
