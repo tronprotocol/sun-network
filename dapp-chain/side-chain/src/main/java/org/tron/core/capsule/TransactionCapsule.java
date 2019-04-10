@@ -373,7 +373,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
         case TriggerSmartContract:
           owner = contractParameter.unpack(Contract.TriggerSmartContract.class).getOwnerAddress();
           break;
-        case ProposalCreateContract:
+        case SideChainProposalCreateContract:
           owner = contractParameter.unpack(SideChainProposalCreateContract.class).getOwnerAddress();
           break;
         case ProposalApproveContract:

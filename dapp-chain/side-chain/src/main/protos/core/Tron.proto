@@ -238,7 +238,6 @@ message Transaction {
       FreezeBalanceContract = 11;
       UnfreezeBalanceContract = 12;
       WithdrawBalanceContract = 13;
-      ProposalCreateContract = 16;
       ProposalApproveContract = 17;
       ProposalDeleteContract = 18;
       SetAccountIdContract = 19;
@@ -252,6 +251,7 @@ message Transaction {
       UpdateSettingContract = 33;
       UpdateEnergyLimitContract = 45;
       AccountPermissionUpdateContract = 46;
+      SideChainProposalCreateContract = 1001;
     }
     ContractType type = 1;
     google.protobuf.Any parameter = 2;
