@@ -65,7 +65,7 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
     }
 
     // Withdrawal functions
-    function withdrawTRC20(address _to, uint256 amount, bytes sig, address contractAddress)
+    function withdrawTRC20(address _to, address contractAddress, uint256 amount, bytes sig)
     external
     checkGainer(_to, amount, contractAddress, sig)
     {
@@ -74,7 +74,7 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
         emit TokenWithdrawn(_to, TokenKind.TRC20, contractAddress, amount);
     }
 
-    function withdrawTRC721(address _to,uint256 uid, bytes sig, address contractAddress)
+    function withdrawTRC721(address _to, address contractAddress,uint256 uid, bytes sig)
     external
     checkGainer(_to,uid, contractAddress, sig)
     {

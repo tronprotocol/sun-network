@@ -49,7 +49,7 @@ public class MainChainGatewayApi {
       String txData)
       throws RpcException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "withdrawTRC20(uint256,bytes,address)";
+    String method = "withdrawTRC20(address,address,uint256,bytes)";
     List params = Arrays.asList(to, mainChainAddress, value, txData);
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
@@ -58,7 +58,7 @@ public class MainChainGatewayApi {
       String txData)
       throws RpcException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "withdrawTRC721(uint256,bytes,address)";
+    String method = "withdrawTRC721(address,address,uint256,bytes)";
     List params = Arrays.asList(to, mainChainAddress, value, txData);
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
