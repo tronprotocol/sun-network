@@ -62,7 +62,7 @@ import org.tron.protos.Contract.AccountUpdateContract;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.FreezeBalanceContract;
 import org.tron.protos.Contract.ProposalApproveContract;
-import org.tron.protos.Contract.ProposalCreateContract;
+import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Contract.ProposalDeleteContract;
 import org.tron.protos.Contract.SetAccountIdContract;
 import org.tron.protos.Contract.TransferContract;
@@ -374,7 +374,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
           owner = contractParameter.unpack(Contract.TriggerSmartContract.class).getOwnerAddress();
           break;
         case ProposalCreateContract:
-          owner = contractParameter.unpack(ProposalCreateContract.class).getOwnerAddress();
+          owner = contractParameter.unpack(SideChainProposalCreateContract.class).getOwnerAddress();
           break;
         case ProposalApproveContract:
           owner = contractParameter.unpack(ProposalApproveContract.class).getOwnerAddress();

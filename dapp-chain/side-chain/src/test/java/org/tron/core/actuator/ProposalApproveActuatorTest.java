@@ -149,7 +149,7 @@ public class ProposalApproveActuatorTest {
 
   private Any getContract(String address, HashMap<Long, String> paras) {
     return Any.pack(
-        Contract.ProposalCreateContract.newBuilder()
+        Contract.SideChainProposalCreateContract.newBuilder()
             .setOwnerAddress(ByteString.copyFrom(ByteArray.fromHexString(address)))
             .putAllParameters(paras)
             .build());
