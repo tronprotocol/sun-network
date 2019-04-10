@@ -20,7 +20,7 @@ public class DepositTRXTask implements EventTask {
   public void run() {
     logger.info("from:{},amount:{}", this.from, this.amount);
     try {
-      String trxId = SideChainGatewayApi.mintTrx(this.from, Long.parseLong(this.amount));
+      String trxId = SideChainGatewayApi.mintTrx(this.from, this.amount);
     } catch (RpcException e) {
       logger.error("from:{},amount:{}", this.from, this.amount);
       e.printStackTrace();

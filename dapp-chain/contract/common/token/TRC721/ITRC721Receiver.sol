@@ -20,9 +20,9 @@ contract ITRC721Receiver {
      *  transfer. This function MUST use 50,000 gas or less. Return of other
      *  than the magic value MUST result in the transaction being reverted.
      *  Note: the contract address is always the message sender.
-     * @param _from The sending address
-     * @param _tokenId The NFT identifier which is being transfered
-     * @param _data Additional data with no specified format
+     * @param from The sending address
+     * @param tokenId The NFT identifier which is being transfered
+     * @param txData Additional data with no specified format
      * @return `bytes4(keccak256("onTRC721Received(address,uint256,bytes)"))`
      */
     function onTRC721Received(address from, uint256 tokenId, bytes memory txData) public returns (bytes4);

@@ -5,10 +5,10 @@ import "../common/token/TRC20/TRC20.sol";
 import "../common/math/SafeMath.sol";
 import "../common/token/TRC721/ITRC721Receiver.sol";
 import "../common/token/TRC20/ITRC20Receiver.sol";
-import "./ValidatorManagerContract.sol";
+import "./OrcaleManagerContract.sol";
 
 
-contract Gateway is TRC10Receiver, ITRC20Receiver, ITRC721Receiver, ValidatorManagerContract {
+contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
 
     using SafeMath for uint256;
 
@@ -41,10 +41,10 @@ contract Gateway is TRC10Receiver, ITRC20Receiver, ITRC721Receiver, ValidatorMan
      * @param value For TRC721 this is the uid of the token, for TRX/TRC20/TRC10 this is the amount.
      */
     event TokenWithdrawn(address indexed owner, TokenKind kind, address contractAddress, uint256 value);
-    event TokenWithdrawn(address indexed owner, TokenKind kind, uint256 tokenId, uint256 value);
+    event Token10Withdrawn(address indexed owner, TokenKind kind, trcToken tokenId, uint256 value);
 
-    constructor (address[] _validators, uint8 _threshold_num, uint8 _threshold_denom)
-    public ValidatorManagerContract(_validators, _threshold_num, _threshold_denom) {
+    constructor (address[] _orcale)
+    public OrcaleManagerContract(_orcale) {
     }
 
     // Deposit functions
@@ -65,28 +65,28 @@ contract Gateway is TRC10Receiver, ITRC20Receiver, ITRC721Receiver, ValidatorMan
     }
 
     // Withdrawal functions
-    function withdrawTRC20(uint256 amount, bytes sig, address contractAddress)
+    function withdrawTRC20(address _to, uint256 amount, bytes sig, address contractAddress)
     external
-    isVerifiedByValidator(amount, contractAddress, sig)
+    checkGainer(_to, amount, contractAddress, sig)
     {
         balances.trc20[contractAddress] = balances.trc20[contractAddress].sub(amount);
-        TRC20(contractAddress).transfer(msg.sender, amount);
-        emit TokenWithdrawn(msg.sender, TokenKind.TRC20, contractAddress, amount);
+        TRC20(contractAddress).transfer(_to, amount);
+        emit TokenWithdrawn(_to, TokenKind.TRC20, contractAddress, amount);
     }
 
-    function withdrawTRC721(uint256 uid, bytes sig, address contractAddress)
+    function withdrawTRC721(address _to,uint256 uid, bytes sig, address contractAddress)
     external
-    isVerifiedByValidator(uid, contractAddress, sig)
+    checkGainer(_to,uid, contractAddress, sig)
     {
         require(balances.trc721[contractAddress][uid], "Does not own token");
-        TRC721(contractAddress).safeTransferFrom(address(this), msg.sender, uid);
+        TRC721(contractAddress).safeTransferFrom(address(this), _to, uid);
         delete balances.trc721[contractAddress][uid];
-        emit TokenWithdrawn(msg.sender, TokenKind.TRC721, contractAddress, uid);
+        emit TokenWithdrawn(_to, TokenKind.TRC721, contractAddress, uid);
     }
 
     function withdrawTRX(address _to, uint256 amount, bytes sig)
     external
-    isVerifiedByValidator(amount, address(this), sig)
+    checkGainer(_to,amount, address(this), sig)
     {
         balances.tron = balances.tron.sub(amount);
         msg.sender.transfer(amount);
@@ -96,11 +96,11 @@ contract Gateway is TRC10Receiver, ITRC20Receiver, ITRC721Receiver, ValidatorMan
 
     function withdrawTRC10(address _to, trcToken tokenId, uint256 amount, bytes sig)
     external
-    isVerifiedByValidator(amount, _to, sig)
+    checkGainer(_to,amount, address(this), sig)
     {
         balances.trc10[tokenId] = balances.trc10[tokenId].sub(amount);
         _to.transferToken(tokenId, amount);
-        emit TokenWithdrawn(msg.sender, TokenKind.TRC10, tokenId, amount);
+        emit Token10Withdrawn(msg.sender, TokenKind.TRC10, tokenId, amount);
     }
 
     // Approve and Deposit function for 2-step deposits
@@ -118,20 +118,20 @@ contract Gateway is TRC10Receiver, ITRC20Receiver, ITRC721Receiver, ValidatorMan
     public
     returns (bytes4)
     {
-        require(allowedTokens[msg.sender], "Not a valid token");
+        require(allowes[msg.sender]!=address(0), "Not an allowe token");
         depositTRC20(amount);
         emit TRC20Received(_from, amount, msg.sender);
-        return TRC20_RECEIVED;
+        return _TRC20_RECEIVED;
     }
 
     function onTRC721Received(address _from, uint256 _uid, bytes)
     public
     returns (bytes4)
     {
-        require(allowedTokens[msg.sender], "Not a valid token");
+        require(allowes[msg.sender]!=address(0), "Not an allowe token");
         depositTRC721(_uid);
         emit TRC721Received(_from, _uid, msg.sender);
-        return TRC721_RECEIVED;
+        return _TRC721_RECEIVED;
     }
 
     function() external payable {

@@ -26,7 +26,7 @@ public class DepositTRC721Task implements EventTask {
       String sideContractAddress = SideChainGatewayApi
           .getMainToSideContractMap(this.contractAddress);
       String trxId = SideChainGatewayApi
-          .mintToken(sideContractAddress, this.from, Long.parseLong(this.uid));
+          .mintToken(sideContractAddress, this.from, this.uid);
       SideChainGatewayApi.checkTxInfo(trxId);
     } catch (RpcException e) {
       logger

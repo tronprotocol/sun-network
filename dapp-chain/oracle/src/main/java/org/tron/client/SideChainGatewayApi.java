@@ -2,6 +2,7 @@ package org.tron.client;
 
 import static org.tron.client.SideChainGatewayApi.GatewayApi.GATEWAY_API;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ import org.tron.common.utils.WalletUtil;
 @Slf4j
 public class SideChainGatewayApi {
 
-  public static String mintTrx(String to, long value) throws RpcException {
+  public static String mintTrx(String to, String value) throws RpcException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "mint(address,uint256)";
     List params = Arrays.asList(to, value);
@@ -59,7 +60,7 @@ public class SideChainGatewayApi {
     return AbiUtil.unpackAddress(ret);
   }
 
-  public static String getMainToSideTRC10Map(long tokenId) throws RpcException {
+  public static String getMainToSideTRC10Map(BigInteger tokenId) throws RpcException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "mainToSideTRC10Map(uint256)";
     List params = Arrays.asList(tokenId);
@@ -68,7 +69,7 @@ public class SideChainGatewayApi {
     return AbiUtil.unpackAddress(ret);
   }
 
-  public static String mintToken(String contractAddress, String to, long value)
+  public static String mintToken(String contractAddress, String to, String value)
       throws RpcException {
     byte[] contract = WalletUtil.decodeFromBase58Check(contractAddress);
     String method = "mint(address,uint256)";

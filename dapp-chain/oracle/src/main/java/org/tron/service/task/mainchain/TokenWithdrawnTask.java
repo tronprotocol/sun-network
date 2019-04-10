@@ -20,6 +20,7 @@ public class TokenWithdrawnTask implements EventTask {
 
   @Override
   public void run() {
+    //TODO
     logger.info("owner:{},kind:{},contractAddress:{},value{}", this.owner, this.kind,
         this.contractAddress, this.value);
   }
