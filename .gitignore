@@ -52,7 +52,6 @@ dapp-chain/side-chain/output_manager/
 dapp-chain/side-chain/output_witness/
 output*
 nodeId.properties
-Wallet
 
 # vm_trace
 dapp-chain/side-chain/vm_trace/
