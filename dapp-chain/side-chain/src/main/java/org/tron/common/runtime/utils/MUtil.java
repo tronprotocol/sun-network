@@ -3,6 +3,7 @@ package org.tron.common.runtime.utils;
 import org.tron.common.storage.Deposit;
 import org.tron.core.Wallet;
 import org.tron.core.actuator.TransferActuator;
+import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 
 public class MUtil {
@@ -11,13 +12,12 @@ public class MUtil {
   }
 
   public static void transfer(Deposit deposit, byte[] fromAddress, byte[] toAddress, long amount)
-      throws ContractValidateException {
+      throws ContractValidateException, ContractExeException {
     if (0 == amount) {
       return;
     }
     TransferActuator.validateForSmartContract(deposit, fromAddress, toAddress, amount);
-    deposit.addBalance(toAddress, amount);
-    deposit.addBalance(fromAddress, -amount);
+    TransferActuator.executeForSmartContract(deposit, fromAddress, toAddress, amount);
   }
 
   public static byte[] convertToTronAddress(byte[] address) {

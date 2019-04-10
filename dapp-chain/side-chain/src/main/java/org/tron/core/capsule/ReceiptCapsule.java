@@ -125,7 +125,7 @@ public class ReceiptCapsule {
         Math.min(energyProcessor.getAccountLeftEnergyFromFreeze(origin), originEnergyLimit));
   }
 
-  private void payEnergyBill(
+  public void payEnergyBill(
       Manager manager,
       AccountCapsule account,
       long usage,
