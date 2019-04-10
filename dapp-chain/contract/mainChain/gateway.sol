@@ -48,19 +48,12 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
     }
 
     // Deposit functions
-    function depositTRX() private {
-        balances.tron = balances.tron.add(msg.value);
-    }
 
-    function depositTRC10() private {
-        balances.trc10[msg.tokenid] = balances.trc10[msg.tokenid].add(msg.value);
-    }
-
-    function depositTRC721(uint256 uid) private {
+    function _depositTRC721(uint256 uid) private {
         balances.trc721[msg.sender][uid] = true;
     }
 
-    function depositTRC20(uint256 amount) private {
+    function _depositTRC20(uint256 amount) private {
         balances.trc20[msg.sender] = balances.trc20[msg.sender].add(amount);
     }
 
@@ -106,23 +99,25 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
     // Approve and Deposit function for 2-step deposits
     // Requires first to have called `approve` on the specified TRC20 contract
     function depositTRC20(uint256 amount, address contractAddress) external {
+        require(allowes[contractAddress]!=address(0), "Not an allowe token");
         TRC20(contractAddress).transferFrom(msg.sender, address(this), amount);
         balances.trc20[contractAddress] = balances.trc20[contractAddress].add(amount);
         emit TRC20Received(msg.sender, amount, contractAddress);
     }
     function depositTRC721(uint256 uid, address contractAddress) external {
-        TRC20(contractAddress).transferFrom(msg.sender, address(this), amount);
-        balances.trc20[contractAddress] = balances.trc20[contractAddress].add(amount);
-        emit TRC20Received(msg.sender, amount, contractAddress);
+        require(allowes[contractAddress]!=address(0), "Not an allowe token");
+        TRC721(contractAddress).transferFrom(msg.sender, address(this), uid);
+        balances.trc721[contractAddress][uid] = true;
+        emit TRC721Received(msg.sender, uid, contractAddress);
     }
 
-    function depositTRX() payable external {
-        depositTRX();
+    function depositTRX() payable public {
+        balances.tron = balances.tron.add(msg.value);
         emit TRXReceived(msg.sender, msg.value);
     }
 
-    function depositTRC10() payable external {
-        depositTRC10();
+    function depositTRC10() payable public {
+        balances.trc10[msg.tokenid] = balances.trc10[msg.tokenid].add(msg.value);
         emit TRC10Received(msg.sender, msg.value, msg.tokenid);
     }
 
@@ -134,7 +129,7 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
     returns (bytes4)
     {
         require(allowes[msg.sender]!=address(0), "Not an allowe token");
-        depositTRC20(amount);
+        _depositTRC20(amount);
         emit TRC20Received(_from, amount, msg.sender);
         return _TRC20_RECEIVED;
     }
@@ -144,7 +139,7 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
     returns (bytes4)
     {
         require(allowes[msg.sender]!=address(0), "Not an allowe token");
-        depositTRC721(_uid);
+        _depositTRC721(_uid);
         emit TRC721Received(_from, _uid, msg.sender);
         return _TRC721_RECEIVED;
     }
@@ -152,10 +147,9 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
     function() external payable {
         if (msg.tokenid > 1000000) {
             depositTRC10();
-            emit TRC10Received(msg.sender, msg.value, msg.tokenid);
+        }else if(msg.value > 0){
+            depositTRX();
         }
-        depositTRX();
-        emit TRXReceived(msg.sender, msg.value);
     }
 
     // Returns all the TRX
