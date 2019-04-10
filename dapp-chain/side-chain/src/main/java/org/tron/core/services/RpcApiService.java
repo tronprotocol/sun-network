@@ -929,7 +929,7 @@ public class RpcApiService implements Service {
     @Override
     public void sideChainProposalCreate(Contract.SideChainProposalCreateContract request,
         StreamObserver<TransactionExtention> responseObserver) {
-      createTransactionExtention(request, ContractType.ProposalCreateContract, responseObserver);
+      createTransactionExtention(request, ContractType.SideChainProposalCreateContract, responseObserver);
     }
 
 

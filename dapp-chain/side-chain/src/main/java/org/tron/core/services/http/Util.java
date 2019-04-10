@@ -218,7 +218,7 @@ public class Util {
                 .unpack(TriggerSmartContract.class);
             contractJson = JSONObject.parseObject(JsonFormat.printToString(triggerSmartContract));
             break;
-          case ProposalCreateContract:
+          case SideChainProposalCreateContract:
             SideChainProposalCreateContract proposalCreateContract = contractParameter
                 .unpack(SideChainProposalCreateContract.class);
             contractJson = JSONObject.parseObject(JsonFormat.printToString(proposalCreateContract));

@@ -33,7 +33,7 @@ public class ProposalCreateServlet extends HttpServlet {
       SideChainProposalCreateContract.Builder build = SideChainProposalCreateContract.newBuilder();
       JsonFormat.merge(contract, build);
       Transaction tx = wallet
-          .createTransactionCapsule(build.build(), ContractType.ProposalCreateContract)
+          .createTransactionCapsule(build.build(), ContractType.SideChainProposalCreateContract)
           .getInstance();
       response.getWriter().println(Util.printTransaction(tx));
     } catch (Exception e) {
