@@ -130,9 +130,9 @@ public class ProposalCreateActuator extends AbstractActuator {
     }
 
     for (Map.Entry<Long, String> entry : contract.getParametersMap().entrySet()) {
-      if (!validKey(entry.getKey())) {
-        throw new ContractValidateException("Bad chain parameter id");
-      }
+//      if (!validKey(entry.getKey())) {
+//        throw new ContractValidateException("Bad chain parameter id");
+//      }
       validateValue(entry);
     }
 
@@ -282,7 +282,8 @@ public class ProposalCreateActuator extends AbstractActuator {
         break;
       }
       default:
-        break;
+        throw new ContractValidateException(
+            "non-exist proposal number");
     }
   }
 
