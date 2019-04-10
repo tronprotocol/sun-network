@@ -2,7 +2,6 @@ package org.tron.client;
 
 import static org.tron.client.SideChainGatewayApi.GatewayApi.GATEWAY_API;
 
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,6 @@ public class SideChainGatewayApi {
       return instance;
     }
 
-
   }
 
   public static String deployDAppTRC20AndMapping(String txId, String name, String symbol,
@@ -60,7 +58,7 @@ public class SideChainGatewayApi {
     return AbiUtil.unpackAddress(ret);
   }
 
-  public static String getMainToSideTRC10Map(BigInteger tokenId) throws RpcException {
+  public static String getMainToSideTRC10Map(String tokenId) throws RpcException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "mainToSideTRC10Map(uint256)";
     List params = Arrays.asList(tokenId);
@@ -78,12 +76,8 @@ public class SideChainGatewayApi {
   }
 
 
-  public static byte[] getTxInfo(String trxId) throws ContractException, TxNotFoundException {
-    return GATEWAY_API.instance.getTxInfo(trxId);
-  }
-
-  public static void checkTxInfo(String trxId) {
-
+  public static byte[] checkTxInfo(String trxId) throws ContractException, TxNotFoundException {
+    return GATEWAY_API.instance.checkTxInfo(trxId);
   }
 
   public static void main(String[] args) {

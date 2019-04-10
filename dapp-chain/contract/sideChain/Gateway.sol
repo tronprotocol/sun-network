@@ -49,7 +49,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 1. deployDAppTRC20AndMapping
-    function deployDAppTRC20AndMapping(bytes txId, string name, string symbol, uint8 decimals) public {
+    function deployDAppTRC20AndMapping(bytes txId, string name, string symbol, uint8 decimals) public returns (address r) {
         // can be called by everyone (contract developer)
         address mainChainAddress = calcContractAddress(txId, msg.sender);
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
@@ -57,10 +57,11 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         mainToSideContractMap[mainChainAddress] = sideChainAddress;
         sideToMainContractMap[sideChainAddress] = mainChainAddress;
         emit DeployDAppTRC20AndMapping(msg.sender, mainChainAddress, sideChainAddress);
+        r = sideChainAddress;
     }
 
     // 2. deployDAppTRC721AndMapping
-    function deployDAppTRC721AndMapping(bytes txId, string name, string symbol) public {
+    function deployDAppTRC721AndMapping(bytes txId, string name, string symbol) public returns (address r) {
         // can be called by everyone (contract developer)
         address mainChainAddress = calcContractAddress(txId, msg.sender);
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
@@ -68,6 +69,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         mainToSideContractMap[mainChainAddress] = sideChainAddress;
         sideToMainContractMap[sideChainAddress] = mainChainAddress;
         emit DeployDAppTRC721AndMapping(msg.sender, mainChainAddress, sideChainAddress);
+        r = sideChainAddress;
     }
 
     // 3. depositTRC10
@@ -142,7 +144,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 10. withdrawTRX
-    function withdrawTRX(bytes memory txData) {
+    function withdrawTRX(bytes memory txData) {onTRC20Received
         // burn
         // FIXME in tron side chain: will be fail in tron
         address(0).transfer(msg.value);

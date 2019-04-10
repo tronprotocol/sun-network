@@ -1,13 +1,13 @@
 package org.tron.service.eventenum;
 
 public enum MainEventType implements EventType {
-  TRXReceived("TRXReceived(address,uint256)"),
-  TRC10Received("TRC10Received(address,uint256,uint256)"),
-  TRC20Received("TRC20Received(address,uint256,address)"),
-  TRC721Received("TRC721Received(address,uint256,address)"),
-  TokenWithdrawn("TokenWithdrawn(address,uint8,address,uint256)"),
-  Token10Withdrawn("Token10Withdrawn(address,uint8,uint256,uint256)"),
-  UnknownEvent("UnknownEvent");
+  TRX_RECEIVED("TRXReceived(address,uint256)"),
+  TRC10_RECEIVED("TRC10Received(address,uint256,uint256)"),
+  TRC20_RECEIVED("TRC20Received(address,uint256,address)"),
+  TRC721_RECEIVED("TRC721Received(address,uint256,address)"),
+  TOKEN_WITHDRAWN("TokenWithdrawn(address,uint8,address,uint256)"),
+  TOKEN10_WITHDRAWN("Token10Withdrawn(address,uint8,uint256,uint256)"),
+  UNKNOWN_EVENT("UnknownEvent");
   private String signature;
 
 
@@ -21,7 +21,7 @@ public enum MainEventType implements EventType {
         return eventType;
       }
     }
-    return UnknownEvent;
+    return UNKNOWN_EVENT;
   }
 
   public String getSignature() {

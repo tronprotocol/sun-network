@@ -2,7 +2,6 @@ package org.tron.service.task.mainchain;
 
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.exception.RpcException;
 import org.tron.service.task.EventTask;
 
 @Slf4j(topic = "mainChainTask")
@@ -28,7 +27,7 @@ public class DepositTRC721Task implements EventTask {
       String trxId = SideChainGatewayApi
           .mintToken(sideContractAddress, this.from, this.uid);
       SideChainGatewayApi.checkTxInfo(trxId);
-    } catch (RpcException e) {
+    } catch (Exception e) {
       logger
           .error("from:{},uid:{},contractAddress{}", this.from, this.uid, this.contractAddress);
       e.printStackTrace();
