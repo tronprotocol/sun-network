@@ -110,6 +110,21 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
         balances.trc20[contractAddress] = balances.trc20[contractAddress].add(amount);
         emit TRC20Received(msg.sender, amount, contractAddress);
     }
+    function depositTRC721(uint256 uid, address contractAddress) external {
+        TRC20(contractAddress).transferFrom(msg.sender, address(this), amount);
+        balances.trc20[contractAddress] = balances.trc20[contractAddress].add(amount);
+        emit TRC20Received(msg.sender, amount, contractAddress);
+    }
+
+    function depositTRX() payable external {
+        depositTRX();
+        emit TRXReceived(msg.sender, msg.value);
+    }
+
+    function depositTRC10() payable external {
+        depositTRC10();
+        emit TRC10Received(msg.sender, msg.value, msg.tokenid);
+    }
 
     // Receiver functions for 1-step deposits to the gateway
 
