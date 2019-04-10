@@ -1965,9 +1965,23 @@ public class Client {
 //   System.out.println("GetTransactionsFromThisCount");
 //   System.out.println("GetTransactionsToThisCount");
 
+    System.out.println("switchtoside");
     System.out.println("Exit or Quit");
 
     System.out.println("Input any one of the listed commands, to display how-to tips.");
+  }
+
+  private void sideHelp() {
+    System.out.println("Help: List of Tron Sum-cli sidechain commands");
+    System.out.println(
+            "For more information on a specific command, type the command and it will display tips");
+    System.out.println("");
+
+    System.out.println("help");
+    System.out.println("switchtomain");
+
+
+    return;
   }
 
   private String[] getCmd(String cmdLine) {
@@ -2008,27 +2022,10 @@ public class Client {
     return cmdList.toArray(result);
   }
 
-  private void runMain() {
-    Scanner in = new Scanner(System.in);
-    System.out.println(" ");
-    System.out.println("Welcome to Tron Sun-Cli main chain");
-    System.out.println("Please type one of the following commands to proceed.");
-    System.out.println("Login, RegisterWallet or ImportWallet");
-    System.out.println(" ");
-    System.out.println(
-        "You may also use the Help command at anytime to display a full list of commands.");
-    System.out.println(" ");
-    while (in.hasNextLine()) {
-      String cmd = "";
+  private void runMain( String cmd, String[] parameters) {
+
       try {
-        String cmdLine = in.nextLine().trim();
-        String[] cmdArray = getCmd(cmdLine);
-        // split on trim() string will always return at the minimum: [""]
-        cmd = cmdArray[0];
-        if ("".equals(cmd)) {
-          continue;
-        }
-        String[] parameters = Arrays.copyOfRange(cmdArray, 1, cmdArray.length);
+
         String cmdLowerCase = cmd.toLowerCase();
 
         switch (cmdLowerCase) {
@@ -2036,7 +2033,7 @@ public class Client {
             help();
             break;
           }
-          case "switch2side": {
+          case "switchtoside": {
             switch2Side();
             break;
           }
@@ -2404,25 +2401,60 @@ public class Client {
         logger.error(e.getMessage());
         e.printStackTrace();
       }
-    }
+
   }
 
 
   private void switch2Main() {
     WalletApi.switch2Main();
+    System.out.println("Switch successfully.");
     return;
   }
 
 
   private void switch2Side() {
-    WalletApi.switch2Main();
+    WalletApi.switch2Side();
+    System.out.println("Switch successfully.");
     return;
   }
 
-  private void runSide() {
+  private void runSide(String cmd, String[] parameters) {
+
+      try {
+        String cmdLowerCase = cmd.toLowerCase();
+
+        switch (cmdLowerCase) {
+          case "switchtomain": {
+            switch2Main();
+            break;
+          }
+
+          case "help": {
+            sideHelp();
+            break;
+          }
+          case "exit":
+          case "quit": {
+            System.out.println("Exit !!!");
+            return;
+          }
+          default: {
+            sideHelp();
+            System.out.println("Invalid cmd: " + cmd + "!!");
+          }
+        }
+      }  catch (Exception e) {
+        System.out.println(cmd + " failed!");
+        logger.error(e.getMessage());
+        e.printStackTrace();
+      }
+
+  }
+
+  private void run() {
     Scanner in = new Scanner(System.in);
     System.out.println(" ");
-    System.out.println("Welcome to Tron Sun-Cli side chain");
+    System.out.println("Welcome to Tron Sun-Cli main chain");
     System.out.println("Please type one of the following commands to proceed.");
     System.out.println("Login, RegisterWallet or ImportWallet");
     System.out.println(" ");
@@ -2430,8 +2462,9 @@ public class Client {
             "You may also use the Help command at anytime to display a full list of commands.");
     System.out.println(" ");
     while (in.hasNextLine()) {
+
       String cmd = "";
-      try {
+
         String cmdLine = in.nextLine().trim();
         String[] cmdArray = getCmd(cmdLine);
 
@@ -2440,41 +2473,12 @@ public class Client {
           continue;
         }
         String[] parameters = Arrays.copyOfRange(cmdArray, 1, cmdArray.length);
-        String cmdLowerCase = cmd.toLowerCase();
 
-        switch (cmdLowerCase) {
-          case "switchtoMain": {
-            switch2Main();
-            break;
-          }
-
-//          case "help": {
-//            help();
-//            break;
-//          }
-          case "exit":
-          case "quit": {
-            System.out.println("Exit !!!");
-            return;
-          }
-          default: {
-            System.out.println("Invalid cmd: " + cmd);
-            help();
-          }
-        }
-      }  catch (Exception e) {
-        System.out.println(cmd + " failed!");
-        logger.error(e.getMessage());
-        e.printStackTrace();
+      if (WalletApi.isMainChain()) {
+        runMain(cmd, parameters);
+      } else {
+        runSide(cmd, parameters);
       }
-    }
-  }
-
-  private void run() {
-    if(WalletApi.isMainChain()) {
-      runMain();
-    } else {
-      runSide();
     }
   }
 
