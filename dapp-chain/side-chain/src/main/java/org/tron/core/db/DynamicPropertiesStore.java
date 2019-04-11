@@ -583,13 +583,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getGateWayList();
     } catch (IllegalArgumentException e) {
-      this.saveGateWayList(new ArrayList<>());
+      this.saveGateWayList(Args.getInstance().getGatewayList());
     }
 
     try {
       this.getEnergyChargingSwitch();
     } catch (IllegalArgumentException e) {
-      this.saveEnergyChargingSwitch(0);
+      this.saveEnergyChargingSwitch(Args.getInstance().getEnergyChargingSwitchOn());
     }
   }
 
