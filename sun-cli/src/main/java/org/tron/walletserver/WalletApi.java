@@ -12,14 +12,7 @@ import com.typesafe.config.ConfigObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.ArrayUtils;
@@ -52,10 +45,7 @@ import org.tron.api.GrpcAPI.WitnessList;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.crypto.Hash;
 import org.tron.common.crypto.Sha256Hash;
-import org.tron.common.utils.Base58;
-import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.TransactionUtils;
-import org.tron.common.utils.Utils;
+import org.tron.common.utils.*;
 import org.tron.core.config.Configuration;
 import org.tron.core.config.Parameter.CommonConstant;
 import org.tron.core.exception.CancelException;
@@ -102,7 +92,9 @@ public class WalletApi {
   private boolean loginState = false;
   private byte[] address;
   private static byte addressPreFixByte = CommonConstant.ADD_PRE_FIX_BYTE_TESTNET;
-  private static int rpcVersion = 0;
+  private static int rpcVersion = 0;  //TODO：side/main
+
+  private static byte[] sideGatewayAddress;
 
   private static GrpcClient rpcMain = initMain();
   private static GrpcClient rpcSide = initSide();
@@ -159,8 +151,19 @@ public class WalletApi {
       WalletApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_TESTNET);
     }
     if (config.hasPath("sidechain.RPC_version")) {
-      rpcVersion = config.getInt("sidechain.RPC_version");
+      rpcVersion = config.getInt("sidechain.RPC_version");//TODO:
     }
+
+    if (config.hasPath("sidechain.gateway_address")) {
+      String temp = config.getString("sidechain.gateway_address");
+
+      if(!WalletApi.addressValid(temp.getBytes()) ) {
+        throw new RuntimeException("invalid side gateway address.");
+      }
+
+      sideGatewayAddress = WalletApi.decodeFromBase58Check(temp);
+    }
+
     return new GrpcClient(fullNode, solidityNode);
   }
 
@@ -174,6 +177,10 @@ public class WalletApi {
 
   public static void switch2Side() {
     rpcCli = rpcSide;
+  }
+
+  public static byte[] getSideGatewayAddress() {
+    return sideGatewayAddress;
   }
 
   public static String selectFullNode() {
@@ -397,6 +404,35 @@ public class WalletApi {
     return walletApi;
   }
 
+  public byte[] sideSignTrxData(String address) throws CipherException, IOException {
+
+    if (!WalletApi.addressValid(address.getBytes())) {
+      throw new RuntimeException("failed to signature, invalid address.");
+    }
+
+    String uuidStr = UUID.randomUUID().toString();
+    byte[] uuid = uuidStr.getBytes();
+    if(uuid.length != 36) {
+      throw new RuntimeException("failed to signature, invalid uuid.");
+    }
+
+    System.out.println("Please choose your key for sign.");
+    WalletFile walletFile = selcetWalletFileE();
+    System.out.println("Please input your password.");
+
+    char[] password = Utils.inputPassword(false);
+    byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
+    org.tron.keystore.StringUtils.clear(password);
+
+
+    byte[] data = ByteUtil.merge(address.getBytes(), uuid);
+    ECKey myKey = getEcKey(walletFile, passwd);
+    ECKey.ECDSASignature signature = myKey.sign(data);
+
+    return signature.toByteArray();
+  }
+
+
   public Account queryAccount() {
     return queryAccount(getAddress());
   }
@@ -467,6 +503,7 @@ public class WalletApi {
     }
     return transaction;
   }
+
 
   private boolean processTransactionExtention(TransactionExtention transactionExtention)
       throws IOException, CipherException, CancelException {

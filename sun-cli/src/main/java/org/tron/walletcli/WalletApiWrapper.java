@@ -698,4 +698,23 @@ public class WalletApiWrapper {
     return wallet.addTransactionSign(transaction);
   }
 
+  public byte[] sideSignTrxData(String address) throws CipherException, IOException {
+
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: addTransactionSign failed,  Please login first !!");
+      return null;
+    }
+
+    return wallet.sideSignTrxData(address);
+  }
+
+  public byte[] getSideGatewayAddress()  {
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: addTransactionSign failed,  Please login first !!");
+      return null;
+    }
+
+    return wallet.getSideGatewayAddress();
+  }
+
 }

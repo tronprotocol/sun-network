@@ -2045,7 +2045,7 @@ public class Client {
     return cmdList.toArray(result);
   }
 
-  private void runMain( String cmd, String[] parameters) {
+  private boolean runMain( String cmd, String[] parameters) {
 
       try {
 
@@ -2403,7 +2403,7 @@ public class Client {
           case "exit":
           case "quit": {
             System.out.println("Exit !!!");
-            return;
+            return true;
           }
           default: {
             System.out.println("Invalid cmd: " + cmd);
@@ -2424,7 +2424,7 @@ public class Client {
         logger.error(e.getMessage());
         e.printStackTrace();
       }
-
+      return false;
   }
 
 
@@ -2441,47 +2441,105 @@ public class Client {
     return;
   }
 
-  private void runSide(String cmd, String[] parameters) {
+  private void withdrawTrx(String[] parameters) throws IOException, CipherException, CancelException {
+    if (parameters == null || parameters.length != 2) {
+        System.out.println("withdrawTrx needs 2 parameters like following: ");
+        System.out.println("withdrawTrx trx_num fee_limit ");
+        return;
+    }
 
-      try {
+    long trxNum = Long.valueOf(parameters[1]);
+    long feeLimit = Long.valueOf(parameters[2]);
+    String address = walletApiWrapper.getAddress();
+    byte[] trxData = walletApiWrapper.sideSignTrxData(address);
+
+    byte[] sideGatewayAddress = walletApiWrapper.getSideGatewayAddress();
+    if(sideGatewayAddress == null) {
+        throw new RuntimeException("invalid side gateway address.");
+    }
+
+    boolean result = walletApiWrapper
+            .callContract(sideGatewayAddress, trxNum, trxData, feeLimit, 0, "0");
+    if (result) {
+        System.out.println("Broadcast the triggerContract successfully.\n"
+                + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
+    } else {
+        System.out.println("Broadcast the triggerContract failed");
+    }
+  }
+
+  private boolean runSide(String cmd, String[] parameters) {
+
+    try {
         String cmdLowerCase = cmd.toLowerCase();
 
         switch (cmdLowerCase) {
-          case "switchtomain": {
-            switch2Main();
-            break;
-          }
-          case "help": {
-            sideHelp();
-            break;
-          }
-          case "getbalance": {
-            getBalance();
-            break;
-          }
-          case "createproposal": {
-            sideChainCreateProposal(parameters);
-            break;
-          }
-          case "exit":
-          case "quit": {
-            System.out.println("Exit !!!");
-            return;
-          }
-          default: {
-            sideHelp();
-            System.out.println("Invalid cmd: " + cmd + "!!");
-          }
+            case "switchtomain": {
+                switch2Main();
+                break;
+            }
+            case "help": {
+                sideHelp();
+                break;
+            }
+            case "login": {
+                login();
+                break;
+            }
+            case "logout": {
+                logout();
+                break;
+            }
+            case "getbalance": {
+                getBalance();
+                break;
+            }
+            case "triggercontract": {
+                triggerContract(parameters);
+                break;
+            }
+            case "deploycontract": {
+                deployContract(parameters);
+
+                break;
+            }
+            case "approveproposal": {
+                approveProposal(parameters); //TODO: account change？
+                break;
+
+            }
+            case "deleteproposal": {
+                deleteProposal(parameters);
+                break;
+            }
+            case "withdrawTrx": {
+                withdrawTrx(parameters);
+                break;
+            }
+            case "createproposal": {
+                sideChainCreateProposal(parameters);
+                break;
+            }
+            case "exit":
+            case "quit": {
+                System.out.println("Exit !!!");
+                return true;
+            }
+            default: {
+                sideHelp();
+                System.out.println("Invalid cmd: " + cmd + "!!");
+            }
         }
-      }  catch (Exception e) {
+    } catch (Exception e) {
         System.out.println(cmd + " failed!");
         logger.error(e.getMessage());
         e.printStackTrace();
-      }
-
+    }
+    return false;
   }
 
-  private void run() {
+
+    private void run() {
     Scanner in = new Scanner(System.in);
     System.out.println(" ");
     System.out.println("Welcome to Tron Sun-Cli main chain");
@@ -2503,10 +2561,15 @@ public class Client {
       }
       String[] parameters = Arrays.copyOfRange(cmdArray, 1, cmdArray.length);
 
+      boolean ret = false;
       if (WalletApi.isMainChain()) {
-        runMain(cmd, parameters);
+        ret = runMain(cmd, parameters);
       } else {
-        runSide(cmd, parameters);
+        ret = runSide(cmd, parameters);
+      }
+
+      if(ret == true) {
+          return;
       }
     }
   }
