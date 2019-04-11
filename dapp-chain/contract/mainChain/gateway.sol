@@ -43,7 +43,7 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
     event TokenWithdrawn(address indexed owner, TokenKind kind, address contractAddress, uint256 value);
     event Token10Withdrawn(address indexed owner, TokenKind kind, trcToken tokenId, uint256 value);
 
-    constructor (address[] _orcale)
+    constructor (address _orcale)
     public OrcaleManagerContract(_orcale) {
     }
 
@@ -124,7 +124,7 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
     // Receiver functions for 1-step deposits to the gateway
 
 
-    function onTRC20Received(address _from, uint256 amount)
+    function onTRC20Received(address _from, uint256 amount,bytes)
     public
     returns (bytes4)
     {
