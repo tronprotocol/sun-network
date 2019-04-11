@@ -25,10 +25,10 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     event DepositTRC20(address sideChainAddress, address to, uint256 value);
     event DepositTRC721(address sideChainAddress, address to, uint256 tokenId);
     event DepositTRX(address to, uint256 value);
-    event WithdrawTRC10(address from, uint256 value, uint256 trc10, bytes memory txData);
-    event WithdrawTRC20(address from, uint256 value, address mainChainAddress, bytes memory txData);
-    event WithdrawTRC721(address from, uint256 tokenId, address mainChainAddress, bytes memory txData);
-    event WithdrawTRX(address from, uint256 value, bytes memory txData);
+    event WithdrawTRC10(address from, uint256 value, uint256 trc10, bytes txData);
+    event WithdrawTRC20(address from, uint256 value, address mainChainAddress, bytes txData);
+    event WithdrawTRC721(address from, uint256 tokenId, address mainChainAddress, bytes txData);
+    event WithdrawTRX(address from, uint256 value, bytes txData);
 
     // TODO: type enum
     mapping(address => address) public mainToSideContractMap;
