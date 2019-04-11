@@ -31,21 +31,30 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     event WithdrawTRX(address from, uint256 value, bytes memory txData);
 
     // TODO: type enum
-    mapping(address => address) mainToSideContractMap;
-    mapping(address => address) sideToMainContractMap;
-    mapping(uint256 => address) mainToSideTRC10Map;
-    mapping(address => uint256) sideToMainTRC10Map;
-    address oracle;
+    mapping(address => address) public mainToSideContractMap;
+    mapping(address => address) public sideToMainContractMap;
+    mapping(uint256 => address) public mainToSideTRC10Map;
+    mapping(address => uint256) public sideToMainTRC10Map;
+    mapping(address => bool) public oracles;
+    address public owner;
     address mintTRXContract = 0x00;
 
     constructor () public {
-
+        owner = msg.sender;
     }
 
-    // TODO: modify oracle
     modifier onlyOracle {
-        require(msg.sender == oracle);
+        require(oracles[msg.sender]);
         _;
+    }
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function modifyOracle(address _oracle, bool isOracle) public onlyOwner {
+        oracles[_oracle] = isOracle;
     }
 
     // 1. deployDAppTRC20AndMapping
@@ -73,7 +82,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 3. depositTRC10
-    function depositTRC10(address to, uint256 trc10, uint256 value, string name, string symbol, uint8 decimals) public onlyOracle {
+    function depositTRC10(address to, uint256 trc10, uint256 value, string name, string symbol, uint8 decimals) public onlyOracle returns (address r) {
         // can only be called by oracle
         require(trc10 > 0, "trc10 must be greater than 0");
         address sideChainAddress = mainToSideTRC10Map[trc10];
@@ -84,6 +93,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         }
         IDApp(sideChainAddress).mint(to, value);
         emit DepositTRC10(to, trc10, value, sideChainAddress);
+        r = sideChainAddress;
     }
 
     // 4. depositTRC20
@@ -144,7 +154,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 10. withdrawTRX
-    function withdrawTRX(bytes memory txData) {onTRC20Received
+    function withdrawTRX(bytes memory txData) {
         // burn
         // FIXME in tron side chain: will be fail in tron
         address(0).transfer(msg.value);
