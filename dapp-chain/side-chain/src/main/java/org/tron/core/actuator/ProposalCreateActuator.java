@@ -275,7 +275,7 @@ public class ProposalCreateActuator extends AbstractActuator {
       }
       case (25): {
         String gateWayAddress = entry.getValue();
-        if ( gateWayAddress.getBytes().length != 21) {
+        if ( Wallet.decodeFromBase58Check(gateWayAddress).length != 21) {
           throw new ContractValidateException(
               "gateway address has to be 21 bytes");
         }
