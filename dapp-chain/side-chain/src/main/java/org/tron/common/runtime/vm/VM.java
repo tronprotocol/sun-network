@@ -127,7 +127,6 @@ public class VM {
         case SLOAD:
           energyCost = energyCosts.getSLOAD();
           break;
-        case TOKENBALANCE:
         case BALANCE:
           energyCost = energyCosts.getBALANCE();
           break;
