@@ -124,7 +124,7 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
     // Receiver functions for 1-step deposits to the gateway
 
 
-    function onTRC20Received(address _from, uint256 amount)
+    function onTRC20Received(address _from, uint256 amount,bytes)
     public
     returns (bytes4)
     {
