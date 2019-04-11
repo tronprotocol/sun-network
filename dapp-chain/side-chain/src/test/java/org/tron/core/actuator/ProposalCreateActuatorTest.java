@@ -120,7 +120,7 @@ public class ProposalCreateActuatorTest {
 
   private Any getContract(String address, HashMap<Long, String> paras) {
     return Any.pack(
-        Contract.ProposalCreateContract.newBuilder()
+        Contract.SideChainProposalCreateContract.newBuilder()
             .setOwnerAddress(ByteString.copyFrom(ByteArray.fromHexString(address)))
             .putAllParameters(paras)
             .build());
@@ -227,22 +227,22 @@ public class ProposalCreateActuatorTest {
   }
 
   /**
-   * use invalid parameter, result is failed, exception is "Bad chain parameter id".
+   * use invalid parameter, result is failed, exception is "non-exist proposal number".
    */
   @Test
   public void invalidPara() {
     HashMap<Long, String> paras = new HashMap<>();
-    paras.put(24L, String.valueOf(10000L));
+    paras.put(26L, String.valueOf(10000L));
     ProposalCreateActuator actuator =
         new ProposalCreateActuator(getContract(OWNER_ADDRESS_FIRST, paras), dbManager);
     TransactionResultCapsule ret = new TransactionResultCapsule();
     try {
       actuator.validate();
       actuator.execute(ret);
-      fail("Bad chain parameter id");
+      fail("non-exist proposal number");
     } catch (ContractValidateException e) {
       Assert.assertTrue(e instanceof ContractValidateException);
-      Assert.assertEquals("Bad chain parameter id",
+      Assert.assertEquals("non-exist proposal number",
           e.getMessage());
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);

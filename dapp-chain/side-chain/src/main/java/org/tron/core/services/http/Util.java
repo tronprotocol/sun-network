@@ -25,7 +25,7 @@ import org.tron.protos.Contract.AccountUpdateContract;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.FreezeBalanceContract;
 import org.tron.protos.Contract.ProposalApproveContract;
-import org.tron.protos.Contract.ProposalCreateContract;
+import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Contract.ProposalDeleteContract;
 import org.tron.protos.Contract.TransferContract;
 import org.tron.protos.Contract.TriggerSmartContract;
@@ -218,9 +218,9 @@ public class Util {
                 .unpack(TriggerSmartContract.class);
             contractJson = JSONObject.parseObject(JsonFormat.printToString(triggerSmartContract));
             break;
-          case ProposalCreateContract:
-            ProposalCreateContract proposalCreateContract = contractParameter
-                .unpack(ProposalCreateContract.class);
+          case SideChainProposalCreateContract:
+            SideChainProposalCreateContract proposalCreateContract = contractParameter
+                .unpack(SideChainProposalCreateContract.class);
             contractJson = JSONObject.parseObject(JsonFormat.printToString(proposalCreateContract));
             break;
           case ProposalApproveContract:
@@ -373,13 +373,13 @@ public class Util {
                     createSmartContractBuilder);
             any = Any.pack(createSmartContractBuilder.build());
             break;
-          case "ProposalCreateContract":
-            ProposalCreateContract.Builder ProposalCreateContractBuilder = ProposalCreateContract
+          case "SideChainProposalCreateContract":
+            SideChainProposalCreateContract.Builder SideChainProposalCreateContractBuilder = SideChainProposalCreateContract
                 .newBuilder();
             JsonFormat
                 .merge(parameter.getJSONObject("value").toJSONString(),
-                    ProposalCreateContractBuilder);
-            any = Any.pack(ProposalCreateContractBuilder.build());
+                    SideChainProposalCreateContractBuilder);
+            any = Any.pack(SideChainProposalCreateContractBuilder.build());
             break;
           case "ProposalApproveContract":
             ProposalApproveContract.Builder ProposalApproveContractBuilder = ProposalApproveContract

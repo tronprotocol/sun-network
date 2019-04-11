@@ -8,33 +8,33 @@ import org.tron.core.Constant;
 import org.tron.core.db.EnergyProcessor;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.BalanceInsufficientException;
-import org.tron.protos.Protocol.ResourceReceipt;
+import org.tron.protos.Protocol.SideChainResourceReceipt;
 import org.tron.protos.Protocol.Transaction.Result.contractResult;
 
 public class ReceiptCapsule {
 
-  private ResourceReceipt receipt;
+  private SideChainResourceReceipt receipt;
   @Getter
   @Setter
   private long multiSignFee;
 
   private Sha256Hash receiptAddress;
 
-  public ReceiptCapsule(ResourceReceipt data, Sha256Hash receiptAddress) {
+  public ReceiptCapsule(SideChainResourceReceipt data, Sha256Hash receiptAddress) {
     this.receipt = data;
     this.receiptAddress = receiptAddress;
   }
 
   public ReceiptCapsule(Sha256Hash receiptAddress) {
-    this.receipt = ResourceReceipt.newBuilder().build();
+    this.receipt = receipt.newBuilder().build();
     this.receiptAddress = receiptAddress;
   }
 
-  public void setReceipt(ResourceReceipt receipt) {
+  public void setReceipt(SideChainResourceReceipt receipt) {
     this.receipt = receipt;
   }
 
-  public ResourceReceipt getReceipt() {
+  public SideChainResourceReceipt getReceipt() {
     return this.receipt;
   }
 
@@ -161,7 +161,7 @@ public class ReceiptCapsule {
     manager.getAccountStore().put(account.getAddress().toByteArray(), account);
   }
 
-  public static ResourceReceipt copyReceipt(ReceiptCapsule origin) {
+  public static SideChainResourceReceipt copyReceipt(ReceiptCapsule origin) {
     return origin.getReceipt().toBuilder().build();
   }
 

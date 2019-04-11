@@ -182,7 +182,7 @@ service Wallet {
   rpc WithdrawBalance2 (WithdrawBalanceContract) returns (TransactionExtention) {
   }
 
-  rpc ProposalCreate (ProposalCreateContract) returns (TransactionExtention) {
+  rpc SideChainProposalCreate (SideChainProposalCreateContract) returns (TransactionExtention) {
   }
 
   rpc ProposalApprove (ProposalApproveContract) returns (TransactionExtention) {

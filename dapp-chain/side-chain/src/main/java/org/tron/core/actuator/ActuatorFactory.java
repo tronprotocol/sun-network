@@ -61,7 +61,7 @@ public class ActuatorFactory {
         return new UnfreezeBalanceActuator(contract.getParameter(), manager);
       case WithdrawBalanceContract:
         return new WithdrawBalanceActuator(contract.getParameter(), manager);
-      case ProposalCreateContract:
+      case SideChainProposalCreateContract:
         return new ProposalCreateActuator(contract.getParameter(), manager);
       case ProposalApproveContract:
         return new ProposalApproveActuator(contract.getParameter(), manager);
