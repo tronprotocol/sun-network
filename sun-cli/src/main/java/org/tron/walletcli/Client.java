@@ -2441,7 +2441,7 @@ public class Client {
     return;
   }
 
-  private void withdrawTrx(String[] parameters) throws IOException, CipherException, CancelException {
+  private void withdrawTrx(String[] parameters) throws IOException, CipherException, CancelException, EncodingException {
     if (parameters == null || parameters.length != 2) {
         System.out.println("withdrawTrx needs 2 parameters like following: ");
         System.out.println("withdrawTrx trx_num fee_limit ");
@@ -2451,7 +2451,7 @@ public class Client {
     long trxNum = Long.valueOf(parameters[1]);
     long feeLimit = Long.valueOf(parameters[2]);
     String address = walletApiWrapper.getAddress();
-    byte[] trxData = walletApiWrapper.sideSignTrxData(address);
+    byte[] trxData = walletApiWrapper.sideSignTrxData(address, trxNum);
 
     byte[] sideGatewayAddress = walletApiWrapper.getSideGatewayAddress();
     if(sideGatewayAddress == null) {
@@ -2530,10 +2530,19 @@ public class Client {
                 System.out.println("Invalid cmd: " + cmd + "!!");
             }
         }
+    } catch (CipherException e) {
+      System.out.println(cmd + " failed!");
+      System.out.println(e.getMessage());
+    } catch (IOException e) {
+      System.out.println(cmd + " failed!");
+      System.out.println(e.getMessage());
+    } catch (CancelException e) {
+      System.out.println(cmd + " failed!");
+      System.out.println(e.getMessage());
     } catch (Exception e) {
-        System.out.println(cmd + " failed!");
-        logger.error(e.getMessage());
-        e.printStackTrace();
+      System.out.println(cmd + " failed!");
+      logger.error(e.getMessage());
+      e.printStackTrace();
     }
     return false;
   }
