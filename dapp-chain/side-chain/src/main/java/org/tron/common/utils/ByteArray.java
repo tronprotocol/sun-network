@@ -124,11 +124,11 @@ public class ByteArray {
   }
 
 
-  public static List<byte[]> toByte21List(byte[] input32) {
+  public static List<byte[]> toByte21List(byte[] input) {
     ArrayList<byte[]> list = new ArrayList<byte[]>();
-    for (int i=0; i< input32.length; i++){
+    for (int i=0; i * 21 < input.length; i++){
       byte[] element = new byte[21];
-      System.arraycopy(input32,i * 21, element,0,32);
+      System.arraycopy(input,i * 21, element,0,21);
       list.add(element);
     }
     return list;

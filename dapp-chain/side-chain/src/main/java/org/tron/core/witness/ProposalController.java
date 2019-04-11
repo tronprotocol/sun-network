@@ -8,6 +8,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.core.Wallet;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractValidateException;
@@ -232,7 +233,8 @@ public class ProposalController {
         }
         case (25): {
           // single new gateway address
-          manager.getDynamicPropertiesStore().addToGateWayList(entry.getValue().getBytes());
+          manager.getDynamicPropertiesStore().addToGateWayList(Wallet
+              .decodeFromBase58Check(entry.getValue()));
           break;
         }
         default:
