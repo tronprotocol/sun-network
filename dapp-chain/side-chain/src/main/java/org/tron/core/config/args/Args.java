@@ -435,6 +435,16 @@ public class Args {
   @Getter
   private RocksDbSettings rocksDBCustomSettings;
 
+
+  //side-chain
+  @Getter
+  @Setter
+  private List<byte[]> gatewayList;
+
+  @Getter
+  @Setter
+  private int energyChargingSwitchOn;
+
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
     INSTANCE.help = false;
@@ -814,6 +824,10 @@ public class Args {
         config.hasPath("committee.allowTvmTransferTrc10") ? config
             .getInt("committee.allowTvmTransferTrc10") : 0;
 
+    INSTANCE.energyChargingSwitchOn =
+        config.hasPath("committee.energyChargingSwitchOn") ? config
+            .getInt("committee.energyChargingSwitchOn") : 0;
+
     INSTANCE.tcpNettyWorkThreadNum = config.hasPath("node.tcpNettyWorkThreadNum") ? config
         .getInt("node.tcpNettyWorkThreadNum") : 0;
 
@@ -870,6 +884,8 @@ public class Args {
 
     INSTANCE.saveInternalTx =
         config.hasPath("vm.saveInternalTx") && config.getBoolean("vm.saveInternalTx");
+
+    INSTANCE.gatewayList = getGateWayList(config,"gateWayList");
 
     INSTANCE.eventPluginConfig =
         config.hasPath("event.subscribe") ?
@@ -957,6 +973,19 @@ public class Args {
     }
     return ret;
   }
+
+  private static List<byte[]> getGateWayList(final com.typesafe.config.Config config, String path) {
+    if (!config.hasPath(path)) {
+      return Collections.emptyList();
+    }
+    List<byte[]> ret = new ArrayList<>();
+    List<String> list = config.getStringList(path);
+    for (String configString : list) {
+      ret.add(Wallet.decodeFromBase58Check(configString));
+    }
+    return ret;
+  }
+
 
   private static void privateKey(final com.typesafe.config.Config config) {
     if (config.hasPath("private.key")) {

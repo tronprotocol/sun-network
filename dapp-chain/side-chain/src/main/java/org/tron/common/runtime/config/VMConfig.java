@@ -65,8 +65,7 @@ public class VMConfig {
   }
 
   private static boolean isChargingResourceProposalOn(Manager dbManger){
-    //TODO: IMPLEMENT GET CHARGING PROPOSAL HERE
-    return false;
+    return dbManger.getDynamicPropertiesStore().getEnergyChargingSwitch() == 1;
   }
 
 }
