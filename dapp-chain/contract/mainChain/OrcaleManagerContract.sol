@@ -19,16 +19,21 @@ contract OrcaleManagerContract is Ownable {
     modifier onlyOrcale() {require(checkOrcale(msg.sender));
         _;}
 
-    constructor(address[] _orcales) public {
-        uint256 length = _orcales.length;
-        require(length > 0);
+    constructor(address _orcale) public {
+        //  address[] storage _orcales;
+        // _orcales.push(_orcale);
+        // uint256 length = _orcales.length;
+        // //require(length > 0);
 
-        for (uint256 i = 0; i < length; i++) {
-            require(_orcales[i] != address(0));
-            orcales[_orcales[i]] = true;
-            emit NewOrcales(_orcales[i]);
-        }
-        numOrcales = _orcales.length;
+        // for (uint256 i = 0; i < length; i++) {
+        //     require(_orcales[i] != address(0));
+        //     orcales[_orcales[i]] = true;
+        //     emit NewOrcales(_orcales[i]);
+        // }
+        // numOrcales = _orcales.length;
+        numOrcales = 1;
+        orcales[_orcale] = true;
+        emit NewOrcales(_orcale);
     }
 
     modifier checkGainer(address _to,uint256 num, address contractAddress, bytes sig) {

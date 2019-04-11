@@ -43,7 +43,7 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
     event TokenWithdrawn(address indexed owner, TokenKind kind, address contractAddress, uint256 value);
     event Token10Withdrawn(address indexed owner, TokenKind kind, trcToken tokenId, uint256 value);
 
-    constructor (address[] _orcale)
+    constructor (address _orcale)
     public OrcaleManagerContract(_orcale) {
     }
 
