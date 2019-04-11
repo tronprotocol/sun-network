@@ -157,9 +157,9 @@ public class WalletApi {
     if (config.hasPath("sidechain.gateway_address")) {
       String temp = config.getString("sidechain.gateway_address");
 
-      if(!WalletApi.addressValid(temp.getBytes()) ) {
-        throw new RuntimeException("invalid side gateway address.");
-      }
+//      if(!WalletApi.addressValid(temp.getBytes()) ) {
+//        throw new RuntimeException("invalid side gateway address.");
+//      }
 
       sideGatewayAddress = WalletApi.decodeFromBase58Check(temp);
     }
