@@ -1003,6 +1003,29 @@ public class Client {
     }
   }
 
+
+  private void sideChainCreateProposal(String[] parameters)
+          throws IOException, CipherException, CancelException {
+    if (parameters == null || parameters.length < 2 || (parameters.length & 1) != 0) {
+      System.out.println("Use createProposal command with below syntax: ");
+      System.out.println("createProposal id0 value0 ... idN valueN");
+      return;
+    }
+
+    HashMap<Long, String> parametersMap = new HashMap<>();
+    for (int i = 0; i < parameters.length; i += 2) {
+      long id = Long.valueOf(parameters[i]);
+      String value = parameters[i + 1];
+      parametersMap.put(id, value);
+    }
+    boolean result = walletApiWrapper.sideChainCreateProposal(parametersMap);
+    if (result) {
+      logger.info("createProposal " + " successful !!");
+    } else {
+      logger.info("createProposal " + " failed !!");
+    }
+  }
+
   private void approveProposal(String[] parameters)
       throws IOException, CipherException, CancelException {
     if (parameters == null || parameters.length != 2) {
@@ -2428,9 +2451,16 @@ public class Client {
             switch2Main();
             break;
           }
-
           case "help": {
             sideHelp();
+            break;
+          }
+          case "getbalance": {
+            getBalance();
+            break;
+          }
+          case "createproposal": {
+            sideChainCreateProposal(parameters);
             break;
           }
           case "exit":
@@ -2461,18 +2491,17 @@ public class Client {
     System.out.println(
             "You may also use the Help command at anytime to display a full list of commands.");
     System.out.println(" ");
+
     while (in.hasNextLine()) {
-
       String cmd = "";
+      String cmdLine = in.nextLine().trim();
+      String[] cmdArray = getCmd(cmdLine);
 
-        String cmdLine = in.nextLine().trim();
-        String[] cmdArray = getCmd(cmdLine);
-
-        cmd = cmdArray[0];
-        if ("".equals(cmd)) {
-          continue;
-        }
-        String[] parameters = Arrays.copyOfRange(cmdArray, 1, cmdArray.length);
+      cmd = cmdArray[0];
+      if ("".equals(cmd)) {
+        continue;
+      }
+      String[] parameters = Arrays.copyOfRange(cmdArray, 1, cmdArray.length);
 
       if (WalletApi.isMainChain()) {
         runMain(cmd, parameters);

@@ -1297,6 +1297,22 @@ public class WalletApi {
     return processTransactionExtention(transactionExtention);
   }
 
+  public static Contract.SideChainProposalCreateContract sideCreateProposalCreateContract(byte[] owner,
+                     HashMap<Long, String> parametersMap) {
+        Contract.SideChainProposalCreateContract.Builder builder = Contract.SideChainProposalCreateContract.newBuilder();
+        builder.setOwnerAddress(ByteString.copyFrom(owner));
+        builder.putAllParameters(parametersMap);
+        return builder.build();
+  }
+
+  public boolean sideChainCreateProposal(HashMap<Long, String> parametersMap)
+        throws CipherException, IOException, CancelException {
+    byte[] owner = getAddress();
+    Contract.SideChainProposalCreateContract contract = sideCreateProposalCreateContract(owner, parametersMap);
+    TransactionExtention transactionExtention = rpcCli.SideProposalCreate(contract);
+    return processTransactionExtention(transactionExtention);
+  }
+
   public static Optional<ProposalList> listProposals() {
     return rpcCli.listProposals();
   }

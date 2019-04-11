@@ -306,6 +306,10 @@ public class GrpcClient {
     return blockingStubFull.proposalCreate(contract);
   }
 
+  public TransactionExtention SideProposalCreate(Contract.SideChainProposalCreateContract contract) {
+    return blockingStubFull.sideChainProposalCreate(contract);
+  }
+
   public Optional<ProposalList> listProposals() {
     ProposalList proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
     return Optional.ofNullable(proposalList);

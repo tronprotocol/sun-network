@@ -280,6 +280,9 @@ message Transaction {
 
       UpdateEnergyLimitContract = 45;
       AccountPermissionUpdateContract = 46;
+
+
+      SideChainProposalCreateContract = 1001;
     }
     ContractType type = 1;
     google.protobuf.Any parameter = 2;

@@ -506,13 +506,23 @@ public class WalletApiWrapper {
   }
 
   public boolean createProposal(HashMap<Long, Long> parametersMap)
-      throws CipherException, IOException, CancelException {
+          throws CipherException, IOException, CancelException {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: createProposal failed, Please login first !!");
       return false;
     }
 
     return wallet.createProposal(parametersMap);
+  }
+
+  public boolean sideChainCreateProposal(HashMap<Long, String> parametersMap)
+          throws CipherException, IOException, CancelException {
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: createProposal failed, Please login first !!");
+      return false;
+    }
+
+    return wallet.sideChainCreateProposal(parametersMap);
   }
 
 

@@ -620,6 +620,10 @@ service Wallet {
 
   rpc GetNodeInfo (EmptyMessage) returns (NodeInfo) {
   };
+
+  rpc SideChainProposalCreate (SideChainProposalCreateContract) returns (TransactionExtention) {
+  }
+
 };
 
 

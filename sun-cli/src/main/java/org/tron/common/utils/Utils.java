@@ -102,6 +102,7 @@ import org.tron.protos.Protocol.TransactionInfo.code;
 import org.tron.protos.Protocol.Vote;
 import org.tron.protos.Protocol.Witness;
 import org.tron.walletserver.WalletApi;
+import org.tron.protos.Contract.SideChainProposalCreateContract;
 
 public class Utils {
 
@@ -1148,6 +1149,20 @@ public class Utils {
         //   result += sellStorageContract.getStorageBytes();
         //   result += "\n";
         //   break;
+
+        case SideChainProposalCreateContract: {
+          SideChainProposalCreateContract SideChainProposalCreateContract = contract.getParameter()
+                  .unpack(SideChainProposalCreateContract.class);
+          result += "owner_address: ";
+          result += WalletApi
+                  .encode58Check(SideChainProposalCreateContract.getOwnerAddress().toByteArray());
+          result += "\n";
+          result += "parametersMap: ";
+          result += SideChainProposalCreateContract.getParametersMap();
+          result += "\n";
+
+          break;
+        }
         default:
           return "";
       }
