@@ -97,7 +97,7 @@ public class PrecompiledContracts {
       .encode58Check(addressCheckECKey.getAddress());
 
   private static final DataWord mineAddr = new DataWord(
-      "8000000000000000000000000000000000000000000000000000000000000000");
+      "0000000000000000000000000000000000000000000000000000000000010000");
   private static final DataWord ecRecoverAddr = new DataWord(
       "0000000000000000000000000000000000000000000000000000000000000001");
   private static final DataWord sha256Addr = new DataWord(
