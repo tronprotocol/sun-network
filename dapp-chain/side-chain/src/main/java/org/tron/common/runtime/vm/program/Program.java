@@ -68,8 +68,10 @@ import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.ContractCapsule;
 import org.tron.core.config.args.Args;
+import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.TronException;
+import org.tron.protos.Contract;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.SmartContract;
 
@@ -410,10 +412,11 @@ public class Program {
       // if owner == obtainer just zeroing account according to Yellow Paper
       getContractState().addBalance(owner, -balance);
       byte[] blackHoleAddress = getContractState().getBlackHoleAddress();
+      getContractState().addBalance(blackHoleAddress, balance);
     } else {
       try {
         transfer(getContractState(), owner, obtainer, balance);
-      } catch (ContractValidateException e) {
+      } catch (ContractValidateException | ContractExeException e) {
         throw new BytecodeExecutionException("transfer failure");
       }
     }
@@ -473,11 +476,11 @@ public class Program {
     if (!byTestingSuite() && endowment > 0) {
       try {
         TransferActuator.validateForSmartContract(deposit, senderAddress, newAddress, endowment);
-      } catch (ContractValidateException e) {
+        newBalance = TransferActuator.
+            executeAndReturnToAddressBalance(deposit,senderAddress,newAddress,endowment);
+      } catch (ContractValidateException | ContractExeException e) {
         throw new BytecodeExecutionException(VALIDATE_FOR_SMART_CONTRACT_FAILURE);
       }
-      deposit.addBalance(senderAddress, -endowment);
-      newBalance = deposit.addBalance(newAddress, endowment);
     }
 
     // actual energy subtract
@@ -516,8 +519,10 @@ public class Program {
     // 4. CREATE THE CONTRACT OUT OF RETURN
     byte[] code = createResult.getHReturn();
 
-    long saveCodeEnergy = (long) getLength(code) * EnergyCost.getInstance().getCREATE_DATA();
-
+    long saveCodeEnergy = 0;
+    if (VMConfig.isVmResourceChargingOn) {
+      saveCodeEnergy = (long) getLength(code) * EnergyCost.getInstance().getCREATE_DATA();
+    }
     long afterSpend =
         programInvoke.getEnergyLimit() - createResult.getEnergyUsed() - saveCodeEnergy;
     if (!createResult.isRevert()) {
@@ -637,11 +642,12 @@ public class Program {
       try {
         TransferActuator
             .validateForSmartContract(deposit, senderAddress, contextAddress, endowment);
-      } catch (ContractValidateException e) {
+        contextBalance = TransferActuator.
+            executeAndReturnToAddressBalance(deposit,senderAddress,contextAddress,endowment);
+      } catch (ContractValidateException | ContractExeException e) {
         throw new BytecodeExecutionException(VALIDATE_FOR_SMART_CONTRACT_FAILURE);
       }
-      deposit.addBalance(senderAddress, -endowment);
-      contextBalance = deposit.addBalance(contextAddress, endowment);
+
     }
 
     // CREATE CALL INTERNAL TRANSACTION
@@ -736,12 +742,14 @@ public class Program {
   }
 
   public void spendEnergy(long energyValue, String opName) {
-    if (getEnergylimitLeftLong() < energyValue) {
-      throw new OutOfEnergyException(
-          "Not enough energy for '%s' operation executing: curInvokeEnergyLimit[%d], curOpEnergy[%d], usedEnergy[%d]",
-          opName, invoke.getEnergyLimit(), energyValue, getResult().getEnergyUsed());
+    if (VMConfig.isVmResourceChargingOn) {
+      if (getEnergylimitLeftLong() < energyValue) {
+        throw new OutOfEnergyException(
+            "Not enough energy for '%s' operation executing: curInvokeEnergyLimit[%d], curOpEnergy[%d], usedEnergy[%d]",
+            opName, invoke.getEnergyLimit(), energyValue, getResult().getEnergyUsed());
+      }
+      getResult().spendEnergy(energyValue);
     }
-    getResult().spendEnergy(energyValue);
   }
 
   public void checkCPUTimeLimit(String opName) {
@@ -1269,7 +1277,7 @@ public class Program {
       try {
         transfer(deposit, senderAddress, contextAddress,
             msg.getEndowment().value().longValueExact());
-      } catch (ContractValidateException e) {
+      } catch (ContractValidateException | ContractExeException e) {
         throw new BytecodeExecutionException("transfer failure");
       }
     }

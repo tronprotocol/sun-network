@@ -167,9 +167,21 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   private static final byte[] AVAILABLE_CONTRACT_TYPE = "AVAILABLE_CONTRACT_TYPE".getBytes();
   private static final byte[] ACTIVE_DEFAULT_OPERATIONS = "ACTIVE_DEFAULT_OPERATIONS".getBytes();
 
-  // Side-chain gateway list
+  /*
+   * Side-chain parameters.
+   */
+
+  // gateway list
   private static final byte[] GATEWAY_ADDRESS_LIST = "GATEWAY_ADDRESS_LIST".getBytes();
 
+  // basic value for energy: byte, also means energy: bandwidth (10:1)
+  private static final byte[] TRANSACTION_ENERGY_BYTE_RATE = "TRANSACTION_ENERGY_BYTE_RATE".getBytes();
+
+  // Define the energy/byte rate, when create an account using frozen energy.
+  private static final byte[] CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE = "CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE".getBytes();
+
+  // switch on to kick off energy charging
+  private static final byte[] ENERGY_CHARGING_SWITCH = "ENERGY_CHARGING_SWITCH".getBytes();
 
   @Autowired
   private DynamicPropertiesStore(@Value("properties") String dbName) {
@@ -398,9 +410,23 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getCreateNewAccountEnergyRate();
+    } catch (IllegalArgumentException e) {
+      this.saveCreateNewAccountEnergyRate(10);
+      // 10 byte(bandwidth) == 1 energy
+    }
+
+    try {
       this.getTransactionFee();
     } catch (IllegalArgumentException e) {
       this.saveTransactionFee(10L); // 10sun/byte
+    }
+
+    try {
+      this.getTransactionEnergyByteRate();
+    } catch (IllegalArgumentException e) {
+      this.saveTransactionEnergyByteRate(10);
+      // 10 byte(bandwidth) == 1 energy
     }
 
     try {
@@ -557,7 +583,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getGateWayList();
     } catch (IllegalArgumentException e) {
-      this.saveGateWayList(new ArrayList<>());
+      this.saveGateWayList(Args.getInstance().getGatewayList());
+    }
+
+    try {
+      this.getEnergyChargingSwitch();
+    } catch (IllegalArgumentException e) {
+      this.saveEnergyChargingSwitch(Args.getInstance().getEnergyChargingSwitchOn());
     }
   }
 
@@ -578,6 +610,25 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     return result;
   }
 
+  /**
+   *   Side-chain parameters
+   *
+   */
+
+
+  public int getTransactionEnergyByteRate() {
+    return Optional.ofNullable(getUnchecked(TRANSACTION_ENERGY_BYTE_RATE))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toInt)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found GATEWAY_ADDRESS_LIST"));
+  }
+
+  public void saveTransactionEnergyByteRate(int num) {
+    this.put(TRANSACTION_ENERGY_BYTE_RATE,
+        new BytesCapsule(ByteArray.fromInt(num)));
+  }
+
   public List<byte[]> getGateWayList() {
     return Optional.ofNullable(getUnchecked(GATEWAY_ADDRESS_LIST))
         .map(BytesCapsule::getData)
@@ -586,10 +637,42 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found GATEWAY_ADDRESS_LIST"));
   }
 
-  public void saveGateWayList(ArrayList<byte[]> gateWayList) {
+  public void saveGateWayList(List<byte[]> gateWayList) {
     this.put(GATEWAY_ADDRESS_LIST,
         new BytesCapsule(ByteArray.fromBytes21List(gateWayList)));
   }
+
+  public void addToGateWayList(byte[] gateWayContractAddress) {
+    List<byte[]> list =  Optional.ofNullable(getUnchecked(GATEWAY_ADDRESS_LIST))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toByte21List)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found GATEWAY_ADDRESS_LIST"));
+    if(gateWayContractAddress.length != 21) {
+      throw new IllegalArgumentException("new added gate way address should be 21 bytes");
+    }
+    list.add(gateWayContractAddress);
+    this.put(GATEWAY_ADDRESS_LIST,
+        new BytesCapsule(ByteArray.fromBytes21List(list)));
+  }
+
+  public int getEnergyChargingSwitch(){
+    return Optional.ofNullable(getUnchecked(ENERGY_CHARGING_SWITCH))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toInt)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found ENERGY_CHARGING_SWITCH"));
+  }
+
+  public void saveEnergyChargingSwitch(long num) {
+    this.put(ENERGY_CHARGING_SWITCH,
+        new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  /**
+   *   SideChain parameter end
+   */
+
 
   public void saveTokenIdNum(long num) {
     this.put(TOKEN_ID_NUM,
@@ -1031,7 +1114,20 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         .map(BytesCapsule::getData)
         .map(ByteArray::toLong)
         .orElseThrow(
-            () -> new IllegalArgumentException("not found CREATE_NsEW_ACCOUNT_BANDWIDTH_RATE2"));
+            () -> new IllegalArgumentException("not found CREATE_NEW_ACCOUNT_BANDWIDTH_RATE2"));
+  }
+
+  public void saveCreateNewAccountEnergyRate(long rate) {
+    this.put(CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE,
+        new BytesCapsule(ByteArray.fromLong(rate)));
+  }
+
+  public long getCreateNewAccountEnergyRate() {
+    return Optional.ofNullable(getUnchecked(CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found CREATE_NEW_ACCOUNT_ENERGY_RATE"));
   }
 
   public void saveTransactionFee(long fee) {

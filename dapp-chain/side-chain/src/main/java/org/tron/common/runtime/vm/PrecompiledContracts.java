@@ -32,6 +32,7 @@ import static org.tron.common.utils.ByteUtil.stripLeadingZeroes;
 import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -47,10 +48,12 @@ import org.tron.common.crypto.zksnark.BN128G2;
 import org.tron.common.crypto.zksnark.Fp;
 import org.tron.common.crypto.zksnark.PairingCheck;
 import org.tron.common.runtime.vm.program.Program;
+import org.tron.common.runtime.vm.program.Program.PrecompiledContractException;
 import org.tron.common.runtime.vm.program.ProgramResult;
 import org.tron.common.storage.Deposit;
 import org.tron.common.utils.BIUtil;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.core.Wallet;
 import org.tron.core.actuator.Actuator;
@@ -65,7 +68,7 @@ import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.ProposalApproveContract;
-import org.tron.protos.Contract.ProposalCreateContract;
+import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Contract.ProposalDeleteContract;
 import org.tron.protos.Contract.VoteWitnessContract;
 import org.tron.protos.Contract.WithdrawBalanceContract;
@@ -87,23 +90,14 @@ public class PrecompiledContracts {
   private static final BN128Addition altBN128Add = new BN128Addition();
   private static final BN128Multiplication altBN128Mul = new BN128Multiplication();
   private static final BN128Pairing altBN128Pairing = new BN128Pairing();
-//  private static final VoteWitnessNative voteContract = new VoteWitnessNative();
-//  private static final FreezeBalanceNative freezeBalance = new FreezeBalanceNative();
-//  private static final UnfreezeBalanceNative unFreezeBalance = new UnfreezeBalanceNative();
-//  private static final WithdrawBalanceNative withdrawBalance = new WithdrawBalanceNative();
-//  private static final ProposalApproveNative proposalApprove = new ProposalApproveNative();
-//  private static final ProposalCreateNative proposalCreate = new ProposalCreateNative();
-//  private static final ProposalDeleteNative proposalDelete = new ProposalDeleteNative();
-//  private static final ConvertFromTronBytesAddressNative convertFromTronBytesAddress = new ConvertFromTronBytesAddressNative();
-//  private static final ConvertFromTronBase58AddressNative convertFromTronBase58Address = new ConvertFromTronBase58AddressNative();
-//  private static final TransferAssetNative transferAsset = new TransferAssetNative();
-//  private static final GetTransferAssetNative getTransferAssetAmount =  new GetTransferAssetNative();
+  private static final Mine mine = new Mine();
 
   private static final ECKey addressCheckECKey = new ECKey();
   private static final String addressCheckECKeyAddress = Wallet
       .encode58Check(addressCheckECKey.getAddress());
 
-
+  private static final DataWord mineAddr = new DataWord(
+      "0000000000000000000000000000000000000000000000000000000000010000");
   private static final DataWord ecRecoverAddr = new DataWord(
       "0000000000000000000000000000000000000000000000000000000000000001");
   private static final DataWord sha256Addr = new DataWord(
@@ -120,33 +114,14 @@ public class PrecompiledContracts {
       "0000000000000000000000000000000000000000000000000000000000000007");
   private static final DataWord altBN128PairingAddr = new DataWord(
       "0000000000000000000000000000000000000000000000000000000000000008");
-//  private static final DataWord voteContractAddr = new DataWord(
-//      "0000000000000000000000000000000000000000000000000000000000010001");
-  //  private static final DataWord freezeBalanceAddr = new DataWord(
-//      "0000000000000000000000000000000000000000000000000000000000010002");
-//  private static final DataWord unFreezeBalanceAddr = new DataWord(
-//      "0000000000000000000000000000000000000000000000000000000000010003");
-//  private static final DataWord withdrawBalanceAddr = new DataWord(
-//      "0000000000000000000000000000000000000000000000000000000000010004");
-//  private static final DataWord proposalApproveAddr = new DataWord(
-//      "0000000000000000000000000000000000000000000000000000000000010005");
-//  private static final DataWord proposalCreateAddr = new DataWord(
-//      "0000000000000000000000000000000000000000000000000000000000010006");
-//  private static final DataWord proposalDeleteAddr = new DataWord(
-//      "0000000000000000000000000000000000000000000000000000000000010007");
-//  private static final DataWord convertFromTronBytesAddressAddr = new DataWord(
-//      "0000000000000000000000000000000000000000000000000000000000010008");
-//  private static final DataWord convertFromTronBase58AddressAddr = new DataWord(
-//      "0000000000000000000000000000000000000000000000000000000000010009");
-//  private static final DataWord transferAssetAddr = new DataWord(
-//      "000000000000000000000000000000000000000000000000000000000001000a");
-//  private static final DataWord getTransferAssetAmountAddr = new DataWord(
-//      "000000000000000000000000000000000000000000000000000000000001000b");
 
   public static PrecompiledContract getContractForAddress(DataWord address) {
 
     if (address == null) {
       return identity;
+    }
+    if (address.equals(mineAddr)) {
+      return mine;
     }
     if (address.equals(ecRecoverAddr)) {
       return ecRecover;
@@ -160,40 +135,6 @@ public class PrecompiledContracts {
     if (address.equals(identityAddr)) {
       return identity;
     }
-//    if (address.equals(voteContractAddr)) {
-//      return voteContract;
-//    }
-//    if (address.equals(freezeBalanceAddr)) {
-//      return freezeBalance;
-//    }
-//    if (address.equals(unFreezeBalanceAddr)) {
-//      return unFreezeBalance;
-//    }
-//    if (address.equals(withdrawBalanceAddr)) {
-//      return withdrawBalance;
-//    }
-//    if (address.equals(proposalApproveAddr)) {
-//      return proposalApprove;
-//    }
-//    if (address.equals(proposalCreateAddr)) {
-//      return proposalCreate;
-//    }
-//    if (address.equals(proposalDeleteAddr)) {
-//      return proposalDelete;
-//    }
-//    if (address.equals(convertFromTronBytesAddressAddr)) {
-//      return convertFromTronBytesAddress;
-//    }
-//    if (address.equals(convertFromTronBase58AddressAddr)) {
-//      return convertFromTronBase58Address;
-//    }
-//    if (address.equals(transferAssetAddr)) {
-//      return transferAsset;
-//    }
-//    if (address.equals(getTransferAssetAmountAddr)) {
-//      return getTransferAssetAmount;
-//    }
-
     // Byzantium precompiles
     if (address.equals(modExpAddr)) {
       return modExp;
@@ -270,6 +211,37 @@ public class PrecompiledContracts {
     private boolean isRootCallConstant;
 
 
+  }
+
+  public static class Mine extends PrecompiledContract {
+
+    @Override
+    public long getEnergyForData(byte[] data) {
+      return 0;
+    }
+
+    @Override
+    public Pair<Boolean, byte[]> execute(byte[] data) {
+      List<byte[]> gatewayList = this.getDeposit().getGatewayList();
+      boolean match = false;
+      for (byte[] gateway: gatewayList) {
+        if (ByteUtil.equals((new DataWord(gateway)).getLast20Bytes(), this.getCallerAddress())) {
+          match = true;
+          break;
+        }
+      }
+      if (!match) {
+        throw new PrecompiledContractException("[mine method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
+      }
+
+      long amount = new DataWord(Arrays.copyOf(data, 32)).longValueSafe();
+      if (amount <= 0) {
+        throw new PrecompiledContractException("[mine method]amount must be greater than 0: %s", amount);
+      }
+      this.getDeposit().addBalance(this.getCallerAddress(), amount);
+
+      return Pair.of(true, EMPTY_BYTE_ARRAY);
+    }
   }
 
   public static class Identity extends PrecompiledContract {
@@ -1027,92 +999,6 @@ public class PrecompiledContracts {
         return Pair.of(false, new DataWord(0).getData());
       }
       return Pair.of(true, new DataWord(1).getData());
-    }
-  }
-
-  /**
-   * Native function for a witness to create a proposal. <br/> <br/>
-   *
-   * Input data[]: <br/> an array of key,value (key1, value1, key2, value2... , keyn, valuen),
-   * <br/>
-   *
-   * Output: <br/> proposalId <br/>
-   */
-  public static class ProposalCreateNative extends PrecompiledContract {
-
-    @Override
-    // TODO: Please re-implement this function after Tron cost is well designed.
-    public long getEnergyForData(byte[] data) {
-      return 200;
-    }
-
-    @Override
-    public Pair<Boolean, byte[]> execute(byte[] data) {
-
-      if (isRootCallConstant()) {
-        return Pair.of(true, new DataWord(0).getData());
-      }
-
-      if (data == null || data.length == 0 || (data.length % (2 * DataWord.DATAWORD_UNIT_SIZE)
-          != 0)) {
-        return Pair.of(false, new DataWord(0).getData());
-      }
-
-      HashMap<Long, Long> parametersMap = new HashMap<>();
-      int index = 0;
-      while (index <= data.length - 1) {
-        byte[] id = new byte[32];
-        System.arraycopy(data, index, id, 0, 32);
-        byte[] value = new byte[32];
-        System.arraycopy(data, 32 + index, value, 0, 32);
-        parametersMap.put(ByteArray.toLong(id), ByteArray.toLong(value));
-        index += 64;
-      }
-
-      Contract.ProposalCreateContract.Builder builder = Contract.ProposalCreateContract
-          .newBuilder();
-      ByteString byteAddress = ByteString.copyFrom(getCallerAddress());
-      builder.setOwnerAddress(byteAddress);
-      builder.putAllParameters(parametersMap);
-
-      ProposalCreateContract contract = builder.build();
-
-      long id = 0;
-      TransactionCapsule trx = new TransactionCapsule(contract,
-          ContractType.ProposalCreateContract);
-
-      final List<Actuator> actuatorList = ActuatorFactory
-          .createActuator(trx, getDeposit().getDbManager());
-      ProposalCreateActuator proposalCreateActuator;
-      try {
-        if (Objects.isNull(actuatorList) || actuatorList.isEmpty()) {
-          throw new ContractExeException(
-              "can't initiate ProposalCreateActuator for precompiled vm method");
-        } else {
-          Optional proposalCreateOptional = actuatorList.stream().findFirst();
-          if (proposalCreateOptional.isPresent()) {
-            proposalCreateActuator = (ProposalCreateActuator) proposalCreateOptional.get();
-          } else {
-            throw new ContractExeException(
-                "can't initiate ProposalCreateActuator for precompiled vm method");
-          }
-        }
-        proposalCreateActuator.setDeposit(getDeposit());
-        proposalCreateActuator.validate();
-        proposalCreateActuator.execute(getResult().getRet());
-        id = getDeposit().getLatestProposalNum();
-      } catch (ContractExeException e) {
-        logger.debug("ContractExeException when calling proposalCreateNative in vm");
-        logger.debug("ContractExeException: {}", e.getMessage());
-        this.getResult().setException(Program.Exception.contractExecuteException(e));
-        return Pair.of(false, new DataWord(0).getData());
-      } catch (ContractValidateException e) {
-        logger.debug("ContractValidateException when calling proposalCreateNative in vm");
-        logger.debug("ContractValidateException: {}", e.getMessage());
-        this.getResult().setException(Program.Exception.contractValidateException(e));
-        return Pair.of(false, new DataWord(0).getData());
-      }
-      return Pair.of(true, new DataWord(id).getData());
     }
   }
 

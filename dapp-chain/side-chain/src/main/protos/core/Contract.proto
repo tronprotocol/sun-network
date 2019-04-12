@@ -105,9 +105,9 @@ message WithdrawBalanceContract {
   bytes owner_address = 1;
 }
 
-message ProposalCreateContract {
+message SideChainProposalCreateContract {
   bytes owner_address = 1;
-  map<int64, int64> parameters = 2;
+  map<int64, string> parameters = 2;
 }
 
 message ProposalApproveContract {

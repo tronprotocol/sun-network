@@ -21,7 +21,7 @@ import org.tron.core.config.args.Args;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
-import org.tron.protos.Contract.ProposalCreateContract;
+import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Protocol.Transaction.Result.code;
 
 @Slf4j(topic = "actuator")
@@ -35,8 +35,8 @@ public class ProposalCreateActuator extends AbstractActuator {
   public boolean execute(TransactionResultCapsule ret) throws ContractExeException {
     long fee = calcFee();
     try {
-      final ProposalCreateContract proposalCreateContract = this.contract
-          .unpack(ProposalCreateContract.class);
+      final SideChainProposalCreateContract proposalCreateContract = this.contract
+          .unpack(SideChainProposalCreateContract.class);
       long id = (Objects.isNull(getDeposit())) ?
           dbManager.getDynamicPropertiesStore().getLatestProposalNum() + 1 :
           getDeposit().getLatestProposalNum() + 1;
@@ -86,14 +86,14 @@ public class ProposalCreateActuator extends AbstractActuator {
     if (dbManager == null && (deposit == null || deposit.getDbManager() == null)) {
       throw new ContractValidateException("No dbManager!");
     }
-    if (!this.contract.is(ProposalCreateContract.class)) {
+    if (!this.contract.is(SideChainProposalCreateContract.class)) {
       throw new ContractValidateException(
-          "contract type error,expected type [ProposalCreateContract],real type[" + contract
+          "contract type error,expected type [SideChainProposalCreateContract],real type[" + contract
               .getClass() + "]");
     }
-    final ProposalCreateContract contract;
+    final SideChainProposalCreateContract contract;
     try {
-      contract = this.contract.unpack(ProposalCreateContract.class);
+      contract = this.contract.unpack(SideChainProposalCreateContract.class);
     } catch (InvalidProtocolBufferException e) {
       throw new ContractValidateException(e.getMessage());
     }
@@ -129,21 +129,21 @@ public class ProposalCreateActuator extends AbstractActuator {
       throw new ContractValidateException("This proposal has no parameter.");
     }
 
-    for (Map.Entry<Long, Long> entry : contract.getParametersMap().entrySet()) {
-      if (!validKey(entry.getKey())) {
-        throw new ContractValidateException("Bad chain parameter id");
-      }
+    for (Map.Entry<Long, String> entry : contract.getParametersMap().entrySet()) {
+//      if (!validKey(entry.getKey())) {
+//        throw new ContractValidateException("Bad chain parameter id");
+//      }
       validateValue(entry);
     }
 
     return true;
   }
 
-  private void validateValue(Map.Entry<Long, Long> entry) throws ContractValidateException {
+  private void validateValue(Map.Entry<Long, String> entry) throws ContractValidateException {
 
     switch (entry.getKey().intValue()) {
       case (0): {
-        if (entry.getValue() < 3 * 27 * 1000 || entry.getValue() > 24 * 3600 * 1000) {
+        if (Long.valueOf(entry.getValue()) < 3 * 27 * 1000 || Long.valueOf(entry.getValue()) > 24 * 3600 * 1000) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [3 * 27 * 1000,24 * 3600 * 1000]");
         }
@@ -157,14 +157,14 @@ public class ProposalCreateActuator extends AbstractActuator {
       case (6):
       case (7):
       case (8): {
-        if (entry.getValue() < 0 || entry.getValue() > 100_000_000_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000_000_000L]");
         }
         break;
       }
       case (9): {
-        if (entry.getValue() != 1) {
+        if (Long.valueOf(entry.getValue()) != 1) {
           throw new ContractValidateException(
               "This value[ALLOW_CREATION_OF_CONTRACTS] is only allowed to be 1");
         }
@@ -176,7 +176,7 @@ public class ProposalCreateActuator extends AbstractActuator {
               "This proposal has been executed before and is only allowed to be executed once");
         }
 
-        if (entry.getValue() != 1) {
+        if (Long.valueOf(entry.getValue()) != 1) {
           throw new ContractValidateException(
               "This value[REMOVE_THE_POWER_OF_THE_GR] is only allowed to be 1");
         }
@@ -187,41 +187,41 @@ public class ProposalCreateActuator extends AbstractActuator {
       case (12):
         break;
       case (13):
-        if (entry.getValue() < 10 || entry.getValue() > 100) {
+        if (Long.valueOf(entry.getValue()) < 10 || Long.valueOf(entry.getValue()) > 100) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [10,100]");
         }
         break;
       case (14): {
-        if (entry.getValue() != 1) {
+        if (Long.valueOf(entry.getValue()) != 1) {
           throw new ContractValidateException(
               "This value[ALLOW_UPDATE_ACCOUNT_NAME] is only allowed to be 1");
         }
         break;
       }
       case (15): {
-        if (entry.getValue() != 1) {
+        if (Long.valueOf(entry.getValue()) != 1) {
           throw new ContractValidateException(
               "This value[ALLOW_SAME_TOKEN_NAME] is only allowed to be 1");
         }
         break;
       }
       case (16): {
-        if (entry.getValue() != 1) {
+        if (Long.valueOf(entry.getValue()) != 1) {
           throw new ContractValidateException(
               "This value[ALLOW_DELEGATE_RESOURCE] is only allowed to be 1");
         }
         break;
       }
       case (17): { // deprecated
-        if (entry.getValue() < 0 || entry.getValue() > 100_000_000_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000_000_000L]");
         }
         break;
       }
       case (18): {
-        if (entry.getValue() != 1) {
+        if (Long.valueOf(entry.getValue()) != 1) {
           throw new ContractValidateException(
               "This value[ALLOW_TVM_TRANSFER_TRC10] is only allowed to be 1");
         }
@@ -232,48 +232,64 @@ public class ProposalCreateActuator extends AbstractActuator {
         break;
       }
       case (19): {
-        if (entry.getValue() < 0 || entry.getValue() > 100_000_000_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000_000_000L]");
         }
         break;
       }
       case (20): {
-        if (entry.getValue() != 1) {
+        if (Long.valueOf(entry.getValue()) != 1) {
           throw new ContractValidateException(
               "This value[ALLOW_MULTI_SIGN] is only allowed to be 1");
         }
         break;
       }
       case (21): {
-        if (entry.getValue() != 1) {
+        if (Long.valueOf(entry.getValue()) != 1) {
           throw new ContractValidateException(
               "This value[ALLOW_ADAPTIVE_ENERGY] is only allowed to be 1");
         }
         break;
       }
       case (22): {
-        if (entry.getValue() < 0 || entry.getValue() > 100_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000L]");
         }
         break;
       }
       case (23): {
-        if (entry.getValue() < 0 || entry.getValue() > 100_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000L]");
         }
         break;
       }
-      default:
+      case (24): {
+        if (Long.valueOf(entry.getValue()) != 1) {
+          throw new ContractValidateException(
+              "this value[ENERGY_CHARGING_SWITCH] is only allowed to be 1");
+        }
         break;
+      }
+      case (25): {
+        String gateWayAddress = entry.getValue();
+        if ( Wallet.decodeFromBase58Check(gateWayAddress).length != 21) {
+          throw new ContractValidateException(
+              "gateway address has to be 21 bytes");
+        }
+        break;
+      }
+      default:
+        throw new ContractValidateException(
+            "non-exist proposal number");
     }
   }
 
   @Override
   public ByteString getOwnerAddress() throws InvalidProtocolBufferException {
-    return contract.unpack(ProposalCreateContract.class).getOwnerAddress();
+    return contract.unpack(SideChainProposalCreateContract.class).getOwnerAddress();
   }
 
   @Override

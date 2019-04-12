@@ -5,6 +5,7 @@ import static org.tron.common.runtime.utils.MUtil.convertToTronAddress;
 import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
 import java.util.HashMap;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.Strings;
 import org.spongycastle.util.encoders.Hex;
@@ -46,6 +47,7 @@ public class DepositImpl implements Deposit {
       .getBytes();
   private static final byte[] MAINTENANCE_TIME_INTERVAL = "MAINTENANCE_TIME_INTERVAL".getBytes();
   private static final byte[] NEXT_MAINTENANCE_TIME = "NEXT_MAINTENANCE_TIME".getBytes();
+  private static final byte[] ENERGY_FEE = "ENERGY_FEE".getBytes();
 
   private Manager dbManager;
   private Deposit parent = null;
@@ -168,6 +170,10 @@ public class DepositImpl implements Deposit {
     return getAccountStore().getBlackhole().getAddress().toByteArray();
   }
 
+  @Override
+  public List<byte[]> getGatewayList() {
+    return this.dbManager.getDynamicPropertiesStore().getGateWayList();
+  }
   @Override
   public WitnessCapsule getWitness(byte[] address) {
     Key key = new Key(address);
@@ -310,11 +316,7 @@ public class DepositImpl implements Deposit {
     Storage storage;
     if (this.parent != null) {
       Storage parentStorage = parent.getStorage(address);
-      if (VMConfig.getEnergyLimitHardFork()) {
-        storage = new Storage(parentStorage);
-      } else {
-        storage = parentStorage;
-      }
+      storage = new Storage(parentStorage);
     } else {
       storage = new Storage(address, dbManager.getStorageRowStore());
     }
@@ -488,6 +490,11 @@ public class DepositImpl implements Deposit {
   @Override
   public long getLatestProposalNum() {
     return Longs.fromByteArray(getDynamic(LATEST_PROPOSAL_NUM).getData());
+  }
+
+  @Override
+  public long getEnergyFee() {
+    return Longs.fromByteArray(getDynamic(ENERGY_FEE).getData());
   }
 
   @Override

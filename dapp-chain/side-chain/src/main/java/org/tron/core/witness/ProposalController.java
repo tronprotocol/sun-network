@@ -1,13 +1,17 @@
 package org.tron.core.witness;
 
+import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.core.Wallet;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.db.Manager;
+import org.tron.core.exception.ContractValidateException;
 import org.tron.protos.Protocol.Proposal.State;
 
 @Slf4j(topic = "witness")
@@ -95,45 +99,51 @@ public class ProposalController {
   }
 
   public void setDynamicParameters(ProposalCapsule proposalCapsule) {
-    Map<Long, Long> map = proposalCapsule.getInstance().getParametersMap();
-    for (Map.Entry<Long, Long> entry : map.entrySet()) {
+    Map<Long, String> map = proposalCapsule.getInstance().getParametersMap();
+    for (Map.Entry<Long, String> entry : map.entrySet()) {
 
       switch (entry.getKey().intValue()) {
         case (0): {
-          manager.getDynamicPropertiesStore().saveMaintenanceTimeInterval(entry.getValue());
+          manager.getDynamicPropertiesStore()
+              .saveMaintenanceTimeInterval(Long.valueOf(entry.getValue()));
           break;
         }
         case (1): {
-          manager.getDynamicPropertiesStore().saveAccountUpgradeCost(entry.getValue());
+          manager.getDynamicPropertiesStore()
+              .saveAccountUpgradeCost(Long.valueOf(entry.getValue()));
           break;
         }
         case (2): {
-          manager.getDynamicPropertiesStore().saveCreateAccountFee(entry.getValue());
+          manager.getDynamicPropertiesStore()
+              .saveCreateAccountFee(Long.valueOf(entry.getValue()));
           break;
         }
         case (3): {
-          manager.getDynamicPropertiesStore().saveTransactionFee(entry.getValue());
+          manager.getDynamicPropertiesStore().saveTransactionFee(Long.valueOf(entry.getValue()));
           break;
         }
         case (4): {
-          manager.getDynamicPropertiesStore().saveAssetIssueFee(entry.getValue());
+          manager.getDynamicPropertiesStore().saveAssetIssueFee(Long.valueOf(entry.getValue()));
           break;
         }
         case (5): {
-          manager.getDynamicPropertiesStore().saveWitnessPayPerBlock(entry.getValue());
+          manager.getDynamicPropertiesStore()
+              .saveWitnessPayPerBlock(Long.valueOf(entry.getValue()));
           break;
         }
         case (6): {
-          manager.getDynamicPropertiesStore().saveWitnessStandbyAllowance(entry.getValue());
+          manager.getDynamicPropertiesStore()
+              .saveWitnessStandbyAllowance(Long.valueOf(entry.getValue()));
           break;
         }
         case (7): {
           manager.getDynamicPropertiesStore()
-              .saveCreateNewAccountFeeInSystemContract(entry.getValue());
+              .saveCreateNewAccountFeeInSystemContract(Long.valueOf(entry.getValue()));
           break;
         }
         case (8): {
-          manager.getDynamicPropertiesStore().saveCreateNewAccountBandwidthRate(entry.getValue());
+          manager.getDynamicPropertiesStore()
+              .saveCreateNewAccountBandwidthRate(Long.valueOf(entry.getValue()));
           break;
         }
         // default to allow
@@ -143,20 +153,24 @@ public class ProposalController {
 //        }
         case (10): {
           if (manager.getDynamicPropertiesStore().getRemoveThePowerOfTheGr() == 0) {
-            manager.getDynamicPropertiesStore().saveRemoveThePowerOfTheGr(entry.getValue());
+            manager.getDynamicPropertiesStore()
+                .saveRemoveThePowerOfTheGr(Long.valueOf(entry.getValue()));
           }
           break;
         }
         case (11): {
-          manager.getDynamicPropertiesStore().saveEnergyFee(entry.getValue());
+          manager.getDynamicPropertiesStore()
+              .saveEnergyFee(Long.valueOf(entry.getValue()));
           break;
         }
         case (12): {
-          manager.getDynamicPropertiesStore().saveExchangeCreateFee(entry.getValue());
+          manager.getDynamicPropertiesStore()
+              .saveExchangeCreateFee(Long.valueOf(entry.getValue()));
           break;
         }
         case (13): {
-          manager.getDynamicPropertiesStore().saveMaxCpuTimeOfOneTx(entry.getValue());
+          manager.getDynamicPropertiesStore()
+              .saveMaxCpuTimeOfOneTx(Long.valueOf(entry.getValue()));
           break;
         }
         // default to allow update account name
@@ -170,39 +184,57 @@ public class ProposalController {
 //          break;
 //        }
         case (16): {
-          manager.getDynamicPropertiesStore().saveAllowDelegateResource(entry.getValue());
+          manager.getDynamicPropertiesStore()
+              .saveAllowDelegateResource(Long.valueOf(entry.getValue()));
           break;
         }
         case (17): {
-          manager.getDynamicPropertiesStore().saveTotalEnergyLimit(entry.getValue());
+          manager.getDynamicPropertiesStore()
+              .saveTotalEnergyLimit(Long.valueOf(entry.getValue()));
           break;
         }
-        case (18): {
-          manager.getDynamicPropertiesStore().saveAllowTvmTransferTrc10(entry.getValue());
-          break;
-        }
+//        case (18): {
+//          manager.getDynamicPropertiesStore()
+//              .saveAllowTvmTransferTrc10(Long.valueOf(entry.getValue()));
+//          break;
+//        }
         case (19): {
-          manager.getDynamicPropertiesStore().saveTotalEnergyLimit2(entry.getValue());
+          manager.getDynamicPropertiesStore()
+              .saveTotalEnergyLimit2(Long.valueOf(entry.getValue()));
           break;
         }
         case (20): {
           if (manager.getDynamicPropertiesStore().getAllowMultiSign() == 0) {
-            manager.getDynamicPropertiesStore().saveAllowMultiSign(entry.getValue());
+            manager.getDynamicPropertiesStore().saveAllowMultiSign(Long.valueOf(entry.getValue()));
           }
           break;
         }
         case (21): {
           if (manager.getDynamicPropertiesStore().getAllowAdaptiveEnergy() == 0) {
-            manager.getDynamicPropertiesStore().saveAllowAdaptiveEnergy(entry.getValue());
+            manager.getDynamicPropertiesStore()
+                .saveAllowAdaptiveEnergy(Long.valueOf(entry.getValue()));
           }
           break;
         }
         case (22): {
-          manager.getDynamicPropertiesStore().saveUpdateAccountPermissionFee(entry.getValue());
+          manager.getDynamicPropertiesStore()
+              .saveUpdateAccountPermissionFee(Long.valueOf(entry.getValue()));
           break;
         }
         case (23): {
-          manager.getDynamicPropertiesStore().saveMultiSignFee(entry.getValue());
+          manager.getDynamicPropertiesStore()
+              .saveMultiSignFee(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (24): {
+          manager.getDynamicPropertiesStore()
+              .saveEnergyChargingSwitch(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (25): {
+          // single new gateway address
+          manager.getDynamicPropertiesStore().addToGateWayList(Wallet
+              .decodeFromBase58Check(entry.getValue()));
           break;
         }
         default:

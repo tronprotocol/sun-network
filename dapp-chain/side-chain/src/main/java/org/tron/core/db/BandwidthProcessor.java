@@ -151,15 +151,6 @@ public class BandwidthProcessor extends ResourceProcessor {
     switch (contract.getType()) {
       case AccountCreateContract:
         return true;
-      case TransferContract:
-        TransferContract transferContract;
-        try {
-          transferContract = contract.getParameter().unpack(TransferContract.class);
-        } catch (Exception ex) {
-          throw new RuntimeException(ex.getMessage());
-        }
-        toAccount = dbManager.getAccountStore().get(transferContract.getToAddress().toByteArray());
-        return toAccount == null;
       default:
         return false;
     }

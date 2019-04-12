@@ -97,6 +97,8 @@ public interface Parameter {
     ALLOW_ADAPTIVE_ENERGY, // 1, 21
     UPDATE_ACCOUNT_PERMISSION_FEE, // 100, 22
     MULTI_SIGN_FEE, // 1, 23
+    ENERGY_COST_SWITCH, //1, 24
+    ADD_GATEWAY_ADDRESS, //string address, 25
 //    ONE_DAY_NET_LIMIT,
 //    MAX_FROZEN_TIME,
 //    MIN_FROZEN_TIME,

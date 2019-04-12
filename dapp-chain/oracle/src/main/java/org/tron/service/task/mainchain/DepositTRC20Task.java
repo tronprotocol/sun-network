@@ -1,6 +1,7 @@
 package org.tron.service.task.mainchain;
 
 import lombok.extern.slf4j.Slf4j;
+import org.tron.client.SideChainGatewayApi;
 import org.tron.service.task.EventTask;
 
 @Slf4j(topic = "mainChainTask")
@@ -20,5 +21,14 @@ public class DepositTRC20Task implements EventTask {
   public void run() {
     logger
         .info("from:{},amount:{},contractAddress{}", this.from, this.amount, this.contractAddress);
+    try {
+      String trxId = SideChainGatewayApi
+          .mintToken20(this.from, this.contractAddress, this.amount);
+      SideChainGatewayApi.checkTxInfo(trxId);
+    } catch (Exception e) {
+      logger.error("from:{},amount:{},contractAddress{}", this.from, this.amount,
+          this.contractAddress);
+      e.printStackTrace();
+    }
   }
 }

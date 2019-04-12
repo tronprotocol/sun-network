@@ -17,6 +17,7 @@
  */
 package org.tron.common.runtime.vm.program;
 
+import java.util.List;
 import org.tron.common.runtime.vm.DataWord;
 import org.tron.common.runtime.vm.program.invoke.ProgramInvoke;
 import org.tron.common.runtime.vm.program.listener.ProgramListener;
@@ -262,6 +263,9 @@ public class ContractState implements Deposit, ProgramListenerAware {
   }
 
   @Override
+  public long getEnergyFee(){ return deposit.getEnergyFee(); }
+
+  @Override
   public BlockCapsule getBlock(byte[] blockHash) {
     return this.deposit.getBlock(blockHash);
   }
@@ -269,6 +273,11 @@ public class ContractState implements Deposit, ProgramListenerAware {
   @Override
   public byte[] getBlackHoleAddress() {
     return deposit.getBlackHoleAddress();
+  }
+
+  @Override
+  public List<byte[]> getGatewayList() {
+    return deposit.getGatewayList();
   }
 
 }

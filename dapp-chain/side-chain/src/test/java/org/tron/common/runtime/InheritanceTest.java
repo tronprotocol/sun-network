@@ -90,7 +90,7 @@ public class InheritanceTest {
 
     byte[] contractAddress = TVMTestUtils.deployContractWholeProcessReturnContractAddress(
         contractName, callerAddress, ABI, code, value, fee, consumeUserResourcePercent, null,
-        deposit, null);
+        deposit, null,1);
 
 
     /* =================================== CALL getName() return child value =================================== */

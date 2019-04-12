@@ -120,8 +120,8 @@ public class ProposalApproveActuatorTest {
     long id = 1;
     dbManager.getProposalStore().delete(ByteArray.fromLong(1));
     dbManager.getProposalStore().delete(ByteArray.fromLong(2));
-    HashMap<Long, Long> paras = new HashMap<>();
-    paras.put(0L, 6 * 27 * 1000L);
+    HashMap<Long, String> paras = new HashMap<>();
+    paras.put(0L, String.valueOf(6 * 27 * 1000L));
     ProposalCreateActuator actuator =
         new ProposalCreateActuator(getContract(OWNER_ADDRESS_FIRST, paras), dbManager);
     TransactionResultCapsule ret = new TransactionResultCapsule();
@@ -147,9 +147,9 @@ public class ProposalApproveActuatorTest {
     }
   }
 
-  private Any getContract(String address, HashMap<Long, Long> paras) {
+  private Any getContract(String address, HashMap<Long, String> paras) {
     return Any.pack(
-        Contract.ProposalCreateContract.newBuilder()
+        Contract.SideChainProposalCreateContract.newBuilder()
             .setOwnerAddress(ByteString.copyFrom(ByteArray.fromHexString(address)))
             .putAllParameters(paras)
             .build());

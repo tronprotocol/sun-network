@@ -118,9 +118,9 @@ public class ProposalCreateActuatorTest {
     dbManager.getDynamicPropertiesStore().saveNextMaintenanceTime(2000000);
   }
 
-  private Any getContract(String address, HashMap<Long, Long> paras) {
+  private Any getContract(String address, HashMap<Long, String> paras) {
     return Any.pack(
-        Contract.ProposalCreateContract.newBuilder()
+        Contract.SideChainProposalCreateContract.newBuilder()
             .setOwnerAddress(ByteString.copyFrom(ByteArray.fromHexString(address)))
             .putAllParameters(paras)
             .build());
@@ -131,8 +131,8 @@ public class ProposalCreateActuatorTest {
    */
   @Test
   public void successProposalCreate() {
-    HashMap<Long, Long> paras = new HashMap<>();
-    paras.put(0L, 1000000L);
+    HashMap<Long, String> paras = new HashMap<>();
+    paras.put(0L, String.valueOf(1000000L));
     ProposalCreateActuator actuator =
         new ProposalCreateActuator(getContract(OWNER_ADDRESS_FIRST, paras), dbManager);
     TransactionResultCapsule ret = new TransactionResultCapsule();
@@ -163,8 +163,8 @@ public class ProposalCreateActuatorTest {
    */
   @Test
   public void invalidAddress() {
-    HashMap<Long, Long> paras = new HashMap<>();
-    paras.put(0L, 10000L);
+    HashMap<Long, String> paras = new HashMap<>();
+    paras.put(0L, String.valueOf(10000L));
     ProposalCreateActuator actuator =
         new ProposalCreateActuator(getContract(OWNER_ADDRESS_INVALID, paras), dbManager);
     TransactionResultCapsule ret = new TransactionResultCapsule();
@@ -185,8 +185,8 @@ public class ProposalCreateActuatorTest {
    */
   @Test
   public void noAccount() {
-    HashMap<Long, Long> paras = new HashMap<>();
-    paras.put(0L, 10000L);
+    HashMap<Long, String> paras = new HashMap<>();
+    paras.put(0L, String.valueOf(10000L));
     ProposalCreateActuator actuator =
         new ProposalCreateActuator(getContract(OWNER_ADDRESS_NOACCOUNT, paras), dbManager);
     TransactionResultCapsule ret = new TransactionResultCapsule();
@@ -208,8 +208,8 @@ public class ProposalCreateActuatorTest {
    */
   @Test
   public void noWitness() {
-    HashMap<Long, Long> paras = new HashMap<>();
-    paras.put(0L, 10000L);
+    HashMap<Long, String> paras = new HashMap<>();
+    paras.put(0L, String.valueOf(10000L));
     ProposalCreateActuator actuator =
         new ProposalCreateActuator(getContract(OWNER_ADDRESS_SECOND, paras), dbManager);
     TransactionResultCapsule ret = new TransactionResultCapsule();
@@ -227,29 +227,29 @@ public class ProposalCreateActuatorTest {
   }
 
   /**
-   * use invalid parameter, result is failed, exception is "Bad chain parameter id".
+   * use invalid parameter, result is failed, exception is "non-exist proposal number".
    */
   @Test
   public void invalidPara() {
-    HashMap<Long, Long> paras = new HashMap<>();
-    paras.put(24L, 10000L);
+    HashMap<Long, String> paras = new HashMap<>();
+    paras.put(26L, String.valueOf(10000L));
     ProposalCreateActuator actuator =
         new ProposalCreateActuator(getContract(OWNER_ADDRESS_FIRST, paras), dbManager);
     TransactionResultCapsule ret = new TransactionResultCapsule();
     try {
       actuator.validate();
       actuator.execute(ret);
-      fail("Bad chain parameter id");
+      fail("non-exist proposal number");
     } catch (ContractValidateException e) {
       Assert.assertTrue(e instanceof ContractValidateException);
-      Assert.assertEquals("Bad chain parameter id",
+      Assert.assertEquals("non-exist proposal number",
           e.getMessage());
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     }
 
     paras = new HashMap<>();
-    paras.put(3L, 1 + 100_000_000_000_000_000L);
+    paras.put(3L, String.valueOf(1 + 100_000_000_000_000_000L));
     actuator =
         new ProposalCreateActuator(getContract(OWNER_ADDRESS_FIRST, paras), dbManager);
     try {
@@ -265,7 +265,7 @@ public class ProposalCreateActuatorTest {
     }
 
     paras = new HashMap<>();
-    paras.put(10L, -1L);
+    paras.put(10L, String.valueOf(-1L));
     actuator =
         new ProposalCreateActuator(getContract(OWNER_ADDRESS_FIRST, paras), dbManager);
     dbManager.getDynamicPropertiesStore().saveRemoveThePowerOfTheGr(-1);
@@ -279,7 +279,7 @@ public class ProposalCreateActuatorTest {
           e.getMessage());
     }
 
-    paras.put(10L, -1L);
+    paras.put(10L, String.valueOf(-1L));
     dbManager.getDynamicPropertiesStore().saveRemoveThePowerOfTheGr(0);
     actuator =
         new ProposalCreateActuator(getContract(OWNER_ADDRESS_FIRST, paras), dbManager);
@@ -299,7 +299,7 @@ public class ProposalCreateActuatorTest {
    */
   @Test
   public void emptyProposal() {
-    HashMap<Long, Long> paras = new HashMap<>();
+    HashMap<Long, String> paras = new HashMap<>();
     ProposalCreateActuator actuator =
         new ProposalCreateActuator(getContract(OWNER_ADDRESS_FIRST, paras), dbManager);
     TransactionResultCapsule ret = new TransactionResultCapsule();
@@ -319,8 +319,8 @@ public class ProposalCreateActuatorTest {
 
   @Test
   public void InvalidParaValue() {
-    HashMap<Long, Long> paras = new HashMap<>();
-    paras.put(10L, 1000L);
+    HashMap<Long, String> paras = new HashMap<>();
+    paras.put(10L, String.valueOf(1000L));
     ProposalCreateActuator actuator =
         new ProposalCreateActuator(getContract(OWNER_ADDRESS_FIRST, paras), dbManager);
     TransactionResultCapsule ret = new TransactionResultCapsule();
@@ -345,21 +345,21 @@ public class ProposalCreateActuatorTest {
   public void duplicateProposalCreateSame() {
     dbManager.getDynamicPropertiesStore().saveRemoveThePowerOfTheGr(0L);
 
-    HashMap<Long, Long> paras = new HashMap<>();
-    paras.put(0L, 23 * 3600 * 1000L);
-    paras.put(1L, 8_888_000_000L);
-    paras.put(2L, 200_000L);
-    paras.put(3L, 20L);
-    paras.put(4L, 2048_000_000L);
-    paras.put(5L, 64_000_000L);
-    paras.put(6L, 64_000_000L);
-    paras.put(7L, 64_000_000L);
-    paras.put(8L, 64_000_000L);
-    paras.put(9L, 1L);
-    paras.put(10L, 1L);
-    paras.put(11L, 64L);
-    paras.put(12L, 64L);
-    paras.put(13L, 64L);
+    HashMap<Long, String> paras = new HashMap<>();
+    paras.put(0L, String.valueOf(23 * 3600 * 1000L));
+    paras.put(1L, String.valueOf(8_888_000_000L));
+    paras.put(2L, String.valueOf(200_000L));
+    paras.put(3L, String.valueOf(20L));
+    paras.put(4L, String.valueOf(2048_000_000L));
+    paras.put(5L, String.valueOf(64_000_000L));
+    paras.put(6L, String.valueOf(64_000_000L));
+    paras.put(7L, String.valueOf(64_000_000L));
+    paras.put(8L, String.valueOf(64_000_000L));
+    paras.put(9L, String.valueOf(1L));
+    paras.put(10L, String.valueOf(1L));
+    paras.put(11L, String.valueOf(64L));
+    paras.put(12L, String.valueOf(64L));
+    paras.put(13L, String.valueOf(64L));
 
     ProposalCreateActuator actuator =
         new ProposalCreateActuator(getContract(OWNER_ADDRESS_FIRST, paras), dbManager);

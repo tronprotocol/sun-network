@@ -76,7 +76,6 @@ public class UpdateEnergyLimitContractActuatorTest {
     Arrays.fill(stats, (byte) 1);
     dbManager.getDynamicPropertiesStore()
         .statsByVersion(ForkBlockVersionConsts.ENERGY_LIMIT, stats);
-    VMConfig.initVmHardFork();
   }
 
   /**
@@ -126,7 +125,6 @@ public class UpdateEnergyLimitContractActuatorTest {
     } else {
       logger.info("Release resources failure.");
     }
-    VMConfig.setENERGY_LIMIT_HARD_FORK(false);
   }
 
   private Any getContract(String accountAddress, String contractAddress, long originEnergyLimit) {

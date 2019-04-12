@@ -19,15 +19,14 @@ package org.tron.common.runtime.config;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.tron.common.utils.ForkController;
-import org.tron.core.config.Parameter.ForkBlockVersionConsts;
-import org.tron.core.config.Parameter.ForkBlockVersionEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.tron.core.config.args.Args;
 import org.tron.core.db.Manager;
 
 /**
  * For developer only
  */
+@Slf4j
 public class VMConfig {
 
   public static final int MAX_CODE_LENGTH = 1024 * 1024;
@@ -37,19 +36,9 @@ public class VMConfig {
   private boolean vmTraceCompressed = false;
   private boolean vmTrace = Args.getInstance().isVmTrace();
 
-  //Odyssey3.2 hard fork -- ForkBlockVersionConsts.ENERGY_LIMIT
+  @Getter
   @Setter
-  private static boolean ENERGY_LIMIT_HARD_FORK = false;
-
-//  @Getter
-//  @Setter
-//  private static boolean VERSION_3_5_HARD_FORK = false;
-
-  @Setter
-  private static boolean ALLOW_TVM_TRANSFER_TRC10 = false;
-
-  @Setter
-  private static boolean ALLOW_MULTI_SIGN = false;
+  public static boolean isVmResourceChargingOn = false;
 
   private VMConfig() {
   }
@@ -57,6 +46,10 @@ public class VMConfig {
   private static class SystemPropertiesInstance {
 
     private static final VMConfig INSTANCE = new VMConfig();
+  }
+
+  public static void handleProposalInVM(Manager dbManager) {
+    isVmResourceChargingOn = isChargingResourceProposalOn(dbManager);
   }
 
   public static VMConfig getInstance() {
@@ -71,29 +64,8 @@ public class VMConfig {
     return vmTraceCompressed;
   }
 
-  public static void initVmHardFork() {
-    ENERGY_LIMIT_HARD_FORK = ForkController.instance().pass(ForkBlockVersionConsts.ENERGY_LIMIT);
-    //VERSION_3_5_HARD_FORK = ForkController.instance().pass(ForkBlockVersionEnum.VERSION_3_5);
-  }
-
-  public static void initAllowMultiSign(long allow) {
-    ALLOW_MULTI_SIGN = allow == 1;
-  }
-
-  public static void initAllowTvmTransferTrc10(long allow) {
-    ALLOW_TVM_TRANSFER_TRC10 = allow == 1;
-  }
-
-  public static boolean getEnergyLimitHardFork() {
-    return ENERGY_LIMIT_HARD_FORK;
-  }
-
-  public static boolean allowTvmTransferTrc10() {
-    return ALLOW_TVM_TRANSFER_TRC10;
-  }
-
-  public static boolean allowMultiSign() {
-    return ALLOW_MULTI_SIGN;
+  private static boolean isChargingResourceProposalOn(Manager dbManger){
+    return dbManger.getDynamicPropertiesStore().getEnergyChargingSwitch() == 1;
   }
 
 }

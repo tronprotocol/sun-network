@@ -3,7 +3,6 @@ package org.tron.common.logsfilter.capsule;
 import static org.tron.protos.Protocol.Transaction.Contract.ContractType.TransferContract;
 
 import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,8 +103,8 @@ public class TransactionLogTriggerCapsule extends TriggerCapsule {
       transactionLogTrigger.setEnergyFee(trxTrace.getReceipt().getEnergyFee());
       transactionLogTrigger.setOriginEnergyUsage(trxTrace.getReceipt().getOriginEnergyUsage());
       transactionLogTrigger.setEnergyUsageTotal(trxTrace.getReceipt().getEnergyUsageTotal());
-      transactionLogTrigger.setNetUsage(trxTrace.getReceipt().getNetUsage());
-      transactionLogTrigger.setNetFee(trxTrace.getReceipt().getNetFee());
+      transactionLogTrigger.setNetUsage(trxTrace.getReceipt().getNetEnergyUsage());
+      transactionLogTrigger.setNetFee(trxTrace.getReceipt().getNetEnergyFee());
       transactionLogTrigger.setEnergyUsage(trxTrace.getReceipt().getEnergyUsage());
     }
 

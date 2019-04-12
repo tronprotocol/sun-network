@@ -25,31 +25,40 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     event DepositTRC20(address sideChainAddress, address to, uint256 value);
     event DepositTRC721(address sideChainAddress, address to, uint256 tokenId);
     event DepositTRX(address to, uint256 value);
-    event WithdrawTRC10(address from, uint256 value, uint256 trc10, bytes memory txData);
-    event WithdrawTRC20(address from, uint256 value, address mainChainAddress, bytes memory txData);
-    event WithdrawTRC721(address from, uint256 tokenId, address mainChainAddress, bytes memory txData);
-    event WithdrawTRX(address from, uint256 value, bytes memory txData);
+    event WithdrawTRC10(address from, uint256 value, uint256 trc10, bytes txData);
+    event WithdrawTRC20(address from, uint256 value, address mainChainAddress, bytes txData);
+    event WithdrawTRC721(address from, uint256 tokenId, address mainChainAddress, bytes txData);
+    event WithdrawTRX(address from, uint256 value, bytes txData);
 
     // TODO: type enum
-    mapping(address => address) mainToSideContractMap;
-    mapping(address => address) sideToMainContractMap;
-    mapping(uint256 => address) mainToSideTRC10Map;
-    mapping(address => uint256) sideToMainTRC10Map;
-    address oracle;
+    mapping(address => address) public mainToSideContractMap;
+    mapping(address => address) public sideToMainContractMap;
+    mapping(uint256 => address) public mainToSideTRC10Map;
+    mapping(address => uint256) public sideToMainTRC10Map;
+    mapping(address => bool) public oracles;
+    address public owner;
     address mintTRXContract = 0x00;
 
     constructor () public {
-
+        owner = msg.sender;
     }
 
-    // TODO: modify oracle
     modifier onlyOracle {
-        require(msg.sender == oracle);
+        require(oracles[msg.sender]);
         _;
     }
 
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function modifyOracle(address _oracle, bool isOracle) public onlyOwner {
+        oracles[_oracle] = isOracle;
+    }
+
     // 1. deployDAppTRC20AndMapping
-    function deployDAppTRC20AndMapping(bytes txId, string name, string symbol, uint8 decimals) public {
+    function deployDAppTRC20AndMapping(bytes txId, string name, string symbol, uint8 decimals) public returns (address r) {
         // can be called by everyone (contract developer)
         address mainChainAddress = calcContractAddress(txId, msg.sender);
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
@@ -57,10 +66,11 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         mainToSideContractMap[mainChainAddress] = sideChainAddress;
         sideToMainContractMap[sideChainAddress] = mainChainAddress;
         emit DeployDAppTRC20AndMapping(msg.sender, mainChainAddress, sideChainAddress);
+        r = sideChainAddress;
     }
 
     // 2. deployDAppTRC721AndMapping
-    function deployDAppTRC721AndMapping(bytes txId, string name, string symbol) public {
+    function deployDAppTRC721AndMapping(bytes txId, string name, string symbol) public returns (address r) {
         // can be called by everyone (contract developer)
         address mainChainAddress = calcContractAddress(txId, msg.sender);
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
@@ -68,21 +78,22 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         mainToSideContractMap[mainChainAddress] = sideChainAddress;
         sideToMainContractMap[sideChainAddress] = mainChainAddress;
         emit DeployDAppTRC721AndMapping(msg.sender, mainChainAddress, sideChainAddress);
+        r = sideChainAddress;
     }
 
     // 3. depositTRC10
-    function depositTRC10(address to, uint256 trc10, uint256 value) public onlyOracle {
+    function depositTRC10(address to, uint256 trc10, uint256 value, string name, string symbol, uint8 decimals) public onlyOracle returns (address r) {
         // can only be called by oracle
         require(trc10 > 0, "trc10 must be greater than 0");
         address sideChainAddress = mainToSideTRC10Map[trc10];
         if (sideChainAddress == address(0)) {
-            // TODO: combine
-            sideChainAddress = new DAppTRC20(address(this), "TRC10_" + trc10, "TRC10_" + trc10, 6);
+            sideChainAddress = new DAppTRC20(address(this), name, symbol, decimals);
             mainToSideTRC10Map[trc10] = sideChainAddress;
             sideToMainTRC10Map[sideChainAddress] = trc10;
         }
         IDApp(sideChainAddress).mint(to, value);
         emit DepositTRC10(to, trc10, value, sideChainAddress);
+        r = sideChainAddress;
     }
 
     // 4. depositTRC20
@@ -166,22 +177,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         }
     }
 
-    //    function concatBytes(bytes32 b1, bytes32 b2) pure external returns (bytes memory) {
-    //        bytes memory result = new bytes(64);
-    //        assembly {
-    //            mstore(add(result, 32), b1)
-    //            mstore(add(result, 64), b2)
-    //        }
-    //        return result;
-    //    }
-
     function concatBytes(bytes memory b1, bytes memory b2) pure public returns (bytes memory r) {
-        r = new bytes(b1.length + b2.length + 1);
-        uint256 k = 0;
-        for (uint256 i = 0; i < b1.length; i++)
-            r[k++] = b1[i];
-        r[k++] = 0x41;
-        for (i = 0; i < b2.length; i++)
-            r[k++] = b2[i];
+        r = abi.encodePacked(b1, 0x41, b2);
     }
 }

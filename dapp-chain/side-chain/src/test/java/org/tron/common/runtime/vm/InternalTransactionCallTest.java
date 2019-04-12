@@ -299,7 +299,7 @@ public class InternalTransactionCallTest {
     byte[] contractAddress = TVMTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, address, ABI, code, value,
             feeLimit, consumeUserResourcePercent, libraryAddressPair,
-            deposit, null);
+            deposit, null,1);
     return contractAddress;
   }
 
@@ -331,7 +331,7 @@ public class InternalTransactionCallTest {
     byte[] contractAddress = TVMTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, address, ABI, code, value,
             feeLimit, consumeUserResourcePercent, libraryAddressPair,
-            deposit, null);
+            deposit, null,1);
     return contractAddress;
   }
 

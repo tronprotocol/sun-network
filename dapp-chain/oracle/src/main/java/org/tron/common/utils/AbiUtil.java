@@ -2,6 +2,7 @@ package org.tron.common.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -116,7 +117,7 @@ public class AbiUtil {
 
       if (this.length == -1) {
         return ByteUtil
-          .merge(new DataWord(strings.size()).getData(), pack(coders, strings));
+            .merge(new DataWord(strings.size()).getData(), pack(coders, strings));
       } else {
         return pack(coders, strings);
       }
@@ -132,11 +133,8 @@ public class AbiUtil {
 
     @Override
     byte[] encode(String value) {
-      long n = Long.valueOf(value);
-      DataWord word = new DataWord(Math.abs(n));
-      if (n < 0) {
-        word.negate();
-      }
+      BigInteger n = new BigInteger(value, 10);
+      DataWord word = new DataWord(n.abs().toByteArray());
       return word.getData();
     }
 
@@ -325,15 +323,15 @@ public class AbiUtil {
 
       if (coder.dynamic) {
         System.arraycopy(new DataWord(dynamicOffset).getData(), 0, data,
-          offset, 32);
+            offset, 32);
         offset += 32;
 
         System.arraycopy(encodedList.get(idx), 0, data, dynamicOffset,
-          encodedList.get(idx).length);
+            encodedList.get(idx).length);
         dynamicOffset += encodedList.get(idx).length;
       } else {
         System
-          .arraycopy(encodedList.get(idx), 0, data, offset, encodedList.get(idx).length);
+            .arraycopy(encodedList.get(idx), 0, data, offset, encodedList.get(idx).length);
         offset += encodedList.get(idx).length;
       }
     }
@@ -351,12 +349,12 @@ public class AbiUtil {
   }
 
   public static byte[] parseMethod(String methodSign, List<Object> inputList)
-    throws EncodingException {
+      throws EncodingException {
     return parseMethod(methodSign, inputList, false);
   }
 
   public static byte[] parseMethod(String methodSign, List<Object> parameters, boolean isHex)
-    throws EncodingException {
+      throws EncodingException {
     if (parameters == null || parameters.isEmpty()) {
       throw new EncodingException("input list empty");
     }
@@ -374,14 +372,14 @@ public class AbiUtil {
         inputArr[i++] = "[" + sb.toString() + "]";
       } else {
         inputArr[i++] =
-          (parameter instanceof String) ? ("\"" + parameter + "\"") : ("" + parameter);
+            (parameter instanceof String) ? ("\"" + parameter + "\"") : ("" + parameter);
       }
     }
     return parseMethod(methodSign, StringUtils.join(inputArr, ','), isHex);
   }
 
   public static byte[] parseMethod(String methodSign, String input, boolean isHex)
-    throws EncodingException {
+      throws EncodingException {
     byte[] selector = new byte[4];
     System.arraycopy(Hash.sha3(methodSign.getBytes()), 0, selector, 0, 4);
     if (StringUtils.isEmpty(input)) {
@@ -428,7 +426,7 @@ public class AbiUtil {
     addresses.add("TNNqZuYhMfQvooC4kJwTsMJEQVU3vWGa5u");
     ;
     l.add(Arrays
-      .asList("TNNqZuYhMfQvooC4kJwTsMJEQVU3vWGa5u", "TNNqZuYhMfQvooC4kJwTsMJEQVU3vWGa5u"));
+        .asList("TNNqZuYhMfQvooC4kJwTsMJEQVU3vWGa5u", "TNNqZuYhMfQvooC4kJwTsMJEQVU3vWGa5u"));
     parseMethod(arrayMethod3, l);
 
 //    System.out.println(str);

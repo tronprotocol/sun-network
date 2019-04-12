@@ -2,40 +2,39 @@ package org.tron.core.capsule;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.tron.common.runtime.config.VMConfig;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.Constant;
 import org.tron.core.db.EnergyProcessor;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.BalanceInsufficientException;
-import org.tron.protos.Protocol.ResourceReceipt;
+import org.tron.protos.Protocol.SideChainResourceReceipt;
 import org.tron.protos.Protocol.Transaction.Result.contractResult;
 
 public class ReceiptCapsule {
 
-  private ResourceReceipt receipt;
+  private SideChainResourceReceipt receipt;
   @Getter
   @Setter
   private long multiSignFee;
 
   private Sha256Hash receiptAddress;
 
-  public ReceiptCapsule(ResourceReceipt data, Sha256Hash receiptAddress) {
+  public ReceiptCapsule(SideChainResourceReceipt data, Sha256Hash receiptAddress) {
     this.receipt = data;
     this.receiptAddress = receiptAddress;
   }
 
   public ReceiptCapsule(Sha256Hash receiptAddress) {
-    this.receipt = ResourceReceipt.newBuilder().build();
+    this.receipt = receipt.newBuilder().build();
     this.receiptAddress = receiptAddress;
   }
 
-  public void setReceipt(ResourceReceipt receipt) {
+  public void setReceipt(SideChainResourceReceipt receipt) {
     this.receipt = receipt;
   }
 
-  public ResourceReceipt getReceipt() {
+  public SideChainResourceReceipt getReceipt() {
     return this.receipt;
   }
 
@@ -43,16 +42,16 @@ public class ReceiptCapsule {
     return this.receiptAddress;
   }
 
-  public void setNetUsage(long netUsage) {
-    this.receipt = this.receipt.toBuilder().setNetUsage(netUsage).build();
+  public void setNetEnergyUsage(long netUsage) {
+    this.receipt = this.receipt.toBuilder().setNetEnergyUsage(netUsage).build();
   }
 
-  public void setNetFee(long netFee) {
-    this.receipt = this.receipt.toBuilder().setNetFee(netFee).build();
+  public void setNetEnergyFee(long netFee) {
+    this.receipt = this.receipt.toBuilder().setNetEnergyFee(netFee).build();
   }
 
-  public void addNetFee(long netFee) {
-    this.receipt = this.receipt.toBuilder().setNetFee(getNetFee() + netFee).build();
+  public void addNetEnergyFee(long netFee) {
+    this.receipt = this.receipt.toBuilder().setNetEnergyFee(getNetEnergyFee() + netFee).build();
   }
 
   public long getEnergyUsage() {
@@ -87,12 +86,12 @@ public class ReceiptCapsule {
     this.receipt = this.receipt.toBuilder().setEnergyUsageTotal(energyUsage).build();
   }
 
-  public long getNetUsage() {
-    return this.receipt.getNetUsage();
+  public long getNetEnergyUsage() {
+    return this.receipt.getNetEnergyUsage();
   }
 
-  public long getNetFee() {
-    return this.receipt.getNetFee();
+  public long getNetEnergyFee() {
+    return this.receipt.getNetEnergyFee();
   }
 
   /**
@@ -122,15 +121,11 @@ public class ReceiptCapsule {
   private long getOriginUsage(Manager manager, AccountCapsule origin,
       long originEnergyLimit,
       EnergyProcessor energyProcessor, long originUsage) {
-
-    if (VMConfig.getEnergyLimitHardFork()) {
-      return Math.min(originUsage,
-          Math.min(energyProcessor.getAccountLeftEnergyFromFreeze(origin), originEnergyLimit));
-    }
-    return Math.min(originUsage, energyProcessor.getAccountLeftEnergyFromFreeze(origin));
+    return Math.min(originUsage,
+        Math.min(energyProcessor.getAccountLeftEnergyFromFreeze(origin), originEnergyLimit));
   }
 
-  private void payEnergyBill(
+  public void payEnergyBill(
       Manager manager,
       AccountCapsule account,
       long usage,
@@ -166,7 +161,7 @@ public class ReceiptCapsule {
     manager.getAccountStore().put(account.getAddress().toByteArray(), account);
   }
 
-  public static ResourceReceipt copyReceipt(ReceiptCapsule origin) {
+  public static SideChainResourceReceipt copyReceipt(ReceiptCapsule origin) {
     return origin.getReceipt().toBuilder().build();
   }
 

@@ -107,16 +107,15 @@ contract D {
   @Test
   public void testAAfterAllowMultiSignProposal()
       throws ContractExeException, ReceiptCheckErrException, VMIllegalException, ContractValidateException {
+    VMConfig.setVmResourceChargingOn(true);
     byte[] stats = new byte[27];
     Arrays.fill(stats, (byte) 1);
-    VMConfig.initAllowTvmTransferTrc10(1);
     byte[] address = Hex.decode(OWNER_ADDRESS);
 
     this.manager.getDynamicPropertiesStore()
         .statsByVersion(ForkBlockVersionEnum.VERSION_3_2_2.getValue(), stats);
     this.manager.getDynamicPropertiesStore()
         .statsByVersion(ForkBlockVersionEnum.VERSION_3_5.getValue(), stats);
-    VMConfig.initAllowMultiSign(1);
 
     Transaction aTrx = TVMTestUtils.generateDeploySmartContractAndGetTransaction(
         "testA", address, abi, aCode, value, fee, consumeUserResourcePercent, null, engeryLimit);
@@ -141,39 +140,6 @@ contract D {
     Runtime dRuntime = TVMTestUtils
         .processTransactionAndReturnRuntime(dTrx, DepositImpl.createRoot(manager), null);
     Assert.assertEquals(dRuntime.getRuntimeError(), "REVERT opcode executed");
-
-  }
-
-  @Test
-  public void testABeforeAllowMultiSignProposal()
-      throws ContractExeException, ReceiptCheckErrException, VMIllegalException, ContractValidateException {
-    VMConfig.initAllowMultiSign(0);
-    byte[] address = Hex.decode(OWNER_ADDRESS);
-    Transaction aTrx = TVMTestUtils.generateDeploySmartContractAndGetTransaction(
-        "testA", address, abi, aCode, value, fee, consumeUserResourcePercent, null, engeryLimit);
-    Runtime aRuntime = TVMTestUtils
-        .processTransactionAndReturnRuntime(aTrx, DepositImpl.createRoot(manager), null);
-    Assert.assertEquals(aRuntime.getRuntimeError(), "Unknown Exception");
-//
-//
-    Transaction bTrx = TVMTestUtils.generateDeploySmartContractAndGetTransaction(
-        "testB", address, abi, bCode, value, fee, consumeUserResourcePercent, null, engeryLimit);
-    Runtime bRuntime = TVMTestUtils
-        .processTransactionAndReturnRuntime(bTrx, DepositImpl.createRoot(manager), null);
-    Assert.assertEquals(bRuntime.getRuntimeError(), "REVERT opcode executed");
-
-    Transaction cTrx = TVMTestUtils.generateDeploySmartContractAndGetTransaction(
-        "testC", address, abi, cCode, value, fee, consumeUserResourcePercent, null, engeryLimit);
-    Runtime cRuntime = TVMTestUtils
-        .processTransactionAndReturnRuntime(cTrx, DepositImpl.createRoot(manager), null);
-    Assert.assertTrue(cRuntime.getResult().getException() instanceof OutOfEnergyException);
-
-    Transaction dTrx = TVMTestUtils.generateDeploySmartContractAndGetTransaction(
-        "testC", address, abi, dCode, value, fee, consumeUserResourcePercent, null, engeryLimit);
-    Runtime dRuntime = TVMTestUtils
-        .processTransactionAndReturnRuntime(dTrx, DepositImpl.createRoot(manager), null);
-    Assert.assertEquals(dRuntime.getRuntimeError(), "REVERT opcode executed");
-
 
   }
 }

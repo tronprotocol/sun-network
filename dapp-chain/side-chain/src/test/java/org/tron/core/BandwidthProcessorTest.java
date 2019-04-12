@@ -1,6 +1,5 @@
 package org.tron.core;
 
-import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import java.io.File;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,6 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.FileUtil;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.TransactionCapsule;
-import org.tron.core.capsule.TransactionResultCapsule;
 import org.tron.core.config.DefaultConfig;
 import org.tron.core.config.args.Args;
 import org.tron.core.db.BandwidthProcessor;
@@ -25,7 +23,6 @@ import org.tron.core.exception.AccountResourceInsufficientException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.TooBigTransactionResultException;
 import org.tron.protos.Contract;
-import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.AccountType;
 
 @Slf4j
@@ -175,8 +172,8 @@ public class BandwidthProcessorTest {
     try {
       processor.consume(trx, trace);
 
-      Assert.assertEquals(trace.getReceipt().getNetFee(), 0);
-      Assert.assertEquals(trace.getReceipt().getNetUsage(), byteSize);
+      Assert.assertEquals(trace.getReceipt().getNetEnergyFee(), 0);
+      Assert.assertEquals(trace.getReceipt().getNetEnergyUsage(), byteSize);
       AccountCapsule fromAccount =
           dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
       Assert.assertNotNull(fromAccount);
