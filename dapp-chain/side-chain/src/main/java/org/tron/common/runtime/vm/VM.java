@@ -208,11 +208,13 @@ public class VM {
           energyCost += calcMemEnergy(energyCosts, oldMemSize, in.max(out), 0, op);
           checkMemorySize(op, in.max(out));
 
-          if (energyCost > program.getEnergyLimitLeft().longValueSafe()) {
-            throw new OutOfEnergyException(
-                "Not enough energy for '%s' operation executing: opEnergy[%d], programEnergy[%d]",
-                op.name(),
-                energyCost, program.getEnergyLimitLeft().longValueSafe());
+          if (VMConfig.isVmResourceChargingOn) {
+            if (energyCost > program.getEnergyLimitLeft().longValueSafe()) {
+              throw new OutOfEnergyException(
+                  "Not enough energy for '%s' operation executing: opEnergy[%d], programEnergy[%d]",
+                  op.name(),
+                  energyCost, program.getEnergyLimitLeft().longValueSafe());
+            }
           }
           DataWord getEnergyLimitLeft = program.getEnergyLimitLeft().clone();
           getEnergyLimitLeft.sub(new DataWord(energyCost));
