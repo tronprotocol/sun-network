@@ -225,7 +225,7 @@ public class PrecompiledContracts {
       List<byte[]> gatewayList = this.getDeposit().getGatewayList();
       boolean match = false;
       for (byte[] gateway: gatewayList) {
-        if (ByteUtil.equals((new DataWord(gateway)).getLast20Bytes(), this.getCallerAddress())) {
+        if (ByteUtil.equals(gateway, this.getCallerAddress())) {
           match = true;
           break;
         }
