@@ -3,6 +3,8 @@ package org.tron.walletcli;
 import com.beust.jcommander.JCommander;
 import com.google.common.primitives.Longs;
 import com.google.protobuf.InvalidProtocolBufferException;
+
+import java.io.Console;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -2448,8 +2450,8 @@ public class Client {
         return;
     }
 
-    long trxNum = Long.valueOf(parameters[1]);
-    long feeLimit = Long.valueOf(parameters[2]);
+    long trxNum = Long.valueOf(parameters[0]);
+    long feeLimit = Long.valueOf(parameters[1]);
     String address = walletApiWrapper.getAddress();
     byte[] trxData = walletApiWrapper.sideSignTrxData(address, trxNum);
 
@@ -2512,7 +2514,7 @@ public class Client {
                 deleteProposal(parameters);
                 break;
             }
-            case "withdrawTrx": {
+            case "withdrawtrx": {
                 withdrawTrx(parameters);
                 break;
             }
@@ -2559,6 +2561,7 @@ public class Client {
             "You may also use the Help command at anytime to display a full list of commands.");
     System.out.println(" ");
 
+    System.out.print("[mainchain] ");
     while (in.hasNextLine()) {
       String cmd = "";
       String cmdLine = in.nextLine().trim();
@@ -2566,6 +2569,11 @@ public class Client {
 
       cmd = cmdArray[0];
       if ("".equals(cmd)) {
+        if (WalletApi.isMainChain()) {
+          System.out.print("[mainchain] ");
+        } else {
+          System.out.print("[sidechain] ");
+        }
         continue;
       }
       String[] parameters = Arrays.copyOfRange(cmdArray, 1, cmdArray.length);
@@ -2580,6 +2588,14 @@ public class Client {
       if(ret == true) {
           return;
       }
+
+        //System.out.println();
+      if (WalletApi.isMainChain()) {
+        System.out.print("[mainchain] ");
+      } else {
+        System.out.print("[sidechain] ");
+      }
+      in = new Scanner(System.in);
     }
   }
 
