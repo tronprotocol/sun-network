@@ -3,6 +3,8 @@ package org.tron.walletcli;
 import com.beust.jcommander.JCommander;
 import com.google.common.primitives.Longs;
 import com.google.protobuf.InvalidProtocolBufferException;
+
+import java.io.Console;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -2441,17 +2443,17 @@ public class Client {
     return;
   }
 
-  private void withdrawTrx(String[] parameters) throws IOException, CipherException, CancelException {
+  private void withdrawTrx(String[] parameters) throws IOException, CipherException, CancelException, EncodingException {
     if (parameters == null || parameters.length != 2) {
         System.out.println("withdrawTrx needs 2 parameters like following: ");
         System.out.println("withdrawTrx trx_num fee_limit ");
         return;
     }
 
-    long trxNum = Long.valueOf(parameters[1]);
-    long feeLimit = Long.valueOf(parameters[2]);
+    long trxNum = Long.valueOf(parameters[0]);
+    long feeLimit = Long.valueOf(parameters[1]);
     String address = walletApiWrapper.getAddress();
-    byte[] trxData = walletApiWrapper.sideSignTrxData(address);
+    byte[] trxData = walletApiWrapper.sideSignTrxData(address, trxNum);
 
     byte[] sideGatewayAddress = walletApiWrapper.getSideGatewayAddress();
     if(sideGatewayAddress == null) {
@@ -2512,7 +2514,7 @@ public class Client {
                 deleteProposal(parameters);
                 break;
             }
-            case "withdrawTrx": {
+            case "withdrawtrx": {
                 withdrawTrx(parameters);
                 break;
             }
@@ -2530,10 +2532,19 @@ public class Client {
                 System.out.println("Invalid cmd: " + cmd + "!!");
             }
         }
+    } catch (CipherException e) {
+      System.out.println(cmd + " failed!");
+      System.out.println(e.getMessage());
+    } catch (IOException e) {
+      System.out.println(cmd + " failed!");
+      System.out.println(e.getMessage());
+    } catch (CancelException e) {
+      System.out.println(cmd + " failed!");
+      System.out.println(e.getMessage());
     } catch (Exception e) {
-        System.out.println(cmd + " failed!");
-        logger.error(e.getMessage());
-        e.printStackTrace();
+      System.out.println(cmd + " failed!");
+      logger.error(e.getMessage());
+      e.printStackTrace();
     }
     return false;
   }
@@ -2550,6 +2561,7 @@ public class Client {
             "You may also use the Help command at anytime to display a full list of commands.");
     System.out.println(" ");
 
+    System.out.print("[mainchain] ");
     while (in.hasNextLine()) {
       String cmd = "";
       String cmdLine = in.nextLine().trim();
@@ -2557,6 +2569,11 @@ public class Client {
 
       cmd = cmdArray[0];
       if ("".equals(cmd)) {
+        if (WalletApi.isMainChain()) {
+          System.out.print("[mainchain] ");
+        } else {
+          System.out.print("[sidechain] ");
+        }
         continue;
       }
       String[] parameters = Arrays.copyOfRange(cmdArray, 1, cmdArray.length);
@@ -2571,6 +2588,14 @@ public class Client {
       if(ret == true) {
           return;
       }
+
+        //System.out.println();
+      if (WalletApi.isMainChain()) {
+        System.out.print("[mainchain] ");
+      } else {
+        System.out.print("[sidechain] ");
+      }
+      in = new Scanner(System.in);
     }
   }
 

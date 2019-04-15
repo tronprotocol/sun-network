@@ -1141,6 +1141,7 @@ public class Wallet {
 
       Runtime runtime = new RuntimeImpl(trxCap.getInstance(), new BlockCapsule(headBlock), deposit,
           new ProgramInvokeFactoryImpl(), true);
+      VMConfig.handleProposalInVM(dbManager);
       runtime.execute();
       runtime.go();
       runtime.finalization();

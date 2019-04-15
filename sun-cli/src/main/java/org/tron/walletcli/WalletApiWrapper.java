@@ -17,6 +17,7 @@ import org.tron.api.GrpcAPI.WitnessList;
 import org.tron.common.utils.Utils;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
+import org.tron.core.exception.EncodingException;
 import org.tron.keystore.StringUtils;
 import org.tron.keystore.WalletFile;
 import org.tron.protos.Contract;
@@ -698,14 +699,14 @@ public class WalletApiWrapper {
     return wallet.addTransactionSign(transaction);
   }
 
-  public byte[] sideSignTrxData(String address) throws CipherException, IOException {
+  public byte[] sideSignTrxData(String address, long trxNum) throws CipherException, IOException, EncodingException {
 
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: addTransactionSign failed,  Please login first !!");
       return null;
     }
 
-    return wallet.sideSignTrxData(address);
+    return wallet.sideSignTrxData(address, trxNum);
   }
 
   public byte[] getSideGatewayAddress()  {

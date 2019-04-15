@@ -50,6 +50,7 @@ import org.tron.core.config.Configuration;
 import org.tron.core.config.Parameter.CommonConstant;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
+import org.tron.core.exception.EncodingException;
 import org.tron.keystore.CheckStrength;
 import org.tron.keystore.Credentials;
 import org.tron.keystore.Wallet;
@@ -95,6 +96,7 @@ public class WalletApi {
   private static int rpcVersion = 0;  //TODO：side/main
 
   private static byte[] sideGatewayAddress;
+  private static byte[] mainGatewayAddress;
 
   private static GrpcClient rpcMain = initMain();
   private static GrpcClient rpcSide = initSide();
@@ -131,6 +133,17 @@ public class WalletApi {
     if (config.hasPath("mainchain.RPC_version")) {
       rpcVersion = config.getInt("mainchain.RPC_version");
     }
+
+    if (config.hasPath("mainchain.gateway_address")) {
+      String temp = config.getString("mainchain.gateway_address");
+
+      if( !WalletApi.addressValid(decodeFromBase58Check(temp)) ) {
+        throw new RuntimeException("invalid main gateway address.");
+      }
+
+      mainGatewayAddress = WalletApi.decodeFromBase58Check(temp);
+    }
+
     return new GrpcClient(fullNode, solidityNode);
   }
 
@@ -157,7 +170,7 @@ public class WalletApi {
     if (config.hasPath("sidechain.gateway_address")) {
       String temp = config.getString("sidechain.gateway_address");
 
-      if(!WalletApi.addressValid(temp.getBytes()) ) {
+      if( !WalletApi.addressValid(decodeFromBase58Check(temp)) ) {
         throw new RuntimeException("invalid side gateway address.");
       }
 
@@ -398,23 +411,26 @@ public class WalletApi {
    * load a Wallet from keystore
    */
   public static WalletApi loadWalletFromKeystore()
-      throws IOException {
+      throws IOException  {
     WalletFile walletFile = loadWalletFile();
     WalletApi walletApi = new WalletApi(walletFile);
     return walletApi;
   }
 
-  public byte[] sideSignTrxData(String address) throws CipherException, IOException {
+  public byte[] sideSignTrxData(String address, long trxNum) throws CipherException, IOException, EncodingException {
+//    if (!WalletApi.addressValid(decodeFromBase58Check(address))) {
+//          throw new RuntimeException("failed to signature, invalid address.");
+//    }
 
-    if (!WalletApi.addressValid(address.getBytes())) {
-      throw new RuntimeException("failed to signature, invalid address.");
-    }
+    byte[] input = org.bouncycastle.util.encoders.Hex.decode(AbiUtil.parseMethod("nonce(address)", "\"" + encode58Check(getAddress()) + "\"", false));
+    Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(), mainGatewayAddress,
+            0, input, 0, "0");
+    TransactionExtention transactionExtention = rpcMain.triggerContract(triggerContract);
+    byte[] nonceTemp = transactionExtention.getConstantResult(0).toByteArray();
+    DataWord nonce = new DataWord(nonceTemp);
 
-    String uuidStr = UUID.randomUUID().toString();
-    byte[] uuid = uuidStr.getBytes();
-    if(uuid.length != 36) {
-      throw new RuntimeException("failed to signature, invalid uuid.");
-    }
+    byte[] amountTemp = ByteArray.fromLong(trxNum);
+    DataWord amount = new DataWord(amountTemp);
 
     System.out.println("Please choose your key for sign.");
     WalletFile walletFile = selcetWalletFileE();
@@ -424,8 +440,8 @@ public class WalletApi {
     byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
     org.tron.keystore.StringUtils.clear(password);
 
-
-    byte[] data = ByteUtil.merge(address.getBytes(), uuid);
+    
+    byte[] data = ByteUtil.merge(mainGatewayAddress,nonce.getData(), amount.getData());
     ECKey myKey = getEcKey(walletFile, passwd);
     ECKey.ECDSASignature signature = myKey.sign(data);
 
