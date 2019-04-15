@@ -243,7 +243,7 @@ public class AbiUtil {
 
     @Override
     byte[] encode(String value) {
-      return encodeDynamicBytes(value);
+      return encodeString(value);
     }
 
     @Override
@@ -252,7 +252,7 @@ public class AbiUtil {
     }
   }
 
-  public static byte[] encodeDynamicBytes(String value) {
+  public static byte[] encodeString(String value) {
     byte[] data = value.getBytes();
     List<DataWord> ret = new ArrayList<>();
     ret.add(new DataWord(data.length));
@@ -260,6 +260,33 @@ public class AbiUtil {
     int readInx = 0;
     int len = value.getBytes().length;
     while (readInx < value.getBytes().length) {
+      byte[] wordData = new byte[32];
+      int readLen = len - readInx >= 32 ? 32 : (len - readInx);
+      System.arraycopy(data, readInx, wordData, 0, readLen);
+      DataWord word = new DataWord(wordData);
+      ret.add(word);
+      readInx += 32;
+    }
+
+    byte[] retBytes = new byte[ret.size() * 32];
+    int retIndex = 0;
+
+    for (DataWord w : ret) {
+      System.arraycopy(w.getData(), 0, retBytes, retIndex, 32);
+      retIndex += 32;
+    }
+
+    return retBytes;
+  }
+
+  public static byte[] encodeDynamicBytes(String value) {
+    byte[] data = Hex.decode(value);
+    List<DataWord> ret = new ArrayList<>();
+    ret.add(new DataWord(data.length));
+
+    int readInx = 0;
+    int len = data.length;
+    while (readInx < data.length) {
       byte[] wordData = new byte[32];
       int readLen = len - readInx >= 32 ? 32 : (len - readInx);
       System.arraycopy(data, readInx, wordData, 0, readLen);
