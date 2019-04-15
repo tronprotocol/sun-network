@@ -37,7 +37,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     mapping(address => uint256) public sideToMainTRC10Map;
     mapping(address => bool) public oracles;
     address public owner;
-    address mintTRXContract = 0x00;
+    address mintTRXContract = 0x10000;
 
     constructor () public {
         owner = msg.sender;
@@ -117,7 +117,10 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     // 6. depositTRX
     function depositTRX(address to, uint256 value) public onlyOracle {
         // can only be called by oracle
-        mintTRXContract.call(to, value);
+        // FIXME: must require
+        // require(mintTRXContract.call(value), "mint fail");
+        mintTRXContract.call(value);
+        to.transfer(value);
         emit DepositTRX(to, value);
     }
 
@@ -154,15 +157,15 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 10. withdrawTRX
-    function withdrawTRX(bytes memory txData) {
+    function withdrawTRX(bytes memory txData) payable public {
         // burn
         // FIXME in tron side chain: will be fail in tron
         address(0).transfer(msg.value);
         emit WithdrawTRX(msg.sender, msg.value, txData);
     }
 
-    function calcContractAddress(bytes txId, address owner) public pure returns (address r) {
-        bytes memory addressBytes = addressToBytes(owner);
+    function calcContractAddress(bytes txId, address _owner) public pure returns (address r) {
+        bytes memory addressBytes = addressToBytes(_owner);
         bytes memory combinedBytes = concatBytes(txId, addressBytes);
         r = address(keccak256(combinedBytes));
     }
