@@ -8,7 +8,7 @@ import "./IDApp.sol";
  * @title Full TRC20 Token for Sun Network DAppChains
  */
 
-contract DAppTRC20 is TRC20, ITRC20Receiver, IDApp {
+contract DAppTRC20 is TRC20, IDApp {
     // Transfer Gateway contract address
     address public gateway;
 

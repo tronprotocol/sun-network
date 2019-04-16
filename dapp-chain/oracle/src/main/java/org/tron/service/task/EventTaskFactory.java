@@ -21,11 +21,16 @@ public class EventTaskFactory {
 
   static EventTask CreateTask(TaskEnum taskType,
       JSONObject obj) {
-    switch (taskType) {
-      case MAIN_CHAIN:
-        return CreateMainChainTask(obj);
-      case SIDE_CHAIN:
-        return createSideChainTask(obj);
+    try {
+
+      switch (taskType) {
+        case MAIN_CHAIN:
+          return CreateMainChainTask(obj);
+        case SIDE_CHAIN:
+          return createSideChainTask(obj);
+      }
+    } catch (Exception e) {
+      logger.error(e.getMessage());
     }
     return null;
   }

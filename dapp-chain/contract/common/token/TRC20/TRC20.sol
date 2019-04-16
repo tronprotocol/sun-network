@@ -18,11 +18,17 @@ import "../../math/SafeMath.sol";
 contract TRC20 is ITRC20 {
     using SafeMath for uint256;
 
-    mapping (address => uint256) private _balances;
+    mapping (address => uint256) internal _balances; // FIXME, should be private
 
     mapping (address => mapping (address => uint256)) private _allowed;
 
-    uint256 private _totalSupply;
+    uint256 internal _totalSupply; // FIXME, should be private
+
+    /**
+     *  Equals to `bytes4(keccak256("onTRC20Received(address,uint256,bytes)"))`,
+     *  which can be also obtained as `ITRC20Receiver(0).onTRC20Received.selector`
+     */
+    bytes4 constant internal _TRC20_RECEIVED = 0xbcad917b; // FIXME, can be here ?
 
     /**
      * @dev Total number of tokens in existence.

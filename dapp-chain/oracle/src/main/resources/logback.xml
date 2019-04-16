@@ -52,6 +52,7 @@
 
   <logger name="app" level="INFO"/>
   <logger name="task" level="INFO"/>
+  <logger name="sideChainTask" level="INFO"/>
   <logger name="mainChainTask" level="INFO"/>
 
 </configuration>

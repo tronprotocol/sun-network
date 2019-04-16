@@ -5,10 +5,10 @@ import "../common/token/TRC20/TRC20.sol";
 import "../common/math/SafeMath.sol";
 import "../common/token/TRC721/ITRC721Receiver.sol";
 import "../common/token/TRC20/ITRC20Receiver.sol";
-import "./OrcaleManagerContract.sol";
+import "./OracleManagerContract.sol";
 
 
-contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
+contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
 
     using SafeMath for uint256;
 
@@ -43,8 +43,8 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OrcaleManagerContract {
     event TokenWithdrawn(address indexed owner, TokenKind kind, address contractAddress, uint256 value);
     event Token10Withdrawn(address indexed owner, TokenKind kind, trcToken tokenId, uint256 value);
 
-    constructor (address _orcale)
-    public OrcaleManagerContract(_orcale) {
+    constructor (address _oracle)
+    public OracleManagerContract(_oracle) {
     }
 
     // Deposit functions

@@ -8,7 +8,7 @@ import "./IDApp.sol";
  * @title Full TRC721 Token for Sun Network DAppChains
  */
 
-contract DAppTRC721 is TRC721, ITRC721Receiver, IDApp {
+contract DAppTRC721 is TRC721, IDApp {
     // Transfer Gateway contract address
     address public gateway;
 
@@ -54,10 +54,8 @@ contract DAppTRC721 is TRC721, ITRC721Receiver, IDApp {
      * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`; otherwise,
      * the transfer is reverted.
      * Requires the msg.sender to be the owner, approved, or operator
-     * @param from current owner of the token
-     * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
-     * @param _data bytes data to send along with a safe transfer check
+     * @param txData bytes data to send along with a safe transfer check
      */
     function withdrawal(uint256 tokenId, bytes memory txData) public {
         transfer(gateway, tokenId);
