@@ -18,9 +18,9 @@ import "../../math/SafeMath.sol";
 contract TRC20 is ITRC20 {
     using SafeMath for uint256;
 
-    mapping (address => uint256) internal _balances; // FIXME, should be private
+    mapping(address => uint256) internal _balances; // FIXME, should be private
 
-    mapping (address => mapping (address => uint256)) private _allowed;
+    mapping(address => mapping(address => uint256)) private _allowed;
 
     uint256 internal _totalSupply; // FIXME, should be private
 
@@ -150,6 +150,10 @@ contract TRC20 is ITRC20 {
         _totalSupply = _totalSupply.sub(value);
         _balances[account] = _balances[account].sub(value);
         emit Transfer(account, address(0), value);
+    }
+
+    function burn(uint256 value) public {
+        _burn(msg.sender, value);
     }
 
     /**

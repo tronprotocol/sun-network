@@ -37,6 +37,7 @@ import org.tron.api.GrpcAPI.NodeList;
 import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.GrpcAPI.ProposalList;
 import org.tron.api.GrpcAPI.TransactionApprovedList;
+import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.GrpcAPI.TransactionList;
 import org.tron.api.GrpcAPI.TransactionListExtention;
 import org.tron.api.GrpcAPI.TransactionSignWeight;
@@ -45,11 +46,13 @@ import org.tron.common.crypto.Hash;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ByteUtil;
+import org.tron.common.utils.DataWord;
 import org.tron.common.utils.Utils;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
 import org.tron.core.exception.EncodingException;
 import org.tron.keystore.StringUtils;
+import org.tron.protos.Contract;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
@@ -2473,6 +2476,93 @@ public class Client {
     }
   }
 
+  private void withdrawTrc20(String[] parameters)
+    throws IOException, CipherException, CancelException, EncodingException {
+    if (parameters == null || parameters.length != 3) {
+      System.out.println("withdrawTrc20 needs 3 parameters like following: ");
+      System.out.println("withdrawTrc20 mainAddress value fee_limit ");
+      return;
+    }
+
+    String mainAddress = parameters[0];
+    String value = parameters[1];
+    long feeLimit = Long.parseLong(parameters[2]);
+    byte[] txData = walletApiWrapper.sideSignTokenData(mainAddress, value);
+
+    byte[] sideAddress = walletApiWrapper.getSideTokenAddress(mainAddress);
+
+    String methodStr = "withdrawal(uint256,bytes)";
+    byte[] input = Hex
+      .decode(AbiUtil.parseMethod(methodStr, value + ",\"" + Hex.toHexString(txData) + "\"", false));
+
+    boolean result = walletApiWrapper
+      .callContract(sideAddress, 0, input, feeLimit, 0, "0");
+    if (result) {
+      System.out.println("Broadcast the triggerContract successfully.\n"
+        + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
+    } else {
+      System.out.println("Broadcast the triggerContract failed");
+    }
+  }
+
+  private void withdrawTrc721(String[] parameters)
+    throws IOException, CipherException, CancelException, EncodingException {
+    if (parameters == null || parameters.length != 3) {
+      System.out.println("withdrawTrc721 needs 3 parameters like following: ");
+      System.out.println("withdrawTrc721 mainAddress uid fee_limit ");
+      return;
+    }
+
+    String mainAddress = parameters[0];
+    String uid = parameters[1];
+    long feeLimit = Long.parseLong(parameters[2]);
+    byte[] txData = walletApiWrapper.sideSignTokenData(mainAddress, uid);
+
+    byte[] sideAddress = walletApiWrapper.getSideTokenAddress(mainAddress);
+
+    String methodStr = "withdrawal(uint256,bytes)";
+    byte[] input = Hex
+      .decode(AbiUtil.parseMethod(methodStr, uid + ",\"" + Hex.toHexString(txData) + "\"", false));
+
+    boolean result = walletApiWrapper
+      .callContract(sideAddress, 0, input, feeLimit, 0, "0");
+    if (result) {
+      System.out.println("Broadcast the triggerContract successfully.\n"
+        + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
+    } else {
+      System.out.println("Broadcast the triggerContract failed");
+    }
+  }
+
+  private void withdrawTrc10(String[] parameters)
+    throws IOException, CipherException, CancelException, EncodingException {
+    if (parameters == null || parameters.length != 3) {
+      System.out.println("withdrawTrc10 needs 3 parameters like following: ");
+      System.out.println("withdrawTrc10 trc10 value fee_limit ");
+      return;
+    }
+
+    String trc10 = parameters[0];
+    String value = parameters[1];
+    long feeLimit = Long.parseLong(parameters[2]);
+    byte[] txData = walletApiWrapper.sideSignTrc10Data(trc10, value);
+
+    byte[] trc10Address = walletApiWrapper.getTrc10Address(trc10);
+
+    String methodStr = "withdrawal(uint256,bytes)";
+    byte[] input = Hex
+      .decode(AbiUtil.parseMethod(methodStr, value + ",\"" + Hex.toHexString(txData) + "\"", false));
+
+    boolean result = walletApiWrapper
+      .callContract(trc10Address, 0, input, feeLimit, 0, "0");
+    if (result) {
+      System.out.println("Broadcast the triggerContract successfully.\n"
+        + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
+    } else {
+      System.out.println("Broadcast the triggerContract failed");
+    }
+  }
+
   private boolean runSide(String cmd, String[] parameters) {
 
     try {
@@ -2521,6 +2611,19 @@ public class Client {
           withdrawTrx(parameters);
           break;
         }
+        case "withdrawtrc20": {
+          withdrawTrc20(parameters);
+          break;
+        }
+        case "withdrawtrc721": {
+          withdrawTrc721(parameters);
+          break;
+        }
+        case "withdrawtrc10": {
+          withdrawTrc10(parameters);
+          break;
+        }
+
         case "createproposal": {
           sideChainCreateProposal(parameters);
           break;

@@ -12,13 +12,16 @@ import com.typesafe.config.ConfigObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.util.Args;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.Arrays;
 import org.spongycastle.util.encoders.Hex;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AccountNetMessage;
@@ -418,6 +421,26 @@ public class WalletApi {
     return walletApi;
   }
 
+  public byte[] getTrc10Address(String trc10) throws EncodingException {
+    byte[] input = org.bouncycastle.util.encoders.Hex.decode(
+      AbiUtil.parseMethod("mainToSideTRC10Map(uint256)", trc10, false));
+    Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
+      sideGatewayAddress, 0, input, 0, "0");
+    TransactionExtention transactionExtention = rpcSide.triggerContract(triggerContract);
+    byte[] trc10Address = transactionExtention.getConstantResult(0).toByteArray();
+    return MUtil.convertToTronAddress(new DataWord(trc10Address).getLast20Bytes());
+  }
+
+  public byte[] getSideTokenAddress(String mainAddress) throws EncodingException {
+    byte[] input = org.bouncycastle.util.encoders.Hex.decode(
+      AbiUtil.parseMethod("mainToSideContractMap(address)", mainAddress, false));
+    Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
+      sideGatewayAddress, 0, input, 0, "0");
+    TransactionExtention transactionExtention = rpcSide.triggerContract(triggerContract);
+    byte[] sideAddress = transactionExtention.getConstantResult(0).toByteArray();
+    return MUtil.convertToTronAddress(new DataWord(sideAddress).getLast20Bytes());
+  }
+
   public byte[] sideSignTrxData(String address, long trxNum)
     throws CipherException, IOException, EncodingException {
 //    if (!WalletApi.addressValid(decodeFromBase58Check(address))) {
@@ -444,13 +467,83 @@ public class WalletApi {
     byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
     org.tron.keystore.StringUtils.clear(password);
 
-    byte[] data = ByteUtil.merge(mainGatewayAddress, nonce.getData(), amount.getData());
+    byte[] data = ByteUtil
+      .merge(Arrays.copyOfRange(mainGatewayAddress, 1, mainGatewayAddress.length), nonce.getData(),
+        amount.getData());
     ECKey myKey = getEcKey(walletFile, passwd);
-    ECKey.ECDSASignature signature = myKey.sign(Sha256Hash.hash(data));
+    ECKey.ECDSASignature signature = myKey.sign(Hash.sha3(data));
 
     return signature.toByteArray();
   }
 
+  public byte[] sideSignTokenData(String tokenAddress, String value)
+    throws CipherException, IOException, EncodingException {
+//    if (!WalletApi.addressValid(decodeFromBase58Check(address))) {
+//          throw new RuntimeException("failed to signature, invalid address.");
+//    }
+
+    byte[] input = org.bouncycastle.util.encoders.Hex.decode(
+      AbiUtil.parseMethod("nonces(address)", "\"" + encode58Check(getAddress()) + "\"", false));
+    Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
+      mainGatewayAddress,
+      0, input, 0, "0");
+    TransactionExtention transactionExtention = rpcMain.triggerContract(triggerContract);
+    byte[] nonceTemp = transactionExtention.getConstantResult(0).toByteArray();
+    DataWord nonce = new DataWord(nonceTemp);
+
+    DataWord valueI = new DataWord(new BigInteger(value, 10).toByteArray());
+
+    System.out.println("Please choose your key for sign.");
+    WalletFile walletFile = selcetWalletFileE();
+    System.out.println("Please input your password.");
+
+    char[] password = Utils.inputPassword(false);
+    byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
+    org.tron.keystore.StringUtils.clear(password);
+
+    byte[] mainTokenAddress = WalletApi.decode58Check(tokenAddress);
+    byte[] data = ByteUtil
+      .merge(Arrays.copyOfRange(mainTokenAddress, 1, mainTokenAddress.length), nonce.getData(),
+        valueI.getData());
+    ECKey myKey = getEcKey(walletFile, passwd);
+    ECKey.ECDSASignature signature = myKey.sign(Hash.sha3(data));
+
+    return signature.toByteArray();
+  }
+
+  public byte[] sideSignTrc10Data(String tc10, String value)
+    throws CipherException, IOException, EncodingException {
+//    if (!WalletApi.addressValid(decodeFromBase58Check(address))) {
+//          throw new RuntimeException("failed to signature, invalid address.");
+//    }
+
+    byte[] input = org.bouncycastle.util.encoders.Hex.decode(
+      AbiUtil.parseMethod("nonces(address)", "\"" + encode58Check(getAddress()) + "\"", false));
+    Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
+      mainGatewayAddress,
+      0, input, 0, "0");
+    TransactionExtention transactionExtention = rpcMain.triggerContract(triggerContract);
+    byte[] nonceTemp = transactionExtention.getConstantResult(0).toByteArray();
+    DataWord nonce = new DataWord(nonceTemp);
+
+    DataWord valueI = new DataWord(new BigInteger(value, 10).toByteArray());
+    DataWord tc10I = new DataWord(new BigInteger(tc10, 10).toByteArray());
+
+    System.out.println("Please choose your key for sign.");
+    WalletFile walletFile = selcetWalletFileE();
+    System.out.println("Please input your password.");
+
+    char[] password = Utils.inputPassword(false);
+    byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
+    org.tron.keystore.StringUtils.clear(password);
+
+    byte[] data = ByteUtil
+      .merge(tc10I.getData(), nonce.getData(), valueI.getData());
+    ECKey myKey = getEcKey(walletFile, passwd);
+    ECKey.ECDSASignature signature = myKey.sign(Hash.sha3(data));
+
+    return signature.toByteArray();
+  }
 
   public Account queryAccount() {
     return queryAccount(getAddress());

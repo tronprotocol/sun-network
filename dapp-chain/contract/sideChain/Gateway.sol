@@ -126,32 +126,32 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
 
     // 7. withdrawTRC10
     // 8. withdrawTRC20
-    function onTRC20Received(address from, uint256 value, bytes memory txData) public returns (bytes4) {
+    function onTRC20Received(address from, uint256 value, bytes txData) public returns (bytes4) {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         if (mainChainAddress == address(0)) {
             // TRC10
-            // burn
-            DAppTRC20(sideChainAddress).transfer(address(0), value);
             uint256 trc10 = sideToMainTRC10Map[sideChainAddress];
             require(trc10 > 0, "the trc10 or trc20 must have been deposited");
+            // burn
+            DAppTRC20(sideChainAddress).burn(value);
             emit WithdrawTRC10(from, value, trc10, txData);
         } else {
             // TRC20
             // burn
-            DAppTRC20(sideChainAddress).transfer(address(0), value);
+            DAppTRC20(sideChainAddress).burn(value);
             emit WithdrawTRC20(from, value, mainChainAddress, txData);
         }
         return _TRC20_RECEIVED;
     }
 
     // 9. withdrawTRC721
-    function onTRC721Received(address from, uint256 tokenId, bytes memory txData) public returns (bytes4) {
+    function onTRC721Received(address from, uint256 tokenId, bytes txData) public returns (bytes4) {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "the trc721 must have been deposited");
         // burn
-        DAppTRC721(sideChainAddress).transfer(address(0), tokenId);
+        DAppTRC721(sideChainAddress).burn(tokenId);
         emit WithdrawTRC721(from, tokenId, mainChainAddress, txData);
         return _TRC721_RECEIVED;
     }
@@ -159,7 +159,6 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     // 10. withdrawTRX
     function withdrawTRX(bytes memory txData) payable public {
         // burn
-        // FIXME in tron side chain: will be fail in tron
         address(0).transfer(msg.value);
         emit WithdrawTRX(msg.sender, msg.value, txData);
     }

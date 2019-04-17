@@ -375,6 +375,7 @@ public class AbiUtil {
       return Hex.toHexString(selector);
     }
     if (isHex) {
+      // FIXME: the position of input ?
       return Hex.toHexString(selector) + input;
     }
     byte[] encodedParms = encodeInput(methodSign, input);

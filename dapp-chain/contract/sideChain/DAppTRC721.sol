@@ -57,7 +57,7 @@ contract DAppTRC721 is TRC721, IDApp {
      * @param tokenId uint256 ID of the token to be transferred
      * @param txData bytes data to send along with a safe transfer check
      */
-    function withdrawal(uint256 tokenId, bytes memory txData) public {
+    function withdrawal(uint256 tokenId, bytes txData) public {
         transfer(gateway, tokenId);
         bytes4 retval = ITRC721Receiver(gateway).onTRC721Received(msg.sender, tokenId, txData);
         require(retval == _TRC721_RECEIVED);

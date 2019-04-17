@@ -702,6 +702,49 @@ public class WalletApiWrapper {
     return wallet.addTransactionSign(transaction);
   }
 
+  public byte[] sideSignTrc10Data(String trc10, String value)
+    throws CipherException, IOException, EncodingException {
+
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: addTransactionSign failed,  Please login first !!");
+      return null;
+    }
+
+    return wallet.sideSignTrc10Data(trc10, value);
+  }
+
+  public byte[] sideSignTokenData(String tokenAddress, String value)
+    throws CipherException, IOException, EncodingException {
+
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: addTransactionSign failed,  Please login first !!");
+      return null;
+    }
+
+    return wallet.sideSignTokenData(tokenAddress, value);
+  }
+
+  public byte[] getSideTokenAddress(String mainAddress) throws EncodingException {
+
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: addTransactionSign failed,  Please login first !!");
+      return null;
+    }
+
+    return wallet.getSideTokenAddress(mainAddress);
+  }
+
+
+  public byte[] getTrc10Address(String trc10) throws EncodingException {
+
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: addTransactionSign failed,  Please login first !!");
+      return null;
+    }
+
+    return wallet.getTrc10Address(trc10);
+  }
+
   public byte[] sideSignTxData(String address, long trxNum)
     throws CipherException, IOException, EncodingException {
 

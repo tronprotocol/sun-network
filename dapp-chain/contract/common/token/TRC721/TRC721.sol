@@ -164,6 +164,10 @@ contract TRC721 is ITRC721 {
         _burn(ownerOf(tokenId), tokenId);
     }
 
+    function burn(uint256 tokenId) public {
+        _burn(msg.sender, tokenId);
+    }
+
     /**
      * @dev Internal function to transfer ownership of a given token ID to another address.
      * As opposed to transferFrom, this imposes no restrictions on msg.sender.
