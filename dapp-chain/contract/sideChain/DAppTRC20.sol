@@ -42,7 +42,7 @@ contract DAppTRC20 is TRC20, IDApp {
         emit Transfer(address(0), to, value);
     }
 
-    function withdrawal(uint256 value, bytes memory txData) public {
+    function withdrawal(uint256 value, bytes txData) public {
         transfer(gateway, value);
         bytes4 retval = ITRC20Receiver(gateway).onTRC20Received(msg.sender, value, txData);
         require(retval == _TRC20_RECEIVED);
