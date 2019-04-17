@@ -82,9 +82,9 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     checkGainer(_to,amount, address(this), sig)
     {
         balances.tron = balances.tron.sub(amount);
-        msg.sender.transfer(amount);
+        _to.transfer(amount);
         // ensure it's not reentrant
-        emit TokenWithdrawn(msg.sender, TokenKind.TRX, address(0), amount);
+        emit TokenWithdrawn(_to, TokenKind.TRX, address(0), amount);
     }
 
     function withdrawTRC10(address _to, trcToken tokenId, uint256 amount, bytes sig)
