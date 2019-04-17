@@ -26,7 +26,7 @@ public class SideChainGatewayApi {
       throws RpcException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRC10(address,uint256,uint256,string,string,uint8)";
-    List params = Arrays.asList(tokenId, to, value, name, symbol, decimals);
+    List params = Arrays.asList(to, tokenId, value, name, symbol, decimals);
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
@@ -86,6 +86,4 @@ public class SideChainGatewayApi {
     return GATEWAY_API.instance.checkTxInfo(trxId);
   }
 
-  public static void main(String[] args) {
-  }
 }

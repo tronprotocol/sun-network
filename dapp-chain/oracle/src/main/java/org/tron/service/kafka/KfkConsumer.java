@@ -10,10 +10,10 @@ public class KfkConsumer {
 
   private KafkaConsumer<String, String> kafkaConsumer = null;
 
-  public KfkConsumer(String server, List<String> topicList) {
+  public KfkConsumer(String server, String groupId, List<String> topicList) {
     Properties properties = new Properties();
     properties.put("bootstrap.servers", server);
-    properties.put("group.id", "group-1");
+    properties.put("group.id", groupId);
     properties.put("enable.auto.commit", "true");
     properties.put("auto.commit.interval.ms", "1000");
     properties.put("auto.offset.reset", "earliest");

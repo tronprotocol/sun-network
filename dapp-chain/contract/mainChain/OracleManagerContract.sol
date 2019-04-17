@@ -37,6 +37,7 @@ contract OracleManagerContract is Ownable {
     }
 
     modifier checkGainer(address _to,uint256 num, address contractAddress, bytes sig) {
+        require(checkOracle(msg.sender));
         uint256[] memory nonum=new uint256[](2);
         nonum[0]=nonces[_to];
         nonum[1]=num;
@@ -47,6 +48,18 @@ contract OracleManagerContract is Ownable {
         nonces[_to]++;
     }
 
+    modifier checkTrc10Gainer(address _to,uint256 num, trcToken tokenId, bytes sig) {
+        require(checkOracle(msg.sender));
+        uint256[] memory nonum=new uint256[](3);
+        nonum[0]=tokenId;
+        nonum[1]=nonces[_to];
+        nonum[2]=num;
+        bytes32 hash = keccak256(abi.encodePacked(nonum));
+        address sender = hash.recover(sig);
+        require(sender == _to, "Message not signed by a gainer");
+        _;
+        nonces[_to]++;
+    }
     function checkOracle(address _address) public view returns (bool) {
         if (_address == owner) {
             return true;

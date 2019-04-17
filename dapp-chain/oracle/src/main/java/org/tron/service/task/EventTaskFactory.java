@@ -25,7 +25,7 @@ public class EventTaskFactory {
 
       switch (taskType) {
         case MAIN_CHAIN:
-          return CreateMainChainTask(obj);
+          return createMainChainTask(obj);
         case SIDE_CHAIN:
           return createSideChainTask(obj);
       }
@@ -35,7 +35,7 @@ public class EventTaskFactory {
     return null;
   }
 
-  private static EventTask CreateMainChainTask(JSONObject obj) {
+  private static EventTask createMainChainTask(JSONObject obj) {
     EventTask task;
     MainEventType eventSignature = MainEventType
         .fromSignature(obj.get("eventSignature").toString());

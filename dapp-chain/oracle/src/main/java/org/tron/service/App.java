@@ -13,7 +13,7 @@ import org.tron.service.task.TaskEnum;
 @Slf4j(topic = "app")
 public class App {
 
-  private static String mainGatewayAddress = "172.16.20.52:9092";
+  private static String mainGatewayAddress = "127.0.0.3:9092";
 
   private static String sideChainGatewayAddress = "172.16.22.252:9092";
 
@@ -25,15 +25,13 @@ public class App {
     Args arg = Args.getInstance();
     arg.setParam(args);
 
+    ChainTask sideChainTask = new ChainTask(TaskEnum.SIDE_CHAIN,
+        WalletUtil.encode58Check(arg.getSidechainGateway()),
+        sideChainGatewayAddress, fixedThreads);
     ChainTask mainChainTask = new ChainTask(TaskEnum.MAIN_CHAIN,
         WalletUtil.encode58Check(arg.getMainchainGateway()),
         mainGatewayAddress, fixedThreads);
-    ChainTask sideChainTask = new ChainTask(TaskEnum.SIDE_CHAIN,
-        WalletUtil.encode58Check(arg.getSidechainGateway()),
-        sideChainGatewayAddress,
-        fixedThreads);
-    mainChainTask.start();
     sideChainTask.start();
-    logger.info("end...");
+    mainChainTask.start();
   }
 }

@@ -89,10 +89,10 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
 
     function withdrawTRC10(address _to, trcToken tokenId, uint256 amount, bytes sig)
     external
-    checkGainer(_to,amount, address(this), sig)
+    checkTrc10Gainer(_to,amount, tokenId, sig)
     {
         balances.trc10[tokenId] = balances.trc10[tokenId].sub(amount);
-        _to.transferToken(tokenId, amount);
+        _to.transferToken(amount, tokenId);
         emit Token10Withdrawn(msg.sender, TokenKind.TRC10, tokenId, amount);
     }
 
@@ -117,8 +117,8 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     }
 
     function depositTRC10() payable public {
-        balances.trc10[msg.tokenid] = balances.trc10[msg.tokenid].add(msg.value);
-        emit TRC10Received(msg.sender, msg.value, msg.tokenid);
+        balances.trc10[msg.tokenid] = balances.trc10[msg.tokenid].add(msg.tokenvalue);
+        emit TRC10Received(msg.sender, msg.tokenvalue, msg.tokenid);
     }
 
     // Receiver functions for 1-step deposits to the gateway

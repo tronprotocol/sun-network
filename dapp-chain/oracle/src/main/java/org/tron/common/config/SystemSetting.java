@@ -30,7 +30,7 @@ public class SystemSetting {
   // "https://apilist.tronscan.org/api/account/list";
   // public static final String PAGED_ACCOUNT_URL = "http://127.0.0.1:9084/api/account/list";
 
-  public static final long FEE_LIMIT = 1 * TRX;
+  public static final long FEE_LIMIT = 100 * TRX;
   public static final int TOKEN_CALL_VALUE = 0;
   public static final long TOKEN_ID = 0;
 

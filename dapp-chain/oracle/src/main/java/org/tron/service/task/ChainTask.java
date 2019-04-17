@@ -15,24 +15,25 @@ import org.tron.service.kafka.KfkConsumer;
 public class ChainTask extends Thread {
 
   private String gatewayAddress;
-  private String kfkServer;
+  //private String kfkServer;
   private TaskEnum taskType;
 
   private ExecutorService executor;
+  private final KfkConsumer kfkConsumer;
 
   public ChainTask(TaskEnum taskType, String gatewayAddress,
       String kfkServer, int fixedThreads) {
     super();
     this.gatewayAddress = gatewayAddress;
-    this.kfkServer = kfkServer;
     this.taskType = taskType;
     this.executor = Executors.newFixedThreadPool(fixedThreads);
+    this.kfkConsumer = new KfkConsumer(kfkServer, taskType.getName(),
+        Arrays.asList("contractevent"));
+    logger.info("task mane is {},task type is {}", getName(), this.taskType);
   }
 
   @Override
   public void run() {
-    KfkConsumer kfkConsumer = new KfkConsumer(kfkServer,
-        Arrays.asList("contractevent"));
     while (true) {
       ConsumerRecords<String, String> record = kfkConsumer.getRecord();
       for (ConsumerRecord<String, String> key : record) {

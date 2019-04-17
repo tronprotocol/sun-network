@@ -25,8 +25,9 @@ public class DepositTRC10Task implements EventTask {
       logger.info("from:{},amount:{},tokenId:{}", this.from, this.amount, this.tokenId);
       AssetIssueContract assetIssue = MainChainGatewayApi.getAssetIssueById(this.tokenId);
       String trxId = SideChainGatewayApi
-          .mintToken10(this.from, this.tokenId, this.amount, assetIssue.getName().toString(),
-              assetIssue.getAbbr().toString(), assetIssue.getPrecision());
+          .mintToken10(this.from, this.tokenId, this.amount, assetIssue.getName().toStringUtf8(),
+              assetIssue.getName().toStringUtf8(), assetIssue.getPrecision());
+      Thread.sleep(3000L);
       SideChainGatewayApi.checkTxInfo(trxId);
     } catch (Exception e) {
       logger.error("from:{},amount:{},tokenId:{}", this.from, this.amount, this.tokenId);
