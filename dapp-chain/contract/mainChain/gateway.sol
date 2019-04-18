@@ -59,7 +59,7 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
 
     // Withdrawal functions
     function withdrawTRC20(address _to, address contractAddress, uint256 amount, bytes sig)
-    external
+    public
     checkGainer(_to, amount, contractAddress, sig)
     {
         balances.trc20[contractAddress] = balances.trc20[contractAddress].sub(amount);
@@ -68,17 +68,17 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     }
 
     function withdrawTRC721(address _to, address contractAddress,uint256 uid, bytes sig)
-    external
+    public
     checkGainer(_to,uid, contractAddress, sig)
     {
         require(balances.trc721[contractAddress][uid], "Does not own token");
-        TRC721(contractAddress).transferFrom(address(this), _to, uid);
+        TRC721(contractAddress).transfer(_to, uid);
         delete balances.trc721[contractAddress][uid];
         emit TokenWithdrawn(_to, TokenKind.TRC721, contractAddress, uid);
     }
 
     function withdrawTRX(address _to, uint256 amount, bytes sig)
-    external
+    public
     checkGainer(_to,amount, address(this), sig)
     {
         balances.tron = balances.tron.sub(amount);
@@ -88,7 +88,7 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     }
 
     function withdrawTRC10(address _to, trcToken tokenId, uint256 amount, bytes sig)
-    external
+    public
     checkTrc10Gainer(_to,amount, tokenId, sig)
     {
         balances.trc10[tokenId] = balances.trc10[tokenId].sub(amount);
@@ -98,13 +98,13 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
 
     // Approve and Deposit function for 2-step deposits
     // Requires first to have called `approve` on the specified TRC20 contract
-    function depositTRC20(uint256 amount, address contractAddress) external {
+    function depositTRC20(uint256 amount, address contractAddress) public {
         require(allowes[contractAddress]!=address(0), "Not an allowe token");
         TRC20(contractAddress).transferFrom(msg.sender, address(this), amount);
         balances.trc20[contractAddress] = balances.trc20[contractAddress].add(amount);
         emit TRC20Received(msg.sender, amount, contractAddress);
     }
-    function depositTRC721(uint256 uid, address contractAddress) external {
+    function depositTRC721(uint256 uid, address contractAddress) public {
         require(allowes[contractAddress]!=address(0), "Not an allowe token");
         TRC721(contractAddress).transferFrom(msg.sender, address(this), uid);
         balances.trc721[contractAddress][uid] = true;

@@ -35,6 +35,7 @@ public class ChainTask extends Thread {
   @Override
   public void run() {
     while (true) {
+
       ConsumerRecords<String, String> record = kfkConsumer.getRecord();
       for (ConsumerRecord<String, String> key : record) {
         JSONObject obj = (JSONObject) JSONValue.parse(key.value());

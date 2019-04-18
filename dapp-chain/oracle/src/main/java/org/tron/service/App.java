@@ -13,7 +13,7 @@ import org.tron.service.task.TaskEnum;
 @Slf4j(topic = "app")
 public class App {
 
-  private static String mainGatewayAddress = "127.0.0.3:9092";
+  private static String mainGatewayAddress = "172.16.20.52:9092";
 
   private static String sideChainGatewayAddress = "172.16.22.252:9092";
 
