@@ -427,10 +427,73 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
   }
 
   /**
+   * reduce asset amount.
+   */
+  public boolean reduceAssetAmountV2(byte[] key, long amount, Manager manager) {
+    String tokenID = ByteArray.toStr(key);
+    Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
+    Long currentAmount = assetMapV2.get(tokenID);
+    if (amount > 0 && null != currentAmount && amount <= currentAmount) {
+      this.account = this.account.toBuilder()
+          .putAssetV2(tokenID, Math.subtractExact(currentAmount, amount))
+          .build();
+      return true;
+    }
+    return false;
+  }
+
+
+  /**
+   * add asset amount.
+   */
+  public boolean addAssetAmountV2(byte[] key, long amount, Manager manager) {
+      String tokenIDStr = ByteArray.toStr(key);
+      Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
+      Long currentAmount = assetMapV2.get(tokenIDStr);
+      if (currentAmount == null) {
+        currentAmount = 0L;
+      }
+      this.account = this.account.toBuilder()
+          .putAssetV2(tokenIDStr, Math.addExact(currentAmount, amount))
+          .build();
+    return true;
+  }
+
+  /**
    * set account name
    */
   public void setAccountName(byte[] name) {
     this.account = this.account.toBuilder().setAccountName(ByteString.copyFrom(name)).build();
+  }
+
+  public boolean addAssetV2(byte[] key, long value) {
+    String tokenID = ByteArray.toStr(key);
+    Map<String, Long> assetV2Map = this.account.getAssetV2Map();
+    if (!assetV2Map.isEmpty() && assetV2Map.containsKey(tokenID)) {
+      return false;
+    }
+
+    this.account = this.account.toBuilder()
+        .putAssetV2(tokenID, value)
+        .build();
+    return true;
+  }
+
+  /**
+   * add asset.
+   */
+  public boolean addAssetMapV2(Map<String, Long> assetMap) {
+    this.account = this.account.toBuilder().putAllAssetV2(assetMap).build();
+    return true;
+  }
+
+  public Map<String, Long> getAssetMapV2() {
+    Map<String, Long> assetMap = this.account.getAssetV2Map();
+    if (assetMap.isEmpty()) {
+      assetMap = Maps.newHashMap();
+    }
+
+    return assetMap;
   }
 
   /**

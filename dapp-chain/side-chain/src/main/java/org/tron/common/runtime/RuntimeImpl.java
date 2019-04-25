@@ -6,6 +6,7 @@ import static org.apache.commons.lang3.ArrayUtils.getLength;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.tron.common.runtime.utils.MUtil.convertToTronAddress;
 import static org.tron.common.runtime.utils.MUtil.transfer;
+import static org.tron.common.runtime.utils.MUtil.transferToken;
 
 import com.google.protobuf.ByteString;
 import java.math.BigInteger;
@@ -351,6 +352,8 @@ public class RuntimeImpl implements Runtime {
     newSmartContract = newSmartContract.toBuilder()
         .setContractAddress(ByteString.copyFrom(contractAddress)).build();
     long callValue = newSmartContract.getCallValue();
+    long tokenValue = contract.getCallTokenValue();
+    long tokenId = contract.getTokenId();
     byte[] callerAddress = contract.getOwnerAddress().toByteArray();
     // create vm to constructor smart contract
     try {
@@ -369,6 +372,9 @@ public class RuntimeImpl implements Runtime {
       if (callValue < 0) {
         throw new ContractValidateException("callValue must >= 0");
       }
+      if (tokenValue < 0) {
+        throw new ContractValidateException("tokenValue must >= 0");
+      }
       if (newSmartContract.getOriginEnergyLimit() <= 0) {
         throw new ContractValidateException("The originEnergyLimit must be > 0");
       }
@@ -377,6 +383,7 @@ public class RuntimeImpl implements Runtime {
         throw new ContractValidateException("not enough energy to initialize vm");
       }
 
+      checkTokenValueAndId(tokenValue, tokenId);
 
       byte[] ops = newSmartContract.getBytecode().toByteArray();
       rootInternalTransaction = new InternalTransaction(trx, trxType);
@@ -388,7 +395,7 @@ public class RuntimeImpl implements Runtime {
       long vmShouldEndInUs = vmStartInUs + thisTxCPULimitInUs;
       ProgramInvoke programInvoke = programInvokeFactory
           .createProgramInvoke(TrxType.TRX_CONTRACT_CREATION_TYPE, executorType, trx,
-              blockCap.getInstance(), deposit, vmStartInUs,
+              tokenValue, tokenId, blockCap.getInstance(), deposit, vmStartInUs,
               vmShouldEndInUs, energyLimit);
       this.vm = new VM(config);
       this.program = new Program(ops, programInvoke, rootInternalTransaction, config,
@@ -421,6 +428,10 @@ public class RuntimeImpl implements Runtime {
     if (callValue > 0) {
       transfer(this.deposit, callerAddress, contractAddress, callValue);
     }
+    if (tokenValue > 0) {
+      transferToken(this.deposit, callerAddress, contractAddress, String.valueOf(tokenId),
+          tokenValue);
+    }
   }
 
   /**
@@ -442,13 +453,19 @@ public class RuntimeImpl implements Runtime {
     byte[] contractAddress = contract.getContractAddress().toByteArray();
 
     long callValue = contract.getCallValue();
-
+    long tokenValue = contract.getCallTokenValue();
+    long tokenId = contract.getTokenId();
     if (callValue < 0) {
       throw new ContractValidateException("callValue must >= 0");
+    }
+    if (tokenValue < 0) {
+      throw new ContractValidateException("tokenValue must >= 0");
     }
 
 
     byte[] callerAddress = contract.getOwnerAddress().toByteArray();
+
+    checkTokenValueAndId(tokenValue, tokenId);
 
     byte[] code = this.deposit.getCode(contractAddress);
 
@@ -480,7 +497,7 @@ public class RuntimeImpl implements Runtime {
           throw new ContractValidateException("not enough energy to initialize vm");
         }
       }
-      ProgramInvoke programInvoke = generateProgramInvoke(energyLimit);
+      ProgramInvoke programInvoke = generateProgramInvoke(energyLimit, tokenValue, tokenId);
       if (isStaticCall) {
         programInvoke.setStaticCall();
       }
@@ -509,7 +526,7 @@ public class RuntimeImpl implements Runtime {
       if (energyLimit < 0) {
         throw new ContractValidateException("not enough energy to initialize vm");
       }
-      ProgramInvoke programInvoke = generateProgramInvoke(energyLimit);
+      ProgramInvoke programInvoke = generateProgramInvoke(energyLimit, tokenValue, tokenId);
       if (isStaticCall) {
         programInvoke.setStaticCall();
       }
@@ -527,6 +544,10 @@ public class RuntimeImpl implements Runtime {
 
     if (callValue > 0) {
       transfer(this.deposit, callerAddress, contractAddress, callValue);
+    }
+    if (tokenValue > 0) {
+      transferToken(this.deposit, callerAddress, contractAddress, String.valueOf(tokenId),
+          tokenValue);
     }
 
   }
@@ -637,7 +658,7 @@ public class RuntimeImpl implements Runtime {
   }
 
 
-  private ProgramInvoke generateProgramInvoke(long energyLimit) throws ContractValidateException {
+  private ProgramInvoke generateProgramInvoke(long energyLimit, long tokenValue, long tokenId) throws ContractValidateException {
     long maxCpuTimeOfOneTx = deposit.getDbManager().getDynamicPropertiesStore()
         .getMaxCpuTimeOfOneTx() * Constant.ONE_THOUSAND;
     long thisTxCPULimitInUs =
@@ -646,7 +667,7 @@ public class RuntimeImpl implements Runtime {
     long vmShouldEndInUs = vmStartInUs + thisTxCPULimitInUs;
     return programInvokeFactory
         .createProgramInvoke(TrxType.TRX_CONTRACT_CALL_TYPE, executorType, trx,
-            blockCap.getInstance(), deposit, vmStartInUs,
+            tokenValue, tokenId, blockCap.getInstance(), deposit, vmStartInUs,
             vmShouldEndInUs, energyLimit);
   }
 
@@ -710,6 +731,20 @@ public class RuntimeImpl implements Runtime {
       VMUtils.saveProgramTraceFile(config, txHash, traceContent);
     }
 
+  }
+
+  public void checkTokenValueAndId(long tokenValue, long tokenId) throws ContractValidateException {
+    // tokenid can only be 0
+    // or (MIN_TOKEN_ID, Long.Max]
+    if (tokenId <= VMConstant.MIN_TOKEN_ID && tokenId != 0) {
+      throw new ContractValidateException("tokenId must > " + VMConstant.MIN_TOKEN_ID);
+    }
+    // tokenid can only be 0 when tokenvalue = 0,
+    // or (MIN_TOKEN_ID, Long.Max]
+    if (tokenValue > 0 && tokenId == 0) {
+      throw new ContractValidateException("invalid arguments with tokenValue = " + tokenValue +
+          ", tokenId = " + tokenId);
+    }
   }
 
   public ProgramResult getResult() {

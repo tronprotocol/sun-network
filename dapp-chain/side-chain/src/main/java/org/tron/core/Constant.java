@@ -58,4 +58,7 @@ public class Constant {
   public static final int ONE_HUNDRED = 100;
   public static final int ONE_THOUSAND = 1000;
 
+  // SideChain
+  public static final String SUN_TOKEN_ID = "2000000";
+
 }
