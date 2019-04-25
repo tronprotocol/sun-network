@@ -25,6 +25,7 @@ import org.tron.api.GrpcAPI.AccountPaginated;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.Address;
 import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
+import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.GrpcAPI.BlockExtention;
 import org.tron.api.GrpcAPI.BlockLimit;
 import org.tron.api.GrpcAPI.BlockList;
@@ -70,11 +71,14 @@ import org.tron.core.capsule.WitnessCapsule;
 import org.tron.core.config.args.Args;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractValidateException;
+import org.tron.core.exception.NonUniqueObjectException;
 import org.tron.core.exception.StoreException;
 import org.tron.core.exception.VMIllegalException;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.AccountCreateContract;
 import org.tron.protos.Contract.AccountPermissionUpdateContract;
+import org.tron.protos.Contract.AssetIssueContract;
+import org.tron.protos.Contract.TransferAssetContract;
 import org.tron.protos.Contract.TransferContract;
 import org.tron.protos.Contract.UpdateEnergyLimitContract;
 import org.tron.protos.Contract.UpdateSettingContract;
@@ -288,6 +292,63 @@ public class RpcApiService implements Service {
     @Override
     public void listWitnesses(EmptyMessage request, StreamObserver<WitnessList> responseObserver) {
       responseObserver.onNext(wallet.getWitnessList());
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getAssetIssueList(EmptyMessage request,
+        StreamObserver<AssetIssueList> responseObserver) {
+      responseObserver.onNext(wallet.getAssetIssueList());
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getPaginatedAssetIssueList(PaginatedMessage request,
+        StreamObserver<AssetIssueList> responseObserver) {
+      responseObserver.onNext(wallet.getAssetIssueList(request.getOffset(), request.getLimit()));
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getAssetIssueByName(BytesMessage request,
+        StreamObserver<AssetIssueContract> responseObserver) {
+      ByteString assetName = request.getValue();
+      if (assetName != null) {
+        try {
+          responseObserver.onNext(wallet.getAssetIssueByName(assetName));
+        } catch (NonUniqueObjectException e) {
+          responseObserver.onNext(null);
+          logger.error("Solidity NonUniqueObjectException: {}", e.getMessage());
+        }
+      } else {
+        responseObserver.onNext(null);
+      }
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getAssetIssueListByName(BytesMessage request,
+        StreamObserver<AssetIssueList> responseObserver) {
+      ByteString assetName = request.getValue();
+
+      if (assetName != null) {
+        responseObserver.onNext(wallet.getAssetIssueListByName(assetName));
+      } else {
+        responseObserver.onNext(null);
+      }
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getAssetIssueById(BytesMessage request,
+        StreamObserver<AssetIssueContract> responseObserver) {
+      ByteString assetId = request.getValue();
+
+      if (assetId != null) {
+        responseObserver.onNext(wallet.getAssetIssueById(assetId.toStringUtf8()));
+      } else {
+        responseObserver.onNext(null);
+      }
       responseObserver.onCompleted();
     }
 
@@ -1032,6 +1093,40 @@ public class RpcApiService implements Service {
     }
 
     @Override
+    public void transferAsset(TransferAssetContract request,
+        StreamObserver<Transaction> responseObserver) {
+      try {
+        responseObserver
+            .onNext(createTransactionCapsule(request, ContractType.TransferAssetContract)
+                .getInstance());
+      } catch (ContractValidateException e) {
+        responseObserver
+            .onNext(null);
+        logger.debug("ContractValidateException: {}", e.getMessage());
+      }
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void transferAsset2(TransferAssetContract request,
+        StreamObserver<TransactionExtention> responseObserver) {
+      createTransactionExtention(request, ContractType.TransferAssetContract, responseObserver);
+    }
+
+    @Override
+    public void getAssetIssueByAccount(Account request,
+        StreamObserver<AssetIssueList> responseObserver) {
+      ByteString fromBs = request.getAddress();
+
+      if (fromBs != null) {
+        responseObserver.onNext(wallet.getAssetIssueByAccount(fromBs));
+      } else {
+        responseObserver.onNext(null);
+      }
+      responseObserver.onCompleted();
+    }
+
+    @Override
     public void getAccountNet(Account request,
         StreamObserver<AccountNetMessage> responseObserver) {
       ByteString fromBs = request.getAddress();
@@ -1051,6 +1146,49 @@ public class RpcApiService implements Service {
 
       if (fromBs != null) {
         responseObserver.onNext(wallet.getAccountResource(fromBs));
+      } else {
+        responseObserver.onNext(null);
+      }
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getAssetIssueByName(BytesMessage request,
+        StreamObserver<AssetIssueContract> responseObserver) {
+      ByteString assetName = request.getValue();
+      if (assetName != null) {
+        try {
+          responseObserver.onNext(wallet.getAssetIssueByName(assetName));
+        } catch (NonUniqueObjectException e) {
+          responseObserver.onNext(null);
+          logger.debug("FullNode NonUniqueObjectException: {}", e.getMessage());
+        }
+      } else {
+        responseObserver.onNext(null);
+      }
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getAssetIssueListByName(BytesMessage request,
+        StreamObserver<AssetIssueList> responseObserver) {
+      ByteString assetName = request.getValue();
+
+      if (assetName != null) {
+        responseObserver.onNext(wallet.getAssetIssueListByName(assetName));
+      } else {
+        responseObserver.onNext(null);
+      }
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getAssetIssueById(BytesMessage request,
+        StreamObserver<AssetIssueContract> responseObserver) {
+      ByteString assetId = request.getValue();
+
+      if (assetId != null) {
+        responseObserver.onNext(wallet.getAssetIssueById(assetId.toStringUtf8()));
       } else {
         responseObserver.onNext(null);
       }
@@ -1170,6 +1308,13 @@ public class RpcApiService implements Service {
     }
 
     @Override
+    public void getAssetIssueList(EmptyMessage request,
+        StreamObserver<AssetIssueList> responseObserver) {
+      responseObserver.onNext(wallet.getAssetIssueList());
+      responseObserver.onCompleted();
+    }
+
+    @Override
     public void triggerContract(Contract.TriggerSmartContract request,
         StreamObserver<TransactionExtention> responseObserver) {
       TransactionExtention.Builder trxExtBuilder = TransactionExtention.newBuilder();
@@ -1201,6 +1346,12 @@ public class RpcApiService implements Service {
         responseObserver.onNext(trxExtBuilder.build());
         responseObserver.onCompleted();
       }
+    }
+
+    public void getPaginatedAssetIssueList(PaginatedMessage request,
+        StreamObserver<AssetIssueList> responseObserver) {
+      responseObserver.onNext(wallet.getAssetIssueList(request.getOffset(), request.getLimit()));
+      responseObserver.onCompleted();
     }
 
     @Override
