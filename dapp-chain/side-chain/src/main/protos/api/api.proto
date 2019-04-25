@@ -246,6 +246,7 @@ service Wallet {
       }
     };
   }
+
   rpc GetAccountNet (Account) returns (AccountNetMessage) {
     option (google.api.http) = {
         post: "/wallet/getaccountnet"
@@ -446,6 +447,7 @@ service Wallet {
         }
       };
   }
+
   rpc GetPaginatedAssetIssueList (PaginatedMessage) returns (AssetIssueList) {
     option (google.api.http) = {
         post: "/wallet/getpaginatedassetissuelist"
@@ -606,6 +608,32 @@ service WalletSolidity {
       }
     };
   };
+  rpc GetAssetIssueList (EmptyMessage) returns (AssetIssueList) {
+    option (google.api.http) = {
+      post: "/walletsolidity/getassetissuelist"
+      body: "*"
+      additional_bindings {
+        get: "/walletsolidity/getassetissuelist"
+      }
+    };
+  }
+  rpc GetPaginatedAssetIssueList (PaginatedMessage) returns (AssetIssueList) {
+    option (google.api.http) = {
+        post: "/walletsolidity/getpaginatedassetissuelist"
+        body: "*"
+        additional_bindings {
+          get: "/walletsolidity/getpaginatedassetissuelist"
+        }
+      };
+  }
+
+  rpc GetAssetIssueByName (BytesMessage) returns (AssetIssueContract) {
+  }
+  rpc GetAssetIssueListByName (BytesMessage) returns (AssetIssueList) {
+  }
+  rpc GetAssetIssueById (BytesMessage) returns (AssetIssueContract) {
+  }
+
   rpc GetAssetIssueList (EmptyMessage) returns (AssetIssueList) {
     option (google.api.http) = {
       post: "/walletsolidity/getassetissuelist"
