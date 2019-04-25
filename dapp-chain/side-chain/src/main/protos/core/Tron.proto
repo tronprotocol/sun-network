@@ -82,6 +82,11 @@ message Account {
   int64 balance = 4;
   // the votes
   repeated Vote votes = 5;
+  // the other asset owned by this account
+  map<string, int64> asset = 6;
+
+  // the other asset owned by this account，key is assetId
+  map<string, int64> assetV2 = 56;
 
   // the frozen balance for bandwidth
   repeated Frozen frozen = 7;
@@ -107,7 +112,13 @@ message Account {
   // frozen asset(for asset issuer)
   repeated Frozen frozen_supply = 16;
   // asset_issued_name
+  bytes asset_issued_name = 17;
+  bytes asset_issued_ID = 57;
+  map<string, int64> latest_asset_operation_time = 18;
+  map<string, int64> latest_asset_operation_timeV2 = 58;
   int64 free_net_usage = 19;
+  map<string, int64> free_asset_net_usage = 20;
+  map<string, int64> free_asset_net_usageV2 = 59;
   int64 latest_consume_time = 21;
   int64 latest_consume_free_time = 22;
 
@@ -230,6 +241,7 @@ message Transaction {
     enum ContractType {
       AccountCreateContract = 0;
       TransferContract = 1;
+      TransferAssetContract = 2;
       VoteAssetContract = 3;
       VoteWitnessContract = 4;
       WitnessCreateContract = 5;

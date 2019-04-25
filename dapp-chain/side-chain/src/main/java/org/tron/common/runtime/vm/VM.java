@@ -235,11 +235,13 @@ public class VM {
           BigInteger dataSize = stack.get(stack.size() - 2).value();
           BigInteger dataCost = dataSize
               .multiply(BigInteger.valueOf(energyCosts.getLOG_DATA_ENERGY()));
-          if (program.getEnergyLimitLeft().value().compareTo(dataCost) < 0) {
-            throw new OutOfEnergyException(
-                "Not enough energy for '%s' operation executing: opEnergy[%d], programEnergy[%d]",
-                op.name(),
-                dataCost.longValueExact(), program.getEnergyLimitLeft().longValueSafe());
+          if (VMConfig.isVmResourceChargingOn) {
+            if (program.getEnergyLimitLeft().value().compareTo(dataCost) < 0) {
+              throw new OutOfEnergyException(
+                  "Not enough energy for '%s' operation executing: opEnergy[%d], programEnergy[%d]",
+                  op.name(),
+                  dataCost.longValueExact(), program.getEnergyLimitLeft().longValueSafe());
+            }
           }
           energyCost = energyCosts.getLOG_ENERGY()
               + energyCosts.getLOG_TOPIC_ENERGY() * nTopics
