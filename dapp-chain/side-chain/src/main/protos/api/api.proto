@@ -168,6 +168,7 @@ service Wallet {
   //Use this function instead of TransferAsset.
   rpc TransferAsset2 (TransferAssetContract) returns (TransactionExtention) {
   }
+
   //Please use FreezeBalance2 instead of this function.
   rpc FreezeBalance (FreezeBalanceContract) returns (Transaction) {
     option (google.api.http) = {
@@ -194,6 +195,7 @@ service Wallet {
   //Use this function instead of UnfreezeBalance.
   rpc UnfreezeBalance2 (UnfreezeBalanceContract) returns (TransactionExtention) {
   }
+
   //Please use WithdrawBalance2 instead of this function.
   rpc WithdrawBalance (WithdrawBalanceContract) returns (Transaction) {
     option (google.api.http) = {
@@ -209,7 +211,6 @@ service Wallet {
   }
 
   rpc SideChainProposalCreate (SideChainProposalCreateContract) returns (TransactionExtention) {
-
   }
 
   rpc ProposalApprove (ProposalApproveContract) returns (TransactionExtention) {
@@ -246,7 +247,6 @@ service Wallet {
       }
     };
   }
-
   rpc GetAccountNet (Account) returns (AccountNetMessage) {
     option (google.api.http) = {
         post: "/wallet/getaccountnet"
@@ -447,7 +447,6 @@ service Wallet {
         }
       };
   }
-
   rpc GetPaginatedAssetIssueList (PaginatedMessage) returns (AssetIssueList) {
     option (google.api.http) = {
         post: "/wallet/getpaginatedassetissuelist"
@@ -608,32 +607,6 @@ service WalletSolidity {
       }
     };
   };
-  rpc GetAssetIssueList (EmptyMessage) returns (AssetIssueList) {
-    option (google.api.http) = {
-      post: "/walletsolidity/getassetissuelist"
-      body: "*"
-      additional_bindings {
-        get: "/walletsolidity/getassetissuelist"
-      }
-    };
-  }
-  rpc GetPaginatedAssetIssueList (PaginatedMessage) returns (AssetIssueList) {
-    option (google.api.http) = {
-        post: "/walletsolidity/getpaginatedassetissuelist"
-        body: "*"
-        additional_bindings {
-          get: "/walletsolidity/getpaginatedassetissuelist"
-        }
-      };
-  }
-
-  rpc GetAssetIssueByName (BytesMessage) returns (AssetIssueContract) {
-  }
-  rpc GetAssetIssueListByName (BytesMessage) returns (AssetIssueList) {
-  }
-  rpc GetAssetIssueById (BytesMessage) returns (AssetIssueContract) {
-  }
-
   rpc GetAssetIssueList (EmptyMessage) returns (AssetIssueList) {
     option (google.api.http) = {
       post: "/walletsolidity/getassetissuelist"
