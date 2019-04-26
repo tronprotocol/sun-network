@@ -23,6 +23,16 @@ public class MUtil {
     TransferActuator.executeForSmartContract(deposit, fromAddress, toAddress, amount);
   }
 
+  public static void transferAssert(Deposit deposit, byte[] fromAddress, byte[] toAddress, byte[] tokenId, long amount)
+          throws ContractValidateException, ContractExeException {
+    if (0 == amount) {
+      return;
+    }
+
+    TransferAssetActuator.validateForSmartContract(deposit, fromAddress, toAddress, tokenId, amount);
+    TransferAssetActuator.executeForSmartContract(deposit, fromAddress, toAddress, tokenId, amount);
+  }
+
   public static void transferAllToken(Deposit deposit, byte[] fromAddress, byte[] toAddress) {
     AccountCapsule fromAccountCap = deposit.getAccount(fromAddress);
     Protocol.Account.Builder fromBuilder = fromAccountCap.getInstance().toBuilder();
