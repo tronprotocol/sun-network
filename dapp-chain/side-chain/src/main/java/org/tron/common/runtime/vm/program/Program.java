@@ -24,9 +24,7 @@ import static org.apache.commons.lang3.ArrayUtils.getLength;
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.apache.commons.lang3.ArrayUtils.nullToEmpty;
-import static org.tron.common.runtime.utils.MUtil.convertToTronAddress;
-import static org.tron.common.runtime.utils.MUtil.transfer;
-import static org.tron.common.runtime.utils.MUtil.transferAllToken;
+import static org.tron.common.runtime.utils.MUtil.*;
 import static org.tron.common.utils.BIUtil.isPositive;
 import static org.tron.common.utils.BIUtil.toBI;
 import static org.tron.common.utils.ByteUtil.stripLeadingZeroes;
@@ -1341,20 +1339,16 @@ public class Program {
         && senderAddress != contextAddress && msg.getEndowment().value().longValueExact() > 0) {
       if (!isTokenTransfer) {
         try {
-          transfer(deposit, senderAddress, contextAddress,
-              msg.getEndowment().value().longValueExact());
+          transfer(deposit, senderAddress, contextAddress, endowment);
         } catch (ContractValidateException | ContractExeException e) {
           throw new BytecodeExecutionException("transfer failure");
         }
       } else {
         try {
-          TransferAssetActuator
-              .validateForSmartContract(deposit, senderAddress, contextAddress, tokenId, endowment);
-        } catch (ContractValidateException e) {
-          throw new BytecodeExecutionException(VALIDATE_FOR_SMART_CONTRACT_FAILURE);
+          transferAssert(deposit, senderAddress, contextAddress, tokenId, endowment);
+        } catch (ContractValidateException | ContractExeException e) {
+          throw new BytecodeExecutionException("transfer asset failure");
         }
-        deposit.addTokenBalance(senderAddress, tokenId, -endowment);
-        deposit.addTokenBalance(contextAddress, tokenId, endowment);
       }
     }
 

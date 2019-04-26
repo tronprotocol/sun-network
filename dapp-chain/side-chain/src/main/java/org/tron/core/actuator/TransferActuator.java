@@ -146,9 +146,9 @@ public class TransferActuator extends AbstractActuator {
       throw new ContractValidateException("Invalid toAddress");
     }
 
-    if (Arrays.equals(toAddress, ownerAddress)) {
-      throw new ContractValidateException("Cannot transfer trx to yourself.");
-    }
+//    if (Arrays.equals(toAddress, ownerAddress)) {
+//      throw new ContractValidateException("Cannot transfer trx to yourself.");
+//    }
 
     AccountCapsule ownerAccount = deposit.getAccount(ownerAddress);
     if (ownerAccount == null) {
