@@ -204,9 +204,9 @@ public class TransferAssetActuator extends AbstractActuator {
       throw new ContractValidateException("Amount must greater than 0.");
     }
 
-//    if (Arrays.equals(ownerAddress, toAddress)) {
-//      throw new ContractValidateException("Cannot transfer asset to yourself.");
-//    }
+    if (Arrays.equals(ownerAddress, toAddress)) {
+      throw new ContractValidateException("Cannot transfer asset to yourself.");
+    }
 
     AccountCapsule ownerAccount = deposit.getAccount(ownerAddress);
     if (ownerAccount == null) {
@@ -245,6 +245,9 @@ public class TransferAssetActuator extends AbstractActuator {
           throw new ContractValidateException(e.getMessage());
         }
       }
+    } else {
+      throw new ContractValidateException(
+              "Validate InternalTransfer error, no ToAccount. And not allowed to create account in smart contract.");
     }
 
     return true;
@@ -258,10 +261,9 @@ public class TransferAssetActuator extends AbstractActuator {
       // if account with to_address does not exist, create it first.
       AccountCapsule toAccount = deposit.getAccount(toAddress);
       if (toAccount == null) {
-        toAccount = new AccountCapsule(ByteString.copyFrom(toAddress), AccountType.Normal,
-                deposit.getDbManager().getHeadBlockTimeStamp(), true, deposit.getDbManager());
-        deposit.putAccountValue(toAddress, toAccount);
+        throw new ContractExeException("no ToAccount. And not allowed to create account in smart contract.");
       }
+
       deposit.addTokenBalance(toAddress, tokenId, amount);
       deposit.addTokenBalance(ownerAddress, tokenId,  -amount);
     } catch (ArithmeticException e) {

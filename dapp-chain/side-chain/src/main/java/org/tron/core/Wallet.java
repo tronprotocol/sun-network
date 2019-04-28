@@ -762,6 +762,11 @@ public class Wallet {
             .setKey("getTransactionFee")
             .setValue(dbManager.getDynamicPropertiesStore().getTransactionFee())
             .build());
+    builder.addChainParameter(
+            Protocol.ChainParameters.ChainParameter.newBuilder()
+                    .setKey("getTransactionSunTokenFee")
+                    .setValue(dbManager.getDynamicPropertiesStore().getTransactionSunTokenFee())
+                    .build());
     //    ASSET_ISSUE_FEE, //drop ,4
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
