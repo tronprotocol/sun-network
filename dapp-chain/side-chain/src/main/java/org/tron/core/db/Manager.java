@@ -637,6 +637,28 @@ public class Manager {
     this.getAccountStore().put(account.getAddress().toByteArray(), account);
   }
 
+  public void adjustSunTokenBalance(byte[] accountAddress, long amount)
+          throws BalanceInsufficientException {
+    AccountCapsule account = getAccountStore().getUnchecked(accountAddress);
+    adjustSunTokenBalance(account, amount);
+  }
+
+  public void adjustSunTokenBalance(AccountCapsule account, long amount)
+          throws BalanceInsufficientException {
+
+    long sunTokenBalance = account.getAssetMapV2().get(SUN_TOKEN_ID);
+    if (amount == 0) {
+      return;
+    }
+
+    if (amount < 0 && sunTokenBalance < -amount) {
+      throw new BalanceInsufficientException(
+              StringUtil.createReadableString(account.createDbKey()) + " insufficient sun token balance");
+    }
+
+    account.addAssetAmountV2(SUN_TOKEN_ID.getBytes(), Math.addExact(sunTokenBalance, amount), this);
+  }
+
 
   public void adjustAllowance(byte[] accountAddress, long amount)
       throws BalanceInsufficientException {
@@ -756,8 +778,8 @@ public class Manager {
         byte[] address = TransactionCapsule.getOwner(contract);
         AccountCapsule accountCapsule = getAccountStore().get(address);
         try {
-          adjustBalance(accountCapsule, -fee);
-          adjustBalance(this.getAccountStore().getBlackhole().createDbKey(), +fee);
+          adjustSunTokenBalance(accountCapsule, -fee);
+          adjustSunTokenBalance(this.getAccountStore().getBlackhole().createDbKey(), +fee);
         } catch (BalanceInsufficientException e) {
           throw new AccountResourceInsufficientException(
               "Account Insufficient  balance[" + fee + "] to MultiSign");

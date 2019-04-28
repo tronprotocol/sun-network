@@ -151,11 +151,9 @@ public class ReceiptCapsule {
         throw new BalanceInsufficientException(
             StringUtil.createReadableString(account.createDbKey()) + " insufficient balance");
       }
-      account.setBalance(balance - energyFee);
 
-      //send to blackHole
-      manager.adjustBalance(manager.getAccountStore().getBlackhole().getAddress().toByteArray(),
-          energyFee);
+      manager.adjustSunTokenBalance(account, balance - energyFee);
+      manager.adjustSunTokenBalance(manager.getAccountStore().getBlackhole().createDbKey(), energyFee);
     }
 
     manager.getAccountStore().put(account.getAddress().toByteArray(), account);
