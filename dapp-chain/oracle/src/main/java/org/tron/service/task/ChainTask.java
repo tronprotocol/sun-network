@@ -15,7 +15,6 @@ import org.tron.service.kafka.KfkConsumer;
 public class ChainTask extends Thread {
 
   private String gatewayAddress;
-  //private String kfkServer;
   private TaskEnum taskType;
 
   private ExecutorService executor;

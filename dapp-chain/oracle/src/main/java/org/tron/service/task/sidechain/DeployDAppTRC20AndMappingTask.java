@@ -14,7 +14,7 @@ public class DeployDAppTRC20AndMappingTask implements EventTask {
   private String sideChainAddress;
 
   public DeployDAppTRC20AndMappingTask(String developer, String mainChainAddress,
-    String sideChainAddress) {
+      String sideChainAddress) {
     this.developer = developer;
     this.mainChainAddress = mainChainAddress;
     this.sideChainAddress = sideChainAddress;
@@ -23,15 +23,15 @@ public class DeployDAppTRC20AndMappingTask implements EventTask {
   @Override
   public void run() {
     logger.info("developer: {}, mainChainAddress: {}, sideChainAddress: {}", this.developer,
-      this.mainChainAddress, this.sideChainAddress);
+        this.mainChainAddress, this.sideChainAddress);
     try {
       String txId = MainChainGatewayApi
-        .addTokenMapping(this.mainChainAddress, this.sideChainAddress);
+          .addTokenMapping(this.mainChainAddress, this.sideChainAddress);
       MainChainGatewayApi.checkTxInfo(txId);
     } catch (Exception e) {
       logger.error(
-        "DeployDAppTRC20AndMappingTask fail, developer: {}, mainChainAddress: {}, sideChainAddress: {}",
-        this.developer, this.mainChainAddress, this.sideChainAddress);
+          "DeployDAppTRC20AndMappingTask fail, developer: {}, mainChainAddress: {}, sideChainAddress: {}",
+          this.developer, this.mainChainAddress, this.sideChainAddress);
     }
   }
 }

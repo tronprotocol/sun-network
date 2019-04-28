@@ -1,9 +1,7 @@
 package org.tron.service.task.sidechain;
 
-import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
-import org.tron.client.SideChainGatewayApi;
 import org.tron.service.task.EventTask;
 
 @Slf4j(topic = "sideChainTask")
@@ -26,14 +24,14 @@ public class WithdrawTRC10Task implements EventTask {
   @Override
   public void run() {
     logger.info("from: {}, value: {}, trc10: {}, txData: {}", this.from, this.value, this.trc10,
-      this.txData);
+        this.txData);
     try {
       String txId = MainChainGatewayApi
-        .withdrawTRC10(this.from, this.trc10, this.value, this.txData);
+          .withdrawTRC10(this.from, this.trc10, this.value, this.txData);
       MainChainGatewayApi.checkTxInfo(txId);
     } catch (Exception e) {
       logger.error("WithdrawTRC10Task fail, from: {}, value: {}, trc10: {}, txData: {}", this.from,
-        this.value, this.trc10, this.txData);
+          this.value, this.trc10, this.txData);
     }
   }
 }
