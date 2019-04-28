@@ -6,6 +6,7 @@ import java.util.Arrays;
 import org.apache.commons.lang3.ArrayUtils;
 import org.tron.common.runtime.config.VMConfig;
 import org.tron.core.capsule.AccountCapsule;
+import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.capsule.CodeCapsule;
@@ -195,6 +196,13 @@ public class Value {
       return null;
     }
     return new ContractCapsule(any);
+  }
+
+  public AssetIssueCapsule getAssetIssue() {
+    if (ArrayUtils.isEmpty(any)) {
+      return null;
+    }
+    return new AssetIssueCapsule(any);
   }
 
 
