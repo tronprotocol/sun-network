@@ -3,6 +3,7 @@ package org.tron.service;
 import java.util.TimeZone;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.Args;
+import org.tron.common.exception.RpcException;
 import org.tron.common.utils.WalletUtil;
 import org.tron.service.task.ChainTask;
 import org.tron.service.task.TaskEnum;
@@ -23,7 +24,12 @@ public class App {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     logger.info("start...");
     Args arg = Args.getInstance();
-    arg.setParam(args);
+    try {
+      arg.setParam(args);
+    } catch (RpcException e) {
+      logger.error("failed to get sun token when setParam", e);
+      System.exit(1);
+    }
 
     ChainTask sideChainTask = new ChainTask(TaskEnum.SIDE_CHAIN,
         WalletUtil.encode58Check(arg.getSidechainGateway()),
