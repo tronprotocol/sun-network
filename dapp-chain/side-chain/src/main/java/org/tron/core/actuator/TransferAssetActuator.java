@@ -60,13 +60,13 @@ public class TransferAssetActuator extends AbstractActuator {
             dbManager.getHeadBlockTimeStamp(), withDefaultPermission, dbManager);
         dbManager.getAccountStore().put(toAddress, toAccountCapsule);
 
-        fee = fee + dbManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract();
+        fee = fee + dbManager.getDynamicPropertiesStore().getCreateNewAccountTokenFeeInSystemContract();
       }
       ByteString assetName = transferAssetContract.getAssetName();
       long amount = transferAssetContract.getAmount();
 
-      dbManager.adjustBalance(ownerAddress, -fee);
-      dbManager.adjustBalance(dbManager.getAccountStore().getBlackhole().createDbKey(), fee);
+      dbManager.adjustSunTokenBalance(ownerAddress, -fee);
+      dbManager.adjustSunTokenBalance(dbManager.getAccountStore().getZeroAccount().createDbKey(), fee);
 
       AccountCapsule ownerAccountCapsule = accountStore.get(ownerAddress);
       if (!ownerAccountCapsule.reduceAssetAmountV2(assetName.toByteArray(), amount, dbManager)) {

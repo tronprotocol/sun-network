@@ -153,7 +153,7 @@ public class ReceiptCapsule {
       }
 
       manager.adjustSunTokenBalance(account, balance - energyFee);
-      manager.adjustSunTokenBalance(manager.getAccountStore().getBlackhole().createDbKey(), energyFee);
+      manager.adjustSunTokenBalance(manager.getAccountStore().getZeroAccount().createDbKey(), energyFee);
     }
 
     manager.getAccountStore().put(account.getAddress().toByteArray(), account);

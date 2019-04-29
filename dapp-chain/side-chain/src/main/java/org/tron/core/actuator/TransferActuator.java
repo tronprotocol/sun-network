@@ -44,10 +44,10 @@ public class TransferActuator extends AbstractActuator {
             dbManager.getHeadBlockTimeStamp(), withDefaultPermission, dbManager);
         dbManager.getAccountStore().put(toAddress, toAccount);
 
-        fee = fee + dbManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract();
+        fee = fee + dbManager.getDynamicPropertiesStore().getCreateNewAccountTokenFeeInSystemContract();
       }
-      dbManager.adjustBalance(ownerAddress, -fee);
-      dbManager.adjustBalance(dbManager.getAccountStore().getBlackhole().createDbKey(), fee);
+      dbManager.adjustSunTokenBalance(ownerAddress, -fee);
+      dbManager.adjustSunTokenBalance(dbManager.getAccountStore().getZeroAccount().createDbKey(), fee);
       ret.setStatus(fee, code.SUCESS);
       dbManager.adjustBalance(ownerAddress, -amount);
       dbManager.adjustBalance(toAddress, amount);

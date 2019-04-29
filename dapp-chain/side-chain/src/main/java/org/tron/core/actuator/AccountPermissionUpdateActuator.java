@@ -45,8 +45,8 @@ public class AccountPermissionUpdateActuator extends AbstractActuator {
           accountPermissionUpdateContract.getActivesList());
       accountStore.put(ownerAddress, account);
 
-      dbManager.adjustBalance(ownerAddress, -fee);
-      dbManager.adjustBalance(dbManager.getAccountStore().getBlackhole().createDbKey(), fee);
+      dbManager.adjustSunTokenBalance(ownerAddress, -fee);
+      dbManager.adjustSunTokenBalance(dbManager.getAccountStore().getZeroAccount().createDbKey(), fee);
 
       result.setStatus(fee, code.SUCESS);
     } catch (BalanceInsufficientException e) {
@@ -229,6 +229,7 @@ public class AccountPermissionUpdateActuator extends AbstractActuator {
 
   @Override
   public long calcFee() {
-    return dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee();
+//    return dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee();
+    return dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionTokenFee();
   }
 }
