@@ -918,7 +918,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         .map(BytesCapsule::getData)
         .map(ByteArray::toLong)
         .orElseThrow(
-            () -> new IllegalArgumentException("not found ACCOUNT_UPGRADE_TOKEN_COST"));
+            () -> new IllegalArgumentException("not found ACCOUNT_UPGRADE_COST"));
   }
 
   public void saveAccountUpgradeTokenCost(long accountUpgradeCost) {
@@ -1349,7 +1349,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         .map(BytesCapsule::getData)
         .map(ByteArray::toLong)
         .orElseThrow(
-            () -> new IllegalArgumentException("not found UPDATE_ACCOUNT_PERMISSION_FEE"));
+            () -> new IllegalArgumentException("not found UPDATE_ACCOUNT_PERMISSION_TOKEN_FEE"));
   }
 
   public long getMultiSignFee() {
