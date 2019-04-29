@@ -184,9 +184,9 @@ public class EnergyProcessor extends ResourceProcessor {
         continue;
       }
 
-      long fee = dbManager.getDynamicPropertiesStore().getTransactionFee() * bytesSize;
+      long fee = dbManager.getDynamicPropertiesStore().getTransactionSunTokenFee() * bytesSize;
       throw new AccountResourceInsufficientException(
-          "Account Insufficient energy[" + bytesSize + "] and balance["
+          "Account Insufficient energy[" + bytesSize + "] and sun token balance["
               + fee + "] to create new account");
 
     }
@@ -220,7 +220,7 @@ public class EnergyProcessor extends ResourceProcessor {
       long now, TransactionTrace trace) {
 
     long createNewAccountEnergyRatio = divideCeil(1 , dbManager.getDynamicPropertiesStore().
-        getCreateNewAccountEnergyRate());
+            getCreateNewAccountSunTokenEnergyRate());
 
     long energyLeftFromFreeze = getAccountLeftEnergyFromFreeze(accountCapsule);
 
@@ -242,7 +242,7 @@ public class EnergyProcessor extends ResourceProcessor {
 
   public boolean consumeFeeForCreateNewAccount(AccountCapsule accountCapsule,
       TransactionTrace trace) {
-    long fee = dbManager.getDynamicPropertiesStore().getCreateAccountFee();
+    long fee = dbManager.getDynamicPropertiesStore().getCreateAccountSunTokenFee();
     if (consumeFee(accountCapsule, fee)) {
       trace.setNetBill(0, fee);
       dbManager.getDynamicPropertiesStore().addTotalCreateAccountCost(fee);
@@ -254,7 +254,7 @@ public class EnergyProcessor extends ResourceProcessor {
 
   private boolean useTransactionFee(AccountCapsule accountCapsule, long bytes,
       TransactionTrace trace) {
-    long fee = dbManager.getDynamicPropertiesStore().getTransactionFee() * bytes;
+    long fee = dbManager.getDynamicPropertiesStore().getTransactionSunTokenFee() * bytes;
     if (consumeFee(accountCapsule, fee)) {
       trace.setNetBill(0, fee);
       dbManager.getDynamicPropertiesStore().addTotalTransactionCost(fee);
@@ -269,7 +269,7 @@ public class EnergyProcessor extends ResourceProcessor {
 
     long energyLeftFromFreeze = getAccountLeftEnergyFromFreeze(accountCapsule);
 
-    long rate = dbManager.getDynamicPropertiesStore().getTransactionEnergyByteRate();
+    long rate = dbManager.getDynamicPropertiesStore().getTransactionSunTokenEnergyByteRate();
     long usage= ((rate == 0) ? 0 : divideCeil(bytes, rate)) ;
 
     if (usage > energyLeftFromFreeze) {

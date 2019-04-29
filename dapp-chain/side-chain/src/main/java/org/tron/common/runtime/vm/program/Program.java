@@ -672,13 +672,10 @@ public class Program {
         }
       } else {
         try {
-          TransferAssetActuator.validateForSmartContract(deposit, senderAddress, contextAddress,
-              tokenId, endowment);
-        } catch (ContractValidateException e) {
-          throw new BytecodeExecutionException(VALIDATE_FOR_SMART_CONTRACT_FAILURE);
+          transferAssert(deposit, senderAddress, contextAddress, tokenId, endowment);
+        } catch (ContractValidateException | ContractExeException e) {
+          throw new BytecodeExecutionException("transfer asset failure");
         }
-        deposit.addTokenBalance(senderAddress, tokenId, -endowment);
-        deposit.addTokenBalance(contextAddress, tokenId, endowment);
       }
 
     }

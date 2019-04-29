@@ -146,9 +146,9 @@ public class TransferActuator extends AbstractActuator {
       throw new ContractValidateException("Invalid toAddress");
     }
 
-//    if (Arrays.equals(toAddress, ownerAddress)) {
-//      throw new ContractValidateException("Cannot transfer trx to yourself.");
-//    }
+    if (Arrays.equals(toAddress, ownerAddress)) {
+      throw new ContractValidateException("Cannot transfer trx to yourself.");
+    }
 
     AccountCapsule ownerAccount = deposit.getAccount(ownerAddress);
     if (ownerAccount == null) {
@@ -156,6 +156,13 @@ public class TransferActuator extends AbstractActuator {
     }
 
     AccountCapsule toAccount = deposit.getAccount(toAddress);
+    if (toAccount == null) {
+      if(!deposit.isGatewayAddress(ownerAddress)) {
+        //only gateway address can transfer to account which is no exist.
+        throw new ContractValidateException(
+                "Validate InternalTransfer error, no ToAccount. And not allowed to create account in smart contract.");
+      }
+    }
 
     long balance = ownerAccount.getBalance();
 
@@ -186,13 +193,16 @@ public class TransferActuator extends AbstractActuator {
   public static boolean executeForSmartContract(Deposit deposit, byte[] ownerAddress,
       byte[] toAddress, long amount) throws ContractExeException {
     try {
-
       // if account with to_address does not exist, create it first.
       AccountCapsule toAccount = deposit.getAccount(toAddress);
       if (toAccount == null) {
-        toAccount = new AccountCapsule(ByteString.copyFrom(toAddress), AccountType.Normal,
-            deposit.getDbManager().getHeadBlockTimeStamp(), true, deposit.getDbManager());
-        deposit.putAccountValue(toAddress, toAccount);
+        if(deposit.isGatewayAddress(ownerAddress)) {
+          toAccount = new AccountCapsule(ByteString.copyFrom(toAddress), AccountType.Normal,
+                  deposit.getDbManager().getHeadBlockTimeStamp(), true, deposit.getDbManager());
+          deposit.putAccountValue(toAddress, toAccount);
+        } else {
+          throw new ContractExeException("no ToAccount. And not allowed to create account in smart contract.");
+        }
       }
       deposit.addBalance(toAddress, amount);
       deposit.addBalance(ownerAddress, -amount);

@@ -115,4 +115,6 @@ public interface Deposit {
 
   List<byte[]> getGatewayList();
 
+  boolean isGatewayAddress(byte[] address);
+
 }

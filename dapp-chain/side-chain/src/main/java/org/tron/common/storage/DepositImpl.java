@@ -178,6 +178,19 @@ public class DepositImpl implements Deposit {
   public List<byte[]> getGatewayList() {
     return this.dbManager.getDynamicPropertiesStore().getGateWayList();
   }
+
+  @Override
+  public boolean isGatewayAddress(byte[] address) {
+    List<byte[]> gatewayList = this.dbManager.getDynamicPropertiesStore().getGateWayList();
+
+    for (byte[] gateway: gatewayList) {
+      if (ByteUtil.equals(gateway, address)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @Override
   public WitnessCapsule getWitness(byte[] address) {
     Key key = new Key(address);
