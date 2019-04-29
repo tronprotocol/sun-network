@@ -296,4 +296,9 @@ public class ContractState implements Deposit, ProgramListenerAware {
     return deposit.getGatewayList();
   }
 
+  @Override
+  public boolean isGatewayAddress(byte[] address) {
+    return deposit.isGatewayAddress(address);
+  }
+
 }

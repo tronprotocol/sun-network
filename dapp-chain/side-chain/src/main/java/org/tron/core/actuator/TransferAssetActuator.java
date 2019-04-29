@@ -245,7 +245,8 @@ public class TransferAssetActuator extends AbstractActuator {
           throw new ContractValidateException(e.getMessage());
         }
       }
-    } else {
+    } else if(!deposit.isGatewayAddress(ownerAddress)) {
+      //only gateway address can transfer to account which is no exist.
       throw new ContractValidateException(
               "Validate InternalTransfer error, no ToAccount. And not allowed to create account in smart contract.");
     }
@@ -260,8 +261,14 @@ public class TransferAssetActuator extends AbstractActuator {
 
       // if account with to_address does not exist, create it first.
       AccountCapsule toAccount = deposit.getAccount(toAddress);
-      if (toAccount == null) {
-        throw new ContractExeException("no ToAccount. And not allowed to create account in smart contract.");
+      if (toAccount == null ) {
+        if(deposit.isGatewayAddress(ownerAddress)) {
+          toAccount = new AccountCapsule(ByteString.copyFrom(toAddress), AccountType.Normal,
+                  deposit.getDbManager().getHeadBlockTimeStamp(), true, deposit.getDbManager());
+          deposit.putAccountValue(toAddress, toAccount);
+        } else {
+          throw new ContractExeException("no ToAccount. And not allowed to create account in smart contract.");
+        }
       }
 
       deposit.addTokenBalance(toAddress, tokenId, amount);
