@@ -124,10 +124,11 @@ public class WitnessCreateActuator extends AbstractActuator {
       accountCapsule.setDefaultWitnessPermission(dbManager);
     }
     this.dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);
-    long cost = dbManager.getDynamicPropertiesStore().getAccountUpgradeCost();
+    //long cost = dbManager.getDynamicPropertiesStore().getAccountUpgradeCost();
+    long cost = dbManager.getDynamicPropertiesStore().getAccountUpgradeTokenCost();
     dbManager.adjustBalance(witnessCreateContract.getOwnerAddress().toByteArray(), -cost);
 
-    dbManager.adjustBalance(this.dbManager.getAccountStore().getBlackhole().createDbKey(), +cost);
+    dbManager.adjustBalance(this.dbManager.getAccountStore().getZeroAccount().createDbKey(), +cost);
 
     dbManager.getDynamicPropertiesStore().addTotalCreateWitnessCost(cost);
   }

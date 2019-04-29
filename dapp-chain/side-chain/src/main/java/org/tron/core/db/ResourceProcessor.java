@@ -64,7 +64,7 @@ abstract class ResourceProcessor {
       long latestOperationTime = dbManager.getHeadBlockTimeStamp();
       accountCapsule.setLatestOperationTime(latestOperationTime);
       dbManager.adjustSunTokenBalance(accountCapsule, -fee);
-      dbManager.adjustSunTokenBalance(this.dbManager.getAccountStore().getBlackhole().createDbKey(), +fee);
+      dbManager.adjustSunTokenBalance(this.dbManager.getAccountStore().getZeroAccount().createDbKey(), +fee);
       return true;
     } catch (BalanceInsufficientException e) {
       return false;

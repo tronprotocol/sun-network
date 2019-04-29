@@ -36,9 +36,9 @@ public class CreateAccountActuator extends AbstractActuator {
       dbManager.getAccountStore()
           .put(accountCreateContract.getAccountAddress().toByteArray(), accountCapsule);
 
-      dbManager.adjustBalance(accountCreateContract.getOwnerAddress().toByteArray(), -fee);
+      dbManager.adjustSunTokenBalance(accountCreateContract.getOwnerAddress().toByteArray(), -fee);
       // Add to blackhole address
-      dbManager.adjustBalance(dbManager.getAccountStore().getBlackhole().createDbKey(), fee);
+      dbManager.adjustSunTokenBalance(dbManager.getAccountStore().getZeroAccount().createDbKey(), fee);
 
       ret.setStatus(fee, code.SUCESS);
     } catch (BalanceInsufficientException e) {
@@ -118,6 +118,7 @@ public class CreateAccountActuator extends AbstractActuator {
 
   @Override
   public long calcFee() {
-    return dbManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract();
+//    return dbManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract();
+    return dbManager.getDynamicPropertiesStore().getCreateNewAccountTokenFeeInSystemContract();
   }
 }

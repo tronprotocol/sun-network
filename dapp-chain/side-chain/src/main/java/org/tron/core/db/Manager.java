@@ -107,6 +107,7 @@ import org.tron.core.services.WitnessService;
 import org.tron.core.witness.ProposalController;
 import org.tron.core.witness.WitnessController;
 import org.tron.protos.Contract.AssetIssueContract;
+import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
@@ -772,15 +773,15 @@ public class Manager {
   public void consumeMultiSignFee(TransactionCapsule trx, TransactionTrace trace)
       throws AccountResourceInsufficientException {
     if (trx.getInstance().getSignatureCount() > 1) {
-      long fee = getDynamicPropertiesStore().getMultiSignFee();
-
+      //long fee = getDynamicPropertiesStore().getMultiSignFee();
+      long fee = getDynamicPropertiesStore().getMultiSignTokenFee();
       List<Contract> contracts = trx.getInstance().getRawData().getContractList();
       for (Contract contract : contracts) {
         byte[] address = TransactionCapsule.getOwner(contract);
         AccountCapsule accountCapsule = getAccountStore().get(address);
         try {
           adjustSunTokenBalance(accountCapsule, -fee);
-          adjustSunTokenBalance(this.getAccountStore().getBlackhole().createDbKey(), +fee);
+          adjustSunTokenBalance(this.getAccountStore().getZeroAccount().createDbKey(), +fee);
         } catch (BalanceInsufficientException e) {
           throw new AccountResourceInsufficientException(
               "Account Insufficient  balance[" + fee + "] to MultiSign");

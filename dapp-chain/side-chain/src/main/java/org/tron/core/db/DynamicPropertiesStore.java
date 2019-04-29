@@ -92,7 +92,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   //abandon
   private static final byte[] CREATE_ACCOUNT_FEE = "CREATE_ACCOUNT_FEE".getBytes();
 
-  private static final byte[] CREATE_ACCOUNT_SUNTOKEN_FEE = "CREATE_ACCOUNT_SUNTOKEN_FEE".getBytes();
+
 
   private static final byte[] CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT
       = "CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT".getBytes();
@@ -192,6 +192,23 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
 
   // switch on to kick off energy charging
   private static final byte[] ENERGY_CHARGING_SWITCH = "ENERGY_CHARGING_SWITCH".getBytes();
+
+  // CREATE_ACCOUNT_FEE              0.1 SUN_TOKEN
+  private static final byte[] CREATE_ACCOUNT_SUNTOKEN_FEE = "CREATE_ACCOUNT_SUNTOKEN_FEE".getBytes();
+
+  // CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT
+  private static final byte[] CREATE_NEW_ACCOUNT_TOKEN_FEE_IN_SYSTEM_CONTRACT = "CREATE_NEW_ACCOUNT_TOKEN_FEE_IN_SYSTEM_CONTRACT".getBytes();
+
+  // UPDATE_ACCOUNT_PERMISSION_FEE
+  private static final byte[] UPDATE_ACCOUNT_PERMISSION_TOKEN_FEE = "UPDATE_ACCOUNT_PERMISSION_TOKEN_FEE"
+      .getBytes();
+
+  // MULTI_SIGN_FEE
+  private static final byte[] MULTI_SIGN_TOKEN_FEE = "MULTI_SIGN_TOKEN_FEE"
+      .getBytes();
+
+  // ACCOUNT_UPGRADE_COST
+  private static final byte[] ACCOUNT_UPGRADE_TOKEN_COST = "ACCOUNT_UPGRADE_TOKEN_COST".getBytes();
 
   @Autowired
   private DynamicPropertiesStore(@Value("properties") String dbName) {
@@ -330,6 +347,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getAccountUpgradeTokenCost();
+    } catch (IllegalArgumentException e) {
+      this.saveAccountUpgradeTokenCost(9_999_000_000L);  //side chain
+    }
+
+    try {
       this.getPublicNetUsage();
     } catch (IllegalArgumentException e) {
       this.savePublicNetUsage(0L);
@@ -420,6 +443,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getCreateNewAccountTokenFeeInSystemContract();
+    } catch (IllegalArgumentException e) {
+      this.saveCreateNewAccountTokenFeeInSystemContract(0L); // side chain
+    }
+
+    try {
       this.getCreateNewAccountBandwidthRate();
     } catch (IllegalArgumentException e) {
       this.saveCreateNewAccountBandwidthRate(1L); //changed by committee later
@@ -478,10 +507,23 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getUpdateAccountPermissionTokenFee();
+    } catch (IllegalArgumentException e) {
+      this.saveUpdateAccountPermissionTokenFee(100000000L);  //side chain
+    }
+
+    try {
       this.getMultiSignFee();
     } catch (IllegalArgumentException e) {
       this.saveMultiSignFee(1000000L);
     }
+
+    try {
+      this.getMultiSignTokenFee();
+    } catch (IllegalArgumentException e) {
+      this.saveMultiSignTokenFee(1000000L);  //side chain
+    }
+
 
     try {
       this.getExchangeCreateFee();
@@ -879,6 +921,20 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found ACCOUNT_UPGRADE_COST"));
   }
 
+  public void saveAccountUpgradeTokenCost(long accountUpgradeCost) {
+    logger.debug("ACCOUNT_UPGRADE_TOKEN_COST:" + accountUpgradeCost);
+    this.put(ACCOUNT_UPGRADE_TOKEN_COST,
+        new BytesCapsule(ByteArray.fromLong(accountUpgradeCost)));
+  }
+
+  public long getAccountUpgradeTokenCost() {
+    return Optional.ofNullable(getUnchecked(ACCOUNT_UPGRADE_TOKEN_COST))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found ACCOUNT_UPGRADE_TOKEN_COST"));
+  }
+
   public void saveWitnessPayPerBlock(long pay) {
     logger.debug("WITNESS_PAY_PER_BLOCK:" + pay);
     this.put(WITNESS_PAY_PER_BLOCK,
@@ -1168,6 +1224,20 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
                 "not found CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT"));
   }
 
+  public void saveCreateNewAccountTokenFeeInSystemContract(long fee) {
+    this.put(CREATE_NEW_ACCOUNT_TOKEN_FEE_IN_SYSTEM_CONTRACT,
+        new BytesCapsule(ByteArray.fromLong(fee)));
+  }
+
+  public long getCreateNewAccountTokenFeeInSystemContract() {
+    return Optional.ofNullable(getUnchecked(CREATE_NEW_ACCOUNT_TOKEN_FEE_IN_SYSTEM_CONTRACT))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+        .orElseThrow(
+            () -> new IllegalArgumentException(
+                "not found CREATE_NEW_ACCOUNT_TOKEN_FEE_IN_SYSTEM_CONTRACT"));
+  }
+
   public void saveCreateNewAccountBandwidthRate(long rate) {
     this.put(CREATE_NEW_ACCOUNT_BANDWIDTH_RATE,
         new BytesCapsule(ByteArray.fromLong(rate)));
@@ -1243,11 +1313,20 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         new BytesCapsule(ByteArray.fromLong(fee)));
   }
 
+  public void saveUpdateAccountPermissionTokenFee(long fee) {
+    this.put(UPDATE_ACCOUNT_PERMISSION_TOKEN_FEE,
+        new BytesCapsule(ByteArray.fromLong(fee)));
+  }
+
   public void saveMultiSignFee(long fee) {
     this.put(MULTI_SIGN_FEE,
         new BytesCapsule(ByteArray.fromLong(fee)));
   }
 
+  public void saveMultiSignTokenFee(long fee) {
+    this.put(MULTI_SIGN_TOKEN_FEE,
+        new BytesCapsule(ByteArray.fromLong(fee)));
+  }
 
   public long getAssetIssueFee() {
     return Optional.ofNullable(getUnchecked(ASSET_ISSUE_FEE))
@@ -1265,6 +1344,14 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found UPDATE_ACCOUNT_PERMISSION_FEE"));
   }
 
+  public long getUpdateAccountPermissionTokenFee() {
+    return Optional.ofNullable(getUnchecked(UPDATE_ACCOUNT_PERMISSION_TOKEN_FEE))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found UPDATE_ACCOUNT_PERMISSION_TOKEN_FEE"));
+  }
+
   public long getMultiSignFee() {
     return Optional.ofNullable(getUnchecked(MULTI_SIGN_FEE))
         .map(BytesCapsule::getData)
@@ -1273,6 +1360,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found MULTI_SIGN_FEE"));
   }
 
+  public long getMultiSignTokenFee() {
+    return Optional.ofNullable(getUnchecked(MULTI_SIGN_TOKEN_FEE))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found MULTI_SIGN_TOKEN_FEE"));
+  }
 
   public void saveExchangeCreateFee(long fee) {
     this.put(EXCHANGE_CREATE_FEE,
