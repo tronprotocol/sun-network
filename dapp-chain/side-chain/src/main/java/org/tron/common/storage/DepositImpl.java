@@ -25,6 +25,7 @@ import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.capsule.VotesCapsule;
 import org.tron.core.capsule.WitnessCapsule;
 import org.tron.core.db.AccountStore;
+import org.tron.core.db.AssetIssueV2Store;
 import org.tron.core.db.BlockStore;
 import org.tron.core.db.CodeStore;
 import org.tron.core.db.ContractStore;
@@ -115,6 +116,8 @@ public class DepositImpl implements Deposit {
   private CodeStore getCodeStore() {
     return dbManager.getCodeStore();
   }
+
+  private AssetIssueV2Store getAssetIssueV2Store() {return  dbManager.getAssetIssueV2Store();}
 
   private DelegatedResourceStore getDelegatedResourceStore() {
     return dbManager.getDelegatedResourceStore();
@@ -344,6 +347,13 @@ public class DepositImpl implements Deposit {
     return assetIssueCapsule;
   }
 
+  @Override
+  public synchronized void putAssetIssue (byte[] tokenId, AssetIssueCapsule assetIssueCapsule) {
+    byte[] tokenIdWithoutLeadingZero = ByteUtil.stripLeadingZeroes(tokenId);
+    Key key = Key.create(tokenIdWithoutLeadingZero);
+    assetIssueCache.put(key,Value.create(assetIssueCapsule.getData(), Type.VALUE_TYPE_CREATE));
+  }
+
 
   @Override
   public synchronized void putStorageValue(byte[] address, DataWord key, DataWord value) {
@@ -557,6 +567,9 @@ public class DepositImpl implements Deposit {
   }
 
   @Override
+  public void putAssetIssue(Key key, Value value) { assetIssueCache.put(key,value); }
+
+  @Override
   public long getLatestProposalNum() {
     return Longs.fromByteArray(getDynamic(LATEST_PROPOSAL_NUM).getData());
   }
@@ -734,6 +747,18 @@ public class DepositImpl implements Deposit {
     }));
   }
 
+  private void commitAssetIssueCache(Deposit deposit) {
+    assetIssueCache.forEach(((key, value) -> {
+      if (value.getType().isDirty() || value.getType().isCreate()) {
+        if (deposit != null) {
+          deposit.putAssetIssue(key, value);
+        } else {
+          getAssetIssueV2Store().put(key.getData(), value.getAssetIssue());
+        }
+      }
+    }));
+  }
+
 
   @Override
   public void putAccountValue(byte[] address, AccountCapsule accountCapsule) {
@@ -777,6 +802,7 @@ public class DepositImpl implements Deposit {
     commitVoteCache(deposit);
     commitProposalCache(deposit);
     commitDynamicPropertiesCache(deposit);
+    commitAssetIssueCache(deposit);
   }
 
 

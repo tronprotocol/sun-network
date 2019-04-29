@@ -244,6 +244,11 @@ public class ContractState implements Deposit, ProgramListenerAware {
   }
 
   @Override
+  public void putAssetIssue(Key key, Value value) {
+    deposit.putAssetIssue(key, value);
+  }
+
+  @Override
   public long getLatestProposalNum() {
     return deposit.getLatestProposalNum();
   }
@@ -274,6 +279,11 @@ public class ContractState implements Deposit, ProgramListenerAware {
   @Override
   public long getTokenBalance(byte[] address, byte[] tokenId) {
     return deposit.getTokenBalance(address, tokenId);
+  }
+
+  @Override
+  public void putAssetIssue(byte[] tokenId, AssetIssueCapsule assetIssueCapsule) {
+    deposit.putAssetIssue(tokenId, assetIssueCapsule);
   }
 
   @Override
