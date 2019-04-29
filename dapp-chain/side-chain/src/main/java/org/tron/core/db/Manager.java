@@ -1218,7 +1218,7 @@ public class Manager {
     TransactionTrace trace = new TransactionTrace(trxCap, this);
     trxCap.setTrxTrace(trace);
 
-    if (false) { //TODO: Implement Resource charging fork
+    if (dynamicPropertiesStore.getEnergyChargingSwitch() == 1) {
       consumeBandwidthEnergy(trxCap, trace);
       consumeMultiSignFee(trxCap, trace);
     }
