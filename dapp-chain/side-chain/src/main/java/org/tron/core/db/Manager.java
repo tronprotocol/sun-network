@@ -497,7 +497,8 @@ public class Manager {
         this.initAccount();
         this.initWitness();
         AssetIssueContract.Builder assetBuilder = AssetIssueContract.newBuilder();
-        assetBuilder.setId(SUN_TOKEN_ID);
+        assetBuilder.setId(SUN_TOKEN_ID)
+        .setPrecision(6);
         AssetIssueCapsule assetIssueCapsuleV2 = new AssetIssueCapsule(assetBuilder.build());
         this.assetIssueV2Store.put(assetIssueCapsuleV2.createDbV2Key(),assetIssueCapsuleV2);
         this.witnessController.initWits();

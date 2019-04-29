@@ -87,6 +87,8 @@ public interface Deposit {
 
   void putDynamicPropertiesWithLatestProposalNum(long num);
 
+  void putAssetIssue(Key key, Value value);
+
   long getLatestProposalNum();
 
   long getWitnessAllowanceFrozenTime();
@@ -98,6 +100,8 @@ public interface Deposit {
   long addTokenBalance(byte[] address, byte[] tokenId, long value);
 
   long getTokenBalance(byte[] address, byte[] tokenId);
+
+  void putAssetIssue(byte[] tokenId, AssetIssueCapsule assetIssueCapsule);
 
   AssetIssueCapsule getAssetIssue(byte[] tokenId);
 
