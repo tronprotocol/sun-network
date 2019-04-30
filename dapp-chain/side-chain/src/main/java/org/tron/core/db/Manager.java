@@ -534,7 +534,7 @@ public class Manager {
                       ByteString.copyFrom(account.getAddress()),
                       account.getAccountType(),
                       account.getBalance(),
-                      95000000L);
+                      95000000_000000L);
               this.accountStore.put(account.getAddress(), accountCapsule);
               this.accountIdIndexStore.put(accountCapsule);
               this.accountIndexStore.put(accountCapsule);

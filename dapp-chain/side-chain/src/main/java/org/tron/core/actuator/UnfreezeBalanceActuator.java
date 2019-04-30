@@ -81,8 +81,7 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
           //this should never happen
           break;
       }
-      accountCapsule.getAssetMapV2().put(SUN_TOKEN_ID, oldBalance + unfreezeBalance);
-
+      accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(), oldBalance + unfreezeBalance);
       dbManager.getAccountStore().put(receiverCapsule.createDbKey(), receiverCapsule);
 
       if (delegatedResourceCapsule.getFrozenBalanceForBandwidth() == 0
@@ -140,7 +139,7 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
           accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
 //              .setBalance(oldBalance + unfreezeBalance)
               .clearFrozen().addAllFrozen(frozenList).build());
-          accountCapsule.getAssetMapV2().put(SUN_TOKEN_ID, oldBalance + unfreezeBalance);
+          accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(), oldBalance + unfreezeBalance);
 
           break;
         case ENERGY:
@@ -152,7 +151,7 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
           accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
 //              .setBalance(oldBalance + unfreezeBalance)
               .setAccountResource(newAccountResource).build());
-          accountCapsule.getAssetMapV2().put(SUN_TOKEN_ID, oldBalance + unfreezeBalance);
+          accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(), oldBalance + unfreezeBalance);
 
           break;
         default:

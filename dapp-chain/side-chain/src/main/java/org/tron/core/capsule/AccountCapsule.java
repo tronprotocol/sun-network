@@ -475,6 +475,15 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     return true;
   }
 
+  public boolean setAssetAmountV2(byte[] key, long amount) {
+    String tokenIDStr = ByteArray.toStr(key);
+    Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
+    this.account = this.account.toBuilder()
+        .putAssetV2(tokenIDStr,amount)
+        .build();
+    return true;
+  }
+
   /**
    * set account name
    */

@@ -86,7 +86,7 @@ public class FreezeBalanceActuator extends AbstractActuator {
         break;
     }
 
-    accountCapsule.getAssetMapV2().put(SUN_TOKEN_ID,newBalance);
+    accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(),newBalance);
     dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);
 
     ret.setStatus(fee, code.SUCESS);
