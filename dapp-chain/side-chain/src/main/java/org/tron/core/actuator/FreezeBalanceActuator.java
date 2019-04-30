@@ -1,5 +1,7 @@
 package org.tron.core.actuator;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
+
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -44,7 +46,7 @@ public class FreezeBalanceActuator extends AbstractActuator {
     long now = dbManager.getHeadBlockTimeStamp();
     long duration = freezeBalanceContract.getFrozenDuration() * 86_400_000;
 
-    long newBalance = accountCapsule.getBalance() - freezeBalanceContract.getFrozenBalance();
+    long newBalance = accountCapsule.getAssetMapV2().get(SUN_TOKEN_ID) - freezeBalanceContract.getFrozenBalance();
 
     long frozenBalance = freezeBalanceContract.getFrozenBalance();
     long expireTime = now + duration;
@@ -84,7 +86,7 @@ public class FreezeBalanceActuator extends AbstractActuator {
         break;
     }
 
-    accountCapsule.setBalance(newBalance);
+    accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(),newBalance);
     dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);
 
     ret.setStatus(fee, code.SUCESS);
@@ -131,14 +133,14 @@ public class FreezeBalanceActuator extends AbstractActuator {
       throw new ContractValidateException("frozenBalance must be positive");
     }
     if (frozenBalance < 1_000_000L) {
-      throw new ContractValidateException("frozenBalance must be more than 1TRX");
+      throw new ContractValidateException("frozenBalance must be more than 1 SUN_TOKEN");
     }
 
     int frozenCount = accountCapsule.getFrozenCount();
     if (!(frozenCount == 0 || frozenCount == 1)) {
       throw new ContractValidateException("frozenCount must be 0 or 1");
     }
-    if (frozenBalance > accountCapsule.getBalance()) {
+    if (frozenBalance > accountCapsule.getAssetMapV2().get(SUN_TOKEN_ID)) {
       throw new ContractValidateException("frozenBalance must be less than accountBalance");
     }
 

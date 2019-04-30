@@ -1,5 +1,7 @@
 package org.tron.core.capsule;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.tron.common.utils.Sha256Hash;
@@ -137,8 +139,8 @@ public class ReceiptCapsule {
       this.setEnergyUsage(usage);
     } else {
       energyProcessor.useEnergy(account, accountEnergyLeft, now);
-      long sunPerEnergy = Constant.SUN_PER_ENERGY;
-      long dynamicEnergyFee = manager.getDynamicPropertiesStore().getEnergyFee();
+      long sunPerEnergy = Constant.MICRO_SUN_TOKEN_PER_ENERGY;
+      long dynamicEnergyFee = manager.getDynamicPropertiesStore().getEnergyTokenFee();
       if (dynamicEnergyFee > 0) {
         sunPerEnergy = dynamicEnergyFee;
       }
@@ -146,13 +148,14 @@ public class ReceiptCapsule {
           (usage - accountEnergyLeft) * sunPerEnergy;
       this.setEnergyUsage(accountEnergyLeft);
       this.setEnergyFee(energyFee);
-      long balance = account.getBalance();
+      // long balance = account.getBalance();
+      long balance = account.getAssetMapV2().get(SUN_TOKEN_ID);
       if (balance < energyFee) {
         throw new BalanceInsufficientException(
             StringUtil.createReadableString(account.createDbKey()) + " insufficient balance");
       }
 
-      manager.adjustSunTokenBalance(account, balance - energyFee);
+      manager.adjustSunTokenBalance(account, -energyFee);
       manager.adjustSunTokenBalance(manager.getAccountStore().getZeroAccount().createDbKey(), energyFee);
     }
 

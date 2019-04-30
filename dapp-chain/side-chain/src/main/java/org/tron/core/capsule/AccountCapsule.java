@@ -15,6 +15,8 @@
 
 package org.tron.core.capsule;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.protobuf.ByteString;
@@ -68,6 +70,20 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
         .setAddress(address)
         .setBalance(balance)
         .build();
+  }
+
+  /**
+   * initial account capsule.
+   */
+  public AccountCapsule(ByteString accountName, ByteString address, AccountType accountType,
+      long balance, long sunTokenBalance) {
+    this.account = Account.newBuilder()
+        .setAccountName(accountName)
+        .setType(accountType)
+        .setAddress(address)
+        .setBalance(balance)
+        .build();
+    this.addAssetAmountV2(SUN_TOKEN_ID.getBytes(),sunTokenBalance);
   }
 
   /**
@@ -429,7 +445,7 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
   /**
    * reduce asset amount.
    */
-  public boolean reduceAssetAmountV2(byte[] key, long amount, Manager manager) {
+  public boolean reduceAssetAmountV2(byte[] key, long amount) {
     String tokenID = ByteArray.toStr(key);
     Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
     Long currentAmount = assetMapV2.get(tokenID);
@@ -446,7 +462,7 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
   /**
    * add asset amount.
    */
-  public boolean addAssetAmountV2(byte[] key, long amount, Manager manager) {
+  public boolean addAssetAmountV2(byte[] key, long amount) {
       String tokenIDStr = ByteArray.toStr(key);
       Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
       Long currentAmount = assetMapV2.get(tokenIDStr);
@@ -456,6 +472,15 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
       this.account = this.account.toBuilder()
           .putAssetV2(tokenIDStr, Math.addExact(currentAmount, amount))
           .build();
+    return true;
+  }
+
+  public boolean setAssetAmountV2(byte[] key, long amount) {
+    String tokenIDStr = ByteArray.toStr(key);
+    Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
+    this.account = this.account.toBuilder()
+        .putAssetV2(tokenIDStr,amount)
+        .build();
     return true;
   }
 

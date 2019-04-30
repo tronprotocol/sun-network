@@ -210,6 +210,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   // ACCOUNT_UPGRADE_COST
   private static final byte[] ACCOUNT_UPGRADE_TOKEN_COST = "ACCOUNT_UPGRADE_TOKEN_COST".getBytes();
 
+  /**
+   *   Used when calculating available energy limit. Similar to ENERGY_FEE in mainchain.
+   *   100 micro sun token per 1 energy for its initial value
+   */
+  private static final byte[] ENERGY_TOKEN_FEE = "ENERGY_TOKEN_FEE".getBytes();
+
   @Autowired
   private DynamicPropertiesStore(@Value("properties") String dbName) {
     super(dbName);
@@ -416,6 +422,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       this.getEnergyFee();
     } catch (IllegalArgumentException e) {
       this.saveEnergyFee(100L);// 100 sun per energy
+    }
+
+    try {
+      this.getEnergyTokenFee();
+    } catch (IllegalArgumentException e) {
+      this.saveEnergyTokenFee(100L);// 100 micro sun-token per energy
     }
 
     try {
@@ -1169,6 +1181,19 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         .map(ByteArray::toLong)
         .orElseThrow(
             () -> new IllegalArgumentException("not found ENERGY_FEE"));
+  }
+
+  public void saveEnergyTokenFee(long totalEnergyFee) {
+    this.put(ENERGY_TOKEN_FEE,
+        new BytesCapsule(ByteArray.fromLong(totalEnergyFee)));
+  }
+
+  public long getEnergyTokenFee() {
+    return Optional.ofNullable(getUnchecked(ENERGY_TOKEN_FEE))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found ENERGY_TOKEN_FEE"));
   }
 
   public void saveMaxCpuTimeOfOneTx(long time) {

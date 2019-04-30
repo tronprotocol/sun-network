@@ -427,9 +427,9 @@ public class DepositImpl implements Deposit {
               + " insufficient balance");
     }
     if (value >= 0) {
-      accountCapsule.addAssetAmountV2(tokenIdWithoutLeadingZero, value, this.dbManager);
+      accountCapsule.addAssetAmountV2(tokenIdWithoutLeadingZero, value);
     } else {
-      accountCapsule.reduceAssetAmountV2(tokenIdWithoutLeadingZero, -value, this.dbManager);
+      accountCapsule.reduceAssetAmountV2(tokenIdWithoutLeadingZero, -value);
     }
 //    accountCapsule.getAssetMap().put(new String(tokenIdWithoutLeadingZero), Math.addExact(balance, value));
     Key key = Key.create(address);
