@@ -495,18 +495,26 @@ public class Manager {
             this.genesisBlock.getTimeStamp());
         // new trc20 token id start from 2000000L
         this.dynamicPropertiesStore.saveTokenIdNum(2000000L);
+        this.initAssetIssue();
         this.initAccount();
         this.initWitness();
-        AssetIssueContract.Builder assetBuilder = AssetIssueContract.newBuilder();
-        assetBuilder.setId(SUN_TOKEN_ID)
-        .setPrecision(6);
-        AssetIssueCapsule assetIssueCapsuleV2 = new AssetIssueCapsule(assetBuilder.build());
-        this.assetIssueV2Store.put(assetIssueCapsuleV2.createDbV2Key(),assetIssueCapsuleV2);
+
         this.witnessController.initWits();
         this.khaosDb.start(genesisBlock);
         this.updateRecentBlock(genesisBlock);
       }
     }
+  }
+
+  /**
+   *  init sunToken asset on side-chain
+   */
+  public void initAssetIssue() {
+    AssetIssueContract.Builder assetBuilder = AssetIssueContract.newBuilder();
+    assetBuilder.setId(SUN_TOKEN_ID)
+        .setPrecision(6);
+    AssetIssueCapsule assetIssueCapsuleV2 = new AssetIssueCapsule(assetBuilder.build());
+    this.assetIssueV2Store.put(assetIssueCapsuleV2.createDbV2Key(),assetIssueCapsuleV2);
   }
 
   /**
@@ -525,7 +533,8 @@ public class Manager {
                       account.getAccountName(),
                       ByteString.copyFrom(account.getAddress()),
                       account.getAccountType(),
-                      account.getBalance());
+                      account.getBalance(),
+                      95000000L);
               this.accountStore.put(account.getAddress(), accountCapsule);
               this.accountIdIndexStore.put(accountCapsule);
               this.accountIndexStore.put(accountCapsule);
@@ -658,7 +667,7 @@ public class Manager {
               StringUtil.createReadableString(account.createDbKey()) + " insufficient sun token balance");
     }
 
-    account.addAssetAmountV2(SUN_TOKEN_ID.getBytes(), Math.addExact(sunTokenBalance, amount), this);
+    account.addAssetAmountV2(SUN_TOKEN_ID.getBytes(), Math.addExact(sunTokenBalance, amount));
   }
 
 

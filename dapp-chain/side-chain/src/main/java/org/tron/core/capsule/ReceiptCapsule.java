@@ -1,5 +1,7 @@
 package org.tron.core.capsule;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.tron.common.utils.Sha256Hash;
@@ -146,7 +148,8 @@ public class ReceiptCapsule {
           (usage - accountEnergyLeft) * sunPerEnergy;
       this.setEnergyUsage(accountEnergyLeft);
       this.setEnergyFee(energyFee);
-      long balance = account.getBalance();
+      // long balance = account.getBalance();
+      long balance = account.getAssetMapV2().get(SUN_TOKEN_ID);
       if (balance < energyFee) {
         throw new BalanceInsufficientException(
             StringUtil.createReadableString(account.createDbKey()) + " insufficient balance");

@@ -69,12 +69,12 @@ public class TransferAssetActuator extends AbstractActuator {
       dbManager.adjustSunTokenBalance(dbManager.getAccountStore().getZeroAccount().createDbKey(), fee);
 
       AccountCapsule ownerAccountCapsule = accountStore.get(ownerAddress);
-      if (!ownerAccountCapsule.reduceAssetAmountV2(assetName.toByteArray(), amount, dbManager)) {
+      if (!ownerAccountCapsule.reduceAssetAmountV2(assetName.toByteArray(), amount)) {
         throw new ContractExeException("reduceAssetAmount failed !");
       }
       accountStore.put(ownerAddress, ownerAccountCapsule);
 
-      toAccountCapsule.addAssetAmountV2(assetName.toByteArray(), amount, dbManager);
+      toAccountCapsule.addAssetAmountV2(assetName.toByteArray(), amount);
       accountStore.put(toAddress, toAccountCapsule);
 
       ret.setStatus(fee, code.SUCESS);
