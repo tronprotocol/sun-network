@@ -667,7 +667,7 @@ public class Manager {
               StringUtil.createReadableString(account.createDbKey()) + " insufficient sun token balance");
     }
 
-    account.addAssetAmountV2(SUN_TOKEN_ID.getBytes(), Math.addExact(sunTokenBalance, amount));
+    account.addAssetAmountV2(SUN_TOKEN_ID.getBytes(), amount);
   }
 
 

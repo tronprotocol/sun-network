@@ -139,8 +139,8 @@ public class ReceiptCapsule {
       this.setEnergyUsage(usage);
     } else {
       energyProcessor.useEnergy(account, accountEnergyLeft, now);
-      long sunPerEnergy = Constant.SUN_PER_ENERGY;
-      long dynamicEnergyFee = manager.getDynamicPropertiesStore().getEnergyFee();
+      long sunPerEnergy = Constant.MICRO_SUN_TOKEN_PER_ENERGY;
+      long dynamicEnergyFee = manager.getDynamicPropertiesStore().getEnergyTokenFee();
       if (dynamicEnergyFee > 0) {
         sunPerEnergy = dynamicEnergyFee;
       }
@@ -155,7 +155,7 @@ public class ReceiptCapsule {
             StringUtil.createReadableString(account.createDbKey()) + " insufficient balance");
       }
 
-      manager.adjustSunTokenBalance(account, balance - energyFee);
+      manager.adjustSunTokenBalance(account, -energyFee);
       manager.adjustSunTokenBalance(manager.getAccountStore().getZeroAccount().createDbKey(), energyFee);
     }
 
