@@ -1,5 +1,7 @@
 package org.tron.core.actuator;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
+
 import com.google.common.collect.Lists;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
@@ -49,7 +51,6 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
     long oldBalance = accountCapsule.getBalance();
 
     long unfreezeBalance = 0L;
-    ;
 
     byte[] receiverAddress = unfreezeBalanceContract.getReceiverAddress().toByteArray();
     //If the receiver is not included in the contract, unfreeze frozen balance for this account.
@@ -80,7 +81,7 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
           //this should never happen
           break;
       }
-      accountCapsule.setBalance(oldBalance + unfreezeBalance);
+      accountCapsule.getAssetMapV2().put(SUN_TOKEN_ID, oldBalance + unfreezeBalance);
 
       dbManager.getAccountStore().put(receiverCapsule.createDbKey(), receiverCapsule);
 
@@ -137,8 +138,9 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
           }
 
           accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
-              .setBalance(oldBalance + unfreezeBalance)
+//              .setBalance(oldBalance + unfreezeBalance)
               .clearFrozen().addAllFrozen(frozenList).build());
+          accountCapsule.getAssetMapV2().put(SUN_TOKEN_ID, oldBalance + unfreezeBalance);
 
           break;
         case ENERGY:
@@ -148,8 +150,9 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
           AccountResource newAccountResource = accountCapsule.getAccountResource().toBuilder()
               .clearFrozenBalanceForEnergy().build();
           accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
-              .setBalance(oldBalance + unfreezeBalance)
+//              .setBalance(oldBalance + unfreezeBalance)
               .setAccountResource(newAccountResource).build());
+          accountCapsule.getAssetMapV2().put(SUN_TOKEN_ID, oldBalance + unfreezeBalance);
 
           break;
         default:
