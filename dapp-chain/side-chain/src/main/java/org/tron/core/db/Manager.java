@@ -668,6 +668,7 @@ public class Manager {
     }
 
     account.addAssetAmountV2(SUN_TOKEN_ID.getBytes(), amount);
+    this.getAccountStore().put(account.getAddress().toByteArray(), account);
   }
 
 
