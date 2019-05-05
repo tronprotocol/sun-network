@@ -197,7 +197,7 @@ public class BandWidthRuntimeTest {
       long balance = triggerOwnerTwo.getBalance();
       ReceiptCapsule receipt = trace.getReceipt();
 
-      Assert.assertEquals(bandWidth, receipt.getNetEnergyUsage());
+      Assert.assertEquals(bandWidth, receipt.getNetUsage());
       Assert.assertEquals(522850, receipt.getEnergyUsageTotal());
       Assert.assertEquals(50000, receipt.getEnergyUsage());
       Assert.assertEquals(47285000, receipt.getEnergyFee());
