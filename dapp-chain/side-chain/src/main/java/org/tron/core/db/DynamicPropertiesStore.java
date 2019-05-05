@@ -1225,13 +1225,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found ENERGY_TOKEN_FEE"));
   }
 
-    public long getEnergyFee(int chargingType) {
-      if(chargingType == 0) {
-          return getEnergyFee();
-      }
-
-      return getEnergyTokenFee();
+  public long getEnergyFee(int chargingType) {
+    if(chargingType == 0) {
+        return getEnergyFee();
     }
+
+    return getEnergyTokenFee();
+  }
 
   public void saveMaxCpuTimeOfOneTx(long time) {
     this.put(MAX_CPU_TIME_OF_ONE_TX,

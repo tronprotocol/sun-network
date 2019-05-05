@@ -190,20 +190,34 @@ public class RuntimeImpl implements Runtime {
   }
 
   public long getAccountEnergyLimitWithFixRatio(AccountCapsule account, long feeLimit,
-      long sunTokenCallTokenValue) {
+      long callValue) {
+    long sunPerEnergy;
+    long energyFromBalance;
 
-    long sunTokenPerEnergy = Constant.MICRO_SUN_TOKEN_PER_ENERGY;
-    if (deposit.getDbManager().getDynamicPropertiesStore().getEnergyTokenFee() > 0) {
-      sunTokenPerEnergy = deposit.getDbManager().getDynamicPropertiesStore().getEnergyTokenFee();
+    int chargingType = deposit.getDbManager().getDynamicPropertiesStore().getSideChainChargingType();
+    if(chargingType == 0) {
+      // charging by trx
+      sunPerEnergy = Constant.SUN_PER_ENERGY;
+      if (deposit.getDbManager().getDynamicPropertiesStore().getEnergyFee() > 0) {
+        sunPerEnergy = deposit.getDbManager().getDynamicPropertiesStore().getEnergyFee();
+      }
+
+      energyFromBalance = max(account.getBalance() - callValue, 0) / sunPerEnergy;
+    } else {
+      // charging by suntoken
+      sunPerEnergy = Constant.MICRO_SUN_TOKEN_PER_ENERGY;
+      if (deposit.getDbManager().getDynamicPropertiesStore().getEnergyTokenFee() > 0) {
+        sunPerEnergy = deposit.getDbManager().getDynamicPropertiesStore().getEnergyTokenFee();
+      }
+
+      energyFromBalance = max(account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) - callValue, 0) / sunPerEnergy;
     }
 
     long leftFrozenEnergy = energyProcessor.getAccountLeftEnergyFromFreeze(account);
-
-    long energyFromBalance = max(account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) - sunTokenCallTokenValue, 0) / sunTokenPerEnergy;
     long availableEnergy = Math.addExact(leftFrozenEnergy, energyFromBalance);
-
-    long energyFromFeeLimit = feeLimit / sunTokenPerEnergy;
+    long energyFromFeeLimit = feeLimit / sunPerEnergy;
     return min(availableEnergy, energyFromFeeLimit);
+
 
   }
 
@@ -247,10 +261,10 @@ public class RuntimeImpl implements Runtime {
   }
 
   public long getTotalEnergyLimitWithFixRatio(AccountCapsule creator, AccountCapsule caller,
-      TriggerSmartContract contract, long feeLimit, long sunTokenCallTokenValue)
+      TriggerSmartContract contract, long feeLimit, long callValue)
       throws ContractValidateException {
 
-    long callerEnergyLimit = getAccountEnergyLimitWithFixRatio(caller, feeLimit, sunTokenCallTokenValue);
+    long callerEnergyLimit = getAccountEnergyLimitWithFixRatio(caller, feeLimit, callValue);
     if (Arrays.equals(creator.getAddress().toByteArray(), caller.getAddress().toByteArray())) {
       // when the creator calls his own contract, this logic will be used.
       // so, the creator must use a BIG feeLimit to call his own contract,
@@ -388,7 +402,13 @@ public class RuntimeImpl implements Runtime {
         sunTokenCallTokenValue = tokenValue;
       }
 
-      energyLimit = getAccountEnergyLimitWithFixRatio(creator, feeLimit, sunTokenCallTokenValue);
+      int chargingType = deposit.getDbManager().getDynamicPropertiesStore().getSideChainChargingType();
+      if(chargingType == 0) {
+        energyLimit = getAccountEnergyLimitWithFixRatio(creator, feeLimit, callValue);
+      } else {
+        energyLimit = getAccountEnergyLimitWithFixRatio(creator, feeLimit, sunTokenCallTokenValue);
+      }
+
       if (energyLimit < 0) {
         throw new ContractValidateException("not enough energy to initialize vm");
       }
@@ -479,7 +499,7 @@ public class RuntimeImpl implements Runtime {
     if (tokenId == Long.parseLong(SUN_TOKEN_ID)){
       sunTokenCallTokenValue = tokenValue;
     }
-
+    int chargingType = deposit.getDbManager().getDynamicPropertiesStore().getSideChainChargingType();
     byte[] code = this.deposit.getCode(contractAddress);
 
     // feeLimit check
@@ -505,7 +525,12 @@ public class RuntimeImpl implements Runtime {
       } else {
         AccountCapsule creator = this.deposit
             .getAccount(deployedContract.getInstance().getOriginAddress().toByteArray());
-        energyLimit = getTotalEnergyLimitWithFixRatio(creator, caller, contract, feeLimit, sunTokenCallTokenValue);
+        if(chargingType == 0) {
+          energyLimit = getTotalEnergyLimitWithFixRatio(creator, caller, contract, feeLimit, callValue);
+        } else {
+          energyLimit = getTotalEnergyLimitWithFixRatio(creator, caller, contract, feeLimit, sunTokenCallTokenValue);
+        }
+
         if (energyLimit < 0) {
           throw new ContractValidateException("not enough energy to initialize vm");
         }
@@ -535,7 +560,11 @@ public class RuntimeImpl implements Runtime {
       AccountCapsule caller = this.deposit.getAccount(callerAddress);
       long energyLimit;
 
-      energyLimit = getAccountEnergyLimitWithFixRatio(caller, feeLimit, sunTokenCallTokenValue);
+      if(chargingType == 0) {
+        energyLimit = getAccountEnergyLimitWithFixRatio(caller, feeLimit, callValue);
+      } else {
+        energyLimit = getAccountEnergyLimitWithFixRatio(caller, feeLimit, sunTokenCallTokenValue);
+      }
       if (energyLimit < 0) {
         throw new ContractValidateException("not enough energy to initialize vm");
       }
