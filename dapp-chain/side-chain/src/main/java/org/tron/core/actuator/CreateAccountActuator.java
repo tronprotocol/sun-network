@@ -25,6 +25,7 @@ public class CreateAccountActuator extends AbstractActuator {
   @Override
   public boolean execute(TransactionResultCapsule ret)
       throws ContractExeException {
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
     long fee = calcFee();
     try {
       AccountCreateContract accountCreateContract = contract.unpack(AccountCreateContract.class);
@@ -36,9 +37,9 @@ public class CreateAccountActuator extends AbstractActuator {
       dbManager.getAccountStore()
           .put(accountCreateContract.getAccountAddress().toByteArray(), accountCapsule);
 
-      dbManager.adjustSunTokenBalance(accountCreateContract.getOwnerAddress().toByteArray(), -fee);
+      dbManager.adjustBalance(accountCreateContract.getOwnerAddress().toByteArray(), -fee, chargingType);
       // Add to blackhole address
-      dbManager.adjustSunTokenBalance(dbManager.getAccountStore().getZeroAccount().createDbKey(), fee);
+      dbManager.adjustBalance(dbManager.getAccountStore().getBlackhole().createDbKey(), fee, chargingType);
 
       ret.setStatus(fee, code.SUCESS);
     } catch (BalanceInsufficientException e) {
@@ -118,7 +119,11 @@ public class CreateAccountActuator extends AbstractActuator {
 
   @Override
   public long calcFee() {
-//    return dbManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract();
-    return dbManager.getDynamicPropertiesStore().getCreateNewAccountTokenFeeInSystemContract();
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
+    if(chargingType == 0) {
+      return dbManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract();
+    } else {
+      return dbManager.getDynamicPropertiesStore().getCreateNewAccountTokenFeeInSystemContract();
+    }
   }
 }

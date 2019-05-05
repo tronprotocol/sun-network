@@ -246,7 +246,8 @@ public class EnergyProcessor extends ResourceProcessor {
 
   public boolean consumeFeeForCreateNewAccount(AccountCapsule accountCapsule,
       TransactionTrace trace) {
-    long fee = dbManager.getDynamicPropertiesStore().getCreateAccountSunTokenFee();
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
+    long fee = dbManager.getDynamicPropertiesStore().getCreateAccountFee(chargingType);
     if (consumeFee(accountCapsule, fee)) {
       trace.setNetBill(0, fee);
       dbManager.getDynamicPropertiesStore().addTotalCreateAccountCost(fee);
@@ -258,7 +259,8 @@ public class EnergyProcessor extends ResourceProcessor {
 
   private boolean useTransactionFee(AccountCapsule accountCapsule, long bytes,
       TransactionTrace trace) {
-    long fee = dbManager.getDynamicPropertiesStore().getTransactionSunTokenFee() * bytes;
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
+    long fee = dbManager.getDynamicPropertiesStore().getTransactionFee(chargingType) * bytes;
     if (consumeFee(accountCapsule, fee)) {
       trace.setNetBill(0, fee);
       dbManager.getDynamicPropertiesStore().addTotalTransactionCost(fee);

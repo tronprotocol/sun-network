@@ -32,6 +32,7 @@ public class AccountPermissionUpdateActuator extends AbstractActuator {
 
   @Override
   public boolean execute(TransactionResultCapsule result) throws ContractExeException {
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
     long fee = calcFee();
     final AccountPermissionUpdateContract accountPermissionUpdateContract;
     try {
@@ -45,8 +46,8 @@ public class AccountPermissionUpdateActuator extends AbstractActuator {
           accountPermissionUpdateContract.getActivesList());
       accountStore.put(ownerAddress, account);
 
-      dbManager.adjustSunTokenBalance(ownerAddress, -fee);
-      dbManager.adjustSunTokenBalance(dbManager.getAccountStore().getZeroAccount().createDbKey(), fee);
+      dbManager.adjustBalance(ownerAddress, -fee, chargingType);
+      dbManager.adjustBalance(dbManager.getAccountStore().getBlackhole().createDbKey(), fee, chargingType);
 
       result.setStatus(fee, code.SUCESS);
     } catch (BalanceInsufficientException e) {
@@ -229,7 +230,12 @@ public class AccountPermissionUpdateActuator extends AbstractActuator {
 
   @Override
   public long calcFee() {
-//    return dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee();
-    return dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionTokenFee();
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
+
+    if(chargingType == 0) {
+      return dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee();
+    } else {
+      return dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionTokenFee();
+    }
   }
 }

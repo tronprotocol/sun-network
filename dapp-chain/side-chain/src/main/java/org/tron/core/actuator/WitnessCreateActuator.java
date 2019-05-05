@@ -17,6 +17,8 @@ import org.tron.core.exception.ContractValidateException;
 import org.tron.protos.Contract.WitnessCreateContract;
 import org.tron.protos.Protocol.Transaction.Result.code;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
+
 @Slf4j(topic = "actuator")
 public class WitnessCreateActuator extends AbstractActuator {
 
@@ -89,9 +91,16 @@ public class WitnessCreateActuator extends AbstractActuator {
       throw new ContractValidateException("Witness[" + readableOwnerAddress + "] has existed");
     }
 
-    if (accountCapsule.getBalance() < dbManager.getDynamicPropertiesStore()
-        .getAccountUpgradeCost()) {
-      throw new ContractValidateException("balance < AccountUpgradeCost");
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
+    long upgradeCost = dbManager.getDynamicPropertiesStore().getAccountUpgradeCost(chargingType);
+    if(chargingType == 0) {
+      if (accountCapsule.getBalance() < upgradeCost) {
+        throw new ContractValidateException("balance < AccountUpgradeCost");
+      }
+    } else {
+      if (accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) < upgradeCost) {
+        throw new ContractValidateException("balance < AccountUpgradeCost");
+      }
     }
 
     return true;
@@ -104,7 +113,8 @@ public class WitnessCreateActuator extends AbstractActuator {
 
   @Override
   public long calcFee() {
-    return dbManager.getDynamicPropertiesStore().getAccountUpgradeCost();
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
+    return dbManager.getDynamicPropertiesStore().getAccountUpgradeCost(chargingType);
   }
 
   private void createWitness(final WitnessCreateContract witnessCreateContract)
@@ -124,11 +134,13 @@ public class WitnessCreateActuator extends AbstractActuator {
       accountCapsule.setDefaultWitnessPermission(dbManager);
     }
     this.dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);
-    //long cost = dbManager.getDynamicPropertiesStore().getAccountUpgradeCost();
-    long cost = dbManager.getDynamicPropertiesStore().getAccountUpgradeTokenCost();
-    dbManager.adjustBalance(witnessCreateContract.getOwnerAddress().toByteArray(), -cost);
 
-    dbManager.adjustBalance(this.dbManager.getAccountStore().getZeroAccount().createDbKey(), +cost);
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
+    //long cost = dbManager.getDynamicPropertiesStore().getAccountUpgradeCost();
+    long cost = dbManager.getDynamicPropertiesStore().getAccountUpgradeCost(chargingType);
+    dbManager.adjustBalance(witnessCreateContract.getOwnerAddress().toByteArray(), -cost, chargingType);
+
+    dbManager.adjustBalance(this.dbManager.getAccountStore().getBlackhole().createDbKey(), +cost, chargingType);
 
     dbManager.getDynamicPropertiesStore().addTotalCreateWitnessCost(cost);
   }

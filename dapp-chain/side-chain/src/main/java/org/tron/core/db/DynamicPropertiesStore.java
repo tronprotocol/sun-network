@@ -193,6 +193,9 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   // switch on to kick off energy charging
   private static final byte[] ENERGY_CHARGING_SWITCH = "ENERGY_CHARGING_SWITCH".getBytes();
 
+  // side chain charging type
+  private static final byte[] SIDECHAIN_CHARGING_TYPE = "SIDECHAIN_CHARGING_TYPE".getBytes();
+
   // CREATE_ACCOUNT_FEE              0.1 SUN_TOKEN
   private static final byte[] CREATE_ACCOUNT_SUNTOKEN_FEE = "CREATE_ACCOUNT_SUNTOKEN_FEE".getBytes();
 
@@ -684,6 +687,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     } catch (IllegalArgumentException e) {
       this.saveEnergyChargingSwitch(Args.getInstance().getEnergyChargingSwitchOn());
     }
+
+    try {
+      this.getSideChainChargingType();
+    } catch (IllegalArgumentException e) {
+      this.saveSideChainChargingType(Args.getInstance().getSideChainChargingType());
+    }
   }
 
   public String intArrayToString(int[] a) {
@@ -773,6 +782,19 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   public void saveEnergyChargingSwitch(long num) {
     this.put(ENERGY_CHARGING_SWITCH,
         new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public int getSideChainChargingType(){
+    return Optional.ofNullable(getUnchecked(SIDECHAIN_CHARGING_TYPE))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toInt)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found SIDECHAIN_CHARGING_TYPE"));
+  }
+
+  public void saveSideChainChargingType(long num) {
+    this.put(SIDECHAIN_CHARGING_TYPE,
+            new BytesCapsule(ByteArray.fromLong(num)));
   }
 
   /**
@@ -946,6 +968,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         .orElseThrow(
             () -> new IllegalArgumentException("not found ACCOUNT_UPGRADE_TOKEN_COST"));
   }
+
+    public long getAccountUpgradeCost(int chargingType) {
+      if(chargingType == 0) {
+          return getAccountUpgradeCost();
+      }
+      return getAccountUpgradeTokenCost();
+    }
 
   public void saveWitnessPayPerBlock(long pay) {
     logger.debug("WITNESS_PAY_PER_BLOCK:" + pay);
@@ -1196,6 +1225,14 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found ENERGY_TOKEN_FEE"));
   }
 
+    public long getEnergyFee(int chargingType) {
+      if(chargingType == 0) {
+          return getEnergyFee();
+      }
+
+      return getEnergyTokenFee();
+    }
+
   public void saveMaxCpuTimeOfOneTx(long time) {
     this.put(MAX_CPU_TIME_OF_ONE_TX,
         new BytesCapsule(ByteArray.fromLong(time)));
@@ -1233,6 +1270,14 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             .map(ByteArray::toLong)
             .orElseThrow(
                     () -> new IllegalArgumentException("not found CREATE_ACCOUNT_SUNTOKEN_FEE"));
+  }
+
+  public long getCreateAccountFee(int chargingType) {
+    if(chargingType == 0) {
+        return getCreateAccountFee();
+    }
+
+    return getCreateAccountSunTokenFee();
   }
 
   public void saveCreateNewAccountFeeInSystemContract(long fee) {
@@ -1328,6 +1373,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
                     () -> new IllegalArgumentException("not found TRANSACTION_SUNTOKEN_FEE"));
   }
 
+  public long getTransactionFee(int chargingType) {
+      if(chargingType == 0) {
+          return getTransactionFee();
+      }
+      return getTransactionSunTokenFee();
+  }
+
   public void saveAssetIssueFee(long fee) {
     this.put(ASSET_ISSUE_FEE,
         new BytesCapsule(ByteArray.fromLong(fee)));
@@ -1391,6 +1443,14 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         .map(ByteArray::toLong)
         .orElseThrow(
             () -> new IllegalArgumentException("not found MULTI_SIGN_TOKEN_FEE"));
+  }
+
+  public long getMultiSignFee(int chargingType) {
+    if(chargingType == 0) {
+      return getMultiSignFee();
+    }
+
+    return getMultiSignTokenFee();
   }
 
   public void saveExchangeCreateFee(long fee) {

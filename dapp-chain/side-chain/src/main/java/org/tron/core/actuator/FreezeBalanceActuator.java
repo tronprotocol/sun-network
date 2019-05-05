@@ -46,7 +46,7 @@ public class FreezeBalanceActuator extends AbstractActuator {
     long now = dbManager.getHeadBlockTimeStamp();
     long duration = freezeBalanceContract.getFrozenDuration() * 86_400_000;
 
-    long newBalance = accountCapsule.getAssetMapV2().get(SUN_TOKEN_ID) - freezeBalanceContract.getFrozenBalance();
+    long newBalance = accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) - freezeBalanceContract.getFrozenBalance();
 
     long frozenBalance = freezeBalanceContract.getFrozenBalance();
     long expireTime = now + duration;
@@ -140,7 +140,7 @@ public class FreezeBalanceActuator extends AbstractActuator {
     if (!(frozenCount == 0 || frozenCount == 1)) {
       throw new ContractValidateException("frozenCount must be 0 or 1");
     }
-    if (frozenBalance > accountCapsule.getAssetMapV2().get(SUN_TOKEN_ID)) {
+    if (frozenBalance > accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L)) {
       throw new ContractValidateException("frozenBalance must be less than accountBalance");
     }
 

@@ -199,7 +199,7 @@ public class RuntimeImpl implements Runtime {
 
     long leftFrozenEnergy = energyProcessor.getAccountLeftEnergyFromFreeze(account);
 
-    long energyFromBalance = max(account.getAssetMapV2().get(SUN_TOKEN_ID) - sunTokenCallTokenValue, 0) / sunTokenPerEnergy;
+    long energyFromBalance = max(account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) - sunTokenCallTokenValue, 0) / sunTokenPerEnergy;
     long availableEnergy = Math.addExact(leftFrozenEnergy, energyFromBalance);
 
     long energyFromFeeLimit = feeLimit / sunTokenPerEnergy;
