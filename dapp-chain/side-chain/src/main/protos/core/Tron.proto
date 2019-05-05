@@ -226,13 +226,13 @@ message TXOutputs {
   repeated TXOutput outputs = 1;
 }
 
-message SideChainResourceReceipt {
+message ResourceReceipt {
   int64 energy_usage = 1;
   int64 energy_fee = 2;
   int64 origin_energy_usage = 3;
   int64 energy_usage_total = 4;
-  int64 net_energy_usage = 5;
-  int64 net_energy_fee = 6;
+  int64 net_usage = 5;
+  int64 net_fee = 6;
   Transaction.Result.contractResult result = 7;
 }
 
@@ -250,6 +250,7 @@ message Transaction {
       FreezeBalanceContract = 11;
       UnfreezeBalanceContract = 12;
       WithdrawBalanceContract = 13;
+      //ProposalCreateContract = 16;
       ProposalApproveContract = 17;
       ProposalDeleteContract = 18;
       SetAccountIdContract = 19;
@@ -344,7 +345,7 @@ message TransactionInfo {
   int64 blockTimeStamp = 4;
   repeated bytes contractResult = 5;
   bytes contract_address = 6;
-  SideChainResourceReceipt receipt = 7;
+  ResourceReceipt receipt = 7;
   repeated Log log = 8;
   code result = 9;
   bytes resMessage = 10;

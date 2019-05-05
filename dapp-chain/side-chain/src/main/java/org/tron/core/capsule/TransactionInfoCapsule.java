@@ -158,7 +158,7 @@ public class TransactionInfoCapsule implements ProtoCapsule<TransactionInfo> {
     ProgramResult programResult = trace.getRuntimeResult();
     long fee =
         programResult.getRet().getFee() + traceReceipt.getEnergyFee()
-            + traceReceipt.getNetEnergyFee() + traceReceipt.getMultiSignFee();
+            + traceReceipt.getNetFee() + traceReceipt.getMultiSignFee();
     ByteString contractResult = ByteString.copyFrom(programResult.getHReturn());
     ByteString ContractAddress = ByteString.copyFrom(programResult.getContractAddress());
 

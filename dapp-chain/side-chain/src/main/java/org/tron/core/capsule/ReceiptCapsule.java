@@ -10,19 +10,19 @@ import org.tron.core.Constant;
 import org.tron.core.db.EnergyProcessor;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.BalanceInsufficientException;
-import org.tron.protos.Protocol.SideChainResourceReceipt;
+import org.tron.protos.Protocol.ResourceReceipt;
 import org.tron.protos.Protocol.Transaction.Result.contractResult;
 
 public class ReceiptCapsule {
 
-  private SideChainResourceReceipt receipt;
+  private ResourceReceipt receipt;
   @Getter
   @Setter
   private long multiSignFee;
 
   private Sha256Hash receiptAddress;
 
-  public ReceiptCapsule(SideChainResourceReceipt data, Sha256Hash receiptAddress) {
+  public ReceiptCapsule(ResourceReceipt data, Sha256Hash receiptAddress) {
     this.receipt = data;
     this.receiptAddress = receiptAddress;
   }
@@ -32,11 +32,11 @@ public class ReceiptCapsule {
     this.receiptAddress = receiptAddress;
   }
 
-  public void setReceipt(SideChainResourceReceipt receipt) {
+  public void setReceipt(ResourceReceipt receipt) {
     this.receipt = receipt;
   }
 
-  public SideChainResourceReceipt getReceipt() {
+  public ResourceReceipt getReceipt() {
     return this.receipt;
   }
 
@@ -44,16 +44,16 @@ public class ReceiptCapsule {
     return this.receiptAddress;
   }
 
-  public void setNetEnergyUsage(long netUsage) {
-    this.receipt = this.receipt.toBuilder().setNetEnergyUsage(netUsage).build();
+  public void setNetUsage(long netUsage) {
+    this.receipt = this.receipt.toBuilder().setNetUsage(netUsage).build();
   }
 
-  public void setNetEnergyFee(long netFee) {
-    this.receipt = this.receipt.toBuilder().setNetEnergyFee(netFee).build();
+  public void setNetFee(long netFee) {
+    this.receipt = this.receipt.toBuilder().setNetFee(netFee).build();
   }
 
-  public void addNetEnergyFee(long netFee) {
-    this.receipt = this.receipt.toBuilder().setNetEnergyFee(getNetEnergyFee() + netFee).build();
+  public void addNetFee(long netFee) {
+    this.receipt = this.receipt.toBuilder().setEnergyFee(getNetFee() + netFee).build();
   }
 
   public long getEnergyUsage() {
@@ -88,12 +88,12 @@ public class ReceiptCapsule {
     this.receipt = this.receipt.toBuilder().setEnergyUsageTotal(energyUsage).build();
   }
 
-  public long getNetEnergyUsage() {
-    return this.receipt.getNetEnergyUsage();
+  public long getNetUsage() {
+    return this.receipt.getNetUsage();
   }
 
-  public long getNetEnergyFee() {
-    return this.receipt.getNetEnergyFee();
+  public long getNetFee() {
+    return this.receipt.getNetFee();
   }
 
   /**
@@ -162,7 +162,7 @@ public class ReceiptCapsule {
     manager.getAccountStore().put(account.getAddress().toByteArray(), account);
   }
 
-  public static SideChainResourceReceipt copyReceipt(ReceiptCapsule origin) {
+  public static ResourceReceipt copyReceipt(ReceiptCapsule origin) {
     return origin.getReceipt().toBuilder().build();
   }
 
