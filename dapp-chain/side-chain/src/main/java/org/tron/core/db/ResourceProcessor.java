@@ -61,10 +61,11 @@ abstract class ResourceProcessor {
 
   protected boolean consumeFee(AccountCapsule accountCapsule, long fee) {
     try {
+      int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
       long latestOperationTime = dbManager.getHeadBlockTimeStamp();
       accountCapsule.setLatestOperationTime(latestOperationTime);
-      dbManager.adjustSunTokenBalance(accountCapsule, -fee);
-      dbManager.adjustSunTokenBalance(this.dbManager.getAccountStore().getZeroAccount().createDbKey(), +fee);
+      dbManager.adjustBalance(accountCapsule, -fee, chargingType);
+      dbManager.adjustBalance(this.dbManager.getAccountStore().getBlackhole().createDbKey(), +fee, chargingType);
       return true;
     } catch (BalanceInsufficientException e) {
       return false;

@@ -445,6 +445,10 @@ public class Args {
   @Setter
   private int energyChargingSwitchOn;
 
+  @Getter
+  @Setter
+  private int sideChainChargingType;
+
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
     INSTANCE.help = false;
@@ -827,6 +831,10 @@ public class Args {
     INSTANCE.energyChargingSwitchOn =
         config.hasPath("committee.energyChargingSwitchOn") ? config
             .getInt("committee.energyChargingSwitchOn") : 0;
+
+    INSTANCE.sideChainChargingType =
+            config.hasPath("sidechain.chargingType") ? config
+                    .getInt("sidechain.chargingType") : 0;
 
     INSTANCE.tcpNettyWorkThreadNum = config.hasPath("node.tcpNettyWorkThreadNum") ? config
         .getInt("node.tcpNettyWorkThreadNum") : 0;

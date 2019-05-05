@@ -139,24 +139,42 @@ public class ReceiptCapsule {
       this.setEnergyUsage(usage);
     } else {
       energyProcessor.useEnergy(account, accountEnergyLeft, now);
-      long sunPerEnergy = Constant.MICRO_SUN_TOKEN_PER_ENERGY;
-      long dynamicEnergyFee = manager.getDynamicPropertiesStore().getEnergyTokenFee();
-      if (dynamicEnergyFee > 0) {
-        sunPerEnergy = dynamicEnergyFee;
-      }
-      long energyFee =
-          (usage - accountEnergyLeft) * sunPerEnergy;
-      this.setEnergyUsage(accountEnergyLeft);
-      this.setEnergyFee(energyFee);
-      // long balance = account.getBalance();
-      long balance = account.getAssetMapV2().get(SUN_TOKEN_ID);
-      if (balance < energyFee) {
-        throw new BalanceInsufficientException(
-            StringUtil.createReadableString(account.createDbKey()) + " insufficient balance");
+
+      long energyFee;
+      int chargingType = manager.getDynamicPropertiesStore().getSideChainChargingType();
+      long dynamicEnergyFee = manager.getDynamicPropertiesStore().getEnergyFee(chargingType);
+      if(chargingType == 0) {
+        long sunPerEnergy = Constant.SUN_PER_ENERGY;
+        if (dynamicEnergyFee > 0) {
+          sunPerEnergy = dynamicEnergyFee;
+        }
+        energyFee = (usage - accountEnergyLeft) * sunPerEnergy;
+        this.setEnergyUsage(accountEnergyLeft);
+        this.setEnergyFee(energyFee);
+
+        long balance = account.getBalance();
+        if (balance < energyFee) {
+          throw new BalanceInsufficientException(
+                  StringUtil.createReadableString(account.createDbKey()) + " insufficient balance");
+        }
+      } else {
+        long sunPerEnergy = Constant.MICRO_SUN_TOKEN_PER_ENERGY;
+        if (dynamicEnergyFee > 0) {
+          sunPerEnergy = dynamicEnergyFee;
+        }
+        energyFee = (usage - accountEnergyLeft) * sunPerEnergy;
+        this.setEnergyUsage(accountEnergyLeft);
+        this.setEnergyFee(energyFee);
+
+        long balance = account.getAssetMapV2().get(SUN_TOKEN_ID);
+        if (balance < energyFee) {
+          throw new BalanceInsufficientException(
+                  StringUtil.createReadableString(account.createDbKey()) + " insufficient token");
+        }
       }
 
-      manager.adjustSunTokenBalance(account, -energyFee);
-      manager.adjustSunTokenBalance(manager.getAccountStore().getZeroAccount().createDbKey(), energyFee);
+      manager.adjustBalance(account, -energyFee, chargingType);
+      manager.adjustBalance(manager.getAccountStore().getBlackhole().createDbKey(), energyFee, chargingType);
     }
 
     manager.getAccountStore().put(account.getAddress().toByteArray(), account);

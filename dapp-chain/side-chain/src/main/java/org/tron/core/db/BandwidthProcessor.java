@@ -42,6 +42,7 @@ public class BandwidthProcessor extends ResourceProcessor {
     }
 
     long bytesSize;
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
 
     bytesSize = trx.getInstance().toBuilder().clearRet().build().getSerializedSize();
 
@@ -76,7 +77,7 @@ public class BandwidthProcessor extends ResourceProcessor {
         continue;
       }
 
-      long fee = dbManager.getDynamicPropertiesStore().getTransactionFee() * bytesSize;
+      long fee = dbManager.getDynamicPropertiesStore().getTransactionFee(chargingType) * bytesSize;
       throw new AccountResourceInsufficientException(
           "Account Insufficient bandwidth[" + bytesSize + "] and balance["
               + fee + "] to create new account");
@@ -85,7 +86,8 @@ public class BandwidthProcessor extends ResourceProcessor {
 
   private boolean useTransactionFee(AccountCapsule accountCapsule, long bytes,
       TransactionTrace trace) {
-    long fee = dbManager.getDynamicPropertiesStore().getTransactionFee() * bytes;
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
+    long fee = dbManager.getDynamicPropertiesStore().getTransactionFee(chargingType) * bytes;
     if (consumeFee(accountCapsule, fee)) {
       trace.setNetBill(0, fee);
       dbManager.getDynamicPropertiesStore().addTotalTransactionCost(fee);
@@ -136,7 +138,8 @@ public class BandwidthProcessor extends ResourceProcessor {
 
   public boolean consumeFeeForCreateNewAccount(AccountCapsule accountCapsule,
       TransactionTrace trace) {
-    long fee = dbManager.getDynamicPropertiesStore().getCreateAccountFee();
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
+    long fee = dbManager.getDynamicPropertiesStore().getCreateAccountFee(chargingType);
     if (consumeFee(accountCapsule, fee)) {
       trace.setNetBill(0, fee);
       dbManager.getDynamicPropertiesStore().addTotalCreateAccountCost(fee);

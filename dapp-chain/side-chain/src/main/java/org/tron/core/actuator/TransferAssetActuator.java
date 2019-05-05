@@ -47,6 +47,7 @@ public class TransferAssetActuator extends AbstractActuator {
   public boolean execute(TransactionResultCapsule ret) throws ContractExeException {
     long fee = calcFee();
     try {
+      int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
       TransferAssetContract transferAssetContract = this.contract
           .unpack(TransferAssetContract.class);
       AccountStore accountStore = this.dbManager.getAccountStore();
@@ -65,8 +66,8 @@ public class TransferAssetActuator extends AbstractActuator {
       ByteString assetName = transferAssetContract.getAssetName();
       long amount = transferAssetContract.getAmount();
 
-      dbManager.adjustSunTokenBalance(ownerAddress, -fee);
-      dbManager.adjustSunTokenBalance(dbManager.getAccountStore().getZeroAccount().createDbKey(), fee);
+      dbManager.adjustBalance(ownerAddress, -fee, chargingType);
+      dbManager.adjustBalance(dbManager.getAccountStore().getBlackhole().createDbKey(), fee, chargingType);
 
       AccountCapsule ownerAccountCapsule = accountStore.get(ownerAddress);
       if (!ownerAccountCapsule.reduceAssetAmountV2(assetName.toByteArray(), amount)) {

@@ -648,12 +648,6 @@ public class Manager {
     this.getAccountStore().put(account.getAddress().toByteArray(), account);
   }
 
-  public void adjustSunTokenBalance(byte[] accountAddress, long amount)
-          throws BalanceInsufficientException {
-    AccountCapsule account = getAccountStore().getUnchecked(accountAddress);
-    adjustSunTokenBalance(account, amount);
-  }
-
   public void adjustSunTokenBalance(AccountCapsule account, long amount)
           throws BalanceInsufficientException {
 
@@ -671,6 +665,24 @@ public class Manager {
     this.getAccountStore().put(account.getAddress().toByteArray(), account);
   }
 
+  public void adjustBalance(byte[] accountAddress, long amount, int chargingType)
+          throws BalanceInsufficientException {
+    AccountCapsule account = getAccountStore().getUnchecked(accountAddress);
+    if(chargingType == 0) {
+      adjustBalance(account, amount);
+    } else {
+      adjustSunTokenBalance(account, amount);
+    }
+  }
+
+  public void adjustBalance(AccountCapsule account, long amount, int chargingType)
+          throws BalanceInsufficientException {
+    if(chargingType == 0) {
+      adjustBalance(account, amount);
+    } else {
+      adjustSunTokenBalance(account, amount);
+    }
+  }
 
   public void adjustAllowance(byte[] accountAddress, long amount)
       throws BalanceInsufficientException {
@@ -784,14 +796,15 @@ public class Manager {
       throws AccountResourceInsufficientException {
     if (trx.getInstance().getSignatureCount() > 1) {
       //long fee = getDynamicPropertiesStore().getMultiSignFee();
-      long fee = getDynamicPropertiesStore().getMultiSignTokenFee();
+      int chargingType = getDynamicPropertiesStore().getSideChainChargingType();
+      long fee = getDynamicPropertiesStore().getMultiSignFee(chargingType);
       List<Contract> contracts = trx.getInstance().getRawData().getContractList();
       for (Contract contract : contracts) {
         byte[] address = TransactionCapsule.getOwner(contract);
         AccountCapsule accountCapsule = getAccountStore().get(address);
         try {
-          adjustSunTokenBalance(accountCapsule, -fee);
-          adjustSunTokenBalance(this.getAccountStore().getZeroAccount().createDbKey(), +fee);
+          adjustBalance(accountCapsule, -fee, chargingType);
+          adjustBalance(this.getAccountStore().getBlackhole().createDbKey(), +fee, chargingType);
         } catch (BalanceInsufficientException e) {
           throw new AccountResourceInsufficientException(
               "Account Insufficient  balance[" + fee + "] to MultiSign");
