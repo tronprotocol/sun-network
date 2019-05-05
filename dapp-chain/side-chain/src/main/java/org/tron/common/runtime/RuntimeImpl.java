@@ -191,31 +191,35 @@ public class RuntimeImpl implements Runtime {
 
   public long getAccountEnergyLimitWithFixRatio(AccountCapsule account, long feeLimit,
       long callValue) {
-    long sunPerEnergy;
     long energyFromBalance;
+    long energyFromFeeLimit;
 
     int chargingType = deposit.getDbManager().getDynamicPropertiesStore().getSideChainChargingType();
     if(chargingType == 0) {
       // charging by trx
-      sunPerEnergy = Constant.SUN_PER_ENERGY;
+      long sunPerEnergy = Constant.SUN_PER_ENERGY;
       if (deposit.getDbManager().getDynamicPropertiesStore().getEnergyFee() > 0) {
         sunPerEnergy = deposit.getDbManager().getDynamicPropertiesStore().getEnergyFee();
       }
 
+      energyFromFeeLimit = feeLimit / sunPerEnergy;
+
       energyFromBalance = max(account.getBalance() - callValue, 0) / sunPerEnergy;
     } else {
       // charging by suntoken
-      sunPerEnergy = Constant.MICRO_SUN_TOKEN_PER_ENERGY;
+      long sunTokenPerEnergy = Constant.MICRO_SUN_TOKEN_PER_ENERGY;
       if (deposit.getDbManager().getDynamicPropertiesStore().getEnergyTokenFee() > 0) {
-        sunPerEnergy = deposit.getDbManager().getDynamicPropertiesStore().getEnergyTokenFee();
+        sunTokenPerEnergy = deposit.getDbManager().getDynamicPropertiesStore().getEnergyTokenFee();
       }
 
-      energyFromBalance = max(account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) - callValue, 0) / sunPerEnergy;
+      energyFromFeeLimit = feeLimit / sunTokenPerEnergy;
+
+      energyFromBalance = max(account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) - callValue, 0) / sunTokenPerEnergy;
     }
 
     long leftFrozenEnergy = energyProcessor.getAccountLeftEnergyFromFreeze(account);
     long availableEnergy = Math.addExact(leftFrozenEnergy, energyFromBalance);
-    long energyFromFeeLimit = feeLimit / sunPerEnergy;
+
     return min(availableEnergy, energyFromFeeLimit);
 
 
