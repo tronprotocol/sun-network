@@ -651,7 +651,7 @@ public class Manager {
   public void adjustSunTokenBalance(AccountCapsule account, long amount)
           throws BalanceInsufficientException {
 
-    long sunTokenBalance = account.getAssetMapV2().get(SUN_TOKEN_ID);
+    long sunTokenBalance = account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L);
     if (amount == 0) {
       return;
     }

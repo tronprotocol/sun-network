@@ -98,7 +98,7 @@ public class WitnessCreateActuator extends AbstractActuator {
         throw new ContractValidateException("balance < AccountUpgradeCost");
       }
     } else {
-      if (accountCapsule.getAssetMapV2().get(SUN_TOKEN_ID) < upgradeCost) {
+      if (accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) < upgradeCost) {
         throw new ContractValidateException("balance < AccountUpgradeCost");
       }
     }

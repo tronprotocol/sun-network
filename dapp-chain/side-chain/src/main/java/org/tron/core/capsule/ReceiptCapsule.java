@@ -166,7 +166,7 @@ public class ReceiptCapsule {
         this.setEnergyUsage(accountEnergyLeft);
         this.setEnergyFee(energyFee);
 
-        long balance = account.getAssetMapV2().get(SUN_TOKEN_ID);
+        long balance = account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L);
         if (balance < energyFee) {
           throw new BalanceInsufficientException(
                   StringUtil.createReadableString(account.createDbKey()) + " insufficient token");
