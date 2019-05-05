@@ -11,7 +11,7 @@ public class ConsumerDemo {
 
   public static void main(String[] args) {
     Properties properties = new Properties();
-    properties.put("bootstrap.servers", "127.0.0.1:9092");
+    properties.put("bootstrap.servers", "172.16.20.52:9092");
     properties.put("group.id", "group-1");
     properties.put("enable.auto.commit", "true");
     properties.put("auto.commit.interval.ms", "1000");

@@ -15,9 +15,7 @@ import org.tron.service.kafka.KfkConsumer;
 public class ChainTask extends Thread {
 
   private String gatewayAddress;
-  //private String kfkServer;
   private TaskEnum taskType;
-
   private ExecutorService executor;
   private final KfkConsumer kfkConsumer;
 
@@ -34,11 +32,12 @@ public class ChainTask extends Thread {
 
   @Override
   public void run() {
-    while (true) {
+    for (; ; ) {
       ConsumerRecords<String, String> record = kfkConsumer.getRecord();
       for (ConsumerRecord<String, String> key : record) {
         JSONObject obj = (JSONObject) JSONValue.parse(key.value());
-        if (!obj.get("contractAddress").toString().equals(gatewayAddress)) {
+        if (Objects.isNull(obj.get("contractAddress")) || !obj.get("contractAddress").toString()
+            .equals(gatewayAddress)) {
           continue;
         }
         EventTask eventTask = EventTaskFactory.CreateTask(this.taskType, obj);

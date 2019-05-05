@@ -1,9 +1,9 @@
 package org.tron.service.task.sidechain;
 
-import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
-import org.tron.client.SideChainGatewayApi;
+import org.tron.service.check.CheckTransaction;
+import org.tron.service.check.TransactionId;
 import org.tron.service.task.EventTask;
 
 @Slf4j(topic = "sideChainTask")
@@ -26,15 +26,16 @@ public class WithdrawTRC721Task implements EventTask {
   @Override
   public void run() {
     logger.info("from: {}, tokenId: {}, mainChainAddress: {}, txData: {}", this.from, this.tokenId,
-      this.mainChainAddress, this.txData);
+        this.mainChainAddress, this.txData);
     try {
-      String txId = MainChainGatewayApi
-        .withdrawTRC721(this.from, this.mainChainAddress, this.tokenId, this.txData);
+      TransactionId txId = MainChainGatewayApi
+          .withdrawTRC721(this.from, this.mainChainAddress, this.tokenId, this.txData);
       MainChainGatewayApi.checkTxInfo(txId);
+      CheckTransaction.getInstance().submitCheck(txId);
     } catch (Exception e) {
       logger
-        .error("WithdrawTRC721Task fail, from: {}, tokenId: {}, mainChainAddress: {}, txData: {}",
-          this.from, this.tokenId, this.mainChainAddress, this.txData);
+          .error("WithdrawTRC721Task fail, from: {}, tokenId: {}, mainChainAddress: {}, txData: {}",
+              this.from, this.tokenId, this.mainChainAddress, this.txData);
     }
   }
 }

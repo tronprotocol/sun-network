@@ -5,12 +5,11 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
-
 public class ProducerDemo {
 
   public static void main(String[] args) {
     Properties properties = new Properties();
-    properties.put("bootstrap.servers", "127.0.0.1:9092");
+    properties.put("bootstrap.servers", "172.16.22.252:9092");
     properties.put("acks", "all");
     properties.put("retries", 0);
     properties.put("batch.size", 16384);

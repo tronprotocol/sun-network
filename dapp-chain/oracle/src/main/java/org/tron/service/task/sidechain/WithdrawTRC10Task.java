@@ -1,9 +1,9 @@
 package org.tron.service.task.sidechain;
 
-import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
-import org.tron.client.SideChainGatewayApi;
+import org.tron.service.check.CheckTransaction;
+import org.tron.service.check.TransactionId;
 import org.tron.common.config.Args;
 import org.tron.common.utils.WalletUtil;
 import org.tron.service.task.EventTask;
@@ -28,9 +28,9 @@ public class WithdrawTRC10Task implements EventTask {
   @Override
   public void run() {
     logger.info("from: {}, value: {}, trc10: {}, txData: {}", this.from, this.value, this.trc10,
-      this.txData);
+        this.txData);
     try {
-      String txId;
+      TransactionId txId;
       if (this.trc10.equalsIgnoreCase("2000000")) {
         txId = MainChainGatewayApi
           .withdrawTRC20(this.from,
@@ -41,10 +41,10 @@ public class WithdrawTRC10Task implements EventTask {
           .withdrawTRC10(this.from, this.trc10, this.value, this.txData);
       }
       MainChainGatewayApi.checkTxInfo(txId);
-
+      CheckTransaction.getInstance().submitCheck(txId);
     } catch (Exception e) {
       logger.error("WithdrawTRC10Task fail, from: {}, value: {}, trc10: {}, txData: {}", this.from,
-        this.value, this.trc10, this.txData);
+          this.value, this.trc10, this.txData);
     }
   }
 }
