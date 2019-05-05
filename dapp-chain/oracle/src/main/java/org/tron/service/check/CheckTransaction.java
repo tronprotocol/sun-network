@@ -4,6 +4,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 
@@ -30,7 +31,7 @@ public class CheckTransaction {
 
   private void checkTransactionId(TransactionId trxId) {
     try {
-      if (trxId.getTransactionId().equals("")) {
+      if (StringUtils.isEmpty(trxId.getTransactionId())) {
         return;
       }
       switch (trxId.getType()) {
@@ -43,7 +44,18 @@ public class CheckTransaction {
       }
     } catch (Exception e) {
       logger.error(e.getMessage());
+      boolean b = broadcastTransaction(trxId);
       instance.submitCheck(trxId);
     }
+  }
+
+  private boolean broadcastTransaction(TransactionId trxId) {
+    switch (trxId.getType()) {
+      case MAIN_CHAIN:
+        return MainChainGatewayApi.broadcast(trxId.getTransaction());
+      case SIDE_CHAIN:
+        return SideChainGatewayApi.broadcast(trxId.getTransaction());
+    }
+    return false;
   }
 }

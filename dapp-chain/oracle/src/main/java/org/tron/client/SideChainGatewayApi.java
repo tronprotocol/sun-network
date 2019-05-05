@@ -11,6 +11,7 @@ import org.tron.common.exception.ContractException;
 import org.tron.common.exception.RpcException;
 import org.tron.common.exception.TxNotFoundException;
 import org.tron.common.utils.AbiUtil;
+import org.tron.protos.Protocol.Transaction;
 import org.tron.service.check.TransactionId;
 import org.tron.service.task.TaskEnum;
 
@@ -80,7 +81,7 @@ public class SideChainGatewayApi {
     String method = "sunTokenAddress()";
     List<Object> params = new ArrayList<>();
     byte[] ret = GATEWAY_API.getInstance()
-      .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
+        .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
     return AbiUtil.unpackAddress(ret);
   }
 
@@ -100,4 +101,7 @@ public class SideChainGatewayApi {
     return GATEWAY_API.instance.checkTxInfo(txId.getTransactionId());
   }
 
+  public static boolean broadcast(Transaction transaction) {
+    return GATEWAY_API.instance.broadcast(transaction);
+  }
 }

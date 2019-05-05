@@ -10,6 +10,7 @@ import org.tron.common.exception.ContractException;
 import org.tron.common.exception.RpcException;
 import org.tron.common.exception.TxNotFoundException;
 import org.tron.protos.Contract.AssetIssueContract;
+import org.tron.protos.Protocol.Transaction;
 import org.tron.service.check.TransactionId;
 import org.tron.service.task.TaskEnum;
 
@@ -85,6 +86,7 @@ public class MainChainGatewayApi {
     return GATEWAY_API.getInstance().checkTxInfo(txId.getTransactionId());
   }
 
-  public static void main(String[] args) {
+  public static boolean broadcast(Transaction transaction) {
+    return GATEWAY_API.instance.broadcast(transaction);
   }
 }
