@@ -449,6 +449,10 @@ public class Args {
   @Setter
   private int sideChainChargingType;
 
+  @Getter
+  @Setter
+  private int sideChainChargingBandwidth;
+
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
     INSTANCE.help = false;
@@ -835,6 +839,10 @@ public class Args {
     INSTANCE.sideChainChargingType =
             config.hasPath("sidechain.chargingType") ? config
                     .getInt("sidechain.chargingType") : 0;
+
+    INSTANCE.sideChainChargingBandwidth =
+            config.hasPath("sidechain.chargingBandwidth") ? config
+                    .getInt("sidechain.chargingBandwidth") : 0;
 
     INSTANCE.tcpNettyWorkThreadNum = config.hasPath("node.tcpNettyWorkThreadNum") ? config
         .getInt("node.tcpNettyWorkThreadNum") : 0;

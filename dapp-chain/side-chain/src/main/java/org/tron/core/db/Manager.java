@@ -1243,7 +1243,12 @@ public class Manager {
     trxCap.setTrxTrace(trace);
 
     if (dynamicPropertiesStore.getEnergyChargingSwitch() == 1) {
-      consumeBandwidthEnergy(trxCap, trace);
+      //
+      if(dynamicPropertiesStore.getSideChainChargingType() == 1) {
+        consumeBandwidth(trxCap, trace);
+      } else {
+        consumeBandwidthEnergy(trxCap, trace);
+      }
       consumeMultiSignFee(trxCap, trace);
     }
 
