@@ -2,6 +2,8 @@ package org.tron.service.task.sidechain;
 
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
+import org.tron.service.check.CheckTransaction;
+import org.tron.service.check.TransactionId;
 import org.tron.service.task.EventTask;
 
 @Slf4j(topic = "sideChainTask")
@@ -25,9 +27,10 @@ public class DeployDAppTRC20AndMappingTask implements EventTask {
     logger.info("developer: {}, mainChainAddress: {}, sideChainAddress: {}", this.developer,
         this.mainChainAddress, this.sideChainAddress);
     try {
-      String txId = MainChainGatewayApi
+      TransactionId txId = MainChainGatewayApi
           .addTokenMapping(this.mainChainAddress, this.sideChainAddress);
       MainChainGatewayApi.checkTxInfo(txId);
+      CheckTransaction.getInstance().submitCheck(txId);
     } catch (Exception e) {
       logger.error(
           "DeployDAppTRC20AndMappingTask fail, developer: {}, mainChainAddress: {}, sideChainAddress: {}",

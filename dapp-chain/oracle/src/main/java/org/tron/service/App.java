@@ -4,6 +4,7 @@ import java.util.TimeZone;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.Args;
 import org.tron.common.utils.WalletUtil;
+import org.tron.service.check.CheckTransaction;
 import org.tron.service.task.ChainTask;
 import org.tron.service.task.TaskEnum;
 
@@ -20,13 +21,13 @@ public class App {
     logger.info("start...");
     Args arg = Args.getInstance();
     arg.setParam(args);
-
+    CheckTransaction checkTransaction = new CheckTransaction();
     ChainTask sideChainTask = new ChainTask(TaskEnum.SIDE_CHAIN,
         WalletUtil.encode58Check(arg.getSidechainGateway()),
-        Args.getInstance().getSidechainKafka(), fixedThreads);
+        Args.getInstance().getSidechainKafka(), fixedThreads, checkTransaction);
     ChainTask mainChainTask = new ChainTask(TaskEnum.MAIN_CHAIN,
         WalletUtil.encode58Check(arg.getMainchainGateway()),
-        Args.getInstance().getMainchainKafka(), fixedThreads);
+        Args.getInstance().getMainchainKafka(), fixedThreads, checkTransaction);
     sideChainTask.start();
     mainChainTask.start();
   }

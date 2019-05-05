@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.tron.service.check.CheckTransaction;
 import org.tron.service.kafka.KfkConsumer;
 
 @Slf4j(topic = "task")
@@ -16,29 +17,31 @@ public class ChainTask extends Thread {
 
   private String gatewayAddress;
   private TaskEnum taskType;
-
   private ExecutorService executor;
   private final KfkConsumer kfkConsumer;
+  CheckTransaction checkTransaction;
 
   public ChainTask(TaskEnum taskType, String gatewayAddress,
-      String kfkServer, int fixedThreads) {
+      String kfkServer, int fixedThreads,
+      CheckTransaction checkTransaction) {
     super();
     this.gatewayAddress = gatewayAddress;
     this.taskType = taskType;
     this.executor = Executors.newFixedThreadPool(fixedThreads);
     this.kfkConsumer = new KfkConsumer(kfkServer, taskType.getName(),
         Arrays.asList("contractevent"));
+    this.checkTransaction = checkTransaction;
     logger.info("task mane is {},task type is {}", getName(), this.taskType);
   }
 
   @Override
   public void run() {
-    while (true) {
-
+    for (; ; ) {
       ConsumerRecords<String, String> record = kfkConsumer.getRecord();
       for (ConsumerRecord<String, String> key : record) {
         JSONObject obj = (JSONObject) JSONValue.parse(key.value());
-        if (!obj.get("contractAddress").toString().equals(gatewayAddress)) {
+        if (Objects.isNull(obj.get("contractAddress")) || !obj.get("contractAddress").toString()
+            .equals(gatewayAddress)) {
           continue;
         }
         EventTask eventTask = EventTaskFactory.CreateTask(this.taskType, obj);

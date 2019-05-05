@@ -26,6 +26,7 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.Protocol.TransactionInfo.code;
+import org.tron.service.check.TransactionId;
 
 @Slf4j
 public class WalletClient {
@@ -88,7 +89,7 @@ public class WalletClient {
     throw new RpcException("no result");
   }
 
-  public String triggerContract(byte[] contractAddress, String method, List<Object> params,
+  public TransactionId triggerContract(byte[] contractAddress, String method, List<Object> params,
       long callValue, long tokenId, long tokenValue) throws RpcException {
 
     logger.info(
@@ -97,7 +98,7 @@ public class WalletClient {
         tokenValue);
 
     byte[] data = AbiUtil.parseMethod(method, params);
-    String txId = (String) triggerContract(contractAddress, data, SystemSetting.FEE_LIMIT,
+    TransactionId txId = triggerContract(contractAddress, data, SystemSetting.FEE_LIMIT,
         callValue, tokenValue, tokenId);
     logger.info("txId: {}", txId);
     return txId;
@@ -117,7 +118,8 @@ public class WalletClient {
     return transactionExtention;
   }
 
-  private String triggerContract(byte[] contractAddress, byte[] data, long feeLimit, long callValue,
+  private TransactionId triggerContract(byte[] contractAddress, byte[] data, long feeLimit,
+      long callValue,
       long tokenValue, Long tokenId) throws RpcException {
     byte[] owner = address;
     Contract.TriggerSmartContract triggerContract = buildTriggerContract(owner, contractAddress,
@@ -168,7 +170,7 @@ public class WalletClient {
     return rpcCli.getAssetIssueById(assetId);
   }
 
-  private String processTransactionExtention(TransactionExtention transactionExtention)
+  private TransactionId processTransactionExtention(TransactionExtention transactionExtention)
       throws RpcException {
     if (transactionExtention == null) {
       throw new RpcException("transactionExtention is null");
@@ -188,7 +190,7 @@ public class WalletClient {
     String txId = ByteArray
         .toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
     rpcCli.broadcastTransaction(transaction);
-    return txId;
+    return new TransactionId(transaction);
   }
 
   public byte[] checkTxInfo(String txId) throws TxNotFoundException, ContractException {

@@ -8,6 +8,7 @@ import org.tron.service.task.mainchain.DepositTRC10Task;
 import org.tron.service.task.mainchain.DepositTRC20Task;
 import org.tron.service.task.mainchain.DepositTRC721Task;
 import org.tron.service.task.mainchain.DepositTRXTask;
+import org.tron.service.task.mainchain.Token10WithdrawnTask;
 import org.tron.service.task.mainchain.TokenWithdrawnTask;
 import org.tron.service.task.sidechain.DeployDAppTRC20AndMappingTask;
 import org.tron.service.task.sidechain.DeployDAppTRC721AndMappingTask;
@@ -17,7 +18,7 @@ import org.tron.service.task.sidechain.WithdrawTRC721Task;
 import org.tron.service.task.sidechain.WithdrawTRXTask;
 
 @Slf4j(topic = "task")
-public class EventTaskFactory {
+class EventTaskFactory {
 
   static EventTask CreateTask(TaskEnum taskType,
       JSONObject obj) {
@@ -50,7 +51,7 @@ public class EventTaskFactory {
         return task;
       }
       case TOKEN10_WITHDRAWN: {
-        task = new TokenWithdrawnTask(topicMap.get("owner").toString(),
+        task = new Token10WithdrawnTask(topicMap.get("owner").toString(),
             dataMap.get("kind").toString(), dataMap.get("tokenId").toString(),
             dataMap.get("value").toString());
         return task;
@@ -75,10 +76,10 @@ public class EventTaskFactory {
             dataMap.get("uid").toString(), dataMap.get("contractAddress").toString());
         return task;
       }
-      default:
-        logger.info("event:{},signature:{}.", obj.get("eventSignature").toString(),
+      default: {
+        logger.warn("event:{},signature:{}.", obj.get("eventSignature").toString(),
             eventSignature.getSignature());
-
+      }
     }
     return null;
   }
@@ -127,9 +128,10 @@ public class EventTaskFactory {
             dataMap.get("txData").toString());
         return task;
       }
-      default:
+      default: {
         logger.info("event:{},signature:{}.",
             obj.get("eventSignature").toString(), eventType.getMethod());
+      }
     }
     return null;
   }

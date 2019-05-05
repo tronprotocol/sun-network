@@ -2,6 +2,8 @@ package org.tron.service.task.sidechain;
 
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
+import org.tron.service.check.CheckTransaction;
+import org.tron.service.check.TransactionId;
 import org.tron.service.task.EventTask;
 
 @Slf4j(topic = "sideChainTask")
@@ -26,9 +28,10 @@ public class WithdrawTRC10Task implements EventTask {
     logger.info("from: {}, value: {}, trc10: {}, txData: {}", this.from, this.value, this.trc10,
         this.txData);
     try {
-      String txId = MainChainGatewayApi
+      TransactionId txId = MainChainGatewayApi
           .withdrawTRC10(this.from, this.trc10, this.value, this.txData);
       MainChainGatewayApi.checkTxInfo(txId);
+      CheckTransaction.getInstance().submitCheck(txId);
     } catch (Exception e) {
       logger.error("WithdrawTRC10Task fail, from: {}, value: {}, trc10: {}, txData: {}", this.from,
           this.value, this.trc10, this.txData);

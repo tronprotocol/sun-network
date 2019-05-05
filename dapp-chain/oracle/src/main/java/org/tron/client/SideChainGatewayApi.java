@@ -10,18 +10,20 @@ import org.tron.common.exception.ContractException;
 import org.tron.common.exception.RpcException;
 import org.tron.common.exception.TxNotFoundException;
 import org.tron.common.utils.AbiUtil;
+import org.tron.service.check.TransactionId;
+import org.tron.service.task.TaskEnum;
 
 @Slf4j
 public class SideChainGatewayApi {
 
-  public static String mintTrx(String to, String value) throws RpcException {
+  public static TransactionId mintTrx(String to, String value) throws RpcException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRX(address,uint256)";
     List params = Arrays.asList(to, value);
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static String mintToken10(String to, String tokenId, String value, String name,
+  public static TransactionId mintToken10(String to, String tokenId, String value, String name,
       String symbol, int decimals)
       throws RpcException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
@@ -30,7 +32,7 @@ public class SideChainGatewayApi {
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static String mintToken20(String to, String mainAddress, String value)
+  public static TransactionId mintToken20(String to, String mainAddress, String value)
       throws RpcException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRC20(address,address,uint256)";
@@ -38,7 +40,7 @@ public class SideChainGatewayApi {
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static String mintToken721(String to, String mainAddress, String value)
+  public static TransactionId mintToken721(String to, String mainAddress, String value)
       throws RpcException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRC721(address,address,uint256)";
@@ -82,8 +84,10 @@ public class SideChainGatewayApi {
   }
 
 
-  public static byte[] checkTxInfo(String trxId) throws ContractException, TxNotFoundException {
-    return GATEWAY_API.instance.checkTxInfo(trxId);
+  public static byte[] checkTxInfo(TransactionId txId)
+      throws ContractException, TxNotFoundException {
+    txId.setType(TaskEnum.SIDE_CHAIN);
+    return GATEWAY_API.instance.checkTxInfo(txId.getTransactionId());
   }
 
 }

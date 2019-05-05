@@ -2,6 +2,8 @@ package org.tron.service.task.mainchain;
 
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
+import org.tron.service.check.CheckTransaction;
+import org.tron.service.check.TransactionId;
 import org.tron.service.task.EventTask;
 
 @Slf4j(topic = "mainChainTask")
@@ -22,9 +24,10 @@ public class DepositTRC20Task implements EventTask {
     logger
         .info("from:{},amount:{},contractAddress{}", this.from, this.amount, this.contractAddress);
     try {
-      String trxId = SideChainGatewayApi
+      TransactionId txId = SideChainGatewayApi
           .mintToken20(this.from, this.contractAddress, this.amount);
-      SideChainGatewayApi.checkTxInfo(trxId);
+      SideChainGatewayApi.checkTxInfo(txId);
+      CheckTransaction.getInstance().submitCheck(txId);
     } catch (Exception e) {
       logger.error("from:{},amount:{},contractAddress{}", this.from, this.amount,
           this.contractAddress);

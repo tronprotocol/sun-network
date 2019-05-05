@@ -10,6 +10,8 @@ import org.tron.common.exception.ContractException;
 import org.tron.common.exception.RpcException;
 import org.tron.common.exception.TxNotFoundException;
 import org.tron.protos.Contract.AssetIssueContract;
+import org.tron.service.check.TransactionId;
+import org.tron.service.task.TaskEnum;
 
 @Slf4j
 public class MainChainGatewayApi {
@@ -29,7 +31,7 @@ public class MainChainGatewayApi {
     }
   }
 
-  public static String addTokenMapping(String mainChainAddress, String sideChainAddress)
+  public static TransactionId addTokenMapping(String mainChainAddress, String sideChainAddress)
       throws RpcException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "migrationToken(address,address)";
@@ -37,7 +39,7 @@ public class MainChainGatewayApi {
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static String withdrawTRC10(String to, String trc10, String value, String txData)
+  public static TransactionId withdrawTRC10(String to, String trc10, String value, String txData)
       throws RpcException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawTRC10(address,trcToken,uint256,bytes)";
@@ -45,7 +47,7 @@ public class MainChainGatewayApi {
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static String withdrawTRC20(String to, String mainChainAddress, String value,
+  public static TransactionId withdrawTRC20(String to, String mainChainAddress, String value,
       String txData)
       throws RpcException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
@@ -54,7 +56,7 @@ public class MainChainGatewayApi {
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static String withdrawTRC721(String to, String mainChainAddress, String value,
+  public static TransactionId withdrawTRC721(String to, String mainChainAddress, String value,
       String txData)
       throws RpcException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
@@ -63,7 +65,7 @@ public class MainChainGatewayApi {
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static String withdrawTRX(String to, String value, String txData)
+  public static TransactionId withdrawTRX(String to, String value, String txData)
       throws RpcException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawTRX(address,uint256,bytes)";
@@ -77,8 +79,10 @@ public class MainChainGatewayApi {
     return assetIssueContract;
   }
 
-  public static byte[] checkTxInfo(String txId) throws ContractException, TxNotFoundException {
-    return GATEWAY_API.getInstance().checkTxInfo(txId);
+  public static byte[] checkTxInfo(TransactionId txId)
+      throws ContractException, TxNotFoundException {
+    txId.setType(TaskEnum.SIDE_CHAIN);
+    return GATEWAY_API.getInstance().checkTxInfo(txId.getTransactionId());
   }
 
   public static void main(String[] args) {
