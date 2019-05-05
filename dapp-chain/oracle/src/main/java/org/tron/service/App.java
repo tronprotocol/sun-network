@@ -3,8 +3,8 @@ package org.tron.service;
 import java.util.TimeZone;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.Args;
+import org.tron.common.exception.RpcException;
 import org.tron.common.utils.WalletUtil;
-import org.tron.service.check.CheckTransaction;
 import org.tron.service.task.ChainTask;
 import org.tron.service.task.TaskEnum;
 
@@ -20,14 +20,19 @@ public class App {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     logger.info("start...");
     Args arg = Args.getInstance();
-    arg.setParam(args);
-    CheckTransaction checkTransaction = new CheckTransaction();
+    try {
+      arg.setParam(args);
+    } catch (RpcException e) {
+      logger.error("failed to get sun token when setParam", e);
+      System.exit(1);
+    }
+
     ChainTask sideChainTask = new ChainTask(TaskEnum.SIDE_CHAIN,
         WalletUtil.encode58Check(arg.getSidechainGateway()),
-        Args.getInstance().getSidechainKafka(), fixedThreads, checkTransaction);
+        Args.getInstance().getSidechainKafka(), fixedThreads);
     ChainTask mainChainTask = new ChainTask(TaskEnum.MAIN_CHAIN,
         WalletUtil.encode58Check(arg.getMainchainGateway()),
-        Args.getInstance().getMainchainKafka(), fixedThreads, checkTransaction);
+        Args.getInstance().getMainchainKafka(), fixedThreads);
     sideChainTask.start();
     mainChainTask.start();
   }

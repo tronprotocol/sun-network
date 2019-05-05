@@ -433,7 +433,7 @@ public class WalletApi {
 
   public byte[] getSideTokenAddress(String mainAddress) throws EncodingException {
     byte[] input = org.bouncycastle.util.encoders.Hex.decode(
-      AbiUtil.parseMethod("mainToSideContractMap(address)", mainAddress, false));
+      AbiUtil.parseMethod("mainToSideContractMap(address)", "\"" + mainAddress + "\"", false));
     Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
       sideGatewayAddress, 0, input, 0, "0");
     TransactionExtention transactionExtention = rpcSide.triggerContract(triggerContract);

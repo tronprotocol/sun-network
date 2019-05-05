@@ -4,6 +4,7 @@ import java.util.List;
 import org.tron.common.runtime.vm.DataWord;
 import org.tron.common.runtime.vm.program.Storage;
 import org.tron.core.capsule.AccountCapsule;
+import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.capsule.ContractCapsule;
@@ -86,6 +87,8 @@ public interface Deposit {
 
   void putDynamicPropertiesWithLatestProposalNum(long num);
 
+  void putAssetIssue(Key key, Value value);
+
   long getLatestProposalNum();
 
   long getWitnessAllowanceFrozenTime();
@@ -93,6 +96,14 @@ public interface Deposit {
   long getMaintenanceTimeInterval();
 
   long getNextMaintenanceTime();
+
+  long addTokenBalance(byte[] address, byte[] tokenId, long value);
+
+  long getTokenBalance(byte[] address, byte[] tokenId);
+
+  void putAssetIssue(byte[] tokenId, AssetIssueCapsule assetIssueCapsule);
+
+  AssetIssueCapsule getAssetIssue(byte[] tokenId);
 
   long getEnergyFee();
 
@@ -103,5 +114,7 @@ public interface Deposit {
   byte[] getBlackHoleAddress();
 
   List<byte[]> getGatewayList();
+
+  boolean isGatewayAddress(byte[] address);
 
 }

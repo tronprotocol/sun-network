@@ -15,6 +15,8 @@
 
 package org.tron.core.capsule;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.protobuf.ByteString;
@@ -68,6 +70,20 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
         .setAddress(address)
         .setBalance(balance)
         .build();
+  }
+
+  /**
+   * initial account capsule.
+   */
+  public AccountCapsule(ByteString accountName, ByteString address, AccountType accountType,
+      long balance, long sunTokenBalance) {
+    this.account = Account.newBuilder()
+        .setAccountName(accountName)
+        .setType(accountType)
+        .setAddress(address)
+        .setBalance(balance)
+        .build();
+    this.addAssetAmountV2(SUN_TOKEN_ID.getBytes(),sunTokenBalance);
   }
 
   /**
@@ -427,10 +443,82 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
   }
 
   /**
+   * reduce asset amount.
+   */
+  public boolean reduceAssetAmountV2(byte[] key, long amount) {
+    String tokenID = ByteArray.toStr(key);
+    Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
+    Long currentAmount = assetMapV2.get(tokenID);
+    if (amount > 0 && null != currentAmount && amount <= currentAmount) {
+      this.account = this.account.toBuilder()
+          .putAssetV2(tokenID, Math.subtractExact(currentAmount, amount))
+          .build();
+      return true;
+    }
+    return false;
+  }
+
+
+  /**
+   * add asset amount.
+   */
+  public boolean addAssetAmountV2(byte[] key, long amount) {
+      String tokenIDStr = ByteArray.toStr(key);
+      Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
+      Long currentAmount = assetMapV2.get(tokenIDStr);
+      if (currentAmount == null) {
+        currentAmount = 0L;
+      }
+      this.account = this.account.toBuilder()
+          .putAssetV2(tokenIDStr, Math.addExact(currentAmount, amount))
+          .build();
+    return true;
+  }
+
+  public boolean setAssetAmountV2(byte[] key, long amount) {
+    String tokenIDStr = ByteArray.toStr(key);
+    Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
+    this.account = this.account.toBuilder()
+        .putAssetV2(tokenIDStr,amount)
+        .build();
+    return true;
+  }
+
+  /**
    * set account name
    */
   public void setAccountName(byte[] name) {
     this.account = this.account.toBuilder().setAccountName(ByteString.copyFrom(name)).build();
+  }
+
+  public boolean addAssetV2(byte[] key, long value) {
+    String tokenID = ByteArray.toStr(key);
+    Map<String, Long> assetV2Map = this.account.getAssetV2Map();
+    if (!assetV2Map.isEmpty() && assetV2Map.containsKey(tokenID)) {
+      return false;
+    }
+
+    this.account = this.account.toBuilder()
+        .putAssetV2(tokenID, value)
+        .build();
+    return true;
+  }
+
+  /**
+   * add asset.
+   */
+  public boolean addAssetMapV2(Map<String, Long> assetMap) {
+    this.account = this.account.toBuilder().putAllAssetV2(assetMap).build();
+    return true;
+  }
+
+  public Map<String, Long> getAssetMapV2() {
+    Map<String, Long> assetMap = this.account.getAssetV2Map();
+    if (assetMap.isEmpty()) {
+      assetMap = Maps.newHashMap();
+    }
+
+    return assetMap;
   }
 
   /**

@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.encoders.Hex;
 import org.springframework.stereotype.Component;
+import org.tron.client.SideChainGatewayApi;
+import org.tron.common.exception.RpcException;
 import org.tron.common.utils.WalletUtil;
 
 
@@ -59,6 +61,9 @@ public class Args {
 
   @Getter
   private byte[] oraclePrivateKey;
+
+  @Getter
+  private byte[] sunTokenAddress;
 
 
   @Getter
@@ -118,12 +123,17 @@ public class Args {
     return instance;
   }
 
-  public void setParam(String[] args) {
+  public void setParam(String[] args) throws RpcException {
     JCommander.newBuilder().addObject(instance).build().parse(args);
     loadConf(shellConfFileName);
   }
 
-  public void loadConf(String confName) {
+  public void loadSunTokenAddress() throws RpcException {
+    this.sunTokenAddress = WalletUtil
+      .decodeFromBase58Check(SideChainGatewayApi.getSunTokenAddress());
+  }
+
+  public void loadConf(String confName) throws RpcException {
     if (StringUtils.isEmpty(confName)) {
       confName = "config-sample.conf";
     }
@@ -146,5 +156,16 @@ public class Args {
     this.sidechainKafka = config.getString("kafka.sidechain.server");
 
     // loadMysqlConf(config);
+
+    loadSunTokenAddress();
   }
+
+  public static void main(String[] args) {
+    try {
+      Args.getInstance().setParam(args);
+    } catch (RpcException e) {
+      e.printStackTrace();
+    }
+  }
+
 }

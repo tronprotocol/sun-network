@@ -21,7 +21,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
 
     event DeployDAppTRC20AndMapping(address developer, address mainChainAddress, address sideChainAddress);
     event DeployDAppTRC721AndMapping(address developer, address mainChainAddress, address sideChainAddress);
-    event DepositTRC10(address to, uint256 trc10, uint256 value, address sideChainAddress);
+    event DepositTRC10(address to, uint256 trc10, uint256 value);
     event DepositTRC20(address sideChainAddress, address to, uint256 value);
     event DepositTRC721(address sideChainAddress, address to, uint256 tokenId);
     event DepositTRX(address to, uint256 value);
@@ -33,11 +33,12 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     // TODO: type enum
     mapping(address => address) public mainToSideContractMap;
     mapping(address => address) public sideToMainContractMap;
-    mapping(uint256 => address) public mainToSideTRC10Map;
-    mapping(address => uint256) public sideToMainTRC10Map;
+    mapping(uint256 => bool) public trc10Map;
     mapping(address => bool) public oracles;
     address public owner;
+    address public sunTokenAddress;
     address mintTRXContract = 0x10000;
+    address mintTRC10Contract = 0x10001;
 
     constructor () public {
         owner = msg.sender;
@@ -57,11 +58,18 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         oracles[_oracle] = isOracle;
     }
 
+    function setSunTokenAddress(address _sunTokenAddress) public onlyOwner {
+        require(_sunTokenAddress != address(0), "_sunTokenAddress == address(0)");
+        sunTokenAddress = _sunTokenAddress;
+    }
+
     // 1. deployDAppTRC20AndMapping
     function deployDAppTRC20AndMapping(bytes txId, string name, string symbol, uint8 decimals) public returns (address r) {
         // can be called by everyone (contract developer)
+        require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
         address mainChainAddress = calcContractAddress(txId, msg.sender);
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
+        require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         address sideChainAddress = new DAppTRC20(address(this), name, symbol, decimals);
         mainToSideContractMap[mainChainAddress] = sideChainAddress;
         sideToMainContractMap[sideChainAddress] = mainChainAddress;
@@ -72,8 +80,10 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     // 2. deployDAppTRC721AndMapping
     function deployDAppTRC721AndMapping(bytes txId, string name, string symbol) public returns (address r) {
         // can be called by everyone (contract developer)
+        require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
         address mainChainAddress = calcContractAddress(txId, msg.sender);
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
+        require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         address sideChainAddress = new DAppTRC721(address(this), name, symbol);
         mainToSideContractMap[mainChainAddress] = sideChainAddress;
         sideToMainContractMap[sideChainAddress] = mainChainAddress;
@@ -82,18 +92,16 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 3. depositTRC10
-    function depositTRC10(address to, uint256 trc10, uint256 value, string name, string symbol, uint8 decimals) public onlyOracle returns (address r) {
+    function depositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals) public onlyOracles {
         // can only be called by oracle
-        require(trc10 > 0, "trc10 must be greater than 0");
-        address sideChainAddress = mainToSideTRC10Map[trc10];
-        if (sideChainAddress == address(0)) {
-            sideChainAddress = new DAppTRC20(address(this), name, symbol, decimals);
-            mainToSideTRC10Map[trc10] = sideChainAddress;
-            sideToMainTRC10Map[sideChainAddress] = trc10;
+        require(trc10 > 1000000 && trc10 <= 2000000, "trc10 <= 1000000 or trc10 > 2000000");
+        bool exist = trc10Map[trc10];
+        if (exist == false) {
+            trc10Map[trc10] = true;
         }
-        IDApp(sideChainAddress).mint(to, value);
-        emit DepositTRC10(to, trc10, value, sideChainAddress);
-        r = sideChainAddress;
+        mintTRC10Contract.call(value, trc10, name, symbol, decimals);
+        to.transferToken(value, trc10);
+        emit DepositTRC10(to, trc10, value);
     }
 
     // 4. depositTRC20
@@ -125,6 +133,13 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 7. withdrawTRC10
+    function withdrawTRC10(bytes memory txData) payable public {
+        require(trc10Map[msg.tokenid], "trc10Map[msg.tokenid] == false");
+        // burn
+        address(0).transferToken(msg.tokenvalue, msg.tokenid);
+        emit WithdrawTRC10(msg.sender, msg.tokenvalue, msg.tokenid, txData);
+    }
+
     // 8. withdrawTRC20
     function onTRC20Received(address from, uint256 value, bytes txData) public returns (bytes4) {
         address sideChainAddress = msg.sender;

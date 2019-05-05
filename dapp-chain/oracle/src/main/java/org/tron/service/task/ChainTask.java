@@ -9,7 +9,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.tron.service.check.CheckTransaction;
 import org.tron.service.kafka.KfkConsumer;
 
 @Slf4j(topic = "task")
@@ -19,18 +18,15 @@ public class ChainTask extends Thread {
   private TaskEnum taskType;
   private ExecutorService executor;
   private final KfkConsumer kfkConsumer;
-  CheckTransaction checkTransaction;
 
   public ChainTask(TaskEnum taskType, String gatewayAddress,
-      String kfkServer, int fixedThreads,
-      CheckTransaction checkTransaction) {
+      String kfkServer, int fixedThreads) {
     super();
     this.gatewayAddress = gatewayAddress;
     this.taskType = taskType;
     this.executor = Executors.newFixedThreadPool(fixedThreads);
     this.kfkConsumer = new KfkConsumer(kfkServer, taskType.getName(),
         Arrays.asList("contractevent"));
-    this.checkTransaction = checkTransaction;
     logger.info("task mane is {},task type is {}", getName(), this.taskType);
   }
 

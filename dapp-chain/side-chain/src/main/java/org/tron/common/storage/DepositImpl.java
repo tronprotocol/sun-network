@@ -16,6 +16,7 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.capsule.AccountCapsule;
+import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.capsule.ContractCapsule;
@@ -24,6 +25,7 @@ import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.capsule.VotesCapsule;
 import org.tron.core.capsule.WitnessCapsule;
 import org.tron.core.db.AccountStore;
+import org.tron.core.db.AssetIssueV2Store;
 import org.tron.core.db.BlockStore;
 import org.tron.core.db.CodeStore;
 import org.tron.core.db.ContractStore;
@@ -115,6 +117,8 @@ public class DepositImpl implements Deposit {
     return dbManager.getCodeStore();
   }
 
+  private AssetIssueV2Store getAssetIssueV2Store() {return  dbManager.getAssetIssueV2Store();}
+
   private DelegatedResourceStore getDelegatedResourceStore() {
     return dbManager.getDelegatedResourceStore();
   }
@@ -174,6 +178,19 @@ public class DepositImpl implements Deposit {
   public List<byte[]> getGatewayList() {
     return this.dbManager.getDynamicPropertiesStore().getGateWayList();
   }
+
+  @Override
+  public boolean isGatewayAddress(byte[] address) {
+    List<byte[]> gatewayList = this.dbManager.getDynamicPropertiesStore().getGateWayList();
+
+    for (byte[] gateway: gatewayList) {
+      if (ByteUtil.equals(gateway, address)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @Override
   public WitnessCapsule getWitness(byte[] address) {
     Key key = new Key(address);
@@ -323,6 +340,33 @@ public class DepositImpl implements Deposit {
     return storage;
   }
 
+  @Override
+  public synchronized AssetIssueCapsule getAssetIssue(byte[] tokenId) {
+    byte[] tokenIdWithoutLeadingZero = ByteUtil.stripLeadingZeroes(tokenId);
+    Key key = Key.create(tokenIdWithoutLeadingZero);
+    if (assetIssueCache.containsKey(key)) {
+      return assetIssueCache.get(key).getAssetIssue();
+    }
+
+    AssetIssueCapsule assetIssueCapsule;
+    if (this.parent != null) {
+      assetIssueCapsule = parent.getAssetIssue(tokenIdWithoutLeadingZero);
+    } else {
+      assetIssueCapsule = this.dbManager.getAssetIssueV2Store().get(tokenIdWithoutLeadingZero);
+    }
+    if (assetIssueCapsule != null) {
+      assetIssueCache.put(key, Value.create(assetIssueCapsule.getData()));
+    }
+    return assetIssueCapsule;
+  }
+
+  @Override
+  public synchronized void putAssetIssue (byte[] tokenId, AssetIssueCapsule assetIssueCapsule) {
+    byte[] tokenIdWithoutLeadingZero = ByteUtil.stripLeadingZeroes(tokenId);
+    Key key = Key.create(tokenIdWithoutLeadingZero);
+    assetIssueCache.put(key,Value.create(assetIssueCapsule.getData(), Type.VALUE_TYPE_CREATE));
+  }
+
 
   @Override
   public synchronized void putStorageValue(byte[] address, DataWord key, DataWord value) {
@@ -365,6 +409,38 @@ public class DepositImpl implements Deposit {
   }
 
   @Override
+  public synchronized long addTokenBalance(byte[] address, byte[] tokenId, long value) {
+    byte[] tokenIdWithoutLeadingZero = ByteUtil.stripLeadingZeroes(tokenId);
+    AccountCapsule accountCapsule = getAccount(address);
+    if (accountCapsule == null) {
+      accountCapsule = createAccount(address, AccountType.Normal);
+    }
+    long balance = accountCapsule.getAssetMapV2()
+        .getOrDefault(new String(tokenIdWithoutLeadingZero), new Long(0));
+    if (value == 0) {
+      return balance;
+    }
+
+    if (value < 0 && balance < -value) {
+      throw new RuntimeException(
+          StringUtil.createReadableString(accountCapsule.createDbKey())
+              + " insufficient balance");
+    }
+    if (value >= 0) {
+      accountCapsule.addAssetAmountV2(tokenIdWithoutLeadingZero, value);
+    } else {
+      accountCapsule.reduceAssetAmountV2(tokenIdWithoutLeadingZero, -value);
+    }
+//    accountCapsule.getAssetMap().put(new String(tokenIdWithoutLeadingZero), Math.addExact(balance, value));
+    Key key = Key.create(address);
+    Value V = Value.create(accountCapsule.getData(),
+        Type.VALUE_TYPE_DIRTY | accountCache.get(key).getType().getType());
+    accountCache.put(key, V);
+//    accountCapsule.addAssetAmount(tokenIdWithoutLeadingZero, value);
+    return accountCapsule.getAssetMapV2().get(new String(tokenIdWithoutLeadingZero));
+  }
+
+  @Override
   public synchronized long addBalance(byte[] address, long value) {
     AccountCapsule accountCapsule = getAccount(address);
     if (accountCapsule == null) {
@@ -387,6 +463,22 @@ public class DepositImpl implements Deposit {
         Type.VALUE_TYPE_DIRTY | accountCache.get(key).getType().getType());
     accountCache.put(key, val);
     return accountCapsule.getBalance();
+  }
+
+  /**
+   * @param address address
+   * @param tokenId tokenIdstr in assetV2map is a string like "1000001". So before using this
+   * function, we need to do some conversion. usually we will use a DataWord as input. so the byte
+   * tokenId should be like DataWord.shortHexWithoutZeroX().getbytes().
+   */
+  @Override
+  public synchronized long getTokenBalance(byte[] address, byte[] tokenId) {
+    AccountCapsule accountCapsule = getAccount(address);
+    if (accountCapsule == null) {
+      return 0;
+    }
+    String tokenStr = new String(ByteUtil.stripLeadingZeroes(tokenId));
+    return accountCapsule.getAssetMapV2().getOrDefault(tokenStr, 0L);
   }
 
   @Override
@@ -486,6 +578,9 @@ public class DepositImpl implements Deposit {
   public void putDynamicProperties(Key key, Value value) {
     dynamicPropertiesCache.put(key, value);
   }
+
+  @Override
+  public void putAssetIssue(Key key, Value value) { assetIssueCache.put(key,value); }
 
   @Override
   public long getLatestProposalNum() {
@@ -665,6 +760,18 @@ public class DepositImpl implements Deposit {
     }));
   }
 
+  private void commitAssetIssueCache(Deposit deposit) {
+    assetIssueCache.forEach(((key, value) -> {
+      if (value.getType().isDirty() || value.getType().isCreate()) {
+        if (deposit != null) {
+          deposit.putAssetIssue(key, value);
+        } else {
+          getAssetIssueV2Store().put(key.getData(), value.getAssetIssue());
+        }
+      }
+    }));
+  }
+
 
   @Override
   public void putAccountValue(byte[] address, AccountCapsule accountCapsule) {
@@ -708,6 +815,7 @@ public class DepositImpl implements Deposit {
     commitVoteCache(deposit);
     commitProposalCache(deposit);
     commitDynamicPropertiesCache(deposit);
+    commitAssetIssueCache(deposit);
   }
 
 

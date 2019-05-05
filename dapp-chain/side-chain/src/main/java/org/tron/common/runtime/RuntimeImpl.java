@@ -6,6 +6,8 @@ import static org.apache.commons.lang3.ArrayUtils.getLength;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.tron.common.runtime.utils.MUtil.convertToTronAddress;
 import static org.tron.common.runtime.utils.MUtil.transfer;
+import static org.tron.common.runtime.utils.MUtil.transferToken;
+import static org.tron.core.Constant.SUN_TOKEN_ID;
 
 import com.google.protobuf.ByteString;
 import java.math.BigInteger;
@@ -188,19 +190,19 @@ public class RuntimeImpl implements Runtime {
   }
 
   public long getAccountEnergyLimitWithFixRatio(AccountCapsule account, long feeLimit,
-      long callValue) {
+      long sunTokenCallTokenValue) {
 
-    long sunPerEnergy = Constant.SUN_PER_ENERGY;
-    if (deposit.getDbManager().getDynamicPropertiesStore().getEnergyFee() > 0) {
-      sunPerEnergy = deposit.getDbManager().getDynamicPropertiesStore().getEnergyFee();
+    long sunTokenPerEnergy = Constant.MICRO_SUN_TOKEN_PER_ENERGY;
+    if (deposit.getDbManager().getDynamicPropertiesStore().getEnergyTokenFee() > 0) {
+      sunTokenPerEnergy = deposit.getDbManager().getDynamicPropertiesStore().getEnergyTokenFee();
     }
 
     long leftFrozenEnergy = energyProcessor.getAccountLeftEnergyFromFreeze(account);
 
-    long energyFromBalance = max(account.getBalance() - callValue, 0) / sunPerEnergy;
+    long energyFromBalance = max(account.getAssetMapV2().get(SUN_TOKEN_ID) - sunTokenCallTokenValue, 0) / sunTokenPerEnergy;
     long availableEnergy = Math.addExact(leftFrozenEnergy, energyFromBalance);
 
-    long energyFromFeeLimit = feeLimit / sunPerEnergy;
+    long energyFromFeeLimit = feeLimit / sunTokenPerEnergy;
     return min(availableEnergy, energyFromFeeLimit);
 
   }
@@ -245,10 +247,10 @@ public class RuntimeImpl implements Runtime {
   }
 
   public long getTotalEnergyLimitWithFixRatio(AccountCapsule creator, AccountCapsule caller,
-      TriggerSmartContract contract, long feeLimit, long callValue)
+      TriggerSmartContract contract, long feeLimit, long sunTokenCallTokenValue)
       throws ContractValidateException {
 
-    long callerEnergyLimit = getAccountEnergyLimitWithFixRatio(caller, feeLimit, callValue);
+    long callerEnergyLimit = getAccountEnergyLimitWithFixRatio(caller, feeLimit, sunTokenCallTokenValue);
     if (Arrays.equals(creator.getAddress().toByteArray(), caller.getAddress().toByteArray())) {
       // when the creator calls his own contract, this logic will be used.
       // so, the creator must use a BIG feeLimit to call his own contract,
@@ -351,6 +353,8 @@ public class RuntimeImpl implements Runtime {
     newSmartContract = newSmartContract.toBuilder()
         .setContractAddress(ByteString.copyFrom(contractAddress)).build();
     long callValue = newSmartContract.getCallValue();
+    long tokenValue = contract.getCallTokenValue();
+    long tokenId = contract.getTokenId();
     byte[] callerAddress = contract.getOwnerAddress().toByteArray();
     // create vm to constructor smart contract
     try {
@@ -369,14 +373,25 @@ public class RuntimeImpl implements Runtime {
       if (callValue < 0) {
         throw new ContractValidateException("callValue must >= 0");
       }
+      if (tokenValue < 0) {
+        throw new ContractValidateException("tokenValue must >= 0");
+      }
       if (newSmartContract.getOriginEnergyLimit() <= 0) {
         throw new ContractValidateException("The originEnergyLimit must be > 0");
       }
-      energyLimit = getAccountEnergyLimitWithFixRatio(creator, feeLimit, callValue);
+
+
+      checkTokenValueAndId(tokenValue, tokenId);
+
+      long sunTokenCallTokenValue = 0;
+      if (tokenId == Long.parseLong(SUN_TOKEN_ID)){
+        sunTokenCallTokenValue = tokenValue;
+      }
+
+      energyLimit = getAccountEnergyLimitWithFixRatio(creator, feeLimit, sunTokenCallTokenValue);
       if (energyLimit < 0) {
         throw new ContractValidateException("not enough energy to initialize vm");
       }
-
 
       byte[] ops = newSmartContract.getBytecode().toByteArray();
       rootInternalTransaction = new InternalTransaction(trx, trxType);
@@ -388,7 +403,7 @@ public class RuntimeImpl implements Runtime {
       long vmShouldEndInUs = vmStartInUs + thisTxCPULimitInUs;
       ProgramInvoke programInvoke = programInvokeFactory
           .createProgramInvoke(TrxType.TRX_CONTRACT_CREATION_TYPE, executorType, trx,
-              blockCap.getInstance(), deposit, vmStartInUs,
+              tokenValue, tokenId, blockCap.getInstance(), deposit, vmStartInUs,
               vmShouldEndInUs, energyLimit);
       this.vm = new VM(config);
       this.program = new Program(ops, programInvoke, rootInternalTransaction, config,
@@ -421,6 +436,10 @@ public class RuntimeImpl implements Runtime {
     if (callValue > 0) {
       transfer(this.deposit, callerAddress, contractAddress, callValue);
     }
+    if (tokenValue > 0) {
+      transferToken(this.deposit, callerAddress, contractAddress, String.valueOf(tokenId),
+          tokenValue);
+    }
   }
 
   /**
@@ -442,13 +461,24 @@ public class RuntimeImpl implements Runtime {
     byte[] contractAddress = contract.getContractAddress().toByteArray();
 
     long callValue = contract.getCallValue();
-
+    long tokenValue = contract.getCallTokenValue();
+    long tokenId = contract.getTokenId();
     if (callValue < 0) {
       throw new ContractValidateException("callValue must >= 0");
+    }
+    if (tokenValue < 0) {
+      throw new ContractValidateException("tokenValue must >= 0");
     }
 
 
     byte[] callerAddress = contract.getOwnerAddress().toByteArray();
+
+    checkTokenValueAndId(tokenValue, tokenId);
+
+    long sunTokenCallTokenValue = 0;
+    if (tokenId == Long.parseLong(SUN_TOKEN_ID)){
+      sunTokenCallTokenValue = tokenValue;
+    }
 
     byte[] code = this.deposit.getCode(contractAddress);
 
@@ -475,12 +505,12 @@ public class RuntimeImpl implements Runtime {
       } else {
         AccountCapsule creator = this.deposit
             .getAccount(deployedContract.getInstance().getOriginAddress().toByteArray());
-        energyLimit = getTotalEnergyLimitWithFixRatio(creator, caller, contract, feeLimit, callValue);
+        energyLimit = getTotalEnergyLimitWithFixRatio(creator, caller, contract, feeLimit, sunTokenCallTokenValue);
         if (energyLimit < 0) {
           throw new ContractValidateException("not enough energy to initialize vm");
         }
       }
-      ProgramInvoke programInvoke = generateProgramInvoke(energyLimit);
+      ProgramInvoke programInvoke = generateProgramInvoke(energyLimit, tokenValue, tokenId);
       if (isStaticCall) {
         programInvoke.setStaticCall();
       }
@@ -505,11 +535,11 @@ public class RuntimeImpl implements Runtime {
       AccountCapsule caller = this.deposit.getAccount(callerAddress);
       long energyLimit;
 
-      energyLimit = getAccountEnergyLimitWithFixRatio(caller, feeLimit, callValue);
+      energyLimit = getAccountEnergyLimitWithFixRatio(caller, feeLimit, sunTokenCallTokenValue);
       if (energyLimit < 0) {
         throw new ContractValidateException("not enough energy to initialize vm");
       }
-      ProgramInvoke programInvoke = generateProgramInvoke(energyLimit);
+      ProgramInvoke programInvoke = generateProgramInvoke(energyLimit, tokenValue, tokenId);
       if (isStaticCall) {
         programInvoke.setStaticCall();
       }
@@ -527,6 +557,10 @@ public class RuntimeImpl implements Runtime {
 
     if (callValue > 0) {
       transfer(this.deposit, callerAddress, contractAddress, callValue);
+    }
+    if (tokenValue > 0) {
+      transferToken(this.deposit, callerAddress, contractAddress, String.valueOf(tokenId),
+          tokenValue);
     }
 
   }
@@ -637,7 +671,7 @@ public class RuntimeImpl implements Runtime {
   }
 
 
-  private ProgramInvoke generateProgramInvoke(long energyLimit) throws ContractValidateException {
+  private ProgramInvoke generateProgramInvoke(long energyLimit, long tokenValue, long tokenId) throws ContractValidateException {
     long maxCpuTimeOfOneTx = deposit.getDbManager().getDynamicPropertiesStore()
         .getMaxCpuTimeOfOneTx() * Constant.ONE_THOUSAND;
     long thisTxCPULimitInUs =
@@ -646,7 +680,7 @@ public class RuntimeImpl implements Runtime {
     long vmShouldEndInUs = vmStartInUs + thisTxCPULimitInUs;
     return programInvokeFactory
         .createProgramInvoke(TrxType.TRX_CONTRACT_CALL_TYPE, executorType, trx,
-            blockCap.getInstance(), deposit, vmStartInUs,
+            tokenValue, tokenId, blockCap.getInstance(), deposit, vmStartInUs,
             vmShouldEndInUs, energyLimit);
   }
 
@@ -710,6 +744,20 @@ public class RuntimeImpl implements Runtime {
       VMUtils.saveProgramTraceFile(config, txHash, traceContent);
     }
 
+  }
+
+  public void checkTokenValueAndId(long tokenValue, long tokenId) throws ContractValidateException {
+    // tokenid can only be 0
+    // or (MIN_TOKEN_ID, Long.Max]
+    if (tokenId <= VMConstant.MIN_TOKEN_ID && tokenId != 0) {
+      throw new ContractValidateException("tokenId must > " + VMConstant.MIN_TOKEN_ID);
+    }
+    // tokenid can only be 0 when tokenvalue = 0,
+    // or (MIN_TOKEN_ID, Long.Max]
+    if (tokenValue > 0 && tokenId == 0) {
+      throw new ContractValidateException("invalid arguments with tokenValue = " + tokenValue +
+          ", tokenId = " + tokenId);
+    }
   }
 
   public ProgramResult getResult() {

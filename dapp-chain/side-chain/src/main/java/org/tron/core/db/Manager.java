@@ -1,5 +1,6 @@
 package org.tron.core.db;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
 import static org.tron.core.config.Parameter.ChainConstant.SOLIDIFIED_THRESHOLD;
 import static org.tron.core.config.Parameter.NodeConstant.MAX_TRANSACTION_PENDING;
 
@@ -64,6 +65,7 @@ import org.tron.common.utils.Sha256Hash;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.Constant;
 import org.tron.core.capsule.AccountCapsule;
+import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.BlockCapsule.BlockId;
 import org.tron.core.capsule.BytesCapsule;
@@ -76,6 +78,7 @@ import org.tron.core.config.Parameter.ChainConstant;
 import org.tron.core.config.args.Args;
 import org.tron.core.config.args.GenesisBlock;
 import org.tron.core.db.KhaosDatabase.KhaosBlock;
+import org.tron.core.db.api.pojo.AssetIssue;
 import org.tron.core.db2.core.ISession;
 import org.tron.core.db2.core.ITronChainBase;
 import org.tron.core.db2.core.SnapshotManager;
@@ -103,6 +106,8 @@ import org.tron.core.exception.ValidateSignatureException;
 import org.tron.core.services.WitnessService;
 import org.tron.core.witness.ProposalController;
 import org.tron.core.witness.WitnessController;
+import org.tron.protos.Contract.AssetIssueContract;
+import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
@@ -123,6 +128,8 @@ public class Manager {
   private BlockStore blockStore;
   @Autowired
   private WitnessStore witnessStore;
+  @Autowired
+  private AssetIssueV2Store assetIssueV2Store;
   @Autowired
   private DynamicPropertiesStore dynamicPropertiesStore;
   @Autowired
@@ -486,14 +493,28 @@ public class Manager {
             this.genesisBlock.getBlockId().getByteString());
         this.dynamicPropertiesStore.saveLatestBlockHeaderTimestamp(
             this.genesisBlock.getTimeStamp());
+        // new trc20 token id start from 2000000L
         this.dynamicPropertiesStore.saveTokenIdNum(2000000L);
+        this.initAssetIssue();
         this.initAccount();
         this.initWitness();
+
         this.witnessController.initWits();
         this.khaosDb.start(genesisBlock);
         this.updateRecentBlock(genesisBlock);
       }
     }
+  }
+
+  /**
+   *  init sunToken asset on side-chain
+   */
+  public void initAssetIssue() {
+    AssetIssueContract.Builder assetBuilder = AssetIssueContract.newBuilder();
+    assetBuilder.setId(SUN_TOKEN_ID)
+        .setPrecision(6);
+    AssetIssueCapsule assetIssueCapsuleV2 = new AssetIssueCapsule(assetBuilder.build());
+    this.assetIssueV2Store.put(assetIssueCapsuleV2.createDbV2Key(),assetIssueCapsuleV2);
   }
 
   /**
@@ -512,7 +533,8 @@ public class Manager {
                       account.getAccountName(),
                       ByteString.copyFrom(account.getAddress()),
                       account.getAccountType(),
-                      account.getBalance());
+                      account.getBalance(),
+                      95000000_000000L);
               this.accountStore.put(account.getAddress(), accountCapsule);
               this.accountIdIndexStore.put(accountCapsule);
               this.accountIndexStore.put(accountCapsule);
@@ -623,6 +645,29 @@ public class Manager {
           StringUtil.createReadableString(account.createDbKey()) + " insufficient balance");
     }
     account.setBalance(Math.addExact(balance, amount));
+    this.getAccountStore().put(account.getAddress().toByteArray(), account);
+  }
+
+  public void adjustSunTokenBalance(byte[] accountAddress, long amount)
+          throws BalanceInsufficientException {
+    AccountCapsule account = getAccountStore().getUnchecked(accountAddress);
+    adjustSunTokenBalance(account, amount);
+  }
+
+  public void adjustSunTokenBalance(AccountCapsule account, long amount)
+          throws BalanceInsufficientException {
+
+    long sunTokenBalance = account.getAssetMapV2().get(SUN_TOKEN_ID);
+    if (amount == 0) {
+      return;
+    }
+
+    if (amount < 0 && sunTokenBalance < -amount) {
+      throw new BalanceInsufficientException(
+              StringUtil.createReadableString(account.createDbKey()) + " insufficient sun token balance");
+    }
+
+    account.addAssetAmountV2(SUN_TOKEN_ID.getBytes(), amount);
     this.getAccountStore().put(account.getAddress().toByteArray(), account);
   }
 
@@ -738,15 +783,15 @@ public class Manager {
   public void consumeMultiSignFee(TransactionCapsule trx, TransactionTrace trace)
       throws AccountResourceInsufficientException {
     if (trx.getInstance().getSignatureCount() > 1) {
-      long fee = getDynamicPropertiesStore().getMultiSignFee();
-
+      //long fee = getDynamicPropertiesStore().getMultiSignFee();
+      long fee = getDynamicPropertiesStore().getMultiSignTokenFee();
       List<Contract> contracts = trx.getInstance().getRawData().getContractList();
       for (Contract contract : contracts) {
         byte[] address = TransactionCapsule.getOwner(contract);
         AccountCapsule accountCapsule = getAccountStore().get(address);
         try {
-          adjustBalance(accountCapsule, -fee);
-          adjustBalance(this.getAccountStore().getBlackhole().createDbKey(), +fee);
+          adjustSunTokenBalance(accountCapsule, -fee);
+          adjustSunTokenBalance(this.getAccountStore().getZeroAccount().createDbKey(), +fee);
         } catch (BalanceInsufficientException e) {
           throw new AccountResourceInsufficientException(
               "Account Insufficient  balance[" + fee + "] to MultiSign");
@@ -1184,7 +1229,7 @@ public class Manager {
     TransactionTrace trace = new TransactionTrace(trxCap, this);
     trxCap.setTrxTrace(trace);
 
-    if (false) { //TODO: Implement Resource charging fork
+    if (dynamicPropertiesStore.getEnergyChargingSwitch() == 1) {
       consumeBandwidthEnergy(trxCap, trace);
       consumeMultiSignFee(trxCap, trace);
     }
@@ -1648,6 +1693,13 @@ public class Manager {
     return getDynamicPropertiesStore().getMaintenanceSkipSlots();
   }
 
+  public AssetIssueV2Store getAssetIssueV2Store() {
+    return assetIssueV2Store;
+  }
+
+  public AssetIssueStore getAssetIssueStoreFinal() {
+      return getAssetIssueV2Store();
+  }
 
   public void setBlockIndexStore(BlockIndexStore indexStore) {
     this.blockIndexStore = indexStore;

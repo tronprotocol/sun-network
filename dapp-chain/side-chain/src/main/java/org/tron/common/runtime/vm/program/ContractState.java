@@ -26,6 +26,7 @@ import org.tron.common.storage.Deposit;
 import org.tron.common.storage.Key;
 import org.tron.common.storage.Value;
 import org.tron.core.capsule.AccountCapsule;
+import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.capsule.ContractCapsule;
@@ -243,6 +244,11 @@ public class ContractState implements Deposit, ProgramListenerAware {
   }
 
   @Override
+  public void putAssetIssue(Key key, Value value) {
+    deposit.putAssetIssue(key, value);
+  }
+
+  @Override
   public long getLatestProposalNum() {
     return deposit.getLatestProposalNum();
   }
@@ -266,6 +272,26 @@ public class ContractState implements Deposit, ProgramListenerAware {
   public long getEnergyFee(){ return deposit.getEnergyFee(); }
 
   @Override
+  public long addTokenBalance(byte[] address, byte[] tokenId, long value) {
+    return deposit.addTokenBalance(address, tokenId, value);
+  }
+
+  @Override
+  public long getTokenBalance(byte[] address, byte[] tokenId) {
+    return deposit.getTokenBalance(address, tokenId);
+  }
+
+  @Override
+  public void putAssetIssue(byte[] tokenId, AssetIssueCapsule assetIssueCapsule) {
+    deposit.putAssetIssue(tokenId, assetIssueCapsule);
+  }
+
+  @Override
+  public AssetIssueCapsule getAssetIssue(byte[] tokenId) {
+    return deposit.getAssetIssue(tokenId);
+  }
+
+  @Override
   public BlockCapsule getBlock(byte[] blockHash) {
     return this.deposit.getBlock(blockHash);
   }
@@ -278,6 +304,11 @@ public class ContractState implements Deposit, ProgramListenerAware {
   @Override
   public List<byte[]> getGatewayList() {
     return deposit.getGatewayList();
+  }
+
+  @Override
+  public boolean isGatewayAddress(byte[] address) {
+    return deposit.isGatewayAddress(address);
   }
 
 }
