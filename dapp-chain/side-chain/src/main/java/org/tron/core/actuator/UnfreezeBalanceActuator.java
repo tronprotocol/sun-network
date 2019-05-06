@@ -48,8 +48,16 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
     byte[] ownerAddress = unfreezeBalanceContract.getOwnerAddress().toByteArray();
 
     AccountCapsule accountCapsule = dbManager.getAccountStore().get(ownerAddress);
-    long oldBalance = accountCapsule.getBalance();
 
+    long chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
+
+    long oldBalance;
+    if (chargingType == 1) {
+      oldBalance = accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L);
+    }
+    else {
+      oldBalance = accountCapsule.getBalance();
+    }
     long unfreezeBalance = 0L;
 
     byte[] receiverAddress = unfreezeBalanceContract.getReceiverAddress().toByteArray();
@@ -81,7 +89,12 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
           //this should never happen
           break;
       }
-      accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(), oldBalance + unfreezeBalance);
+      if (chargingType == 1) {
+        accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(), oldBalance + unfreezeBalance);
+      }
+      else {
+        accountCapsule.setBalance(oldBalance + unfreezeBalance);
+      }
       dbManager.getAccountStore().put(receiverCapsule.createDbKey(), receiverCapsule);
 
       if (delegatedResourceCapsule.getFrozenBalanceForBandwidth() == 0
@@ -136,10 +149,18 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
             }
           }
 
-          accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
-//              .setBalance(oldBalance + unfreezeBalance)
-              .clearFrozen().addAllFrozen(frozenList).build());
-          accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(), oldBalance + unfreezeBalance);
+
+          if (chargingType == 1) {
+            accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
+                .clearFrozen().addAllFrozen(frozenList).build());
+            accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(), oldBalance + unfreezeBalance);
+          }
+          else {
+            accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
+                .setBalance(oldBalance + unfreezeBalance)
+                .clearFrozen().addAllFrozen(frozenList).build());
+          }
+
 
           break;
         case ENERGY:
@@ -148,11 +169,18 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
 
           AccountResource newAccountResource = accountCapsule.getAccountResource().toBuilder()
               .clearFrozenBalanceForEnergy().build();
-          accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
-//              .setBalance(oldBalance + unfreezeBalance)
-              .setAccountResource(newAccountResource).build());
-          accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(), oldBalance + unfreezeBalance);
 
+          if (chargingType == 1) {
+            accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
+//              .setBalance(oldBalance + unfreezeBalance)
+                .setAccountResource(newAccountResource).build());
+            accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(), oldBalance + unfreezeBalance);
+          }
+          else {
+            accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
+              .setBalance(oldBalance + unfreezeBalance)
+                .setAccountResource(newAccountResource).build());
+          }
           break;
         default:
           //this should never happen
