@@ -281,6 +281,14 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       }
+      case (26) :{
+        String mainChainGateWayAddress = entry.getValue();
+        if ( Wallet.decodeFromBase58Check(mainChainGateWayAddress).length != 21) {
+          throw new ContractValidateException(
+              "gateway address has to be 21 bytes");
+        }
+        break;
+      }
       default:
         throw new ContractValidateException(
             "non-exist proposal number");
