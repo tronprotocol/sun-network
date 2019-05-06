@@ -1248,7 +1248,7 @@ public class Manager {
 
     if (dynamicPropertiesStore.getEnergyChargingSwitch() == 1) {
       //
-      if(dynamicPropertiesStore.getSideChainChargingType() == 1) {
+      if(dynamicPropertiesStore.getSideChainChargingBandwidth() == 1) {
         consumeBandwidth(trxCap, trace);
       } else {
         consumeBandwidthEnergy(trxCap, trace);

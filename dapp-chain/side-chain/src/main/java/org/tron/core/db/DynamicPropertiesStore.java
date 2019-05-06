@@ -700,7 +700,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getSideChainChargingBandwidth();
     } catch (IllegalArgumentException e) {
-      this.saveSideChainChargingType(Args.getInstance().getSideChainChargingBandwidth());
+      this.saveSideChainChargingBandwidth(Args.getInstance().getSideChainChargingBandwidth());
     }
   }
 
