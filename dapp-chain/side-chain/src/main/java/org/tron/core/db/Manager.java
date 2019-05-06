@@ -493,9 +493,13 @@ public class Manager {
             this.genesisBlock.getBlockId().getByteString());
         this.dynamicPropertiesStore.saveLatestBlockHeaderTimestamp(
             this.genesisBlock.getTimeStamp());
-        // new trc20 token id start from 2000000L
-        this.dynamicPropertiesStore.saveTokenIdNum(2000000L);
-        this.initAssetIssue();
+
+        if(this.dynamicPropertiesStore.getSideChainChargingType() == 1) {
+          // new trc20 token id start from 2000000L
+          this.dynamicPropertiesStore.saveTokenIdNum(2000000L);
+          this.initAssetIssue();
+        }
+
         this.initAccount();
         this.initWitness();
 
@@ -1243,7 +1247,12 @@ public class Manager {
     trxCap.setTrxTrace(trace);
 
     if (dynamicPropertiesStore.getEnergyChargingSwitch() == 1) {
-      consumeBandwidthEnergy(trxCap, trace);
+      //
+      if(dynamicPropertiesStore.getSideChainChargingBandwidth() == 1) {
+        consumeBandwidth(trxCap, trace);
+      } else {
+        consumeBandwidthEnergy(trxCap, trace);
+      }
       consumeMultiSignFee(trxCap, trace);
     }
 
