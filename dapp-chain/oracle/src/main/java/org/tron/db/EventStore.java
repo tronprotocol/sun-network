@@ -131,4 +131,13 @@ public class EventStore {
       resetDbLock.readLock().unlock();
     }
   }
+
+  public void deleteData(byte[] key) {
+    resetDbLock.readLock().lock();
+    try {
+      database.delete(key);
+    } finally {
+      resetDbLock.readLock().unlock();
+    }
+  }
 }
