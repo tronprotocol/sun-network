@@ -13,7 +13,6 @@ import org.tron.common.exception.TxNotFoundException;
 import org.tron.common.utils.AbiUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.service.check.TransactionId;
-import org.tron.service.task.TaskEnum;
 
 @Slf4j
 public class SideChainGatewayApi {
@@ -97,7 +96,6 @@ public class SideChainGatewayApi {
 
   public static byte[] checkTxInfo(TransactionId txId)
       throws ContractException, TxNotFoundException {
-    txId.setType(TaskEnum.SIDE_CHAIN);
     return GATEWAY_API.instance.checkTxInfo(txId.getTransactionId());
   }
 

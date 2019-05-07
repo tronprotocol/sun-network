@@ -5,6 +5,7 @@ import org.tron.client.MainChainGatewayApi;
 import org.tron.service.check.CheckTransaction;
 import org.tron.service.check.TransactionId;
 import org.tron.service.task.EventTask;
+import org.tron.service.task.TaskEnum;
 
 @Slf4j(topic = "sideChainTask")
 public class WithdrawTRXTask implements EventTask {
@@ -26,6 +27,7 @@ public class WithdrawTRXTask implements EventTask {
     logger.info("from: {}, value: {}, txData: {}", this.from, this.value, this.txData);
     try {
       TransactionId txId = MainChainGatewayApi.withdrawTRX(this.from, this.value, this.txData);
+      txId.setType(TaskEnum.MAIN_CHAIN);
       MainChainGatewayApi.checkTxInfo(txId);
       CheckTransaction.getInstance().submitCheck(txId);
     } catch (Exception e) {

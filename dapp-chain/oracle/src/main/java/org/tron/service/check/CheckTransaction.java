@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
+import org.tron.common.exception.ContractException;
+import org.tron.common.exception.TxNotFoundException;
+import org.tron.service.task.TaskEnum;
 
 @Slf4j
 public class CheckTransaction {
@@ -36,16 +39,20 @@ public class CheckTransaction {
       }
       switch (trxId.getType()) {
         case MAIN_CHAIN:
+          trxId.setType(TaskEnum.MAIN_CHAIN);
           MainChainGatewayApi.checkTxInfo(trxId);
           break;
         case SIDE_CHAIN:
+          trxId.setType(TaskEnum.SIDE_CHAIN);
           SideChainGatewayApi.checkTxInfo(trxId);
           break;
       }
-    } catch (Exception e) {
+    } catch (TxNotFoundException e) {
       logger.error(e.getMessage());
-      boolean b = broadcastTransaction(trxId);
+      broadcastTransaction(trxId);
       instance.submitCheck(trxId);
+    } catch (ContractException e) {
+      logger.error(e.getMessage());
     }
   }
 

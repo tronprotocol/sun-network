@@ -5,6 +5,7 @@ import org.tron.client.MainChainGatewayApi;
 import org.tron.service.check.CheckTransaction;
 import org.tron.service.check.TransactionId;
 import org.tron.service.task.EventTask;
+import org.tron.service.task.TaskEnum;
 
 @Slf4j(topic = "sideChainTask")
 public class DeployDAppTRC721AndMappingTask implements EventTask {
@@ -29,6 +30,7 @@ public class DeployDAppTRC721AndMappingTask implements EventTask {
     try {
       TransactionId txId = MainChainGatewayApi
           .addTokenMapping(this.mainChainAddress, this.sideChainAddress);
+      txId.setType(TaskEnum.MAIN_CHAIN);
       MainChainGatewayApi.checkTxInfo(txId);
       CheckTransaction.getInstance().submitCheck(txId);
     } catch (Exception e) {

@@ -2,12 +2,12 @@ package org.tron.service.task.mainchain;
 
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.service.check.CheckTransaction;
-import org.tron.service.check.TransactionId;
-import org.tron.client.WalletClient;
 import org.tron.common.config.Args;
 import org.tron.common.utils.WalletUtil;
+import org.tron.service.check.CheckTransaction;
+import org.tron.service.check.TransactionId;
 import org.tron.service.task.EventTask;
+import org.tron.service.task.TaskEnum;
 
 @Slf4j(topic = "mainChainTask")
 public class DepositTRC20Task implements EventTask {
@@ -25,23 +25,25 @@ public class DepositTRC20Task implements EventTask {
   @Override
   public void run() {
     logger
-      .info("from:{},amount:{},contractAddress{}", this.from, this.amount, this.contractAddress);
+        .info("from:{},amount:{},contractAddress{}", this.from, this.amount, this.contractAddress);
     try {
       if (WalletUtil.encode58Check(Args.getInstance().getSunTokenAddress())
-        .equalsIgnoreCase(this.contractAddress)) {
+          .equalsIgnoreCase(this.contractAddress)) {
         TransactionId txId = SideChainGatewayApi
-          .mintToken10(this.from, "2000000", this.amount, "sun token", "ST", 6);
+            .mintToken10(this.from, "2000000", this.amount, "sun token", "ST", 6);
+        txId.setType(TaskEnum.SIDE_CHAIN);
         SideChainGatewayApi.checkTxInfo(txId);
         CheckTransaction.getInstance().submitCheck(txId);
       } else {
         TransactionId txId = SideChainGatewayApi
-          .mintToken20(this.from, this.contractAddress, this.amount);
+            .mintToken20(this.from, this.contractAddress, this.amount);
+        txId.setType(TaskEnum.SIDE_CHAIN);
         SideChainGatewayApi.checkTxInfo(txId);
-      CheckTransaction.getInstance().submitCheck(txId);
+        CheckTransaction.getInstance().submitCheck(txId);
       }
     } catch (Exception e) {
       logger.error("from:{},amount:{},contractAddress{}", this.from, this.amount,
-        this.contractAddress);
+          this.contractAddress);
       e.printStackTrace();
     }
   }
