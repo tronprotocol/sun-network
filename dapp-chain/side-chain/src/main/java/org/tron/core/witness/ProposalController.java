@@ -3,8 +3,10 @@ package org.tron.core.witness;
 import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -232,9 +234,19 @@ public class ProposalController {
           break;
         }
         case (25): {
-          // single new gateway address
-          manager.getDynamicPropertiesStore().addToGateWayList(Wallet
-              .decodeFromBase58Check(entry.getValue()));
+          // replace all side chain gateway address
+          List<String> list = Arrays.asList(entry.getValue().split(","));
+          List<byte[]> byteList = list.stream().map(element -> Wallet
+              .decodeFromBase58Check(element)).collect(Collectors.toList());
+          manager.getDynamicPropertiesStore().saveGateWayList(byteList);
+          break;
+        }
+        case (26): {
+          // replace all main chain gateway address
+          List<String> list = Arrays.asList(entry.getValue().split(","));
+          List<byte[]> byteList = list.stream().map(element -> Wallet
+              .decodeFromBase58Check(element)).collect(Collectors.toList());
+          manager.getDynamicPropertiesStore().saveMainChainGateWayList(byteList);
           break;
         }
         default:

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tron.api.GrpcAPI.TransactionSignWeight;
 import org.tron.core.Wallet;
+import org.tron.core.db.Manager;
 import org.tron.protos.Protocol.Transaction;
 
 
@@ -19,6 +20,9 @@ public class GetTransactionSignWeightServlet extends HttpServlet {
 
   @Autowired
   private Wallet wallet;
+
+  @Autowired
+  private Manager dbManger;
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {
 
@@ -30,6 +34,7 @@ public class GetTransactionSignWeightServlet extends HttpServlet {
           .collect(Collectors.joining(System.lineSeparator()));
       Util.checkBodySize(input);
       Transaction transaction = Util.packTransaction(input);
+
       TransactionSignWeight reply = wallet.getTransactionSignWeight(transaction);
       if (reply != null) {
         response.getWriter().println(Util.printTransactionSignWeight(reply));

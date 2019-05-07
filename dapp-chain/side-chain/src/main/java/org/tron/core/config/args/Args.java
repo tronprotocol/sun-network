@@ -443,11 +443,19 @@ public class Args {
 
   @Getter
   @Setter
+  private List<byte[]> mainChainGateWayList;
+
+  @Getter
+  @Setter
   private int energyChargingSwitchOn;
 
   @Getter
   @Setter
   private int sideChainChargingType;
+
+  @Getter
+  @Setter
+  private int sideChainChargingBandwidth;
 
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
@@ -836,6 +844,10 @@ public class Args {
             config.hasPath("sidechain.chargingType") ? config
                     .getInt("sidechain.chargingType") : 0;
 
+    INSTANCE.sideChainChargingBandwidth =
+            config.hasPath("sidechain.chargingBandwidth") ? config
+                    .getInt("sidechain.chargingBandwidth") : 0;
+
     INSTANCE.tcpNettyWorkThreadNum = config.hasPath("node.tcpNettyWorkThreadNum") ? config
         .getInt("node.tcpNettyWorkThreadNum") : 0;
 
@@ -894,6 +906,7 @@ public class Args {
         config.hasPath("vm.saveInternalTx") && config.getBoolean("vm.saveInternalTx");
 
     INSTANCE.gatewayList = getGateWayList(config,"gateWayList");
+    INSTANCE.mainChainGateWayList = getGateWayList(config, "mainChainGateWayList");
 
     INSTANCE.eventPluginConfig =
         config.hasPath("event.subscribe") ?

@@ -46,7 +46,14 @@ public class FreezeBalanceActuator extends AbstractActuator {
     long now = dbManager.getHeadBlockTimeStamp();
     long duration = freezeBalanceContract.getFrozenDuration() * 86_400_000;
 
-    long newBalance = accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) - freezeBalanceContract.getFrozenBalance();
+    long newBalance;
+    long chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
+    if ( chargingType == 1) {
+      newBalance = accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) - freezeBalanceContract.getFrozenBalance();
+    }
+    else
+      newBalance = accountCapsule.getBalance() - freezeBalanceContract.getFrozenBalance();
+
 
     long frozenBalance = freezeBalanceContract.getFrozenBalance();
     long expireTime = now + duration;
@@ -86,7 +93,11 @@ public class FreezeBalanceActuator extends AbstractActuator {
         break;
     }
 
-    accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(),newBalance);
+    if(chargingType == 1 ) {
+      accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(),newBalance);
+    }
+    else
+      accountCapsule.setBalance(newBalance);
     dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);
 
     ret.setStatus(fee, code.SUCESS);
@@ -133,14 +144,25 @@ public class FreezeBalanceActuator extends AbstractActuator {
       throw new ContractValidateException("frozenBalance must be positive");
     }
     if (frozenBalance < 1_000_000L) {
-      throw new ContractValidateException("frozenBalance must be more than 1 SUN_TOKEN");
+      if (dbManager.getDynamicPropertiesStore().getSideChainChargingType() == 1) {
+        throw new ContractValidateException("frozenBalance must be more than 1SUN_TOKEN");
+      }
+      else {
+        throw new ContractValidateException("frozenBalance must be more than 1TRX");
+      }
     }
 
     int frozenCount = accountCapsule.getFrozenCount();
     if (!(frozenCount == 0 || frozenCount == 1)) {
       throw new ContractValidateException("frozenCount must be 0 or 1");
     }
-    if (frozenBalance > accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L)) {
+
+    if (dbManager.getDynamicPropertiesStore().getSideChainChargingType() == 1 &&
+        frozenBalance > accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L)) {
+      throw new ContractValidateException("frozenBalance must be less than accountBalance");
+    }
+    else if(dbManager.getDynamicPropertiesStore().getSideChainChargingType() == 0 &&
+        frozenBalance > accountCapsule.getBalance()){
       throw new ContractValidateException("frozenBalance must be less than accountBalance");
     }
 

@@ -153,6 +153,7 @@ public class EnergyProcessor extends ResourceProcessor {
       throw new TooBigTransactionResultException();
     }
 
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
     long bytesSize;
 
     bytesSize = trx.getInstance().toBuilder().clearRet().build().getSerializedSize();
@@ -184,9 +185,9 @@ public class EnergyProcessor extends ResourceProcessor {
         continue;
       }
 
-      long fee = dbManager.getDynamicPropertiesStore().getTransactionSunTokenFee() * bytesSize;
+      long fee = dbManager.getDynamicPropertiesStore().getTransactionFee(chargingType) * bytesSize;
       throw new AccountResourceInsufficientException(
-          "Account Insufficient energy[" + bytesSize + "] and sun token balance["
+          "Account Insufficient energy[" + bytesSize + "] and balance["
               + fee + "] to create new account");
 
     }
@@ -225,8 +226,9 @@ public class EnergyProcessor extends ResourceProcessor {
 
     long newEnergyUsage = increase(energyUsage, 0, latestConsumeTime, now);
 
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
     long createNewAccountEnergyRatio = divideCeil(1 , dbManager.getDynamicPropertiesStore().
-            getCreateNewAccountSunTokenEnergyRate());
+            getCreateNewAccountEnergyRate(chargingType));
 
     long usage = bytes * createNewAccountEnergyRatio;
     if (usage <= energyLimit - newEnergyUsage) {
@@ -272,7 +274,8 @@ public class EnergyProcessor extends ResourceProcessor {
 
   private boolean useAccountFrozenEnergy(AccountCapsule accountCapsule, long bytes, long now,
       TransactionTrace trace) {
-    long rate = dbManager.getDynamicPropertiesStore().getTransactionSunTokenEnergyByteRate();
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
+    long rate = dbManager.getDynamicPropertiesStore().getTransactionEnergyByteRate(chargingType);
     long usage= ((rate == 0) ? 0 : divideCeil(bytes, rate)) ;
     long energyUsage = accountCapsule.getEnergyUsage();
     long latestConsumeTime = accountCapsule.getAccountResource().getLatestConsumeTimeForEnergy();
