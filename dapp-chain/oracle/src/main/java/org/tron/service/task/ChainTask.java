@@ -1,5 +1,6 @@
 package org.tron.service.task;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -9,6 +10,11 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.tron.client.MainChainGatewayApi;
+import org.tron.common.exception.RpcConnectException;
+import org.tron.db.TransactionExtentionStore;
+import org.tron.protos.Sidechain.TransactionExtension;
+import org.tron.service.check.TransactionExtention;
 import org.tron.service.kafka.KfkConsumer;
 
 @Slf4j(topic = "task")
@@ -20,14 +26,14 @@ public class ChainTask extends Thread {
   private final KfkConsumer kfkConsumer;
 
   public ChainTask(TaskEnum taskType, String gatewayAddress,
-      String kfkServer, int fixedThreads) {
+    String kfkServer, int fixedThreads) {
     super();
     this.gatewayAddress = gatewayAddress;
     this.taskType = taskType;
     this.executor = Executors.newFixedThreadPool(fixedThreads);
     this.kfkConsumer = new KfkConsumer(kfkServer, taskType.getName(),
-        Arrays.asList("contractevent"));
-    logger.info("task mane is {},task type is {}", getName(), this.taskType);
+      Arrays.asList("contractevent"));
+    logger.info("task name is {},task type is {}", getName(), this.taskType);
   }
 
   @Override
@@ -37,15 +43,39 @@ public class ChainTask extends Thread {
       for (ConsumerRecord<String, String> key : record) {
         JSONObject obj = (JSONObject) JSONValue.parse(key.value());
         if (Objects.isNull(obj.get("contractAddress")) || !obj.get("contractAddress").toString()
-            .equals(gatewayAddress)) {
+          .equals(gatewayAddress)) {
+          kfkConsumer.commit();
           continue;
         }
+
+        TransactionExtentionStore store = TransactionExtentionStore.getInstance();
+
         EventTask eventTask = EventTaskFactory.CreateTask(this.taskType, obj);
         if (Objects.isNull(eventTask)) {
+          kfkConsumer.commit();
+          // TODO: 不需要的event都应该continue
           continue;
         }
-        executor.execute(eventTask);
+
+        // TransactionExtention tx = eventTask.getTx();
+        try {
+
+          TransactionExtension txExtension = TransactionExtension.parseFrom(new byte[0]);
+
+          byte[] txIdBytes = txExtension.getTxid().toByteArray();
+          if (!store.exist(txIdBytes)) {
+            store.putData(txIdBytes, txExtension.toByteArray());
+          }
+
+          kfkConsumer.commit();
+
+          executor.execute(eventTask);
+
+        } catch (InvalidProtocolBufferException e) {
+          e.printStackTrace();
+        }
       }
+
     }
   }
 }

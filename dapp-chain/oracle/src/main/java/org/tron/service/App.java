@@ -6,6 +6,7 @@ import org.tron.common.config.Args;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.utils.WalletUtil;
 import org.tron.service.task.ChainTask;
+import org.tron.service.task.InitTask;
 import org.tron.service.task.TaskEnum;
 
 /*
@@ -26,6 +27,8 @@ public class App {
       logger.error("failed to get sun token when setParam", e);
       System.exit(1);
     }
+
+    (new InitTask()).batchProcessTxInDb();
 
     ChainTask sideChainTask = new ChainTask(TaskEnum.SIDE_CHAIN,
         WalletUtil.encode58Check(arg.getSidechainGateway()),

@@ -31,4 +31,11 @@ public class TransactionExtention {
         .toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
     this.transaction = transaction;
   }
+
+  public TransactionExtention(byte[] bytes) {
+    // Transaction.parseFrom(bytes);
+    this.transactionId = ByteArray
+      .toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+    this.transaction = transaction;
+  }
 }

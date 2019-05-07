@@ -123,6 +123,10 @@ public class TransactionExtentionStore {
     return null;
   }
 
+  public boolean exist(byte[] key) {
+    return getData(key) != null;
+  }
+
   public void putData(byte[] key, byte[] value) {
     resetDbLock.readLock().lock();
     try {
