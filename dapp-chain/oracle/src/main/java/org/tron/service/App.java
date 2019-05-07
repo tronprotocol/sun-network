@@ -3,7 +3,7 @@ package org.tron.service;
 import java.util.TimeZone;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.Args;
-import org.tron.common.exception.RpcException;
+import org.tron.common.exception.RpcConnectException;
 import org.tron.common.utils.WalletUtil;
 import org.tron.service.task.ChainTask;
 import org.tron.service.task.TaskEnum;
@@ -22,7 +22,7 @@ public class App {
     Args arg = Args.getInstance();
     try {
       arg.setParam(args);
-    } catch (RpcException e) {
+    } catch (RpcConnectException e) {
       logger.error("failed to get sun token when setParam", e);
       System.exit(1);
     }

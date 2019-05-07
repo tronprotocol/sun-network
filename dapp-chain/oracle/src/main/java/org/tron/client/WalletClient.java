@@ -1,7 +1,6 @@
 package org.tron.client;
 
 import com.google.protobuf.ByteString;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +10,9 @@ import org.tron.api.GrpcAPI.Return;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.crypto.ECKey;
-import org.tron.common.exception.ContractException;
-import org.tron.common.exception.RpcException;
-import org.tron.common.exception.TxNotFoundException;
+import org.tron.common.exception.TxValidateException;
+import org.tron.common.exception.RpcConnectException;
+import org.tron.common.exception.TxRollbackException;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.Base58;
 import org.tron.common.utils.ByteArray;
@@ -70,7 +69,7 @@ public class WalletClient {
   }
 
   public byte[] triggerConstantContractAndReturn(byte[] contractAddress, String method,
-    List<Object> params, long callValue, long tokenId, long tokenValue) throws RpcException {
+    List<Object> params, long callValue, long tokenId, long tokenValue) throws RpcConnectException {
 
     logger.info(
       "trigger constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
@@ -87,11 +86,11 @@ public class WalletClient {
       && transactionExtention.getResult() != null) {
       return transactionExtention.getConstantResult(0).toByteArray();
     }
-    throw new RpcException("no result");
+    throw new RpcConnectException("no result");
   }
 
   public TransactionId triggerContract(byte[] contractAddress, String method, List<Object> params,
-    long callValue, long tokenId, long tokenValue) throws RpcException {
+    long callValue, long tokenId, long tokenValue) throws RpcConnectException {
 
     logger.info(
       "trigger not constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
@@ -106,7 +105,7 @@ public class WalletClient {
   }
 
   private TransactionExtention triggerConstantContract(byte[] contractAddress, byte[] data,
-    long callValue, long tokenValue, Long tokenId) throws RpcException {
+    long callValue, long tokenValue, Long tokenId) throws RpcConnectException {
     byte[] owner = address;
     Contract.TriggerSmartContract triggerContract = buildTriggerContract(owner, contractAddress,
       callValue, data, tokenValue, tokenId);
@@ -114,14 +113,14 @@ public class WalletClient {
     if (!transactionExtention.getResult().getResult()) {
       logger.error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
         transactionExtention.getResult().getMessage().toStringUtf8());
-      throw new RpcException("rpc fail, code: " + transactionExtention.getResult().getCode());
+      throw new RpcConnectException("rpc fail, code: " + transactionExtention.getResult().getCode());
     }
     return transactionExtention;
   }
 
   private TransactionId triggerContract(byte[] contractAddress, byte[] data, long feeLimit,
       long callValue,
-    long tokenValue, Long tokenId) throws RpcException {
+    long tokenValue, Long tokenId) throws RpcConnectException {
     byte[] owner = address;
     Contract.TriggerSmartContract triggerContract = buildTriggerContract(owner, contractAddress,
       callValue, data, tokenValue, tokenId);
@@ -129,7 +128,7 @@ public class WalletClient {
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
       logger.error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
         transactionExtention.getResult().getMessage().toStringUtf8());
-      throw new RpcException("rpc fail, code: " + transactionExtention.getResult().getCode());
+      throw new RpcConnectException("rpc fail, code: " + transactionExtention.getResult().getCode());
     }
 
     TransactionExtention.Builder txBuilder = TransactionExtention.newBuilder();
@@ -172,15 +171,15 @@ public class WalletClient {
   }
 
   private TransactionId processTransactionExtention(TransactionExtention transactionExtention)
-    throws RpcException {
+    throws RpcConnectException {
     if (transactionExtention == null) {
-      throw new RpcException("transactionExtention is null");
+      throw new RpcConnectException("transactionExtention is null");
     }
     Return ret = transactionExtention.getResult();
     if (!ret.getResult()) {
       logger
         .error("rpc fail, code: {}, message: {}", ret.getCode(), ret.getMessage().toStringUtf8());
-      throw new RpcException("rpc fail, code: " + ret.getCode());
+      throw new RpcConnectException("rpc fail, code: " + ret.getCode());
     }
     Transaction transaction = transactionExtention.getTransaction();
 
@@ -194,7 +193,7 @@ public class WalletClient {
     return new TransactionId(transaction);
   }
 
-  public byte[] checkTxInfo(String txId) throws TxNotFoundException, ContractException {
+  public byte[] checkTxInfo(String txId) throws TxRollbackException, TxValidateException {
     int maxRetry = 3;
     for (int i = 0; i < maxRetry; i++) {
       Optional<TransactionInfo> transactionInfo = rpcCli.getTransactionInfoById(txId);
@@ -210,10 +209,10 @@ public class WalletClient {
         if (info.getResult().equals(code.SUCESS)) {
           return info.getContractResult(0).toByteArray();
         } else {
-          throw new ContractException(info.getResMessage().toStringUtf8());
+          throw new TxValidateException(info.getResMessage().toStringUtf8());
         }
       }
     }
-    throw new TxNotFoundException(txId);
+    throw new TxRollbackException(txId);
   }
 }
