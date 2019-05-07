@@ -23,7 +23,7 @@ public class EventStoreTest {
 
     byte[] key = ByteArray.fromString("aa");
     byte[] value = ByteArray.fromString("mmmmm");
-    store.put(key, value);
+    store.putData(key, value);
     Assert.assertArrayEquals(store.getData(key), value);
   }
 
@@ -34,7 +34,7 @@ public class EventStoreTest {
     EventStore store = EventStore.getInstance();
     store.close();
     store.initDB();
-    store.put(key, value);
+    store.putData(key, value);
     Assert.assertArrayEquals(store.getData(key), value);
   }
 

@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.fusesource.leveldbjni.JniDBFactory;
 import org.iq80.leveldb.CompressionType;
 import org.iq80.leveldb.DB;
+import org.iq80.leveldb.DBException;
 import org.iq80.leveldb.Options;
 
 @Slf4j
@@ -111,10 +112,23 @@ public class EventStore {
   }
 
   public byte[] getData(byte[] key) {
-    return database.get(key);
+    resetDbLock.readLock().lock();
+    try {
+      return database.get(key);
+    } catch (DBException e) {
+      logger.debug(e.getMessage(), e);
+    } finally {
+      resetDbLock.readLock().unlock();
+    }
+    return null;
   }
 
-  public void put(byte[] key, byte[] value) {
-    database.put(key, value);
+  public void putData(byte[] key, byte[] value) {
+    resetDbLock.readLock().lock();
+    try {
+      database.put(key, value);
+    } finally {
+      resetDbLock.readLock().unlock();
+    }
   }
 }
