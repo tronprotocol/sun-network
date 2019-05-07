@@ -1,6 +1,8 @@
 package org.tron.service.task;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.db.TransactionExtentionStore;
 import org.tron.protos.Sidechain.TransactionExtension;
@@ -11,14 +13,16 @@ public class InitTask {
   public void batchProcessTxInDb() {
     TransactionExtentionStore store = TransactionExtentionStore.getInstance();
 
-    // TODO: 遍历
-    byte[] txIdBytes = new byte[0];
-    byte[] txExtensionBytes = store.getData(txIdBytes);
-    try {
-      TransactionExtension txExtension = TransactionExtension.parseFrom(txExtensionBytes);
-      // executor.execute(eventTask);
-    } catch (InvalidProtocolBufferException e) {
-      e.printStackTrace();
+    LinkedHashMap<byte[], byte[]> allTx = store.getAllData();
+    for (Entry<byte[], byte[]> entry : allTx.entrySet()) {
+      byte[] txExtensionBytes = entry.getValue();
+      try {
+        TransactionExtension txExtension = TransactionExtension.parseFrom(txExtensionBytes);
+        // executor.execute(eventTask);
+      } catch (InvalidProtocolBufferException e) {
+        e.printStackTrace();
+      }
+
     }
   }
 }

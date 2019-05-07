@@ -11,8 +11,9 @@ import org.tron.api.GrpcAPI.Return;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.exception.RpcConnectException;
-import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
+import org.tron.common.exception.TxRollbackException;
+import org.tron.common.exception.TxFailException;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.Base58;
 import org.tron.common.utils.TransactionUtils;
@@ -90,7 +91,7 @@ public class WalletClient {
 
   public TransactionExtensionCapsule triggerContract(byte[] contractAddress, String method,
       List<Object> params,
-      long callValue, long tokenId, long tokenValue) throws RpcConnectException {
+      long callValue, long tokenId, long tokenValue) throws RpcConnectException, TxValidateException {
 
     logger.info(
         "trigger not constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
@@ -140,7 +141,7 @@ public class WalletClient {
   private TransactionExtensionCapsule triggerContract(byte[] contractAddress, byte[] data,
       long feeLimit,
       long callValue,
-      long tokenValue, Long tokenId) throws RpcConnectException {
+      long tokenValue, Long tokenId) throws RpcConnectException, TxValidateException {
     GrpcAPI.TransactionExtention transactionExtention = getTransactionExtention(contractAddress,
         data, feeLimit,
         callValue, tokenValue, tokenId);
@@ -212,7 +213,7 @@ public class WalletClient {
 
   private TransactionExtensionCapsule processTransactionExtention(
       org.tron.api.GrpcAPI.TransactionExtention transactionExtention)
-      throws RpcConnectException {
+    throws RpcConnectException, TxValidateException {
     Transaction transaction = getTransaction(transactionExtention);
     rpcCli.broadcastTransaction(transaction);
     return new TransactionExtensionCapsule(transaction);
@@ -238,17 +239,11 @@ public class WalletClient {
     return TransactionUtils.sign(transaction, this.ecKey);
   }
 
-  public boolean broadcast(Transaction transaction) {
-    try {
+  public boolean broadcast(Transaction transaction) throws RpcConnectException, TxValidateException {
       return rpcCli.broadcastTransaction(transaction);
-    } catch (RpcConnectException e) {
-      e.printStackTrace();
-      return false;
-    }
-
   }
 
-  public byte[] checkTxInfo(String txId) throws TxRollbackException, TxValidateException {
+  public byte[] checkTxInfo(String txId) throws TxRollbackException, TxFailException {
     int maxRetry = 3;
     for (int i = 0; i < maxRetry; i++) {
       Optional<TransactionInfo> transactionInfo = rpcCli.getTransactionInfoById(txId);
@@ -264,7 +259,7 @@ public class WalletClient {
         if (info.getResult().equals(code.SUCESS)) {
           return info.getContractResult(0).toByteArray();
         } else {
-          throw new TxValidateException(info.getResMessage().toStringUtf8());
+          throw new TxFailException(info.getResMessage().toStringUtf8());
         }
       }
     }

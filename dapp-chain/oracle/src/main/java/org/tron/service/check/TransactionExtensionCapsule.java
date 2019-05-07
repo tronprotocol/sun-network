@@ -40,6 +40,14 @@ public class TransactionExtensionCapsule {
     return ByteArray.toHexString(instance.getTxid().toByteArray());
   }
 
+  public byte[] getTransactionIdBytes() {
+    return instance.getTxid().toByteArray();
+  }
+
+  public byte[] getData() {
+    return this.instance.build().toByteArray();
+  }
+
   public Transaction getTransaction() {
     return instance.getTransaction();
   }

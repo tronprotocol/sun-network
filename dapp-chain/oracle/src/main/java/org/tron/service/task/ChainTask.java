@@ -13,6 +13,7 @@ import org.json.simple.JSONValue;
 import org.tron.db.TransactionExtentionStore;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.protos.Sidechain.TransactionExtension;
+import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.EventActuatorFactory;
 import org.tron.service.kafka.KfkConsumer;
@@ -26,13 +27,13 @@ public class ChainTask extends Thread {
   private final KfkConsumer kfkConsumer;
 
   public ChainTask(TaskEnum taskType, String gatewayAddress,
-      String kfkServer, int fixedThreads) {
+    String kfkServer, int fixedThreads) {
     super();
     this.gatewayAddress = gatewayAddress;
     this.taskType = taskType;
     this.executor = Executors.newFixedThreadPool(fixedThreads);
     this.kfkConsumer = new KfkConsumer(kfkServer, taskType.toString(),
-        Arrays.asList("contractevent"));
+      Arrays.asList("contractevent"));
     logger.info("task name is {},task type is {}", getName(), this.taskType);
   }
 
@@ -43,36 +44,32 @@ public class ChainTask extends Thread {
       for (ConsumerRecord<String, String> key : record) {
         JSONObject obj = (JSONObject) JSONValue.parse(key.value());
         if (Objects.isNull(obj.get("contractAddress")) || !obj.get("contractAddress").toString()
-            .equals(gatewayAddress)) {
+          .equals(gatewayAddress)) {
           kfkConsumer.commit();
           continue;
         }
 
         TransactionExtentionStore store = TransactionExtentionStore.getInstance();
 
-        Actuator eventTask = EventActuatorFactory.CreateActuator(this.taskType, obj);
-        if (Objects.isNull(eventTask)) {
+        Actuator eventActuator = EventActuatorFactory.CreateActuator(this.taskType, obj);
+        if (Objects.isNull(eventActuator)) {
           kfkConsumer.commit();
           // TODO: 不需要的event都应该continue
           continue;
         }
 
-        // TransactionExtensionCapsule tx = eventTask.getTx();
-        try {
-
-          TransactionExtension txExtension = TransactionExtension.parseFrom(new byte[0]);
-
-          byte[] txIdBytes = txExtension.getTxid().toByteArray();
-          if (!store.exist(txIdBytes)) {
-            store.putData(txIdBytes, txExtension.toByteArray());
-          }
-
-          kfkConsumer.commit();
-        } catch (InvalidProtocolBufferException e) {
-          e.printStackTrace();
+        TransactionExtensionCapsule txExtensionCapsule = eventActuator
+          .getTransactionExtensionCapsule();
+        byte[] txIdBytes = txExtensionCapsule.getTransactionIdBytes();
+        if (!store.exist(txIdBytes)) {
+          store.putData(txIdBytes, txExtensionCapsule.getData());
         }
-      }
 
+        kfkConsumer.commit();
+
+        executor.execute(new TxExtensionTask(txExtensionCapsule));
+      }
     }
+
   }
 }

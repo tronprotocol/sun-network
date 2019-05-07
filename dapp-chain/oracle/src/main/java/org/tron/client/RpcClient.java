@@ -13,6 +13,7 @@ import org.tron.api.GrpcAPI.Return.response_code;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.WalletGrpc;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.ByteArray;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.AssetIssueContract;
@@ -36,14 +37,15 @@ class RpcClient {
 
   Optional<TransactionInfo> getTransactionInfoById(String txID) {
     BytesMessage request = BytesMessage.newBuilder()
-        .setValue(ByteString.copyFrom(ByteArray.fromHexString(txID))).build();
+      .setValue(ByteString.copyFrom(ByteArray.fromHexString(txID))).build();
     TransactionInfo transactionInfo = blockingStub.getTransactionInfoById(request);
     return Optional.ofNullable(transactionInfo);
   }
 
-  boolean broadcastTransaction(Transaction signaturedTransaction) throws RpcConnectException {
+  boolean broadcastTransaction(Transaction signaturedTransaction)
+    throws RpcConnectException, TxValidateException {
 
-    int maxRetry = 10;
+    int maxRetry = 5;
     for (int i = 0; i < maxRetry; i++) {
 
       Return response = blockingStub.broadcastTransaction(signaturedTransaction);
@@ -62,15 +64,14 @@ class RpcClient {
           }
         } else {
           logger.info("server error, fail, code: {}, message", response.getCode(),
-              response.getMessage().toStringUtf8());
+            response.getMessage().toStringUtf8());
           // fail, not retry
-          throw new RpcConnectException("server error, fail");
+          throw new TxValidateException("tx error, fail");
         }
       }
     }
     logger.error("broadcast transaction, exceed max retry, fail");
     throw new RpcConnectException("broadcast transaction, exceed max retry, fail");
-
   }
 
   TransactionExtention createTransaction2(Contract.TransferContract contract) {

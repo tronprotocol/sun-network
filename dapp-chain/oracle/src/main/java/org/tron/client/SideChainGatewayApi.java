@@ -8,8 +8,9 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.Args;
 import org.tron.common.exception.RpcConnectException;
-import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
+import org.tron.common.exception.TxRollbackException;
+import org.tron.common.exception.TxFailException;
 import org.tron.common.utils.AbiUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.service.check.TransactionExtensionCapsule;
@@ -18,7 +19,7 @@ import org.tron.service.check.TransactionExtensionCapsule;
 public class SideChainGatewayApi {
 
   public static TransactionExtensionCapsule mintTrx(String to, String value)
-      throws RpcConnectException {
+    throws RpcConnectException, TxValidateException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRX(address,uint256)";
     List params = Arrays.asList(to, value);
@@ -36,7 +37,7 @@ public class SideChainGatewayApi {
   public static TransactionExtensionCapsule mintToken10(String to, String tokenId, String value,
       String name,
       String symbol, int decimals)
-      throws RpcConnectException {
+    throws RpcConnectException, TxValidateException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRC10(address,uint256,uint256,string,string,uint8)";
     List params = Arrays.asList(to, tokenId, value, name, symbol, decimals);
@@ -55,7 +56,7 @@ public class SideChainGatewayApi {
   }
 
   public static TransactionExtensionCapsule mintToken20(String to, String mainAddress, String value)
-      throws RpcConnectException {
+    throws RpcConnectException, TxValidateException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRC20(address,address,uint256)";
     List params = Arrays.asList(to, mainAddress, value);
@@ -73,7 +74,7 @@ public class SideChainGatewayApi {
 
   public static TransactionExtensionCapsule mintToken721(String to, String mainAddress,
       String value)
-      throws RpcConnectException {
+    throws RpcConnectException, TxValidateException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRC721(address,address,uint256)";
     List params = Arrays.asList(to, mainAddress, value);
@@ -135,11 +136,12 @@ public class SideChainGatewayApi {
 
 
   public static byte[] checkTxInfo(TransactionExtensionCapsule txId)
-      throws TxValidateException, TxRollbackException {
+      throws TxFailException, TxRollbackException {
     return GATEWAY_API.instance.checkTxInfo(txId.getTransactionId());
   }
 
-  public static boolean broadcast(Transaction transaction) {
+  public static boolean broadcast(Transaction transaction)
+    throws RpcConnectException, TxValidateException {
     return GATEWAY_API.instance.broadcast(transaction);
   }
 }

@@ -1,40 +1,33 @@
 package org.tron.service.task;
 
 import lombok.extern.slf4j.Slf4j;
-import org.tron.client.MainChainGatewayApi;
+import org.tron.common.exception.RpcConnectException;
+import org.tron.common.exception.TxValidateException;
 import org.tron.service.check.CheckTransaction;
-import org.tron.service.check.TransactionExtention;
+import org.tron.service.check.TransactionExtensionCapsule;
 
-@Slf4j(topic = "sideChainTask")
-public class TxExtensionTask implements EventTask {
+@Slf4j(topic = "task")
+public class TxExtensionTask implements Runnable {
 
-  // "event DeployDAppTRC20AndMapping(address developer, address mainChainAddress, address sideChainAddress);"
+  private TransactionExtensionCapsule txExtensionCapsule;
 
-  private String developer;
-  private String mainChainAddress;
-  private String sideChainAddress;
-
-  public TxExtensionTask(String developer, String mainChainAddress,
-      String sideChainAddress) {
-    this.developer = developer;
-    this.mainChainAddress = mainChainAddress;
-    this.sideChainAddress = sideChainAddress;
+  public TxExtensionTask(TransactionExtensionCapsule txExtensionCapsule) {
+    this.txExtensionCapsule = txExtensionCapsule;
   }
 
   @Override
   public void run() {
-    logger.info("developer: {}, mainChainAddress: {}, sideChainAddress: {}", this.developer,
-        this.mainChainAddress, this.sideChainAddress);
     try {
-      TransactionExtention txId = MainChainGatewayApi
-          .addTokenMapping(this.mainChainAddress, this.sideChainAddress);
-      txId.setType(TaskEnum.MAIN_CHAIN);
-      MainChainGatewayApi.checkTxInfo(txId);
-      CheckTransaction.getInstance().submitCheck(txId);
-    } catch (Exception e) {
-      logger.error(
-          "DeployDAppTRC20AndMappingTask fail, developer: {}, mainChainAddress: {}, sideChainAddress: {}",
-          this.developer, this.mainChainAddress, this.sideChainAddress);
+      CheckTransaction.getInstance().broadcastTransaction(this.txExtensionCapsule);
+      CheckTransaction.getInstance().submitCheck(this.txExtensionCapsule);
+    } catch (RpcConnectException e) {
+      // TODO: 1.2 连接的fullnode或soliditynode服务停止、网络超时等引起的RPC接口connect异常
+      // TODO: 重试5次，仍然失败则告警、退出oracle进程、排查问题、重启fullnode和oracle(不会丢数据)
+      e.printStackTrace();
+    } catch (TxValidateException e) {
+      // TODO: 4.1 交易验证失败，没有上链
+      // TODO: 	告警、退出oracle进程、排查问题、重启oracle进程
+      e.printStackTrace();
     }
   }
 }
