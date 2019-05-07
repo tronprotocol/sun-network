@@ -35,7 +35,7 @@ public class GetTransactionSignWeightServlet extends HttpServlet {
       Util.checkBodySize(input);
       Transaction transaction = Util.packTransaction(input);
 
-      TransactionSignWeight reply = wallet.getTransactionSignWeight(transaction, dbManger);
+      TransactionSignWeight reply = wallet.getTransactionSignWeight(transaction);
       if (reply != null) {
         response.getWriter().println(Util.printTransactionSignWeight(reply));
       } else {
