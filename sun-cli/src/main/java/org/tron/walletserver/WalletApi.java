@@ -96,10 +96,13 @@ public class WalletApi {
   private boolean loginState = false;
   private byte[] address;
   private static byte addressPreFixByte = CommonConstant.ADD_PRE_FIX_BYTE_TESTNET;
-  private static int rpcVersion = 0;  //TODO：side/main
+  private static int rpcVersion = 0;
+  private static int sideRpcVersion = 0;
 
   private static byte[] sideGatewayAddress;
   private static byte[] mainGatewayAddress;
+
+  private static List<byte[]> mainChainGateWayList;
 
   private static GrpcClient rpcMain = initMain();
   private static GrpcClient rpcSide = initSide();
@@ -151,6 +154,18 @@ public class WalletApi {
     return new GrpcClient(fullNode, solidityNode);
   }
 
+  private static List<byte[]> getGateWayList(final Config config, String path) {
+    if (!config.hasPath(path)) {
+      return Collections.emptyList();
+    }
+    List<byte[]> ret = new ArrayList<>();
+    List<String> list = config.getStringList(path);
+    for (String configString : list) {
+      ret.add(WalletApi.decodeFromBase58Check(configString));
+    }
+    return ret;
+  }
+
   public static GrpcClient initSide() {
     Config config = Configuration.getByPath("config.conf");
 
@@ -169,7 +184,7 @@ public class WalletApi {
       WalletApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_TESTNET);
     }
     if (config.hasPath("sidechain.RPC_version")) {
-      rpcVersion = config.getInt("sidechain.RPC_version");//TODO:
+      sideRpcVersion = config.getInt("sidechain.RPC_version");
     }
 
     if (config.hasPath("sidechain.gateway_address")) {
@@ -181,6 +196,8 @@ public class WalletApi {
 
       sideGatewayAddress = WalletApi.decodeFromBase58Check(temp);
     }
+
+    mainChainGateWayList = getGateWayList(config, "sidechain.mainChainGateWayList");
 
     return new GrpcClient(fullNode, solidityNode);
   }
@@ -569,7 +586,13 @@ public class WalletApi {
       }
     }
   }
+  private byte[] getCurrentChainId() {
+    if(rpcCli == rpcMain) {
+      return new byte[0];
+    }
 
+    return ByteArray.fromBytes21List(mainChainGateWayList);
+  }
   private Transaction signTransaction(Transaction transaction)
     throws CipherException, IOException, CancelException {
     if (transaction.getRawData().getTimestamp() == 0) {
@@ -592,7 +615,7 @@ public class WalletApi {
       byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
       org.tron.keystore.StringUtils.clear(password);
 
-      transaction = TransactionUtils.sign(transaction, this.getEcKey(walletFile, passwd));
+      transaction = TransactionUtils.sign(transaction, this.getEcKey(walletFile, passwd), getCurrentChainId(), isMainChain());
       System.out
         .println("current transaction hex string is " + ByteArray
           .toHexString(transaction.toByteArray()));
@@ -2142,7 +2165,7 @@ public class WalletApi {
     byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
     org.tron.keystore.StringUtils.clear(password);
 
-    transaction = TransactionUtils.sign(transaction, this.getEcKey(walletFile, passwd));
+    transaction = TransactionUtils.sign(transaction, this.getEcKey(walletFile, passwd), getCurrentChainId(), isMainChain());
     org.tron.keystore.StringUtils.clear(passwd);
     return transaction;
   }
