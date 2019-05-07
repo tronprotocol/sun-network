@@ -18,10 +18,10 @@ public class EventStore {
 
   private static final JniDBFactory factory = new JniDBFactory();
 
-  String dataBaseName;
-  DB database;
+  private String dataBaseName;
+  private DB database;
   private String parentName;
-  boolean alive;
+  private boolean alive;
   private ReadWriteLock resetDbLock = new ReentrantReadWriteLock();
 
   private static EventStore instance = new EventStore();

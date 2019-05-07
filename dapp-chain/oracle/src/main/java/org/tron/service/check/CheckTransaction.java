@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.exception.ContractException;
-import org.tron.common.exception.TxNotFoundException;
+import org.tron.common.exception.TxRollbackException;
+import org.tron.common.exception.TxValidateException;
 import org.tron.service.task.TaskEnum;
 
 @Slf4j
@@ -47,11 +47,11 @@ public class CheckTransaction {
           SideChainGatewayApi.checkTxInfo(trxId);
           break;
       }
-    } catch (TxNotFoundException e) {
+    } catch (TxRollbackException e) {
       logger.error(e.getMessage());
       broadcastTransaction(trxId);
       instance.submitCheck(trxId);
-    } catch (ContractException e) {
+    } catch (TxValidateException e) {
       logger.error(e.getMessage());
     }
   }
