@@ -32,6 +32,7 @@ import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -523,7 +524,7 @@ public class Wallet {
       throws PermissionException, SignatureException, SignatureFormatException {
     byte[] privateKey = transactionSign.getPrivateKey().toByteArray();
     TransactionCapsule trx = new TransactionCapsule(transactionSign.getTransaction());
-    trx.addSign(privateKey, dbManager.getAccountStore());
+    trx.addSign(privateKey, dbManager.getAccountStore(), dbManager);
     return trx;
   }
 
@@ -573,7 +574,7 @@ public class Wallet {
       if (trx.getSignatureCount() > 0) {
         List<ByteString> approveList = new ArrayList<ByteString>();
         long currentWeight = TransactionCapsule.checkWeight(permission, trx.getSignatureList(),
-            Sha256Hash.hash(trx.getRawData().toByteArray()), approveList);
+            Sha256Hash.hash(trx.getRawData().toByteArray()), approveList, dbManager);
         tswBuilder.addAllApprovedList(approveList);
         tswBuilder.setCurrentWeight(currentWeight);
       }

@@ -443,6 +443,10 @@ public class Args {
 
   @Getter
   @Setter
+  private List<byte[]> mainChainGateWayList;
+
+  @Getter
+  @Setter
   private int energyChargingSwitchOn;
 
   @Getter
@@ -902,6 +906,7 @@ public class Args {
         config.hasPath("vm.saveInternalTx") && config.getBoolean("vm.saveInternalTx");
 
     INSTANCE.gatewayList = getGateWayList(config,"gateWayList");
+    INSTANCE.mainChainGateWayList = getGateWayList(config, "mainChainGateWayList");
 
     INSTANCE.eventPluginConfig =
         config.hasPath("event.subscribe") ?

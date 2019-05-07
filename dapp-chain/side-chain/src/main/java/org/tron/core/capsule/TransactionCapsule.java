@@ -24,6 +24,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.security.SignatureException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -46,6 +47,7 @@ import org.tron.common.runtime.vm.program.Program.PrecompiledContractException;
 import org.tron.common.runtime.vm.program.Program.StackTooLargeException;
 import org.tron.common.runtime.vm.program.Program.StackTooSmallException;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.core.Wallet;
 import org.tron.core.db.AccountStore;
@@ -253,7 +255,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
   }
 
   public static long checkWeight(Permission permission, List<ByteString> sigs, byte[] hash,
-      List<ByteString> approveList)
+       List<ByteString> approveList, Manager dbManager)
       throws SignatureException, PermissionException, SignatureFormatException {
     long currentWeight = 0;
 //    if (signature.size() % 65 != 0) {
@@ -264,6 +266,11 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
           "Signature count is " + (sigs.size()) + " more than key counts of permission : "
               + permission.getKeysCount());
     }
+
+    byte[] mainChainGateWayListByteArray = ByteArray.fromBytes21List(dbManager.getDynamicPropertiesStore().getMainChainGateWayList());
+    byte[] hashWithMainChainGateWay = Arrays.copyOf(hash, hash.length + mainChainGateWayListByteArray.length);
+    System.arraycopy(mainChainGateWayListByteArray, 0, hashWithMainChainGateWay, hash.length, mainChainGateWayListByteArray.length);
+
     HashMap addMap = new HashMap();
     for (ByteString sig : sigs) {
       if (sig.size() < 65) {
@@ -271,7 +278,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
             "Signature size is " + sig.size());
       }
       String base64 = TransactionCapsule.getBase64FromByteString(sig);
-      byte[] address = ECKey.signatureToAddress(hash, base64);
+      byte[] address = ECKey.signatureToAddress(Sha256Hash.hash(hashWithMainChainGateWay), base64);
       long weight = getWeight(permission, address);
       if (weight == 0) {
         throw new PermissionException(
@@ -290,7 +297,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
     return currentWeight;
   }
 
-  public void addSign(byte[] privateKey, AccountStore accountStore)
+  public void addSign(byte[] privateKey, AccountStore accountStore, Manager dbManager)
       throws PermissionException, SignatureException, SignatureFormatException {
     Transaction.Contract contract = this.transaction.getRawData().getContract(0);
     int permissionId = contract.getPermissionId();
@@ -317,7 +324,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
     byte[] address = ecKey.getAddress();
     if (this.transaction.getSignatureCount() > 0) {
       checkWeight(permission, this.transaction.getSignatureList(), this.getRawHash().getBytes(),
-          approveList);
+          approveList, dbManager);
       if (approveList.contains(ByteString.copyFrom(address))) {
         throw new PermissionException(Wallet.encode58Check(address) + " had signed!");
       }
@@ -523,7 +530,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
         throw new PermissionException("Permission denied");
       }
     }
-    long weight = checkWeight(permission, transaction.getSignatureList(), hash, null);
+    long weight = checkWeight(permission, transaction.getSignatureList(), hash, null, manager);
     if (weight >= permission.getThreshold()) {
       return true;
     }
