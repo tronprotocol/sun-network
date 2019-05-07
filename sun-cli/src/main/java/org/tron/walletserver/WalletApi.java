@@ -615,7 +615,7 @@ public class WalletApi {
       byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
       org.tron.keystore.StringUtils.clear(password);
 
-      transaction = TransactionUtils.sign(transaction, this.getEcKey(walletFile, passwd), getCurrentChainId());
+      transaction = TransactionUtils.sign(transaction, this.getEcKey(walletFile, passwd), getCurrentChainId(), isMainChain());
       System.out
         .println("current transaction hex string is " + ByteArray
           .toHexString(transaction.toByteArray()));
@@ -2165,7 +2165,7 @@ public class WalletApi {
     byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
     org.tron.keystore.StringUtils.clear(password);
 
-    transaction = TransactionUtils.sign(transaction, this.getEcKey(walletFile, passwd), getCurrentChainId());
+    transaction = TransactionUtils.sign(transaction, this.getEcKey(walletFile, passwd), getCurrentChainId(), isMainChain());
     org.tron.keystore.StringUtils.clear(passwd);
     return transaction;
   }
