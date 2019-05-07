@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.service.check.CheckTransaction;
-import org.tron.service.check.TransactionExtention;
+import org.tron.service.check.TransactionExtension;
 import org.tron.service.task.EventTaskImpl;
 import org.tron.service.task.TaskEnum;
 
@@ -21,26 +21,26 @@ public class DepositTRXTask extends EventTaskImpl {
   }
 
   @Override
-  public TransactionExtention getTransactionExtention() {
-    if (Objects.nonNull(transactionExtention)) {
-      return transactionExtention;
+  public TransactionExtension getTransactionExtension() {
+    if (Objects.nonNull(transactionExtension)) {
+      return transactionExtension;
     }
     try {
       Transaction tx = SideChainGatewayApi.mintTrxTransaction(this.from, this.amount);
-      this.transactionExtention = new TransactionExtention(TaskEnum.SIDE_CHAIN, tx);
-      logger.info("deposit trx is {}", this.transactionExtention.getTransactionId());
+      this.transactionExtension = new TransactionExtension(TaskEnum.SIDE_CHAIN, tx);
+      logger.info("deposit trx is {}", this.transactionExtension.getTransactionId());
     } catch (Exception e) {
       logger.error("from:{},amount:{}", this.from, this.amount);
       e.printStackTrace();
     }
-    return this.transactionExtention;
+    return this.transactionExtension;
   }
 
   @Override
   public void run() {
     logger.info("from:{},amount:{}", this.from, this.amount);
     try {
-      TransactionExtention txId = SideChainGatewayApi.mintTrx(this.from, this.amount);
+      TransactionExtension txId = SideChainGatewayApi.mintTrx(this.from, this.amount);
       logger.info("deposit trx is {}", txId.getTransactionId());
       txId.setType(TaskEnum.SIDE_CHAIN);
       SideChainGatewayApi.checkTxInfo(txId);

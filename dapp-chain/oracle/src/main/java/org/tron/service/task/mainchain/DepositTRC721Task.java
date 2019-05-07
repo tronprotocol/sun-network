@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.service.check.CheckTransaction;
-import org.tron.service.check.TransactionExtention;
+import org.tron.service.check.TransactionExtension;
 import org.tron.service.task.EventTaskImpl;
 import org.tron.service.task.TaskEnum;
 
@@ -23,20 +23,20 @@ public class DepositTRC721Task extends EventTaskImpl {
   }
 
   @Override
-  public TransactionExtention getTransactionExtention() {
-    if (Objects.nonNull(transactionExtention)) {
-      return transactionExtention;
+  public TransactionExtension getTransactionExtension() {
+    if (Objects.nonNull(transactionExtension)) {
+      return transactionExtension;
     }
     try {
       Transaction tx = SideChainGatewayApi
           .mintToken721Transaction(this.from, this.contractAddress, this.uid);
-      this.transactionExtention = new TransactionExtention(TaskEnum.SIDE_CHAIN, tx);
+      this.transactionExtension = new TransactionExtension(TaskEnum.SIDE_CHAIN, tx);
     } catch (Exception e) {
       logger
           .error("from:{},uid:{},contractAddress{}", this.from, this.uid, this.contractAddress);
       e.printStackTrace();
     }
-    return this.transactionExtention;
+    return this.transactionExtension;
   }
 
   @Override
@@ -44,7 +44,7 @@ public class DepositTRC721Task extends EventTaskImpl {
     logger
         .info("from:{},uid:{},contractAddress{}", this.from, this.uid, this.contractAddress);
     try {
-      TransactionExtention txId = SideChainGatewayApi
+      TransactionExtension txId = SideChainGatewayApi
           .mintToken721(this.from, this.contractAddress, this.uid);
       txId.setType(TaskEnum.SIDE_CHAIN);
       SideChainGatewayApi.checkTxInfo(txId);

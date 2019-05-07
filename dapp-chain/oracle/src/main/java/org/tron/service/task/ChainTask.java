@@ -10,11 +10,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.tron.client.MainChainGatewayApi;
-import org.tron.common.exception.RpcConnectException;
 import org.tron.db.TransactionExtentionStore;
 import org.tron.protos.Sidechain.TransactionExtension;
-import org.tron.service.check.TransactionExtention;
 import org.tron.service.kafka.KfkConsumer;
 
 @Slf4j(topic = "task")
@@ -26,13 +23,13 @@ public class ChainTask extends Thread {
   private final KfkConsumer kfkConsumer;
 
   public ChainTask(TaskEnum taskType, String gatewayAddress,
-    String kfkServer, int fixedThreads) {
+      String kfkServer, int fixedThreads) {
     super();
     this.gatewayAddress = gatewayAddress;
     this.taskType = taskType;
     this.executor = Executors.newFixedThreadPool(fixedThreads);
     this.kfkConsumer = new KfkConsumer(kfkServer, taskType.getName(),
-      Arrays.asList("contractevent"));
+        Arrays.asList("contractevent"));
     logger.info("task name is {},task type is {}", getName(), this.taskType);
   }
 
@@ -43,7 +40,7 @@ public class ChainTask extends Thread {
       for (ConsumerRecord<String, String> key : record) {
         JSONObject obj = (JSONObject) JSONValue.parse(key.value());
         if (Objects.isNull(obj.get("contractAddress")) || !obj.get("contractAddress").toString()
-          .equals(gatewayAddress)) {
+            .equals(gatewayAddress)) {
           kfkConsumer.commit();
           continue;
         }
@@ -57,7 +54,7 @@ public class ChainTask extends Thread {
           continue;
         }
 
-        // TransactionExtention tx = eventTask.getTx();
+        // TransactionExtension tx = eventTask.getTx();
         try {
 
           TransactionExtension txExtension = TransactionExtension.parseFrom(new byte[0]);

@@ -12,12 +12,12 @@ import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AbiUtil;
 import org.tron.protos.Protocol.Transaction;
-import org.tron.service.check.TransactionExtention;
+import org.tron.service.check.TransactionExtension;
 
 @Slf4j
 public class SideChainGatewayApi {
 
-  public static TransactionExtention mintTrx(String to, String value) throws RpcConnectException {
+  public static TransactionExtension mintTrx(String to, String value) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRX(address,uint256)";
     List params = Arrays.asList(to, value);
@@ -32,7 +32,7 @@ public class SideChainGatewayApi {
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static TransactionExtention mintToken10(String to, String tokenId, String value,
+  public static TransactionExtension mintToken10(String to, String tokenId, String value,
       String name,
       String symbol, int decimals)
       throws RpcConnectException {
@@ -53,7 +53,7 @@ public class SideChainGatewayApi {
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static TransactionExtention mintToken20(String to, String mainAddress, String value)
+  public static TransactionExtension mintToken20(String to, String mainAddress, String value)
       throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRC20(address,address,uint256)";
@@ -70,7 +70,7 @@ public class SideChainGatewayApi {
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static TransactionExtention mintToken721(String to, String mainAddress, String value)
+  public static TransactionExtension mintToken721(String to, String mainAddress, String value)
       throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRC721(address,address,uint256)";
@@ -132,7 +132,7 @@ public class SideChainGatewayApi {
   }
 
 
-  public static byte[] checkTxInfo(TransactionExtention txId)
+  public static byte[] checkTxInfo(TransactionExtension txId)
       throws TxValidateException, TxRollbackException {
     return GATEWAY_API.instance.checkTxInfo(txId.getTransactionId());
   }

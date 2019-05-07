@@ -7,7 +7,7 @@ import org.tron.client.SideChainGatewayApi;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.service.check.CheckTransaction;
-import org.tron.service.check.TransactionExtention;
+import org.tron.service.check.TransactionExtension;
 import org.tron.service.task.EventTaskImpl;
 import org.tron.service.task.TaskEnum;
 
@@ -25,9 +25,9 @@ public class DepositTRC10Task extends EventTaskImpl {
   }
 
   @Override
-  public TransactionExtention getTransactionExtention() {
-    if (Objects.nonNull(this.transactionExtention)) {
-      return this.transactionExtention;
+  public TransactionExtension getTransactionExtension() {
+    if (Objects.nonNull(this.transactionExtension)) {
+      return this.transactionExtension;
     }
     try {
       logger.info("from:{},amount:{},tokenId:{}", this.from, this.amount, this.tokenId);
@@ -36,12 +36,12 @@ public class DepositTRC10Task extends EventTaskImpl {
           .mintToken10Transaction(this.from, this.tokenId, this.amount,
               assetIssue.getName().toStringUtf8(),
               assetIssue.getName().toStringUtf8(), assetIssue.getPrecision());
-      this.transactionExtention = new TransactionExtention(TaskEnum.SIDE_CHAIN, tx);
+      this.transactionExtension = new TransactionExtension(TaskEnum.SIDE_CHAIN, tx);
     } catch (Exception e) {
       logger.error("from:{},amount:{},tokenId:{}", this.from, this.amount, this.tokenId);
       e.printStackTrace();
     }
-    return this.transactionExtention;
+    return this.transactionExtension;
   }
 
   @Override
@@ -49,7 +49,7 @@ public class DepositTRC10Task extends EventTaskImpl {
     try {
       logger.info("from:{},amount:{},tokenId:{}", this.from, this.amount, this.tokenId);
       AssetIssueContract assetIssue = MainChainGatewayApi.getAssetIssueById(this.tokenId);
-      TransactionExtention txId = SideChainGatewayApi
+      TransactionExtension txId = SideChainGatewayApi
           .mintToken10(this.from, this.tokenId, this.amount, assetIssue.getName().toStringUtf8(),
               assetIssue.getName().toStringUtf8(), assetIssue.getPrecision());
       Thread.sleep(3000L);

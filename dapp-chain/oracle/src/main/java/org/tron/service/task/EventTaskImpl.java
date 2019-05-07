@@ -1,11 +1,11 @@
 package org.tron.service.task;
 
-import org.tron.service.check.TransactionExtention;
+import org.tron.service.check.TransactionExtension;
 
 public abstract class EventTaskImpl implements EventTask {
 
-  protected TransactionExtention transactionExtention;
+  protected TransactionExtension transactionExtension;
 
-  public abstract TransactionExtention getTransactionExtention();
+  public abstract TransactionExtension getTransactionExtension();
 
 }

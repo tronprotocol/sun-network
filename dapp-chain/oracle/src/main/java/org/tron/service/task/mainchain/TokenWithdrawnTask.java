@@ -1,7 +1,7 @@
 package org.tron.service.task.mainchain;
 
 import lombok.extern.slf4j.Slf4j;
-import org.tron.service.check.TransactionExtention;
+import org.tron.service.check.TransactionExtension;
 import org.tron.service.task.EventTaskImpl;
 
 @Slf4j(topic = "mainChainTask")
@@ -20,7 +20,7 @@ public class TokenWithdrawnTask extends EventTaskImpl {
   }
 
   @Override
-  public TransactionExtention getTransactionExtention() {
+  public TransactionExtension getTransactionExtension() {
     return null;
   }
 
