@@ -7,8 +7,12 @@ import static org.tron.core.actuator.ActuatorConstant.WITNESS_EXCEPTION_STR;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.Wallet;
@@ -274,18 +278,25 @@ public class ProposalCreateActuator extends AbstractActuator {
         break;
       }
       case (25): {
-        String gateWayAddress = entry.getValue();
-        if ( Wallet.decodeFromBase58Check(gateWayAddress).length != 21) {
-          throw new ContractValidateException(
-              "gateway address has to be 21 bytes");
+        List<String> list = Arrays.asList(entry.getValue().split(","));
+        Iterator<String> it = list.iterator();
+        while(it.hasNext()) {
+          if ( Wallet.decodeFromBase58Check(it.next()).length != 21) {
+            throw new ContractValidateException(
+                "gateway address has to be 21 bytes");
+          }
         }
+
         break;
       }
       case (26) :{
-        String mainChainGateWayAddress = entry.getValue();
-        if ( Wallet.decodeFromBase58Check(mainChainGateWayAddress).length != 21) {
-          throw new ContractValidateException(
-              "gateway address has to be 21 bytes");
+        List<String> list = Arrays.asList(entry.getValue().split(","));
+        Iterator<String> it = list.iterator();
+        while(it.hasNext()) {
+          if ( Wallet.decodeFromBase58Check(it.next()).length != 21) {
+            throw new ContractValidateException(
+                "gateway address has to be 21 bytes");
+          }
         }
         break;
       }
