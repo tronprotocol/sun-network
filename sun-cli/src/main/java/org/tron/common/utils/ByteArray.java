@@ -22,6 +22,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 public class ByteArray {
     public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
@@ -83,5 +84,16 @@ public class ByteArray {
         byte[] result = new byte[end - start];
         System.arraycopy(input, start, result, 0, end - start);
         return result;
+    }
+
+    public static byte[] fromBytes21List(List<byte[]> list) {
+        byte[] data = new byte[21*list.size()];
+        for (int i=0; i< list.size();i++) {
+            if (list.get(i).length != 21) {
+                throw new IllegalArgumentException("should be 21 bytes for each element in the list");
+            }
+            System.arraycopy(list.get(i), 0, data, i*21, 21);
+        }
+        return data;
     }
 }

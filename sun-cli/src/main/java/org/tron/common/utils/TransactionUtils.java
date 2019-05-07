@@ -165,11 +165,13 @@ public class TransactionUtils {
     return true;
   }
 
-  public static Transaction sign(Transaction transaction, ECKey myKey) {
+  public static Transaction sign(Transaction transaction, ECKey myKey, byte[] chainId) {
     Transaction.Builder transactionBuilderSigned = transaction.toBuilder();
     byte[] hash = Sha256Hash.hash(transaction.getRawData().toByteArray());
+    byte[] hashWithChainId = Arrays.copyOf(hash, hash.length + chainId.length);
+    System.arraycopy(chainId, 0, hashWithChainId, hash.length, chainId.length);
 
-    ECDSASignature signature = myKey.sign(hash);
+    ECDSASignature signature = myKey.sign(Sha256Hash.hash(hashWithChainId));
     ByteString bsSign = ByteString.copyFrom(signature.toByteArray());
     transactionBuilderSigned.addSignature(bsSign);
     transaction = transactionBuilderSigned.build();
