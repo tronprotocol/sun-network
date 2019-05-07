@@ -28,7 +28,7 @@ public class CheckTransaction {
 
   public void submitCheck(TransactionExtention trxId) {
     syncExecutor
-        .scheduleWithFixedDelay(() -> instance.checkTransactionId(trxId), 90000, 90000,
+        .scheduleWithFixedDelay(() -> instance.checkTransactionId(trxId), 60000, 60000,
             TimeUnit.MILLISECONDS);
   }
 
