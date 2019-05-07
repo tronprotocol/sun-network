@@ -11,7 +11,10 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.tron.db.TransactionExtentionStore;
+import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.protos.Sidechain.TransactionExtension;
+import org.tron.service.eventactuator.Actuator;
+import org.tron.service.eventactuator.EventActuatorFactory;
 import org.tron.service.kafka.KfkConsumer;
 
 @Slf4j(topic = "task")
@@ -28,7 +31,7 @@ public class ChainTask extends Thread {
     this.gatewayAddress = gatewayAddress;
     this.taskType = taskType;
     this.executor = Executors.newFixedThreadPool(fixedThreads);
-    this.kfkConsumer = new KfkConsumer(kfkServer, taskType.getName(),
+    this.kfkConsumer = new KfkConsumer(kfkServer, taskType.toString(),
         Arrays.asList("contractevent"));
     logger.info("task name is {},task type is {}", getName(), this.taskType);
   }
@@ -47,14 +50,14 @@ public class ChainTask extends Thread {
 
         TransactionExtentionStore store = TransactionExtentionStore.getInstance();
 
-        EventTask eventTask = EventTaskFactory.CreateTask(this.taskType, obj);
+        Actuator eventTask = EventActuatorFactory.CreateActuator(this.taskType, obj);
         if (Objects.isNull(eventTask)) {
           kfkConsumer.commit();
           // TODO: 不需要的event都应该continue
           continue;
         }
 
-        // TransactionExtension tx = eventTask.getTx();
+        // TransactionExtensionCapsule tx = eventTask.getTx();
         try {
 
           TransactionExtension txExtension = TransactionExtension.parseFrom(new byte[0]);
@@ -65,9 +68,6 @@ public class ChainTask extends Thread {
           }
 
           kfkConsumer.commit();
-
-          executor.execute(eventTask);
-
         } catch (InvalidProtocolBufferException e) {
           e.printStackTrace();
         }

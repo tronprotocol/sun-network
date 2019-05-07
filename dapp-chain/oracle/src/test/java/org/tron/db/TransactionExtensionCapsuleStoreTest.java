@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.tron.common.utils.ByteArray;
 
-public class TransactionExtensionStoreTest {
+public class TransactionExtensionCapsuleStoreTest {
 
   private static TransactionExtentionStore store;
 
