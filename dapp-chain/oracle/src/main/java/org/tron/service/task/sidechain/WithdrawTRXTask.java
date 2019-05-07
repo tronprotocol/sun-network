@@ -1,14 +1,16 @@
 package org.tron.service.task.sidechain;
 
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
+import org.tron.protos.Protocol.Transaction;
 import org.tron.service.check.CheckTransaction;
 import org.tron.service.check.TransactionExtention;
-import org.tron.service.task.EventTask;
+import org.tron.service.task.EventTaskImpl;
 import org.tron.service.task.TaskEnum;
 
 @Slf4j(topic = "sideChainTask")
-public class WithdrawTRXTask implements EventTask {
+public class WithdrawTRXTask extends EventTaskImpl {
 
   // "event WithdrawTRX(address from, uint256 value, bytes memory txData);"
 
@@ -20,6 +22,22 @@ public class WithdrawTRXTask implements EventTask {
     this.from = from;
     this.value = value;
     this.txData = txData;
+  }
+
+  @Override
+  public TransactionExtention getTransactionExtention() {
+    if (Objects.nonNull(transactionExtention)) {
+      return this.transactionExtention;
+    }
+    try {
+      Transaction tx = MainChainGatewayApi
+          .withdrawTRXTransaction(this.from, this.value, this.txData);
+      this.transactionExtention = new TransactionExtention(TaskEnum.MAIN_CHAIN, tx);
+    } catch (Exception e) {
+      logger.info("WithdrawTRXTask fail, from: {}, value: {}, txData: {}", this.from, this.value,
+          this.txData);
+    }
+    return this.transactionExtention;
   }
 
   @Override
@@ -36,4 +54,5 @@ public class WithdrawTRXTask implements EventTask {
           this.txData);
     }
   }
+
 }

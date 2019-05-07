@@ -19,10 +19,10 @@ public class TransactionExtention {
   @Setter
   private Transaction transaction;
 
-  public TransactionExtention(TaskEnum type, String transactionId,
-      Transaction transaction) {
+  public TransactionExtention(TaskEnum type, Transaction transaction) {
     this.type = type;
-    this.transactionId = transactionId;
+    this.transactionId = ByteArray
+        .toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
     this.transaction = transaction;
   }
 
