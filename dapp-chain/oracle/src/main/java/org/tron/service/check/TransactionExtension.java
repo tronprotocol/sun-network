@@ -7,7 +7,7 @@ import org.tron.common.utils.Sha256Hash;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.service.task.TaskEnum;
 
-public class TransactionExtention {
+public class TransactionExtension {
 
   @Getter
   @Setter
@@ -19,23 +19,23 @@ public class TransactionExtention {
   @Setter
   private Transaction transaction;
 
-  public TransactionExtention(TaskEnum type, String transactionId,
-      Transaction transaction) {
+  public TransactionExtension(TaskEnum type, Transaction transaction) {
     this.type = type;
-    this.transactionId = transactionId;
-    this.transaction = transaction;
-  }
-
-  public TransactionExtention(Transaction transaction) {
     this.transactionId = ByteArray
         .toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
     this.transaction = transaction;
   }
 
-  public TransactionExtention(byte[] bytes) {
+  public TransactionExtension(Transaction transaction) {
+    this.transactionId = ByteArray
+        .toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+    this.transaction = transaction;
+  }
+
+  public TransactionExtension(byte[] bytes) {
     // Transaction.parseFrom(bytes);
     this.transactionId = ByteArray
-      .toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+        .toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
     this.transaction = transaction;
   }
 }

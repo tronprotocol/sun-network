@@ -1,10 +1,11 @@
 package org.tron.service.task.mainchain;
 
 import lombok.extern.slf4j.Slf4j;
-import org.tron.service.task.EventTask;
+import org.tron.service.check.TransactionExtension;
+import org.tron.service.task.EventTaskImpl;
 
 @Slf4j(topic = "mainChainTask")
-public class TokenWithdrawnTask implements EventTask {
+public class TokenWithdrawnTask extends EventTaskImpl {
 
   private String owner;
   private String kind;
@@ -16,6 +17,11 @@ public class TokenWithdrawnTask implements EventTask {
     this.kind = kind;
     this.contractAddress = contractAddress;
     this.value = value;
+  }
+
+  @Override
+  public TransactionExtension getTransactionExtension() {
+    return null;
   }
 
   @Override
