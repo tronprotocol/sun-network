@@ -3,7 +3,7 @@ package org.tron.service.task.sidechain;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.service.check.CheckTransaction;
-import org.tron.service.check.TransactionId;
+import org.tron.service.check.TransactionExtention;
 import org.tron.service.task.EventTask;
 import org.tron.service.task.TaskEnum;
 
@@ -28,7 +28,7 @@ public class DeployDAppTRC721AndMappingTask implements EventTask {
     logger.info("developer: {}, mainChainAddress: {}, sideChainAddress: {}", this.developer,
         this.mainChainAddress, this.sideChainAddress);
     try {
-      TransactionId txId = MainChainGatewayApi
+      TransactionExtention txId = MainChainGatewayApi
           .addTokenMapping(this.mainChainAddress, this.sideChainAddress);
       txId.setType(TaskEnum.MAIN_CHAIN);
       MainChainGatewayApi.checkTxInfo(txId);

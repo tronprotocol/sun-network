@@ -5,7 +5,7 @@ import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.service.check.CheckTransaction;
-import org.tron.service.check.TransactionId;
+import org.tron.service.check.TransactionExtention;
 import org.tron.service.task.EventTask;
 import org.tron.service.task.TaskEnum;
 
@@ -27,7 +27,7 @@ public class DepositTRC10Task implements EventTask {
     try {
       logger.info("from:{},amount:{},tokenId:{}", this.from, this.amount, this.tokenId);
       AssetIssueContract assetIssue = MainChainGatewayApi.getAssetIssueById(this.tokenId);
-      TransactionId txId = SideChainGatewayApi
+      TransactionExtention txId = SideChainGatewayApi
           .mintToken10(this.from, this.tokenId, this.amount, assetIssue.getName().toStringUtf8(),
               assetIssue.getName().toStringUtf8(), assetIssue.getPrecision());
       Thread.sleep(3000L);

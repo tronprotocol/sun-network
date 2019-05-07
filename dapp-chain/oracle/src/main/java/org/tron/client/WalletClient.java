@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
 import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.Return;
-import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.exception.RpcConnectException;
@@ -26,7 +25,7 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.Protocol.TransactionInfo.code;
-import org.tron.service.check.TransactionId;
+import org.tron.service.check.TransactionExtention;
 
 @Slf4j
 public class WalletClient {
@@ -79,7 +78,7 @@ public class WalletClient {
 
     byte[] data = AbiUtil.parseMethod(method, params);
 
-    TransactionExtention transactionExtention = this
+    org.tron.api.GrpcAPI.TransactionExtention transactionExtention = this
         .triggerConstantContract(contractAddress, data, callValue, tokenValue, tokenId);
 
     Transaction transaction = transactionExtention.getTransaction();
@@ -90,7 +89,8 @@ public class WalletClient {
     throw new RpcConnectException("no result");
   }
 
-  public TransactionId triggerContract(byte[] contractAddress, String method, List<Object> params,
+  public TransactionExtention triggerContract(byte[] contractAddress, String method,
+      List<Object> params,
       long callValue, long tokenId, long tokenValue) throws RpcConnectException {
 
     logger.info(
@@ -99,18 +99,20 @@ public class WalletClient {
         tokenValue);
 
     byte[] data = AbiUtil.parseMethod(method, params);
-    TransactionId txId = triggerContract(contractAddress, data, SystemSetting.FEE_LIMIT,
+    TransactionExtention txId = triggerContract(contractAddress, data, SystemSetting.FEE_LIMIT,
         callValue, tokenValue, tokenId);
     logger.info("txId: {}", txId);
     return txId;
   }
 
-  private TransactionExtention triggerConstantContract(byte[] contractAddress, byte[] data,
+  private org.tron.api.GrpcAPI.TransactionExtention triggerConstantContract(byte[] contractAddress,
+      byte[] data,
       long callValue, long tokenValue, Long tokenId) throws RpcConnectException {
     byte[] owner = address;
     Contract.TriggerSmartContract triggerContract = buildTriggerContract(owner, contractAddress,
         callValue, data, tokenValue, tokenId);
-    TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract);
+    org.tron.api.GrpcAPI.TransactionExtention transactionExtention = rpcCli
+        .triggerContract(triggerContract);
     if (!transactionExtention.getResult().getResult()) {
       logger.error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
           transactionExtention.getResult().getMessage().toStringUtf8());
@@ -120,13 +122,14 @@ public class WalletClient {
     return transactionExtention;
   }
 
-  private TransactionId triggerContract(byte[] contractAddress, byte[] data, long feeLimit,
+  private TransactionExtention triggerContract(byte[] contractAddress, byte[] data, long feeLimit,
       long callValue,
       long tokenValue, Long tokenId) throws RpcConnectException {
     byte[] owner = address;
     Contract.TriggerSmartContract triggerContract = buildTriggerContract(owner, contractAddress,
         callValue, data, tokenValue, tokenId);
-    TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract);
+    org.tron.api.GrpcAPI.TransactionExtention transactionExtention = rpcCli
+        .triggerContract(triggerContract);
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
       logger.error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
           transactionExtention.getResult().getMessage().toStringUtf8());
@@ -134,7 +137,8 @@ public class WalletClient {
           "rpc fail, code: " + transactionExtention.getResult().getCode());
     }
 
-    TransactionExtention.Builder txBuilder = TransactionExtention.newBuilder();
+    org.tron.api.GrpcAPI.TransactionExtention.Builder txBuilder = org.tron.api.GrpcAPI.TransactionExtention
+        .newBuilder();
     Transaction.Builder transBuilder = Transaction.newBuilder();
     Transaction.raw.Builder rawBuilder = transactionExtention.getTransaction().getRawData()
         .toBuilder();
@@ -173,7 +177,8 @@ public class WalletClient {
     return rpcCli.getAssetIssueById(assetId);
   }
 
-  private TransactionId processTransactionExtention(TransactionExtention transactionExtention)
+  private TransactionExtention processTransactionExtention(
+      org.tron.api.GrpcAPI.TransactionExtention transactionExtention)
       throws RpcConnectException {
     if (transactionExtention == null) {
       throw new RpcConnectException("transactionExtention is null");
@@ -193,7 +198,7 @@ public class WalletClient {
     String txId = ByteArray
         .toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
     rpcCli.broadcastTransaction(transaction);
-    return new TransactionId(transaction);
+    return new TransactionExtention(transaction);
   }
 
   public boolean broadcast(Transaction transaction) {

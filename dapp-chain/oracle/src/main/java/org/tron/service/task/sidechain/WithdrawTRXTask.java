@@ -3,7 +3,7 @@ package org.tron.service.task.sidechain;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.service.check.CheckTransaction;
-import org.tron.service.check.TransactionId;
+import org.tron.service.check.TransactionExtention;
 import org.tron.service.task.EventTask;
 import org.tron.service.task.TaskEnum;
 
@@ -26,7 +26,8 @@ public class WithdrawTRXTask implements EventTask {
   public void run() {
     logger.info("from: {}, value: {}, txData: {}", this.from, this.value, this.txData);
     try {
-      TransactionId txId = MainChainGatewayApi.withdrawTRX(this.from, this.value, this.txData);
+      TransactionExtention txId = MainChainGatewayApi
+          .withdrawTRX(this.from, this.value, this.txData);
       txId.setType(TaskEnum.MAIN_CHAIN);
       MainChainGatewayApi.checkTxInfo(txId);
       CheckTransaction.getInstance().submitCheck(txId);

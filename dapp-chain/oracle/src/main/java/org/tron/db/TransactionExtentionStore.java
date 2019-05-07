@@ -14,7 +14,7 @@ import org.iq80.leveldb.DBException;
 import org.iq80.leveldb.Options;
 
 @Slf4j
-public class EventStore {
+public class TransactionExtentionStore {
 
   private static final JniDBFactory factory = new JniDBFactory();
 
@@ -24,13 +24,13 @@ public class EventStore {
   private boolean alive;
   private ReadWriteLock resetDbLock = new ReentrantReadWriteLock();
 
-  private static EventStore instance = new EventStore();
+  private static TransactionExtentionStore instance = new TransactionExtentionStore();
 
-  public static EventStore getInstance() {
+  public static TransactionExtentionStore getInstance() {
     return instance;
   }
 
-  private EventStore() {
+  private TransactionExtentionStore() {
     this.dataBaseName = "event";
     this.parentName = "database";
   }

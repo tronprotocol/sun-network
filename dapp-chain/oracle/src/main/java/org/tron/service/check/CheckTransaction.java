@@ -26,13 +26,13 @@ public class CheckTransaction {
   private final ScheduledExecutorService syncExecutor = Executors
       .newScheduledThreadPool(100);
 
-  public void submitCheck(TransactionId trxId) {
+  public void submitCheck(TransactionExtention trxId) {
     syncExecutor
         .scheduleWithFixedDelay(() -> instance.checkTransactionId(trxId), 90000, 90000,
             TimeUnit.MILLISECONDS);
   }
 
-  private void checkTransactionId(TransactionId trxId) {
+  private void checkTransactionId(TransactionExtention trxId) {
     try {
       if (StringUtils.isEmpty(trxId.getTransactionId())) {
         return;
@@ -56,7 +56,7 @@ public class CheckTransaction {
     }
   }
 
-  private boolean broadcastTransaction(TransactionId trxId) {
+  private boolean broadcastTransaction(TransactionExtention trxId) {
     switch (trxId.getType()) {
       case MAIN_CHAIN:
         return MainChainGatewayApi.broadcast(trxId.getTransaction());

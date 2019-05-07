@@ -5,7 +5,7 @@ import org.tron.client.MainChainGatewayApi;
 import org.tron.common.config.Args;
 import org.tron.common.utils.WalletUtil;
 import org.tron.service.check.CheckTransaction;
-import org.tron.service.check.TransactionId;
+import org.tron.service.check.TransactionExtention;
 import org.tron.service.task.EventTask;
 import org.tron.service.task.TaskEnum;
 
@@ -31,7 +31,7 @@ public class WithdrawTRC10Task implements EventTask {
     logger.info("from: {}, value: {}, trc10: {}, txData: {}", this.from, this.value, this.trc10,
         this.txData);
     try {
-      TransactionId txId;
+      TransactionExtention txId;
       if (this.trc10.equalsIgnoreCase("2000000")) {
         txId = MainChainGatewayApi
             .withdrawTRC20(this.from,

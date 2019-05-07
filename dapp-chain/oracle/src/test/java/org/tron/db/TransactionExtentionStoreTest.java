@@ -8,13 +8,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.tron.common.utils.ByteArray;
 
-public class EventStoreTest {
+public class TransactionExtentionStoreTest {
 
-  private static EventStore store;
+  private static TransactionExtentionStore store;
 
   @Before
   public void init() {
-    store = EventStore.getInstance();
+    store = TransactionExtentionStore.getInstance();
     store.initDB();
   }
 
@@ -31,7 +31,7 @@ public class EventStoreTest {
   public void putData() {
     byte[] key = ByteArray.fromString("aa");
     byte[] value = ByteArray.fromString("mmmmm");
-    EventStore store = EventStore.getInstance();
+    TransactionExtentionStore store = TransactionExtentionStore.getInstance();
     store.close();
     store.initDB();
     store.putData(key, value);

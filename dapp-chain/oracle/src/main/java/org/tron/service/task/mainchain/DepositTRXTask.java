@@ -3,7 +3,7 @@ package org.tron.service.task.mainchain;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.service.check.CheckTransaction;
-import org.tron.service.check.TransactionId;
+import org.tron.service.check.TransactionExtention;
 import org.tron.service.task.EventTask;
 import org.tron.service.task.TaskEnum;
 
@@ -22,7 +22,7 @@ public class DepositTRXTask implements EventTask {
   public void run() {
     logger.info("from:{},amount:{}", this.from, this.amount);
     try {
-      TransactionId txId = SideChainGatewayApi.mintTrx(this.from, this.amount);
+      TransactionExtention txId = SideChainGatewayApi.mintTrx(this.from, this.amount);
       logger.info("deposit trx is {}", txId.getTransactionId());
       txId.setType(TaskEnum.SIDE_CHAIN);
       SideChainGatewayApi.checkTxInfo(txId);

@@ -5,7 +5,7 @@ import org.tron.client.SideChainGatewayApi;
 import org.tron.common.config.Args;
 import org.tron.common.utils.WalletUtil;
 import org.tron.service.check.CheckTransaction;
-import org.tron.service.check.TransactionId;
+import org.tron.service.check.TransactionExtention;
 import org.tron.service.task.EventTask;
 import org.tron.service.task.TaskEnum;
 
@@ -29,13 +29,13 @@ public class DepositTRC20Task implements EventTask {
     try {
       if (WalletUtil.encode58Check(Args.getInstance().getSunTokenAddress())
           .equalsIgnoreCase(this.contractAddress)) {
-        TransactionId txId = SideChainGatewayApi
+        TransactionExtention txId = SideChainGatewayApi
             .mintToken10(this.from, "2000000", this.amount, "sun token", "ST", 6);
         txId.setType(TaskEnum.SIDE_CHAIN);
         SideChainGatewayApi.checkTxInfo(txId);
         CheckTransaction.getInstance().submitCheck(txId);
       } else {
-        TransactionId txId = SideChainGatewayApi
+        TransactionExtention txId = SideChainGatewayApi
             .mintToken20(this.from, this.contractAddress, this.amount);
         txId.setType(TaskEnum.SIDE_CHAIN);
         SideChainGatewayApi.checkTxInfo(txId);

@@ -11,7 +11,7 @@ import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Transaction;
-import org.tron.service.check.TransactionId;
+import org.tron.service.check.TransactionExtention;
 
 @Slf4j
 public class MainChainGatewayApi {
@@ -31,7 +31,8 @@ public class MainChainGatewayApi {
     }
   }
 
-  public static TransactionId addTokenMapping(String mainChainAddress, String sideChainAddress)
+  public static TransactionExtention addTokenMapping(String mainChainAddress,
+      String sideChainAddress)
       throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "migrationToken(address,address)";
@@ -39,7 +40,8 @@ public class MainChainGatewayApi {
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static TransactionId withdrawTRC10(String to, String trc10, String value, String txData)
+  public static TransactionExtention withdrawTRC10(String to, String trc10, String value,
+      String txData)
       throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawTRC10(address,trcToken,uint256,bytes)";
@@ -47,7 +49,7 @@ public class MainChainGatewayApi {
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static TransactionId withdrawTRC20(String to, String mainChainAddress, String value,
+  public static TransactionExtention withdrawTRC20(String to, String mainChainAddress, String value,
       String txData)
       throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
@@ -56,7 +58,8 @@ public class MainChainGatewayApi {
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static TransactionId withdrawTRC721(String to, String mainChainAddress, String value,
+  public static TransactionExtention withdrawTRC721(String to, String mainChainAddress,
+      String value,
       String txData)
       throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
@@ -65,7 +68,7 @@ public class MainChainGatewayApi {
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static TransactionId withdrawTRX(String to, String value, String txData)
+  public static TransactionExtention withdrawTRX(String to, String value, String txData)
       throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawTRX(address,uint256,bytes)";
@@ -79,7 +82,7 @@ public class MainChainGatewayApi {
     return assetIssueContract;
   }
 
-  public static byte[] checkTxInfo(TransactionId txId)
+  public static byte[] checkTxInfo(TransactionExtention txId)
       throws TxValidateException, TxRollbackException {
     return GATEWAY_API.getInstance().checkTxInfo(txId.getTransactionId());
   }
