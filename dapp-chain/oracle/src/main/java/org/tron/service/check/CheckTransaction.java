@@ -9,7 +9,7 @@ import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
-import org.tron.service.task.TaskEnum;
+import org.tron.protos.Sidechain.TaskEnum;
 
 @Slf4j
 public class CheckTransaction {
@@ -26,13 +26,13 @@ public class CheckTransaction {
   private final ScheduledExecutorService syncExecutor = Executors
       .newScheduledThreadPool(100);
 
-  public void submitCheck(TransactionExtension trxId) {
+  public void submitCheck(TransactionExtensionCapsule trxId) {
     syncExecutor
         .scheduleWithFixedDelay(() -> instance.checkTransactionId(trxId), 90000, 90000,
             TimeUnit.MILLISECONDS);
   }
 
-  private void checkTransactionId(TransactionExtension trxId) {
+  private void checkTransactionId(TransactionExtensionCapsule trxId) {
     try {
       if (StringUtils.isEmpty(trxId.getTransactionId())) {
         return;
@@ -56,7 +56,7 @@ public class CheckTransaction {
     }
   }
 
-  private boolean broadcastTransaction(TransactionExtension trxId) {
+  private boolean broadcastTransaction(TransactionExtensionCapsule trxId) {
     switch (trxId.getType()) {
       case MAIN_CHAIN:
         return MainChainGatewayApi.broadcast(trxId.getTransaction());

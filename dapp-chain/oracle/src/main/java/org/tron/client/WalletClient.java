@@ -24,7 +24,7 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.Protocol.TransactionInfo.code;
-import org.tron.service.check.TransactionExtension;
+import org.tron.service.check.TransactionExtensionCapsule;
 
 @Slf4j
 public class WalletClient {
@@ -88,7 +88,7 @@ public class WalletClient {
     throw new RpcConnectException("no result");
   }
 
-  public TransactionExtension triggerContract(byte[] contractAddress, String method,
+  public TransactionExtensionCapsule triggerContract(byte[] contractAddress, String method,
       List<Object> params,
       long callValue, long tokenId, long tokenValue) throws RpcConnectException {
 
@@ -98,7 +98,8 @@ public class WalletClient {
         tokenValue);
 
     byte[] data = AbiUtil.parseMethod(method, params);
-    TransactionExtension txId = triggerContract(contractAddress, data, SystemSetting.FEE_LIMIT,
+    TransactionExtensionCapsule txId = triggerContract(contractAddress, data,
+        SystemSetting.FEE_LIMIT,
         callValue, tokenValue, tokenId);
     logger.info("txId: {}", txId);
     return txId;
@@ -136,7 +137,8 @@ public class WalletClient {
     return transactionExtention;
   }
 
-  private TransactionExtension triggerContract(byte[] contractAddress, byte[] data, long feeLimit,
+  private TransactionExtensionCapsule triggerContract(byte[] contractAddress, byte[] data,
+      long feeLimit,
       long callValue,
       long tokenValue, Long tokenId) throws RpcConnectException {
     GrpcAPI.TransactionExtention transactionExtention = getTransactionExtention(contractAddress,
@@ -208,19 +210,19 @@ public class WalletClient {
     return rpcCli.getAssetIssueById(assetId);
   }
 
-  private TransactionExtension processTransactionExtention(
+  private TransactionExtensionCapsule processTransactionExtention(
       org.tron.api.GrpcAPI.TransactionExtention transactionExtention)
       throws RpcConnectException {
     Transaction transaction = getTransaction(transactionExtention);
     rpcCli.broadcastTransaction(transaction);
-    return new TransactionExtension(transaction);
+    return new TransactionExtensionCapsule(transaction);
   }
 
   private Transaction getTransaction(
       org.tron.api.GrpcAPI.TransactionExtention transactionExtention)
       throws RpcConnectException {
     if (transactionExtention == null) {
-      throw new RpcConnectException("transactionExtension is null");
+      throw new RpcConnectException("transactionExtensionCapsule is null");
     }
     Return ret = transactionExtention.getResult();
     if (!ret.getResult()) {
