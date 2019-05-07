@@ -10,9 +10,9 @@ import org.tron.api.GrpcAPI.Return;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.crypto.ECKey;
-import org.tron.common.exception.TxValidateException;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.exception.TxRollbackException;
+import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.Base58;
 import org.tron.common.utils.ByteArray;
@@ -69,7 +69,8 @@ public class WalletClient {
   }
 
   public byte[] triggerConstantContractAndReturn(byte[] contractAddress, String method,
-      List<Object> params, long callValue, long tokenId, long tokenValue) throws RpcConnectException {
+      List<Object> params, long callValue, long tokenId, long tokenValue)
+      throws RpcConnectException {
 
     logger.info(
         "trigger constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
@@ -113,7 +114,8 @@ public class WalletClient {
     if (!transactionExtention.getResult().getResult()) {
       logger.error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
           transactionExtention.getResult().getMessage().toStringUtf8());
-      throw new RpcConnectException("rpc fail, code: " + transactionExtention.getResult().getCode());
+      throw new RpcConnectException(
+          "rpc fail, code: " + transactionExtention.getResult().getCode());
     }
     return transactionExtention;
   }
@@ -128,7 +130,8 @@ public class WalletClient {
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
       logger.error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
           transactionExtention.getResult().getMessage().toStringUtf8());
-      throw new RpcConnectException("rpc fail, code: " + transactionExtention.getResult().getCode());
+      throw new RpcConnectException(
+          "rpc fail, code: " + transactionExtention.getResult().getCode());
     }
 
     TransactionExtention.Builder txBuilder = TransactionExtention.newBuilder();
@@ -196,7 +199,7 @@ public class WalletClient {
   public boolean broadcast(Transaction transaction) {
     try {
       return rpcCli.broadcastTransaction(transaction);
-    } catch (RpcException e) {
+    } catch (RpcConnectException e) {
       e.printStackTrace();
       return false;
     }
