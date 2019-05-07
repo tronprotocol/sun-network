@@ -7,6 +7,7 @@ import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.service.check.CheckTransaction;
 import org.tron.service.check.TransactionId;
 import org.tron.service.task.EventTask;
+import org.tron.service.task.TaskEnum;
 
 @Slf4j(topic = "mainChainTask")
 public class DepositTRC10Task implements EventTask {
@@ -30,6 +31,7 @@ public class DepositTRC10Task implements EventTask {
           .mintToken10(this.from, this.tokenId, this.amount, assetIssue.getName().toStringUtf8(),
               assetIssue.getName().toStringUtf8(), assetIssue.getPrecision());
       Thread.sleep(3000L);
+      txId.setType(TaskEnum.SIDE_CHAIN);
       SideChainGatewayApi.checkTxInfo(txId);
       CheckTransaction.getInstance().submitCheck(txId);
     } catch (Exception e) {

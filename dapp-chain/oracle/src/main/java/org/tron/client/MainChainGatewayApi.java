@@ -6,12 +6,12 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.Args;
-import org.tron.common.exception.TxValidateException;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.exception.TxRollbackException;
+import org.tron.common.exception.TxValidateException;
 import org.tron.protos.Contract.AssetIssueContract;
+import org.tron.protos.Protocol.Transaction;
 import org.tron.service.check.TransactionId;
-import org.tron.service.task.TaskEnum;
 
 @Slf4j
 public class MainChainGatewayApi {
@@ -81,10 +81,10 @@ public class MainChainGatewayApi {
 
   public static byte[] checkTxInfo(TransactionId txId)
       throws TxValidateException, TxRollbackException {
-    txId.setType(TaskEnum.SIDE_CHAIN);
     return GATEWAY_API.getInstance().checkTxInfo(txId.getTransactionId());
   }
 
-  public static void main(String[] args) {
+  public static boolean broadcast(Transaction transaction) {
+    return GATEWAY_API.instance.broadcast(transaction);
   }
 }

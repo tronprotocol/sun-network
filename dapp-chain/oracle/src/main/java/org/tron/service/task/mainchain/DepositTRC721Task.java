@@ -5,6 +5,7 @@ import org.tron.client.SideChainGatewayApi;
 import org.tron.service.check.CheckTransaction;
 import org.tron.service.check.TransactionId;
 import org.tron.service.task.EventTask;
+import org.tron.service.task.TaskEnum;
 
 @Slf4j(topic = "mainChainTask")
 public class DepositTRC721Task implements EventTask {
@@ -26,6 +27,7 @@ public class DepositTRC721Task implements EventTask {
     try {
       TransactionId txId = SideChainGatewayApi
           .mintToken721(this.from, this.contractAddress, this.uid);
+      txId.setType(TaskEnum.SIDE_CHAIN);
       SideChainGatewayApi.checkTxInfo(txId);
       CheckTransaction.getInstance().submitCheck(txId);
     } catch (Exception e) {
