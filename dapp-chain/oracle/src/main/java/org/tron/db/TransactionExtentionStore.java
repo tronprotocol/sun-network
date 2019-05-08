@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -83,16 +81,19 @@ public class TransactionExtentionStore {
     }
   }
 
-  public boolean close() {
+  public void closeDB() {
+    resetDbLock.writeLock().lock();
     try {
+      if (!isAlive()) {
+        return;
+      }
       database.close();
       alive = false;
-      return true;
     } catch (IOException e) {
-      logger.error(e.getMessage());
-      return false;
+      logger.error("Failed to find the dbStore file on the closeDB: {} ", dataBaseName);
+    } finally {
+      resetDbLock.writeLock().unlock();
     }
-
   }
 
   public boolean isAlive() {
@@ -139,16 +140,6 @@ public class TransactionExtentionStore {
     } finally {
       resetDbLock.readLock().unlock();
     }
-  }
-
-  public LinkedHashMap<byte[], byte[]> getAllData() {
-    DBIterator iterator = database.iterator();
-    LinkedHashMap<byte[], byte[]> linkedHashMap = new LinkedHashMap<>();
-    while (iterator.hasNext()) {
-      Map.Entry<byte[], byte[]> next = iterator.next();
-      linkedHashMap.put(next.getKey(), next.getValue());
-    }
-    return linkedHashMap;
   }
 
   public Set<byte[]> allValues() {

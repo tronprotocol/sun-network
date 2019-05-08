@@ -32,7 +32,7 @@ public class TransactionExtensionCapsuleStoreTest {
     byte[] key = ByteArray.fromString("aa");
     byte[] value = ByteArray.fromString("mmmmm");
     TransactionExtentionStore store = TransactionExtentionStore.getInstance();
-    store.close();
+    store.closeDB();
     store.initDB();
     store.putData(key, value);
     Assert.assertArrayEquals(store.getData(key), value);
@@ -40,7 +40,7 @@ public class TransactionExtensionCapsuleStoreTest {
 
   @After
   public void close() {
-    store.close();
+    store.closeDB();
     FileUtils.deleteDirectoryContents(store.getDbPath().toFile());
   }
 }
