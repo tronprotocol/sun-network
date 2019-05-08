@@ -20,7 +20,7 @@ public class Token10WithdrawnActuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule getTransactionExtensionCapsule() {
+  public TransactionExtensionCapsule createTransactionExtensionCapsule() {
     return null;
   }
 

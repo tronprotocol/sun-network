@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.db.TransactionExtentionStore;
+import org.tron.service.check.CheckTransaction;
 import org.tron.service.check.TransactionExtensionCapsule;
 
 @Slf4j(topic = "task")
@@ -23,7 +24,7 @@ public class InitTask {
     Set<byte[]> allTx = store.allValues();
     for (byte[] txExtensionBytes : allTx) {
       try {
-        executor.execute(new TxExtensionTask(new TransactionExtensionCapsule(txExtensionBytes)));
+        CheckTransaction.getInstance().submitCheck(new TransactionExtensionCapsule(txExtensionBytes), 1);
       } catch (InvalidProtocolBufferException e) {
         logger.error(e.getMessage(), e);
       }

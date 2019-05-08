@@ -65,6 +65,8 @@ public class Args {
   @Getter
   private byte[] sunTokenAddress;
 
+  @Getter
+  private String alertDingWebhookToken;
 
   @Getter
   private Map<String, Properties> mysqlReadConfs = new HashMap<>();
@@ -147,17 +149,21 @@ public class Args {
     this.sidechainSolidity = config.getStringList("sidechain.solitity.ip.list").get(0);
 
     this.mainchainGateway = WalletUtil
-        .decodeFromBase58Check(config.getString("gateway.mainchain.address"));
+      .decodeFromBase58Check(config.getString("gateway.mainchain.address"));
     this.sidechainGateway = WalletUtil
-        .decodeFromBase58Check(config.getString("gateway.sidechain.address"));
+      .decodeFromBase58Check(config.getString("gateway.sidechain.address"));
     this.oraclePrivateKey = Hex.decode(config.getString("oracle.private.key"));
 
     this.mainchainKafka = config.getString("kafka.mainchain.server");
     this.sidechainKafka = config.getString("kafka.sidechain.server");
 
+    if (config.hasPath("alert.dingding.webhook.token")) {
+      this.alertDingWebhookToken = config.getString("alert.dingding.webhook.token");
+    }
+
     // loadMysqlConf(config);
 
-    loadSunTokenAddress();
+    // loadSunTokenAddress();
   }
 
   public static void main(String[] args) {

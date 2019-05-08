@@ -37,41 +37,41 @@ public class ChainTask extends Thread {
 
   @Override
   public void run() {
-    for (; ; ) {
-      ConsumerRecords<String, String> record = kfkConsumer.getRecord();
-      for (ConsumerRecord<String, String> key : record) {
-        JSONObject obj = (JSONObject) JSONValue.parse(key.value());
-        if (Objects.isNull(obj.get("contractAddress")) || !obj.get("contractAddress").toString()
-            .equals(gatewayAddress)) {
-          kfkConsumer.commit();
-          continue;
-        }
-
-        TransactionExtentionStore store = TransactionExtentionStore.getInstance();
-
-        Actuator eventActuator = EventActuatorFactory.CreateActuator(this.taskType, obj);
-        if (Objects.isNull(eventActuator)) {
-          kfkConsumer.commit();
-          // TODO: 不需要的event都应该continue
-          continue;
-        }
-
-        TransactionExtensionCapsule txExtensionCapsule = eventActuator
-            .getTransactionExtensionCapsule();
-        if (Objects.isNull(txExtensionCapsule)) {
-          kfkConsumer.commit();
-          // TODO: 不需要的event都应该continue
-          continue;
-        }
-        byte[] txIdBytes = txExtensionCapsule.getTransactionIdBytes();
-        if (!store.exist(txIdBytes)) {
-          store.putData(txIdBytes, txExtensionCapsule.getData());
-        }
-
-        kfkConsumer.commit();
-        executor.execute(new TxExtensionTask(txExtensionCapsule));
-      }
-    }
+    // for (; ; ) {
+    //   ConsumerRecords<String, String> record = kfkConsumer.getRecord();
+    //   for (ConsumerRecord<String, String> key : record) {
+    //     JSONObject obj = (JSONObject) JSONValue.parse(key.value());
+    //     if (Objects.isNull(obj.get("contractAddress")) || !obj.get("contractAddress").toString()
+    //         .equals(gatewayAddress)) {
+    //       kfkConsumer.commit();
+    //       continue;
+    //     }
+    //
+    //     TransactionExtentionStore store = TransactionExtentionStore.getInstance();
+    //
+    //     Actuator eventActuator = EventActuatorFactory.CreateActuator(this.taskType, obj);
+    //     if (Objects.isNull(eventActuator)) {
+    //       kfkConsumer.commit();
+    //       // TODO: 不需要的event都应该continue
+    //       continue;
+    //     }
+    //
+    //     TransactionExtensionCapsule txExtensionCapsule = eventActuator
+    //         .createTransactionExtensionCapsule();
+    //     if (Objects.isNull(txExtensionCapsule)) {
+    //       kfkConsumer.commit();
+    //       // TODO: 不需要的event都应该continue
+    //       continue;
+    //     }
+    //     byte[] txIdBytes = txExtensionCapsule.getTransactionIdBytes();
+    //     if (!store.exist(txIdBytes)) {
+    //       store.putData(txIdBytes, txExtensionCapsule.getData());
+    //     }
+    //
+    //     kfkConsumer.commit();
+    //     executor.execute(new TxExtensionTask(txExtensionCapsule));
+    //   }
+    // }
 
   }
 }

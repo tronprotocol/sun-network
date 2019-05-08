@@ -49,6 +49,7 @@ dependencies {
     // https://mvnrepository.com/artifact/junit/junit
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.3.5'
 
     compile "com.madgag.spongycastle:prov:1.53.0.0"
 

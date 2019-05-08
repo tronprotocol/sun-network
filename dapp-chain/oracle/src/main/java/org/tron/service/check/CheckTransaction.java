@@ -11,6 +11,7 @@ import org.tron.common.exception.RpcConnectException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxFailException;
+import org.tron.common.utils.AlertUtil;
 import org.tron.db.TransactionExtentionStore;
 
 @Slf4j
@@ -53,7 +54,7 @@ public class CheckTransaction {
       // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 4.2
       logger.error(e.getMessage());
       if (checkCnt > 5) {
-        sendAlert("4.2, checkTransaction exceeds 5 times");
+        AlertUtil.sendAlert("4.2, checkTransaction exceeds 5 times");
         logger.error("checkTransaction exceeds 5 times");
       } else {
         try {
@@ -61,12 +62,12 @@ public class CheckTransaction {
         } catch (RpcConnectException e1) {
           // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 1.2
           // NOTE: have retried for 5 times in broadcastTransaction
-          sendAlert("1.2");
+          AlertUtil.sendAlert("1.2");
           logger.error(e1.getMessage(), e1);
           return;
         } catch (TxValidateException e1) {
           // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 4.1
-          sendAlert("4.1");
+          AlertUtil.sendAlert("4.1");
           logger.error(e1.getMessage(), e1);
           return;
         }
@@ -74,13 +75,9 @@ public class CheckTransaction {
       }
     } catch (TxFailException e) {
       // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 5.1 5.2 5.3
-      sendAlert("5.1 5.2 5.3");
+      AlertUtil.sendAlert("5.1 5.2 5.3");
       logger.error(e.getMessage(), e);
     }
-  }
-
-  public void sendAlert(String msg) {
-    // TODO: send alert
   }
 
   public boolean broadcastTransaction(TransactionExtensionCapsule txExtensionCapsule)

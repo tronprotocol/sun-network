@@ -12,6 +12,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.tron.common.config.Args;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.common.utils.AlertUtil;
 import org.tron.common.utils.WalletUtil;
 import org.tron.db.TransactionExtentionStore;
 import org.tron.protos.Sidechain.TaskEnum;
@@ -54,17 +55,7 @@ public class App {
     kfkConsumer = new KfkConsumer(Args.getInstance().getMainchainKafka(), "Oracle",
         Arrays.asList("contractevent"));
 
-    // ChainTask sideChainTask = new ChainTask(TaskEnum.SIDE_CHAIN,
-    //     WalletUtil.encode58Check(arg.getSidechainGateway()),
-    //     Args.getInstance().getSidechainKafka(), fixedThreads);
-    // ChainTask mainChainTask = new ChainTask(TaskEnum.MAIN_CHAIN,
-    //     WalletUtil.encode58Check(arg.getMainchainGateway()),
-    //     Args.getInstance().getMainchainKafka(), fixedThreads);
-    // sideChainTask.start();
-    // mainChainTask.start();
-
     processEvent(store, mainGateway, sideGateway);
-    return;
 
   }
 
@@ -93,11 +84,13 @@ public class App {
           kfkConsumer.commit();
           continue;
         }
-        TransactionExtensionCapsule txExtensionCapsule = eventActuator
-            .getTransactionExtensionCapsule();
-        if (Objects.isNull(txExtensionCapsule)) {
-          kfkConsumer.commit();
-          continue;
+        TransactionExtensionCapsule txExtensionCapsule = null;
+        try {
+          txExtensionCapsule = eventActuator
+              .createTransactionExtensionCapsule();
+        } catch (RpcConnectException e) {
+          AlertUtil.sendAlert("createTransactionExtensionCapsule fail, system exit");
+          System.exit(1);
         }
         byte[] txIdBytes = txExtensionCapsule.getTransactionIdBytes();
         if (!store.exist(txIdBytes)) {
