@@ -447,7 +447,7 @@ public class Args {
 
   @Getter
   @Setter
-  private int energyChargingSwitchOn;
+  private int chargingSwitchOn;
 
   @Getter
   @Setter
@@ -539,7 +539,7 @@ public class Args {
     INSTANCE.trxExpirationTimeInMilliseconds = 0;
 
     // side chain
-    INSTANCE.energyChargingSwitchOn = 0;
+    INSTANCE.chargingSwitchOn = 0;
     INSTANCE.sideChainChargingType = 0;
     INSTANCE.energyFee = 1;
     INSTANCE.totalEnergyLimit = 100000000000L;
@@ -928,11 +928,11 @@ public class Args {
     // side chain
     INSTANCE.sideChainChargingBandwidth =
             config.hasPath("sidechain.chargingBandwidth") ? config
-                    .getInt("sidechain.chargingBandwidth") : 0;
+                    .getInt("sidechain.chargingBandwidth") : 1;
     
-    INSTANCE.energyChargingSwitchOn =
-        config.hasPath("committee.energyChargingSwitchOn") ? config
-            .getInt("committee.energyChargingSwitchOn") : 0;
+    INSTANCE.chargingSwitchOn =
+        config.hasPath("committee.chargingSwitchOn") ? config
+            .getInt("committee.chargingSwitchOn") : 0;
 
     INSTANCE.sideChainChargingType =
         config.hasPath("sidechain.chargingType") ? config

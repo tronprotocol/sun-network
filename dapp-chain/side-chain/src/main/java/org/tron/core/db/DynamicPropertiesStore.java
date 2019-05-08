@@ -1,7 +1,6 @@
 package org.tron.core.db;
 
 import com.google.protobuf.ByteString;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -194,7 +193,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   private static final byte[] CREATE_NEW_ACCOUNT_SUNTOKEN_ENERGY_BYTE_RATE = "CREATE_NEW_ACCOUNT_SUNTOKEN_ENERGY_BYTE_RATE".getBytes();
 
   // switch on to kick off energy charging
-  private static final byte[] ENERGY_CHARGING_SWITCH = "ENERGY_CHARGING_SWITCH".getBytes();
+  private static final byte[] CHARGING_SWITCH = "CHARGING_SWITCH".getBytes();
 
   // side chain charging type
   private static final byte[] SIDECHAIN_CHARGING_TYPE = "SIDECHAIN_CHARGING_TYPE".getBytes();
@@ -694,9 +693,9 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
-      this.getEnergyChargingSwitch();
+      this.getChargingSwitch();
     } catch (IllegalArgumentException e) {
-      this.saveEnergyChargingSwitch(Args.getInstance().getEnergyChargingSwitchOn());
+      this.saveChargingSwitch(Args.getInstance().getChargingSwitchOn());
     }
 
     try {
@@ -809,16 +808,16 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         new BytesCapsule(ByteArray.fromBytes21List(list)));
   }
 
-  public int getEnergyChargingSwitch(){
-    return Optional.ofNullable(getUnchecked(ENERGY_CHARGING_SWITCH))
+  public int getChargingSwitch(){
+    return Optional.ofNullable(getUnchecked(CHARGING_SWITCH))
         .map(BytesCapsule::getData)
         .map(ByteArray::toInt)
         .orElseThrow(
             () -> new IllegalArgumentException("not found ENERGY_CHARGING_SWITCH"));
   }
 
-  public void saveEnergyChargingSwitch(long num) {
-    this.put(ENERGY_CHARGING_SWITCH,
+  public void saveChargingSwitch(long num) {
+    this.put(CHARGING_SWITCH,
         new BytesCapsule(ByteArray.fromLong(num)));
   }
 

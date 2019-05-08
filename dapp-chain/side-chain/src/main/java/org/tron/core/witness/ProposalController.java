@@ -1,8 +1,6 @@
 package org.tron.core.witness;
 
-import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.db.Manager;
-import org.tron.core.exception.ContractValidateException;
 import org.tron.protos.Protocol.Proposal.State;
 
 @Slf4j(topic = "witness")
@@ -230,7 +227,7 @@ public class ProposalController {
         }
         case (24): {
           manager.getDynamicPropertiesStore()
-              .saveEnergyChargingSwitch(Long.valueOf(entry.getValue()));
+              .saveChargingSwitch(Long.valueOf(entry.getValue()));
           break;
         }
         case (25): {
