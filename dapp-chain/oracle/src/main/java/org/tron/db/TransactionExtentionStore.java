@@ -1,11 +1,13 @@
 package org.tron.db;
 
+import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +17,6 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBException;
 import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
-import org.iq80.leveldb.impl.Iq80DBFactory;
 
 @Slf4j
 public class TransactionExtentionStore {
@@ -148,6 +149,21 @@ public class TransactionExtentionStore {
       linkedHashMap.put(next.getKey(), next.getValue());
     }
     return linkedHashMap;
+  }
+
+  public Set<byte[]> allValues() {
+    resetDbLock.readLock().lock();
+    try (DBIterator iterator = database.iterator()) {
+      Set<byte[]> result = Sets.newHashSet();
+      for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
+        result.add(iterator.peekNext().getValue());
+      }
+      return result;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } finally {
+      resetDbLock.readLock().unlock();
+    }
   }
 
   public void deleteData(byte[] key) {

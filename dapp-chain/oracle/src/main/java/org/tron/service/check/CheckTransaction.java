@@ -32,7 +32,7 @@ public class CheckTransaction {
     // TODO: from solidity node
     syncExecutor
       .scheduleWithFixedDelay(() -> instance.checkTransaction(txExtensionCapsule, submitCnt), 60000,
-        60000, TimeUnit.MILLISECONDS);
+        60000,TimeUnit.MILLISECONDS);
   }
 
   private void checkTransaction(TransactionExtensionCapsule txExtensionCapsule, int checkCnt) {
@@ -48,8 +48,7 @@ public class CheckTransaction {
           SideChainGatewayApi.checkTxInfo(txExtensionCapsule);
           break;
       }
-      TransactionExtentionStore.getInstance()
-        .deleteData(txExtensionCapsule.getTransactionIdBytes());
+      TransactionExtentionStore.getInstance().deleteData(txExtensionCapsule.getTransactionIdBytes());
     } catch (TxRollbackException e) {
       // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 4.2
       logger.error(e.getMessage());

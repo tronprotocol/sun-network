@@ -1,6 +1,5 @@
 package org.tron.service.task;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -12,7 +11,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.tron.db.TransactionExtentionStore;
 import org.tron.protos.Sidechain.TaskEnum;
-import org.tron.protos.Sidechain.TransactionExtension;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.EventActuatorFactory;
@@ -27,13 +25,13 @@ public class ChainTask extends Thread {
   private final KfkConsumer kfkConsumer;
 
   public ChainTask(TaskEnum taskType, String gatewayAddress,
-    String kfkServer, int fixedThreads) {
+      String kfkServer, int fixedThreads) {
     super();
     this.gatewayAddress = gatewayAddress;
     this.taskType = taskType;
     this.executor = Executors.newFixedThreadPool(fixedThreads);
     this.kfkConsumer = new KfkConsumer(kfkServer, taskType.toString(),
-      Arrays.asList("contractevent"));
+        Arrays.asList("contractevent"));
     logger.info("task name is {},task type is {}", getName(), this.taskType);
   }
 
@@ -44,7 +42,7 @@ public class ChainTask extends Thread {
       for (ConsumerRecord<String, String> key : record) {
         JSONObject obj = (JSONObject) JSONValue.parse(key.value());
         if (Objects.isNull(obj.get("contractAddress")) || !obj.get("contractAddress").toString()
-          .equals(gatewayAddress)) {
+            .equals(gatewayAddress)) {
           kfkConsumer.commit();
           continue;
         }
@@ -59,14 +57,18 @@ public class ChainTask extends Thread {
         }
 
         TransactionExtensionCapsule txExtensionCapsule = eventActuator
-          .getTransactionExtensionCapsule();
+            .getTransactionExtensionCapsule();
+        if (Objects.isNull(txExtensionCapsule)) {
+          kfkConsumer.commit();
+          // TODO: 不需要的event都应该continue
+          continue;
+        }
         byte[] txIdBytes = txExtensionCapsule.getTransactionIdBytes();
         if (!store.exist(txIdBytes)) {
           store.putData(txIdBytes, txExtensionCapsule.getData());
         }
 
         kfkConsumer.commit();
-
         executor.execute(new TxExtensionTask(txExtensionCapsule));
       }
     }

@@ -37,13 +37,13 @@ class RpcClient {
 
   Optional<TransactionInfo> getTransactionInfoById(String txID) {
     BytesMessage request = BytesMessage.newBuilder()
-      .setValue(ByteString.copyFrom(ByteArray.fromHexString(txID))).build();
+        .setValue(ByteString.copyFrom(ByteArray.fromHexString(txID))).build();
     TransactionInfo transactionInfo = blockingStub.getTransactionInfoById(request);
     return Optional.ofNullable(transactionInfo);
   }
 
   boolean broadcastTransaction(Transaction signaturedTransaction)
-    throws RpcConnectException, TxValidateException {
+      throws RpcConnectException, TxValidateException {
 
     int maxRetry = 5;
     for (int i = 0; i < maxRetry; i++) {
@@ -51,7 +51,7 @@ class RpcClient {
       Return response = blockingStub.broadcastTransaction(signaturedTransaction);
       if (response.getResult()) {
         // true is success
-        return response.getResult();
+        return true;
       } else {
         // false is fail
         if (response.getCode() == response_code.SERVER_BUSY) {
@@ -63,8 +63,8 @@ class RpcClient {
             logger.error(e.getMessage(), e);
           }
         } else {
-          logger.info("server error, fail, code: {}, message", response.getCode(),
-            response.getMessage().toStringUtf8());
+          logger.info("server error, fail, code: {}, message {}", response.getCode(),
+              response.getMessage().toStringUtf8());
           // fail, not retry
           throw new TxValidateException("tx error, fail");
         }
