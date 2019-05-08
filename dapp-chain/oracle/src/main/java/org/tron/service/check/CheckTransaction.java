@@ -28,14 +28,14 @@ public class CheckTransaction {
   private final ScheduledExecutorService syncExecutor = Executors
     .newScheduledThreadPool(100);
 
-  public void submitCheck(TransactionExtensionCapsule txExtensionCapsule) {
+  public void submitCheck(TransactionExtensionCapsule txExtensionCapsule, int submitCnt) {
     // TODO: from solidity node
     syncExecutor
-      .scheduleWithFixedDelay(() -> instance.checkTransactionId(txExtensionCapsule), 60000, 60000,
-        TimeUnit.MILLISECONDS);
+      .scheduleWithFixedDelay(() -> instance.checkTransaction(txExtensionCapsule, submitCnt), 60000,
+        60000, TimeUnit.MILLISECONDS);
   }
 
-  private void checkTransactionId(TransactionExtensionCapsule txExtensionCapsule) {
+  private void checkTransaction(TransactionExtensionCapsule txExtensionCapsule, int checkCnt) {
     try {
       if (StringUtils.isEmpty(txExtensionCapsule.getTransactionId())) {
         return;
@@ -48,23 +48,40 @@ public class CheckTransaction {
           SideChainGatewayApi.checkTxInfo(txExtensionCapsule);
           break;
       }
-      TransactionExtentionStore.getInstance().deleteData(txExtensionCapsule.getTransactionIdBytes());
+      TransactionExtentionStore.getInstance()
+        .deleteData(txExtensionCapsule.getTransactionIdBytes());
     } catch (TxRollbackException e) {
-      // TODO: 4.2 oracle执行的交易被回退
-      // TODO: 等待60s后从solidity节点获取交易状态，被回退后重试5次，仍然没有进固化块则告警、排查问题(第一次执行完就会移动kafka的offset)
+      // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 4.2
       logger.error(e.getMessage());
-      try {
-        broadcastTransaction(txExtensionCapsule);
-      } catch (RpcConnectException e1) {
-        e1.printStackTrace();
-      } catch (TxValidateException e1) {
-        e1.printStackTrace();
+      if (checkCnt > 5) {
+        sendAlert("4.2, checkTransaction exceeds 5 times");
+        logger.error("checkTransaction exceeds 5 times");
+      } else {
+        try {
+          broadcastTransaction(txExtensionCapsule);
+        } catch (RpcConnectException e1) {
+          // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 1.2
+          // NOTE: have retried for 5 times in broadcastTransaction
+          sendAlert("1.2");
+          logger.error(e1.getMessage(), e1);
+          return;
+        } catch (TxValidateException e1) {
+          // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 4.1
+          sendAlert("4.1");
+          logger.error(e1.getMessage(), e1);
+          return;
+        }
+        instance.submitCheck(txExtensionCapsule, checkCnt + 1);
       }
-      instance.submitCheck(txExtensionCapsule);
     } catch (TxFailException e) {
-      // TODO: 5. 接收到事件，发送的交易，执行失败
-      logger.error(e.getMessage());
+      // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 5.1 5.2 5.3
+      sendAlert("5.1 5.2 5.3");
+      logger.error(e.getMessage(), e);
     }
+  }
+
+  public void sendAlert(String msg) {
+    // TODO: send alert
   }
 
   public boolean broadcastTransaction(TransactionExtensionCapsule txExtensionCapsule)
