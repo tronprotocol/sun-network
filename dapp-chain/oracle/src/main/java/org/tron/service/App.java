@@ -28,7 +28,7 @@ public class App {
       System.exit(1);
     }
 
-    (new InitTask()).batchProcessTxInDb();
+    (new InitTask(10)).batchProcessTxInDb();
 
     ChainTask sideChainTask = new ChainTask(TaskEnum.SIDE_CHAIN,
         WalletUtil.encode58Check(arg.getSidechainGateway()),
