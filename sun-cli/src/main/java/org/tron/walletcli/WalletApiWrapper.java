@@ -15,6 +15,8 @@ import org.tron.api.GrpcAPI.ExchangeList;
 import org.tron.api.GrpcAPI.NodeList;
 import org.tron.api.GrpcAPI.ProposalList;
 import org.tron.api.GrpcAPI.WitnessList;
+import org.tron.common.crypto.Hash;
+import org.tron.common.crypto.Sha256Hash;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.Utils;
 import org.tron.core.exception.CancelException;
@@ -680,7 +682,24 @@ public class WalletApiWrapper {
       return false;
     }
 
-    return wallet.triggerContract(contractAddress, callValue, data, feeLimit, tokenValue, tokenId);
+    String trxId = wallet.triggerContract(contractAddress, callValue, data, feeLimit, tokenValue, tokenId);
+    return org.apache.commons.lang3.StringUtils.isNoneEmpty(trxId);
+  }
+
+  public boolean callContractAndCheck(byte[] contractAddress, long callValue, byte[] data, long feeLimit,
+                              long tokenValue, String tokenId)
+          throws CipherException, IOException, CancelException {
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: callContractAndCheck failed,  Please login first !!");
+      return false;
+    }
+
+    String trxId = wallet.triggerContract(contractAddress, callValue, data, feeLimit, tokenValue, tokenId);
+    if (org.apache.commons.lang3.StringUtils.isEmpty(trxId)) {
+      return false;
+    }
+
+    return wallet.checkTxInfo(trxId);
   }
 
   public boolean accountPermissionUpdate(byte[] ownerAddress, String permission)
@@ -754,6 +773,31 @@ public class WalletApiWrapper {
     }
 
     return wallet.sideSignTrxData(address, trxNum);
+  }
+
+  public String calcMaincontractAddress(String trxHash)
+  {
+    byte[] ownerAddress = wallet.getAddress();
+    // get tx hash
+    byte[] txRawDataHash = Sha256Hash.of(trxHash.getBytes()).getBytes();
+
+    // combine
+    byte[] combined = new byte[txRawDataHash.length + ownerAddress.length];
+    System.arraycopy(txRawDataHash, 0, combined, 0, txRawDataHash.length);
+    System.arraycopy(ownerAddress, 0, combined, txRawDataHash.length, ownerAddress.length);
+
+    return Hash.sha3omit12(combined).toString();
+  }
+
+  public void sideGetMappingAddress(String sideGateway, String mainContractAddress)
+          throws  EncodingException {
+
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: sideGetMappingAddress failed,  Please login first !!");
+      return ;
+    }
+
+     wallet.sideGetMappingAddress(sideGateway, mainContractAddress);
   }
 
   public byte[] getSideGatewayAddress() {
