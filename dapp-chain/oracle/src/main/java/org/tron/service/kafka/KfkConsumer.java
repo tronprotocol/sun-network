@@ -14,8 +14,8 @@ public class KfkConsumer {
     Properties properties = new Properties();
     properties.put("bootstrap.servers", server);
     properties.put("group.id", groupId);
-    properties.put("enable.auto.commit", "true");
-    properties.put("auto.commit.interval.ms", "1000");
+    properties.put("enable.auto.commit", "false");
+    // properties.put("auto.commit.interval.ms", "1000");
     properties.put("auto.offset.reset", "earliest");
     properties.put("session.timeout.ms", "30000");
     properties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -24,6 +24,10 @@ public class KfkConsumer {
 
     this.kafkaConsumer = new KafkaConsumer<>(properties);
     this.kafkaConsumer.subscribe(topicList);
+  }
+
+  public void commit() {
+    this.kafkaConsumer.commitSync();
   }
 
   public ConsumerRecords<String, String> getRecord() {

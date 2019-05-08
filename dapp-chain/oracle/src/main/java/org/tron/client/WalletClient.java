@@ -1,23 +1,21 @@
 package org.tron.client;
 
 import com.google.protobuf.ByteString;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
 import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.Return;
-import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.crypto.ECKey;
-import org.tron.common.exception.ContractException;
-import org.tron.common.exception.RpcException;
-import org.tron.common.exception.TxNotFoundException;
+import org.tron.common.exception.RpcConnectException;
+import org.tron.common.exception.TxValidateException;
+import org.tron.common.exception.TxRollbackException;
+import org.tron.common.exception.TxFailException;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.Base58;
-import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.Sha256Hash;
 import org.tron.common.utils.TransactionUtils;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Contract;
@@ -27,7 +25,7 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.Protocol.TransactionInfo.code;
-import org.tron.service.check.TransactionId;
+import org.tron.service.check.TransactionExtensionCapsule;
 
 @Slf4j
 public class WalletClient {
@@ -70,72 +68,115 @@ public class WalletClient {
   }
 
   public byte[] triggerConstantContractAndReturn(byte[] contractAddress, String method,
-    List<Object> params, long callValue, long tokenId, long tokenValue) throws RpcException {
+      List<Object> params, long callValue, long tokenId, long tokenValue)
+      throws RpcConnectException {
 
     logger.info(
-      "trigger constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
-      WalletUtil.encode58Check(contractAddress), method, params.toString(), callValue, tokenId,
-      tokenValue);
+        "trigger constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
+        WalletUtil.encode58Check(contractAddress), method, params.toString(), callValue, tokenId,
+        tokenValue);
 
     byte[] data = AbiUtil.parseMethod(method, params);
 
-    TransactionExtention transactionExtention = this
-      .triggerConstantContract(contractAddress, data, callValue, tokenValue, tokenId);
+    org.tron.api.GrpcAPI.TransactionExtention transactionExtention = this
+        .triggerConstantContract(contractAddress, data, callValue, tokenValue, tokenId);
 
     Transaction transaction = transactionExtention.getTransaction();
     if (transaction.getRetCount() != 0 && transactionExtention.getConstantResult(0) != null
-      && transactionExtention.getResult() != null) {
+        && transactionExtention.getResult() != null) {
       return transactionExtention.getConstantResult(0).toByteArray();
     }
-    throw new RpcException("no result");
+    throw new RpcConnectException("no result");
   }
 
-  public TransactionId triggerContract(byte[] contractAddress, String method, List<Object> params,
-    long callValue, long tokenId, long tokenValue) throws RpcException {
+  public TransactionExtensionCapsule triggerContract(byte[] contractAddress, String method,
+      List<Object> params,
+      long callValue, long tokenId, long tokenValue) throws RpcConnectException, TxValidateException {
 
     logger.info(
-      "trigger not constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
-      WalletUtil.encode58Check(contractAddress), method, params.toString(), callValue, tokenId,
-      tokenValue);
+        "trigger not constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
+        WalletUtil.encode58Check(contractAddress), method, params.toString(), callValue, tokenId,
+        tokenValue);
 
     byte[] data = AbiUtil.parseMethod(method, params);
-    TransactionId txId = triggerContract(contractAddress, data, SystemSetting.FEE_LIMIT,
-      callValue, tokenValue, tokenId);
+    TransactionExtensionCapsule txId = triggerContract(contractAddress, data,
+        SystemSetting.FEE_LIMIT,
+        callValue, tokenValue, tokenId);
     logger.info("txId: {}", txId);
     return txId;
   }
 
-  private TransactionExtention triggerConstantContract(byte[] contractAddress, byte[] data,
-    long callValue, long tokenValue, Long tokenId) throws RpcException {
+  public Transaction triggerContractTransaction(byte[] contractAddress, String method,
+      List<Object> params,
+      long callValue, long tokenId, long tokenValue) throws RpcConnectException {
+
+    logger.info(
+        "trigger not constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
+        WalletUtil.encode58Check(contractAddress), method, params.toString(), callValue, tokenId,
+        tokenValue);
+
+    byte[] data = AbiUtil.parseMethod(method, params);
+    return triggerContractTransaction(contractAddress, data, SystemSetting.FEE_LIMIT,
+        callValue, tokenValue, tokenId);
+
+  }
+
+  private org.tron.api.GrpcAPI.TransactionExtention triggerConstantContract(byte[] contractAddress,
+      byte[] data,
+      long callValue, long tokenValue, Long tokenId) throws RpcConnectException {
     byte[] owner = address;
     Contract.TriggerSmartContract triggerContract = buildTriggerContract(owner, contractAddress,
-      callValue, data, tokenValue, tokenId);
-    TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract);
+        callValue, data, tokenValue, tokenId);
+    org.tron.api.GrpcAPI.TransactionExtention transactionExtention = rpcCli
+        .triggerContract(triggerContract);
     if (!transactionExtention.getResult().getResult()) {
       logger.error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
-        transactionExtention.getResult().getMessage().toStringUtf8());
-      throw new RpcException("rpc fail, code: " + transactionExtention.getResult().getCode());
+          transactionExtention.getResult().getMessage().toStringUtf8());
+      throw new RpcConnectException(
+          "rpc fail, code: " + transactionExtention.getResult().getCode());
     }
     return transactionExtention;
   }
 
-  private TransactionId triggerContract(byte[] contractAddress, byte[] data, long feeLimit,
+  private TransactionExtensionCapsule triggerContract(byte[] contractAddress, byte[] data,
+      long feeLimit,
       long callValue,
-    long tokenValue, Long tokenId) throws RpcException {
+      long tokenValue, Long tokenId) throws RpcConnectException, TxValidateException {
+    GrpcAPI.TransactionExtention transactionExtention = getTransactionExtention(contractAddress,
+        data, feeLimit,
+        callValue, tokenValue, tokenId);
+
+    return processTransactionExtention(transactionExtention);
+  }
+
+  private Transaction triggerContractTransaction(byte[] contractAddress, byte[] data, long feeLimit,
+      long callValue,
+      long tokenValue, Long tokenId) throws RpcConnectException {
+    GrpcAPI.TransactionExtention transactionExtention = getTransactionExtention(contractAddress,
+        data, feeLimit, callValue, tokenValue, tokenId);
+
+    return getTransaction(transactionExtention);
+  }
+
+  private GrpcAPI.TransactionExtention getTransactionExtention(byte[] contractAddress, byte[] data,
+      long feeLimit, long callValue, long tokenValue, Long tokenId) throws RpcConnectException {
     byte[] owner = address;
     Contract.TriggerSmartContract triggerContract = buildTriggerContract(owner, contractAddress,
-      callValue, data, tokenValue, tokenId);
-    TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract);
+        callValue, data, tokenValue, tokenId);
+    GrpcAPI.TransactionExtention transactionExtention = rpcCli
+        .triggerContract(triggerContract);
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
       logger.error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
-        transactionExtention.getResult().getMessage().toStringUtf8());
-      throw new RpcException("rpc fail, code: " + transactionExtention.getResult().getCode());
+          transactionExtention.getResult().getMessage().toStringUtf8());
+      throw new RpcConnectException(
+          "rpc fail, code: " + transactionExtention.getResult().getCode());
     }
 
-    TransactionExtention.Builder txBuilder = TransactionExtention.newBuilder();
+    GrpcAPI.TransactionExtention.Builder txBuilder = GrpcAPI.TransactionExtention
+        .newBuilder();
     Transaction.Builder transBuilder = Transaction.newBuilder();
     Transaction.raw.Builder rawBuilder = transactionExtention.getTransaction().getRawData()
-      .toBuilder();
+        .toBuilder();
     rawBuilder.setFeeLimit(feeLimit);
     transBuilder.setRawData(rawBuilder);
     for (int i = 0; i < transactionExtention.getTransaction().getSignatureCount(); i++) {
@@ -150,13 +191,12 @@ public class WalletClient {
     txBuilder.setResult(transactionExtention.getResult());
     txBuilder.setTxid(transactionExtention.getTxid());
     transactionExtention = txBuilder.build();
-
-    return processTransactionExtention(transactionExtention);
+    return transactionExtention;
   }
 
   public static Contract.TriggerSmartContract buildTriggerContract(byte[] address,
-    byte[] contractAddress,
-    long callValue, byte[] data, long tokenValue, Long tokenId) {
+      byte[] contractAddress,
+      long callValue, byte[] data, long tokenValue, Long tokenId) {
     Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(address));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
@@ -171,30 +211,39 @@ public class WalletClient {
     return rpcCli.getAssetIssueById(assetId);
   }
 
-  private TransactionId processTransactionExtention(TransactionExtention transactionExtention)
-    throws RpcException {
+  private TransactionExtensionCapsule processTransactionExtention(
+      org.tron.api.GrpcAPI.TransactionExtention transactionExtention)
+    throws RpcConnectException, TxValidateException {
+    Transaction transaction = getTransaction(transactionExtention);
+    rpcCli.broadcastTransaction(transaction);
+    return new TransactionExtensionCapsule(transaction);
+  }
+
+  private Transaction getTransaction(
+      org.tron.api.GrpcAPI.TransactionExtention transactionExtention)
+      throws RpcConnectException {
     if (transactionExtention == null) {
-      throw new RpcException("transactionExtention is null");
+      throw new RpcConnectException("transactionExtensionCapsule is null");
     }
     Return ret = transactionExtention.getResult();
     if (!ret.getResult()) {
       logger
-        .error("rpc fail, code: {}, message: {}", ret.getCode(), ret.getMessage().toStringUtf8());
-      throw new RpcException("rpc fail, code: " + ret.getCode());
+          .error("rpc fail, code: {}, message: {}", ret.getCode(), ret.getMessage().toStringUtf8());
+      throw new RpcConnectException("rpc fail, code: " + ret.getCode());
     }
     Transaction transaction = transactionExtention.getTransaction();
 
     if (transaction.getRawData().getTimestamp() == 0) {
       transaction = TransactionUtils.setTimestamp(transaction);
     }
-    transaction = TransactionUtils.sign(transaction, this.ecKey);
-    String txId = ByteArray
-      .toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
-    rpcCli.broadcastTransaction(transaction);
-    return new TransactionId(transaction);
+    return TransactionUtils.sign(transaction, this.ecKey);
   }
 
-  public byte[] checkTxInfo(String txId) throws TxNotFoundException, ContractException {
+  public boolean broadcast(Transaction transaction) throws RpcConnectException, TxValidateException {
+      return rpcCli.broadcastTransaction(transaction);
+  }
+
+  public byte[] checkTxInfo(String txId) throws TxRollbackException, TxFailException {
     int maxRetry = 3;
     for (int i = 0; i < maxRetry; i++) {
       Optional<TransactionInfo> transactionInfo = rpcCli.getTransactionInfoById(txId);
@@ -210,10 +259,10 @@ public class WalletClient {
         if (info.getResult().equals(code.SUCESS)) {
           return info.getContractResult(0).toByteArray();
         } else {
-          throw new ContractException(info.getResMessage().toStringUtf8());
+          throw new TxFailException(info.getResMessage().toStringUtf8());
         }
       }
     }
-    throw new TxNotFoundException(txId);
+    throw new TxRollbackException(txId);
   }
 }

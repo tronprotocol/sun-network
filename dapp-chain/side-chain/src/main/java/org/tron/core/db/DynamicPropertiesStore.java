@@ -199,6 +199,9 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   // side chain charging type
   private static final byte[] SIDECHAIN_CHARGING_TYPE = "SIDECHAIN_CHARGING_TYPE".getBytes();
 
+  // side chain charging bandwidth
+  private static final byte[] SIDECHAIN_CHARGING_BANDWIDTH = "SIDECHAIN_CHARGING_BANDWIDTH".getBytes();
+
   // CREATE_ACCOUNT_FEE              0.1 SUN_TOKEN
   private static final byte[] CREATE_ACCOUNT_SUNTOKEN_FEE = "CREATE_ACCOUNT_SUNTOKEN_FEE".getBytes();
 
@@ -701,6 +704,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     } catch (IllegalArgumentException e) {
       this.saveSideChainChargingType(Args.getInstance().getSideChainChargingType());
     }
+
+    try {
+      this.getSideChainChargingBandwidth();
+    } catch (IllegalArgumentException e) {
+      this.saveSideChainChargingBandwidth(Args.getInstance().getSideChainChargingBandwidth());
+    }
   }
 
   public String intArrayToString(int[] a) {
@@ -750,6 +759,14 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   public void saveTransactionSunTokenEnergyByteRate(int num) {
     this.put(TRANSACTION_SUNTOKEN_ENERGY_BYTE_RATE,
             new BytesCapsule(ByteArray.fromInt(num)));
+  }
+
+  public int getTransactionEnergyByteRate(int chargingType) {
+    if(chargingType == 0) {
+      return getTransactionEnergyByteRate();
+    }
+
+    return getTransactionSunTokenEnergyByteRate();
   }
 
   public List<byte[]> getGateWayList() {
@@ -817,6 +834,21 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     this.put(SIDECHAIN_CHARGING_TYPE,
             new BytesCapsule(ByteArray.fromLong(num)));
   }
+
+  public int getSideChainChargingBandwidth(){
+    return Optional.ofNullable(getUnchecked(SIDECHAIN_CHARGING_BANDWIDTH))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toInt)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found SIDECHAIN_CHARGING_BANDWIDTH"));
+  }
+
+  public void saveSideChainChargingBandwidth(long num) {
+    this.put(SIDECHAIN_CHARGING_BANDWIDTH,
+            new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+
 
   /**
    *   SideChain parameter end
@@ -990,12 +1022,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found ACCOUNT_UPGRADE_TOKEN_COST"));
   }
 
-    public long getAccountUpgradeCost(int chargingType) {
-      if(chargingType == 0) {
-          return getAccountUpgradeCost();
-      }
-      return getAccountUpgradeTokenCost();
+  public long getAccountUpgradeCost(int chargingType) {
+    if(chargingType == 0) {
+        return getAccountUpgradeCost();
     }
+    return getAccountUpgradeTokenCost();
+  }
 
   public void saveWitnessPayPerBlock(long pay) {
     logger.debug("WITNESS_PAY_PER_BLOCK:" + pay);
@@ -1366,6 +1398,14 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             .map(ByteArray::toLong)
             .orElseThrow(
                     () -> new IllegalArgumentException("not found CREATE_NEW_ACCOUNT_SUNTOKEN_ENERGY_BYTE_RATE"));
+  }
+
+  public long getCreateNewAccountEnergyRate(int chargingType) {
+    if(chargingType == 0) {
+      return getCreateNewAccountEnergyRate();
+    }
+
+    return getCreateNewAccountSunTokenEnergyRate();
   }
 
   public void saveTransactionFee(long fee) {

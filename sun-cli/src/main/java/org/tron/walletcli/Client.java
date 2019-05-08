@@ -2585,8 +2585,128 @@ public class Client {
           logout();
           break;
         }
+        case "getaddress": {
+          getAddress();
+          break;
+        }
         case "getbalance": {
           getBalance();
+          break;
+        }
+        case "getaccount": {
+          getAccount(parameters);
+          break;
+        }
+        case "updateaccount": {
+          updateAccount(parameters);
+          break;
+        }
+        case "updateasset": {
+          updateAsset(parameters);
+          break;
+        }
+        case "getaccountresource": {
+          getAccountResource(parameters);
+          break;
+        }
+        case "getassetissuebyid": {
+          getAssetIssueById(parameters);
+          break;
+        }
+        case "sendcoin": {
+          sendCoin(parameters);
+          break;
+        }
+        case "transferasset": {
+          transferAsset(parameters);
+          break;
+        }
+        case "assetissue": {
+          assetIssue(parameters);
+          break;
+        }
+        case "createaccount": {
+          createAccount(parameters);
+          break;
+        }
+        case "createwitness": {
+          createWitness(parameters);
+          break;
+        }
+        case "updatewitness": {
+          updateWitness(parameters);
+          break;
+        }
+        case "votewitness": {
+          voteWitness(parameters);
+          break;
+        }
+        case "freezebalance": {
+          freezeBalance(parameters);
+          break;
+        }
+        case "unfreezebalance": {
+          unfreezeBalance(parameters);
+          break;
+        }
+        case "withdrawbalance": {
+          withdrawBalance();
+          break;
+        }
+        case "unfreezeasset": {
+          unfreezeAsset();
+          break;
+        }
+        case "listproposals": {
+          listProposals();
+          break;
+        }
+        case "getproposal": {
+          getProposal(parameters);
+          break;
+        }
+        case "getchainparameters": {
+          getChainParameters();
+          break;
+        }
+        case "listwitnesses": {
+          listWitnesses();
+          break;
+        }
+        case "listassetissue": {
+          getAssetIssueList();
+          break;
+        }
+        case "listnodes": {
+          listNodes();
+          break;
+        }
+        case "getblock": {
+          getBlock(parameters);
+          break;
+        }
+        case "gettransactionbyid": {
+          getTransactionById(parameters);
+          break;
+        }
+        case "gettransactioninfobyid": {
+          getTransactionInfoById(parameters);
+          break;
+        }
+        case "getblockbyid": {
+          getBlockById(parameters);
+          break;
+        }
+        case "updatesetting": {
+          updateSetting(parameters);
+          break;
+        }
+        case "updateenergylimit": {
+          updateEnergyLimit(parameters);
+          break;
+        }
+        case "getcontract": {
+          getContract(parameters);
           break;
         }
         case "triggercontract": {

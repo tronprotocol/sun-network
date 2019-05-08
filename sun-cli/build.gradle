@@ -121,7 +121,7 @@ run {
 
 
 shadowJar {
-    baseName = 'wallet-cli'
+    baseName = 'sun-cli'
     classifier = null
     version = null
 }

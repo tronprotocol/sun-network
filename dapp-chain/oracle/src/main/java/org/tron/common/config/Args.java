@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.encoders.Hex;
 import org.springframework.stereotype.Component;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.exception.RpcException;
+import org.tron.common.exception.RpcConnectException;
 import org.tron.common.utils.WalletUtil;
 
 
@@ -123,17 +123,17 @@ public class Args {
     return instance;
   }
 
-  public void setParam(String[] args) throws RpcException {
+  public void setParam(String[] args) throws RpcConnectException {
     JCommander.newBuilder().addObject(instance).build().parse(args);
     loadConf(shellConfFileName);
   }
 
-  public void loadSunTokenAddress() throws RpcException {
+  public void loadSunTokenAddress() throws RpcConnectException {
     this.sunTokenAddress = WalletUtil
       .decodeFromBase58Check(SideChainGatewayApi.getSunTokenAddress());
   }
 
-  public void loadConf(String confName) throws RpcException {
+  public void loadConf(String confName) throws RpcConnectException {
     if (StringUtils.isEmpty(confName)) {
       confName = "config-sample.conf";
     }
@@ -163,7 +163,7 @@ public class Args {
   public static void main(String[] args) {
     try {
       Args.getInstance().setParam(args);
-    } catch (RpcException e) {
+    } catch (RpcConnectException e) {
       e.printStackTrace();
     }
   }
