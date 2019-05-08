@@ -78,7 +78,6 @@ import org.tron.core.config.Parameter.ChainConstant;
 import org.tron.core.config.args.Args;
 import org.tron.core.config.args.GenesisBlock;
 import org.tron.core.db.KhaosDatabase.KhaosBlock;
-import org.tron.core.db.api.pojo.AssetIssue;
 import org.tron.core.db2.core.ISession;
 import org.tron.core.db2.core.ITronChainBase;
 import org.tron.core.db2.core.SnapshotManager;
@@ -107,7 +106,6 @@ import org.tron.core.services.WitnessService;
 import org.tron.core.witness.ProposalController;
 import org.tron.core.witness.WitnessController;
 import org.tron.protos.Contract.AssetIssueContract;
-import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
@@ -1245,7 +1243,7 @@ public class Manager {
     TransactionTrace trace = new TransactionTrace(trxCap, this);
     trxCap.setTrxTrace(trace);
 
-    if (dynamicPropertiesStore.getEnergyChargingSwitch() == 1) {
+    if (dynamicPropertiesStore.getChargingSwitch() == 1) {
       //
       if(dynamicPropertiesStore.getSideChainChargingBandwidth() == 1) {
         consumeBandwidth(trxCap, trace);
