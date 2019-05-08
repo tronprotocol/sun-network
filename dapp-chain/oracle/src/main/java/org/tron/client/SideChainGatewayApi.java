@@ -7,46 +7,87 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.Args;
-import org.tron.common.exception.ContractException;
-import org.tron.common.exception.RpcException;
-import org.tron.common.exception.TxNotFoundException;
+import org.tron.common.exception.RpcConnectException;
+import org.tron.common.exception.TxValidateException;
+import org.tron.common.exception.TxRollbackException;
+import org.tron.common.exception.TxFailException;
 import org.tron.common.utils.AbiUtil;
-import org.tron.service.check.TransactionId;
-import org.tron.service.task.TaskEnum;
+import org.tron.protos.Protocol.Transaction;
+import org.tron.service.check.TransactionExtensionCapsule;
 
 @Slf4j
 public class SideChainGatewayApi {
 
-  public static TransactionId mintTrx(String to, String value) throws RpcException {
+  public static TransactionExtensionCapsule mintTrx(String to, String value)
+    throws RpcConnectException, TxValidateException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRX(address,uint256)";
     List params = Arrays.asList(to, value);
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static TransactionId mintToken10(String to, String tokenId, String value, String name,
+  public static Transaction mintTrxTransaction(String to, String value) throws RpcConnectException {
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    String method = "depositTRX(address,uint256)";
+    List params = Arrays.asList(to, value);
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
+  }
+
+  public static TransactionExtensionCapsule mintToken10(String to, String tokenId, String value,
+      String name,
       String symbol, int decimals)
-      throws RpcException {
+    throws RpcConnectException, TxValidateException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRC10(address,uint256,uint256,string,string,uint8)";
     List params = Arrays.asList(to, tokenId, value, name, symbol, decimals);
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static TransactionId mintToken20(String to, String mainAddress, String value)
-      throws RpcException {
+  public static Transaction mintToken10Transaction(String to, String tokenId, String value,
+      String name,
+      String symbol, int decimals)
+      throws RpcConnectException {
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    String method = "depositTRC10(address,uint256,uint256,string,string,uint8)";
+    List params = Arrays.asList(to, tokenId, value, name, symbol, decimals);
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
+  }
+
+  public static TransactionExtensionCapsule mintToken20(String to, String mainAddress, String value)
+    throws RpcConnectException, TxValidateException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRC20(address,address,uint256)";
     List params = Arrays.asList(to, mainAddress, value);
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static TransactionId mintToken721(String to, String mainAddress, String value)
-      throws RpcException {
+  public static Transaction mintToken20Transaction(String to, String mainAddress, String value)
+      throws RpcConnectException {
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    String method = "depositTRC20(address,address,uint256)";
+    List params = Arrays.asList(to, mainAddress, value);
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
+  }
+
+  public static TransactionExtensionCapsule mintToken721(String to, String mainAddress,
+      String value)
+    throws RpcConnectException, TxValidateException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "depositTRC721(address,address,uint256)";
     List params = Arrays.asList(to, mainAddress, value);
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
+  }
+
+  public static Transaction mintToken721Transaction(String to, String mainAddress, String value)
+      throws RpcConnectException {
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    String method = "depositTRC721(address,address,uint256)";
+    List params = Arrays.asList(to, mainAddress, value);
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
   // Singleton
@@ -66,7 +107,7 @@ public class SideChainGatewayApi {
 
   }
 
-  public static String getMainToSideContractMap(String address) throws RpcException {
+  public static String getMainToSideContractMap(String address) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "mainToSideContractMap(address)";
     List params = Arrays.asList(address);
@@ -75,16 +116,16 @@ public class SideChainGatewayApi {
     return AbiUtil.unpackAddress(ret);
   }
 
-  public static String getSunTokenAddress() throws RpcException {
+  public static String getSunTokenAddress() throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "sunTokenAddress()";
     List<Object> params = new ArrayList<>();
     byte[] ret = GATEWAY_API.getInstance()
-      .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
+        .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
     return AbiUtil.unpackAddress(ret);
   }
 
-  public static String getMainToSideTRC10Map(String tokenId) throws RpcException {
+  public static String getMainToSideTRC10Map(String tokenId) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "mainToSideTRC10Map(uint256)";
     List params = Arrays.asList(tokenId);
@@ -94,10 +135,13 @@ public class SideChainGatewayApi {
   }
 
 
-  public static byte[] checkTxInfo(TransactionId txId)
-      throws ContractException, TxNotFoundException {
-    txId.setType(TaskEnum.SIDE_CHAIN);
+  public static byte[] checkTxInfo(TransactionExtensionCapsule txId)
+      throws TxFailException, TxRollbackException {
     return GATEWAY_API.instance.checkTxInfo(txId.getTransactionId());
   }
 
+  public static boolean broadcast(Transaction transaction)
+    throws RpcConnectException, TxValidateException {
+    return GATEWAY_API.instance.broadcast(transaction);
+  }
 }

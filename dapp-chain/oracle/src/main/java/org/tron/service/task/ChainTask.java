@@ -9,6 +9,11 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.tron.db.TransactionExtentionStore;
+import org.tron.protos.Sidechain.TaskEnum;
+import org.tron.service.check.TransactionExtensionCapsule;
+import org.tron.service.eventactuator.Actuator;
+import org.tron.service.eventactuator.EventActuatorFactory;
 import org.tron.service.kafka.KfkConsumer;
 
 @Slf4j(topic = "task")
@@ -25,9 +30,9 @@ public class ChainTask extends Thread {
     this.gatewayAddress = gatewayAddress;
     this.taskType = taskType;
     this.executor = Executors.newFixedThreadPool(fixedThreads);
-    this.kfkConsumer = new KfkConsumer(kfkServer, taskType.getName(),
+    this.kfkConsumer = new KfkConsumer(kfkServer, taskType.toString(),
         Arrays.asList("contractevent"));
-    logger.info("task mane is {},task type is {}", getName(), this.taskType);
+    logger.info("task name is {},task type is {}", getName(), this.taskType);
   }
 
   @Override
@@ -38,14 +43,35 @@ public class ChainTask extends Thread {
         JSONObject obj = (JSONObject) JSONValue.parse(key.value());
         if (Objects.isNull(obj.get("contractAddress")) || !obj.get("contractAddress").toString()
             .equals(gatewayAddress)) {
+          kfkConsumer.commit();
           continue;
         }
-        EventTask eventTask = EventTaskFactory.CreateTask(this.taskType, obj);
-        if (Objects.isNull(eventTask)) {
+
+        TransactionExtentionStore store = TransactionExtentionStore.getInstance();
+
+        Actuator eventActuator = EventActuatorFactory.CreateActuator(this.taskType, obj);
+        if (Objects.isNull(eventActuator)) {
+          kfkConsumer.commit();
+          // TODO: 不需要的event都应该continue
           continue;
         }
-        executor.execute(eventTask);
+
+        TransactionExtensionCapsule txExtensionCapsule = eventActuator
+            .getTransactionExtensionCapsule();
+        if (Objects.isNull(txExtensionCapsule)) {
+          kfkConsumer.commit();
+          // TODO: 不需要的event都应该continue
+          continue;
+        }
+        byte[] txIdBytes = txExtensionCapsule.getTransactionIdBytes();
+        if (!store.exist(txIdBytes)) {
+          store.putData(txIdBytes, txExtensionCapsule.getData());
+        }
+
+        kfkConsumer.commit();
+        executor.execute(new TxExtensionTask(txExtensionCapsule));
       }
     }
+
   }
 }

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+import "core/Tron.proto";
+
+package protocol;
+
+
+option java_package = "org.tron.protos"; //Specify the name of the package that generated the Java file
+option java_outer_classname = "Sidechain"; //Specify the class name of the generated Java file
+option go_package = "github.com/tronprotocol/grpc-gateway/core";
+
+message TransactionExtension {
+  Transaction transaction = 1;
+  bytes txid = 2;
+  TaskEnum task_enum = 3;
+}
+
+enum TaskEnum {
+  MAIN_CHAIN = 0x00;
+  SIDE_CHAIN = 0x01;
+}

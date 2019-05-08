@@ -461,6 +461,11 @@ public class Args {
   @Setter
   private long totalEnergyLimit;
 
+  @Getter
+  @Setter
+  private int sideChainChargingBandwidth;
+
+
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
     INSTANCE.help = false;
@@ -921,6 +926,10 @@ public class Args {
 
 
     // side chain
+    INSTANCE.sideChainChargingBandwidth =
+            config.hasPath("sidechain.chargingBandwidth") ? config
+                    .getInt("sidechain.chargingBandwidth") : 0;
+    
     INSTANCE.energyChargingSwitchOn =
         config.hasPath("committee.energyChargingSwitchOn") ? config
             .getInt("committee.energyChargingSwitchOn") : 0;
