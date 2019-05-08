@@ -25,9 +25,9 @@ public class DepositTRXActuator extends Actuator {
       return transactionExtensionCapsule;
     }
     try {
+      logger.info("from:{},amount:{}", this.from, this.amount);
       Transaction tx = SideChainGatewayApi.mintTrxTransaction(this.from, this.amount);
       this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
-      logger.info("deposit trx is {}", this.transactionExtensionCapsule.getTransactionId());
     } catch (Exception e) {
       logger.error("from:{},amount:{}", this.from, this.amount);
       e.printStackTrace();

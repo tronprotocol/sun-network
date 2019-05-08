@@ -29,6 +29,8 @@ public class DepositTRC20Actuator extends Actuator {
       return this.transactionExtensionCapsule;
     }
     try {
+      logger.info("from:{},amount:{},contractAddress:{}", this.from, this.amount,
+          this.contractAddress);
       if (WalletUtil.encode58Check(Args.getInstance().getSunTokenAddress())
           .equalsIgnoreCase(this.contractAddress)) {
         Transaction tx = SideChainGatewayApi

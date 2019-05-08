@@ -27,12 +27,12 @@ public class DepositTRC721Actuator extends Actuator {
       return transactionExtensionCapsule;
     }
     try {
+      logger.info("from:{},uid:{},contractAddress{}", this.from, this.uid, this.contractAddress);
       Transaction tx = SideChainGatewayApi
           .mintToken721Transaction(this.from, this.contractAddress, this.uid);
       this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
     } catch (Exception e) {
-      logger
-          .error("from:{},uid:{},contractAddress{}", this.from, this.uid, this.contractAddress);
+      logger.error("from:{},uid:{},contractAddress{}", this.from, this.uid, this.contractAddress);
       e.printStackTrace();
     }
     return this.transactionExtensionCapsule;

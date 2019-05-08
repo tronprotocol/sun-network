@@ -7,8 +7,6 @@ import org.tron.service.eventactuator.mainchain.DepositTRC10Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC20Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC721Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRXActuator;
-import org.tron.service.eventactuator.mainchain.Token10WithdrawnActuator;
-import org.tron.service.eventactuator.mainchain.TokenWithdrawnActuator;
 import org.tron.service.eventactuator.sidechain.DeployDAppTRC20AndMappingActuator;
 import org.tron.service.eventactuator.sidechain.DeployDAppTRC721AndMappingActuator;
 import org.tron.service.eventactuator.sidechain.WithdrawTRC10Actuator;
@@ -45,18 +43,6 @@ public class EventActuatorFactory {
     JSONObject topicMap = (JSONObject) obj.get("topicMap");
 
     switch (eventSignature) {
-      case TOKEN_WITHDRAWN: {
-        task = new TokenWithdrawnActuator(topicMap.get("owner").toString(),
-            dataMap.get("kind").toString(), dataMap.get("contractAddress").toString(),
-            dataMap.get("value").toString());
-        return task;
-      }
-      case TOKEN10_WITHDRAWN: {
-        task = new Token10WithdrawnActuator(topicMap.get("owner").toString(),
-            dataMap.get("kind").toString(), dataMap.get("tokenId").toString(),
-            dataMap.get("value").toString());
-        return task;
-      }
       case TRX_RECEIVED: {
         task = new DepositTRXActuator(dataMap.get("from").toString(),
             dataMap.get("amount").toString());
