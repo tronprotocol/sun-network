@@ -8,9 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
-import org.tron.common.exception.TxValidateException;
-import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxFailException;
+import org.tron.common.exception.TxRollbackException;
+import org.tron.common.exception.TxValidateException;
 import org.tron.db.TransactionExtentionStore;
 
 @Slf4j
@@ -26,13 +26,13 @@ public class CheckTransaction {
   }
 
   private final ScheduledExecutorService syncExecutor = Executors
-    .newScheduledThreadPool(100);
+      .newScheduledThreadPool(100);
 
   public void submitCheck(TransactionExtensionCapsule txExtensionCapsule) {
     // TODO: from solidity node
     syncExecutor
-      .scheduleWithFixedDelay(() -> instance.checkTransactionId(txExtensionCapsule), 60000, 60000,
-        TimeUnit.MILLISECONDS);
+        .scheduleWithFixedDelay(() -> instance.checkTransactionId(txExtensionCapsule), 60000, 60000,
+            TimeUnit.MILLISECONDS);
   }
 
   private void checkTransactionId(TransactionExtensionCapsule txExtensionCapsule) {
@@ -48,7 +48,8 @@ public class CheckTransaction {
           SideChainGatewayApi.checkTxInfo(txExtensionCapsule);
           break;
       }
-      TransactionExtentionStore.getInstance().deleteData(txExtensionCapsule.getTransactionIdBytes());
+      TransactionExtentionStore.getInstance()
+          .deleteData(txExtensionCapsule.getTransactionIdBytes());
     } catch (TxRollbackException e) {
       // TODO: 4.2 oracle执行的交易被回退
       // TODO: 等待60s后从solidity节点获取交易状态，被回退后重试5次，仍然没有进固化块则告警、排查问题(第一次执行完就会移动kafka的offset)
@@ -56,8 +57,10 @@ public class CheckTransaction {
       try {
         broadcastTransaction(txExtensionCapsule);
       } catch (RpcConnectException e1) {
+        logger.error("RpcConnectException :{}", e1.getMessage());
         e1.printStackTrace();
       } catch (TxValidateException e1) {
+        logger.error("TxValidateException :{}", e1.getMessage());
         e1.printStackTrace();
       }
       instance.submitCheck(txExtensionCapsule);
@@ -68,7 +71,7 @@ public class CheckTransaction {
   }
 
   public boolean broadcastTransaction(TransactionExtensionCapsule txExtensionCapsule)
-    throws RpcConnectException, TxValidateException {
+      throws RpcConnectException, TxValidateException {
     switch (txExtensionCapsule.getType()) {
       case MAIN_CHAIN:
         return MainChainGatewayApi.broadcast(txExtensionCapsule.getTransaction());

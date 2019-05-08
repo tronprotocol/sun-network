@@ -7,9 +7,9 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.Args;
 import org.tron.common.exception.RpcConnectException;
-import org.tron.common.exception.TxValidateException;
-import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxFailException;
+import org.tron.common.exception.TxRollbackException;
+import org.tron.common.exception.TxValidateException;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.service.check.TransactionExtensionCapsule;
@@ -34,7 +34,7 @@ public class MainChainGatewayApi {
 
   public static TransactionExtensionCapsule addTokenMapping(String mainChainAddress,
       String sideChainAddress)
-    throws RpcConnectException, TxValidateException {
+      throws RpcConnectException, TxValidateException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "migrationToken(address,address)";
     List params = Arrays.asList(mainChainAddress, sideChainAddress);
@@ -53,7 +53,7 @@ public class MainChainGatewayApi {
 
   public static TransactionExtensionCapsule withdrawTRC10(String to, String trc10, String value,
       String txData)
-    throws RpcConnectException, TxValidateException {
+      throws RpcConnectException, TxValidateException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawTRC10(address,trcToken,uint256,bytes)";
     List params = Arrays.asList(to, trc10, value, txData);
@@ -73,7 +73,7 @@ public class MainChainGatewayApi {
   public static TransactionExtensionCapsule withdrawTRC20(String to, String mainChainAddress,
       String value,
       String txData)
-    throws RpcConnectException, TxValidateException {
+      throws RpcConnectException, TxValidateException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawTRC20(address,address,uint256,bytes)";
     List params = Arrays.asList(to, mainChainAddress, value, txData);
@@ -94,7 +94,7 @@ public class MainChainGatewayApi {
   public static TransactionExtensionCapsule withdrawTRC721(String to, String mainChainAddress,
       String value,
       String txData)
-    throws RpcConnectException, TxValidateException {
+      throws RpcConnectException, TxValidateException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawTRC721(address,address,uint256,bytes)";
     List params = Arrays.asList(to, mainChainAddress, value, txData);
@@ -113,7 +113,7 @@ public class MainChainGatewayApi {
   }
 
   public static TransactionExtensionCapsule withdrawTRX(String to, String value, String txData)
-    throws RpcConnectException, TxValidateException {
+      throws RpcConnectException, TxValidateException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawTRX(address,uint256,bytes)";
     List params = Arrays.asList(to, value, txData);
@@ -130,9 +130,7 @@ public class MainChainGatewayApi {
   }
 
   public static AssetIssueContract getAssetIssueById(String assetId) {
-    AssetIssueContract assetIssueContract = GATEWAY_API.getInstance()
-        .getAssetIssueById(assetId);
-    return assetIssueContract;
+    return GATEWAY_API.getInstance().getAssetIssueById(assetId);
   }
 
   public static byte[] checkTxInfo(TransactionExtensionCapsule txId)
@@ -141,7 +139,7 @@ public class MainChainGatewayApi {
   }
 
   public static boolean broadcast(Transaction transaction)
-    throws RpcConnectException, TxValidateException {
+      throws RpcConnectException, TxValidateException {
     return GATEWAY_API.instance.broadcast(transaction);
   }
 }
