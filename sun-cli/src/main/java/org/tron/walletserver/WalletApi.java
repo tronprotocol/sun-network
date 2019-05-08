@@ -562,6 +562,20 @@ public class WalletApi {
     return signature.toByteArray();
   }
 
+  public  void sideGetMappingAddress(String sideGateway, String mainContractAddress)
+          throws EncodingException {
+    byte[] input = org.bouncycastle.util.encoders.Hex.decode(
+            AbiUtil.parseMethod("mainToSideContractMap(address)", mainContractAddress, false));
+
+    Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
+            decode58Check(sideGateway),
+            0, input, 0, "0");
+    TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract);
+    String sideContractAddress = encode58Check(transactionExtention.getConstantResult(0).toByteArray());
+
+    System.out.println("sideContractAddress is " + sideContractAddress);
+  }
+
   public Account queryAccount() {
     return queryAccount(getAddress());
   }
@@ -2017,7 +2031,7 @@ public class WalletApi {
 
   }
 
-  public boolean triggerContract(byte[] contractAddress, long callValue, byte[] data, long feeLimit,
+  public String triggerContract(byte[] contractAddress, long callValue, byte[] data, long feeLimit,
     long tokenValue, String tokenId)
     throws IOException, CipherException, CancelException {
     byte[] owner = getAddress();
@@ -2029,7 +2043,7 @@ public class WalletApi {
       System.out.println("Code = " + transactionExtention.getResult().getCode());
       System.out
         .println("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
-      return false;
+      return null;
     }
 
     Transaction transaction = transactionExtention.getTransaction();
@@ -2041,7 +2055,7 @@ public class WalletApi {
       System.out.println(":" + ByteArray
         .toStr(transactionExtention.getResult().getMessage().toByteArray()));
       System.out.println("Result:" + Hex.toHexString(result));
-      return true;
+      return ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
     }
 
     TransactionExtention.Builder texBuilder = TransactionExtention.newBuilder();
@@ -2063,7 +2077,40 @@ public class WalletApi {
     texBuilder.setTxid(transactionExtention.getTxid());
     transactionExtention = texBuilder.build();
 
-    return processTransactionExtention(transactionExtention);
+    if( processTransactionExtention(transactionExtention) ) {
+      return ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
+    }
+
+    return  null;
+  }
+
+  public boolean checkTxInfo(String txId)  {
+    try {
+      System.out.println("wait 3s for check approve result. ");
+      Thread.sleep(3_000);
+      Optional<TransactionInfo> transactionInfo = rpcCli.getTransactionInfoById(txId);
+      TransactionInfo info = transactionInfo.get();
+      if (info.getResult().equals(TransactionInfo.code.SUCESS)) {
+        return true;
+      }
+
+      //retry
+      int maxRetry = 3;
+      for (int i = 0; i < maxRetry; i++) {
+        Thread.sleep(1_000);
+        System.out.println("will retry {} time(s): " + i+1);
+        transactionInfo = rpcCli.getTransactionInfoById(txId);
+        info = transactionInfo.get();
+        if (info.getResult().equals(TransactionInfo.code.SUCESS)) {
+          return true;
+        }
+      }
+    } catch (InterruptedException e) {
+      System.out.println("sleep error" + (e.getMessage()) );
+      return false;
+    }
+
+    return false;
   }
 
   public static SmartContract getContract(byte[] address) {
