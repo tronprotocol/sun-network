@@ -3,6 +3,7 @@ package org.tron.service.eventactuator.mainchain;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
+import org.tron.common.exception.RpcConnectException;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
@@ -20,18 +21,14 @@ public class DepositTRXActuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule getTransactionExtensionCapsule() {
+  public TransactionExtensionCapsule createTransactionExtensionCapsule()
+      throws RpcConnectException {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return transactionExtensionCapsule;
     }
-    try {
-      logger.info("from:{},amount:{}", this.from, this.amount);
-      Transaction tx = SideChainGatewayApi.mintTrxTransaction(this.from, this.amount);
-      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
-    } catch (Exception e) {
-      logger.error("from:{},amount:{}", this.from, this.amount);
-      e.printStackTrace();
-    }
+    logger.info("DepositTRXActuator, from: {}, amount: {}", this.from, this.amount);
+    Transaction tx = SideChainGatewayApi.mintTrxTransaction(this.from, this.amount);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
     return this.transactionExtensionCapsule;
   }
 

@@ -3,6 +3,7 @@ package org.tron.service.eventactuator.mainchain;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
+import org.tron.common.exception.RpcConnectException;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
@@ -22,19 +23,18 @@ public class DepositTRC721Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule getTransactionExtensionCapsule() {
+  public TransactionExtensionCapsule createTransactionExtensionCapsule()
+      throws RpcConnectException {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return transactionExtensionCapsule;
     }
-    try {
-      logger.info("from:{},uid:{},contractAddress{}", this.from, this.uid, this.contractAddress);
-      Transaction tx = SideChainGatewayApi
-          .mintToken721Transaction(this.from, this.contractAddress, this.uid);
-      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
-    } catch (Exception e) {
-      logger.error("from:{},uid:{},contractAddress{}", this.from, this.uid, this.contractAddress);
-      e.printStackTrace();
-    }
+
+    logger
+        .info("DepositTRC721Actuator, from: {}, uid: {}, contractAddress: {}", this.from, this.uid,
+            this.contractAddress);
+    Transaction tx = SideChainGatewayApi
+        .mintToken721Transaction(this.from, this.contractAddress, this.uid);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
     return this.transactionExtensionCapsule;
   }
 

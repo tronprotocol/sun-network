@@ -3,8 +3,7 @@ package org.tron.service.eventactuator.mainchain;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.config.Args;
-import org.tron.common.utils.WalletUtil;
+import org.tron.common.exception.RpcConnectException;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
@@ -24,28 +23,18 @@ public class DepositTRC20Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule getTransactionExtensionCapsule() {
+  public TransactionExtensionCapsule createTransactionExtensionCapsule()
+      throws RpcConnectException {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;
     }
-    try {
-      logger.info("from:{},amount:{},contractAddress:{}", this.from, this.amount,
-          this.contractAddress);
-      if (WalletUtil.encode58Check(Args.getInstance().getSunTokenAddress())
-          .equalsIgnoreCase(this.contractAddress)) {
-        Transaction tx = SideChainGatewayApi
-            .mintToken10Transaction(this.from, "2000000", this.amount, "sun token", "ST", 6);
-        this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
-      } else {
-        Transaction tx = SideChainGatewayApi
-            .mintToken20Transaction(this.from, this.contractAddress, this.amount);
-        this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
-      }
-    } catch (Exception e) {
-      logger.error("from:{},amount:{},contractAddress:{}", this.from, this.amount,
-          this.contractAddress);
-      e.printStackTrace();
-    }
+
+    logger.info("DepositTRC20Actuator, from: {}, amount: {}, contractAddress: {}", this.from,
+        this.amount, this.contractAddress);
+
+    Transaction tx = SideChainGatewayApi
+        .mintToken20Transaction(this.from, this.contractAddress, this.amount);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
     return this.transactionExtensionCapsule;
   }
 

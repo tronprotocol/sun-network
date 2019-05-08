@@ -3,6 +3,7 @@ package org.tron.service.eventactuator.sidechain;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
+import org.tron.common.exception.RpcConnectException;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
@@ -26,19 +27,16 @@ public class WithdrawTRC20Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule getTransactionExtensionCapsule() {
+  public TransactionExtensionCapsule createTransactionExtensionCapsule() throws RpcConnectException {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;
     }
-    try {
-      Transaction tx = MainChainGatewayApi
-          .withdrawTRC20Transaction(this.from, this.mainChainAddress, this.value, this.txData);
-      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
-    } catch (Exception e) {
-      logger.error(
-          "WithdrawTRC20Actuator fail, from: {}, value: {}, mainChainAddress: {}, txData: {}",
-          this.from, this.value, this.mainChainAddress, this.txData);
-    }
+    logger.info(
+      "WithdrawTRC20Actuator, from: {}, value: {}, mainChainAddress: {}, txData: {}",
+      this.from, this.value, this.mainChainAddress, this.txData);
+    Transaction tx = MainChainGatewayApi
+      .withdrawTRC20Transaction(this.from, this.mainChainAddress, this.value, this.txData);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
     return this.transactionExtensionCapsule;
   }
 

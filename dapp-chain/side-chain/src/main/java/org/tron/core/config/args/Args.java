@@ -447,7 +447,7 @@ public class Args {
 
   @Getter
   @Setter
-  private int energyChargingSwitchOn;
+  private int chargingSwitchOn;
 
   @Getter
   @Setter
@@ -455,7 +455,16 @@ public class Args {
 
   @Getter
   @Setter
+  private int energyFee;
+
+  @Getter
+  @Setter
+  private long totalEnergyLimit;
+
+  @Getter
+  @Setter
   private int sideChainChargingBandwidth;
+
 
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
@@ -528,6 +537,12 @@ public class Args {
     INSTANCE.longRunningTime = 10;
     INSTANCE.allowMultiSign = 0;
     INSTANCE.trxExpirationTimeInMilliseconds = 0;
+
+    // side chain
+    INSTANCE.chargingSwitchOn = 0;
+    INSTANCE.sideChainChargingType = 0;
+    INSTANCE.energyFee = 1;
+    INSTANCE.totalEnergyLimit = 100000000000L;
   }
 
   /**
@@ -836,18 +851,6 @@ public class Args {
         config.hasPath("committee.allowTvmTransferTrc10") ? config
             .getInt("committee.allowTvmTransferTrc10") : 0;
 
-    INSTANCE.energyChargingSwitchOn =
-        config.hasPath("committee.energyChargingSwitchOn") ? config
-            .getInt("committee.energyChargingSwitchOn") : 0;
-
-    INSTANCE.sideChainChargingType =
-            config.hasPath("sidechain.chargingType") ? config
-                    .getInt("sidechain.chargingType") : 0;
-
-    INSTANCE.sideChainChargingBandwidth =
-            config.hasPath("sidechain.chargingBandwidth") ? config
-                    .getInt("sidechain.chargingBandwidth") : 0;
-
     INSTANCE.tcpNettyWorkThreadNum = config.hasPath("node.tcpNettyWorkThreadNum") ? config
         .getInt("node.tcpNettyWorkThreadNum") : 0;
 
@@ -920,6 +923,27 @@ public class Args {
       initRocksDbBackupProperty(config);
       initRocksDbSettings(config);
     }
+
+
+    // side chain
+    INSTANCE.sideChainChargingBandwidth =
+            config.hasPath("sidechain.chargingBandwidth") ? config
+                    .getInt("sidechain.chargingBandwidth") : 1;
+    
+    INSTANCE.chargingSwitchOn =
+        config.hasPath("committee.chargingSwitchOn") ? config
+            .getInt("committee.chargingSwitchOn") : 0;
+
+    INSTANCE.sideChainChargingType =
+        config.hasPath("sidechain.chargingType") ? config
+            .getInt("sidechain.chargingType") : 0;
+
+    INSTANCE.energyFee =
+        config.hasPath("sidechain.energyFee") ? config.getInt("sidechain.energyFee") : 1;
+
+    INSTANCE.totalEnergyLimit =
+        config.hasPath("sidechain.totalEnergyLimit") ? config
+            .getLong("sidechain.totalEnergyLimit") : 100_000_000_000L;
 
     logConfig();
   }

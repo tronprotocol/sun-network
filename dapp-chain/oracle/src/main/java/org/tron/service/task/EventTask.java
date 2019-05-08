@@ -9,6 +9,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.tron.common.config.Args;
+import org.tron.common.exception.RpcConnectException;
+import org.tron.common.utils.AlertUtil;
 import org.tron.db.TransactionExtentionStore;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
@@ -59,11 +61,13 @@ public class EventTask {
           this.kfkConsumer.commit();
           continue;
         }
-        TransactionExtensionCapsule txExtensionCapsule = eventActuator
-            .getTransactionExtensionCapsule();
-        if (Objects.isNull(txExtensionCapsule)) {
-          this.kfkConsumer.commit();
-          continue;
+        TransactionExtensionCapsule txExtensionCapsule = null;
+        try {
+          txExtensionCapsule = eventActuator
+              .createTransactionExtensionCapsule();
+        } catch (RpcConnectException e) {
+          AlertUtil.sendAlert("createTransactionExtensionCapsule fail, system exit");
+          System.exit(1);
         }
         byte[] txIdBytes = txExtensionCapsule.getTransactionIdBytes();
         if (!this.store.exist(txIdBytes)) {

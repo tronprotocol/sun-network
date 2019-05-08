@@ -4,6 +4,7 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
+import org.tron.common.exception.RpcConnectException;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.TaskEnum;
@@ -24,22 +25,19 @@ public class DepositTRC10Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule getTransactionExtensionCapsule() {
+  public TransactionExtensionCapsule createTransactionExtensionCapsule() throws RpcConnectException {
     if (Objects.nonNull(this.transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;
     }
-    try {
-      logger.info("from:{},amount:{},tokenId:{}", this.from, this.amount, this.tokenId);
-      AssetIssueContract assetIssue = MainChainGatewayApi.getAssetIssueById(this.tokenId);
-      Transaction tx = SideChainGatewayApi
-          .mintToken10Transaction(this.from, this.tokenId, this.amount,
-              assetIssue.getName().toStringUtf8(),
-              assetIssue.getName().toStringUtf8(), assetIssue.getPrecision());
-      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
-    } catch (Exception e) {
-      logger.error("from:{},amount:{},tokenId:{}", this.from, this.amount, this.tokenId);
-      e.printStackTrace();
-    }
+    logger.info("DepositTRC10Actuator, from: {}, amount: {}, tokenId: {}", this.from, this.amount,
+      this.tokenId);
+    // TODO: throw RpcConnectException
+    AssetIssueContract assetIssue = MainChainGatewayApi.getAssetIssueById(this.tokenId);
+    Transaction tx = SideChainGatewayApi
+      .mintToken10Transaction(this.from, this.tokenId, this.amount,
+        assetIssue.getName().toStringUtf8(), assetIssue.getName().toStringUtf8(),
+        assetIssue.getPrecision());
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
     return this.transactionExtensionCapsule;
   }
 }

@@ -30,9 +30,9 @@ public class App {
 
     String mainGateway = WalletUtil.encode58Check(arg.getSidechainGateway());
     String sideGateway = WalletUtil.encode58Check(arg.getSidechainGateway());
+
     (new InitTask(10)).batchProcessTxInDb();
     (new EventTask(mainGateway, sideGateway, fixedThreads)).processEvent();
     return;
   }
-
 }
