@@ -5,6 +5,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.spongycastle.util.encoders.Hex;
 import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
 import org.tron.api.GrpcAPI.BytesMessage;
 import org.tron.api.GrpcAPI.EmptyMessage;
@@ -15,13 +16,14 @@ import org.tron.api.WalletGrpc;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.Sha256Hash;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 
-@Slf4j
+@Slf4j (topic = "rpcClient")
 class RpcClient {
 
   private WalletGrpc.WalletBlockingStub blockingStub;
@@ -44,7 +46,7 @@ class RpcClient {
 
   boolean broadcastTransaction(Transaction signaturedTransaction)
       throws RpcConnectException, TxValidateException {
-
+    logger.info("tx id: {}", Hex.toHexString(Sha256Hash.hash(signaturedTransaction.getRawData().toByteArray())));
     int maxRetry = 5;
     for (int i = 0; i < maxRetry; i++) {
 
@@ -63,10 +65,10 @@ class RpcClient {
             logger.error(e.getMessage(), e);
           }
         } else {
-          logger.info("server error, fail, code: {}, message {}", response.getCode(),
+          logger.error("server error, fail, code: {}, message {}", response.getCode(),
               response.getMessage().toStringUtf8());
           // fail, not retry
-          throw new TxValidateException("tx error, fail");
+          throw new TxValidateException("tx error, " + response.getMessage().toStringUtf8());
         }
       }
     }

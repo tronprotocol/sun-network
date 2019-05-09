@@ -1,6 +1,7 @@
 package org.tron.client;
 
 import com.google.protobuf.ByteString;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
 import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.Return;
+import org.tron.common.config.Args;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.exception.RpcConnectException;
@@ -16,6 +18,7 @@ import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxFailException;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.Base58;
+import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.TransactionUtils;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Contract;
@@ -33,11 +36,13 @@ public class WalletClient {
   private RpcClient rpcCli;
   private ECKey ecKey;
   private byte[] address;
+  private boolean isMainChain;
 
-  public WalletClient(String target, byte[] priateKey) {
+  public WalletClient(String target, byte[] priateKey, boolean isMainChain) {
     rpcCli = new RpcClient(target);
     ecKey = ECKey.fromPrivate(priateKey);
     address = ecKey.getAddress();
+    this.isMainChain = isMainChain;
   }
 
   public Optional<TransactionInfo> getTransactionInfoById(String txID) {
@@ -236,7 +241,18 @@ public class WalletClient {
     if (transaction.getRawData().getTimestamp() == 0) {
       transaction = TransactionUtils.setTimestamp(transaction);
     }
-    return TransactionUtils.sign(transaction, this.ecKey);
+    // return TransactionUtils.sign(transaction, this.ecKey);
+    return TransactionUtils.sign(transaction, this.ecKey, getCurrentChainId(), isMainChain);
+  }
+
+  private byte[] getCurrentChainId() {
+    if(isMainChain) {
+      return new byte[0];
+    }
+    // TODO: add list
+    List<byte[]> chainIdList = new ArrayList();
+    chainIdList.add(Args.getInstance().getMainchainGateway());
+    return ByteArray.fromBytes21List(chainIdList);
   }
 
   public boolean broadcast(Transaction transaction) throws RpcConnectException, TxValidateException {

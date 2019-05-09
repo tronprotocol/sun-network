@@ -36,6 +36,7 @@ public class TransactionExtentionStore {
   private TransactionExtentionStore() {
     this.dataBaseName = "event";
     this.parentName = "database";
+    initDB();
   }
 
   public void initDB() {
