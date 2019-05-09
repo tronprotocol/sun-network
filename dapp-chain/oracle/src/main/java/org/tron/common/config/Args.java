@@ -155,7 +155,6 @@ public class Args {
     this.oraclePrivateKey = Hex.decode(config.getString("oracle.private.key"));
 
     this.mainchainKafka = config.getString("kafka.mainchain.server");
-    this.sidechainKafka = config.getString("kafka.sidechain.server");
 
     if (config.hasPath("alert.dingding.webhook.token")) {
       this.alertDingWebhookToken = config.getString("alert.dingding.webhook.token");

@@ -66,7 +66,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     // 1. deployDAppTRC20AndMapping
     function deployDAppTRC20AndMapping(bytes txId, string name, string symbol, uint8 decimals) public returns (address r) {
         // can be called by everyone (contract developer)
-        require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
+        // require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
         address mainChainAddress = calcContractAddress(txId, msg.sender);
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
@@ -80,7 +80,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     // 2. deployDAppTRC721AndMapping
     function deployDAppTRC721AndMapping(bytes txId, string name, string symbol) public returns (address r) {
         // can be called by everyone (contract developer)
-        require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
+        // require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
         address mainChainAddress = calcContractAddress(txId, msg.sender);
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
@@ -92,7 +92,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 3. depositTRC10
-    function depositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals) public onlyOracles {
+    function depositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals) public onlyOracle {
         // can only be called by oracle
         require(trc10 > 1000000 && trc10 <= 2000000, "trc10 <= 1000000 or trc10 > 2000000");
         bool exist = trc10Map[trc10];
@@ -144,19 +144,10 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     function onTRC20Received(address from, uint256 value, bytes txData) public returns (bytes4) {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
-        if (mainChainAddress == address(0)) {
-            // TRC10
-            uint256 trc10 = sideToMainTRC10Map[sideChainAddress];
-            require(trc10 > 0, "the trc10 or trc20 must have been deposited");
-            // burn
-            DAppTRC20(sideChainAddress).burn(value);
-            emit WithdrawTRC10(from, value, trc10, txData);
-        } else {
-            // TRC20
-            // burn
-            DAppTRC20(sideChainAddress).burn(value);
-            emit WithdrawTRC20(from, value, mainChainAddress, txData);
-        }
+        require(mainChainAddress != address(0), "mainChainAddress == address(0)");
+        DAppTRC20(sideChainAddress).burn(value);
+        emit WithdrawTRC20(from, value, mainChainAddress, txData);
+
         return _TRC20_RECEIVED;
     }
 

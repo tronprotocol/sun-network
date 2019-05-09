@@ -24,7 +24,7 @@ public class MainChainGatewayApi {
 
     GatewayApi() {
       instance = new WalletClient(Args.getInstance().getMainchainFullNode(),
-          Args.getInstance().getOraclePrivateKey());
+          Args.getInstance().getOraclePrivateKey(), true);
     }
 
     public WalletClient getInstance() {
