@@ -1923,7 +1923,7 @@ public class Client {
     byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
     byte[] contractAddress = WalletApi.decodeFromBase58Check(contractAddrStr);
 
-    boolean result = walletApiWrapper.callContractAndCheck(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
+    boolean result = walletApiWrapper.callContract(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
     if (result) {
         System.out.println("Broadcast the depositTrx successfully.\n"
                 + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
@@ -1949,7 +1949,7 @@ public class Client {
       byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
       byte[] contractAddress = WalletApi.decodeFromBase58Check(contractAddrStr);
 
-      boolean result = walletApiWrapper.callContractAndCheck(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
+      boolean result = walletApiWrapper.callContract(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
       if (result) {
         System.out.println("Broadcast the deposiTrc10 successfully.\n"
                 + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
@@ -1968,7 +1968,7 @@ public class Client {
     long callValue = 0;
     long tokenCallValue = 0;
     String tokenId = "";
-    String argsStr = mainGatewayAddr + "," + num;
+    String argsStr = "\"" + mainGatewayAddr + "\",\"" + num + "\"";
 
     byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, false));
     byte[] contractAddress = WalletApi.decodeFromBase58Check(contractAddrStr);
@@ -1978,8 +1978,8 @@ public class Client {
       System.out.println("approve successfully.\n");
 
       byte[] depositContractAddr =  WalletApi.decodeFromBase58Check(mainGatewayAddr);
-      String depositArgStr = num + "," + mainGatewayAddr;
-      byte[] depositInput = Hex.decode(AbiUtil.parseMethod(depositMethodStr, depositArgStr, false));
+      String depositArgStr = num + ",\"" + mainGatewayAddr + "\"";
+      byte[] depositInput = Hex.decode(AbiUtil.parseMethod(depositMethodStr, depositArgStr , false));
 
       boolean ret =  walletApiWrapper.callContract(depositContractAddr, callValue, depositInput, feeLimit, tokenCallValue, tokenId);
       if (ret) {
@@ -2034,7 +2034,7 @@ public class Client {
 
   private void deposit(String[] parameters)  throws IOException, CipherException, CancelException, EncodingException {
     if (parameters == null ) {
-      System.out.println("withdraw needs parameters ");
+      System.out.println("deposit needs parameters ");
       return;
     }
 
@@ -2057,7 +2057,7 @@ public class Client {
         break;
       }
       default: {
-        System.out.println("Invalid withdraw type: " + type + "!!");
+        System.out.println("Invalid deposit type: " + type + "!!");
       }
     }
 
@@ -2710,14 +2710,18 @@ public class Client {
     long feeLimit = Long.parseLong(parameters[3]);
     byte[] txData = walletApiWrapper.sideSignTrc10Data(trc10, value);
 
-    byte[] trc10Address = walletApiWrapper.getTrc10Address(trc10);
+    byte[] sideGatewayAddress = walletApiWrapper.getSideGatewayAddress();
+    if (sideGatewayAddress == null) {
+      throw new RuntimeException("invalid side gateway address.");
+    }
 
-    String methodStr = "withdrawal(uint256,bytes)";
+    String methodStr = "withdrawTRC10(bytes)";
     byte[] input = Hex
-      .decode(AbiUtil.parseMethod(methodStr, value + ",\"" + Hex.toHexString(txData) + "\"", false));
+      .decode(AbiUtil.parseMethod(methodStr,  "\"" + Hex.toHexString(txData) + "\"", false));
 
+    long tokenValue = Long.parseLong(value);
     boolean result = walletApiWrapper
-      .callContract(trc10Address, 0, input, feeLimit, 0, "0");
+      .callContract(sideGatewayAddress, 0, input, feeLimit, tokenValue, trc10);
     if (result) {
       System.out.println("Broadcast the withdrawTrc10 successfully.\n"
         + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
@@ -2793,11 +2797,13 @@ public class Client {
     String name = parameters[3];
     String symbol = parameters[4];
     String decimal = parameters[5];
-    String argsStr = trxHash + "," + name + "," + symbol + "," + decimal;
+    String argsStr =  "\""+ trxHash + "\",\"" + name + "\",\"" + symbol + "\",\"" + decimal +  "\"";
     long feeLimit = Long.valueOf(parameters[6]);
 
     mapingTrc(contractAddrStr, methodStr, argsStr, trxHash, feeLimit);
   }
+
+
 
   private void mappingTrc721(String[] parameters)
           throws IOException, CipherException, CancelException, EncodingException {
@@ -2812,7 +2818,7 @@ public class Client {
     String trxHash = parameters[2];
     String name = parameters[3];
     String symbol = parameters[4];
-    String argsStr = trxHash + "," + name + "," + symbol;
+    String argsStr = "\"" + trxHash + "\",\"" + name + "\",\"" + symbol + "\"";
     long feeLimit = Long.valueOf(parameters[6]);
 
     mapingTrc(contractAddrStr, methodStr, argsStr, trxHash, feeLimit);
