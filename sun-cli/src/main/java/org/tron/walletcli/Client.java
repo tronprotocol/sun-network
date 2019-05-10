@@ -2647,7 +2647,7 @@ public class Client {
       return;
     }
 
-    String mainAddress = parameters[1];
+    String mainAddress = parameters[1]; //mainchain trc20 address
     String value = parameters[2];
     long feeLimit = Long.parseLong(parameters[3]);
     byte[] txData = walletApiWrapper.sideSignTokenData(mainAddress, value);
@@ -2671,12 +2671,12 @@ public class Client {
   private void withdrawTrc721(String[] parameters)
     throws IOException, CipherException, CancelException, EncodingException {
     if (parameters == null || parameters.length != 4) {
-      System.out.println("withdrawTrc721 needs 3 parameters like following: ");
-      System.out.println("withdrawTrc721 mainAddress uid fee_limit ");
+      System.out.println("withdraw Trc721 needs 3 parameters like following: ");
+      System.out.println("withdraw Trc721 mainAddress uid fee_limit ");
       return;
     }
 
-    String mainAddress = parameters[1];
+    String mainAddress = parameters[1]; //mainchain trc721 address
     String uid = parameters[2];
     long feeLimit = Long.parseLong(parameters[3]);
     byte[] txData = walletApiWrapper.sideSignTokenData(mainAddress, uid);
@@ -2772,7 +2772,7 @@ public class Client {
 
     boolean result = walletApiWrapper.callContractAndCheck(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
     if (result) {
-      System.out.println("mappingTrc20 successfully.\n");
+      System.out.println("mappingTrc successfully.\n");
 
       String mainContractAddress = walletApiWrapper.calcMaincontractAddress(trxHash);
 
@@ -2814,12 +2814,12 @@ public class Client {
     }
 
     String contractAddrStr = parameters[1];  //side gateway
-    String methodStr = "deployDAppTRC721AndMapping(bytes,string,string,uint8)";
+    String methodStr = "deployDAppTRC721AndMapping(bytes,string,string)";
     String trxHash = parameters[2];
     String name = parameters[3];
     String symbol = parameters[4];
     String argsStr = "\"" + trxHash + "\",\"" + name + "\",\"" + symbol + "\"";
-    long feeLimit = Long.valueOf(parameters[6]);
+    long feeLimit = Long.valueOf(parameters[5]);
 
     mapingTrc(contractAddrStr, methodStr, argsStr, trxHash, feeLimit);
   }
