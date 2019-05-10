@@ -37,8 +37,10 @@ public class AlertUtil {
         System.out.println(result);
       }
     } catch (ClientProtocolException e) {
+      logger.error("ClientProtocolException {}", e.getMessage());
       e.printStackTrace();
     } catch (IOException e) {
+      logger.error("IOException {}", e.getMessage());
       e.printStackTrace();
     }
   }

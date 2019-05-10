@@ -23,7 +23,7 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 
-@Slf4j (topic = "rpcClient")
+@Slf4j(topic = "rpcClient")
 class RpcClient {
 
   private WalletGrpc.WalletBlockingStub blockingStub;
@@ -46,7 +46,9 @@ class RpcClient {
 
   boolean broadcastTransaction(Transaction signaturedTransaction)
       throws RpcConnectException, TxValidateException {
-    logger.info("tx id: {}", Hex.toHexString(Sha256Hash.hash(signaturedTransaction.getRawData().toByteArray())));
+    String txId = Hex
+        .toHexString(Sha256Hash.hash(signaturedTransaction.getRawData().toByteArray()));
+    logger.info("tx id: {}", txId);
     int maxRetry = 5;
     for (int i = 0; i < maxRetry; i++) {
 
@@ -56,7 +58,7 @@ class RpcClient {
         return true;
       } else {
         // false is fail
-        if (response.getCode() == response_code.SERVER_BUSY) {
+        if (response.getCode().equals(response_code.SERVER_BUSY)) {
           // when SERVER_BUSY, retry
           logger.info("will retry {} time(s)", i + 1);
           try {
@@ -65,10 +67,14 @@ class RpcClient {
             logger.error(e.getMessage(), e);
           }
         } else {
-          logger.error("server error, fail, code: {}, message {}", response.getCode(),
-              response.getMessage().toStringUtf8());
-          // fail, not retry
-          throw new TxValidateException("tx error, " + response.getMessage().toStringUtf8());
+          if (response.getCode().equals(response_code.DUP_TRANSACTION_ERROR)) {
+            logger.info("this tx has broadcasted");
+          } else {
+            logger.error("tx error, fail, code: {}, message {}", response.getCode(),
+                response.getMessage().toStringUtf8());
+            // fail, not retry
+            throw new TxValidateException("tx error, " + response.getMessage().toStringUtf8());
+          }
         }
       }
     }
