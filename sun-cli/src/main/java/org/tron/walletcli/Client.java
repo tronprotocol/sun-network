@@ -1978,7 +1978,7 @@ public class Client {
       System.out.println("approve successfully.\n");
 
       byte[] depositContractAddr =  WalletApi.decodeFromBase58Check(mainGatewayAddr);
-      String depositArgStr = num + ",\"" + mainGatewayAddr + "\"";
+      String depositArgStr = num + ",\"" + contractAddrStr + "\"";
       byte[] depositInput = Hex.decode(AbiUtil.parseMethod(depositMethodStr, depositArgStr , false));
 
       boolean ret =  walletApiWrapper.callContract(depositContractAddr, callValue, depositInput, feeLimit, tokenCallValue, tokenId);
@@ -2610,8 +2610,8 @@ public class Client {
   private void withdrawTrx(String[] parameters)
     throws IOException, CipherException, CancelException, EncodingException {
     if (parameters == null || parameters.length != 3) {
-      System.out.println("withdrawTrx needs 2 parameters like following: ");
-      System.out.println("withdrawTrx trx_num fee_limit ");
+      System.out.println("withdraw Trx needs 2 parameters like following: ");
+      System.out.println("withdraw Trx trx_num fee_limit ");
       return;
     }
 
@@ -2642,8 +2642,8 @@ public class Client {
   private void withdrawTrc20(String[] parameters)
     throws IOException, CipherException, CancelException, EncodingException {
     if (parameters == null || parameters.length != 4) {
-      System.out.println("withdrawTrc20 needs 3 parameters like following: ");
-      System.out.println("withdrawTrc20 mainAddress value fee_limit ");
+      System.out.println("withdraw Trc20 needs 3 parameters like following: ");
+      System.out.println("withdraw Trc20 mainAddress value fee_limit ");
       return;
     }
 
