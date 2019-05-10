@@ -6,20 +6,13 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
+import java.util.*;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.ArrayUtils;
+import org.bouncycastle.util.StringList;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +37,7 @@ import org.tron.api.GrpcAPI.TransactionSignWeight;
 import org.tron.api.GrpcAPI.WitnessList;
 import org.tron.common.crypto.Hash;
 import org.tron.common.crypto.Sha256Hash;
-import org.tron.common.utils.AbiUtil;
-import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.ByteUtil;
-import org.tron.common.utils.DataWord;
-import org.tron.common.utils.Utils;
+import org.tron.common.utils.*;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
 import org.tron.core.exception.EncodingException;
@@ -2068,91 +2057,11 @@ public class Client {
     System.out.println(
       "For more information on a specific command, type the command and it will display tips");
     System.out.println("");
-    System.out.println("AddTransactionSign");
-    System.out.println("ApproveProposal");
-    System.out.println("AssetIssue");
-    System.out.println("BackupWallet");
-    System.out.println("BackupWallet2Base64");
-    System.out.println("BroadcastTransaction");
-    System.out.println("ChangePassword");
-    System.out.println("CreateAccount");
-    System.out.println("CreateProposal");
-    System.out.println("CreateWitness");
-    System.out.println("DeleteProposal");
-    System.out.println(
-      "DeployContract contractName ABI byteCode constructor params isHex fee_limit consume_user_resource_percent origin_energy_limit value token_value token_id <library:address,library:address,...> <lib_compiler_version(e.g:v5)>");
-    System.out.println("ExchangeCreate");
-    System.out.println("ExchangeInject");
-    System.out.println("ExchangeTransaction");
-    System.out.println("ExchangeWithdraw");
-    System.out.println("FreezeBalance");
-    System.out.println("GenerateAddress");
-    System.out.println("GetAccount");
-    System.out.println("GetAccountNet");
-    System.out.println("GetAccountResource");
-    System.out.println("GetAddress");
-    System.out.println("GetAssetIssueByAccount");
-    System.out.println("GetAssetIssueById");
-    System.out.println("GetAssetIssueByName");
-    System.out.println("GetAssetIssueListByName");
-    System.out.println("GetBalance");
-    System.out.println("GetBlock");
-    System.out.println("GetBlockById");
-    System.out.println("GetBlockByLatestNum");
-    System.out.println("GetBlockByLimitNext");
-    System.out.println("GetContract contractAddress");
-    System.out.println("GetDelegatedResource");
-    System.out.println("GetDelegatedResourceAccountIndex");
-    System.out.println("GetExchange");
-    System.out.println("GetNextMaintenanceTime");
-    System.out.println("GetProposal");
-    System.out.println("GetTotalTransaction");
-    System.out.println("GetTransactionApprovedList");
-    System.out.println("GetTransactionById");
-    System.out.println("GetTransactionCountByBlockNum");
-    System.out.println("GetTransactionInfoById");
-    System.out.println("GetTransactionsFromThis");
-    System.out.println("GetTransactionsToThis");
-    System.out.println("GetTransactionSignWeight");
-    System.out.println("ImportWallet");
-    System.out.println("ImportWalletByBase64");
-    System.out.println("ListAssetIssue");
-    System.out.println("ListExchanges");
-    System.out.println("ListExchangesPaginated");
-    System.out.println("ListNodes");
-    System.out.println("ListProposals");
-    System.out.println("ListProposalsPaginated");
-    System.out.println("ListWitnesses");
-    System.out.println("Login");
-    System.out.println("Logout");
-    System.out.println("ParticipateAssetIssue");
-    System.out.println("RegisterWallet");
-    System.out.println("SendCoin");
-    System.out.println("SetAccountId");
-    System.out.println("TransferAsset");
-    System.out.println("TriggerContract contractAddress method args isHex fee_limit value");
-    System.out.println("UnfreezeAsset");
-    System.out.println("UnfreezeBalance");
-    System.out.println("UpdateAccount");
-    System.out.println("UpdateAsset");
-    System.out.println("UpdateEnergyLimit contract_address energy_limit");
-    System.out.println("UpdateSetting contract_address consume_user_resource_percent");
-    System.out.println("UpdateWitness");
-    System.out.println("UpdateAccountPermission");
-    System.out.println("VoteWitness");
-    System.out.println("WithdrawBalance");
-    System.out.println("Create2");
-//    System.out.println("buyStorage");
-//    System.out.println("buyStorageBytes");
-//    System.out.println("sellStorage");
-//   System.out.println("GetAssetIssueListByTimestamp");
-//   System.out.println("GetTransactionsByTimestamp");
-//   System.out.println("GetTransactionsByTimestampCount");
-//   System.out.println("GetTransactionsFromThisCount");
-//   System.out.println("GetTransactionsToThisCount");
 
-    System.out.println("switchtoside");
-    System.out.println("Exit or Quit");
+    List<String> allCmds = getAllMainCmds();
+    for(String cmd: allCmds) {
+      System.out.println(cmd);
+    }
 
     System.out.println("Input any one of the listed commands, to display how-to tips.");
   }
@@ -2163,10 +2072,192 @@ public class Client {
       "For more information on a specific command, type the command and it will display tips");
     System.out.println("");
 
-    System.out.println("help");
-    System.out.println("switchtomain");
+    List<String> allCmds = getAllSideCmds();
+
+    for(String cmd: allCmds) {
+      System.out.println(cmd);
+    }
 
     return;
+  }
+
+  private void hintCmd(String input, List<String> allCmds) {
+    List<String> ret = Similarity.getSimilarWordList(input, allCmds);
+    if(ret.size() == 0) {
+      System.out.println("there is no similar command, see help.");
+      return;
+    }
+
+    System.out.println("the command " + input + " is not exist, similar cmd is: ");
+    for(String similarCmd : ret) {
+      System.out.println("  " + similarCmd);
+    }
+
+    return;
+  }
+  private List<String> getAllMainCmds() {
+    List<String> allCmds = new ArrayList<String>();
+    allCmds.add("help");
+    allCmds.add("switchtoside");
+    allCmds.add("registerwallet");
+    allCmds.add("importwallet");
+    allCmds.add("importwalletbybase64");
+    allCmds.add( "changepassword");
+    allCmds.add("login");
+    allCmds.add("logout");
+    allCmds.add("backupwallet");
+    allCmds.add("backupwallet2base64");
+    allCmds.add("getaddress");
+    allCmds.add("getbalance");
+    allCmds.add("getaccount");
+    allCmds.add("getaccountbyid");
+    allCmds.add("updateaccount");
+    allCmds.add("setaccountid");
+    allCmds.add("updateasset");
+    allCmds.add("getassetissuebyaccount");
+    allCmds.add("getaccountnet");
+    allCmds.add("getaccountresource");
+    allCmds.add("getassetissuebyname");
+    allCmds.add("getassetissuelistbyname");
+    allCmds.add("getassetissuebyid");
+    allCmds.add("sendcoin");
+    allCmds.add("testtransaction");
+    allCmds.add("transferasset");
+    allCmds.add("participateassetissue");
+    allCmds.add("assetissue");
+    allCmds.add("createaccount");
+    allCmds.add("createwitness");
+    allCmds.add("updatewitness");
+    allCmds.add("votewitness");
+    allCmds.add("freezebalance");
+    allCmds.add("unfreezebalance");
+    allCmds.add("buystorage");
+    allCmds.add("buystoragebytes");
+    allCmds.add("sellstorage");
+    allCmds.add("withdrawbalance");
+    allCmds.add("unfreezeasset");
+    allCmds.add("createproposal");
+    allCmds.add("approveproposal");
+    allCmds.add("deleteproposal");
+    allCmds.add("listproposals");
+    allCmds.add("listproposalspaginated");
+    allCmds.add("getproposal");
+    allCmds.add("getdelegatedresource");
+    allCmds.add("getdelegatedresourceaccountindex");
+    allCmds.add("exchangecreate");
+    allCmds.add("exchangeinject");
+    allCmds.add("exchangewithdraw");
+    allCmds.add("exchangetransaction");
+    allCmds.add("listexchanges");
+    allCmds.add("listexchangespaginated");
+    allCmds.add("getexchange");
+    allCmds.add("getchainparameters");
+    allCmds.add("listwitnesses");
+    allCmds.add("listassetissue");
+    allCmds.add("listassetissuepaginated");
+    allCmds.add("listnodes");
+    allCmds.add("getblock");
+    allCmds.add("gettransactioncountbyblocknum");
+    allCmds.add("gettotaltransaction");
+    allCmds.add("getnextmaintenancetime");
+    allCmds.add("gettransactionsfromthis");
+    allCmds.add("gettransactionstothis");
+    allCmds.add("gettransactionbyid");
+    allCmds.add("gettransactioninfobyid");
+    allCmds.add("getblockbyid");
+    allCmds.add("getblockbylimitnext");
+    allCmds.add("getblockbylatestnum");
+    allCmds.add("updatesetting");
+    allCmds.add("updateenergylimit");
+    allCmds.add("deploycontract");
+    allCmds.add("triggercontract");
+    allCmds.add("getcontract");
+    allCmds.add("generateaddress");
+    allCmds.add("updateaccountpermission");
+    allCmds.add("gettransactionsignweight");
+    allCmds.add("gettransactionapprovedlist");
+    allCmds.add("addtransactionsign");
+    allCmds.add("broadcasttransaction");
+    allCmds.add("create2");
+    allCmds.add("deposit");
+    allCmds.add("exit");
+    allCmds.add("quit");
+
+    Collections.sort(allCmds, new Comparator<String>() {
+      public int compare(String arg0, String arg1) {
+        return arg0.compareTo(arg1);
+      }
+    });
+
+    return allCmds;
+  }
+
+  private void hintCmdMain(String input) {
+    List<String> allCmds = getAllMainCmds();
+    hintCmd(input, allCmds);
+  }
+
+
+  private List<String> getAllSideCmds() {
+    List<String> allCmds = new ArrayList<String>();
+    allCmds.add("help");
+    allCmds.add("switchtomain");
+    allCmds.add("login");
+    allCmds.add("logout");
+    allCmds.add("getaddress");
+    allCmds.add("getbalance");
+    allCmds.add("getaccount");
+    allCmds.add("updateaccount");
+    allCmds.add("updateasset");
+    allCmds.add("getaccountresource");
+    allCmds.add("getassetissuebyid");
+    allCmds.add("sendcoin");
+    allCmds.add("transferasset");
+    allCmds.add("assetissue");
+    allCmds.add("createaccount");
+    allCmds.add("createwitness");
+    allCmds.add("updatewitness");
+    allCmds.add("votewitness");
+    allCmds.add("freezebalance");
+    allCmds.add("unfreezebalance");
+    allCmds.add("withdrawbalance");
+    allCmds.add("unfreezeasset");
+    allCmds.add("listproposals");
+    allCmds.add("getproposal");
+    allCmds.add("getchainparameters");
+    allCmds.add("listwitnesses");
+    allCmds.add("listassetissue");
+    allCmds.add("listnodes");
+    allCmds.add("getblock");
+    allCmds.add("gettransactionbyid");
+    allCmds.add("gettransactioninfobyid");
+    allCmds.add("getblockbyid");
+    allCmds.add("updatesetting");
+    allCmds.add("updateenergylimit");
+    allCmds.add("getcontract");
+    allCmds.add("triggercontract");
+    allCmds.add("deploycontract");
+    allCmds.add("approveproposal");
+    allCmds.add("deleteproposal");
+    allCmds.add("withdraw");
+    allCmds.add("mapping");
+    allCmds.add("createproposal");
+    allCmds.add("exit");
+    allCmds.add("quit");
+
+    Collections.sort(allCmds, new Comparator<String>() {
+      public int compare(String arg0, String arg1) {
+        return arg0.compareTo(arg1);
+      }
+    });
+
+    return allCmds;
+  }
+
+  private void hintCmdSide(String input) {
+    List<String> allCmds = getAllSideCmds();
+
+    hintCmd(input, allCmds);
   }
 
   private String[] getCmd(String cmdLine) {
@@ -2573,7 +2664,7 @@ public class Client {
         }
         default: {
           System.out.println("Invalid cmd: " + cmd);
-          help();
+          hintCmdMain(cmdLowerCase);
         }
       }
     } catch (CipherException e) {
@@ -3028,8 +3119,8 @@ public class Client {
           return true;
         }
         default: {
-          sideHelp();
-          System.out.println("Invalid cmd: " + cmd + "!!");
+          System.out.println("Invalid cmd: " + cmd);
+          hintCmdSide(cmdLowerCase);
         }
       }
     } catch (CipherException e) {
