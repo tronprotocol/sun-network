@@ -23,7 +23,7 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 
-@Slf4j (topic = "rpcClient")
+@Slf4j(topic = "rpcClient")
 class RpcClient {
 
   private WalletGrpc.WalletBlockingStub blockingStub;
@@ -46,7 +46,8 @@ class RpcClient {
 
   boolean broadcastTransaction(Transaction signaturedTransaction)
       throws RpcConnectException, TxValidateException {
-    logger.info("tx id: {}", Hex.toHexString(Sha256Hash.hash(signaturedTransaction.getRawData().toByteArray())));
+    logger.info("tx id: {}",
+        Hex.toHexString(Sha256Hash.hash(signaturedTransaction.getRawData().toByteArray())));
     int maxRetry = 5;
     for (int i = 0; i < maxRetry; i++) {
 
@@ -56,7 +57,7 @@ class RpcClient {
         return true;
       } else {
         // false is fail
-        if (response.getCode() == response_code.SERVER_BUSY) {
+        if (response.getCode().equals(response_code.SERVER_BUSY)) {
           // when SERVER_BUSY, retry
           logger.info("will retry {} time(s)", i + 1);
           try {
