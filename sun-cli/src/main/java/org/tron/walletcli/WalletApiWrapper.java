@@ -779,14 +779,14 @@ public class WalletApiWrapper {
   {
     byte[] ownerAddress = wallet.getAddress();
     // get tx hash
-    byte[] txRawDataHash = Sha256Hash.of(trxHash.getBytes()).getBytes();
+    byte[] txRawDataHash = Hex.decode(trxHash);
 
     // combine
     byte[] combined = new byte[txRawDataHash.length + ownerAddress.length];
     System.arraycopy(txRawDataHash, 0, combined, 0, txRawDataHash.length);
     System.arraycopy(ownerAddress, 0, combined, txRawDataHash.length, ownerAddress.length);
 
-    return Hash.sha3omit12(combined).toString();
+    return WalletApi.encode58Check(Hash.sha3omit12(combined));
   }
 
   public void sideGetMappingAddress(String sideGateway, String mainContractAddress)

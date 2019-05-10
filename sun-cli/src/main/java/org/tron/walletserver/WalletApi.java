@@ -71,6 +71,7 @@ import org.tron.protos.Contract.UnfreezeBalanceContract;
 import org.tron.protos.Contract.UpdateEnergyLimitContract;
 import org.tron.protos.Contract.UpdateSettingContract;
 import org.tron.protos.Contract.WithdrawBalanceContract;
+import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.ChainParameters;
@@ -565,15 +566,16 @@ public class WalletApi {
   public  void sideGetMappingAddress(String sideGateway, String mainContractAddress)
           throws EncodingException {
     byte[] input = org.bouncycastle.util.encoders.Hex.decode(
-            AbiUtil.parseMethod("mainToSideContractMap(address)", mainContractAddress, false));
+            AbiUtil.parseMethod("mainToSideContractMap(address)", "\"" + mainContractAddress + "\"", false));
 
     Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
             decode58Check(sideGateway),
             0, input, 0, "0");
     TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract);
-    String sideContractAddress = encode58Check(transactionExtention.getConstantResult(0).toByteArray());
+    byte[] data = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] address = Arrays.copyOfRange(data, 12, data.length);
 
-    System.out.println("sideContractAddress is " + sideContractAddress);
+    System.out.println("sideContractAddress is " + encode58Check(ByteArray.convertToTronAddress(address)));
   }
 
   public Account queryAccount() {
@@ -661,26 +663,37 @@ public class WalletApi {
 
   private boolean processTransactionExtention(TransactionExtention transactionExtention)
     throws IOException, CipherException, CancelException {
+    return StringUtils.isNoneEmpty(processTransactionExt(transactionExtention));
+  }
+
+  private String processTransactionExt(TransactionExtention transactionExtention) throws CipherException, IOException, CancelException {
     if (transactionExtention == null) {
-      return false;
+      return null;
     }
     Return ret = transactionExtention.getResult();
     if (!ret.getResult()) {
       System.out.println("Code = " + ret.getCode());
       System.out.println("Message = " + ret.getMessage().toStringUtf8());
-      return false;
+      return null;
     }
     Transaction transaction = transactionExtention.getTransaction();
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       System.out.println("Transaction is empty");
-      return false;
+      return null;
     }
     System.out.println(
       "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
     System.out.println("transaction hex string is " + Utils.printTransaction(transaction));
     System.out.println(Utils.printTransaction(transactionExtention));
     transaction = signTransaction(transaction);
-    return rpcCli.broadcastTransaction(transaction);
+
+    ByteString txid = ByteString.copyFrom(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+    transactionExtention=transactionExtention.toBuilder().setTransaction(transaction).setTxid(txid).build();
+    if(rpcCli.broadcastTransaction(transaction)){
+      return ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
+    }
+
+    return null;
   }
 
   private boolean processTransaction(Transaction transaction)
@@ -2077,21 +2090,20 @@ public class WalletApi {
     texBuilder.setTxid(transactionExtention.getTxid());
     transactionExtention = texBuilder.build();
 
-    if( processTransactionExtention(transactionExtention) ) {
-      return ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
-    }
-
-    return  null;
+    return  processTransactionExt(transactionExtention);
   }
 
   public boolean checkTxInfo(String txId)  {
     try {
       System.out.println("wait 3s for check approve result. ");
       Thread.sleep(3_000);
+      System.out.println("trx id: " + txId);
       Optional<TransactionInfo> transactionInfo = rpcCli.getTransactionInfoById(txId);
       TransactionInfo info = transactionInfo.get();
-      if (info.getResult().equals(TransactionInfo.code.SUCESS)) {
-        return true;
+      if (info.getBlockTimeStamp() != 0L) {
+        if (info.getResult().equals(TransactionInfo.code.SUCESS)) {
+          return true;
+        }
       }
 
       //retry
@@ -2101,8 +2113,10 @@ public class WalletApi {
         System.out.println("will retry {} time(s): " + i+1);
         transactionInfo = rpcCli.getTransactionInfoById(txId);
         info = transactionInfo.get();
-        if (info.getResult().equals(TransactionInfo.code.SUCESS)) {
-          return true;
+        if (info.getBlockTimeStamp() != 0L) {
+          if (info.getResult().equals(TransactionInfo.code.SUCESS)) {
+            return true;
+          }
         }
       }
     } catch (InterruptedException e) {

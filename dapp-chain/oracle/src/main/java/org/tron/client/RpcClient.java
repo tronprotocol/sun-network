@@ -46,8 +46,9 @@ class RpcClient {
 
   boolean broadcastTransaction(Transaction signaturedTransaction)
       throws RpcConnectException, TxValidateException {
-    logger.info("tx id: {}",
-        Hex.toHexString(Sha256Hash.hash(signaturedTransaction.getRawData().toByteArray())));
+    String txId = Hex
+        .toHexString(Sha256Hash.hash(signaturedTransaction.getRawData().toByteArray()));
+    logger.info("tx id: {}", txId);
     int maxRetry = 5;
     for (int i = 0; i < maxRetry; i++) {
 
@@ -66,10 +67,14 @@ class RpcClient {
             logger.error(e.getMessage(), e);
           }
         } else {
-          logger.error("server error, fail, code: {}, message {}", response.getCode(),
-              response.getMessage().toStringUtf8());
-          // fail, not retry
-          throw new TxValidateException("tx error, " + response.getMessage().toStringUtf8());
+          if (response.getCode().equals(response_code.DUP_TRANSACTION_ERROR)) {
+            logger.info("this tx has broadcasted");
+          } else {
+            logger.error("tx error, fail, code: {}, message {}", response.getCode(),
+                response.getMessage().toStringUtf8());
+            // fail, not retry
+            throw new TxValidateException("tx error, " + response.getMessage().toStringUtf8());
+          }
         }
       }
     }
