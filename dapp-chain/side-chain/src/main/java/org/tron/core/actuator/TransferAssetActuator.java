@@ -217,9 +217,6 @@ public class TransferAssetActuator extends AbstractActuator {
     if (deposit.getAssetIssue(tokenIdWithoutLeadingZero) == null) {
       throw new ContractValidateException("No asset !");
     }
-    if (!deposit.getDbManager().getAssetIssueStoreFinal().has(tokenIdWithoutLeadingZero)) {
-      throw new ContractValidateException("No asset !");
-    }
 
     Map<String, Long> asset;
     asset = ownerAccount.getAssetMapV2();
