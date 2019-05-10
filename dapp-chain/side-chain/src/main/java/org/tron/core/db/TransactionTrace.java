@@ -112,12 +112,6 @@ public class TransactionTrace {
     runtime.setEnableEventLinstener(eventPluginLoaded);
   }
 
-  public void checkIsConstant() throws ContractValidateException, VMIllegalException {
-    if (runtime.isCallConstant()) {
-      throw new VMIllegalException("cannot call constant method ");
-    }
-  }
-
   //set bill
   public void setBill(long energyUsage) {
     if (energyUsage < 0) {
