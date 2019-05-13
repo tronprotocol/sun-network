@@ -376,25 +376,25 @@ public class WalletTest {
   }
 
   //@Test
-  public void testChainParameters() {
-
-    Protocol.ChainParameters.Builder builder = Protocol.ChainParameters.newBuilder();
-
-    Arrays.stream(ChainParameters.values()).forEach(parameters -> {
-      String methodName = Wallet.makeUpperCamelMethod(parameters.name());
-      try {
-        builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
-            .setKey(methodName)
-            .setValue((long) DynamicPropertiesStore.class.getDeclaredMethod(methodName)
-                .invoke(manager.getDynamicPropertiesStore()))
-            .build());
-      } catch (Exception ex) {
-        Assert.fail("get chainParameter : " + methodName + ", error : " + ex.getMessage());
-      }
-
-    });
-
-    System.out.printf(builder.build().toString());
-  }
+// public void testChainParameters() {
+//
+//    Protocol.ChainParameters.Builder builder = Protocol.ChainParameters.newBuilder();
+//
+//    Arrays.stream(ChainParameters.values()).forEach(parameters -> {
+//      String methodName = Wallet.makeUpperCamelMethod(parameters.name());
+//      try {
+//        builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+//            .setKey(methodName)
+//            .setValue((long) DynamicPropertiesStore.class.getDeclaredMethod(methodName)
+//                .invoke(manager.getDynamicPropertiesStore()))
+//            .build());
+//      } catch (Exception ex) {
+//        Assert.fail("get chainParameter : " + methodName + ", error : " + ex.getMessage());
+//      }
+//
+//    });
+//
+//    System.out.printf(builder.build().toString());
+//  }
 
 }

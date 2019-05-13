@@ -1471,10 +1471,11 @@ public class Wallet {
     String gateWayStr = "";
     int i = 0;
     while(i < list.size() - 1){
-      gateWayStr+= String.valueOf(list.get(i)) + ",";
+      gateWayStr+= Wallet.encode58Check(list.get(i)) + ",";
+      i++;
     }
-    if (i == list.size()) {
-      gateWayStr += String.valueOf(list.get(i));
+    if (i == list.size() - 1) {
+      gateWayStr += Wallet.encode58Check(list.get(i));
     }
     return gateWayStr;
   }
