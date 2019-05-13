@@ -425,13 +425,15 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getTotalEnergyLimit();
     } catch (IllegalArgumentException e) {
-      this.saveTotalEnergyLimit(50_000_000_000L);
+      this.saveTotalEnergyLimit(Args.getInstance().getTotalEnergyLimit());
+      //50_000_000_000
     }
 
     try {
       this.getEnergyFee();
     } catch (IllegalArgumentException e) {
-      this.saveEnergyFee(100L);// 100 sun per energy
+      this.saveEnergyFee(Args.getInstance().getEnergyFee());
+      // origin 100 sun per energy, side chain 1 sun per energy
     }
 
     try {
