@@ -39,14 +39,15 @@ class RpcClient {
 
   Optional<TransactionInfo> getTransactionInfoById(String txID) {
     BytesMessage request = BytesMessage.newBuilder()
-      .setValue(ByteString.copyFrom(ByteArray.fromHexString(txID))).build();
+        .setValue(ByteString.copyFrom(ByteArray.fromHexString(txID))).build();
     TransactionInfo transactionInfo = blockingStub.getTransactionInfoById(request);
     return Optional.ofNullable(transactionInfo);
   }
 
   boolean broadcastTransaction(Transaction signaturedTransaction)
-    throws RpcConnectException, TxValidateException {
-    String txId = Hex.toHexString(Sha256Hash.hash(signaturedTransaction.getRawData().toByteArray()));
+      throws RpcConnectException, TxValidateException {
+    String txId = Hex
+        .toHexString(Sha256Hash.hash(signaturedTransaction.getRawData().toByteArray()));
     logger.info("tx id: {}", txId);
     int maxRetry = 5;
     for (int i = 0; i < maxRetry; i++) {
@@ -57,7 +58,7 @@ class RpcClient {
         return true;
       } else {
         // false is fail
-        if (response.getCode() == response_code.SERVER_BUSY) {
+        if (response.getCode().equals(response_code.SERVER_BUSY)) {
           // when SERVER_BUSY, retry
           logger.info("will retry {} time(s)", i + 1);
           try {
@@ -70,7 +71,7 @@ class RpcClient {
             logger.info("this tx has broadcasted");
           } else {
             logger.error("tx error, fail, code: {}, message {}", response.getCode(),
-              response.getMessage().toStringUtf8());
+                response.getMessage().toStringUtf8());
             // fail, not retry
             throw new TxValidateException("tx error, " + response.getMessage().toStringUtf8());
           }

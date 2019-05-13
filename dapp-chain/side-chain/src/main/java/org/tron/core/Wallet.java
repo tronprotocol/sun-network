@@ -743,61 +743,61 @@ public class Wallet {
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getMaintenanceTimeInterval")
-            .setValue(dbManager.getDynamicPropertiesStore().getMaintenanceTimeInterval())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getMaintenanceTimeInterval()))
             .build());
     //    ACCOUNT_UPGRADE_COST, //drop ,1
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getAccountUpgradeCost")
-            .setValue(dbManager.getDynamicPropertiesStore().getAccountUpgradeCost())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAccountUpgradeCost()))
             .build());
     //    CREATE_ACCOUNT_FEE, //drop ,2
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getCreateAccountFee")
-            .setValue(dbManager.getDynamicPropertiesStore().getCreateAccountFee())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getCreateAccountFee()))
             .build());
     //    TRANSACTION_FEE, //drop ,3
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getTransactionFee")
-            .setValue(dbManager.getDynamicPropertiesStore().getTransactionFee())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTransactionFee()))
             .build());
     builder.addChainParameter(
             Protocol.ChainParameters.ChainParameter.newBuilder()
                     .setKey("getTransactionSunTokenFee")
-                    .setValue(dbManager.getDynamicPropertiesStore().getTransactionSunTokenFee())
+                    .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTransactionSunTokenFee()))
                     .build());
     //    ASSET_ISSUE_FEE, //drop ,4
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getAssetIssueFee")
-            .setValue(dbManager.getDynamicPropertiesStore().getAssetIssueFee())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAssetIssueFee()))
             .build());
     //    WITNESS_PAY_PER_BLOCK, //drop ,5
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getWitnessPayPerBlock")
-            .setValue(dbManager.getDynamicPropertiesStore().getWitnessPayPerBlock())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getWitnessPayPerBlock()))
             .build());
     //    WITNESS_STANDBY_ALLOWANCE, //drop ,6
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getWitnessStandbyAllowance")
-            .setValue(dbManager.getDynamicPropertiesStore().getWitnessStandbyAllowance())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getWitnessStandbyAllowance()))
             .build());
     //    CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT, //drop ,7
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getCreateNewAccountFeeInSystemContract")
             .setValue(
-                dbManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract())
+                String.valueOf(dbManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract()))
             .build());
     //    CREATE_NEW_ACCOUNT_BANDWIDTH_RATE, // 1 ~ ,8
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getCreateNewAccountBandwidthRate")
-            .setValue(dbManager.getDynamicPropertiesStore().getCreateNewAccountBandwidthRate())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getCreateNewAccountBandwidthRate()))
             .build());
     //    ALLOW_CREATION_OF_CONTRACTS, // 0 / >0 ,9
 //    builder.addChainParameter(
@@ -809,25 +809,25 @@ public class Wallet {
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getRemoveThePowerOfTheGr")
-            .setValue(dbManager.getDynamicPropertiesStore().getRemoveThePowerOfTheGr())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getRemoveThePowerOfTheGr()))
             .build());
     //    ENERGY_FEE, // drop, 11
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getEnergyFee")
-            .setValue(dbManager.getDynamicPropertiesStore().getEnergyFee())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getEnergyFee()))
             .build());
     //    EXCHANGE_CREATE_FEE, // drop, 12
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getExchangeCreateFee")
-            .setValue(dbManager.getDynamicPropertiesStore().getExchangeCreateFee())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getExchangeCreateFee()))
             .build());
     //    MAX_CPU_TIME_OF_ONE_TX, // ms, 13
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getMaxCpuTimeOfOneTx")
-            .setValue(dbManager.getDynamicPropertiesStore().getMaxCpuTimeOfOneTx())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getMaxCpuTimeOfOneTx()))
             .build());
     //    ALLOW_UPDATE_ACCOUNT_NAME, // 1, 14
 //    builder.addChainParameter(
@@ -845,57 +845,68 @@ public class Wallet {
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getAllowDelegateResource")
-            .setValue(dbManager.getDynamicPropertiesStore().getAllowDelegateResource())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowDelegateResource()))
             .build());
     //    TOTAL_ENERGY_LIMIT, // 50,000,000,000, 17
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getTotalEnergyLimit")
-            .setValue(dbManager.getDynamicPropertiesStore().getTotalEnergyLimit())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTotalEnergyLimit()))
             .build());
     //    ALLOW_TVM_TRANSFER_TRC10, // 1, 18
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getAllowTvmTransferTrc10")
-            .setValue(dbManager.getDynamicPropertiesStore().getAllowTvmTransferTrc10())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowTvmTransferTrc10()))
             .build());
     //    TOTAL_CURRENT_ENERGY_LIMIT, // 50,000,000,000, 19
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getTotalEnergyCurrentLimit")
-            .setValue(dbManager.getDynamicPropertiesStore().getTotalEnergyCurrentLimit())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTotalEnergyCurrentLimit()))
             .build());
     //    ALLOW_MULTI_SIGN, // 1, 20
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getAllowMultiSign")
-            .setValue(dbManager.getDynamicPropertiesStore().getAllowMultiSign())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowMultiSign()))
             .build());
     //    ALLOW_ADAPTIVE_ENERGY, // 1, 21
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getAllowAdaptiveEnergy")
-            .setValue(dbManager.getDynamicPropertiesStore().getAllowAdaptiveEnergy())
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowAdaptiveEnergy()))
             .build());
     //other chainParameters
     builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
         .setKey("getTotalEnergyTargetLimit")
-        .setValue(dbManager.getDynamicPropertiesStore().getTotalEnergyTargetLimit())
+        .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTotalEnergyTargetLimit()))
         .build());
 
     builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
         .setKey("getTotalEnergyAverageUsage")
-        .setValue(dbManager.getDynamicPropertiesStore().getTotalEnergyAverageUsage())
+        .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTotalEnergyAverageUsage()))
         .build());
 
     builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
         .setKey("getUpdateAccountPermissionFee")
-        .setValue(dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee())
+        .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee()))
         .build());
 
     builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
         .setKey("getMultiSignFee")
-        .setValue(dbManager.getDynamicPropertiesStore().getMultiSignFee())
+        .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getMultiSignFee()))
+        .build());
+
+
+    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+        .setKey("getMainChainGateWayList")
+        .setValue(convertGateWayListToString(dbManager.getDynamicPropertiesStore().getMainChainGateWayList()))
+        .build());
+
+    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+        .setKey("getSideChainGateWayList")
+        .setValue(convertGateWayListToString(dbManager.getDynamicPropertiesStore().getGateWayList()))
         .build());
 
     return builder.build();
@@ -1243,53 +1254,84 @@ public class Wallet {
     ContractStore contractStore = dbManager.getContractStore();
     byte[] contractAddress = triggerSmartContract.getContractAddress().toByteArray();
     SmartContract.ABI abi = contractStore.getABI(contractAddress);
-//    if (abi == null) {
-//      throw new ContractValidateException("No contract or not a smart contract");
-//    }
+    if (abi == null) {
+      throw new ContractValidateException("No contract or not a smart contract");
+    }
 
     byte[] selector = getSelector(triggerSmartContract.getData().toByteArray());
 
-    if (!isConstant(abi, selector)) {
-      return trxCap.getInstance();
+    if (isConstant(abi, selector)) {
+      return callConstantContract(trxCap, builder, retBuilder);
     } else {
-      if (!Args.getInstance().isSupportConstant()) {
-        throw new ContractValidateException("this node don't support constant");
-      }
-      DepositImpl deposit = DepositImpl.createRoot(dbManager);
-
-      Block headBlock;
-      List<BlockCapsule> blockCapsuleList = dbManager.getBlockStore().getBlockByLatestNum(1);
-      if (CollectionUtils.isEmpty(blockCapsuleList)) {
-        throw new HeaderNotFound("latest block not found");
-      } else {
-        headBlock = blockCapsuleList.get(0).getInstance();
-      }
-
-      Runtime runtime = new RuntimeImpl(trxCap.getInstance(), new BlockCapsule(headBlock), deposit,
-          new ProgramInvokeFactoryImpl(), true);
-      VMConfig.handleProposalInVM(dbManager);
-      runtime.execute();
-      runtime.go();
-      runtime.finalization();
-      // TODO exception
-      if (runtime.getResult().getException() != null) {
-        RuntimeException e = runtime.getResult().getException();
-        logger.warn("Constant call has error {}", e.getMessage());
-        throw e;
-      }
-
-      ProgramResult result = runtime.getResult();
-      TransactionResultCapsule ret = new TransactionResultCapsule();
-
-      builder.addConstantResult(ByteString.copyFrom(result.getHReturn()));
-      ret.setStatus(0, code.SUCESS);
-      if (StringUtils.isNoneEmpty(runtime.getRuntimeError())) {
-        ret.setStatus(0, code.FAILED);
-        retBuilder.setMessage(ByteString.copyFromUtf8(runtime.getRuntimeError())).build();
-      }
-      trxCap.setResult(ret);
       return trxCap.getInstance();
     }
+  }
+
+  public Transaction triggerConstantContract(TriggerSmartContract triggerSmartContract,
+      TransactionCapsule trxCap, Builder builder,
+      Return.Builder retBuilder)
+      throws ContractValidateException, ContractExeException, HeaderNotFound, VMIllegalException {
+
+    ContractStore contractStore = dbManager.getContractStore();
+    byte[] contractAddress = triggerSmartContract.getContractAddress().toByteArray();
+    byte[] isContractExiste = contractStore.findContractByHash(contractAddress);
+
+    if (ArrayUtils.isEmpty(isContractExiste)) {
+      throw new ContractValidateException("No contract or not a smart contract");
+    }
+
+    if (!Args.getInstance().isSupportConstant()) {
+      throw new ContractValidateException("this node don't support constant");
+    }
+
+    return callConstantContract(trxCap, builder, retBuilder);
+  }
+
+  public Transaction callConstantContract(TransactionCapsule trxCap, Builder builder,
+      Return.Builder retBuilder)
+      throws ContractValidateException, ContractExeException, HeaderNotFound, VMIllegalException {
+
+    if (!Args.getInstance().isSupportConstant()) {
+      throw new ContractValidateException("this node don't support constant");
+    }
+    DepositImpl deposit = DepositImpl.createRoot(dbManager);
+
+    Block headBlock;
+    List<BlockCapsule> blockCapsuleList = dbManager.getBlockStore().getBlockByLatestNum(1);
+    if (CollectionUtils.isEmpty(blockCapsuleList)) {
+      throw new HeaderNotFound("latest block not found");
+    } else {
+      headBlock = blockCapsuleList.get(0).getInstance();
+    }
+
+    Runtime runtime = new RuntimeImpl(trxCap.getInstance(), new BlockCapsule(headBlock), deposit,
+        new ProgramInvokeFactoryImpl(), true);
+    VMConfig.handleProposalInVM(dbManager);
+    runtime.execute();
+    runtime.go();
+    runtime.finalization();
+    // TODO exception
+    if (runtime.getResult().getException() != null) {
+      RuntimeException e = runtime.getResult().getException();
+      logger.warn("Constant call has error {}", e.getMessage());
+      throw e;
+    }
+
+    ProgramResult result = runtime.getResult();
+    TransactionResultCapsule ret = new TransactionResultCapsule();
+
+    builder.addConstantResult(ByteString.copyFrom(result.getHReturn()));
+    ret.setStatus(0, code.SUCESS);
+    if (StringUtils.isNoneEmpty(runtime.getRuntimeError())) {
+      ret.setStatus(0, code.FAILED);
+      retBuilder.setMessage(ByteString.copyFromUtf8(runtime.getRuntimeError())).build();
+    }
+    if (runtime.getResult().isRevert()) {
+      ret.setStatus(0, code.FAILED);
+      retBuilder.setMessage(ByteString.copyFromUtf8("REVERT opcode executed")).build();
+    }
+    trxCap.setResult(ret);
+    return trxCap.getInstance();
   }
 
   public SmartContract getContract(GrpcAPI.BytesMessage bytesMessage) {
@@ -1423,5 +1465,17 @@ public class Wallet {
         .forEach(exchangeCapsule -> builder.addExchanges(exchangeCapsule.getInstance()));
     return builder.build();
 
+  }
+
+  public String convertGateWayListToString(List<byte[]> list) {
+    String gateWayStr = "";
+    int i = 0;
+    while(i < list.size() - 1){
+      gateWayStr+= String.valueOf(list.get(i)) + ",";
+    }
+    if (i == list.size()) {
+      gateWayStr += String.valueOf(list.get(i));
+    }
+    return gateWayStr;
   }
 }

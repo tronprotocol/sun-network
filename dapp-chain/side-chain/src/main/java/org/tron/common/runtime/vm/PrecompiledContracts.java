@@ -19,7 +19,6 @@
 package org.tron.common.runtime.vm;
 
 import static org.tron.common.runtime.utils.MUtil.convertToTronAddress;
-import static org.tron.common.runtime.utils.MUtil.transferAssert;
 import static org.tron.common.runtime.vm.program.Program.VALIDATE_FOR_SMART_CONTRACT_FAILURE;
 import static org.tron.common.utils.BIUtil.addSafely;
 import static org.tron.common.utils.BIUtil.isLessThan;
@@ -30,16 +29,16 @@ import static org.tron.common.utils.ByteUtil.numberOfLeadingZeros;
 import static org.tron.common.utils.ByteUtil.parseBytes;
 import static org.tron.common.utils.ByteUtil.parseWord;
 import static org.tron.common.utils.ByteUtil.stripLeadingZeroes;
-import static org.tron.core.Constant.SUN_TOKEN_ID;
 
 import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.spongycastle.util.encoders.Hex;
@@ -75,7 +74,6 @@ import org.tron.protos.Contract;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Contract.ProposalApproveContract;
 import org.tron.protos.Contract.ProposalDeleteContract;
-import org.tron.protos.Contract.TransferAssetContract;
 import org.tron.protos.Contract.VoteWitnessContract;
 import org.tron.protos.Contract.WithdrawBalanceContract;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
@@ -212,15 +210,11 @@ public class PrecompiledContracts {
       return result;
     }
 
-    public boolean isRootCallConstant() {
-      return isRootCallConstant;
-    }
 
-    public void setRootCallConstant(boolean rootCallConstant) {
-      isRootCallConstant = rootCallConstant;
-    }
 
-    private boolean isRootCallConstant;
+    @Getter
+    @Setter
+    private boolean isStaticCall;
 
 
   }
@@ -233,7 +227,7 @@ public class PrecompiledContracts {
 
     @Override
     public Pair<Boolean, byte[]> execute(byte[] data) {
-      if (isRootCallConstant()) {
+      if (isStaticCall()) {
         return Pair.of(true, new DataWord(0).getData());
       }
       if (data == null || data.length != 5 * DataWord.DATAWORD_UNIT_SIZE) {
@@ -780,7 +774,7 @@ public class PrecompiledContracts {
     @Override
     public Pair<Boolean, byte[]> execute(byte[] data) {
 
-      if (isRootCallConstant()) {
+      if (isStaticCall()) {
         return Pair.of(true, new DataWord(0).getData());
       }
       if (data == null || data.length != 2 * DataWord.DATAWORD_UNIT_SIZE) {
@@ -977,7 +971,7 @@ public class PrecompiledContracts {
     @Override
     public Pair<Boolean, byte[]> execute(byte[] data) {
 
-      if (isRootCallConstant()) {
+      if (isStaticCall()) {
         return Pair.of(true, new DataWord(0).getData());
       }
 
@@ -1043,7 +1037,7 @@ public class PrecompiledContracts {
     @Override
     public Pair<Boolean, byte[]> execute(byte[] data) {
 
-      if (isRootCallConstant()) {
+      if (isStaticCall()) {
         return Pair.of(true, new DataWord(0).getData());
       }
 
@@ -1118,7 +1112,7 @@ public class PrecompiledContracts {
     @Override
     public Pair<Boolean, byte[]> execute(byte[] data) {
 
-      if (isRootCallConstant()) {
+      if (isStaticCall()) {
         return Pair.of(true, new DataWord(0).getData());
       }
 
@@ -1245,7 +1239,7 @@ public class PrecompiledContracts {
     @Override
     public Pair<Boolean, byte[]> execute(byte[] data) {
 
-//      if (isRootCallConstant()){
+//      if (isStaticCall()){
 //        return Pair.of(true, new DataWord(0).getData());
 //      }
 //
