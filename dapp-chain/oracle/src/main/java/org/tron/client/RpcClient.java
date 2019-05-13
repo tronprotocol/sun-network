@@ -66,15 +66,13 @@ class RpcClient {
           } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
           }
+        } else if (response.getCode().equals(response_code.DUP_TRANSACTION_ERROR)) {
+          logger.info("this tx has broadcasted");
         } else {
-          if (response.getCode().equals(response_code.DUP_TRANSACTION_ERROR)) {
-            logger.info("this tx has broadcasted");
-          } else {
-            logger.error("tx error, fail, code: {}, message {}", response.getCode(),
-                response.getMessage().toStringUtf8());
-            // fail, not retry
-            throw new TxValidateException("tx error, " + response.getMessage().toStringUtf8());
-          }
+          logger.error("tx error, fail, code: {}, message {}", response.getCode(),
+              response.getMessage().toStringUtf8());
+          // fail, not retry
+          throw new TxValidateException("tx error, " + response.getMessage().toStringUtf8());
         }
       }
     }
