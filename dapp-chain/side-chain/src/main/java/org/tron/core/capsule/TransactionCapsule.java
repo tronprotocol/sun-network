@@ -61,6 +61,7 @@ import org.tron.protos.Contract;
 import org.tron.protos.Contract.AccountCreateContract;
 import org.tron.protos.Contract.AccountPermissionUpdateContract;
 import org.tron.protos.Contract.AccountUpdateContract;
+import org.tron.protos.Contract.ClearABIContract;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.FreezeBalanceContract;
 import org.tron.protos.Contract.ProposalApproveContract;
@@ -407,6 +408,10 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
           break;
         case UpdateEnergyLimitContract:
           owner = contractParameter.unpack(UpdateEnergyLimitContract.class)
+              .getOwnerAddress();
+          break;
+        case ClearABIContract:
+          owner = contractParameter.unpack(ClearABIContract.class)
               .getOwnerAddress();
           break;
         case AccountPermissionUpdateContract:
