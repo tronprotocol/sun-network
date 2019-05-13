@@ -21,15 +21,23 @@ public class MainChainGatewayApi {
   enum GatewayApi {
     GATEWAY_API;
     private WalletClient instance;
+    private WalletClient solidityInstance;
 
     GatewayApi() {
       instance = new WalletClient(Args.getInstance().getMainchainFullNode(),
           Args.getInstance().getOraclePrivateKey(), true);
+      solidityInstance = new WalletClient(Args.getInstance().getMainchainSolidity(),
+        Args.getInstance().getOraclePrivateKey(), true);
     }
 
     public WalletClient getInstance() {
       return instance;
     }
+
+    public WalletClient getSolidityInstance() {
+      return solidityInstance;
+    }
+
   }
 
   public static TransactionExtensionCapsule addTokenMapping(String mainChainAddress,
@@ -135,11 +143,11 @@ public class MainChainGatewayApi {
 
   public static byte[] checkTxInfo(TransactionExtensionCapsule txId)
       throws TxFailException, TxRollbackException {
-    return GATEWAY_API.getInstance().checkTxInfo(txId.getTransactionId());
+    return GATEWAY_API.getSolidityInstance().checkTxInfo(txId.getTransactionId());
   }
 
   public static boolean broadcast(Transaction transaction)
       throws RpcConnectException, TxValidateException {
-    return GATEWAY_API.instance.broadcast(transaction);
+    return GATEWAY_API.getInstance().broadcast(transaction);
   }
 }

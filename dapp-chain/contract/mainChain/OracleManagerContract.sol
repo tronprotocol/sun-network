@@ -70,4 +70,8 @@ contract OracleManagerContract is Ownable {
     function migrationToken(address mainChainToken,address sideChainToken) public onlyOracle {
         allowes[mainChainToken] = sideChainToken;
     }
+
+    function modifyOracle(address _oracle, bool isOracle) public onlyOwner {
+        oracles[_oracle] = isOracle;
+    }
 }
