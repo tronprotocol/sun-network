@@ -40,8 +40,9 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     address mintTRXContract = 0x10000;
     address mintTRC10Contract = 0x10001;
 
-    constructor () public {
+    constructor (address _oracle) public {
         owner = msg.sender;
+        oracles[_oracle] = true;
     }
 
     modifier onlyOracle {
