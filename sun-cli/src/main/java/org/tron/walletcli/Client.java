@@ -3196,7 +3196,7 @@ public class Client {
       ChainParameters chainParameters = result.get();
       logger.info(Utils.printChainParameters(chainParameters));
     } else {
-      logger.info("List witnesses " + " failed !!");
+      logger.info("List Chain Parameters " + " failed !!");
     }
   }
 
