@@ -3,16 +3,24 @@ package org.tron.walletcli;
 import com.beust.jcommander.JCommander;
 import com.google.common.primitives.Longs;
 import com.google.protobuf.InvalidProtocolBufferException;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.ArrayUtils;
-import org.bouncycastle.util.StringList;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,19 +38,20 @@ import org.tron.api.GrpcAPI.NodeList;
 import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.GrpcAPI.ProposalList;
 import org.tron.api.GrpcAPI.TransactionApprovedList;
-import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.GrpcAPI.TransactionList;
 import org.tron.api.GrpcAPI.TransactionListExtention;
 import org.tron.api.GrpcAPI.TransactionSignWeight;
 import org.tron.api.GrpcAPI.WitnessList;
 import org.tron.common.crypto.Hash;
-import org.tron.common.crypto.Sha256Hash;
-import org.tron.common.utils.*;
+import org.tron.common.utils.AbiUtil;
+import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.ByteUtil;
+import org.tron.common.utils.Similarity;
+import org.tron.common.utils.Utils;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
 import org.tron.core.exception.EncodingException;
 import org.tron.keystore.StringUtils;
-import org.tron.protos.Contract;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
@@ -2022,7 +2031,7 @@ public class Client {
   }
 
   private void deposit(String[] parameters)  throws IOException, CipherException, CancelException, EncodingException {
-    if (parameters == null ) {
+    if (parameters == null || parameters.length < 1) {
       System.out.println("deposit needs parameters ");
       return;
     }
@@ -2822,7 +2831,7 @@ public class Client {
   }
 
   private void withdraw(String[] parameters)  throws IOException, CipherException, CancelException, EncodingException {
-    if (parameters == null ) {
+    if (parameters == null || parameters.length < 1) {
       System.out.println("withdraw needs parameters ");
       return;
     }
@@ -2916,7 +2925,7 @@ public class Client {
   }
 
   private void mapping(String[] parameters)  throws IOException, CipherException, CancelException, EncodingException {
-    if (parameters == null ) {
+    if (parameters == null || parameters.length < 1) {
       System.out.println("mapping needs parameters ");
       return;
     }
