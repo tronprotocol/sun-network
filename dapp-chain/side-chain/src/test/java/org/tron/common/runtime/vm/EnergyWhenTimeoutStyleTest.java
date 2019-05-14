@@ -55,6 +55,7 @@ public class EnergyWhenTimeoutStyleTest {
     deposit.createAccount(Hex.decode(OWNER_ADDRESS), AccountType.Normal);
     deposit.addBalance(Hex.decode(OWNER_ADDRESS), totalBalance);
     deposit.commit();
+    dbManager.getDynamicPropertiesStore().saveEnergyFee(100);
     VMConfig.setVmResourceChargingOn(true);
   }
 
