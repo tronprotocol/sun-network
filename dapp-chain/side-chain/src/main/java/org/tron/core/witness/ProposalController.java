@@ -225,12 +225,12 @@ public class ProposalController {
               .saveMultiSignFee(Long.valueOf(entry.getValue()));
           break;
         }
-        case (24): {
+        case (1_000_000): {
           manager.getDynamicPropertiesStore()
               .saveChargingSwitch(Long.valueOf(entry.getValue()));
           break;
         }
-        case (25): {
+        case (1_000_001): {
           // replace all side chain gateway address
           List<String> list = Arrays.asList(entry.getValue().split(","));
           List<byte[]> byteList = list.stream().map(element -> Wallet
@@ -238,7 +238,7 @@ public class ProposalController {
           manager.getDynamicPropertiesStore().saveGateWayList(byteList);
           break;
         }
-        case (26): {
+        case (1_000_002): {
           // replace all main chain gateway address
           List<String> list = Arrays.asList(entry.getValue().split(","));
           List<byte[]> byteList = list.stream().map(element -> Wallet

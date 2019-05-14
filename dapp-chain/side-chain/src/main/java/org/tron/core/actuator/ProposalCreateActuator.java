@@ -270,14 +270,14 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       }
-      case (24): {
+      case (1_000_000): {
         if (Long.valueOf(entry.getValue()) != 1) {
           throw new ContractValidateException(
               "this value[ENERGY_CHARGING_SWITCH] is only allowed to be 1");
         }
         break;
       }
-      case (25): {
+      case (1_000_001): {
         List<String> list = Arrays.asList(entry.getValue().split(","));
         Iterator<String> it = list.iterator();
         while(it.hasNext()) {
@@ -289,7 +289,7 @@ public class ProposalCreateActuator extends AbstractActuator {
 
         break;
       }
-      case (26) :{
+      case (1_000_002) :{
         List<String> list = Arrays.asList(entry.getValue().split(","));
         Iterator<String> it = list.iterator();
         while(it.hasNext()) {
