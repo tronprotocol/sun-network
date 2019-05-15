@@ -96,11 +96,6 @@ public class BandwidthProcessorTest {
     AssetIssueCapsule assetIssueCapsule = new AssetIssueCapsule(getAssetIssueContract());
     assetIssueCapsule.setId("1");
     dbManager
-        .getAssetIssueStore()
-        .put(
-            ByteArray.fromString(ASSET_NAME),
-            assetIssueCapsule);
-    dbManager
         .getAssetIssueV2Store()
         .put(
             ByteArray.fromString("1"),
@@ -267,7 +262,8 @@ public class BandwidthProcessorTest {
   }
 
 
-  @Test
+  // don't support asset bandwidth in side chain
+  //@Test
   public void testConsumeAssetAccountV2() throws Exception {
     dbManager.getDynamicPropertiesStore().saveLatestBlockHeaderTimestamp(1526647838000L);
     dbManager.getDynamicPropertiesStore()
@@ -438,7 +434,8 @@ public class BandwidthProcessorTest {
    * sameTokenName open, consume success assetIssueCapsule.getOwnerAddress() !=
    * fromAccount.getAddress()) contract.getType() = TransferAssetContract
    */
-  @Test
+  // don't support asset bandwidth in side chain
+  //@Test
   public void sameTokenNameOpenConsumeSuccess() {
     dbManager.getDynamicPropertiesStore().saveTotalNetWeight(10_000_000L);
 

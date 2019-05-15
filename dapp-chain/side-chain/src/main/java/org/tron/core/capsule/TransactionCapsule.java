@@ -359,6 +359,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
         case TransferContract:
           owner = contractParameter.unpack(TransferContract.class).getOwnerAddress();
           break;
+        case TransferAssetContract:
+          owner = contractParameter.unpack(TransferAssetContract.class).getOwnerAddress();
+          break;
         case VoteWitnessContract:
           owner = contractParameter.unpack(VoteWitnessContract.class).getOwnerAddress();
           break;
@@ -441,6 +444,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
       switch (contract.getType()) {
         case TransferContract:
           to = contractParameter.unpack(TransferContract.class).getToAddress();
+          break;
+        case TransferAssetContract:
+          to = contractParameter.unpack(TransferAssetContract.class).getToAddress();
           break;
         // todo add other contract
 
