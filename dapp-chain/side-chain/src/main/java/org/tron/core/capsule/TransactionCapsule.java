@@ -68,6 +68,7 @@ import org.tron.protos.Contract.ProposalApproveContract;
 import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Contract.ProposalDeleteContract;
 import org.tron.protos.Contract.SetAccountIdContract;
+import org.tron.protos.Contract.TransferAssetContract;
 import org.tron.protos.Contract.TransferContract;
 import org.tron.protos.Contract.TriggerSmartContract;
 import org.tron.protos.Contract.UnfreezeBalanceContract;
@@ -163,6 +164,10 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
 
   public TransactionCapsule(WitnessUpdateContract witnessUpdateContract) {
     createTransaction(witnessUpdateContract, ContractType.WitnessUpdateContract);
+  }
+
+  public TransactionCapsule(TransferAssetContract transferAssetContract) {
+    createTransaction(transferAssetContract, ContractType.TransferAssetContract);
   }
 
   public TransactionCapsule(raw rawData, List<ByteString> signatureList) {
