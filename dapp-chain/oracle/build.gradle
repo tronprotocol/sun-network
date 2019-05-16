@@ -25,7 +25,19 @@ apply plugin: 'checkstyle'
 
 // Define the main class for the application
 mainClassName = 'App'
-
+jar {
+    from(sourceSets.main.output) {
+        include "/**"
+    }
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes 'Main-Class': 'org.tron.service.App'
+    }
+}
 dependencies {
     // This dependency is found on compile classpath of this component and consumers.
     compile 'com.google.guava:guava:23.0'

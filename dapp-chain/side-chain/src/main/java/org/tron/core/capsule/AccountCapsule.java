@@ -412,6 +412,24 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
         .build();
   }
 
+  public void clearAssetV2() {
+    this.account = this.account.toBuilder()
+        .clearAssetV2()
+        .build();
+  }
+
+  public void clearLatestAssetOperationTimeV2() {
+    this.account = this.account.toBuilder()
+        .clearLatestAssetOperationTimeV2()
+        .build();
+  }
+
+  public void clearFreeAssetNetUsageV2() {
+    this.account = this.account.toBuilder()
+        .clearFreeAssetNetUsageV2()
+        .build();
+  }
+
   public void clearVotes() {
     this.account = this.account.toBuilder()
         .clearVotes()
@@ -440,6 +458,28 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     tp += account.getDelegatedFrozenBalanceForBandwidth();
     tp += account.getAccountResource().getDelegatedFrozenBalanceForEnergy();
     return tp;
+  }
+
+  /**
+   * asset balance enough
+   */
+  public boolean assetBalanceEnough(byte[] key, long amount) {
+    Map<String, Long> assetMap = this.account.getAssetMap();
+    String nameKey = ByteArray.toStr(key);
+    Long currentAmount = assetMap.get(nameKey);
+
+    return amount > 0 && null != currentAmount && amount <= currentAmount;
+  }
+
+  public boolean assetBalanceEnoughV2(byte[] key, long amount, Manager manager) {
+    Map<String, Long> assetMap;
+    String nameKey;
+    Long currentAmount;
+    String tokenID = ByteArray.toStr(key);
+    assetMap = this.account.getAssetV2Map();
+    currentAmount = assetMap.get(tokenID);
+
+    return amount > 0 && null != currentAmount && amount <= currentAmount;
   }
 
   /**
@@ -491,6 +531,28 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     this.account = this.account.toBuilder().setAccountName(ByteString.copyFrom(name)).build();
   }
 
+  /**
+   * set account id
+   */
+  public void setAccountId(byte[] id) {
+    this.account = this.account.toBuilder().setAccountId(ByteString.copyFrom(id)).build();
+  }
+
+  /**
+   * add asset.
+   */
+  public boolean addAsset(byte[] key, long value) {
+    Map<String, Long> assetMap = this.account.getAssetMap();
+    String nameKey = ByteArray.toStr(key);
+    if (!assetMap.isEmpty() && assetMap.containsKey(nameKey)) {
+      return false;
+    }
+
+    this.account = this.account.toBuilder().putAsset(nameKey, value).build();
+
+    return true;
+  }
+
   public boolean addAssetV2(byte[] key, long value) {
     String tokenID = ByteArray.toStr(key);
     Map<String, Long> assetV2Map = this.account.getAssetV2Map();
@@ -512,6 +574,16 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     return true;
   }
 
+
+  public Map<String, Long> getAssetMap() {
+    Map<String, Long> assetMap = this.account.getAssetMap();
+    if (assetMap.isEmpty()) {
+      assetMap = Maps.newHashMap();
+    }
+
+    return assetMap;
+  }
+
   public Map<String, Long> getAssetMapV2() {
     Map<String, Long> assetMap = this.account.getAssetV2Map();
     if (assetMap.isEmpty()) {
@@ -521,11 +593,33 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     return assetMap;
   }
 
-  /**
-   * set account id
-   */
-  public void setAccountId(byte[] id) {
-    this.account = this.account.toBuilder().setAccountId(ByteString.copyFrom(id)).build();
+  public boolean addAllLatestAssetOperationTimeV2(Map<String, Long> map) {
+    this.account = this.account.toBuilder().putAllLatestAssetOperationTimeV2(map).build();
+    return true;
+  }
+
+  public Map<String, Long> getLatestAssetOperationTimeMap() {
+    return this.account.getLatestAssetOperationTimeMap();
+  }
+
+  public Map<String, Long> getLatestAssetOperationTimeMapV2() {
+    return this.account.getLatestAssetOperationTimeV2Map();
+  }
+
+  public long getLatestAssetOperationTime(String assetName) {
+    return this.account.getLatestAssetOperationTimeOrDefault(assetName, 0);
+  }
+
+  public long getLatestAssetOperationTimeV2(String assetName) {
+    return this.account.getLatestAssetOperationTimeV2OrDefault(assetName, 0);
+  }
+
+  public void putLatestAssetOperationTimeMap(String key, Long value) {
+    this.account = this.account.toBuilder().putLatestAssetOperationTime(key, value).build();
+  }
+
+  public void putLatestAssetOperationTimeMapV2(String key, Long value) {
+    this.account = this.account.toBuilder().putLatestAssetOperationTimeV2(key, value).build();
   }
 
   public int getFrozenCount() {
@@ -562,6 +656,24 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     frozenSupplyList.forEach(frozen -> frozenSupplyBalance[0] = Long.sum(frozenSupplyBalance[0],
         frozen.getFrozenBalance()));
     return frozenSupplyBalance[0];
+  }
+
+  public ByteString getAssetIssuedName() {
+    return getInstance().getAssetIssuedName();
+  }
+
+  public void setAssetIssuedName(byte[] nameKey) {
+    ByteString assetIssuedName = ByteString.copyFrom(nameKey);
+    this.account = this.account.toBuilder().setAssetIssuedName(assetIssuedName).build();
+  }
+
+  public ByteString getAssetIssuedID() {
+    return getInstance().getAssetIssuedID();
+  }
+
+  public void setAssetIssuedID(byte[] id) {
+    ByteString assetIssuedID = ByteString.copyFrom(id);
+    this.account = this.account.toBuilder().setAssetIssuedID(assetIssuedID).build();
   }
 
   public long getAllowance() {
@@ -696,6 +808,37 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
         .setFreeNetUsage(freeNetUsage).build();
   }
 
+
+  public boolean addAllFreeAssetNetUsageV2(Map<String, Long> map) {
+    this.account = this.account.toBuilder().putAllFreeAssetNetUsageV2(map).build();
+    return true;
+  }
+
+  public long getFreeAssetNetUsage(String assetName) {
+    return this.account.getFreeAssetNetUsageOrDefault(assetName, 0);
+  }
+
+  public long getFreeAssetNetUsageV2(String assetName) {
+    return this.account.getFreeAssetNetUsageV2OrDefault(assetName, 0);
+  }
+
+  public Map<String, Long> getAllFreeAssetNetUsage() {
+    return this.account.getFreeAssetNetUsageMap();
+  }
+
+  public Map<String, Long> getAllFreeAssetNetUsageV2() {
+    return this.account.getFreeAssetNetUsageV2Map();
+  }
+
+  public void putFreeAssetNetUsage(String s, long freeAssetNetUsage) {
+    this.account = this.account.toBuilder()
+        .putFreeAssetNetUsage(s, freeAssetNetUsage).build();
+  }
+
+  public void putFreeAssetNetUsageV2(String s, long freeAssetNetUsage) {
+    this.account = this.account.toBuilder()
+        .putFreeAssetNetUsageV2(s, freeAssetNetUsage).build();
+  }
 
   public long getStorageLimit() {
     return this.account.getAccountResource().getStorageLimit();

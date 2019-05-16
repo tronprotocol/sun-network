@@ -1,5 +1,7 @@
 package org.tron.core.db;
 
+import static org.tron.protos.Protocol.Transaction.Contract.ContractType.TransferAssetContract;
+
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.core.Constant;
@@ -64,6 +66,12 @@ public class BandwidthProcessor extends ResourceProcessor {
         consumeForCreateNewAccount(accountCapsule, bytesSize, now, trace);
         continue;
       }
+
+      // side chain don't have asset issuers. So, don't support free asset bandwidth for transferAsset
+//      if (contract.getType() == TransferAssetContract && useAssetAccountNet(contract,
+//          accountCapsule, now, bytesSize)) {
+//        continue;
+//      }
 
       if (useAccountNet(accountCapsule, bytesSize, now)) {
         continue;

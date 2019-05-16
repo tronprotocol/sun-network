@@ -68,6 +68,7 @@ import org.tron.protos.Contract.ProposalApproveContract;
 import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Contract.ProposalDeleteContract;
 import org.tron.protos.Contract.SetAccountIdContract;
+import org.tron.protos.Contract.TransferAssetContract;
 import org.tron.protos.Contract.TransferContract;
 import org.tron.protos.Contract.TriggerSmartContract;
 import org.tron.protos.Contract.UnfreezeBalanceContract;
@@ -163,6 +164,10 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
 
   public TransactionCapsule(WitnessUpdateContract witnessUpdateContract) {
     createTransaction(witnessUpdateContract, ContractType.WitnessUpdateContract);
+  }
+
+  public TransactionCapsule(TransferAssetContract transferAssetContract) {
+    createTransaction(transferAssetContract, ContractType.TransferAssetContract);
   }
 
   public TransactionCapsule(raw rawData, List<ByteString> signatureList) {
@@ -354,6 +359,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
         case TransferContract:
           owner = contractParameter.unpack(TransferContract.class).getOwnerAddress();
           break;
+        case TransferAssetContract:
+          owner = contractParameter.unpack(TransferAssetContract.class).getOwnerAddress();
+          break;
         case VoteWitnessContract:
           owner = contractParameter.unpack(VoteWitnessContract.class).getOwnerAddress();
           break;
@@ -436,6 +444,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
       switch (contract.getType()) {
         case TransferContract:
           to = contractParameter.unpack(TransferContract.class).getToAddress();
+          break;
+        case TransferAssetContract:
+          to = contractParameter.unpack(TransferAssetContract.class).getToAddress();
           break;
         // todo add other contract
 

@@ -59,6 +59,7 @@ public class EnergyWhenAssertStyleTest {
     deposit.addBalance(Hex.decode(OWNER_ADDRESS), totalBalance);
     deposit.commit();
     VMConfig.setVmResourceChargingOn(true);
+    dbManager.getDynamicPropertiesStore().saveEnergyFee(100);
   }
 
   // An assert-style exception is generated in the following situations:
