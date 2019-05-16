@@ -25,24 +25,108 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     event DepositTRC20(address sideChainAddress, address to, uint256 value);
     event DepositTRC721(address sideChainAddress, address to, uint256 tokenId);
     event DepositTRX(address to, uint256 value);
-    event WithdrawTRC10(address from, uint256 value, uint256 trc10, bytes txData);
-    event WithdrawTRC20(address from, uint256 value, address mainChainAddress, bytes txData);
-    event WithdrawTRC721(address from, uint256 tokenId, address mainChainAddress, bytes txData);
-    event WithdrawTRX(address from, uint256 value, bytes txData);
+    event WithdrawTRC10(address from, uint256 value, uint256 trc10, bytes32 txData);
+    event WithdrawTRC20(address from, uint256 value, address mainChainAddress, bytes32 txData);
+    event WithdrawTRC721(address from, uint256 tokenId, address mainChainAddress, bytes32 txData);
+    event WithdrawTRX(address from, uint256 value, bytes32 txData);
+
+    event MultiSignForDepositTRC10(bytes32 dataHash, bytes32 txId);
+    event MultiSignForDepositToken(bytes32 dataHash, bytes32 txId);
+    event MultiSignForDepositTRX(bytes32 dataHash, bytes32 txId);
+    event MultiSignForWithdrawTRC10(bytes32 dataHash, bytes32 txId);
+    event MultiSignForWithdrawToken(bytes32 dataHash, bytes32 txId);
+    event MultiSignForWithdrawTRX(bytes32 dataHash, bytes32 txId);
 
     // TODO: type enum
     mapping(address => address) public mainToSideContractMap;
     mapping(address => address) public sideToMainContractMap;
     mapping(uint256 => bool) public trc10Map;
     mapping(address => bool) public oracles;
+    uint256 oracleCnt;
     address public owner;
     address public sunTokenAddress;
     address mintTRXContract = 0x10000;
     address mintTRC10Contract = 0x10001;
 
+
+    mapping(bytes32 => mapping(bytes32 => depositTrxMsg)) public signDepositTrx;
+    mapping(bytes32 => mapping(bytes32 => depositTrc10Msg)) public signDepositTrc10;
+    mapping(bytes32 => mapping(bytes32 => depositTokenMsg)) public signDepositToken;
+
+    mapping(bytes32 => mapping(bytes32 => withdrawTrxMsg)) public signWithdrawTrx;
+    mapping(bytes32 => mapping(bytes32 => withdrawTrc10Msg)) public signWithdrawTrc10;
+    mapping(bytes32 => mapping(bytes32 => withdrawTokenMsg)) public signWithdrawToken;
+
+    struct depositTrxMsg {
+        address to;
+        uint256 value;
+        mapping(address => bool) oracleSigned;
+        bytes32[] signs;
+        uint256 signCnt;
+        bool emitted;
+    }
+
+    struct depositTrc10Msg {
+        address to;
+        uint256 trc10;
+        uint256 value;
+        bytes32 name;
+        bytes32 symbol;
+        uint8 decimals;
+        mapping(address => bool) oracleSigned;
+        bytes32[] signs;
+        uint256 signCnt;
+        bool emitted;
+    }
+
+    struct depositTokenMsg {
+        address to;
+        address mainChainAddress;
+        uint256 valueOrTokenId;
+        uint256 _type;
+        mapping(address => bool) oracleSigned;
+        bytes32[] signs;
+        uint256 signCnt;
+        bool emitted;
+    }
+
+    struct withdrawTrxMsg {
+        address from;
+        uint256 value;
+        bytes32 txData;
+        mapping(address => bool) oracleSigned;
+        bytes32[] signs;
+        uint256 signCnt;
+        bool emitted;
+    }
+
+    struct withdrawTrc10Msg {
+        address from;
+        uint256 trc10;
+        uint256 value;
+        bytes32 txData;
+        mapping(address => bool) oracleSigned;
+        bytes32[] signs;
+        uint256 signCnt;
+        bool emitted;
+    }
+
+    struct withdrawTokenMsg {
+        address from;
+        uint256 valueOrTokenId;
+        uint256 _type;
+        bytes32 txData;
+        mapping(address => bool) oracleSigned;
+        bytes32[] signs;
+        uint256 signCnt;
+        bool emitted;
+    }
+
+
     constructor (address _oracle) public {
         owner = msg.sender;
         oracles[_oracle] = true;
+        oracleCnt = 1;
     }
 
     modifier onlyOracle {
@@ -56,6 +140,12 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     function modifyOracle(address _oracle, bool isOracle) public onlyOwner {
+        if (oracles[_oracle] && !isOracle) {
+            oracleCnt -= 1;
+        }
+        if (!oracles[_oracle] && isOracle) {
+            oracleCnt += 1;
+        }
         oracles[_oracle] = isOracle;
     }
 
@@ -134,7 +224,8 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 7. withdrawTRC10
-    function withdrawTRC10(bytes memory txData) payable public {
+    function withdrawTRC10(bytes32 txData) payable public {
+        // TODO: verify txData
         require(trc10Map[msg.tokenid], "trc10Map[msg.tokenid] == false");
         // burn
         address(0).transferToken(msg.tokenvalue, msg.tokenid);
@@ -142,7 +233,8 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 8. withdrawTRC20
-    function onTRC20Received(address from, uint256 value, bytes txData) public returns (bytes4) {
+    function onTRC20Received(address from, uint256 value, bytes32 txData) public returns (bytes4) {
+        // TODO: verify txData
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "mainChainAddress == address(0)");
@@ -153,7 +245,8 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 9. withdrawTRC721
-    function onTRC721Received(address from, uint256 tokenId, bytes txData) public returns (bytes4) {
+    function onTRC721Received(address from, uint256 tokenId, bytes32 txData) public returns (bytes4) {
+        // TODO: verify txData
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "the trc721 must have been deposited");
@@ -164,7 +257,8 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 10. withdrawTRX
-    function withdrawTRX(bytes memory txData) payable public {
+    function withdrawTRX(bytes32 txData) payable public {
+        // TODO: verify txData
         // burn
         address(0).transfer(msg.value);
         emit WithdrawTRX(msg.sender, msg.value, txData);
@@ -188,5 +282,136 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
 
     function concatBytes(bytes memory b1, bytes memory b2) pure public returns (bytes memory r) {
         r = abi.encodePacked(b1, 0x41, b2);
+    }
+
+    function multiSignForDepositTRX(address to, uint256 value, bytes32 txId, bytes32 sign) public onlyOracle {
+        bytes32 dataHash = keccak256(abi.encodePacked(to, value));
+        if (signDepositTrx[txId][dataHash].oracleSigned[msg.sender]) {
+            return;
+        }
+        if (signDepositTrx[txId][dataHash].signCnt == 0) {
+            signDepositTrx[txId][dataHash].to = to;
+            signDepositTrx[txId][dataHash].value = value;
+        }
+
+        signDepositTrx[txId][dataHash].oracleSigned[msg.sender] = true;
+        signDepositTrx[txId][dataHash].signs.push(sign);
+        signDepositTrx[txId][dataHash].signCnt += 1;
+
+        if (signDepositTrx[txId][dataHash].signCnt > 2 * oracleCnt / 3 && !signDepositTrx[txId][dataHash].emitted) {
+            emit MultiSignForDepositTRX(dataHash, txId);
+            signDepositTrx[txId][dataHash].emitted = true;
+        }
+    }
+
+    function multiSignForDepositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, bytes32 txId, bytes32 sign) public onlyOracle {
+        bytes32 dataHash = keccak256(abi.encodePacked(to, trc10, value, name, symbol, decimals));
+        if (signDepositTrc10[txId][dataHash].oracleSigned[msg.sender]) {
+            return;
+        }
+        if (signDepositTrc10[txId][dataHash].signCnt == 0) {
+            signDepositTrc10[txId][dataHash].to = to;
+            signDepositTrc10[txId][dataHash].trc10 = trc10;
+            signDepositTrc10[txId][dataHash].value = value;
+            signDepositTrc10[txId][dataHash].name = name;
+            signDepositTrc10[txId][dataHash].symbol = symbol;
+            signDepositTrc10[txId][dataHash].decimals = decimals;
+        }
+
+        signDepositTrc10[txId][dataHash].oracleSigned[msg.sender] = true;
+        signDepositTrc10[txId][dataHash].signs.push(sign);
+        signDepositTrc10[txId][dataHash].signCnt += 1;
+
+        if (signDepositTrc10[txId][dataHash].signCnt > 2 * oracleCnt / 3 && !signDepositTrc10[txId][dataHash].emitted) {
+            emit MultiSignForDepositTRC10(dataHash, txId);
+            signDepositTrc10[txId][dataHash].emitted = true;
+        }
+    }
+
+    function multiSignForDepositToken(address to, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 txId, bytes32 sign) public onlyOracle {
+        bytes32 dataHash = keccak256(abi.encodePacked(to, mainChainAddress, valueOrTokenId, _type));
+        if (signDepositToken[txId][dataHash].oracleSigned[msg.sender]) {
+            return;
+        }
+        if (signDepositToken[txId][dataHash].signCnt == 0) {
+            signDepositToken[txId][dataHash].to = to;
+            signDepositToken[txId][dataHash].mainChainAddress = mainChainAddress;
+            signDepositToken[txId][dataHash].valueOrTokenId = valueOrTokenId;
+            signDepositToken[txId][dataHash]._type = _type;
+        }
+
+        signDepositToken[txId][dataHash].oracleSigned[msg.sender] = true;
+        signDepositToken[txId][dataHash].signs.push(sign);
+        signDepositToken[txId][dataHash].signCnt += 1;
+
+        if (signDepositToken[txId][dataHash].signCnt > 2 * oracleCnt / 3 && !signDepositToken[txId][dataHash].emitted) {
+            emit MultiSignForDepositToken(dataHash, txId);
+            signDepositToken[txId][dataHash].emitted = true;
+        }
+    }
+
+    function multiSignForWithdrawTRX(address from, uint256 value, bytes32 txData, bytes32 txId, bytes32 sign) public onlyOracle {
+        bytes32 dataHash = keccak256(abi.encodePacked(from, value, txData));
+        if (signWithdrawTrx[txId][dataHash].oracleSigned[msg.sender]) {
+            return;
+        }
+        if (signWithdrawTrx[txId][dataHash].signCnt == 0) {
+            signWithdrawTrx[txId][dataHash].from = from;
+            signWithdrawTrx[txId][dataHash].value = value;
+            signWithdrawTrx[txId][dataHash].txData = txData;
+        }
+
+        signWithdrawTrx[txId][dataHash].oracleSigned[msg.sender] = true;
+        signWithdrawTrx[txId][dataHash].signs.push(sign);
+        signWithdrawTrx[txId][dataHash].signCnt += 1;
+
+        if (signWithdrawTrx[txId][dataHash].signCnt > 2 * oracleCnt / 3 && !signWithdrawTrx[txId][dataHash].emitted) {
+            emit MultiSignForWithdrawTRX(dataHash, txId);
+            signWithdrawTrx[txId][dataHash].emitted = true;
+        }
+    }
+
+    function multiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes32 txData, bytes32 txId, bytes32 sign) public onlyOracle {
+        bytes32 dataHash = keccak256(abi.encodePacked(from, trc10, value, txData));
+        if (signWithdrawTrc10[txId][dataHash].oracleSigned[msg.sender]) {
+            return;
+        }
+        if (signWithdrawTrc10[txId][dataHash].signCnt == 0) {
+            signWithdrawTrc10[txId][dataHash].from = from;
+            signWithdrawTrc10[txId][dataHash].trc10 = trc10;
+            signWithdrawTrc10[txId][dataHash].value = value;
+            signWithdrawTrc10[txId][dataHash].txData = txData;
+        }
+
+        signWithdrawTrc10[txId][dataHash].oracleSigned[msg.sender] = true;
+        signWithdrawTrc10[txId][dataHash].signs.push(sign);
+        signWithdrawTrc10[txId][dataHash].signCnt += 1;
+
+        if (signWithdrawTrc10[txId][dataHash].signCnt > 2 * oracleCnt / 3 && !signWithdrawTrc10[txId][dataHash].emitted) {
+            emit MultiSignForWithdrawTRC10(dataHash, txId);
+            signWithdrawTrc10[txId][dataHash].emitted = true;
+        }
+    }
+
+    function multiSignForWithdrawToken(address from, uint256 valueOrTokenId, uint256 _type, bytes32 txData, bytes32 txId, bytes32 sign) public onlyOracle {
+        bytes32 dataHash = keccak256(abi.encodePacked(from, valueOrTokenId, _type, txData));
+        if (signWithdrawToken[txId][dataHash].oracleSigned[msg.sender]) {
+            return;
+        }
+        if (signWithdrawToken[txId][dataHash].signCnt == 0) {
+            signWithdrawToken[txId][dataHash].from = from;
+            signWithdrawToken[txId][dataHash].valueOrTokenId = valueOrTokenId;
+            signWithdrawToken[txId][dataHash]._type = _type;
+            signWithdrawToken[txId][dataHash].txData = txData;
+        }
+
+        signWithdrawToken[txId][dataHash].oracleSigned[msg.sender] = true;
+        signWithdrawToken[txId][dataHash].signs.push(sign);
+        signWithdrawToken[txId][dataHash].signCnt += 1;
+
+        if (signWithdrawToken[txId][dataHash].signCnt > 2 * oracleCnt / 3 && !signWithdrawToken[txId][dataHash].emitted) {
+            emit MultiSignForWithdrawToken(dataHash, txId);
+            signWithdrawToken[txId][dataHash].emitted = true;
+        }
     }
 }
