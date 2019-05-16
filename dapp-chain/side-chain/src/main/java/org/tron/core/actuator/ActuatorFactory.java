@@ -45,6 +45,8 @@ public class ActuatorFactory {
         return new UpdateAccountActuator(contract.getParameter(), manager);
       case TransferContract:
         return new TransferActuator(contract.getParameter(), manager);
+      case TransferAssetContract:
+        return new TransferAssetActuator(contract.getParameter(), manager);
       case VoteAssetContract:
         break;
       case VoteWitnessContract:
@@ -79,6 +81,8 @@ public class ActuatorFactory {
         return new UpdateSettingContractActuator(contract.getParameter(), manager);
       case UpdateEnergyLimitContract:
         return new UpdateEnergyLimitContractActuator(contract.getParameter(), manager);
+      case ClearABIContract:
+        return new ClearABIContractActuator(contract.getParameter(), manager);
       case AccountPermissionUpdateContract:
         return new AccountPermissionUpdateActuator(contract.getParameter(), manager);
       default:

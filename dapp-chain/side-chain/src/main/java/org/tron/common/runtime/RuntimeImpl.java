@@ -556,7 +556,7 @@ public class RuntimeImpl implements Runtime {
       }
       ProgramInvoke programInvoke = generateProgramInvoke(energyLimit, tokenValue, tokenId);
       if (isStaticCall) {
-        programInvoke.setStaticCall();
+        throw new ContractValidateException("should not use static call to send trx to a smart contract");
       }
       rootInternalTransaction = new InternalTransaction(trx, trxType);
       this.program = new Program(code, programInvoke, rootInternalTransaction, config,
