@@ -1,7 +1,5 @@
 package org.tron.core.db;
 
-import static org.tron.protos.Protocol.Transaction.Contract.ContractType.TransferAssetContract;
-
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.core.Constant;
@@ -10,6 +8,7 @@ import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.exception.AccountResourceInsufficientException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.TooBigTransactionResultException;
+import org.tron.protos.Contract.TransferAssetContract;
 import org.tron.protos.Contract.TransferContract;
 import org.tron.protos.Protocol.Transaction.Contract;
 
@@ -162,6 +161,25 @@ public class BandwidthProcessor extends ResourceProcessor {
     switch (contract.getType()) {
       case AccountCreateContract:
         return true;
+      case TransferContract:
+        TransferContract transferContract;
+        try {
+          transferContract = contract.getParameter().unpack(TransferContract.class);
+        } catch (Exception ex) {
+          throw new RuntimeException(ex.getMessage());
+        }
+        toAccount = dbManager.getAccountStore().get(transferContract.getToAddress().toByteArray());
+        return toAccount == null;
+      case TransferAssetContract:
+        TransferAssetContract transferAssetContract;
+        try {
+          transferAssetContract = contract.getParameter().unpack(TransferAssetContract.class);
+        } catch (Exception ex) {
+          throw new RuntimeException(ex.getMessage());
+        }
+        toAccount = dbManager.getAccountStore()
+            .get(transferAssetContract.getToAddress().toByteArray());
+        return toAccount == null;
       default:
         return false;
     }

@@ -5,6 +5,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.GrpcAPI.BytesMessage;
 import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.NodeList;
@@ -12,6 +13,7 @@ import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.protos.Contract;
+import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
@@ -49,6 +51,10 @@ public class WalletGrpcClient {
     return walletBlockingStub.createTransaction(contract);
   }
 
+  public Transaction createTransferAssetTransaction(Contract.TransferAssetContract contract) {
+    return walletBlockingStub.transferAsset(contract);
+  }
+
   public Transaction voteWitnessAccount(Contract.VoteWitnessContract contract) {
     return walletBlockingStub.voteWitnessAccount(contract);
   }
@@ -78,6 +84,30 @@ public class WalletGrpcClient {
       return Optional.of(nodeList);
     }
     return Optional.empty();
+  }
+
+  public AssetIssueContract getAssetIssueByName(String assetName) {
+    ByteString assetNameBs = ByteString.copyFrom(assetName.getBytes());
+    BytesMessage request = BytesMessage.newBuilder().setValue(assetNameBs).build();
+    return walletBlockingStub.getAssetIssueByName(request);
+  }
+
+  public Optional<AssetIssueList> getAssetIssueListByName(String assetName) {
+    ByteString assetNameBs = ByteString.copyFrom(assetName.getBytes());
+    BytesMessage request = BytesMessage.newBuilder().setValue(assetNameBs).build();
+
+    AssetIssueList assetIssueList = walletBlockingStub
+        .getAssetIssueListByName(request);
+    if (assetIssueList != null) {
+      return Optional.of(assetIssueList);
+    }
+    return Optional.empty();
+  }
+
+  public AssetIssueContract getAssetIssueById(String assetId) {
+    ByteString assetIdBs = ByteString.copyFrom(assetId.getBytes());
+    BytesMessage request = BytesMessage.newBuilder().setValue(assetIdBs).build();
+    return walletBlockingStub.getAssetIssueById(request);
   }
 
 }
