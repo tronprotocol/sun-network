@@ -1,5 +1,5 @@
 pragma solidity ^0.4.24;
-
+pragma experimental ABIEncoderV2;
 import "../common/token/TRC721/TRC721.sol";
 import "../common/token/TRC20/TRC20.sol";
 import "../common/math/SafeMath.sol";
@@ -58,9 +58,10 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     }
 
     // Withdrawal functions
-    function withdrawTRC20(address _to, address contractAddress, uint256 amount, bytes sig)
+    function withdrawTRC20(address _to, address contractAddress, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
     public
-    checkGainer(_to, amount, contractAddress, sig)
+    checkGainer(_to, amount, contractAddress, sig) 
+    checkOracles( _to,   amount, contractAddress, txid,oracleSign)
     {
         balances.trc20[contractAddress] = balances.trc20[contractAddress].sub(amount);
         TRC20(contractAddress).transfer(_to, amount);

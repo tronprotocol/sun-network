@@ -16,7 +16,7 @@ contract OracleManagerContract is Ownable {
     // address[]  _oracles;
     event NewOracles(address oracle);
 
-    modifier onlyOracle() {require(checkOracle(msg.sender));
+    modifier onlyOracle() {require(isOracle(msg.sender));
         _;}
 
     constructor(address _oracle) public {
@@ -37,19 +37,19 @@ contract OracleManagerContract is Ownable {
     }
 
     modifier checkGainer(address _to,uint256 num, address contractAddress, bytes sig) {
-        require(checkOracle(msg.sender));
+        require(isOracle(msg.sender));
         uint256[] memory nonum=new uint256[](2);
         nonum[0]=nonces[_to];
         nonum[1]=num;
         bytes32 hash = keccak256(abi.encodePacked(contractAddress,nonum));
         address sender = hash.recover(sig);
         require(sender == _to, "Message not signed by a gainer");
-        _;
         nonces[_to]++;
+        _;
     }
 
     modifier checkTrc10Gainer(address _to,uint256 num, trcToken tokenId, bytes sig) {
-        require(checkOracle(msg.sender));
+        require(isOracle(msg.sender));
         uint256[] memory nonum=new uint256[](3);
         nonum[0]=tokenId;
         nonum[1]=nonces[_to];
@@ -57,10 +57,33 @@ contract OracleManagerContract is Ownable {
         bytes32 hash = keccak256(abi.encodePacked(nonum));
         address sender = hash.recover(sig);
         require(sender == _to, "Message not signed by a gainer");
-        _;
         nonces[_to]++;
+        _;
     }
-    function checkOracle(address _address) public view returns (bool) {
+
+    modifier checkOracles(address _to,uint256 num, address contractAddress, bytes32 txid, bytes[] sigList) {
+        require(isOracle(msg.sender));
+        uint256  countOracle=0;
+        mapping (address => bool)  oneOracles=new mapping();
+        uint256[] memory nonum=new uint256[](3);
+        nonum[0]=nonces[_to];
+        nonum[1]=num;
+        bytes32 hash = keccak256(abi.encodePacked(contractAddress,nonum,txid));
+        for (uint256 i=0;i<sigList.length;i++){
+            address _oracle = hash.recover(sigList[i]);
+            if(!oneOracles[_oracle])  {
+                continue;
+            } 
+            require(isOracle(_oracle), "Message not signed by a gainer");
+            oneOracles[_oracle]=true;
+            countOracle++;
+        }
+        require(countOracle > numOracles*2/3);
+        nonces[_to]++;
+        _;
+    }
+
+    function isOracle(address _address) public view returns (bool) {
         if (_address == owner) {
             return true;
         }
@@ -71,7 +94,7 @@ contract OracleManagerContract is Ownable {
         allowes[mainChainToken] = sideChainToken;
     }
 
-    function modifyOracle(address _oracle, bool isOracle) public onlyOwner {
-        oracles[_oracle] = isOracle;
+    function modifyOracle(address _oracle, bool _isOracle) public onlyOwner {
+        oracles[_oracle] = _isOracle;
     }
 }
