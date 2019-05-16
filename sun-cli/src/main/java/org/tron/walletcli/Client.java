@@ -2108,6 +2108,7 @@ public class Client {
     List<String> allCmds = new ArrayList<String>();
     allCmds.add("help");
     allCmds.add("switchtoside");
+    allCmds.add("ss");
     allCmds.add("registerwallet");
     allCmds.add("importwallet");
     allCmds.add("importwalletbybase64");
@@ -2211,6 +2212,7 @@ public class Client {
     List<String> allCmds = new ArrayList<String>();
     allCmds.add("help");
     allCmds.add("switchtomain");
+    allCmds.add("sm");
     allCmds.add("login");
     allCmds.add("logout");
     allCmds.add("getaddress");
@@ -2318,6 +2320,7 @@ public class Client {
           help();
           break;
         }
+        case "ss":
         case "switchtoside": {
           switch2Side();
           break;
@@ -2800,8 +2803,8 @@ public class Client {
   private void withdrawTrc10(String[] parameters)
     throws IOException, CipherException, CancelException, EncodingException {
     if (parameters == null || parameters.length != 4) {
-      System.out.println("withdrawTrc10 needs 3 parameters like following: ");
-      System.out.println("withdrawTrc10 trc10 value fee_limit ");
+      System.out.println("withdraw trc10 needs 3 parameters like following: ");
+      System.out.println("withdraw trc10 trc10Id value fee_limit ");
       return;
     }
 
@@ -2887,7 +2890,7 @@ public class Client {
     if (parameters == null ||
             parameters.length != 7) {
       System.out.println("mapping trc20 needs 6 parameters like following: ");
-      System.out.println("mapping trc20 contractAddress trxHash name symbol decimal feelmit");
+      System.out.println("mapping trc20 sideGatewayAddress trxHash name symbol decimal feelmit");
       return;
     }
 
@@ -2952,6 +2955,7 @@ public class Client {
       String cmdLowerCase = cmd.toLowerCase();
 
       switch (cmdLowerCase) {
+        case "sm":
         case "switchtomain": {
           switch2Main();
           break;
