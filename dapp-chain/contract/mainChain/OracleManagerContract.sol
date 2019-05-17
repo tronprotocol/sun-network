@@ -47,7 +47,6 @@ contract OracleManagerContract is Ownable {
         bytes32 hash = keccak256(abi.encodePacked(contractAddress,nonum));
         address sender = hash.recover(sig);
         require(sender == _to, "Message not signed by a gainer");
-        nonce[_to]++;
         
     }
 
@@ -59,8 +58,7 @@ contract OracleManagerContract is Ownable {
         bytes32 hash = keccak256(abi.encodePacked(nonum));
         address sender = hash.recover(sig);
         require(sender == _to, "Message not signed by a gainer");
-        nonce[_to]++;
-        
+
     }
 
     function checkOracles(address _to,uint256 num, address contractAddress, bytes32 txid, bytes[] sigList) internal {
@@ -69,7 +67,7 @@ contract OracleManagerContract is Ownable {
         uint256[] memory nonum=new uint256[](2);
         nonum[0]= nonce[_to];
         nonum[1]=num;
-        bytes32 hash = keccak256(abi.encodePacked(contractAddress, nonum, txid));
+        bytes32 hash = keccak256(abi.encodePacked(_to, contractAddress, nonum, txid));
         for (uint256 i=0; i<sigList.length; i++){
             address _oracle = hash.recover(sigList[i]);
             if(isOracle(_oracle)&&!wm.signedOracle[_oracle]){
@@ -78,7 +76,6 @@ contract OracleManagerContract is Ownable {
             }
         }
         require(wm.conuntSign > numOracles * 2 / 3,"oracle num not enough 2/3");
-        nonce[_to]++;
         withdrawList[txid]=wm;
         
     }
@@ -90,7 +87,7 @@ contract OracleManagerContract is Ownable {
         nonum[0]=tokenId;
         nonum[1]= nonce[_to];
         nonum[2]=num;
-        bytes32 hash = keccak256(abi.encodePacked(nonum,txid));
+        bytes32 hash = keccak256(abi.encodePacked(to, nonum,txid));
         for (uint256 i=0; i<sigList.length; i++){
             address _oracle = hash.recover(sigList[i]);
             if(isOracle(_oracle)){
@@ -99,7 +96,6 @@ contract OracleManagerContract is Ownable {
             }
         }
         require(wm.conuntSign > numOracles*2/3,"oracle num not enough 2/3");
-        nonce[_to]++;
         withdrawList[txid]=wm;
         
     }

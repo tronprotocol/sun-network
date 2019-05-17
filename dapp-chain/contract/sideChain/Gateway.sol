@@ -122,7 +122,9 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 3. depositTRC10
-    function depositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals) public onlyOracle {
+    function depositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol,
+        uint8 decimals, bytes32 txid, bytes[] sigList) public onlyOracle {
+        checkOraclesForTrc10( to, value, trc10, name, symbol, decimals, txid, sigList);
         // can only be called by oracle
         require(trc10 > 1000000 && trc10 <= 2000000, "trc10 <= 1000000 or trc10 > 2000000");
         bool exist = trc10Map[trc10];
@@ -135,7 +137,8 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 4. depositTRC20
-    function depositTRC20(address to, address mainChainAddress, uint256 value) public onlyOracle {
+    function depositTRC20(address to, address mainChainAddress, uint256 value, bytes32 txid, bytes[] sigList) public onlyOracle {
+        checkOracles( to,  value,mainChainAddress,  txid, sigList);
         // can only be called by oracle
         address sideChainAddress = mainToSideContractMap[mainChainAddress];
         require(sideChainAddress != address(0), "the main chain address hasn't mapped");
@@ -144,7 +147,8 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 5. depositTRC721
-    function depositTRC721(address to, address mainChainAddress, uint256 tokenId) public onlyOracle {
+    function depositTRC721(address to, address mainChainAddress, uint256 tokenId, bytes32 txid, bytes[] sigList) public onlyOracle {
+        checkOracles( to,  tokenId,mainChainAddress,  txid, sigList);
         // can only be called by oracle
         address sideChainAddress = mainToSideContractMap[mainChainAddress];
         require(sideChainAddress != address(0), "the main chain address hasn't mapped");
@@ -154,9 +158,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
 
     // 6. depositTRX
     function depositTRX(address to, uint256 value, bytes32 txid, bytes[] sigList) public onlyOracle {
-        // can only be called by oracle
-        // FIXME: must require
-        // require(mintTRXContract.call(value), "mint fail");
+        checkOracles( to,  value, address(this), txid, sigList);
 
         mintTRXContract.call(value);
         to.transfer(value);
@@ -302,12 +304,11 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
             emit MultiSignForWithdrawToken(from, valueOrTokenId, _type, userSign, dataHash, txId);
         }
     }
-
-    function checkOraclesForTrx(address _to,uint256 num, address contractAddress, bytes32 txid, bytes[] sigList) internal {
+    function checkOracles(address _to,uint256 num, address contractAddress,  bytes32 txid, bytes[] sigList) internal {
         SignMsg storage wm;
-        uint256[] memory nonum=new uint256[](2);
-        nonum[1]=num;
-        bytes32 hash = keccak256(abi.encodePacked(contractAddress, nonum, txid));
+        uint256[] memory valueMsg=new uint256[](2);
+        valueMsg[1]=num;
+        bytes32 hash = keccak256(abi.encodePacked(_to, contractAddress, valueMsg, txid));
         for (uint256 i=0; i<sigList.length; i++){
             address _oracle = hash.recover(sigList[i]);
             if(oracles[_oracle]&&!wm.oracleSigned[_oracle]){
@@ -317,13 +318,15 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         }
         require(wm.signCnt > oracleCnt * 2 / 3,"oracle num not enough 2/3");
         depositList[txid]=wm;
-
     }
-    function checkOraclesForTrc10(address _to,uint256 num, address contractAddress,uint256 trc10,  bytes32 txid, bytes[] sigList) internal {
+
+    function checkOraclesForTrc10(address _to,uint256 num, uint256 trc10, bytes32 name, bytes32 symbol, uint8 decimals, bytes32 txid, bytes[] sigList) internal {
         SignMsg storage wm;
-        uint256[] memory nonum=new uint256[](2);
-        nonum[1]=num;
-        bytes32 hash = keccak256(abi.encodePacked(contractAddress, nonum, txid));
+        uint256[] memory trc10IdAndValueAndDecimals = new uint256[](3);
+        trc10IdAndValueAndDecimals[0] = trc10;
+        trc10IdAndValueAndDecimals[1] = num;
+        trc10IdAndValueAndDecimals[2] = decimals;
+        bytes32 hash = keccak256(abi.encodePacked(_to,trc10IdAndValueAndDecimals, name, symbol, txid));
         for (uint256 i=0; i<sigList.length; i++){
             address _oracle = hash.recover(sigList[i]);
             if(oracles[_oracle]&&!wm.oracleSigned[_oracle]){
