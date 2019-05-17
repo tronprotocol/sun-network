@@ -61,16 +61,17 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     function withdrawTRC20(address _to, address contractAddress, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
     public
     checkGainer(_to, amount, contractAddress, sig) 
-    checkOracles( _to,   amount, contractAddress, txid,oracleSign)
+    checkOracles( _to,   amount, contractAddress, txid, oracleSign)
     {
         balances.trc20[contractAddress] = balances.trc20[contractAddress].sub(amount);
         TRC20(contractAddress).transfer(_to, amount);
         emit TokenWithdrawn(_to, TokenKind.TRC20, contractAddress, amount);
     }
 
-    function withdrawTRC721(address _to, address contractAddress,uint256 uid, bytes sig)
+    function withdrawTRC721(address _to, address contractAddress,uint256 uid, bytes sig, bytes32 txid, bytes[] oracleSign)
     public
     checkGainer(_to,uid, contractAddress, sig)
+    checkOracles( _to,   uid, contractAddress, txid,oracleSign)
     {
         require(balances.trc721[contractAddress][uid], "Does not own token");
         TRC721(contractAddress).transfer(_to, uid);
@@ -78,9 +79,10 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
         emit TokenWithdrawn(_to, TokenKind.TRC721, contractAddress, uid);
     }
 
-    function withdrawTRX(address _to, uint256 amount, bytes sig)
+    function withdrawTRX(address _to, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
     public
     checkGainer(_to,amount, address(this), sig)
+    checkOracles( _to,   amount, address(this), txid,oracleSign)
     {
         balances.tron = balances.tron.sub(amount);
         _to.transfer(amount);
@@ -88,9 +90,10 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
         emit TokenWithdrawn(_to, TokenKind.TRX, address(0), amount);
     }
 
-    function withdrawTRC10(address _to, trcToken tokenId, uint256 amount, bytes sig)
+    function withdrawTRC10(address _to, trcToken tokenId, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
     public
     checkTrc10Gainer(_to,amount, tokenId, sig)
+    checkTrc10Oracles( _to,   amount, tokenId, txid, oracleSign)
     {
         balances.trc10[tokenId] = balances.trc10[tokenId].sub(amount);
         _to.transferToken(amount, tokenId);

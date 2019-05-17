@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "./ownership/Ownable.sol";
-import "./ECVerify.sol";
+import "../common/ECVerify.sol";
 
 
 contract OracleManagerContract is Ownable {
@@ -12,7 +12,14 @@ contract OracleManagerContract is Ownable {
     mapping(address => bool) oracles;
 
     uint256 public numOracles;
-
+    mapping(bytes32=>WithdrawMsg) witdrawLsit; 
+    struct WithdrawMsg{
+        address to;
+        uint256 value;
+        address contractAddress;
+        mapping(address=>bool) signedOracle;
+        uint256 conuntSign;
+    }
     // address[]  _oracles;
     event NewOracles(address oracle);
 
@@ -63,23 +70,44 @@ contract OracleManagerContract is Ownable {
 
     modifier checkOracles(address _to,uint256 num, address contractAddress, bytes32 txid, bytes[] sigList) {
         require(isOracle(msg.sender));
-        uint256  countOracle=0;
-        mapping (address => bool)  oneOracles=new mapping();
+        WithdrawMsg storage wm;
+
         uint256[] memory nonum=new uint256[](3);
         nonum[0]=nonces[_to];
         nonum[1]=num;
-        bytes32 hash = keccak256(abi.encodePacked(contractAddress,nonum,txid));
-        for (uint256 i=0;i<sigList.length;i++){
+        bytes32 hash = keccak256(abi.encodePacked(contractAddress, nonum, txid));
+        for (uint256 i=0; i<sigList.length; i++){
             address _oracle = hash.recover(sigList[i]);
-            if(!oneOracles[_oracle])  {
-                continue;
-            } 
-            require(isOracle(_oracle), "Message not signed by a gainer");
-            oneOracles[_oracle]=true;
-            countOracle++;
+            if(isOracle(_oracle)&&!wm.signedOracle[_oracle]){
+                wm.signedOracle[_oracle]=true;
+                wm.conuntSign++;
+            }
         }
-        require(countOracle > numOracles*2/3);
+        require(wm.conuntSign > numOracles * 2 / 3,"oracle num not enough 2/3");
         nonces[_to]++;
+        witdrawLsit[txid]=wm;
+        _;
+    }
+
+    modifier checkTrc10Oracles(address _to,uint256 num, trcToken tokenId, bytes32 txid, bytes[] sigList) {
+        require(isOracle(msg.sender));
+        WithdrawMsg storage wm;
+
+        uint256[] memory nonum=new uint256[](3);
+        nonum[0]=tokenId;
+        nonum[1]=nonces[_to];
+        nonum[2]=num;
+        bytes32 hash = keccak256(abi.encodePacked(nonum,txid));
+        for (uint256 i=0; i<sigList.length; i++){
+            address _oracle = hash.recover(sigList[i]);
+            if(isOracle(_oracle)){
+                wm.signedOracle[_oracle]=true;
+                wm.conuntSign++;
+            }
+        }
+        require(wm.conuntSign > numOracles*2/3,"oracle num not enough 2/3");
+        nonces[_to]++;
+        witdrawLsit[txid]=wm;
         _;
     }
 
@@ -94,7 +122,14 @@ contract OracleManagerContract is Ownable {
         allowes[mainChainToken] = sideChainToken;
     }
 
-    function modifyOracle(address _oracle, bool _isOracle) public onlyOwner {
-        oracles[_oracle] = _isOracle;
+    function addOracle(address _oracle) public onlyOwner {
+        require(!isOracle(_oracle));
+        oracles[_oracle] = true;
+        numOracles++;
+    }
+    function delOracle(address _oracle) public onlyOwner {
+        require(!isOracle(_oracle));
+        oracles[_oracle] = false;
+        numOracles--;
     }
 }
