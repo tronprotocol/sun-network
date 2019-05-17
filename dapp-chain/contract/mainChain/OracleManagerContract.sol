@@ -7,18 +7,15 @@ import "../common/ECVerify.sol";
 contract OracleManagerContract is Ownable {
     using ECVerify for bytes32;
 
-    mapping(address => address) public allowes;
-    mapping(address => uint256) public nonces;
+    mapping(address => address) public allows;
+    mapping(address => uint256) public nonce;
     mapping(address => bool) oracles;
 
     uint256 public numOracles;
-    mapping(bytes32=>WithdrawMsg) witdrawLsit; 
-    struct WithdrawMsg{
-        address to;
-        uint256 value;
-        address contractAddress;
+    mapping(bytes32=>SignMsg) withdrawList;
+    struct SignMsg{
         mapping(address=>bool) signedOracle;
-        uint256 conuntSign;
+        uint256 countSign;
     }
     // address[]  _oracles;
     event NewOracles(address oracle);
@@ -43,37 +40,34 @@ contract OracleManagerContract is Ownable {
         emit NewOracles(_oracle);
     }
 
-    modifier checkGainer(address _to,uint256 num, address contractAddress, bytes sig) {
-        require(isOracle(msg.sender));
+    function checkGainer(address _to,uint256 num, address contractAddress, bytes sig) internal {
         uint256[] memory nonum=new uint256[](2);
-        nonum[0]=nonces[_to];
+        nonum[0]= nonce[_to];
         nonum[1]=num;
         bytes32 hash = keccak256(abi.encodePacked(contractAddress,nonum));
         address sender = hash.recover(sig);
         require(sender == _to, "Message not signed by a gainer");
-        nonces[_to]++;
-        _;
+        nonce[_to]++;
+        
     }
 
-    modifier checkTrc10Gainer(address _to,uint256 num, trcToken tokenId, bytes sig) {
-        require(isOracle(msg.sender));
+    function checkTrc10Gainer(address _to,uint256 num, trcToken tokenId, bytes sig) internal {
         uint256[] memory nonum=new uint256[](3);
         nonum[0]=tokenId;
-        nonum[1]=nonces[_to];
+        nonum[1]= nonce[_to];
         nonum[2]=num;
         bytes32 hash = keccak256(abi.encodePacked(nonum));
         address sender = hash.recover(sig);
         require(sender == _to, "Message not signed by a gainer");
-        nonces[_to]++;
-        _;
+        nonce[_to]++;
+        
     }
 
-    modifier checkOracles(address _to,uint256 num, address contractAddress, bytes32 txid, bytes[] sigList) {
-        require(isOracle(msg.sender));
-        WithdrawMsg storage wm;
+    function checkOracles(address _to,uint256 num, address contractAddress, bytes32 txid, bytes[] sigList) internal {
+        SignMsg storage wm;
 
-        uint256[] memory nonum=new uint256[](3);
-        nonum[0]=nonces[_to];
+        uint256[] memory nonum=new uint256[](2);
+        nonum[0]= nonce[_to];
         nonum[1]=num;
         bytes32 hash = keccak256(abi.encodePacked(contractAddress, nonum, txid));
         for (uint256 i=0; i<sigList.length; i++){
@@ -84,18 +78,17 @@ contract OracleManagerContract is Ownable {
             }
         }
         require(wm.conuntSign > numOracles * 2 / 3,"oracle num not enough 2/3");
-        nonces[_to]++;
-        witdrawLsit[txid]=wm;
-        _;
+        nonce[_to]++;
+        withdrawList[txid]=wm;
+        
     }
 
-    modifier checkTrc10Oracles(address _to,uint256 num, trcToken tokenId, bytes32 txid, bytes[] sigList) {
-        require(isOracle(msg.sender));
-        WithdrawMsg storage wm;
+    function checkTrc10Oracles(address _to,uint256 num, trcToken tokenId, bytes32 txid, bytes[] sigList) internal {
+        SignMsg storage wm;
 
         uint256[] memory nonum=new uint256[](3);
         nonum[0]=tokenId;
-        nonum[1]=nonces[_to];
+        nonum[1]= nonce[_to];
         nonum[2]=num;
         bytes32 hash = keccak256(abi.encodePacked(nonum,txid));
         for (uint256 i=0; i<sigList.length; i++){
@@ -106,9 +99,9 @@ contract OracleManagerContract is Ownable {
             }
         }
         require(wm.conuntSign > numOracles*2/3,"oracle num not enough 2/3");
-        nonces[_to]++;
-        witdrawLsit[txid]=wm;
-        _;
+        nonce[_to]++;
+        withdrawList[txid]=wm;
+        
     }
 
     function isOracle(address _address) public view returns (bool) {
@@ -119,7 +112,7 @@ contract OracleManagerContract is Ownable {
     }
 
     function migrationToken(address mainChainToken,address sideChainToken) public onlyOracle {
-        allowes[mainChainToken] = sideChainToken;
+        allows[mainChainToken] = sideChainToken;
     }
 
     function addOracle(address _oracle) public onlyOwner {

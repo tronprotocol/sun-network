@@ -59,20 +59,20 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
 
     // Withdrawal functions
     function withdrawTRC20(address _to, address contractAddress, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
-    public
-    checkGainer(_to, amount, contractAddress, sig) 
-    checkOracles( _to,   amount, contractAddress, txid, oracleSign)
+    public onlyOracle()
     {
+    checkGainer(_to, amount, contractAddress, sig) ;
+    checkOracles( _to,   amount, contractAddress, txid, oracleSign);
         balances.trc20[contractAddress] = balances.trc20[contractAddress].sub(amount);
         TRC20(contractAddress).transfer(_to, amount);
         emit TokenWithdrawn(_to, TokenKind.TRC20, contractAddress, amount);
     }
 
     function withdrawTRC721(address _to, address contractAddress,uint256 uid, bytes sig, bytes32 txid, bytes[] oracleSign)
-    public
-    checkGainer(_to,uid, contractAddress, sig)
-    checkOracles( _to,   uid, contractAddress, txid,oracleSign)
+    public onlyOracle()
     {
+    checkGainer(_to,uid, contractAddress, sig);
+    checkOracles( _to,   uid, contractAddress, txid,oracleSign);
         require(balances.trc721[contractAddress][uid], "Does not own token");
         TRC721(contractAddress).transfer(_to, uid);
         delete balances.trc721[contractAddress][uid];
@@ -80,10 +80,10 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     }
 
     function withdrawTRX(address _to, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
-    public
-    checkGainer(_to,amount, address(this), sig)
-    checkOracles( _to,   amount, address(this), txid,oracleSign)
+    public onlyOracle()
     {
+    checkGainer(_to,amount, address(this), sig);
+    checkOracles( _to,   amount, address(this), txid,oracleSign);
         balances.tron = balances.tron.sub(amount);
         _to.transfer(amount);
         // ensure it's not reentrant
@@ -91,10 +91,10 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     }
 
     function withdrawTRC10(address _to, trcToken tokenId, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
-    public
-    checkTrc10Gainer(_to,amount, tokenId, sig)
-    checkTrc10Oracles( _to,   amount, tokenId, txid, oracleSign)
+    public onlyOracle()
     {
+    checkTrc10Gainer(_to,amount, tokenId, sig);
+    checkTrc10Oracles( _to,   amount, tokenId, txid, oracleSign);
         balances.trc10[tokenId] = balances.trc10[tokenId].sub(amount);
         _to.transferToken(amount, tokenId);
         emit Token10Withdrawn(msg.sender, TokenKind.TRC10, tokenId, amount);
@@ -103,13 +103,13 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     // Approve and Deposit function for 2-step deposits
     // Requires first to have called `approve` on the specified TRC20 contract
     function depositTRC20(uint256 amount, address contractAddress) public {
-        require(allowes[contractAddress]!=address(0), "Not an allowe token");
+        require(allows[contractAddress]!=address(0), "Not an allowe token");
         TRC20(contractAddress).transferFrom(msg.sender, address(this), amount);
         balances.trc20[contractAddress] = balances.trc20[contractAddress].add(amount);
         emit TRC20Received(msg.sender, amount, contractAddress);
     }
     function depositTRC721(uint256 uid, address contractAddress) public {
-        require(allowes[contractAddress]!=address(0), "Not an allowe token");
+        require(allows[contractAddress]!=address(0), "Not an allowe token");
         TRC721(contractAddress).transferFrom(msg.sender, address(this), uid);
         balances.trc721[contractAddress][uid] = true;
         emit TRC721Received(msg.sender, uid, contractAddress);
@@ -132,7 +132,7 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     public
     returns (bytes4)
     {
-        require(allowes[msg.sender]!=address(0), "Not an allowe token");
+        require(allows[msg.sender]!=address(0), "Not an allowe token");
         _depositTRC20(amount);
         emit TRC20Received(_from, amount, msg.sender);
         return _TRC20_RECEIVED;
@@ -142,7 +142,7 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     public
     returns (bytes4)
     {
-        require(allowes[msg.sender]!=address(0), "Not an allowe token");
+        require(allows[msg.sender]!=address(0), "Not an allowe token");
         _depositTRC721(_uid);
         emit TRC721Received(_from, _uid, msg.sender);
         return _TRC721_RECEIVED;

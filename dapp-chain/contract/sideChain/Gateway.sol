@@ -1,11 +1,14 @@
 pragma solidity ^0.4.24;
+pragma experimental ABIEncoderV2;
 
 import "../common/token/TRC20/ITRC20Receiver.sol";
 import "../common/token/TRC721/ITRC721Receiver.sol";
 import "./DAppTRC20.sol";
 import "./DAppTRC721.sol";
+import "../common/ECVerify.sol";
 
 contract Gateway is ITRC20Receiver, ITRC721Receiver {
+    using ECVerify for bytes32;
 
     // 1. deployDAppTRC20AndMapping
     // 2. deployDAppTRC721AndMapping
@@ -51,7 +54,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
 
     mapping(bytes32 => mapping(bytes32 => SignMsg)) public depositSigns;
     mapping(bytes32 => mapping(bytes32 => SignMsg)) public withdrawSigns;
-
+    mapping(bytes32=>SignMsg) depositList;
     struct SignMsg {
         mapping(address => bool) oracleSigned;
         bytes32[] signs;
@@ -150,10 +153,11 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 6. depositTRX
-    function depositTRX(address to, uint256 value) public onlyOracle {
+    function depositTRX(address to, uint256 value, bytes32 txid, bytes[] sigList) public onlyOracle {
         // can only be called by oracle
         // FIXME: must require
         // require(mintTRXContract.call(value), "mint fail");
+
         mintTRXContract.call(value);
         to.transfer(value);
         emit DepositTRX(to, value);
@@ -221,11 +225,9 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     function multiSignForDeposit(bytes32 txId, bytes32 dataHash, bytes32 sign) internal returns (bool) {
-
         if (depositSigns[txId][dataHash].oracleSigned[msg.sender]) {
             return false;
         }
-
         depositSigns[txId][dataHash].oracleSigned[msg.sender] = true;
         depositSigns[txId][dataHash].signs.push(sign);
         depositSigns[txId][dataHash].signCnt += 1;
@@ -237,24 +239,23 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         return false;
     }
 
-    function multiSignForDepositTRX(address to, uint256 value, bytes32 txId, bytes32 sign) public onlyOracle {
-        bytes32 dataHash = keccak256(abi.encodePacked(to, value));
-        bool needEmit = multiSignForDeposit(txId, dataHash, sign);
-        if (needEmit) {
-            emit MultiSignForDepositTRX(to, value, dataHash, txId);
-        }
-    }
-
     function multiSignForDepositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, bytes32 txId, bytes32 sign) public onlyOracle {
-        bytes32 dataHash = keccak256(abi.encodePacked(to, trc10, value, name, symbol, decimals));
+        uint256[] memory trc10IdAndValueAndDecimals = new uint256[](3);
+        trc10IdAndValueAndDecimals[0] = trc10;
+        trc10IdAndValueAndDecimals[1] = value;
+        trc10IdAndValueAndDecimals[2] = decimals;
+        bytes32 dataHash = keccak256(abi.encodePacked(to,trc10IdAndValueAndDecimals, name, symbol, txId));
         bool needEmit = multiSignForDeposit(txId, dataHash, sign);
         if (needEmit) {
             emit MultiSignForDepositTRC10(to, trc10, value, name, symbol, decimals, dataHash, txId);
         }
     }
-
+    //_type : 1,trx 2,trc20 3,trc721
     function multiSignForDepositToken(address to, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 txId, bytes32 sign) public onlyOracle {
-        bytes32 dataHash = keccak256(abi.encodePacked(to, mainChainAddress, valueOrTokenId, _type));
+        uint256[] memory valueAndType = new uint256[](2);
+        valueAndType[0] = valueOrTokenId;
+        valueAndType[1] = _type;
+        bytes32 dataHash = keccak256(abi.encodePacked(to, mainChainAddress, valueAndType, txId));
         bool needEmit = multiSignForDeposit(txId, dataHash, sign);
         if (needEmit) {
             emit MultiSignForDepositToken(to, mainChainAddress, valueOrTokenId, _type, dataHash, txId);
@@ -300,5 +301,37 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         if (needEmit) {
             emit MultiSignForWithdrawToken(from, valueOrTokenId, _type, txData, dataHash, txId);
         }
+    }
+
+    function checkOraclesForTrx(address _to,uint256 num, address contractAddress, bytes32 txid, bytes[] sigList) internal {
+        SignMsg storage wm;
+        uint256[] memory nonum=new uint256[](2);
+        nonum[1]=num;
+        bytes32 hash = keccak256(abi.encodePacked(contractAddress, nonum, txid));
+        for (uint256 i=0; i<sigList.length; i++){
+            address _oracle = hash.recover(sigList[i]);
+            if(oracles[_oracle]&&!wm.oracleSigned[_oracle]){
+                wm.oracleSigned[_oracle]=true;
+                wm.signCnt++;
+            }
+        }
+        require(wm.signCnt > oracleCnt * 2 / 3,"oracle num not enough 2/3");
+        depositList[txid]=wm;
+
+    }
+    function checkOraclesForTrc10(address _to,uint256 num, address contractAddress,uint256 trc10,  bytes32 txid, bytes[] sigList) internal {
+        SignMsg storage wm;
+        uint256[] memory nonum=new uint256[](2);
+        nonum[1]=num;
+        bytes32 hash = keccak256(abi.encodePacked(contractAddress, nonum, txid));
+        for (uint256 i=0; i<sigList.length; i++){
+            address _oracle = hash.recover(sigList[i]);
+            if(oracles[_oracle]&&!wm.oracleSigned[_oracle]){
+                wm.oracleSigned[_oracle]=true;
+                wm.signCnt++;
+            }
+        }
+        require(wm.signCnt > oracleCnt * 2 / 3,"oracle num not enough 2/3");
+        depositList[txid]=wm;
     }
 }
