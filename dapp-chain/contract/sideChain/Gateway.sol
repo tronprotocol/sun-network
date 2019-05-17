@@ -28,17 +28,17 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     event DepositTRC20(address sideChainAddress, address to, uint256 value);
     event DepositTRC721(address sideChainAddress, address to, uint256 tokenId);
     event DepositTRX(address to, uint256 value);
-    event WithdrawTRC10(address from, uint256 value, uint256 trc10, bytes32 txData);
-    event WithdrawTRC20(address from, uint256 value, address mainChainAddress, bytes32 txData);
-    event WithdrawTRC721(address from, uint256 tokenId, address mainChainAddress, bytes32 txData);
-    event WithdrawTRX(address from, uint256 value, bytes32 txData);
+    event WithdrawTRC10(address from, uint256 value, uint256 trc10, bytes32 userSign);
+    event WithdrawTRC20(address from, uint256 value, address mainChainAddress, bytes32 userSign);
+    event WithdrawTRC721(address from, uint256 tokenId, address mainChainAddress, bytes32 userSign);
+    event WithdrawTRX(address from, uint256 value, bytes32 userSign);
 
     event MultiSignForDepositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, bytes32 dataHash, bytes32 txId);
     event MultiSignForDepositToken(address to, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 dataHash, bytes32 txId);
     event MultiSignForDepositTRX(address to, uint256 value, bytes32 dataHash, bytes32 txId);
-    event MultiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes32 txData, bytes32 dataHash, bytes32 txId);
-    event MultiSignForWithdrawToken(address from, uint256 valueOrTokenId, uint256 _type, bytes32 txData, bytes32 dataHash, bytes32 txId);
-    event MultiSignForWithdrawTRX(address from, uint256 value, bytes32 txData, bytes32 dataHash, bytes32 txId);
+    event MultiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes32 userSign, bytes32 dataHash, bytes32 txId);
+    event MultiSignForWithdrawToken(address from, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 dataHash, bytes32 txId);
+    event MultiSignForWithdrawTRX(address from, uint256 value, bytes32 userSign, bytes32 dataHash, bytes32 txId);
 
     // TODO: type enum
     mapping(address => address) public mainToSideContractMap;
@@ -164,44 +164,44 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 7. withdrawTRC10
-    function withdrawTRC10(bytes32 txData) payable public {
-        // TODO: verify txData
+    function withdrawTRC10(bytes32 userSign) payable public {
+        // TODO: verify userSign
         require(trc10Map[msg.tokenid], "trc10Map[msg.tokenid] == false");
         // burn
         address(0).transferToken(msg.tokenvalue, msg.tokenid);
-        emit WithdrawTRC10(msg.sender, msg.tokenvalue, msg.tokenid, txData);
+        emit WithdrawTRC10(msg.sender, msg.tokenvalue, msg.tokenid, userSign);
     }
 
     // 8. withdrawTRC20
-    function onTRC20Received(address from, uint256 value, bytes32 txData) public returns (bytes4) {
+    function onTRC20Received(address from, uint256 value, bytes32 userSign) public returns (bytes4) {
         // TODO: verify txData
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "mainChainAddress == address(0)");
         DAppTRC20(sideChainAddress).burn(value);
-        emit WithdrawTRC20(from, value, mainChainAddress, txData);
+        emit WithdrawTRC20(from, value, mainChainAddress, userSign);
 
         return _TRC20_RECEIVED;
     }
 
     // 9. withdrawTRC721
-    function onTRC721Received(address from, uint256 tokenId, bytes32 txData) public returns (bytes4) {
+    function onTRC721Received(address from, uint256 tokenId, bytes32 userSign) public returns (bytes4) {
         // TODO: verify txData
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "the trc721 must have been deposited");
         // burn
         DAppTRC721(sideChainAddress).burn(tokenId);
-        emit WithdrawTRC721(from, tokenId, mainChainAddress, txData);
+        emit WithdrawTRC721(from, tokenId, mainChainAddress, userSign);
         return _TRC721_RECEIVED;
     }
 
     // 10. withdrawTRX
-    function withdrawTRX(bytes32 txData) payable public {
-        // TODO: verify txData
+    function withdrawTRX(bytes32 userSign) payable public {
+        // TODO: verify userSign
         // burn
         address(0).transfer(msg.value);
-        emit WithdrawTRX(msg.sender, msg.value, txData);
+        emit WithdrawTRX(msg.sender, msg.value, userSign);
     }
 
     function calcContractAddress(bytes txId, address _owner) public pure returns (address r) {
@@ -224,12 +224,12 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         r = abi.encodePacked(b1, 0x41, b2);
     }
 
-    function multiSignForDeposit(bytes32 txId, bytes32 dataHash, bytes32 sign) internal returns (bool) {
+    function multiSignForDeposit(bytes32 txId, bytes32 dataHash, bytes32 oracleSign) internal returns (bool) {
         if (depositSigns[txId][dataHash].oracleSigned[msg.sender]) {
             return false;
         }
         depositSigns[txId][dataHash].oracleSigned[msg.sender] = true;
-        depositSigns[txId][dataHash].signs.push(sign);
+        depositSigns[txId][dataHash].signs.push(oracleSign);
         depositSigns[txId][dataHash].signCnt += 1;
 
         if (depositSigns[txId][dataHash].signCnt > oracleCnt * 2 / 3 && !depositSigns[txId][dataHash].emitted) {
@@ -239,37 +239,37 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         return false;
     }
 
-    function multiSignForDepositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, bytes32 txId, bytes32 sign) public onlyOracle {
+    function multiSignForDepositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, bytes32 txId, bytes32 oracleSign) public onlyOracle {
         uint256[] memory trc10IdAndValueAndDecimals = new uint256[](3);
         trc10IdAndValueAndDecimals[0] = trc10;
         trc10IdAndValueAndDecimals[1] = value;
         trc10IdAndValueAndDecimals[2] = decimals;
         bytes32 dataHash = keccak256(abi.encodePacked(to,trc10IdAndValueAndDecimals, name, symbol, txId));
-        bool needEmit = multiSignForDeposit(txId, dataHash, sign);
+        bool needEmit = multiSignForDeposit(txId, dataHash, oracleSign);
         if (needEmit) {
             emit MultiSignForDepositTRC10(to, trc10, value, name, symbol, decimals, dataHash, txId);
         }
     }
     //_type : 1,trx 2,trc20 3,trc721
-    function multiSignForDepositToken(address to, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 txId, bytes32 sign) public onlyOracle {
+    function multiSignForDepositToken(address to, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 txId, bytes32 oracleSign) public onlyOracle {
         uint256[] memory valueAndType = new uint256[](2);
         valueAndType[0] = valueOrTokenId;
         valueAndType[1] = _type;
         bytes32 dataHash = keccak256(abi.encodePacked(to, mainChainAddress, valueAndType, txId));
-        bool needEmit = multiSignForDeposit(txId, dataHash, sign);
+        bool needEmit = multiSignForDeposit(txId, dataHash, oracleSign);
         if (needEmit) {
             emit MultiSignForDepositToken(to, mainChainAddress, valueOrTokenId, _type, dataHash, txId);
         }
     }
 
-    function multiSignForWithdraw(bytes32 txId, bytes32 dataHash, bytes32 sign) internal returns (bool) {
+    function multiSignForWithdraw(bytes32 txId, bytes32 dataHash, bytes32 oracleSign) internal returns (bool) {
 
         if (withdrawSigns[txId][dataHash].oracleSigned[msg.sender]) {
             return false;
         }
 
         withdrawSigns[txId][dataHash].oracleSigned[msg.sender] = true;
-        withdrawSigns[txId][dataHash].signs.push(sign);
+        withdrawSigns[txId][dataHash].signs.push(oracleSign);
         withdrawSigns[txId][dataHash].signCnt += 1;
 
         if (withdrawSigns[txId][dataHash].signCnt > oracleCnt * 2 / 3 && !withdrawSigns[txId][dataHash].emitted) {
@@ -279,27 +279,27 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         return false;
     }
 
-    function multiSignForWithdrawTRX(address from, uint256 value, bytes32 txData, bytes32 txId, bytes32 sign) public onlyOracle {
-        bytes32 dataHash = keccak256(abi.encodePacked(from, value, txData));
-        bool needEmit = multiSignForWithdraw(txId, dataHash, sign);
+    function multiSignForWithdrawTRX(address from, uint256 value, bytes32 userSign, bytes32 txId, bytes32 oracleSign) public onlyOracle {
+        bytes32 dataHash = keccak256(abi.encodePacked(from, value, userSign));
+        bool needEmit = multiSignForWithdraw(txId, dataHash, oracleSign);
         if (needEmit) {
-            emit MultiSignForWithdrawTRX(from, value, txData, dataHash, txId);
+            emit MultiSignForWithdrawTRX(from, value, userSign, dataHash, txId);
         }
     }
 
-    function multiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes32 txData, bytes32 txId, bytes32 sign) public onlyOracle {
-        bytes32 dataHash = keccak256(abi.encodePacked(from, trc10, value, txData));
-        bool needEmit = multiSignForWithdraw(txId, dataHash, sign);
+    function multiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes32 userSign, bytes32 txId, bytes32 oracleSign) public onlyOracle {
+        bytes32 dataHash = keccak256(abi.encodePacked(from, trc10, value, userSign));
+        bool needEmit = multiSignForWithdraw(txId, dataHash, oracleSign);
         if (needEmit) {
-            emit MultiSignForWithdrawTRC10(from, trc10, value, txData, dataHash, txId);
+            emit MultiSignForWithdrawTRC10(from, trc10, value, userSign, dataHash, txId);
         }
     }
 
-    function multiSignForWithdrawToken(address from, uint256 valueOrTokenId, uint256 _type, bytes32 txData, bytes32 txId, bytes32 sign) public onlyOracle {
-        bytes32 dataHash = keccak256(abi.encodePacked(from, valueOrTokenId, _type, txData));
-        bool needEmit = multiSignForWithdraw(txId, dataHash, sign);
+    function multiSignForWithdrawToken(address from, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 txId, bytes32 oracleSign) public onlyOracle {
+        bytes32 dataHash = keccak256(abi.encodePacked(from, valueOrTokenId, _type, userSign));
+        bool needEmit = multiSignForWithdraw(txId, dataHash, oracleSign);
         if (needEmit) {
-            emit MultiSignForWithdrawToken(from, valueOrTokenId, _type, txData, dataHash, txId);
+            emit MultiSignForWithdrawToken(from, valueOrTokenId, _type, userSign, dataHash, txId);
         }
     }
 
