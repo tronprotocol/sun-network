@@ -36,9 +36,9 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     event MultiSignForDepositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, bytes32 dataHash, bytes32 txId);
     event MultiSignForDepositToken(address to, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 dataHash, bytes32 txId);
     event MultiSignForDepositTRX(address to, uint256 value, bytes32 dataHash, bytes32 txId);
-    event MultiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes32 userSign, bytes32 dataHash, bytes32 txId);
-    event MultiSignForWithdrawToken(address from, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 dataHash, bytes32 txId);
-    event MultiSignForWithdrawTRX(address from, uint256 value, bytes32 userSign, bytes32 dataHash, bytes32 txId);
+    event MultiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes userSign, bytes32 dataHash, bytes32 txId);
+    event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes userSign, bytes32 dataHash, bytes32 txId);
+    event MultiSignForWithdrawTRX(address from, uint256 value, bytes userSign, bytes32 dataHash, bytes32 txId);
 
     // TODO: type enum
     mapping(address => address) public mainToSideContractMap;
@@ -57,7 +57,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     mapping(bytes32=>SignMsg) depositList;
     struct SignMsg {
         mapping(address => bool) oracleSigned;
-        bytes32[] signs;
+        bytes[] signs;
         uint256 signCnt;
         bool emitted;
     }
@@ -262,7 +262,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         }
     }
 
-    function multiSignForWithdraw(bytes32 txId, bytes32 dataHash, bytes32 oracleSign) internal returns (bool) {
+    function multiSignForWithdraw(bytes32 txId, bytes32 dataHash, bytes oracleSign) internal returns (bool) {
 
         if (withdrawSigns[txId][dataHash].oracleSigned[msg.sender]) {
             return false;
@@ -279,7 +279,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         return false;
     }
 
-    function multiSignForWithdrawTRX(address from, uint256 value, bytes32 userSign, bytes32 txId, bytes32 oracleSign) public onlyOracle {
+    function multiSignForWithdrawTRX(address from, uint256 value, bytes userSign, bytes32 txId, bytes oracleSign) public onlyOracle {
         bytes32 dataHash = keccak256(abi.encodePacked(from, value, userSign));
         bool needEmit = multiSignForWithdraw(txId, dataHash, oracleSign);
         if (needEmit) {
@@ -295,11 +295,11 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         }
     }
 
-    function multiSignForWithdrawToken(address from, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 txId, bytes32 oracleSign) public onlyOracle {
-        bytes32 dataHash = keccak256(abi.encodePacked(from, valueOrTokenId, _type, userSign));
+    function multiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 txId, bytes32 oracleSign) public onlyOracle {
+        bytes32 dataHash = keccak256(abi.encodePacked(from, mainChainAddress, valueOrTokenId, _type, userSign));
         bool needEmit = multiSignForWithdraw(txId, dataHash, oracleSign);
         if (needEmit) {
-            emit MultiSignForWithdrawToken(from, valueOrTokenId, _type, userSign, dataHash, txId);
+            emit MultiSignForWithdrawToken(from, mainChainAddress, valueOrTokenId, _type, userSign, dataHash, txId);
         }
     }
 

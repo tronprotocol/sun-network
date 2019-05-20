@@ -9,6 +9,9 @@ import org.tron.service.eventactuator.mainchain.DepositTRC721Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRXActuator;
 import org.tron.service.eventactuator.sidechain.DeployDAppTRC20AndMappingActuator;
 import org.tron.service.eventactuator.sidechain.DeployDAppTRC721AndMappingActuator;
+import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRC10Actuator;
+import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRXActuator;
+import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTokenActuator;
 import org.tron.service.eventactuator.sidechain.WithdrawTRC10Actuator;
 import org.tron.service.eventactuator.sidechain.WithdrawTRC20Actuator;
 import org.tron.service.eventactuator.sidechain.WithdrawTRC721Actuator;
@@ -110,10 +113,36 @@ public class EventActuatorFactory {
         return task;
       }
       case WITHDRAW_TRX: {
+        String txId = "todo";
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
         task = new WithdrawTRXActuator(dataMap.get("from").toString(),
             dataMap.get("value").toString(),
-            dataMap.get("txData").toString());
+            dataMap.get("userSign").toString(), txId);
+        return task;
+      }
+      case MULTISIGN_FOR_WITHDRAW_TRX: {
+        JSONObject dataMap = (JSONObject) obj.get("dataMap");
+        task = new MultiSignForWithdrawTRXActuator(dataMap.get("from").toString(),
+            dataMap.get("value").toString(), dataMap.get("userSign").toString(),
+            dataMap.get("dataHash").toString(), dataMap.get("txId").toString());
+        return task;
+      }
+      case MULTISIGN_FOR_WITHDRAW_TRC10: {
+        JSONObject dataMap = (JSONObject) obj.get("dataMap");
+        task = new MultiSignForWithdrawTRC10Actuator(dataMap.get("from").toString(),
+            dataMap.get("trc10").toString(), dataMap.get("value").toString(),
+            dataMap.get("userSign").toString(), dataMap.get("dataHash").toString(),
+            dataMap.get("txId").toString());
+        return task;
+      }
+      case MULTISIGN_FOR_WITHDRAW_TOKEN: {
+        String txId = "todo";
+        JSONObject dataMap = (JSONObject) obj.get("dataMap");
+        task = new MultiSignForWithdrawTokenActuator(dataMap.get("from").toString(),
+            dataMap.get("mainChainAddress").toString(),
+            dataMap.get("valueOrTokenId").toString(), dataMap.get("_type").toString(),
+            dataMap.get("userSign").toString(), dataMap.get("dataHash").toString(),
+            dataMap.get("txId").toString());
         return task;
       }
       default: {
