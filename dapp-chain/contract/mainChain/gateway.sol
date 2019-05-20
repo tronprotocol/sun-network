@@ -61,8 +61,9 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     function withdrawTRC20(address _to, address contractAddress, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
     public onlyOracle()
     {
-    checkGainer(_to, amount, contractAddress, sig) ;
-    checkOracles( _to,   amount, contractAddress, txid, oracleSign);
+        checkGainer(_to, amount, contractAddress, sig) ;
+        checkOracles( _to,   amount, contractAddress, txid, oracleSign);
+        nonce[to]++;
         balances.trc20[contractAddress] = balances.trc20[contractAddress].sub(amount);
         TRC20(contractAddress).transfer(_to, amount);
         emit TokenWithdrawn(_to, TokenKind.TRC20, contractAddress, amount);
@@ -71,8 +72,9 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     function withdrawTRC721(address _to, address contractAddress,uint256 uid, bytes sig, bytes32 txid, bytes[] oracleSign)
     public onlyOracle()
     {
-    checkGainer(_to,uid, contractAddress, sig);
-    checkOracles( _to,   uid, contractAddress, txid,oracleSign);
+        checkGainer(_to,uid, contractAddress, sig);
+        checkOracles( _to,   uid, contractAddress, txid,oracleSign);
+        nonce[to]++;
         require(balances.trc721[contractAddress][uid], "Does not own token");
         TRC721(contractAddress).transfer(_to, uid);
         delete balances.trc721[contractAddress][uid];
@@ -82,8 +84,9 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     function withdrawTRX(address _to, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
     public onlyOracle()
     {
-    checkGainer(_to,amount, address(this), sig);
-    checkOracles( _to,   amount, address(this), txid,oracleSign);
+        checkGainer(_to,amount, address(this), sig);
+        checkOracles( _to,   amount, address(this), txid,oracleSign);
+        nonce[to]++;
         balances.tron = balances.tron.sub(amount);
         _to.transfer(amount);
         // ensure it's not reentrant
@@ -93,8 +96,9 @@ contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
     function withdrawTRC10(address _to, trcToken tokenId, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
     public onlyOracle()
     {
-    checkTrc10Gainer(_to,amount, tokenId, sig);
-    checkTrc10Oracles( _to,   amount, tokenId, txid, oracleSign);
+        checkTrc10Gainer(_to,amount, tokenId, sig);
+        checkTrc10Oracles( _to,   amount, tokenId, txid, oracleSign);
+        nonce[to]++;
         balances.trc10[tokenId] = balances.trc10[tokenId].sub(amount);
         _to.transferToken(amount, tokenId);
         emit Token10Withdrawn(msg.sender, TokenKind.TRC10, tokenId, amount);
