@@ -136,7 +136,6 @@ public class EventActuatorFactory {
         return task;
       }
       case MULTISIGN_FOR_WITHDRAW_TOKEN: {
-        String txId = "todo";
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
         task = new MultiSignForWithdrawTokenActuator(dataMap.get("from").toString(),
             dataMap.get("mainChainAddress").toString(),

@@ -117,7 +117,7 @@ public class AbiUtil {
 
       if (this.length == -1) {
         return ByteUtil
-          .merge(new DataWord(strings.size()).getData(), pack(coders, strings));
+            .merge(new DataWord(strings.size()).getData(), pack(coders, strings));
       } else {
         return pack(coders, strings);
       }
@@ -350,15 +350,15 @@ public class AbiUtil {
 
       if (coder.dynamic) {
         System.arraycopy(new DataWord(dynamicOffset).getData(), 0, data,
-          offset, 32);
+            offset, 32);
         offset += 32;
 
         System.arraycopy(encodedList.get(idx), 0, data, dynamicOffset,
-          encodedList.get(idx).length);
+            encodedList.get(idx).length);
         dynamicOffset += encodedList.get(idx).length;
       } else {
         System
-          .arraycopy(encodedList.get(idx), 0, data, offset, encodedList.get(idx).length);
+            .arraycopy(encodedList.get(idx), 0, data, offset, encodedList.get(idx).length);
         offset += encodedList.get(idx).length;
       }
     }
@@ -376,12 +376,12 @@ public class AbiUtil {
   }
 
   public static byte[] parseMethod(String methodSign, List<Object> inputList)
-    throws EncodingException {
+      throws EncodingException {
     return parseMethod(methodSign, inputList, false);
   }
 
   public static byte[] parseMethod(String methodSign, List<Object> parameters, boolean isHex)
-    throws EncodingException {
+      throws EncodingException {
     if (parameters == null || parameters.isEmpty()) {
       return parseMethod(methodSign, "", isHex);
     } else {
@@ -399,7 +399,7 @@ public class AbiUtil {
           inputArr[i++] = "[" + sb.toString() + "]";
         } else {
           inputArr[i++] =
-            (parameter instanceof String) ? ("\"" + parameter + "\"") : ("" + parameter);
+              (parameter instanceof String) ? ("\"" + parameter + "\"") : ("" + parameter);
         }
       }
       return parseMethod(methodSign, StringUtils.join(inputArr, ','), isHex);
@@ -407,7 +407,7 @@ public class AbiUtil {
   }
 
   public static byte[] parseMethod(String methodSign, String input, boolean isHex)
-    throws EncodingException {
+      throws EncodingException {
     byte[] selector = new byte[4];
     System.arraycopy(Hash.sha3(methodSign.getBytes()), 0, selector, 0, 4);
     if (StringUtils.isEmpty(input)) {
@@ -443,7 +443,7 @@ public class AbiUtil {
   public static void test() {
     String arrayMethod3 = "test(uint256[],address[])";
 
-//    String str = "1,[\\\"TNNqZuYhMfQvooC4kJwTsMJEQVU3vWGa5u\\\",\"TNNqZuYhMfQvooC4kJwTsMJEQVU3vWGa5u\"]";
+    //  String str = "1,[\\\"TNNqZuYhMfQvooC4kJwTsMJEQVU3vWGa5u\\\",\"TNNqZuYhMfQvooC4kJwTsMJEQVU3vWGa5u\"]";
 
     List<Object> l = new ArrayList<>();
 
@@ -454,7 +454,7 @@ public class AbiUtil {
     addresses.add("TNNqZuYhMfQvooC4kJwTsMJEQVU3vWGa5u");
     ;
     l.add(Arrays
-      .asList("TNNqZuYhMfQvooC4kJwTsMJEQVU3vWGa5u", "TNNqZuYhMfQvooC4kJwTsMJEQVU3vWGa5u"));
+        .asList("TNNqZuYhMfQvooC4kJwTsMJEQVU3vWGa5u", "TNNqZuYhMfQvooC4kJwTsMJEQVU3vWGa5u"));
     parseMethod(arrayMethod3, l);
 
 //    System.out.println(str);
@@ -495,9 +495,31 @@ public class AbiUtil {
   }
 
 
-  public static  List<String> unpackOracleSigns(byte[] data) {
-    // FIXME:
-    return new ArrayList<String>();
+  public static List<String> unpackOracleSigns(byte[] data) {
+    if (data.length % WORD_LENGTH != 0 || data.length < 3) {
+      throw new IllegalArgumentException("Illegal array data length:" + data.length);
+    }
+    ArrayList<Integer> indexList = new ArrayList<>();
+
+    int des = 1;
+    int length = DataWord.getDataWord(data, des).intValue();
+    length += des++;
+    do {
+      indexList.add(DataWord.getDataWord(data, des).intValue());
+    } while (des++ < length);
+    des++;
+    ArrayList<String> signList = new ArrayList<>();
+    indexList.forEach(index -> {
+      index += 64;
+      int valueLength = DataWord.getDataWord(data, index / WORD_LENGTH).intValue();
+      System.out.println(valueLength);
+      if (valueLength > 0) {
+        byte[] range = Arrays
+            .copyOfRange(data, index + WORD_LENGTH, index + WORD_LENGTH + valueLength);
+        signList.add(ByteArray.toHexString(range));
+      }
+    });
+    return signList;
   }
 
   public static boolean unpackWithdrawStatus(byte[] data) {
@@ -510,7 +532,12 @@ public class AbiUtil {
   }
 
   public static void main(String[] args) throws EncodingException {
-    test();
+    String data = "00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000051234567890000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000622222222901100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007033333338902220000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000074444444490333300000000000000000000000000000000000000000000000000";
+    List<String> strings = AbiUtil.unpackOracleSigns(ByteArray.fromHexString(data));
+    System.out.println(strings.size());
+    strings.forEach(s -> System.out.println(s));
+
+    //test();
 //    String method = "test(address,string,int)";
 //    String method = "test(string,int2,string)";
 //    String params = "asdf,3123,adf";
@@ -525,8 +552,8 @@ public class AbiUtil {
 //    System.out.println("token:" + parseMethod(tokenMethod, tokenParams));
 //
 //
-    String method1 = "test(uint256,string,string,uint256[])";
-    String expected1 = "db103cf30000000000000000000000000000000000000000000000000000000000000005000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000014200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000143000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000003";
+    //String method1 = "test(uint256,string,string,uint256[])";
+    //String expected1 = "db103cf30000000000000000000000000000000000000000000000000000000000000005000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000014200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000143000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000003";
 //    String method2 = "test(uint256,string,string,uint256[3])";
 //    String expected2 = "000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000003";
 //    String listString = "1 ,\"B\",\"C\", [1, 2, 3]";
