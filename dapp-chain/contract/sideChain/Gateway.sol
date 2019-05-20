@@ -120,49 +120,58 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         emit DeployDAppTRC721AndMapping(msg.sender, mainChainAddress, sideChainAddress);
         r = sideChainAddress;
     }
-
+    // deposit deposit deposit
     // 3. depositTRC10
     function depositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol,
-        uint8 decimals, bytes32 txid, bytes[] sigList) public onlyOracle {
-        checkOraclesForTrc10( to, value, trc10, name, symbol, decimals, txid, sigList);
+        uint8 decimals, bytes32 txid, bytes sign) public onlyOracle {
+        bool emitted = validateOracleForTrc10( to, value, trc10, name, symbol, decimals, txid, sign);
         // can only be called by oracle
-        require(trc10 > 1000000 && trc10 <= 2000000, "trc10 <= 1000000 or trc10 > 2000000");
-        bool exist = trc10Map[trc10];
-        if (exist == false) {
-            trc10Map[trc10] = true;
+        if(emitted){
+            require(trc10 > 1000000 && trc10 <= 2000000, "trc10 <= 1000000 or trc10 > 2000000");
+            bool exist = trc10Map[trc10];
+            if (exist == false) {
+                trc10Map[trc10] = true;
+            }
+            mintTRC10Contract.call(value, trc10, name, symbol, decimals);
+            to.transferToken(value, trc10);
+            emit DepositTRC10(to, trc10, value);
         }
-        mintTRC10Contract.call(value, trc10, name, symbol, decimals);
-        to.transferToken(value, trc10);
-        emit DepositTRC10(to, trc10, value);
     }
 
     // 4. depositTRC20
-    function depositTRC20(address to, address mainChainAddress, uint256 value, bytes32 txid, bytes[] sigList) public onlyOracle {
-        checkOracles( to,  value,mainChainAddress,  txid, sigList);
+    function depositTRC20(address to, address mainChainAddress, uint256 value, bytes32 txid,
+        bytes sign) public onlyOracle {
+        bool emitted = validateOracle( to,  value,mainChainAddress,  txid, sign);
         // can only be called by oracle
-        address sideChainAddress = mainToSideContractMap[mainChainAddress];
-        require(sideChainAddress != address(0), "the main chain address hasn't mapped");
-        IDApp(sideChainAddress).mint(to, value);
-        emit DepositTRC20(sideChainAddress, to, value);
+        if(emitted){
+            address sideChainAddress = mainToSideContractMap[mainChainAddress];
+            require(sideChainAddress != address(0), "the main chain address hasn't mapped");
+            IDApp(sideChainAddress).mint(to, value);
+            emit DepositTRC20(sideChainAddress, to, value);
+        }
     }
 
     // 5. depositTRC721
-    function depositTRC721(address to, address mainChainAddress, uint256 tokenId, bytes32 txid, bytes[] sigList) public onlyOracle {
-        checkOracles( to,  tokenId,mainChainAddress,  txid, sigList);
+    function depositTRC721(address to, address mainChainAddress, uint256 tokenId, bytes32 txid,
+        bytes sign) public onlyOracle {
+        bool emitted = validateOracle( to,  tokenId,mainChainAddress,  txid, sign);
         // can only be called by oracle
-        address sideChainAddress = mainToSideContractMap[mainChainAddress];
-        require(sideChainAddress != address(0), "the main chain address hasn't mapped");
-        IDApp(sideChainAddress).mint(to, tokenId);
-        emit DepositTRC721(sideChainAddress, to, tokenId);
+        if(emitted){
+            address sideChainAddress = mainToSideContractMap[mainChainAddress];
+            require(sideChainAddress != address(0), "the main chain address hasn't mapped");
+            IDApp(sideChainAddress).mint(to, tokenId);
+            emit DepositTRC721(sideChainAddress, to, tokenId);
+        }
     }
 
     // 6. depositTRX
-    function depositTRX(address to, uint256 value, bytes32 txid, bytes[] sigList) public onlyOracle {
-        checkOracles( to,  value, address(this), txid, sigList);
-
-        mintTRXContract.call(value);
-        to.transfer(value);
-        emit DepositTRX(to, value);
+    function depositTRX(address to, uint256 value, bytes32 txid, bytes sign) public onlyOracle {
+        bool emitted = validateOracle( to,  value, address(this), txid, sign);
+        if(emitted){
+            mintTRXContract.call(value);
+            to.transfer(value);
+            emit DepositTRX(to, value);
+        }
     }
 
     // 7. withdrawTRC10
@@ -336,5 +345,37 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         }
         require(wm.signCnt > oracleCnt * 2 / 3,"oracle num not enough 2/3");
         depositList[txid]=wm;
+    }
+
+    function validateOracle(address _to,uint256 num, address contractAddress,
+        bytes32 txid, bytes sign) internal returns(bool) {
+        SignMsg storage wm = depositList[txid];
+        uint256[] memory valueMsg=new uint256[](2);
+        valueMsg[1]=num;
+        bytes32 hash = keccak256(abi.encodePacked(_to, contractAddress, valueMsg, txid));
+        address _oracle = hash.recover(sign);
+        if(oracles[_oracle]&&!wm.oracleSigned[_oracle]){
+            wm.oracleSigned[_oracle]=true;
+            wm.signCnt++;
+        }
+        return (wm.signCnt > oracleCnt * 2 / 3)&&!wm.emitted;
+    }
+
+    function validateOracleForTrc10(address _to,uint256 num, uint256 trc10, bytes32 name,
+        bytes32 symbol, uint8 decimals, bytes32 txid, byte sign) internal returns(bool) {
+        SignMsg storage wm= depositList[txid];
+        uint256[] memory trc10IdAndValueAndDecimals = new uint256[](3);
+        trc10IdAndValueAndDecimals[0] = trc10;
+        trc10IdAndValueAndDecimals[1] = num;
+        trc10IdAndValueAndDecimals[2] = decimals;
+        bytes32 hash = keccak256(abi.encodePacked(_to,trc10IdAndValueAndDecimals, name, symbol, txid));
+
+        address _oracle = hash.recover(sign);
+        if(oracles[_oracle]&&!wm.oracleSigned[_oracle]){
+            wm.oracleSigned[_oracle]=true;
+            wm.signCnt++;
+        }
+
+        return (wm.signCnt > oracleCnt * 2 / 3)&&!wm.emitted;
     }
 }
