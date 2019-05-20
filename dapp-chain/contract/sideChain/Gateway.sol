@@ -235,7 +235,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         r = abi.encodePacked(b1, 0x41, b2);
     }
 
-    function multiSignForDeposit(bytes32 txId, bytes32 dataHash, bytes32 oracleSign) internal returns (bool) {
+    function multiSignForDeposit(bytes32 txId, bytes32 dataHash, bytes oracleSign) internal returns (bool) {
         if (depositSigns[txId][dataHash].oracleSigned[msg.sender]) {
             return false;
         }
@@ -250,7 +250,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         return false;
     }
 
-    function multiSignForDepositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, bytes32 txId, bytes32 oracleSign) public onlyOracle {
+    function multiSignForDepositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, bytes32 txId, bytes oracleSign) public onlyOracle {
         uint256[] memory trc10IdAndValueAndDecimals = new uint256[](3);
         trc10IdAndValueAndDecimals[0] = trc10;
         trc10IdAndValueAndDecimals[1] = value;
@@ -262,7 +262,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         }
     }
     //_type : 1,trx 2,trc20 3,trc721
-    function multiSignForDepositToken(address to, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 txId, bytes32 oracleSign) public onlyOracle {
+    function multiSignForDepositToken(address to, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 txId, bytes oracleSign) public onlyOracle {
         uint256[] memory valueAndType = new uint256[](2);
         valueAndType[0] = valueOrTokenId;
         valueAndType[1] = _type;
@@ -298,7 +298,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         }
     }
 
-    function multiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes32 userSign, bytes32 txId, bytes32 oracleSign) public onlyOracle {
+    function multiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes userSign, bytes32 txId, bytes oracleSign) public onlyOracle {
         bytes32 dataHash = keccak256(abi.encodePacked(from, trc10, value, userSign));
         bool needEmit = multiSignForWithdraw(txId, dataHash, oracleSign);
         if (needEmit) {
@@ -306,7 +306,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         }
     }
 
-    function multiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 txId, bytes32 oracleSign) public onlyOracle {
+    function multiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes userSign, bytes32 txId, bytes oracleSign) public onlyOracle {
         bytes32 dataHash = keccak256(abi.encodePacked(from, mainChainAddress, valueOrTokenId, _type, userSign));
         bool needEmit = multiSignForWithdraw(txId, dataHash, oracleSign);
         if (needEmit) {
@@ -362,7 +362,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     function validateOracleForTrc10(address _to,uint256 num, uint256 trc10, bytes32 name,
-        bytes32 symbol, uint8 decimals, bytes32 txid, byte sign) internal returns(bool) {
+        bytes32 symbol, uint8 decimals, bytes32 txid, bytes sign) internal returns(bool) {
         SignMsg storage wm= depositList[txid];
         uint256[] memory trc10IdAndValueAndDecimals = new uint256[](3);
         trc10IdAndValueAndDecimals[0] = trc10;
