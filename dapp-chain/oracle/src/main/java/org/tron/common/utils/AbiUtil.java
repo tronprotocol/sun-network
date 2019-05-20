@@ -494,6 +494,17 @@ public class AbiUtil {
     return WalletUtil.encode58CheckWithoutPrefix(noprefix);
   }
 
+
+  public static  List<String> unpackOracleSigns(byte[] data) {
+    // FIXME:
+    return new ArrayList<String>();
+  }
+
+  public static boolean unpackWithdrawStatus(byte[] data) {
+    // FIXME:
+    return false;
+  }
+
   private void testAddressUnpack() {
 
   }

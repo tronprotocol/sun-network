@@ -12,6 +12,7 @@ import org.tron.api.GrpcAPI.Return;
 import org.tron.common.config.Args;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.crypto.ECKey;
+import org.tron.common.crypto.ECKey.ECDSASignature;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.common.exception.TxRollbackException;
@@ -250,6 +251,11 @@ public class WalletClient {
     }
     // return TransactionUtils.sign(transaction, this.ecKey);
     return TransactionUtils.sign(transaction, this.ecKey, getCurrentChainId(), isMainChain);
+  }
+
+  public byte[] signDigest(byte[] digest) {
+    ECDSASignature signature = this.ecKey.sign(digest);
+    return signature.toByteArray();
   }
 
   private byte[] getCurrentChainId() {

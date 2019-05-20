@@ -135,6 +135,15 @@ public class SideChainGatewayApi {
     return AbiUtil.unpackAddress(ret);
   }
 
+  public static List<String> getWithdrawOracleSigns(String txId, String dataHash) throws RpcConnectException {
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    String method = "withdrawSigns(bytes32,bytes32)";
+    List params = Arrays.asList(txId, dataHash);
+    byte[] ret = GATEWAY_API.getInstance()
+        .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
+    return AbiUtil.unpackOracleSigns(ret);
+  }
+
   public static String getSunTokenAddress() throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "sunTokenAddress()";

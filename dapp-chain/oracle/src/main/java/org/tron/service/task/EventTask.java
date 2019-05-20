@@ -69,6 +69,9 @@ public class EventTask {
           AlertUtil.sendAlert("createTransactionExtensionCapsule fail, system exit");
           System.exit(1);
         }
+        if (txExtensionCapsule == null) {
+          continue;
+        }
         byte[] txIdBytes = txExtensionCapsule.getTransactionIdBytes();
         if (!this.store.exist(txIdBytes)) {
           this.store.putData(txIdBytes, txExtensionCapsule.getData());

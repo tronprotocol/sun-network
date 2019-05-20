@@ -2,21 +2,21 @@ package org.tron.client;
 
 import static org.tron.client.MainChainGatewayApi.GatewayApi.GATEWAY_API;
 
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.encoders.Hex;
-import org.tron.client.SideChainGatewayApi.GatewayApi;
 import org.tron.common.config.Args;
+import org.tron.common.crypto.ECKey;
+import org.tron.common.crypto.Hash;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.exception.TxFailException;
 import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
+import org.tron.common.utils.AbiUtil;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.service.check.TransactionExtensionCapsule;
-import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRC10Actuator;
 
 @Slf4j
 public class MainChainGatewayApi {
@@ -132,22 +132,39 @@ public class MainChainGatewayApi {
     return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
+  public static boolean getWithdrawStatus(String txId) throws RpcConnectException {
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    String method = "withdrawStatus(bytes32)";
+    List params = Arrays.asList(txId);
+    byte[] ret = GATEWAY_API.getInstance()
+        .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
+    return AbiUtil.unpackWithdrawStatus(ret);
+  }
+
+  public static void sleeping(String txId, String dataHash, List<String> oracleSigns) {
+    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hex.decode(dataHash)));
+    int sleepCnt = 0;
+    for (String signs : oracleSigns) {
+      if (signs.equalsIgnoreCase(ownSign)) {
+        break;
+      }
+      sleepCnt++;
+    }
+
+    try {
+      Thread.sleep(sleepCnt * 60_000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+
   public static Transaction multiSignForWithdrawTRXTransaction(String from, String value,
       String userSign, String dataHash, String txId) throws RpcConnectException {
-    String oracleSigns = "todo"; // to side
-
-    // store first
-
-
-    // TODO: sleep time based on the order
-
-    // TODO: now use txId as key, later use txId + dataHash
-
-    // TODO: check the db
-    boolean done = false;
+    List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(txId, dataHash);
+    sleeping(txId, dataHash, oracleSigns);
+    boolean done = getWithdrawStatus(txId);
     if (done) {
-      // FIXME
-      return Transaction.newBuilder().build();
+      return null;
     } else {
       byte[] contractAddress = Args.getInstance().getMainchainGateway();
       String method = "withdrawTRX(address,uint256,bytes,bytes32,bytes[])";
@@ -159,14 +176,11 @@ public class MainChainGatewayApi {
 
   public static Transaction multiSignForWithdrawTRC10Transaction(String from, String trc10,
       String value, String userSign, String dataHash, String txId) throws RpcConnectException {
-    String oracleSigns = "todo"; // to side
-    // TODO: sleep time based on the order
-
-    // TODO: check the db
-    boolean done = false;
+    List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(txId, dataHash);
+    sleeping(txId, dataHash, oracleSigns);
+    boolean done = getWithdrawStatus(txId);
     if (done) {
-      // FIXME
-      return Transaction.newBuilder().build();
+      return null;
     } else {
       byte[] contractAddress = Args.getInstance().getMainchainGateway();
       String method = "withdrawTRC10(address,trcToken,uint256,bytes,bytes32,bytes[])";
@@ -179,17 +193,14 @@ public class MainChainGatewayApi {
   public static Transaction multiSignForWithdrawTokenTransaction(String from,
       String mainChainAddress, String valueOrTokenId, String type, String userSign, String dataHash,
       String txId) throws RpcConnectException {
-    String oracleSigns = "todo"; // to side
-    // TODO: sleep time based on the order
-
-    // TODO: check the db
-    boolean done = false;
-    String method;
-    List params;
+    List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(txId, dataHash);
+    sleeping(txId, dataHash, oracleSigns);
+    boolean done = getWithdrawStatus(txId);
     if (done) {
-      // FIXME
-      return Transaction.newBuilder().build();
+      return null;
     } else {
+      String method;
+      List params;
       if (type.equalsIgnoreCase("2")) {
         method = "withdrawTRC20(address,address,uint256,bytes,bytes32,bytes[])";
       } else {
