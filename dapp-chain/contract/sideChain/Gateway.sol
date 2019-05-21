@@ -28,14 +28,11 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     event DepositTRC20(address sideChainAddress, address to, uint256 value);
     event DepositTRC721(address sideChainAddress, address to, uint256 tokenId);
     event DepositTRX(address to, uint256 value);
-    event WithdrawTRC10(address from, uint256 value, uint256 trc10, bytes32 userSign);
-    event WithdrawTRC20(address from, uint256 value, address mainChainAddress, bytes32 userSign);
-    event WithdrawTRC721(address from, uint256 tokenId, address mainChainAddress, bytes32 userSign);
-    event WithdrawTRX(address from, uint256 value, bytes32 userSign);
+    event WithdrawTRC10(address from, uint256 value, uint256 trc10, bytes userSign);
+    event WithdrawTRC20(address from, uint256 value, address mainChainAddress, bytes userSign);
+    event WithdrawTRC721(address from, uint256 tokenId, address mainChainAddress, bytes userSign);
+    event WithdrawTRX(address from, uint256 value, bytes userSign);
 
-    event MultiSignForDepositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, bytes32 dataHash, bytes32 txId);
-    event MultiSignForDepositToken(address to, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 dataHash, bytes32 txId);
-    event MultiSignForDepositTRX(address to, uint256 value, bytes32 dataHash, bytes32 txId);
     event MultiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes userSign, bytes32 dataHash, bytes32 txId);
     event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes userSign, bytes32 dataHash, bytes32 txId);
     event MultiSignForWithdrawTRX(address from, uint256 value, bytes userSign, bytes32 dataHash, bytes32 txId);
@@ -123,7 +120,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
     // deposit deposit deposit
     // 3. depositTRC10
-    function depositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, bytes32 txId, bytes sign) internal {
+    function depositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals) internal {
         require(trc10 > 1000000 && trc10 <= 2000000, "trc10 <= 1000000 or trc10 > 2000000");
         bool exist = trc10Map[trc10];
         if (exist == false) {
@@ -135,7 +132,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 4. depositTRC20
-    function depositTRC20(address to, address mainChainAddress, uint256 value, bytes32 txid, bytes sign) internal {
+    function depositTRC20(address to, address mainChainAddress, uint256 value) internal {
         address sideChainAddress = mainToSideContractMap[mainChainAddress];
         require(sideChainAddress != address(0), "the main chain address hasn't mapped");
         IDApp(sideChainAddress).mint(to, value);
@@ -143,7 +140,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 5. depositTRC721
-    function depositTRC721(address to, address mainChainAddress, uint256 tokenId, bytes32 txid, bytes sign) internal {
+    function depositTRC721(address to, address mainChainAddress, uint256 tokenId) internal {
         address sideChainAddress = mainToSideContractMap[mainChainAddress];
         require(sideChainAddress != address(0), "the main chain address hasn't mapped");
         IDApp(sideChainAddress).mint(to, tokenId);
@@ -151,14 +148,14 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 6. depositTRX
-    function depositTRX(address to, uint256 value, bytes32 txid, bytes sign) internal {
+    function depositTRX(address to, uint256 value) internal {
         mintTRXContract.call(value);
         to.transfer(value);
         emit DepositTRX(to, value);
     }
 
     // 7. withdrawTRC10
-    function withdrawTRC10(bytes32 userSign) payable public {
+    function withdrawTRC10(bytes userSign) payable public {
         // TODO: verify userSign
         require(trc10Map[msg.tokenid], "trc10Map[msg.tokenid] == false");
         // burn
@@ -167,7 +164,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 8. withdrawTRC20
-    function onTRC20Received(address from, uint256 value, bytes32 userSign) public returns (bytes4) {
+    function onTRC20Received(address from, uint256 value, bytes userSign) public returns (bytes4) {
         // TODO: verify txData
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
@@ -179,7 +176,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 9. withdrawTRC721
-    function onTRC721Received(address from, uint256 tokenId, bytes32 userSign) public returns (bytes4) {
+    function onTRC721Received(address from, uint256 tokenId, bytes userSign) public returns (bytes4) {
         // TODO: verify txData
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
@@ -191,7 +188,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 10. withdrawTRX
-    function withdrawTRX(bytes32 userSign) payable public {
+    function withdrawTRX(bytes userSign) payable public {
         // TODO: verify userSign
         // burn
         address(0).transfer(msg.value);
@@ -244,7 +241,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
 
         bool needDeposit = multiSignForDeposit(txId, dataHash, oracleSign);
         if (needDeposit) {
-            depositTRC10(to, trc10, value, name, symbol, decimals, txId, oracleSign);
+            depositTRC10(to, trc10, value, name, symbol, decimals);
         }
     }
 
@@ -263,11 +260,11 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
         bool needDeposit = multiSignForDeposit(txId, dataHash, oracleSign);
         if (needDeposit) {
             if (_type == 1) {
-                depositTRX(to, valueOrTokenId, txId, oracleSign);
+                depositTRX(to, valueOrTokenId);
             } else if (_type == 2) {
-                depositTRC20(to, mainChainAddress, valueOrTokenId, txId, oracleSign);
+                depositTRC20(to, mainChainAddress, valueOrTokenId);
             } else if (_type == 3) {
-                depositTRC721(to, mainChainAddress, valueOrTokenId, txId, oracleSign);
+                depositTRC721(to, mainChainAddress, valueOrTokenId);
             } else {
                 revert("unknown type");
             }
@@ -292,7 +289,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     function multiSignForWithdrawTRX(address from, uint256 value, bytes userSign, bytes32 txId, bytes oracleSign) public onlyOracle {
-        bytes32 dataHash = keccak256(abi.encodePacked(from, value, userSign));
+        bytes32 dataHash = keccak256(abi.encodePacked(from, value, userSign, txId));
         bool needEmit = multiSignForWithdraw(txId, dataHash, oracleSign);
         if (needEmit) {
             emit MultiSignForWithdrawTRX(from, value, userSign, dataHash, txId);
@@ -300,7 +297,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     function multiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes userSign, bytes32 txId, bytes oracleSign) public onlyOracle {
-        bytes32 dataHash = keccak256(abi.encodePacked(from, trc10, value, userSign));
+        bytes32 dataHash = keccak256(abi.encodePacked(from, trc10, value, userSign, txId));
         bool needEmit = multiSignForWithdraw(txId, dataHash, oracleSign);
         if (needEmit) {
             emit MultiSignForWithdrawTRC10(from, trc10, value, userSign, dataHash, txId);
@@ -308,7 +305,7 @@ contract Gateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     function multiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes userSign, bytes32 txId, bytes oracleSign) public onlyOracle {
-        bytes32 dataHash = keccak256(abi.encodePacked(from, mainChainAddress, valueOrTokenId, _type, userSign));
+        bytes32 dataHash = keccak256(abi.encodePacked(from, mainChainAddress, valueOrTokenId, _type, userSign, txId));
         bool needEmit = multiSignForWithdraw(txId, dataHash, oracleSign);
         if (needEmit) {
             emit MultiSignForWithdrawToken(from, mainChainAddress, valueOrTokenId, _type, userSign, dataHash, txId);

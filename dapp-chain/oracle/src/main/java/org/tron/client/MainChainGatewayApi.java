@@ -7,8 +7,6 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.encoders.Hex;
 import org.tron.common.config.Args;
-import org.tron.common.crypto.ECKey;
-import org.tron.common.crypto.Hash;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.exception.TxFailException;
 import org.tron.common.exception.TxRollbackException;
@@ -44,15 +42,6 @@ public class MainChainGatewayApi {
 
   }
 
-  public static TransactionExtensionCapsule addTokenMapping(String mainChainAddress,
-      String sideChainAddress)
-      throws RpcConnectException, TxValidateException {
-    byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "migrationToken(address,address)";
-    List params = Arrays.asList(mainChainAddress, sideChainAddress);
-    return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
-  }
-
   public static Transaction addTokenMappingTransaction(String mainChainAddress,
       String sideChainAddress)
       throws RpcConnectException {
@@ -61,75 +50,6 @@ public class MainChainGatewayApi {
     List params = Arrays.asList(mainChainAddress, sideChainAddress);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
-  }
-
-  public static TransactionExtensionCapsule withdrawTRC10(String to, String trc10, String value,
-      String txData)
-      throws RpcConnectException, TxValidateException {
-    byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "withdrawTRC10(address,trcToken,uint256,bytes)";
-    List params = Arrays.asList(to, trc10, value, txData);
-    return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
-  }
-
-  public static Transaction withdrawTRC10Transaction(String to, String trc10, String value,
-      String txData)
-      throws RpcConnectException {
-    byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "withdrawTRC10(address,trcToken,uint256,bytes)";
-    List params = Arrays.asList(to, trc10, value, txData);
-    return GATEWAY_API.getInstance()
-        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
-  }
-
-  public static TransactionExtensionCapsule withdrawTRC20(String to, String mainChainAddress,
-      String value,
-      String txData)
-      throws RpcConnectException, TxValidateException {
-    byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "withdrawTRC20(address,address,uint256,bytes)";
-    List params = Arrays.asList(to, mainChainAddress, value, txData);
-    return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
-  }
-
-  public static Transaction withdrawTRC20Transaction(String to, String mainChainAddress,
-      String value,
-      String txData)
-      throws RpcConnectException {
-    byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "withdrawTRC20(address,address,uint256,bytes)";
-    List params = Arrays.asList(to, mainChainAddress, value, txData);
-    return GATEWAY_API.getInstance()
-        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
-  }
-
-  public static TransactionExtensionCapsule withdrawTRC721(String to, String mainChainAddress,
-      String value,
-      String txData)
-      throws RpcConnectException, TxValidateException {
-    byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "withdrawTRC721(address,address,uint256,bytes)";
-    List params = Arrays.asList(to, mainChainAddress, value, txData);
-    return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
-  }
-
-  public static Transaction withdrawTRC721Transaction(String to, String mainChainAddress,
-      String value,
-      String txData)
-      throws RpcConnectException {
-    byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "withdrawTRC721(address,address,uint256,bytes)";
-    List params = Arrays.asList(to, mainChainAddress, value, txData);
-    return GATEWAY_API.getInstance()
-        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
-  }
-
-  public static TransactionExtensionCapsule withdrawTRX(String to, String value, String txData)
-      throws RpcConnectException, TxValidateException {
-    byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "withdrawTRX(address,uint256,bytes)";
-    List params = Arrays.asList(to, value, txData);
-    return GATEWAY_API.getInstance().triggerContract(contractAddress, method, params, 0, 0, 0);
   }
 
   public static boolean getWithdrawStatus(String txId) throws RpcConnectException {
@@ -141,7 +61,7 @@ public class MainChainGatewayApi {
     return AbiUtil.unpackWithdrawStatus(ret);
   }
 
-  public static void sleeping(String txId, String dataHash, List<String> oracleSigns) {
+  public static void sleeping(String dataHash, List<String> oracleSigns) {
     String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hex.decode(dataHash)));
     int sleepCnt = 0;
     for (String signs : oracleSigns) {
@@ -152,7 +72,7 @@ public class MainChainGatewayApi {
     }
 
     try {
-      Thread.sleep(sleepCnt * 60_000);
+      Thread.sleep(sleepCnt * 60_000L);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
@@ -161,7 +81,7 @@ public class MainChainGatewayApi {
   public static Transaction multiSignForWithdrawTRXTransaction(String from, String value,
       String userSign, String dataHash, String txId) throws RpcConnectException {
     List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(txId, dataHash);
-    sleeping(txId, dataHash, oracleSigns);
+    sleeping(dataHash, oracleSigns);
     boolean done = getWithdrawStatus(txId);
     if (done) {
       return null;
@@ -177,7 +97,7 @@ public class MainChainGatewayApi {
   public static Transaction multiSignForWithdrawTRC10Transaction(String from, String trc10,
       String value, String userSign, String dataHash, String txId) throws RpcConnectException {
     List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(txId, dataHash);
-    sleeping(txId, dataHash, oracleSigns);
+    sleeping(dataHash, oracleSigns);
     boolean done = getWithdrawStatus(txId);
     if (done) {
       return null;
@@ -194,7 +114,7 @@ public class MainChainGatewayApi {
       String mainChainAddress, String valueOrTokenId, String type, String userSign, String dataHash,
       String txId) throws RpcConnectException {
     List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(txId, dataHash);
-    sleeping(txId, dataHash, oracleSigns);
+    sleeping(dataHash, oracleSigns);
     boolean done = getWithdrawStatus(txId);
     if (done) {
       return null;

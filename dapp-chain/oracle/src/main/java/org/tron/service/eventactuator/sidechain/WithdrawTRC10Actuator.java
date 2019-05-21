@@ -3,9 +3,8 @@ package org.tron.service.eventactuator.sidechain;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
-import org.tron.common.config.Args;
+import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
-import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
@@ -14,18 +13,20 @@ import org.tron.service.eventactuator.Actuator;
 @Slf4j(topic = "sideChainTask")
 public class WithdrawTRC10Actuator extends Actuator {
 
-  // "event WithdrawTRC10(address from, uint256 value, uint256 trc10, bytes memory txData);"
+  // "event WithdrawTRC10(address from, uint256 value, uint256 trc10, bytes memory userSign);"
 
   private String from;
   private String value;
   private String trc10;
-  private String txData;
+  private String userSign;
+  private String txId;
 
-  public WithdrawTRC10Actuator(String from, String value, String trc10, String txData) {
+  public WithdrawTRC10Actuator(String from, String value, String trc10, String txData, String txId) {
     this.from = from;
     this.value = value;
     this.trc10 = trc10;
-    this.txData = txData;
+    this.userSign = txData;
+    this.txId = txId;
   }
 
   @Override
@@ -34,20 +35,20 @@ public class WithdrawTRC10Actuator extends Actuator {
       return this.transactionExtensionCapsule;
     }
     logger
-      .info("WithdrawTRC10Actuator, from: {}, value: {}, trc10: {}, txData: {}", this.from,
-        this.value, this.trc10, this.txData);
+      .info("WithdrawTRC10Actuator, from: {}, value: {}, trc10: {}, userSign: {}, txId: {}", this.from,
+        this.value, this.trc10, this.userSign, this.txId);
     // if (this.trc10.equalsIgnoreCase("2000000")) {
     //   Transaction tx = MainChainGatewayApi.withdrawTRC20Transaction(this.from,
-    //     WalletUtil.encode58Check(Args.getInstance().getSunTokenAddress()), this.value, this.txData);
+    //     WalletUtil.encode58Check(Args.getInstance().getSunTokenAddress()), this.value, this.userSign);
     //   this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
     // } else {
     // Transaction tx = MainChainGatewayApi
-    //   .withdrawTRC10Transaction(this.from, this.trc10, this.value, this.txData);
+    //   .withdrawTRC10Transaction(this.from, this.trc10, this.value, this.userSign);
     // this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
     // }
-    Transaction tx = MainChainGatewayApi
-      .withdrawTRC10Transaction(this.from, this.trc10, this.value, this.txData);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
+    Transaction tx = SideChainGatewayApi
+      .withdrawTRC10Transaction(this.from, this.trc10, this.value, this.userSign, this.txId);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
     return this.transactionExtensionCapsule;
   }
 }

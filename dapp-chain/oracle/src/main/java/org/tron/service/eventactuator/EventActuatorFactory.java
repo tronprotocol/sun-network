@@ -47,23 +47,27 @@ public class EventActuatorFactory {
 
     switch (eventSignature) {
       case TRX_RECEIVED: {
+        String txId = obj.get("transactionId").toString();
         task = new DepositTRXActuator(dataMap.get("from").toString(),
-            dataMap.get("amount").toString());
+            dataMap.get("amount").toString(), txId);
         return task;
       }
       case TRC10_RECEIVED: {
+        String txId = obj.get("transactionId").toString();
         task = new DepositTRC10Actuator(dataMap.get("from").toString(),
-            dataMap.get("amount").toString(), dataMap.get("tokenId").toString());
+            dataMap.get("amount").toString(), dataMap.get("tokenId").toString(), txId);
         return task;
       }
       case TRC20_RECEIVED: {
+        String txId = obj.get("transactionId").toString();
         task = new DepositTRC20Actuator(dataMap.get("from").toString(),
-            dataMap.get("amount").toString(), dataMap.get("contractAddress").toString());
+            dataMap.get("amount").toString(), dataMap.get("contractAddress").toString(), txId);
         return task;
       }
       case TRC721_RECEIVED: {
+        String txId = obj.get("transactionId").toString();
         task = new DepositTRC721Actuator(dataMap.get("from").toString(),
-            dataMap.get("uid").toString(), dataMap.get("contractAddress").toString());
+            dataMap.get("uid").toString(), dataMap.get("contractAddress").toString(), txId);
         return task;
       }
       default: {
@@ -92,28 +96,31 @@ public class EventActuatorFactory {
         return task;
       }
       case WITHDRAW_TRC10: {
+        String txId = obj.get("transactionId").toString();
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
         task = new WithdrawTRC10Actuator(dataMap.get("from").toString(),
             dataMap.get("value").toString(), dataMap.get("trc10").toString(),
-            dataMap.get("txData").toString());
+            dataMap.get("userSign").toString(), txId);
         return task;
       }
       case WITHDRAW_TRC20: {
+        String txId = obj.get("transactionId").toString();
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
         task = new WithdrawTRC20Actuator(dataMap.get("from").toString(),
             dataMap.get("value").toString(), dataMap.get("mainChainAddress").toString(),
-            dataMap.get("txData").toString());
+            dataMap.get("userSign").toString(), txId);
         return task;
       }
       case WITHDRAW_TRC721: {
+        String txId = obj.get("transactionId").toString();
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
         task = new WithdrawTRC721Actuator(dataMap.get("from").toString(),
             dataMap.get("tokenId").toString(), dataMap.get("mainChainAddress").toString(),
-            dataMap.get("txData").toString());
+            dataMap.get("userSign").toString(), txId);
         return task;
       }
       case WITHDRAW_TRX: {
-        String txId = "todo";
+        String txId = obj.get("transactionId").toString();
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
         task = new WithdrawTRXActuator(dataMap.get("from").toString(),
             dataMap.get("value").toString(),

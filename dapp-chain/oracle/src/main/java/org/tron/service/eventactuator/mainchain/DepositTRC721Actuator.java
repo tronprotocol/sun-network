@@ -15,11 +15,13 @@ public class DepositTRC721Actuator extends Actuator {
   private String from;
   private String uid;
   private String contractAddress;
+  private String txId;
 
-  public DepositTRC721Actuator(String from, String uid, String contractAddress) {
+  public DepositTRC721Actuator(String from, String uid, String contractAddress, String txId) {
     this.from = from;
     this.uid = uid;
     this.contractAddress = contractAddress;
+    this.txId = txId;
   }
 
   @Override
@@ -30,10 +32,10 @@ public class DepositTRC721Actuator extends Actuator {
     }
 
     logger
-        .info("DepositTRC721Actuator, from: {}, uid: {}, contractAddress: {}", this.from, this.uid,
-            this.contractAddress);
+        .info("DepositTRC721Actuator, from: {}, uid: {}, contractAddress: {}, txId: {}", this.from,
+            this.uid, this.contractAddress, this.txId);
     Transaction tx = SideChainGatewayApi
-        .mintToken721Transaction(this.from, this.contractAddress, this.uid);
+        .mintToken721Transaction(this.from, this.contractAddress, this.uid, this.txId);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
     return this.transactionExtensionCapsule;
   }
