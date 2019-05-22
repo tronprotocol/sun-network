@@ -62,6 +62,8 @@ public class Args {
 
   @Getter
   @Parameter(names = {"-p", "--private-key"}, description = "Oracle Private Key")
+  private String oraclePrivateKeyStr;
+  @Getter
   private byte[] oraclePrivateKey;
 
   @Getter
@@ -154,8 +156,10 @@ public class Args {
         .decodeFromBase58Check(config.getString("gateway.mainchain.address"));
     this.sidechainGateway = WalletUtil
         .decodeFromBase58Check(config.getString("gateway.sidechain.address"));
-    if (ArrayUtils.isEmpty(this.oraclePrivateKey)) {
+    if (StringUtils.isEmpty(this.oraclePrivateKeyStr)) {
       this.oraclePrivateKey = Hex.decode(config.getString("oracle.private.key"));
+    }else{
+      this.oraclePrivateKey = Hex.decode(this.oraclePrivateKeyStr);
     }
 
     this.mainchainKafka = config.getString("kafka.mainchain.server");
