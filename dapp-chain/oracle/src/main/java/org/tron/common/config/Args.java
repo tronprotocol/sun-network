@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.utils.WalletUtil;
+import org.apache.commons.lang3.ArrayUtils;
 
 
 @Slf4j
@@ -133,7 +134,7 @@ public class Args {
 
   public void loadSunTokenAddress() throws RpcConnectException {
     this.sunTokenAddress = WalletUtil
-      .decodeFromBase58Check(SideChainGatewayApi.getSunTokenAddress());
+        .decodeFromBase58Check(SideChainGatewayApi.getSunTokenAddress());
   }
 
   public void loadConf(String confName) throws RpcConnectException {
@@ -150,10 +151,10 @@ public class Args {
     this.sidechainSolidity = config.getStringList("sidechain.solidity.ip.list").get(0);
 
     this.mainchainGateway = WalletUtil
-      .decodeFromBase58Check(config.getString("gateway.mainchain.address"));
+        .decodeFromBase58Check(config.getString("gateway.mainchain.address"));
     this.sidechainGateway = WalletUtil
-      .decodeFromBase58Check(config.getString("gateway.sidechain.address"));
-    if(ArrayUtils.isEmpty(this.oraclePrivateKey)){
+        .decodeFromBase58Check(config.getString("gateway.sidechain.address"));
+    if (ArrayUtils.isEmpty(this.oraclePrivateKey)) {
       this.oraclePrivateKey = Hex.decode(config.getString("oracle.private.key"));
     }
 
