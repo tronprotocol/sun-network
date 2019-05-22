@@ -60,6 +60,7 @@ public class Args {
 
 
   @Getter
+  @Parameter(names = {"-p", "--private-key"}, description = "Oracle Private Key")
   private byte[] oraclePrivateKey;
 
   @Getter
@@ -142,17 +143,19 @@ public class Args {
     Config config = Configuration.getByPath(confName);
     this.mainchainFullNodeList = config.getStringList("mainchain.fullnode.ip.list");
     this.mainchainFullNode = this.mainchainFullNodeList.get(0);
-    this.mainchainSolidity = config.getStringList("mainchain.solitity.ip.list").get(0);
+    this.mainchainSolidity = config.getStringList("mainchain.solidity.ip.list").get(0);
 
     this.sidechainFullNodeList = config.getStringList("sidechain.fullnode.ip.list");
     this.sidechainFullNode = this.sidechainFullNodeList.get(0);
-    this.sidechainSolidity = config.getStringList("sidechain.solitity.ip.list").get(0);
+    this.sidechainSolidity = config.getStringList("sidechain.solidity.ip.list").get(0);
 
     this.mainchainGateway = WalletUtil
       .decodeFromBase58Check(config.getString("gateway.mainchain.address"));
     this.sidechainGateway = WalletUtil
       .decodeFromBase58Check(config.getString("gateway.sidechain.address"));
-    this.oraclePrivateKey = Hex.decode(config.getString("oracle.private.key"));
+    if(ArrayUtils.isEmpty(this.oraclePrivateKey)){
+      this.oraclePrivateKey = Hex.decode(config.getString("oracle.private.key"));
+    }
 
     this.mainchainKafka = config.getString("kafka.mainchain.server");
 
