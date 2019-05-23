@@ -5,7 +5,7 @@ import "../common/token/TRC721/ITRC721Receiver.sol";
 import "./DAppTRC20.sol";
 import "./DAppTRC721.sol";
 
-contract Gateway is ITRC20Receiver, ITRC721Receiver {
+contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     // 1. deployDAppTRC20AndMapping
     // 2. deployDAppTRC721AndMapping
