@@ -7,7 +7,7 @@ import "./DAppTRC20.sol";
 import "./DAppTRC721.sol";
 import "../common/ECVerify.sol";
 
-contract Gateway is ITRC20Receiver, ITRC721Receiver {
+contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     using ECVerify for bytes32;
 
     // 1. deployDAppTRC20AndMapping

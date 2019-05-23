@@ -8,7 +8,7 @@ import "../common/token/TRC20/ITRC20Receiver.sol";
 import "./OracleManagerContract.sol";
 
 
-contract Gateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
+contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
 
     using SafeMath for uint256;
 
