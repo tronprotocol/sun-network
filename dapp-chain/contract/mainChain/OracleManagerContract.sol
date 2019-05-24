@@ -62,7 +62,7 @@ contract OracleManagerContract is Ownable {
     }
 
     function checkOracles(address _to,uint256 num, address contractAddress, bytes32 txid, bytes[] sigList) internal {
-        SignMsg storage wm;
+        SignMsg storage wm=withdrawList[txid];
 
         uint256[] memory nonum=new uint256[](2);
         nonum[0]= nonce[_to];
@@ -72,32 +72,30 @@ contract OracleManagerContract is Ownable {
             address _oracle = hash.recover(sigList[i]);
             if(isOracle(_oracle)&&!wm.signedOracle[_oracle]){
                 wm.signedOracle[_oracle]=true;
-                wm.conuntSign++;
+                wm.countSign++;
             }
         }
-        require(wm.conuntSign > numOracles * 2 / 3,"oracle num not enough 2/3");
-        withdrawList[txid]=wm;
-        
+        require(wm.countSign > numOracles * 2 / 3,"oracle num not enough 2/3");
+
     }
 
     function checkTrc10Oracles(address _to,uint256 num, trcToken tokenId, bytes32 txid, bytes[] sigList) internal {
-        SignMsg storage wm;
+        SignMsg storage wm=withdrawList[txid];
 
         uint256[] memory nonum=new uint256[](3);
         nonum[0]=tokenId;
         nonum[1]= nonce[_to];
         nonum[2]=num;
-        bytes32 hash = keccak256(abi.encodePacked(to, nonum,txid));
+        bytes32 hash = keccak256(abi.encodePacked(_to, nonum,txid));
         for (uint256 i=0; i<sigList.length; i++){
             address _oracle = hash.recover(sigList[i]);
             if(isOracle(_oracle)){
                 wm.signedOracle[_oracle]=true;
-                wm.conuntSign++;
+                wm.countSign++;
             }
         }
-        require(wm.conuntSign > numOracles*2/3,"oracle num not enough 2/3");
-        withdrawList[txid]=wm;
-        
+        require(wm.countSign > numOracles*2/3,"oracle num not enough 2/3");
+
     }
 
     function isOracle(address _address) public view returns (bool) {
