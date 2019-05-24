@@ -15,12 +15,12 @@ public class DepositTRC20Actuator extends Actuator {
   private String from;
   private String amount;
   private String contractAddress;
-  private String txId;
 
   public DepositTRC20Actuator(String from, String amount, String contractAddress, String txId) {
     this.from = from;
     this.amount = amount;
     this.contractAddress = contractAddress;
+    this.txId = txId;
   }
 
   @Override

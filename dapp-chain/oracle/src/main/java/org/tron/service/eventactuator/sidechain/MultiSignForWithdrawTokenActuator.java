@@ -20,7 +20,6 @@ public class MultiSignForWithdrawTokenActuator extends Actuator {
   private String type;
   private String userSign;
   private String dataHash;
-  private String txId;
 
   public MultiSignForWithdrawTokenActuator(String from, String mainChainAddress,
       String valueOrTokenId, String type, String userSign, String dataHash, String txId) {
@@ -30,6 +29,7 @@ public class MultiSignForWithdrawTokenActuator extends Actuator {
     this.type = type;
     this.userSign = userSign;
     this.dataHash = dataHash;
+    this.txId = txId;
   }
 
   @Override

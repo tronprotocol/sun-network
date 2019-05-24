@@ -15,8 +15,8 @@ public class WithdrawTRC721Actuator extends Actuator {
   // "event WithdrawTRC721(address from, uint256 tokenId, address mainChainAddress, bytes memory userSign);"
 
   private String from;
-  private String tokenId;
   private String mainChainAddress;
+  private String tokenId;
   private String userSign;
 
   public WithdrawTRC721Actuator(String from, String tokenId, String mainChainAddress, String txData,

@@ -17,12 +17,12 @@ public class WithdrawTRXActuator extends Actuator {
   private String from;
   private String value;
   private String userSign;
-  private String txId;
 
   public WithdrawTRXActuator(String from, String value, String userSign, String txId) {
     this.from = from;
     this.value = value;
     this.userSign = userSign;
+    this.txId = txId;
   }
 
   @Override

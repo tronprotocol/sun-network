@@ -14,9 +14,6 @@ import org.tron.service.task.InitTask;
 @Slf4j(topic = "app")
 public class App {
 
-  private static int fixedThreads = 5;
-
-
   public static void main(String[] args) {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     logger.info("start...");
@@ -32,7 +29,7 @@ public class App {
     String sideGateway = WalletUtil.encode58Check(arg.getSidechainGateway());
 
     (new InitTask(10)).batchProcessTxInDb();
-    (new EventTask(mainGateway, sideGateway, fixedThreads)).processEvent();
+    (new EventTask(mainGateway, sideGateway)).processEvent();
     return;
   }
 }

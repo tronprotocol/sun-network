@@ -15,8 +15,8 @@ public class WithdrawTRC20Actuator extends Actuator {
   // "event WithdrawTRC20(address from, uint256 value, address mainChainAddress, bytes memory userSign);"
 
   private String from;
-  private String value;
   private String mainChainAddress;
+  private String value;
   private String userSign;
 
   public WithdrawTRC20Actuator(String from, String value, String mainChainAddress, String txData,

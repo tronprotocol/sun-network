@@ -2,8 +2,6 @@ package org.tron.service.task;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
@@ -18,18 +16,15 @@ import org.tron.service.kafka.KfkConsumer;
 
 public class EventTask {
 
-  private ExecutorService executor;
-
   private KfkConsumer kfkConsumer;
 
   private TransactionExtentionStore store;
   private String mainGateway;
   private String sideGateway;
 
-  public EventTask(String mainGateway, String sideGateway, int fixedThreads) {
+  public EventTask(String mainGateway, String sideGateway) {
     this.mainGateway = mainGateway;
     this.sideGateway = sideGateway;
-    this.executor = Executors.newFixedThreadPool(fixedThreads);
     this.kfkConsumer = new KfkConsumer(Args.getInstance().getMainchainKafka(), "Oracle",
         Arrays.asList("contractevent"));
     this.store = TransactionExtentionStore.getInstance();
@@ -60,7 +55,8 @@ public class EventTask {
           continue;
         }
         //store put event Actuator
-        //this.kfkConsumer.commit();
+        this.kfkConsumer.commit();
+
         ActuatorRun.getInstance().start(eventActuator);
       }
     }

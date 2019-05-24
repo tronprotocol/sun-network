@@ -18,7 +18,6 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
   private String value;
   private String userSign;
   private String dataHash;
-  private String txId;
 
   public MultiSignForWithdrawTRXActuator(String from, String value, String userSign,
       String dataHash,
@@ -27,6 +26,7 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
     this.value = value;
     this.userSign = userSign;
     this.dataHash = dataHash;
+    this.txId = txId;
   }
 
   @Override
