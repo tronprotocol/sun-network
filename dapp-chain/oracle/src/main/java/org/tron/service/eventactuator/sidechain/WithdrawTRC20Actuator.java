@@ -2,7 +2,6 @@ package org.tron.service.eventactuator.sidechain;
 
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.protos.Protocol.Transaction;
@@ -19,7 +18,6 @@ public class WithdrawTRC20Actuator extends Actuator {
   private String value;
   private String mainChainAddress;
   private String userSign;
-  private String txId;
 
   public WithdrawTRC20Actuator(String from, String value, String mainChainAddress, String txData,
       String txId) {

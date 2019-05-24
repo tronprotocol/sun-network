@@ -21,7 +21,6 @@ public class DepositTRC721Actuator extends Actuator {
     this.from = from;
     this.uid = uid;
     this.contractAddress = contractAddress;
-    this.txId = txId;
   }
 
   @Override

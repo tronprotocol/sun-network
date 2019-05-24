@@ -19,22 +19,24 @@ public class DeployDAppTRC721AndMappingActuator extends Actuator {
   private String sideChainAddress;
 
   public DeployDAppTRC721AndMappingActuator(String developer, String mainChainAddress,
-    String sideChainAddress) {
+      String sideChainAddress, String txId) {
     this.developer = developer;
     this.mainChainAddress = mainChainAddress;
     this.sideChainAddress = sideChainAddress;
+    this.txId = txId;
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule() throws RpcConnectException {
+  public TransactionExtensionCapsule createTransactionExtensionCapsule()
+      throws RpcConnectException {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return transactionExtensionCapsule;
     }
     logger.info(
-      "DeployDAppTRC721AndMappingActuator, developer: {}, mainChainAddress: {}, sideChainAddress: {}",
-      this.developer, this.mainChainAddress, this.sideChainAddress);
+        "DeployDAppTRC721AndMappingActuator, developer: {}, mainChainAddress: {}, sideChainAddress: {}",
+        this.developer, this.mainChainAddress, this.sideChainAddress);
     Transaction tx = MainChainGatewayApi
-      .addTokenMappingTransaction(this.mainChainAddress, this.sideChainAddress);
+        .addTokenMappingTransaction(this.mainChainAddress, this.sideChainAddress);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
 
     return this.transactionExtensionCapsule;

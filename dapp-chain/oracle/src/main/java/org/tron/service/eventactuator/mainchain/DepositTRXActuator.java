@@ -14,7 +14,6 @@ public class DepositTRXActuator extends Actuator {
 
   private String from;
   private String amount;
-  private String txId;
 
   public DepositTRXActuator(String from, String amount, String txId) {
     this.from = from;
@@ -28,7 +27,8 @@ public class DepositTRXActuator extends Actuator {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return transactionExtensionCapsule;
     }
-    logger.info("DepositTRXActuator, from: {}, amount: {}, txId: {}", this.from, this.amount, this.txId);
+    logger.info("DepositTRXActuator, from: {}, amount: {}, txId: {}", this.from, this.amount,
+        this.txId);
     Transaction tx = SideChainGatewayApi.mintTrxTransaction(this.from, this.amount, this.txId);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
     return this.transactionExtensionCapsule;

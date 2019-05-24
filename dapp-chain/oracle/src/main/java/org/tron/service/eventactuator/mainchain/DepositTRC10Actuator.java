@@ -17,7 +17,6 @@ public class DepositTRC10Actuator extends Actuator {
   private String from;
   private String amount;
   private String tokenId;
-  private String txId;
 
   public DepositTRC10Actuator(String from, String amount, String tokenId, String txId) {
     this.from = from;

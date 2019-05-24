@@ -2,7 +2,6 @@ package org.tron.service.eventactuator.sidechain;
 
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.protos.Protocol.Transaction;
@@ -24,17 +23,19 @@ public class WithdrawTRXActuator extends Actuator {
     this.from = from;
     this.value = value;
     this.userSign = userSign;
-    this.txId = txId;
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule() throws RpcConnectException {
+  public TransactionExtensionCapsule createTransactionExtensionCapsule()
+      throws RpcConnectException {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;
     }
-    logger.info("WithdrawTRXActuator, from: {}, value: {}, userSign: {}, txId: {}", this.from, this.value,
-      this.userSign, this.txId);
-    Transaction tx = SideChainGatewayApi.withdrawTRXTransaction(this.from, this.value, this.userSign, this.txId);
+    logger.info("WithdrawTRXActuator, from: {}, value: {}, userSign: {}, txId: {}", this.from,
+        this.value,
+        this.userSign, this.txId);
+    Transaction tx = SideChainGatewayApi
+        .withdrawTRXTransaction(this.from, this.value, this.userSign, this.txId);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
 
     return this.transactionExtensionCapsule;

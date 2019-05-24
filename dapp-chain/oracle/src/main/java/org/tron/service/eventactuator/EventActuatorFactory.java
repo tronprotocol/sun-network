@@ -86,13 +86,15 @@ public class EventActuatorFactory {
       case DEPLOY_DAPPTRC20_AND_MAPPING: {
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
         task = new DeployDAppTRC20AndMappingActuator(dataMap.get("developer").toString(),
-            dataMap.get("mainChainAddress").toString(), dataMap.get("sideChainAddress").toString());
+            dataMap.get("mainChainAddress").toString(), dataMap.get("sideChainAddress").toString(),
+            null);
         return task;
       }
       case DEPLOY_DAPPTRC721_AND_MAPPING: {
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
         task = new DeployDAppTRC721AndMappingActuator(dataMap.get("developer").toString(),
-            dataMap.get("mainChainAddress").toString(), dataMap.get("sideChainAddress").toString());
+            dataMap.get("mainChainAddress").toString(), dataMap.get("sideChainAddress").toString(),
+            null);
         return task;
       }
       case WITHDRAW_TRC10: {

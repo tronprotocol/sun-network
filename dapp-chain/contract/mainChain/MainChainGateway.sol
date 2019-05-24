@@ -40,8 +40,8 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
      * @param contractAddress Address of token contract the token belong to.
      * @param value For TRC721 this is the uid of the token, for TRX/TRC20/TRC10 this is the amount.
      */
-    event TokenWithdrawn(address indexed owner, TokenKind kind, address contractAddress, uint256 value);
-    event Token10Withdrawn(address indexed owner, TokenKind kind, trcToken tokenId, uint256 value);
+    event TokenWithdrawn(address indexed owner, TokenKind kind, address contractAddress, uint256 value, bytes32 txId);
+    event Token10Withdrawn(address indexed owner, TokenKind kind, trcToken tokenId, uint256 value, bytes32 txId);
 
     constructor (address _oracle)
     public OracleManagerContract(_oracle) {
@@ -66,7 +66,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
         nonce[to]++;
         balances.trc20[contractAddress] = balances.trc20[contractAddress].sub(amount);
         TRC20(contractAddress).transfer(_to, amount);
-        emit TokenWithdrawn(_to, TokenKind.TRC20, contractAddress, amount);
+        emit TokenWithdrawn(_to, TokenKind.TRC20, contractAddress, amount, txid);
     }
 
     function withdrawTRC721(address _to, address contractAddress,uint256 uid, bytes sig, bytes32 txid, bytes[] oracleSign)
@@ -78,7 +78,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
         require(balances.trc721[contractAddress][uid], "Does not own token");
         TRC721(contractAddress).transfer(_to, uid);
         delete balances.trc721[contractAddress][uid];
-        emit TokenWithdrawn(_to, TokenKind.TRC721, contractAddress, uid);
+        emit TokenWithdrawn(_to, TokenKind.TRC721, contractAddress, uid, txid);
     }
 
     function withdrawTRX(address _to, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
@@ -90,7 +90,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
         balances.tron = balances.tron.sub(amount);
         _to.transfer(amount);
         // ensure it's not reentrant
-        emit TokenWithdrawn(_to, TokenKind.TRX, address(0), amount);
+        emit TokenWithdrawn(_to, TokenKind.TRX, address(0), amount, txid);
     }
 
     function withdrawTRC10(address _to, trcToken tokenId, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
@@ -101,7 +101,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
         nonce[to]++;
         balances.trc10[tokenId] = balances.trc10[tokenId].sub(amount);
         _to.transferToken(amount, tokenId);
-        emit Token10Withdrawn(msg.sender, TokenKind.TRC10, tokenId, amount);
+        emit Token10Withdrawn(msg.sender, TokenKind.TRC10, tokenId, amount, txid);
     }
 
     // Approve and Deposit function for 2-step deposits

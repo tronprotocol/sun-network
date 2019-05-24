@@ -5,8 +5,8 @@ public enum MainEventType implements EventType {
   TRC10_RECEIVED("TRC10Received(address,uint256,uint256)"),
   TRC20_RECEIVED("TRC20Received(address,uint256,address)"),
   TRC721_RECEIVED("TRC721Received(address,uint256,address)"),
-  TOKEN_WITHDRAWN("TokenWithdrawn(address,uint8,address,uint256)"),
-  TOKEN10_WITHDRAWN("Token10Withdrawn(address,uint8,uint256,uint256)"),
+  TOKEN_WITHDRAWN("TokenWithdrawn(address,uint8,address,uint256,bytes32)"),
+  TOKEN10_WITHDRAWN("Token10Withdrawn(address,uint8,uint256,uint256,bytes32)"),
   UNKNOWN_EVENT("UnknownEvent");
   private String signature;
 

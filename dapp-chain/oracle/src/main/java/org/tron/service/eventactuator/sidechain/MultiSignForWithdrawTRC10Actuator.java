@@ -3,7 +3,6 @@ package org.tron.service.eventactuator.sidechain;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
-import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.TaskEnum;
@@ -20,7 +19,6 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
   private String value;
   private String userSign;
   private String dataHash;
-  private String txId;
 
   public MultiSignForWithdrawTRC10Actuator(String from, String trc10, String value, String userSign,
       String dataHash, String txId) {

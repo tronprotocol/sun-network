@@ -21,7 +21,6 @@ public class DepositTRC20Actuator extends Actuator {
     this.from = from;
     this.amount = amount;
     this.contractAddress = contractAddress;
-    this.txId = txId;
   }
 
   @Override

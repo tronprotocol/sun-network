@@ -9,12 +9,10 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.tron.common.config.Args;
-import org.tron.common.exception.RpcConnectException;
-import org.tron.common.utils.AlertUtil;
 import org.tron.db.TransactionExtentionStore;
 import org.tron.protos.Sidechain.TaskEnum;
-import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
+import org.tron.service.eventactuator.ActuatorRun;
 import org.tron.service.eventactuator.EventActuatorFactory;
 import org.tron.service.kafka.KfkConsumer;
 
@@ -61,23 +59,9 @@ public class EventTask {
           this.kfkConsumer.commit();
           continue;
         }
-        TransactionExtensionCapsule txExtensionCapsule = null;
-        try {
-          txExtensionCapsule = eventActuator
-              .createTransactionExtensionCapsule();
-        } catch (RpcConnectException e) {
-          AlertUtil.sendAlert("createTransactionExtensionCapsule fail, system exit");
-          System.exit(1);
-        }
-        if (txExtensionCapsule == null) {
-          continue;
-        }
-        byte[] txIdBytes = txExtensionCapsule.getTransactionIdBytes();
-        if (!this.store.exist(txIdBytes)) {
-          this.store.putData(txIdBytes, txExtensionCapsule.getData());
-        }
-        this.kfkConsumer.commit();
-        executor.execute(new TxExtensionTask(txExtensionCapsule));
+        //store put event Actuator
+        //this.kfkConsumer.commit();
+        ActuatorRun.getInstance().start(eventActuator);
       }
     }
   }

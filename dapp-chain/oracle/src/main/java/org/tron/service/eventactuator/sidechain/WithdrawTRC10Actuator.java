@@ -2,7 +2,6 @@ package org.tron.service.eventactuator.sidechain;
 
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.protos.Protocol.Transaction;
@@ -19,9 +18,9 @@ public class WithdrawTRC10Actuator extends Actuator {
   private String value;
   private String trc10;
   private String userSign;
-  private String txId;
 
-  public WithdrawTRC10Actuator(String from, String value, String trc10, String txData, String txId) {
+  public WithdrawTRC10Actuator(String from, String value, String trc10, String txData,
+      String txId) {
     this.from = from;
     this.value = value;
     this.trc10 = trc10;
@@ -30,13 +29,15 @@ public class WithdrawTRC10Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule() throws RpcConnectException {
+  public TransactionExtensionCapsule createTransactionExtensionCapsule()
+      throws RpcConnectException {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;
     }
     logger
-      .info("WithdrawTRC10Actuator, from: {}, value: {}, trc10: {}, userSign: {}, txId: {}", this.from,
-        this.value, this.trc10, this.userSign, this.txId);
+        .info("WithdrawTRC10Actuator, from: {}, value: {}, trc10: {}, userSign: {}, txId: {}",
+            this.from,
+            this.value, this.trc10, this.userSign, this.txId);
     // if (this.trc10.equalsIgnoreCase("2000000")) {
     //   Transaction tx = MainChainGatewayApi.withdrawTRC20Transaction(this.from,
     //     WalletUtil.encode58Check(Args.getInstance().getSunTokenAddress()), this.value, this.userSign);
@@ -47,7 +48,7 @@ public class WithdrawTRC10Actuator extends Actuator {
     // this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
     // }
     Transaction tx = SideChainGatewayApi
-      .withdrawTRC10Transaction(this.from, this.trc10, this.value, this.userSign, this.txId);
+        .withdrawTRC10Transaction(this.from, this.trc10, this.value, this.userSign, this.txId);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
     return this.transactionExtensionCapsule;
   }
