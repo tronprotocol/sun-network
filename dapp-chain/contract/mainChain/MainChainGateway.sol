@@ -160,6 +160,11 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
         }
     }
 
+    function migrationToken(address mainChainToken,address sideChainToken, bytes32 txId, bytes[] oracleSign) public onlyOracle {
+        checkMappingMultiSign(mainChainToken, sideChainToken, txId, oracleSign);
+        allows[mainChainToken] = sideChainToken;
+    }
+
     // Returns all the TRX
     function getTRX() external view returns (uint256) {
         return balances.tron;

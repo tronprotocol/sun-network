@@ -12,9 +12,10 @@ contract OracleManagerContract is Ownable {
     mapping(address => bool) oracles;
 
     uint256 public numOracles;
-    mapping(bytes32=>SignMsg) withdrawList;
-    struct SignMsg{
-        mapping(address=>bool) signedOracle;
+    mapping(bytes32 => SignMsg) multiSignList;
+
+    struct SignMsg {
+        mapping(address => bool) signedOracle;
         uint256 countSign;
     }
     // address[]  _oracles;
@@ -40,64 +41,74 @@ contract OracleManagerContract is Ownable {
         emit NewOracles(_oracle);
     }
 
-    function checkGainer(address _to,uint256 num, address contractAddress, bytes sig) internal {
-        uint256[] memory nonum=new uint256[](2);
-        nonum[0]= nonce[_to];
-        nonum[1]=num;
-        bytes32 hash = keccak256(abi.encodePacked(contractAddress,nonum));
+    function checkGainer(address _to, uint256 num, address contractAddress, bytes sig) internal {
+        uint256[] memory nonum = new uint256[](2);
+        nonum[0] = nonce[_to];
+        nonum[1] = num;
+        bytes32 hash = keccak256(abi.encodePacked(contractAddress, nonum));
         address sender = hash.recover(sig);
         require(sender == _to, "Message not signed by a gainer");
-        
+
     }
 
-    function checkTrc10Gainer(address _to,uint256 num, trcToken tokenId, bytes sig) internal {
-        uint256[] memory nonum=new uint256[](3);
-        nonum[0]=tokenId;
-        nonum[1]= nonce[_to];
-        nonum[2]=num;
+    function checkTrc10Gainer(address _to, uint256 num, trcToken tokenId, bytes sig) internal {
+        uint256[] memory nonum = new uint256[](3);
+        nonum[0] = tokenId;
+        nonum[1] = nonce[_to];
+        nonum[2] = num;
         bytes32 hash = keccak256(abi.encodePacked(nonum));
         address sender = hash.recover(sig);
         require(sender == _to, "Message not signed by a gainer");
-
     }
 
-    function checkOracles(address _to,uint256 num, address contractAddress, bytes32 txid, bytes[] sigList) internal {
-        SignMsg storage wm;
+    function checkMappingMultiSign(address mainChainToken, address sideChainToken, bytes32 txId, bytes[] oracleSign) internal {
+        SignMsg storage msl = multiSignList[txId];
+        bytes32 dataHash = keccak256(abi.encodePacked(mainChainToken, sideChainToken, txId));
+        for (uint256 i = 0; i < oracleSign.length; i++) {
+            address _oracle = dataHash.recover(oracleSign[i]);
+            if (!msl.signedOracle[_oracle]) {
+                msl.signedOracle[_oracle] = true;
+                msl.countSign++;
+            }
+        }
+        require(msl.countSign > numOracles * 2 / 3, "oracle num not enough 2/3");
+    }
 
-        uint256[] memory nonum=new uint256[](2);
-        nonum[0]= nonce[_to];
-        nonum[1]=num;
+    function checkOracles(address _to, uint256 num, address contractAddress, bytes32 txid, bytes[] sigList) internal {
+        SignMsg storage msl = multiSignList[txid];
+
+        uint256[] memory nonum = new uint256[](2);
+        nonum[0] = nonce[_to];
+        nonum[1] = num;
         bytes32 hash = keccak256(abi.encodePacked(_to, contractAddress, nonum, txid));
-        for (uint256 i=0; i<sigList.length; i++){
+        for (uint256 i = 0; i < sigList.length; i++) {
             address _oracle = hash.recover(sigList[i]);
-            if(isOracle(_oracle)&&!wm.signedOracle[_oracle]){
-                wm.signedOracle[_oracle]=true;
-                wm.conuntSign++;
+            if (isOracle(_oracle) && !msl.signedOracle[_oracle]) {
+                msl.signedOracle[_oracle] = true;
+                msl.countSign++;
             }
         }
-        require(wm.conuntSign > numOracles * 2 / 3,"oracle num not enough 2/3");
-        withdrawList[txid]=wm;
-        
+        require(msl.countSign > numOracles * 2 / 3, "oracle num not enough 2/3");
+
     }
 
-    function checkTrc10Oracles(address _to,uint256 num, trcToken tokenId, bytes32 txid, bytes[] sigList) internal {
-        SignMsg storage wm;
+    function checkTrc10Oracles(address _to, uint256 num, trcToken tokenId, bytes32 txid, bytes[] sigList) internal {
+        SignMsg storage msl = multiSignList[txid];
 
-        uint256[] memory nonum=new uint256[](3);
-        nonum[0]=tokenId;
-        nonum[1]= nonce[_to];
-        nonum[2]=num;
-        bytes32 hash = keccak256(abi.encodePacked(to, nonum,txid));
-        for (uint256 i=0; i<sigList.length; i++){
+        uint256[] memory nonum = new uint256[](3);
+        nonum[0] = tokenId;
+        nonum[1] = nonce[_to];
+        nonum[2] = num;
+        bytes32 hash = keccak256(abi.encodePacked(_to, nonum, txid));
+        for (uint256 i = 0; i < sigList.length; i++) {
             address _oracle = hash.recover(sigList[i]);
-            if(isOracle(_oracle)){
-                wm.signedOracle[_oracle]=true;
-                wm.conuntSign++;
+            if (isOracle(_oracle)) {
+                msl.signedOracle[_oracle] = true;
+                msl.conuntSign++;
             }
         }
-        require(wm.conuntSign > numOracles*2/3,"oracle num not enough 2/3");
-        withdrawList[txid]=wm;
-        
+        require(msl.countSign > numOracles * 2 / 3, "oracle num not enough 2/3");
+
     }
 
     function isOracle(address _address) public view returns (bool) {
@@ -107,15 +118,12 @@ contract OracleManagerContract is Ownable {
         return oracles[_address];
     }
 
-    function migrationToken(address mainChainToken,address sideChainToken) public onlyOracle {
-        allows[mainChainToken] = sideChainToken;
-    }
-
     function addOracle(address _oracle) public onlyOwner {
         require(!isOracle(_oracle));
         oracles[_oracle] = true;
         numOracles++;
     }
+
     function delOracle(address _oracle) public onlyOwner {
         require(!isOracle(_oracle));
         oracles[_oracle] = false;

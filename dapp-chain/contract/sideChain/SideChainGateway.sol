@@ -36,6 +36,9 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     event MultiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes userSign, bytes32 dataHash, bytes32 txId);
     event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes userSign, bytes32 dataHash, bytes32 txId);
     event MultiSignForWithdrawTRX(address from, uint256 value, bytes userSign, bytes32 dataHash, bytes32 txId);
+    event MultiSignForDeployAndMapping(address mainChainAddress, address sideChainAddress, bytes32 dataHash, bytes32 txId);
+
+
 
     // TODO: type enum
     mapping(address => address) public mainToSideContractMap;
@@ -51,13 +54,14 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     mapping(bytes32 => mapping(bytes32 => SignMsg)) public depositSigns;
     mapping(bytes32 => mapping(bytes32 => SignMsg)) public withdrawSigns;
+    mapping(bytes32 => mapping(bytes32 => SignMsg)) public mappingSigns;
     mapping(bytes32 => SignMsg) depositList;
 
     struct SignMsg {
         mapping(address => bool) oracleSigned;
         bytes[] signs;
         uint256 signCnt;
-        bool deposited;
+        bool success;
     }
 
     constructor (address _oracle) public {
@@ -223,8 +227,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         // depositSigns[txId][dataHash].signs.push(oracleSign);
         depositSigns[txId][dataHash].signCnt += 1;
 
-        if (depositSigns[txId][dataHash].signCnt > oracleCnt * 2 / 3 && !depositSigns[txId][dataHash].deposited) {
-            depositSigns[txId][dataHash].deposited = true;
+        if (depositSigns[txId][dataHash].signCnt > oracleCnt * 2 / 3 && !depositSigns[txId][dataHash].success) {
+            depositSigns[txId][dataHash].success = true;
             return true;
         }
         return false;
@@ -281,8 +285,25 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         withdrawSigns[txId][dataHash].signs.push(oracleSign);
         withdrawSigns[txId][dataHash].signCnt += 1;
 
-        if (withdrawSigns[txId][dataHash].signCnt > oracleCnt * 2 / 3 && !withdrawSigns[txId][dataHash].deposited) {
-            withdrawSigns[txId][dataHash].deposited = true;
+        if (withdrawSigns[txId][dataHash].signCnt > oracleCnt * 2 / 3 && !withdrawSigns[txId][dataHash].success) {
+            withdrawSigns[txId][dataHash].success = true;
+            return true;
+        }
+        return false;
+    }
+
+    function multiSignForMapping(bytes32 txId, bytes32 dataHash, bytes oracleSign) internal returns (bool) {
+
+        if (mappingSigns[txId][dataHash].oracleSigned[msg.sender]) {
+            return false;
+        }
+
+        mappingSigns[txId][dataHash].oracleSigned[msg.sender] = true;
+        mappingSigns[txId][dataHash].signs.push(oracleSign);
+        mappingSigns[txId][dataHash].signCnt += 1;
+
+        if (mappingSigns[txId][dataHash].signCnt > oracleCnt * 2 / 3 && !mappingSigns[txId][dataHash].success) {
+            mappingSigns[txId][dataHash].success = true;
             return true;
         }
         return false;
@@ -312,37 +333,11 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         }
     }
 
-    function checkOracles(address _to, uint256 num, address contractAddress, bytes32 txid, bytes[] sigList) internal {
-        SignMsg storage wm;
-        uint256[] memory valueMsg = new uint256[](2);
-        valueMsg[1] = num;
-        bytes32 hash = keccak256(abi.encodePacked(_to, contractAddress, valueMsg, txid));
-        for (uint256 i = 0; i < sigList.length; i++) {
-            address _oracle = hash.recover(sigList[i]);
-            if (oracles[_oracle] && !wm.oracleSigned[_oracle]) {
-                wm.oracleSigned[_oracle] = true;
-                wm.signCnt++;
-            }
+    function multiSignForDeployAndMapping(address mainChainAddress, address sideChainAddress, bytes32 txId, bytes oracleSign) public onlyOracle {
+        bytes32 dataHash = keccak256(abi.encodePacked(mainChainAddress, sideChainAddress, txId));
+        bool needEmit = multiSignForMapping(txId, dataHash, oracleSign);
+        if (needEmit) {
+            emit MultiSignForDeployAndMapping(mainChainAddress, sideChainAddress, dataHash, txId);
         }
-        require(wm.signCnt > oracleCnt * 2 / 3, "oracle num not enough 2/3");
-        depositList[txid] = wm;
-    }
-
-    function checkOraclesForTrc10(address _to, uint256 num, uint256 trc10, bytes32 name, bytes32 symbol, uint8 decimals, bytes32 txid, bytes[] sigList) internal {
-        SignMsg storage wm;
-        uint256[] memory trc10IdAndValueAndDecimals = new uint256[](3);
-        trc10IdAndValueAndDecimals[0] = trc10;
-        trc10IdAndValueAndDecimals[1] = num;
-        trc10IdAndValueAndDecimals[2] = decimals;
-        bytes32 hash = keccak256(abi.encodePacked(_to, trc10IdAndValueAndDecimals, name, symbol, txid));
-        for (uint256 i = 0; i < sigList.length; i++) {
-            address _oracle = hash.recover(sigList[i]);
-            if (oracles[_oracle] && !wm.oracleSigned[_oracle]) {
-                wm.oracleSigned[_oracle] = true;
-                wm.signCnt++;
-            }
-        }
-        require(wm.signCnt > oracleCnt * 2 / 3, "oracle num not enough 2/3");
-        depositList[txid] = wm;
     }
 }
