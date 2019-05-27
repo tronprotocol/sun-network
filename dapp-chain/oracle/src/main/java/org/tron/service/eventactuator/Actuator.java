@@ -1,16 +1,17 @@
 package org.tron.service.eventactuator;
 
-import lombok.Getter;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.protos.Sidechain.EventMsg;
+import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.service.check.TransactionExtensionCapsule;
 
 public abstract class Actuator {
 
   protected TransactionExtensionCapsule transactionExtensionCapsule;
-  @Getter
-  protected String txId;
+  protected EventType type;
+
+  public abstract EventMsg getMessage();
 
   public abstract TransactionExtensionCapsule createTransactionExtensionCapsule()
       throws RpcConnectException;
-
 }

@@ -63,7 +63,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     {
         checkGainer(_to, amount, contractAddress, sig) ;
         checkOracles( _to,   amount, contractAddress, txid, oracleSign);
-        nonce[to]++;
+        nonce[_to]++;
         balances.trc20[contractAddress] = balances.trc20[contractAddress].sub(amount);
         TRC20(contractAddress).transfer(_to, amount);
         emit TokenWithdrawn(_to, TokenKind.TRC20, contractAddress, amount, txid);
@@ -74,7 +74,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     {
         checkGainer(_to,uid, contractAddress, sig);
         checkOracles( _to,   uid, contractAddress, txid,oracleSign);
-        nonce[to]++;
+        nonce[_to]++;
         require(balances.trc721[contractAddress][uid], "Does not own token");
         TRC721(contractAddress).transfer(_to, uid);
         delete balances.trc721[contractAddress][uid];
@@ -86,7 +86,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     {
         checkGainer(_to,amount, address(this), sig);
         checkOracles( _to,   amount, address(this), txid,oracleSign);
-        nonce[to]++;
+        nonce[_to]++;
         balances.tron = balances.tron.sub(amount);
         _to.transfer(amount);
         // ensure it's not reentrant
@@ -98,7 +98,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     {
         checkTrc10Gainer(_to,amount, tokenId, sig);
         checkTrc10Oracles( _to,   amount, tokenId, txid, oracleSign);
-        nonce[to]++;
+        nonce[_to]++;
         balances.trc10[tokenId] = balances.trc10[tokenId].sub(amount);
         _to.transferToken(amount, tokenId);
         emit Token10Withdrawn(msg.sender, TokenKind.TRC10, tokenId, amount, txid);
