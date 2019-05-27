@@ -66,7 +66,7 @@ contract OracleManagerContract is Ownable {
         bytes32 dataHash = keccak256(abi.encodePacked(mainChainToken, sideChainToken, txId));
         for (uint256 i = 0; i < oracleSign.length; i++) {
             address _oracle = dataHash.recover(oracleSign[i]);
-            if (!msl.signedOracle[_oracle]) {
+            if (isOracle(_oracle) && !msl.signedOracle[_oracle]) {
                 msl.signedOracle[_oracle] = true;
                 msl.countSign++;
             }
