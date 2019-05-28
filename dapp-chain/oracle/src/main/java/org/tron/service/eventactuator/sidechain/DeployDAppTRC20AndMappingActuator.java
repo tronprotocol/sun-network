@@ -1,10 +1,17 @@
 package org.tron.service.eventactuator.sidechain;
 
+import com.google.protobuf.Any;
+import com.google.protobuf.ByteString;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.Sidechain.DeployDAppTRC20AndMappingEvent;
+import org.tron.protos.Sidechain.EventMsg;
+import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
@@ -14,15 +21,12 @@ public class DeployDAppTRC20AndMappingActuator extends Actuator {
 
   // "event DeployDAppTRC20AndMapping(address developer, address mainChainAddress, address sideChainAddress);"
 
-  private String developer;
-  private String mainChainAddress;
-  private String sideChainAddress;
 
+  DeployDAppTRC20AndMappingEvent event;
 
   // NOTE: event: PB(data0, data1, data2..., txId, will_task_enum) 其中这里面的txId是发出这个event的交易的txId
   // NOTE: transaction: PB(tx, txId, task_enum) 其中这里面的txId是处理这个event所构造的新交易的txId
   // NOTE: event库和transaction库需要使用同一个key！！使用event所在交易的txId即可！！
-
 
   // NOTE: 在主线程里面，1. 收到event之后，仅仅是生成event库，不会失败和卡住，就是存储！然后commit
   // NOTE: 在子线程里面，2. 将event传参，先构造交易，存库，sleep，然后发送，然后提交check
@@ -38,13 +42,19 @@ public class DeployDAppTRC20AndMappingActuator extends Actuator {
   // NOTE: 需要查tx有的，但是event中没有的吗？不需要！
 
 
-
   public DeployDAppTRC20AndMappingActuator(String developer, String mainChainAddress,
-      String sideChainAddress, String txId) {
-    this.developer = developer;
-    this.mainChainAddress = mainChainAddress;
-    this.sideChainAddress = sideChainAddress;
-    this.txId = txId;
+      String sideChainAddress, String transactionId) {
+    ByteString developerBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(developer));
+    ByteString mainChainAddressBS = ByteString
+        .copyFrom(WalletUtil.decodeFromBase58Check(mainChainAddress));
+    ByteString sideChainAddressBS = ByteString
+        .copyFrom(WalletUtil.decodeFromBase58Check(sideChainAddress));
+    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
+    this.type = EventType.DEPOSIT_TRC10_EVENT;
+    this.event = DeployDAppTRC20AndMappingEvent.newBuilder().setDeveloper(developerBS)
+        .setMainchainAddress(mainChainAddressBS)
+        .setSidechainAddress(sideChainAddressBS)
+        .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
   }
 
   @Override
@@ -53,13 +63,31 @@ public class DeployDAppTRC20AndMappingActuator extends Actuator {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return transactionExtensionCapsule;
     }
-    logger.info(
-        "DeployDAppTRC20AndMappingActuator, developer: {}, mainChainAddress: {}, sideChainAddress: {}",
-        this.developer, this.mainChainAddress, this.sideChainAddress);
+
+    String developerStr = WalletUtil.encode58Check(event.getDeveloper().toByteArray());
+    String mainChainAddressStr = WalletUtil
+        .encode58Check(event.getMainchainAddress().toByteArray());
+    String sideChainAddressStr = WalletUtil
+        .encode58Check(event.getSidechainAddress().toByteArray());
+    String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
+
+    logger.info("DeployDAppTRC20AndMappingActuator, developer: {}, mainChainAddress: {},"
+            + " sideChainAddress: {}, transactionId: {}", developerStr, mainChainAddressStr,
+        sideChainAddressStr, transactionIdStr);
+
     Transaction tx = MainChainGatewayApi
-        .addTokenMappingTransaction(this.mainChainAddress, this.sideChainAddress);
+        .addTokenMappingTransaction(mainChainAddressStr, sideChainAddressStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
     return this.transactionExtensionCapsule;
   }
 
+  @Override
+  public EventMsg getMessage() {
+    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(this.type).build();
+  }
+
+  @Override
+  public byte[] getKey() {
+    return event.getTransactionId().toByteArray();
+  }
 }
