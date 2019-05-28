@@ -12,7 +12,7 @@ option go_package = "github.com/tronprotocol/grpc-gateway/core";
 
 message TransactionExtension {
   Transaction transaction = 1;
-  bytes txid = 2;
+  bytes transaction_id = 2;
   TaskEnum task_enum = 3;
 }
 
@@ -47,6 +47,7 @@ message DepositTRC10Event {
   bytes value = 2;
   bytes trc10 = 3;
   bytes transaction_id = 4;
+  TaskEnum will_task_enum = 5;
 }
 
 // Update account name. Account name is not unique now.
@@ -55,6 +56,7 @@ message DepositTRC20Event {
   bytes value = 2;
   bytes contract_address = 3;
   bytes transaction_id = 4;
+  TaskEnum will_task_enum = 5;
 }
 
 // Set account id if the account has no id. Account id is unique and case insensitive.
@@ -63,12 +65,14 @@ message DepositTRC721Event {
   bytes token_id = 2;
   bytes contract_address = 3;
   bytes transaction_id = 4;
+  TaskEnum will_task_enum = 5;
 }
 
 message DepositTRXEvent {
   bytes from = 1;
   bytes value = 2;
   bytes transaction_id = 3;
+  TaskEnum will_task_enum = 4;
 }
 
 message DeployDAppTRC20AndMappingEvent {
@@ -76,6 +80,7 @@ message DeployDAppTRC20AndMappingEvent {
   bytes mainchain_address = 2;
   bytes sidechain_address = 3;
   bytes transaction_id = 4;
+  TaskEnum will_task_enum = 5;
 }
 
 
@@ -84,6 +89,7 @@ message DeployDAppTRC721AndMappingEvent {
   bytes mainchain_address = 2;
   bytes sidechain_address = 3;
   bytes transaction_id = 4;
+  TaskEnum will_task_enum = 5;
 }
 
 message MultiSignForWithdrawTokenEvent {
@@ -94,6 +100,7 @@ message MultiSignForWithdrawTokenEvent {
   bytes user_sign = 5;
   bytes data_hash = 6;
   bytes transaction_id = 7;
+  TaskEnum will_task_enum = 8;
 }
 
 message MultiSignForWithdrawTRC10Event {
@@ -103,6 +110,7 @@ message MultiSignForWithdrawTRC10Event {
   bytes user_sign = 4;
   bytes data_hash = 5;
   bytes transaction_id = 6;
+  TaskEnum will_task_enum = 7;
 }
 
 message MultiSignForWithdrawTRXEvent {
@@ -111,6 +119,7 @@ message MultiSignForWithdrawTRXEvent {
   bytes user_sign = 3;
   bytes data_hash = 4;
   bytes transaction_id = 5;
+  TaskEnum will_task_enum = 6;
 }
 
 message WithdrawTRC10Event {
@@ -119,6 +128,7 @@ message WithdrawTRC10Event {
   bytes value = 3;
   bytes user_sign = 4;
   bytes transaction_id = 5;
+  TaskEnum will_task_enum = 6;
 }
 
 message WithdrawTRC20Event {
@@ -127,6 +137,7 @@ message WithdrawTRC20Event {
   bytes value = 3;
   bytes user_sign = 4;
   bytes transaction_id = 5;
+  TaskEnum will_task_enum = 6;
 }
 
 message WithdrawTRC721Event {
@@ -135,6 +146,7 @@ message WithdrawTRC721Event {
   bytes token_id = 3;
   bytes user_sign = 4;
   bytes transaction_id = 5;
+  TaskEnum will_task_enum = 6;
 }
 
 message WithdrawTRXEvent {
@@ -142,4 +154,5 @@ message WithdrawTRXEvent {
   bytes value = 2;
   bytes user_sign = 3;
   bytes transaction_id = 4;
+  TaskEnum will_task_enum = 5;
 }

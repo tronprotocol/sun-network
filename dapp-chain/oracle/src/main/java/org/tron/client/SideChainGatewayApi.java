@@ -2,7 +2,6 @@ package org.tron.client;
 
 import static org.tron.client.SideChainGatewayApi.GatewayApi.GATEWAY_API;
 
-import com.sun.org.apache.xpath.internal.Arg;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,7 +9,6 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.encoders.Hex;
 import org.tron.common.config.Args;
-import org.tron.common.crypto.ECKey;
 import org.tron.common.crypto.Hash;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.exception.TxValidateException;

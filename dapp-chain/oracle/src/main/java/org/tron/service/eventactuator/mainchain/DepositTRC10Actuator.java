@@ -8,6 +8,7 @@ import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.DepositTRC10Event;
@@ -23,7 +24,7 @@ public class DepositTRC10Actuator extends Actuator {
   DepositTRC10Event event;
 
   public DepositTRC10Actuator(String from, String value, String trc10, String transactionId) {
-    ByteString fromBS = ByteString.copyFrom(ByteArray.fromString(from));
+    ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString trc10BS = ByteString.copyFrom(ByteArray.fromString(trc10));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromString(transactionId));

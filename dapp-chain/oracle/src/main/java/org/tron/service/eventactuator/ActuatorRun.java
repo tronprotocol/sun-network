@@ -36,9 +36,9 @@ public class ActuatorRun {
       if (txExtensionCapsule == null) {
         return;
       }
-      byte[] txIdBytes = txExtensionCapsule.getTransactionIdBytes();
-      if (!this.store.exist(txIdBytes)) {
-        this.store.putData(txIdBytes, txExtensionCapsule.getData());
+
+      if (!this.store.exist(eventActuator.getKey())) {
+        this.store.putData(eventActuator.getKey(), txExtensionCapsule.getData());
       }
       executor.execute(new TxExtensionTask(txExtensionCapsule));
     });
