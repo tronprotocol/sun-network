@@ -1,12 +1,18 @@
 package org.tron.service.eventactuator.sidechain;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.ByteString;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
+import org.tron.protos.Sidechain.EventMsg.EventType;
+import org.tron.protos.Sidechain.MultiSignForWithdrawTokenEvent;
+import org.tron.protos.Sidechain.DeployDAppTRC20AndMappingEvent;
 import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.MultiSignForWithdrawTokenEvent;
 import org.tron.protos.Sidechain.TaskEnum;
@@ -18,22 +24,21 @@ public class MultiSignForWithdrawTokenActuator extends Actuator {
 
   // "event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 dataHash, bytes32 txId);"
 
-  private String from;
-  private String mainChainAddress;
-  private String valueOrTokenId;
-  private String type;
-  private String userSign;
-  private String dataHash;
+  MultiSignForWithdrawTokenEvent event;
 
   public MultiSignForWithdrawTokenActuator(String from, String mainChainAddress,
       String valueOrTokenId, String type, String userSign, String dataHash, String txId) {
-    this.from = from;
-    this.mainChainAddress = mainChainAddress;
-    this.valueOrTokenId = valueOrTokenId;
-    this.type = type;
-    this.userSign = userSign;
-    this.dataHash = dataHash;
-    this.txId = txId;
+    ByteString developerBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(developer));
+    ByteString mainChainAddressBS = ByteString
+        .copyFrom(WalletUtil.decodeFromBase58Check(mainChainAddress));
+    ByteString sideChainAddressBS = ByteString
+        .copyFrom(WalletUtil.decodeFromBase58Check(sideChainAddress));
+    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
+    this.type = EventType.DEPOSIT_TRC10_EVENT;
+    this.event = DeployDAppTRC20AndMappingEvent.newBuilder().setDeveloper(developerBS)
+        .setMainchainAddress(mainChainAddressBS)
+        .setSidechainAddress(sideChainAddressBS)
+        .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
   }
 
   public MultiSignForWithdrawTokenActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {

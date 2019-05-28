@@ -28,11 +28,11 @@ public class DepositTRC10Actuator extends Actuator {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString trc10BS = ByteString.copyFrom(ByteArray.fromString(trc10));
-    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromString(transactionId));
+    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.type = EventType.DEPOSIT_TRC10_EVENT;
     this.event = DepositTRC10Event.newBuilder().setFrom(fromBS).setValue(valueBS)
         .setTrc10(trc10BS)
-        .setTransactionId(transactionIdBS).build();
+        .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.SIDE_CHAIN).build();
   }
 
   public DepositTRC10Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
@@ -46,18 +46,21 @@ public class DepositTRC10Actuator extends Actuator {
     if (Objects.nonNull(this.transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;
     }
-    logger.info("DepositTRC10Actuator, from: {}, amount: {}, tokenId: {}, txId: {}",
-        event.getFrom().toStringUtf8(),
-        event.getValue().toStringUtf8(), event.getTrc10().toStringUtf8(),
-        event.getTransactionId().toStringUtf8());
+
+    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+    String valueStr = event.getValue().toStringUtf8();
+    String trc10Str = event.getTrc10().toStringUtf8();
+    String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
+
+    logger.info("DepositTRC10Actuator, from: {}, value: {}, trc10: {}, transactionId: {}",
+        fromStr, valueStr, trc10Str, transactionIdStr);
+
     // TODO: throw RpcConnectException
     AssetIssueContract assetIssue = MainChainGatewayApi
         .getAssetIssueById(event.getTransactionId().toStringUtf8());
     Transaction tx = SideChainGatewayApi
-        .mintToken10Transaction(event.getFrom().toStringUtf8(), event.getTrc10().toStringUtf8(),
-            event.getValue().toStringUtf8(),
-            assetIssue.getName().toStringUtf8(), assetIssue.getName().toStringUtf8(),
-            assetIssue.getPrecision(), event.getTransactionId().toStringUtf8());
+        .mintToken10Transaction(fromStr, trc10Str, valueStr, assetIssue.getName().toStringUtf8(),
+            assetIssue.getName().toStringUtf8(), assetIssue.getPrecision(), transactionIdStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
     return this.transactionExtensionCapsule;
   }

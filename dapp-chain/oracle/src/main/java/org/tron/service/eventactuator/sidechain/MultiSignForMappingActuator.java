@@ -18,8 +18,8 @@ public class MultiSignForMappingActuator extends Actuator {
 
   // "event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 dataHash, bytes32 txId);"
 
-  private String mainChainAddress;
-  private String sideChainAddress;
+  event;
+
 
   public MultiSignForMappingActuator(String from, String mainChainAddress,
       String valueOrTokenId, String type, String userSign, String dataHash, String txId) {
