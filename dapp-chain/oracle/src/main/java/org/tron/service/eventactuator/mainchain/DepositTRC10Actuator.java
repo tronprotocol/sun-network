@@ -33,9 +33,6 @@ public class DepositTRC10Actuator extends Actuator {
         .setTransactionId(transactionIdBS).build();
   }
 
-  public EventMsg getMessage() {
-    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(this.type).build();
-  }
 
   @Override
   public TransactionExtensionCapsule createTransactionExtensionCapsule()
@@ -57,5 +54,15 @@ public class DepositTRC10Actuator extends Actuator {
             assetIssue.getPrecision(), event.getTransactionId().toStringUtf8());
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
     return this.transactionExtensionCapsule;
+  }
+
+  @Override
+  public EventMsg getMessage() {
+    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(this.type).build();
+  }
+
+  @Override
+  public byte[] getKey() {
+    return event.getTransactionId().toByteArray();
   }
 }

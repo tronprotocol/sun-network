@@ -4,7 +4,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.utils.AlertUtil;
-import org.tron.db.TransactionExtentionStore;
+import org.tron.db.TransactionExtensionStore;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.task.TxExtensionTask;
 
@@ -21,7 +21,7 @@ public class ActuatorRun {
 
   private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
-  private final TransactionExtentionStore store = TransactionExtentionStore.getInstance();
+  private final TransactionExtensionStore store = TransactionExtensionStore.getInstance();
 
   public void start(Actuator eventActuator) {
     executor.submit(() -> {

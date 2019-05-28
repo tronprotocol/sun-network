@@ -7,7 +7,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.tron.common.config.Args;
-import org.tron.db.TransactionExtentionStore;
+import org.tron.db.EventStore;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.ActuatorRun;
@@ -18,7 +18,7 @@ public class EventTask {
 
   private KfkConsumer kfkConsumer;
 
-  private TransactionExtentionStore store;
+  private EventStore store;
   private String mainGateway;
   private String sideGateway;
 
@@ -27,7 +27,7 @@ public class EventTask {
     this.sideGateway = sideGateway;
     this.kfkConsumer = new KfkConsumer(Args.getInstance().getMainchainKafka(), "Oracle",
         Arrays.asList("contractevent"));
-    this.store = TransactionExtentionStore.getInstance();
+    this.store = EventStore.getInstance();
   }
 
   public void processEvent() {
@@ -54,7 +54,7 @@ public class EventTask {
           this.kfkConsumer.commit();
           continue;
         }
-        //store put event Actuator
+        store.putData(eventActuator.getKey(), eventActuator.getMessage().toByteArray());
         this.kfkConsumer.commit();
 
         ActuatorRun.getInstance().start(eventActuator);

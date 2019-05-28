@@ -14,4 +14,7 @@ public abstract class Actuator {
 
   public abstract TransactionExtensionCapsule createTransactionExtensionCapsule()
       throws RpcConnectException;
+
+
+  public abstract byte[] getKey();
 }

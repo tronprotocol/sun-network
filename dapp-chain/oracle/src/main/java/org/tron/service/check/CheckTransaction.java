@@ -8,11 +8,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
-import org.tron.common.exception.TxValidateException;
-import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxFailException;
+import org.tron.common.exception.TxRollbackException;
+import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AlertUtil;
-import org.tron.db.TransactionExtentionStore;
+import org.tron.db.TransactionExtensionStore;
 
 @Slf4j
 public class CheckTransaction {
@@ -27,13 +27,14 @@ public class CheckTransaction {
   }
 
   private final ScheduledExecutorService syncExecutor = Executors
-    .newScheduledThreadPool(100);
+      .newScheduledThreadPool(100);
 
   public void submitCheck(TransactionExtensionCapsule txExtensionCapsule, int submitCnt) {
     // TODO: from solidity node
     syncExecutor
-      .scheduleWithFixedDelay(() -> instance.checkTransaction(txExtensionCapsule, submitCnt), 60000,
-        60000,TimeUnit.MILLISECONDS);
+        .scheduleWithFixedDelay(() -> instance.checkTransaction(txExtensionCapsule, submitCnt),
+            60000,
+            60000, TimeUnit.MILLISECONDS);
   }
 
   private void checkTransaction(TransactionExtensionCapsule txExtensionCapsule, int checkCnt) {
@@ -49,7 +50,8 @@ public class CheckTransaction {
           SideChainGatewayApi.checkTxInfo(txExtensionCapsule);
           break;
       }
-      TransactionExtentionStore.getInstance().deleteData(txExtensionCapsule.getTransactionIdBytes());
+      TransactionExtensionStore.getInstance()
+          .deleteData(txExtensionCapsule.getTransactionIdBytes());
     } catch (TxRollbackException e) {
       // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 4.2
       logger.error(e.getMessage());
@@ -81,7 +83,7 @@ public class CheckTransaction {
   }
 
   public boolean broadcastTransaction(TransactionExtensionCapsule txExtensionCapsule)
-    throws RpcConnectException, TxValidateException {
+      throws RpcConnectException, TxValidateException {
     switch (txExtensionCapsule.getType()) {
       case MAIN_CHAIN:
         return MainChainGatewayApi.broadcast(txExtensionCapsule.getTransaction());

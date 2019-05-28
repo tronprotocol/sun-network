@@ -16,28 +16,16 @@ import org.iq80.leveldb.DBException;
 import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
 
-@Slf4j
-public class TransactionExtentionStore {
+@Slf4j(topic = "db")
+public class OracleStore {
 
   private static final JniDBFactory factory = new JniDBFactory();
 
-  private String dataBaseName;
+  protected String dataBaseName;
   private DB database;
-  private String parentName;
+  protected String parentName;
   private boolean alive;
   private ReadWriteLock resetDbLock = new ReentrantReadWriteLock();
-
-  private static TransactionExtentionStore instance = new TransactionExtentionStore();
-
-  public static TransactionExtentionStore getInstance() {
-    return instance;
-  }
-
-  private TransactionExtentionStore() {
-    this.dataBaseName = "event";
-    this.parentName = "database";
-    initDB();
-  }
 
   public void initDB() {
     resetDbLock.writeLock().lock();
