@@ -33,10 +33,11 @@ message EventMsg {
     MULTISIGN_FOR_WITHDRAW_TOKEN_EVENT = 6;
     MULTISIGN_FOR_WITHDRAW_TRC10_EVENT = 7;
     MULTISIGN_FOR_WITHDRAW_TRX_EVENT = 8;
-    WITHDRAW_TRC10_EVENT = 9;
-    WITHDRAW_TRC20_EVENT = 10;
-    WITHDRAW_TRC721_EVENT = 11;
-    WITHDRAW_TRX_EVENT = 12;
+    MULTISIGN_FOR_MAPPING_EVENT = 9;
+    WITHDRAW_TRC10_EVENT = 10;
+    WITHDRAW_TRC20_EVENT = 11;
+    WITHDRAW_TRC721_EVENT = 12;
+    WITHDRAW_TRX_EVENT = 13;
   }
   EventType type = 1;
   google.protobuf.Any parameter = 2;
@@ -120,6 +121,13 @@ message MultiSignForWithdrawTRXEvent {
   bytes data_hash = 4;
   bytes transaction_id = 5;
   TaskEnum will_task_enum = 6;
+}
+
+message MultiSignForMappingEvent {
+  bytes mainchain_address = 1;
+  bytes sidechain_address = 2;
+  bytes transaction_id = 3;
+  TaskEnum will_task_enum = 4;
 }
 
 message WithdrawTRC10Event {

@@ -146,6 +146,21 @@ public class OracleStore {
     }
   }
 
+  public Set<byte[]> allKeys() {
+    resetDbLock.readLock().lock();
+    try (DBIterator iterator = database.iterator()) {
+      Set<byte[]> result = Sets.newHashSet();
+      for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
+        result.add(iterator.peekNext().getKey());
+      }
+      return result;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } finally {
+      resetDbLock.readLock().unlock();
+    }
+  }
+
   public void deleteData(byte[] key) {
     resetDbLock.readLock().lock();
     try {

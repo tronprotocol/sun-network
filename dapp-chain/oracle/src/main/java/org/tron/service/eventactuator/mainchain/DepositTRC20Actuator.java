@@ -1,10 +1,14 @@
 package org.tron.service.eventactuator.mainchain;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.Sidechain.DepositTRC20Event;
+import org.tron.protos.Sidechain.EventMsg;
+import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
@@ -21,6 +25,11 @@ public class DepositTRC20Actuator extends Actuator {
     this.amount = amount;
     this.contractAddress = contractAddress;
     this.txId = txId;
+  }
+
+  public DepositTRC20Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
+    this.type = EventType.DEPOSIT_TRC20_EVENT;
+    this.event = eventMsg.getParameter().unpack(DepositTRC20Event.class);
   }
 
   @Override

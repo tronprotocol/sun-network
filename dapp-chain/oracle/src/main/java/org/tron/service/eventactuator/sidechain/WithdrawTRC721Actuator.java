@@ -1,11 +1,15 @@
 package org.tron.service.eventactuator.sidechain;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.Sidechain.EventMsg;
+import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.TaskEnum;
+import org.tron.protos.Sidechain.WithdrawTRC721Event;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
 
@@ -26,6 +30,11 @@ public class WithdrawTRC721Actuator extends Actuator {
     this.mainChainAddress = mainChainAddress;
     this.userSign = txData;
     this.txId = txId;
+  }
+
+  public WithdrawTRC721Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
+    this.type = EventType.WITHDRAW_TRC721_EVENT;
+    this.event = eventMsg.getParameter().unpack(WithdrawTRC721Event.class);
   }
 
   @Override

@@ -1,10 +1,14 @@
 package org.tron.service.eventactuator.sidechain;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.Sidechain.EventMsg;
+import org.tron.protos.Sidechain.EventMsg.EventType;
+import org.tron.protos.Sidechain.MultiSignForMappingEvent;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
@@ -26,6 +30,11 @@ public class MultiSignForMappingActuator extends Actuator {
     this.userSign = userSign;
     this.dataHash = dataHash;
     this.txId = txId;
+  }
+
+  public MultiSignForMappingActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
+    this.type = EventType.MULTISIGN_FOR_MAPPING_EVENT;
+    this.event = eventMsg.getParameter().unpack(MultiSignForMappingEvent.class);
   }
 
   @Override

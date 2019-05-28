@@ -1,10 +1,14 @@
 package org.tron.service.eventactuator.sidechain;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.Sidechain.DeployDAppTRC721AndMappingEvent;
+import org.tron.protos.Sidechain.EventMsg;
+import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
@@ -24,6 +28,11 @@ public class DeployDAppTRC721AndMappingActuator extends Actuator {
     this.mainChainAddress = mainChainAddress;
     this.sideChainAddress = sideChainAddress;
     this.txId = txId;
+  }
+
+  public DeployDAppTRC721AndMappingActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
+    this.type = EventType.DEPLOY_DAPPTRC721_AND_MAPPING_EVENT;
+    this.event = eventMsg.getParameter().unpack(DeployDAppTRC721AndMappingEvent.class);
   }
 
   @Override

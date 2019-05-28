@@ -2,6 +2,7 @@ package org.tron.service.eventactuator.mainchain;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
@@ -34,6 +35,10 @@ public class DepositTRC10Actuator extends Actuator {
         .setTransactionId(transactionIdBS).build();
   }
 
+  public DepositTRC10Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
+    this.type = EventType.DEPOSIT_TRC10_EVENT;
+    this.event = eventMsg.getParameter().unpack(DepositTRC10Event.class);
+  }
 
   @Override
   public TransactionExtensionCapsule createTransactionExtensionCapsule()
