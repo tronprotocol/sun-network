@@ -15,12 +15,12 @@ public class TransactionExtensionCapsule {
   public TransactionExtensionCapsule(TaskEnum type, Transaction transaction) {
     byte[] trxId = Sha256Hash.hash(transaction.getRawData().toByteArray());
     instance = TransactionExtension.newBuilder().setTaskEnum(type)
-        .setTxid(ByteString.copyFrom(trxId)).setTransaction(transaction);
+        .setTransactionId(ByteString.copyFrom(trxId)).setTransaction(transaction);
   }
 
   public TransactionExtensionCapsule(Transaction transaction) {
     byte[] trxId = Sha256Hash.hash(transaction.getRawData().toByteArray());
-    instance = TransactionExtension.newBuilder().setTxid(ByteString.copyFrom(trxId))
+    instance = TransactionExtension.newBuilder().setTransactionId(ByteString.copyFrom(trxId))
         .setTransaction(transaction);
   }
 
@@ -37,11 +37,11 @@ public class TransactionExtensionCapsule {
   }
 
   public String getTransactionId() {
-    return ByteArray.toHexString(instance.getTxid().toByteArray());
+    return ByteArray.toHexString(instance.getTransactionId().toByteArray());
   }
 
   public byte[] getTransactionIdBytes() {
-    return instance.getTxid().toByteArray();
+    return instance.getTransactionId().toByteArray();
   }
 
   public byte[] getData() {

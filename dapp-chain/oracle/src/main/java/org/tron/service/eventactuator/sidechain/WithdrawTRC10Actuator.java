@@ -1,10 +1,15 @@
 package org.tron.service.eventactuator.sidechain;
 
+import com.google.protobuf.Any;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
@@ -18,22 +23,23 @@ public class WithdrawTRC10Actuator extends Actuator {
 
   // "event WithdrawTRC10(address from, uint256 value, uint256 trc10, bytes memory userSign);"
 
-  private String from;
-  private String trc10;
-  private String value;
-  private String userSign;
+  WithdrawTRC10Event event;
+  @Getter
+  EventType type = EventType.WITHDRAW_TRC10_EVENT;
 
   public WithdrawTRC10Actuator(String from, String value, String trc10, String txData,
-      String txId) {
-    this.from = from;
-    this.value = value;
-    this.trc10 = trc10;
-    this.userSign = txData;
-    this.txId = txId;
+      String transactionId) {
+    ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
+    ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
+    ByteString trc10BS = ByteString.copyFrom(ByteArray.fromString(trc10));
+    ByteString txDataBS = ByteString.copyFrom(ByteArray.fromHexString(txData));
+    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
+    this.event = WithdrawTRC10Event.newBuilder().setFrom(fromBS).setValue(valueBS).setTrc10(trc10BS)
+        .setUserSign(txDataBS).setTransactionId(transactionIdBS)
+        .setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
   }
 
   public WithdrawTRC10Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
-    this.type = EventType.WITHDRAW_TRC10_EVENT;
     this.event = eventMsg.getParameter().unpack(WithdrawTRC10Event.class);
   }
 
@@ -43,22 +49,30 @@ public class WithdrawTRC10Actuator extends Actuator {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;
     }
-    logger
-        .info("WithdrawTRC10Actuator, from: {}, value: {}, trc10: {}, userSign: {}, txId: {}",
-            this.from,
-            this.value, this.trc10, this.userSign, this.txId);
-    // if (this.trc10.equalsIgnoreCase("2000000")) {
-    //   Transaction tx = MainChainGatewayApi.withdrawTRC20Transaction(this.from,
-    //     WalletUtil.encode58Check(Args.getInstance().getSunTokenAddress()), this.value, this.userSign);
-    //   this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
-    // } else {
-    // Transaction tx = MainChainGatewayApi
-    //   .withdrawTRC10Transaction(this.from, this.trc10, this.value, this.userSign);
-    // this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
-    // }
+
+    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+    String valueStr = event.getValue().toStringUtf8();
+    String trc10Str = event.getTrc10().toStringUtf8();
+    String userSignStr = ByteArray.toHexString(event.getUserSign().toByteArray());
+    String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
+
+    logger.info("WithdrawTRC10Actuator, from: {}, value: {}, trc10: {}, userSign: {}, txId: {}",
+        fromStr, valueStr, trc10Str, userSignStr, transactionIdStr);
+
     Transaction tx = SideChainGatewayApi
-        .withdrawTRC10Transaction(this.from, this.trc10, this.value, this.userSign, this.txId);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
+        .withdrawTRC10Transaction(fromStr, trc10Str, valueStr, userSignStr, transactionIdStr);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
     return this.transactionExtensionCapsule;
   }
+
+  @Override
+  public EventMsg getMessage() {
+    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType()).build();
+  }
+
+  @Override
+  public byte[] getKey() {
+    return event.getTransactionId().toByteArray();
+  }
 }
+

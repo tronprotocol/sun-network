@@ -4,6 +4,7 @@ import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
@@ -23,20 +24,20 @@ import org.tron.service.eventactuator.Actuator;
 public class DepositTRC10Actuator extends Actuator {
 
   DepositTRC10Event event;
+  @Getter
+  EventType type = EventType.DEPOSIT_TRC10_EVENT;
 
   public DepositTRC10Actuator(String from, String value, String trc10, String transactionId) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString trc10BS = ByteString.copyFrom(ByteArray.fromString(trc10));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
-    this.type = EventType.DEPOSIT_TRC10_EVENT;
     this.event = DepositTRC10Event.newBuilder().setFrom(fromBS).setValue(valueBS)
         .setTrc10(trc10BS)
         .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.SIDE_CHAIN).build();
   }
 
   public DepositTRC10Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
-    this.type = EventType.DEPOSIT_TRC10_EVENT;
     this.event = eventMsg.getParameter().unpack(DepositTRC10Event.class);
   }
 
@@ -67,7 +68,7 @@ public class DepositTRC10Actuator extends Actuator {
 
   @Override
   public EventMsg getMessage() {
-    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(this.type).build();
+    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType()).build();
   }
 
   @Override

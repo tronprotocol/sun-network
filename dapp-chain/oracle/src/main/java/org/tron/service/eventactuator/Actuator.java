@@ -8,9 +8,11 @@ import org.tron.service.check.TransactionExtensionCapsule;
 public abstract class Actuator {
 
   protected TransactionExtensionCapsule transactionExtensionCapsule;
-  protected EventType type;
+
 
   public abstract EventMsg getMessage();
+
+  public abstract EventType getType();
 
   public abstract TransactionExtensionCapsule createTransactionExtensionCapsule()
       throws RpcConnectException;

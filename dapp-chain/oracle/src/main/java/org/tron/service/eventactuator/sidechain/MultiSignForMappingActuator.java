@@ -1,10 +1,14 @@
 package org.tron.service.eventactuator.sidechain;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
@@ -18,22 +22,23 @@ public class MultiSignForMappingActuator extends Actuator {
 
   // "event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 dataHash, bytes32 txId);"
 
-  event;
+  MultiSignForMappingEvent event;
+  @Getter
+  EventType type = EventType.MULTISIGN_FOR_MAPPING_EVENT;
 
-
-  public MultiSignForMappingActuator(String from, String mainChainAddress,
-      String valueOrTokenId, String type, String userSign, String dataHash, String txId) {
-    this.from = from;
-    this.mainChainAddress = mainChainAddress;
-    this.valueOrTokenId = valueOrTokenId;
-    this.type = type;
-    this.userSign = userSign;
-    this.dataHash = dataHash;
-    this.txId = txId;
+  public MultiSignForMappingActuator(String mainChainAddress, String sideChainAddress,
+      String transactionId) {
+    ByteString mainChainAddressBS = ByteString
+        .copyFrom(WalletUtil.decodeFromBase58Check(mainChainAddress));
+    ByteString sideChainAddressBS = ByteString
+        .copyFrom(WalletUtil.decodeFromBase58Check(sideChainAddress));
+    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
+    this.event = MultiSignForMappingEvent.newBuilder().setMainchainAddress(mainChainAddressBS)
+        .setSidechainAddress(sideChainAddressBS).setTransactionId(transactionIdBS)
+        .setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
   }
 
   public MultiSignForMappingActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
-    this.type = EventType.MULTISIGN_FOR_MAPPING_EVENT;
     this.event = eventMsg.getParameter().unpack(MultiSignForMappingEvent.class);
   }
 
@@ -43,14 +48,18 @@ public class MultiSignForMappingActuator extends Actuator {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;
     }
-    logger.info(
-        "MultiSignForWithdrawTokenActuator, from: {}, mainChainAddress: {}, valueOrTokenId: {}, _type: {}, userSign: {}, dataHash: {}, txId: {}",
-        this.from, this.mainChainAddress, this.valueOrTokenId, this.type, this.userSign,
-        this.dataHash, this.txId);
+
+    String mainChainAddressStr = WalletUtil
+        .encode58Check(event.getMainchainAddress().toByteArray());
+    String sideChainAddressStr = WalletUtil
+        .encode58Check(event.getSidechainAddress().toByteArray());
+    String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
+
+    logger.info("MultiSignForMappingActuator,  mainChainAddress: {},"
+            + " sideChainAddress: {}, transactionId: {}", mainChainAddressStr,
+        sideChainAddressStr, transactionIdStr);
     Transaction tx = MainChainGatewayApi
-        .multiSignForWithdrawTokenTransaction(this.from, this.mainChainAddress, this.valueOrTokenId,
-            this.type,
-            this.userSign, this.dataHash, this.txId);
+        .multiSignForWithdrawTokenTransaction(mainChainAddressStr, sideChainAddressStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
 
     return this.transactionExtensionCapsule;

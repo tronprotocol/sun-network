@@ -1,9 +1,10 @@
 package org.tron.service.eventactuator.sidechain;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
@@ -24,6 +25,8 @@ public class DeployDAppTRC20AndMappingActuator extends Actuator {
 
 
   DeployDAppTRC20AndMappingEvent event;
+  @Getter
+  EventType type = EventType.DEPLOY_DAPPTRC20_AND_MAPPING_EVENT;
 
   public DeployDAppTRC20AndMappingActuator(String developer, String mainChainAddress,
       String sideChainAddress, String transactionId) {
@@ -33,15 +36,14 @@ public class DeployDAppTRC20AndMappingActuator extends Actuator {
     ByteString sideChainAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(sideChainAddress));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
-    this.type = EventType.DEPOSIT_TRC10_EVENT;
     this.event = DeployDAppTRC20AndMappingEvent.newBuilder().setDeveloper(developerBS)
         .setMainchainAddress(mainChainAddressBS)
         .setSidechainAddress(sideChainAddressBS)
         .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
   }
 
-  public DeployDAppTRC20AndMappingActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
-    this.type = EventType.DEPLOY_DAPPTRC20_AND_MAPPING_EVENT;
+  public DeployDAppTRC20AndMappingActuator(EventMsg eventMsg)
+      throws InvalidProtocolBufferException {
     this.event = eventMsg.getParameter().unpack(DeployDAppTRC20AndMappingEvent.class);
   }
 
@@ -71,7 +73,7 @@ public class DeployDAppTRC20AndMappingActuator extends Actuator {
 
   @Override
   public EventMsg getMessage() {
-    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(this.type).build();
+    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType()).build();
   }
 
   @Override

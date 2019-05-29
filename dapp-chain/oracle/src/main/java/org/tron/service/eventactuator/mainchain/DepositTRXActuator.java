@@ -1,9 +1,10 @@
 package org.tron.service.eventactuator.mainchain;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
@@ -22,18 +23,18 @@ public class DepositTRXActuator extends Actuator {
 
 
   DepositTRXEvent event;
+  @Getter
+  EventType type = EventType.DEPOSIT_TRX_EVENT;
 
   public DepositTRXActuator(String from, String value, String transactionId) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
-    this.type = EventType.DEPOSIT_TRC10_EVENT;
     this.event = DepositTRXEvent.newBuilder().setFrom(fromBS).setValue(valueBS)
         .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.SIDE_CHAIN).build();
   }
 
   public DepositTRXActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
-    this.type = EventType.DEPOSIT_TRX_EVENT;
     this.event = eventMsg.getParameter().unpack(DepositTRXEvent.class);
   }
 
