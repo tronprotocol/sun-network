@@ -27,16 +27,16 @@ public class WithdrawTRC10Actuator extends Actuator {
   @Getter
   EventType type = EventType.WITHDRAW_TRC10_EVENT;
 
-  public WithdrawTRC10Actuator(String from, String value, String trc10, String txData,
+  public WithdrawTRC10Actuator(String from, String value, String trc10, String userSign,
       String transactionId) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString trc10BS = ByteString.copyFrom(ByteArray.fromString(trc10));
-    ByteString txDataBS = ByteString.copyFrom(ByteArray.fromHexString(txData));
+    ByteString userSignBS = ByteString.copyFrom(ByteArray.fromHexString(userSign));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = WithdrawTRC10Event.newBuilder().setFrom(fromBS).setValue(valueBS).setTrc10(trc10BS)
-        .setUserSign(txDataBS).setTransactionId(transactionIdBS)
-        .setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
+        .setUserSign(userSignBS).setTransactionId(transactionIdBS)
+        .setWillTaskEnum(TaskEnum.SIDE_CHAIN).build();
   }
 
   public WithdrawTRC10Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
@@ -61,7 +61,7 @@ public class WithdrawTRC10Actuator extends Actuator {
 
     Transaction tx = SideChainGatewayApi
         .withdrawTRC10Transaction(fromStr, trc10Str, valueStr, userSignStr, transactionIdStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
     return this.transactionExtensionCapsule;
   }
 

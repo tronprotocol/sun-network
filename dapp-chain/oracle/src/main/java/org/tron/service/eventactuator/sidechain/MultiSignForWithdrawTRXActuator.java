@@ -1,10 +1,15 @@
 package org.tron.service.eventactuator.sidechain;
 
+import com.google.protobuf.Any;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
@@ -18,23 +23,24 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
 
   // "event MultiSignForWithdrawTRX(address from, uint256 value, bytes32 userSign, bytes32 dataHash, bytes32 txId);"
 
-  private String from;
-  private String value;
-  private String userSign;
-  private String dataHash;
+  MultiSignForWithdrawTRXEvent event;
+  @Getter
+  EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TRX_EVENT;
+
 
   public MultiSignForWithdrawTRXActuator(String from, String value, String userSign,
-      String dataHash,
-      String txId) {
-    this.from = from;
-    this.value = value;
-    this.userSign = userSign;
-    this.dataHash = dataHash;
-    this.txId = txId;
+      String dataHash, String transactionId) {
+    ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
+    ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
+    ByteString userSignBS = ByteString.copyFrom(ByteArray.fromHexString(userSign));
+    ByteString dataHashBS = ByteString.copyFrom(ByteArray.fromHexString(dataHash));
+    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
+    this.event = MultiSignForWithdrawTRXEvent.newBuilder().setFrom(fromBS).setValue(valueBS)
+        .setUserSign(userSignBS).setDataHash(dataHashBS).setTransactionId(transactionIdBS)
+        .setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
   }
 
   public MultiSignForWithdrawTRXActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
-    this.type = EventType.MULTISIGN_FOR_WITHDRAW_TRX_EVENT;
     this.event = eventMsg.getParameter().unpack(MultiSignForWithdrawTRXEvent.class);
   }
 
@@ -44,15 +50,30 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;
     }
+    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+    String valueStr = event.getValue().toStringUtf8();
+    String userSignStr = ByteArray.toHexString(event.getUserSign().toByteArray());
+    String dataHashStr = ByteArray.toHexString(event.getDataHash().toByteArray());
+    String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
+
     logger.info(
-        "MultiSignForWithdrawTRXActuator, from: {}, value: {}, userSign: {}, dataHash: {}, txId: {}",
-        this.from, this.value, this.userSign, this.dataHash, this.txId);
+        "MultiSignForWithdrawTRXActuator, from: {}, value: {}, userSign: {}, dataHash: {}, transactionId: {}",
+        fromStr, valueStr, userSignStr, dataHashStr, transactionIdStr);
     Transaction tx = MainChainGatewayApi
-        .multiSignForWithdrawTRXTransaction(this.from, this.value, this.userSign, this.dataHash,
-            this.txId);
+        .multiSignForWithdrawTRXTransaction(fromStr, valueStr, userSignStr, dataHashStr,
+            transactionIdStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
 
     return this.transactionExtensionCapsule;
   }
 
+  @Override
+  public EventMsg getMessage() {
+    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(this.type).build();
+  }
+
+  @Override
+  public byte[] getKey() {
+    return event.getTransactionId().toByteArray();
+  }
 }
