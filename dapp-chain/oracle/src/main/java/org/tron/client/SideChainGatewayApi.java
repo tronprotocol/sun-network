@@ -203,6 +203,21 @@ public class SideChainGatewayApi {
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
+  public static Transaction mappingTransaction(String mainChainAddress, String sideChainAddress, String txId) throws RpcConnectException {
+    byte[] mainChainAddressBytes = WalletUtil.decodeFromBase58Check(mainChainAddress);
+    byte[] sideChainAddressBytes = WalletUtil.decodeFromBase58Check(sideChainAddress);
+    byte[] txIdBytes = new DataWord(txId).getData();
+    byte[] data = ByteUtil.merge(Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length),
+        Arrays.copyOfRange(sideChainAddressBytes, 1, sideChainAddressBytes.length), txIdBytes);
+    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    String method = "multiSignForDeployAndMapping(address,address,bytes32,bytes)";
+    List params = Arrays.asList(mainChainAddress, sideChainAddress, txId, ownSign);
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
+  }
+
   // Singleton
   enum GatewayApi {
     GATEWAY_API;

@@ -7,6 +7,7 @@ import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
+import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
@@ -63,9 +64,9 @@ public class DeployDAppTRC721AndMappingActuator extends Actuator {
             + " sideChainAddress: {}, transactionId: {}", developerStr, mainChainAddressStr,
         sideChainAddressStr, transactionIdStr);
 
-    Transaction tx = MainChainGatewayApi
-        .addTokenMappingTransaction(mainChainAddressStr, sideChainAddressStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
+    Transaction tx = SideChainGatewayApi
+        .mappingTransaction(mainChainAddressStr, sideChainAddressStr, transactionIdStr);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
 
     return this.transactionExtensionCapsule;
   }
