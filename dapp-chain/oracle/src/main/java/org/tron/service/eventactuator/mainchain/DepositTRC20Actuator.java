@@ -21,9 +21,9 @@ import org.tron.service.eventactuator.Actuator;
 @Slf4j(topic = "mainChainTask")
 public class DepositTRC20Actuator extends Actuator {
 
-  DepositTRC20Event event;
+  private DepositTRC20Event event;
   @Getter
-  EventType type = EventType.DEPOSIT_TRC20_EVENT;
+  private EventType type = EventType.DEPOSIT_TRC20_EVENT;
 
   public DepositTRC20Actuator(String from, String value, String contractAddress,
       String transactionId) {
@@ -33,8 +33,7 @@ public class DepositTRC20Actuator extends Actuator {
         .copyFrom(WalletUtil.decodeFromBase58Check(contractAddress));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = DepositTRC20Event.newBuilder().setFrom(fromBS).setValue(valueBS)
-        .setContractAddress(contractAddressBS)
-        .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.SIDE_CHAIN).build();
+        .setContractAddress(contractAddressBS).setTransactionId(transactionIdBS).build();
   }
 
   public DepositTRC20Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {

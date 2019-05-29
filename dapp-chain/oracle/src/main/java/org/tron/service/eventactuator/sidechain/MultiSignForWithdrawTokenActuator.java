@@ -22,9 +22,9 @@ import org.tron.service.eventactuator.Actuator;
 public class MultiSignForWithdrawTokenActuator extends Actuator {
 
   // "event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 dataHash, bytes32 txId);"
-  MultiSignForWithdrawTokenEvent event;
+  private MultiSignForWithdrawTokenEvent event;
   @Getter
-  EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TOKEN_EVENT;
+  private EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TOKEN_EVENT;
 
   public MultiSignForWithdrawTokenActuator(String from, String mainChainAddress,
       String valueOrTokenId, String type, String userSign, String dataHash, String transactionId) {
@@ -32,14 +32,13 @@ public class MultiSignForWithdrawTokenActuator extends Actuator {
     ByteString mainChainAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(mainChainAddress));
     ByteString valueOrTokenIdBS = ByteString.copyFrom(ByteArray.fromString(valueOrTokenId));
-    ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(type));
+    ByteString typeBS = ByteString.copyFrom(ByteArray.fromString(type));
     ByteString userSignBS = ByteString.copyFrom(ByteArray.fromHexString(userSign));
     ByteString dataHashBS = ByteString.copyFrom(ByteArray.fromHexString(dataHash));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = MultiSignForWithdrawTokenEvent.newBuilder().setFrom(fromBS)
-        .setValueOrTokenId(valueOrTokenIdBS).setType(valueBS)
-        .setMainchainAddress(mainChainAddressBS).setUserSign(userSignBS).setDataHash(dataHashBS)
-        .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
+        .setValueOrTokenId(valueOrTokenIdBS).setType(typeBS).setMainchainAddress(mainChainAddressBS)
+        .setUserSign(userSignBS).setDataHash(dataHashBS).setTransactionId(transactionIdBS).build();
   }
 
   public MultiSignForWithdrawTokenActuator(EventMsg eventMsg)

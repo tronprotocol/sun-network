@@ -22,16 +22,16 @@ import org.tron.service.eventactuator.Actuator;
 public class DepositTRXActuator extends Actuator {
 
 
-  DepositTRXEvent event;
+  private DepositTRXEvent event;
   @Getter
-  EventType type = EventType.DEPOSIT_TRX_EVENT;
+  private EventType type = EventType.DEPOSIT_TRX_EVENT;
 
   public DepositTRXActuator(String from, String value, String transactionId) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = DepositTRXEvent.newBuilder().setFrom(fromBS).setValue(valueBS)
-        .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.SIDE_CHAIN).build();
+        .setTransactionId(transactionIdBS).build();
   }
 
   public DepositTRXActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
@@ -58,7 +58,7 @@ public class DepositTRXActuator extends Actuator {
 
   @Override
   public EventMsg getMessage() {
-    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(this.type).build();
+    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType()).build();
   }
 
   @Override

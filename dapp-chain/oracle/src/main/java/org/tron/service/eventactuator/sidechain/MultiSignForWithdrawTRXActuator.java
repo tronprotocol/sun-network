@@ -23,9 +23,9 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
 
   // "event MultiSignForWithdrawTRX(address from, uint256 value, bytes32 userSign, bytes32 dataHash, bytes32 txId);"
 
-  MultiSignForWithdrawTRXEvent event;
+  private MultiSignForWithdrawTRXEvent event;
   @Getter
-  EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TRX_EVENT;
+  private EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TRX_EVENT;
 
 
   public MultiSignForWithdrawTRXActuator(String from, String value, String userSign,
@@ -36,8 +36,7 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
     ByteString dataHashBS = ByteString.copyFrom(ByteArray.fromHexString(dataHash));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = MultiSignForWithdrawTRXEvent.newBuilder().setFrom(fromBS).setValue(valueBS)
-        .setUserSign(userSignBS).setDataHash(dataHashBS).setTransactionId(transactionIdBS)
-        .setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
+        .setUserSign(userSignBS).setDataHash(dataHashBS).setTransactionId(transactionIdBS).build();
   }
 
   public MultiSignForWithdrawTRXActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {

@@ -12,7 +12,6 @@ import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.MultiSignForMappingEvent;
-import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
 
@@ -21,9 +20,9 @@ public class MultiSignForMappingActuator extends Actuator {
 
   // "event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 dataHash, bytes32 txId);"
 
-  MultiSignForMappingEvent event;
+  private MultiSignForMappingEvent event;
   @Getter
-  EventType type = EventType.MULTISIGN_FOR_MAPPING_EVENT;
+  private EventType type = EventType.MULTISIGN_FOR_MAPPING_EVENT;
 
   public MultiSignForMappingActuator(String mainChainAddress, String sideChainAddress,
       String transactionId) {
@@ -33,8 +32,7 @@ public class MultiSignForMappingActuator extends Actuator {
         .copyFrom(WalletUtil.decodeFromBase58Check(sideChainAddress));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = MultiSignForMappingEvent.newBuilder().setMainchainAddress(mainChainAddressBS)
-        .setSidechainAddress(sideChainAddressBS).setTransactionId(transactionIdBS)
-        .setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
+        .setSidechainAddress(sideChainAddressBS).setTransactionId(transactionIdBS).build();
   }
 
   public MultiSignForMappingActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {

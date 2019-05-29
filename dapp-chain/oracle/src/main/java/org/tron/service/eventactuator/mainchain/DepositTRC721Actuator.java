@@ -21,20 +21,19 @@ import org.tron.service.eventactuator.Actuator;
 @Slf4j(topic = "mainChainTask")
 public class DepositTRC721Actuator extends Actuator {
 
-  DepositTRC721Event event;
+  private DepositTRC721Event event;
   @Getter
-  EventType type = EventType.DEPOSIT_TRC721_EVENT;
+  private EventType type = EventType.DEPOSIT_TRC721_EVENT;
 
   public DepositTRC721Actuator(String from, String tokenId, String contractAddress,
       String transactionId) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
-    ByteString tokenIdBS = ByteString.copyFrom(ByteArray.fromHexString(tokenId));
+    ByteString tokenIdBS = ByteString.copyFrom(ByteArray.fromString(tokenId));
     ByteString contractAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(contractAddress));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = DepositTRC721Event.newBuilder().setFrom(fromBS).setTokenId(tokenIdBS)
-        .setContractAddress(contractAddressBS)
-        .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.SIDE_CHAIN).build();
+        .setContractAddress(contractAddressBS).setTransactionId(transactionIdBS).build();
   }
 
   public DepositTRC721Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
@@ -49,7 +48,7 @@ public class DepositTRC721Actuator extends Actuator {
     }
 
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
-    String tokenIdStr = ByteArray.toHexString(event.getTokenId().toByteArray());
+    String tokenIdStr = event.getTokenId().toStringUtf8();
     String contractAddressStr = WalletUtil.encode58Check(event.getContractAddress().toByteArray());
     String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
     logger.info(

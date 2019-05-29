@@ -24,9 +24,9 @@ public class DeployDAppTRC20AndMappingActuator extends Actuator {
   // "event DeployDAppTRC20AndMapping(address developer, address mainChainAddress, address sideChainAddress);"
 
 
-  DeployDAppTRC20AndMappingEvent event;
+  private DeployDAppTRC20AndMappingEvent event;
   @Getter
-  EventType type = EventType.DEPLOY_DAPPTRC20_AND_MAPPING_EVENT;
+  private EventType type = EventType.DEPLOY_DAPPTRC20_AND_MAPPING_EVENT;
 
   public DeployDAppTRC20AndMappingActuator(String developer, String mainChainAddress,
       String sideChainAddress, String transactionId) {
@@ -37,9 +37,8 @@ public class DeployDAppTRC20AndMappingActuator extends Actuator {
         .copyFrom(WalletUtil.decodeFromBase58Check(sideChainAddress));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = DeployDAppTRC20AndMappingEvent.newBuilder().setDeveloper(developerBS)
-        .setMainchainAddress(mainChainAddressBS)
-        .setSidechainAddress(sideChainAddressBS)
-        .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
+        .setMainchainAddress(mainChainAddressBS).setSidechainAddress(sideChainAddressBS)
+        .setTransactionId(transactionIdBS).build();
   }
 
   public DeployDAppTRC20AndMappingActuator(EventMsg eventMsg)

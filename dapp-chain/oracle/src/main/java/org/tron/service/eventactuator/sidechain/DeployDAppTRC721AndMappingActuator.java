@@ -23,9 +23,9 @@ public class DeployDAppTRC721AndMappingActuator extends Actuator {
 
   // "event DeployDAppTRC721AndMapping(address developer, address mainChainAddress, address sideChainAddress);"
 
-  DeployDAppTRC721AndMappingEvent event;
+  private DeployDAppTRC721AndMappingEvent event;
   @Getter
-  EventType type = EventType.DEPLOY_DAPPTRC721_AND_MAPPING_EVENT;
+  private EventType type = EventType.DEPLOY_DAPPTRC721_AND_MAPPING_EVENT;
 
   public DeployDAppTRC721AndMappingActuator(String developer, String mainChainAddress,
       String sideChainAddress, String transactionId) {
@@ -36,9 +36,8 @@ public class DeployDAppTRC721AndMappingActuator extends Actuator {
         .copyFrom(WalletUtil.decodeFromBase58Check(sideChainAddress));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = DeployDAppTRC721AndMappingEvent.newBuilder().setDeveloper(developerBS)
-        .setMainchainAddress(mainChainAddressBS)
-        .setSidechainAddress(sideChainAddressBS)
-        .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
+        .setMainchainAddress(mainChainAddressBS).setSidechainAddress(sideChainAddressBS)
+        .setTransactionId(transactionIdBS).build();
   }
 
   public DeployDAppTRC721AndMappingActuator(EventMsg eventMsg)
