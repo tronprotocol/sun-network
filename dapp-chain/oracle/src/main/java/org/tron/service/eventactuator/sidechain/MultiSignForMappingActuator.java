@@ -20,14 +20,14 @@ import org.tron.service.eventactuator.Actuator;
 @Slf4j(topic = "sideChainTask")
 public class MultiSignForMappingActuator extends Actuator {
 
-  // "event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 dataHash, bytes32 txId);"
+  // "event MultiSignForDeployAndMapping(address mainChainAddress, address sideChainAddress, bytes32 dataHash, bytes32 txId);"
 
   MultiSignForMappingEvent event;
   @Getter
   EventType type = EventType.MULTISIGN_FOR_MAPPING_EVENT;
 
   public MultiSignForMappingActuator(String mainChainAddress, String sideChainAddress,
-      String transactionId) {
+      String dataHash, String transactionId) {
     ByteString mainChainAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(mainChainAddress));
     ByteString sideChainAddressBS = ByteString
