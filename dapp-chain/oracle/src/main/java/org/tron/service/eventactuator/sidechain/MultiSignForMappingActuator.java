@@ -1,15 +1,14 @@
 package org.tron.service.eventactuator.sidechain;
 
+import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.tron.client.MainChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
-import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.MultiSignForMappingEvent;
@@ -58,11 +57,20 @@ public class MultiSignForMappingActuator extends Actuator {
     logger.info("MultiSignForMappingActuator,  mainChainAddress: {},"
             + " sideChainAddress: {}, transactionId: {}", mainChainAddressStr,
         sideChainAddressStr, transactionIdStr);
-    Transaction tx = MainChainGatewayApi
-        .multiSignForWithdrawTokenTransaction(mainChainAddressStr, sideChainAddressStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
+//    Transaction tx = MainChainGatewayApi
+//        .multiSignForWithdrawTokenTransaction(mainChainAddressStr, sideChainAddressStr);
+//    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
 
     return this.transactionExtensionCapsule;
   }
 
+  @Override
+  public EventMsg getMessage() {
+    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType()).build();
+  }
+
+  @Override
+  public byte[] getKey() {
+    return event.getTransactionId().toByteArray();
+  }
 }
