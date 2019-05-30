@@ -104,7 +104,7 @@ contract OracleManagerContract is Ownable {
             address _oracle = hash.recover(sigList[i]);
             if (isOracle(_oracle)) {
                 msl.signedOracle[_oracle] = true;
-                msl.conuntSign++;
+                msl.countSign++;
             }
         }
         require(msl.countSign > numOracles * 2 / 3, "oracle num not enough 2/3");
