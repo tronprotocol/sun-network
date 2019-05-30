@@ -6,7 +6,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.utils.ByteArray;

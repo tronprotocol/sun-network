@@ -100,8 +100,9 @@ message MultiSignForWithdrawTokenEvent {
   bytes type = 4;
   bytes user_sign = 5;
   bytes data_hash = 6;
-  bytes transaction_id = 7;
-  TaskEnum will_task_enum = 8;
+  bytes original_transaction_id = 7;
+  bytes transaction_id = 8;
+  TaskEnum will_task_enum = 9;
 }
 
 message MultiSignForWithdrawTRC10Event {
@@ -110,8 +111,9 @@ message MultiSignForWithdrawTRC10Event {
   bytes value = 3;
   bytes user_sign = 4;
   bytes data_hash = 5;
-  bytes transaction_id = 6;
-  TaskEnum will_task_enum = 7;
+  bytes original_transaction_id = 6;
+  bytes transaction_id = 7;
+  TaskEnum will_task_enum = 8;
 }
 
 message MultiSignForWithdrawTRXEvent {
@@ -119,15 +121,18 @@ message MultiSignForWithdrawTRXEvent {
   bytes value = 2;
   bytes user_sign = 3;
   bytes data_hash = 4;
-  bytes transaction_id = 5;
-  TaskEnum will_task_enum = 6;
+  bytes original_transaction_id = 5;
+  bytes transaction_id = 6;
+  TaskEnum will_task_enum = 7;
 }
 
 message MultiSignForMappingEvent {
   bytes mainchain_address = 1;
   bytes sidechain_address = 2;
-  bytes transaction_id = 3;
-  TaskEnum will_task_enum = 4;
+  bytes data_hash = 3;
+  bytes original_transaction_id = 4;
+  bytes transaction_id = 5;
+  TaskEnum will_task_enum = 6;
 }
 
 message WithdrawTRC10Event {

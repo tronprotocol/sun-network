@@ -29,16 +29,19 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
   EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TRC10_EVENT;
 
   public MultiSignForWithdrawTRC10Actuator(String from, String trc10, String value, String userSign,
-      String dataHash, String transactionId) {
+      String dataHash, String transactionId, String originalTransactionId) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString trc10BS = ByteString.copyFrom(ByteArray.fromString(trc10));
     ByteString userSignBS = ByteString.copyFrom(ByteArray.fromHexString(userSign));
     ByteString dataHashBS = ByteString.copyFrom(ByteArray.fromHexString(dataHash));
+    ByteString originalTransactionIdBS = ByteString
+        .copyFrom(ByteArray.fromHexString(originalTransactionId));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = MultiSignForWithdrawTRC10Event.newBuilder().setFrom(fromBS).setValue(valueBS)
         .setTrc10(trc10BS)
-        .setUserSign(userSignBS).setDataHash(dataHashBS).setTransactionId(transactionIdBS)
+        .setUserSign(userSignBS).setDataHash(dataHashBS)
+        .setOriginalTransactionId(originalTransactionIdBS).setTransactionId(transactionIdBS)
         .setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
   }
 
@@ -59,16 +62,21 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
     String trc10Str = event.getTrc10().toStringUtf8();
     String userSignStr = ByteArray.toHexString(event.getUserSign().toByteArray());
     String dataHashStr = ByteArray.toHexString(event.getDataHash().toByteArray());
+    String originalTransactionIdStr = ByteArray
+        .toHexString(event.getOriginalTransactionId().toByteArray());
     String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
 
     logger.info(
-        "MultiSignForWithdrawTRC10Actuator, from: {}, trc10: {}, value: {}, userSign: {}, dataHash: {}, txId: {}",
-        fromStr, trc10Str, valueStr, userSignStr, dataHashStr, transactionIdStr);
+        "MultiSignForWithdrawTRC10Actuator, from: {}, trc10: {}, value: {}, userSign: {}, dataHash: {}, originalTransactionId: {}, txId: {}",
+        fromStr, trc10Str, valueStr, userSignStr, dataHashStr, originalTransactionIdStr,
+        transactionIdStr);
     Transaction tx = MainChainGatewayApi
         .multiSignForWithdrawTRC10Transaction(fromStr, trc10Str, valueStr, userSignStr,
-            dataHashStr, transactionIdStr);
+            dataHashStr, originalTransactionIdStr);
+    if (tx == null) {
+      return null;
+    }
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
-
     return this.transactionExtensionCapsule;
   }
 

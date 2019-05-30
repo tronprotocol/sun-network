@@ -29,11 +29,13 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
 
 
   public MultiSignForWithdrawTRXActuator(String from, String value, String userSign,
-      String dataHash, String transactionId) {
+      String dataHash, String transactionId, String originalTransactionId) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString userSignBS = ByteString.copyFrom(ByteArray.fromHexString(userSign));
     ByteString dataHashBS = ByteString.copyFrom(ByteArray.fromHexString(dataHash));
+    ByteString originalTransactionIdBS = ByteString
+        .copyFrom(ByteArray.fromHexString(originalTransactionId));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = MultiSignForWithdrawTRXEvent.newBuilder().setFrom(fromBS).setValue(valueBS)
         .setUserSign(userSignBS).setDataHash(dataHashBS).setTransactionId(transactionIdBS)
@@ -54,16 +56,20 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
     String valueStr = event.getValue().toStringUtf8();
     String userSignStr = ByteArray.toHexString(event.getUserSign().toByteArray());
     String dataHashStr = ByteArray.toHexString(event.getDataHash().toByteArray());
+    String originalTransactionIdStr = ByteArray
+        .toHexString(event.getOriginalTransactionId().toByteArray());
     String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
 
     logger.info(
-        "MultiSignForWithdrawTRXActuator, from: {}, value: {}, userSign: {}, dataHash: {}, transactionId: {}",
-        fromStr, valueStr, userSignStr, dataHashStr, transactionIdStr);
+        "MultiSignForWithdrawTRXActuator, from: {}, value: {}, userSign: {}, dataHash: {}, originalTransactionId: {}, transactionId: {}",
+        fromStr, valueStr, userSignStr, dataHashStr, originalTransactionIdStr, transactionIdStr);
     Transaction tx = MainChainGatewayApi
         .multiSignForWithdrawTRXTransaction(fromStr, valueStr, userSignStr, dataHashStr,
-            transactionIdStr);
+            originalTransactionIdStr);
+    if (tx == null) {
+      return null;
+    }
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
-
     return this.transactionExtensionCapsule;
   }
 

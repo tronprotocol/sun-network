@@ -22,12 +22,14 @@ import org.tron.service.eventactuator.Actuator;
 public class MultiSignForWithdrawTokenActuator extends Actuator {
 
   // "event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 dataHash, bytes32 txId);"
+
   MultiSignForWithdrawTokenEvent event;
   @Getter
   EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TOKEN_EVENT;
 
   public MultiSignForWithdrawTokenActuator(String from, String mainChainAddress,
-      String valueOrTokenId, String type, String userSign, String dataHash, String transactionId) {
+      String valueOrTokenId, String type, String userSign, String dataHash,
+      String originalTransactionId, String transactionId) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString mainChainAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(mainChainAddress));
@@ -35,10 +37,13 @@ public class MultiSignForWithdrawTokenActuator extends Actuator {
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(type));
     ByteString userSignBS = ByteString.copyFrom(ByteArray.fromHexString(userSign));
     ByteString dataHashBS = ByteString.copyFrom(ByteArray.fromHexString(dataHash));
+    ByteString originalTransactionIdBS = ByteString
+        .copyFrom(ByteArray.fromHexString(originalTransactionId));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = MultiSignForWithdrawTokenEvent.newBuilder().setFrom(fromBS)
         .setValueOrTokenId(valueOrTokenIdBS).setType(valueBS)
         .setMainchainAddress(mainChainAddressBS).setUserSign(userSignBS).setDataHash(dataHashBS)
+        .setOriginalTransactionId(originalTransactionIdBS)
         .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
   }
 
@@ -61,19 +66,25 @@ public class MultiSignForWithdrawTokenActuator extends Actuator {
         .encode58Check(event.getMainchainAddress().toByteArray());
     String userSignStr = ByteArray.toHexString(event.getUserSign().toByteArray());
     String dataHashStr = ByteArray.toHexString(event.getDataHash().toByteArray());
+    String originalTransactionIdStr = ByteArray
+        .toHexString(event.getOriginalTransactionId().toByteArray());
     String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
 
     logger.info(
         "MultiSignForWithdrawTokenActuator, from: {}, mainChainAddress: {}, valueOrTokenId: {}, "
-            + "_type: {}, userSign: {}, dataHash: {}, transactionId: {}", fromStr,
+            + "_type: {}, userSign: {}, dataHash: {}, originalTransactionId: {}, transactionId: {}",
+        fromStr,
         mainChainAddressStr, valueOrTokenIdStr, typeStr, userSignStr, dataHashStr,
+        originalTransactionIdStr,
         transactionIdStr);
     Transaction tx = MainChainGatewayApi
         .multiSignForWithdrawTokenTransaction(fromStr, mainChainAddressStr, valueOrTokenIdStr,
             typeStr,
-            userSignStr, dataHashStr, transactionIdStr);
+            userSignStr, dataHashStr, originalTransactionIdStr);
+    if (tx == null) {
+      return null;
+    }
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
-
     return this.transactionExtensionCapsule;
   }
 
