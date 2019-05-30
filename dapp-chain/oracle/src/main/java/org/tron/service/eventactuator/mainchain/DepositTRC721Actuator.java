@@ -56,7 +56,7 @@ public class DepositTRC721Actuator extends Actuator {
         fromStr, tokenIdStr, contractAddressStr, transactionIdStr);
     Transaction tx = SideChainGatewayApi
         .mintToken721Transaction(fromStr, contractAddressStr, tokenIdStr, transactionIdStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, transactionIdStr, tx);
     return this.transactionExtensionCapsule;
   }
 

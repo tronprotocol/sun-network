@@ -46,7 +46,7 @@ public class MainChainGatewayApi {
       String sideChainAddress, String dataHash, String txId) throws RpcConnectException {
     List<String> oracleSigns = SideChainGatewayApi.getMappingOracleSigns(txId, dataHash);
     sleeping(dataHash, oracleSigns);
-    boolean done = getMappingStatus(txId);
+    boolean done = getMappingStatus(mainChainAddress);
     if (done) {
       return null;
     } else {
@@ -58,24 +58,22 @@ public class MainChainGatewayApi {
     }
   }
 
-  public static boolean getMappingStatus(String txId) throws RpcConnectException {
+  public static boolean getMappingStatus(String mainChainAddress) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    // FIXME
-    String method = "mappingStatus(bytes32)";
-    List params = Arrays.asList(txId);
+    String method = "allows(address)";
+    List params = Arrays.asList(mainChainAddress);
     byte[] ret = GATEWAY_API.getInstance()
         .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
-    return AbiUtil.unpackWithdrawStatus(ret);
+    return AbiUtil.unpackStatus(ret);
   }
 
   public static boolean getWithdrawStatus(String txId) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    // FIXME
-    String method = "withdrawStatus(bytes32)";
+    String method = "withdrawDone(bytes32)";
     List params = Arrays.asList(txId);
     byte[] ret = GATEWAY_API.getInstance()
         .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
-    return AbiUtil.unpackWithdrawStatus(ret);
+    return AbiUtil.unpackStatus(ret);
   }
 
   public static void sleeping(String dataHash, List<String> oracleSigns) {

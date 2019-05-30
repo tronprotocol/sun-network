@@ -52,7 +52,8 @@ public class DepositTRXActuator extends Actuator {
         transactionIdStr);
 
     Transaction tx = SideChainGatewayApi.mintTrxTransaction(fromStr, valueStr, transactionIdStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
+        transactionIdStr, tx);
     return this.transactionExtensionCapsule;
   }
 

@@ -57,7 +57,8 @@ public class DepositTRC20Actuator extends Actuator {
 
     Transaction tx = SideChainGatewayApi
         .mintToken20Transaction(fromStr, contractAddressStr, valueStr, transactionIdStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
+        transactionIdStr, tx);
     return this.transactionExtensionCapsule;
   }
 

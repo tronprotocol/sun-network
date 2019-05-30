@@ -12,16 +12,12 @@ public class TransactionExtensionCapsule {
 
   private TransactionExtension.Builder instance;
 
-  public TransactionExtensionCapsule(TaskEnum type, Transaction transaction) {
+  public TransactionExtensionCapsule(TaskEnum type, String eventTransactionId,
+      Transaction transaction) {
     byte[] trxId = Sha256Hash.hash(transaction.getRawData().toByteArray());
     instance = TransactionExtension.newBuilder().setTaskEnum(type)
+        .setEventTransactionId(ByteString.copyFrom(ByteArray.fromHexString(eventTransactionId)))
         .setTransactionId(ByteString.copyFrom(trxId)).setTransaction(transaction);
-  }
-
-  public TransactionExtensionCapsule(Transaction transaction) {
-    byte[] trxId = Sha256Hash.hash(transaction.getRawData().toByteArray());
-    instance = TransactionExtension.newBuilder().setTransactionId(ByteString.copyFrom(trxId))
-        .setTransaction(transaction);
   }
 
   public TransactionExtensionCapsule(byte[] data) throws InvalidProtocolBufferException {
@@ -40,8 +36,8 @@ public class TransactionExtensionCapsule {
     return ByteArray.toHexString(instance.getTransactionId().toByteArray());
   }
 
-  public byte[] getTransactionIdBytes() {
-    return instance.getTransactionId().toByteArray();
+  public byte[] getEventTransactionIdBytes() {
+    return instance.getEventTransactionId().toByteArray();
   }
 
   public byte[] getData() {

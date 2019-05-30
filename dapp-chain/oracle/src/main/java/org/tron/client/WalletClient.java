@@ -95,23 +95,6 @@ public class WalletClient {
     throw new RpcConnectException("no result");
   }
 
-  public TransactionExtensionCapsule triggerContract(byte[] contractAddress, String method,
-    List<Object> params,
-    long callValue, long tokenId, long tokenValue) throws RpcConnectException, TxValidateException {
-
-    logger.info(
-      "trigger not constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
-      WalletUtil.encode58Check(contractAddress), method, params.toString(), callValue, tokenId,
-      tokenValue);
-
-    byte[] data = AbiUtil.parseMethod(method, params);
-    TransactionExtensionCapsule txId = triggerContract(contractAddress, data,
-      SystemSetting.FEE_LIMIT,
-      callValue, tokenValue, tokenId);
-    logger.info("txId: {}", txId);
-    return txId;
-  }
-
   public Transaction triggerContractTransaction(byte[] contractAddress, String method,
     List<Object> params,
     long callValue, long tokenId, long tokenValue) throws RpcConnectException {
@@ -142,17 +125,6 @@ public class WalletClient {
         "rpc fail, code: " + transactionExtention.getResult().getCode());
     }
     return transactionExtention;
-  }
-
-  private TransactionExtensionCapsule triggerContract(byte[] contractAddress, byte[] data,
-    long feeLimit,
-    long callValue,
-    long tokenValue, Long tokenId) throws RpcConnectException, TxValidateException {
-    GrpcAPI.TransactionExtention transactionExtention = getTransactionExtension(contractAddress,
-      data, feeLimit,
-      callValue, tokenValue, tokenId);
-
-    return processTransactionExtention(transactionExtention);
   }
 
   private Transaction triggerContractTransaction(byte[] contractAddress, byte[] data, long feeLimit,
@@ -222,14 +194,6 @@ public class WalletClient {
 
   public AssetIssueContract getAssetIssueById(String assetId) {
     return rpcCli.getAssetIssueById(assetId);
-  }
-
-  private TransactionExtensionCapsule processTransactionExtention(
-    org.tron.api.GrpcAPI.TransactionExtention transactionExtention)
-    throws RpcConnectException, TxValidateException {
-    Transaction transaction = getTransaction(transactionExtention);
-    rpcCli.broadcastTransaction(transaction);
-    return new TransactionExtensionCapsule(transaction);
   }
 
   private Transaction getTransaction(

@@ -75,7 +75,7 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
     if (tx == null) {
       return null;
     }
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, transactionIdStr, tx);
     return this.transactionExtensionCapsule;
   }
 

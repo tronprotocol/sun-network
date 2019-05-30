@@ -55,7 +55,8 @@ public class WithdrawTRXActuator extends Actuator {
             valueStr, userSignStr, transactionIdStr);
     Transaction tx = SideChainGatewayApi
         .withdrawTRXTransaction(fromStr, valueStr, userSignStr, transactionIdStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
+        transactionIdStr, tx);
 
     return this.transactionExtensionCapsule;
   }

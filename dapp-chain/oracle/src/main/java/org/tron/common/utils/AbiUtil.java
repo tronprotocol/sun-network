@@ -521,12 +521,8 @@ public class AbiUtil {
     return signList;
   }
 
-  public static boolean unpackWithdrawStatus(byte[] data) {
+  public static boolean unpackStatus(byte[] data) {
     return !(new DataWord(data)).isZero();
-  }
-
-  private void testAddressUnpack() {
-
   }
 
   public static void main(String[] args) throws EncodingException {

@@ -12,6 +12,7 @@ import org.tron.common.exception.TxFailException;
 import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AlertUtil;
+import org.tron.db.EventStore;
 import org.tron.db.TransactionExtensionStore;
 
 @Slf4j
@@ -50,8 +51,10 @@ public class CheckTransaction {
           SideChainGatewayApi.checkTxInfo(txExtensionCapsule);
           break;
       }
+      EventStore.getInstance()
+          .deleteData(txExtensionCapsule.getEventTransactionIdBytes());
       TransactionExtensionStore.getInstance()
-          .deleteData(txExtensionCapsule.getTransactionIdBytes());
+          .deleteData(txExtensionCapsule.getEventTransactionIdBytes());
     } catch (TxRollbackException e) {
       // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 4.2
       logger.error(e.getMessage());

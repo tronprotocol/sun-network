@@ -66,7 +66,8 @@ public class DeployDAppTRC721AndMappingActuator extends Actuator {
 
     Transaction tx = SideChainGatewayApi
         .mappingTransaction(mainChainAddressStr, sideChainAddressStr, transactionIdStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
+        transactionIdStr, tx);
 
     return this.transactionExtensionCapsule;
   }

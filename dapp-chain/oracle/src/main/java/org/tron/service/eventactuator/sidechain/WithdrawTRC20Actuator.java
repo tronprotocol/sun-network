@@ -64,7 +64,8 @@ public class WithdrawTRC20Actuator extends Actuator {
     Transaction tx = SideChainGatewayApi
         .withdrawTRC20Transaction(fromStr, mainChainAddressStr, valueStr, userSignStr,
             transactionIdStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, tx);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
+        transactionIdStr, tx);
     return this.transactionExtensionCapsule;
   }
 

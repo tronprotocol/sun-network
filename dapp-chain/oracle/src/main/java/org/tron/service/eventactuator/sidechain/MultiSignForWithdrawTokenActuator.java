@@ -22,7 +22,7 @@ import org.tron.service.eventactuator.Actuator;
 public class MultiSignForWithdrawTokenActuator extends Actuator {
 
   // "event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 dataHash, bytes32 txId);"
- private MultiSignForWithdrawTokenEvent event;
+  private MultiSignForWithdrawTokenEvent event;
   @Getter
   private EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TOKEN_EVENT;
 
@@ -41,7 +41,8 @@ public class MultiSignForWithdrawTokenActuator extends Actuator {
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = MultiSignForWithdrawTokenEvent.newBuilder().setFrom(fromBS)
         .setValueOrTokenId(valueOrTokenIdBS).setType(typeBS).setMainchainAddress(mainChainAddressBS)
-        .setUserSign(userSignBS).setDataHash(dataHashBS).setOriginalTransactionId(originalTransactionIdBS)
+        .setUserSign(userSignBS).setDataHash(dataHashBS)
+        .setOriginalTransactionId(originalTransactionIdBS)
         .setTransactionId(transactionIdBS).build();
   }
 
@@ -82,7 +83,8 @@ public class MultiSignForWithdrawTokenActuator extends Actuator {
     if (tx == null) {
       return null;
     }
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, tx);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
+        transactionIdStr, tx);
     return this.transactionExtensionCapsule;
   }
 
