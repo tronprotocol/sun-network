@@ -20,7 +20,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     }
 
     Balance balances;
-
+    mapping(bytes32 => bool) public withdrawDone;
     event TRXReceived(address from, uint256 amount);
     event TRC10Received(address from, uint256 amount, uint256 tokenId);
     event TRC20Received(address from, uint256 amount, address contractAddress);
@@ -66,6 +66,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
         nonce[_to]++;
         balances.trc20[contractAddress] = balances.trc20[contractAddress].sub(amount);
         TRC20(contractAddress).transfer(_to, amount);
+        withdrawDone[txid]=true;
         emit TokenWithdrawn(_to, TokenKind.TRC20, contractAddress, amount, txid);
     }
 
@@ -78,6 +79,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
         require(balances.trc721[contractAddress][uid], "Does not own token");
         TRC721(contractAddress).transfer(_to, uid);
         delete balances.trc721[contractAddress][uid];
+        withdrawDone[txid]=true;
         emit TokenWithdrawn(_to, TokenKind.TRC721, contractAddress, uid, txid);
     }
 
@@ -90,6 +92,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
         balances.tron = balances.tron.sub(amount);
         _to.transfer(amount);
         // ensure it's not reentrant
+        withdrawDone[txid]=true;
         emit TokenWithdrawn(_to, TokenKind.TRX, address(0), amount, txid);
     }
 
@@ -101,6 +104,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
         nonce[_to]++;
         balances.trc10[tokenId] = balances.trc10[tokenId].sub(amount);
         _to.transferToken(amount, tokenId);
+        withdrawDone[txid]=true;
         emit Token10Withdrawn(msg.sender, TokenKind.TRC10, tokenId, amount, txid);
     }
 

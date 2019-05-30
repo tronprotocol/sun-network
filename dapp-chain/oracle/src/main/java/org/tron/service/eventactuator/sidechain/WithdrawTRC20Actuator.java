@@ -23,9 +23,9 @@ public class WithdrawTRC20Actuator extends Actuator {
 
   // "event WithdrawTRC20(address from, uint256 value, address mainChainAddress, bytes memory userSign);"
 
-  WithdrawTRC20Event event;
+  private WithdrawTRC20Event event;
   @Getter
-  EventType type = EventType.WITHDRAW_TRC20_EVENT;
+  private EventType type = EventType.WITHDRAW_TRC20_EVENT;
 
   public WithdrawTRC20Actuator(String from, String value, String mainChainAddress, String userSign,
       String transactionId) {
@@ -37,7 +37,7 @@ public class WithdrawTRC20Actuator extends Actuator {
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = WithdrawTRC20Event.newBuilder().setFrom(fromBS).setValue(valueBS)
         .setMainchainAddress(mainChainAddressBS).setUserSign(userSignBS)
-        .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.SIDE_CHAIN).build();
+        .setTransactionId(transactionIdBS).build();
   }
 
   public WithdrawTRC20Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {

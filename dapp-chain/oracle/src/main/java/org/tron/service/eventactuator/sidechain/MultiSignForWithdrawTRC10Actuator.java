@@ -24,9 +24,9 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
   // "event MultiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes32 userSign, bytes32 dataHash, bytes32 txId);"
 
 
-  MultiSignForWithdrawTRC10Event event;
+  private MultiSignForWithdrawTRC10Event event;
   @Getter
-  EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TRC10_EVENT;
+  private EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TRC10_EVENT;
 
   public MultiSignForWithdrawTRC10Actuator(String from, String trc10, String value, String userSign,
       String dataHash, String transactionId, String originalTransactionId) {
@@ -40,9 +40,8 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = MultiSignForWithdrawTRC10Event.newBuilder().setFrom(fromBS).setValue(valueBS)
         .setTrc10(trc10BS)
-        .setUserSign(userSignBS).setDataHash(dataHashBS)
-        .setOriginalTransactionId(originalTransactionIdBS).setTransactionId(transactionIdBS)
-        .setWillTaskEnum(TaskEnum.MAIN_CHAIN).build();
+        .setUserSign(userSignBS).setDataHash(dataHashBS).setOriginalTransactionId(originalTransactionIdBS).setTransactionId(transactionIdBS)
+        .build();
   }
 
   public MultiSignForWithdrawTRC10Actuator(EventMsg eventMsg)

@@ -22,10 +22,9 @@ import org.tron.service.eventactuator.Actuator;
 public class WithdrawTRXActuator extends Actuator {
 
   // "event WithdrawTRX(address from, uint256 value, bytes memory txData);"
-  WithdrawTRXEvent event;
+  private WithdrawTRXEvent event;
   @Getter
-  EventType type = EventType.WITHDRAW_TRX_EVENT;
-
+  private EventType type = EventType.WITHDRAW_TRX_EVENT;
 
   public WithdrawTRXActuator(String from, String value, String userSign, String transactionId) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
@@ -33,8 +32,7 @@ public class WithdrawTRXActuator extends Actuator {
     ByteString userSignBS = ByteString.copyFrom(ByteArray.fromHexString(userSign));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = WithdrawTRXEvent.newBuilder().setFrom(fromBS).setValue(valueBS)
-        .setUserSign(userSignBS).setTransactionId(transactionIdBS)
-        .setWillTaskEnum(TaskEnum.SIDE_CHAIN).build();
+        .setUserSign(userSignBS).setTransactionId(transactionIdBS).build();
   }
 
   public WithdrawTRXActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {

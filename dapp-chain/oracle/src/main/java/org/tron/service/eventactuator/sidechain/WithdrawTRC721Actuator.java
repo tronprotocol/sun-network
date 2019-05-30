@@ -23,22 +23,22 @@ public class WithdrawTRC721Actuator extends Actuator {
 
   // "event WithdrawTRC721(address from, uint256 tokenId, address mainChainAddress, bytes memory userSign);"
 
-  WithdrawTRC721Event event;
+  private WithdrawTRC721Event event;
   @Getter
-  EventType type = EventType.WITHDRAW_TRC721_EVENT;
+  private EventType type = EventType.WITHDRAW_TRC721_EVENT;
 
   public WithdrawTRC721Actuator(String from, String tokenId, String mainChainAddress,
       String userSign,
       String transactionId) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
-    ByteString tokenIdBS = ByteString.copyFrom(ByteArray.fromHexString(tokenId));
+    ByteString tokenIdBS = ByteString.copyFrom(ByteArray.fromString(tokenId));
     ByteString mainChainAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(mainChainAddress));
     ByteString userSignBS = ByteString.copyFrom(ByteArray.fromHexString(userSign));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = WithdrawTRC721Event.newBuilder().setFrom(fromBS).setTokenId(tokenIdBS)
         .setMainchainAddress(mainChainAddressBS).setUserSign(userSignBS)
-        .setTransactionId(transactionIdBS).setWillTaskEnum(TaskEnum.SIDE_CHAIN).build();
+        .setTransactionId(transactionIdBS).build();
   }
 
   public WithdrawTRC721Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
@@ -52,7 +52,7 @@ public class WithdrawTRC721Actuator extends Actuator {
       return this.transactionExtensionCapsule;
     }
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
-    String tokenIdStr = ByteArray.toHexString(event.getTokenId().toByteArray());
+    String tokenIdStr = event.getTokenId().toStringUtf8();
     String mainChainAddressStr = WalletUtil
         .encode58Check(event.getMainchainAddress().toByteArray());
     String userSignStr = ByteArray.toHexString(event.getUserSign().toByteArray());
