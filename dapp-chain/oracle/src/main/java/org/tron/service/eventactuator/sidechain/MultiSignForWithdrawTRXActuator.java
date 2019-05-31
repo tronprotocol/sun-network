@@ -29,7 +29,7 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
 
 
   public MultiSignForWithdrawTRXActuator(String from, String value, String userSign,
-      String dataHash, String transactionId, String originalTransactionId) {
+      String dataHash, String originalTransactionId, String transactionId) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString userSignBS = ByteString.copyFrom(ByteArray.fromHexString(userSign));
