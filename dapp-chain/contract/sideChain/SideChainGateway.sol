@@ -80,6 +80,14 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         _;
     }
 
+    function getWithdrawSigns(bytes32 txId, bytes32 dataHash) view returns (bytes[]) {
+        return withdrawSigns[txId][dataHash].signs;
+    }
+
+    function getMappingSigns(bytes32 txId, bytes32 dataHash) view returns (bytes[]) {
+        return mappingSigns[txId][dataHash].signs;
+    }
+
     function modifyOracle(address _oracle, bool isOracle) public onlyOwner {
         if (oracles[_oracle] && !isOracle) {
             oracleCnt -= 1;
@@ -241,7 +249,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         trc10IdAndValueAndDecimals[2] = decimals;
         bytes32 dataHash = keccak256(abi.encodePacked(to, trc10IdAndValueAndDecimals, name, symbol, txId));
 
-        require(dataHash.recover(oracleSign) == msg.sender);
+        require(dataHash.recover(oracleSign) == msg.sender, "sign error");
 
         bool needDeposit = multiSignForDeposit(txId, dataHash, oracleSign);
         if (needDeposit) {
@@ -259,7 +267,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         valueAndType[1] = _type;
         bytes32 dataHash = keccak256(abi.encodePacked(to, mainChainAddress, valueAndType, txId));
 
-        require(dataHash.recover(oracleSign) == msg.sender);
+        require(dataHash.recover(oracleSign) == msg.sender, "sign error");
 
         bool needDeposit = multiSignForDeposit(txId, dataHash, oracleSign);
         if (needDeposit) {
@@ -325,6 +333,10 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         }
     }
 
+    // _type:
+    //      1: trx
+    //      2: trc20
+    //      3: trc721
     function multiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes userSign, bytes32 txId, bytes oracleSign) public onlyOracle {
         bytes32 dataHash = keccak256(abi.encodePacked(from, mainChainAddress, valueOrTokenId, _type, userSign, txId));
         bool needEmit = multiSignForWithdraw(txId, dataHash, oracleSign);
