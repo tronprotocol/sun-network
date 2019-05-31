@@ -1,5 +1,6 @@
 package org.tron.common.utils;
 
+import com.beust.jcommander.internal.Lists;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -497,7 +498,7 @@ public class AbiUtil {
 
   public static List<String> unpackOracleSigns(byte[] data) {
     if (data.length % WORD_LENGTH != 0 || data.length / WORD_LENGTH < 3) {
-      throw new IllegalArgumentException("Illegal array data length:" + data.length);
+      return Lists.newArrayList();
     }
     ArrayList<Integer> indexList = new ArrayList<>();
 

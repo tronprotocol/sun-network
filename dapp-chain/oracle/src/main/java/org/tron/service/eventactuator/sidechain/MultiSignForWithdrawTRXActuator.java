@@ -38,7 +38,9 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
         .copyFrom(ByteArray.fromHexString(originalTransactionId));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = MultiSignForWithdrawTRXEvent.newBuilder().setFrom(fromBS).setValue(valueBS)
-        .setUserSign(userSignBS).setDataHash(dataHashBS).setTransactionId(transactionIdBS).build();
+        .setUserSign(userSignBS).setDataHash(dataHashBS)
+        .setOriginalTransactionId(originalTransactionIdBS).setTransactionId(transactionIdBS)
+        .build();
   }
 
   public MultiSignForWithdrawTRXActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {

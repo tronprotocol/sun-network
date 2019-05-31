@@ -15,6 +15,7 @@ import org.tron.common.exception.TxFailException;
 import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AbiUtil;
+import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.DataWord;
 import org.tron.common.utils.WalletUtil;
@@ -123,8 +124,8 @@ public class SideChainGatewayApi {
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
     byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
     // FIXME: right ? hx string in log ?
-    byte[] userSignBytes = new DataWord(userSign).getData();
-    byte[] txIdBytes = new DataWord(txId).getData();
+    byte[] userSignBytes = ByteArray.fromHexString(userSign);
+    byte[] txIdBytes = ByteArray.fromHexString(txId);
     byte[] data = ByteUtil
         .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), valueBytes, userSignBytes,
             txIdBytes);
@@ -144,8 +145,8 @@ public class SideChainGatewayApi {
     byte[] trc10Bytes = new DataWord((new BigInteger(trc10, 10)).toByteArray()).getData();
     byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
     // FIXME: right ? hx string in log ?
-    byte[] userSignBytes = new DataWord(userSign).getData();
-    byte[] txIdBytes = new DataWord(txId).getData();
+    byte[] userSignBytes = ByteArray.fromHexString(userSign);
+    byte[] txIdBytes = ByteArray.fromHexString(txId);
     byte[] data = ByteUtil
         .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), trc10Bytes, valueBytes,
             userSignBytes, txIdBytes);
@@ -167,8 +168,8 @@ public class SideChainGatewayApi {
     long type = 2;
     byte[] typeBytes = new DataWord(type).getData();
     // FIXME: right ? hx string in log ?
-    byte[] userSignBytes = new DataWord(userSign).getData();
-    byte[] txIdBytes = new DataWord(txId).getData();
+    byte[] userSignBytes = ByteArray.fromHexString(userSign);
+    byte[] txIdBytes = ByteArray.fromHexString(txId);
     byte[] data = ByteUtil.merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length),
         Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length), valueBytes,
         typeBytes, userSignBytes, txIdBytes);
@@ -189,8 +190,8 @@ public class SideChainGatewayApi {
     long type = 3;
     byte[] typeBytes = new DataWord(type).getData();
     // FIXME: right ? hx string in log ?
-    byte[] userSignBytes = new DataWord(userSign).getData();
-    byte[] txIdBytes = new DataWord(txId).getData();
+    byte[] userSignBytes = ByteArray.fromHexString(userSign);
+    byte[] txIdBytes = ByteArray.fromHexString(txId);
     byte[] data = ByteUtil.merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length),
         Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length), tokenIdBytes,
         typeBytes, userSignBytes, txIdBytes);
