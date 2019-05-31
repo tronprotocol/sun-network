@@ -21,7 +21,7 @@ contract OracleManagerContract is Ownable {
     // address[]  _oracles;
     event NewOracles(address oracle);
 
-    modifier onlyOracle() {require(isOracle(msg.sender));
+    modifier onlyOracle() {require(isOracle(msg.sender),"not oracle");
         _;}
 
     constructor(address _oracle) public {
@@ -119,13 +119,13 @@ contract OracleManagerContract is Ownable {
     }
 
     function addOracle(address _oracle) public onlyOwner {
-        require(!isOracle(_oracle));
+        require(!isOracle(_oracle),"oracle is oracle");
         oracles[_oracle] = true;
         numOracles++;
     }
 
     function delOracle(address _oracle) public onlyOwner {
-        require(!isOracle(_oracle));
+        require(isOracle(_oracle),"oracle is not oracle");
         oracles[_oracle] = false;
         numOracles--;
     }

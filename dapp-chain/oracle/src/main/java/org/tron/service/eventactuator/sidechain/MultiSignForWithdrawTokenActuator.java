@@ -42,8 +42,8 @@ public class MultiSignForWithdrawTokenActuator extends Actuator {
     this.event = MultiSignForWithdrawTokenEvent.newBuilder().setFrom(fromBS)
         .setValueOrTokenId(valueOrTokenIdBS).setType(typeBS).setMainchainAddress(mainChainAddressBS)
         .setUserSign(userSignBS).setDataHash(dataHashBS)
-        .setOriginalTransactionId(originalTransactionIdBS)
-        .setTransactionId(transactionIdBS).build();
+        .setOriginalTransactionId(originalTransactionIdBS).setTransactionId(transactionIdBS)
+        .build();
   }
 
   public MultiSignForWithdrawTokenActuator(EventMsg eventMsg)

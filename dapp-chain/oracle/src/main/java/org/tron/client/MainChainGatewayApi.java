@@ -59,7 +59,7 @@ public class MainChainGatewayApi {
   }
 
   public static boolean getMappingStatus(String mainChainAddress) throws RpcConnectException {
-    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "allows(address)";
     List params = Arrays.asList(mainChainAddress);
     byte[] ret = GATEWAY_API.getInstance()
@@ -68,7 +68,7 @@ public class MainChainGatewayApi {
   }
 
   public static boolean getWithdrawStatus(String txId) throws RpcConnectException {
-    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawDone(bytes32)";
     List params = Arrays.asList(txId);
     byte[] ret = GATEWAY_API.getInstance()

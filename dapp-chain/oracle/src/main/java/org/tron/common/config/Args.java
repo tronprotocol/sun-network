@@ -140,7 +140,7 @@ public class Args {
 
   public void loadConf(String confName) throws RpcConnectException {
     if (StringUtils.isEmpty(confName)) {
-      confName = "config-sample.conf";
+      confName = "config.conf";
     }
     Config config = Configuration.getByPath(confName);
     this.mainchainFullNodeList = config.getStringList("mainchain.fullnode.ip.list");

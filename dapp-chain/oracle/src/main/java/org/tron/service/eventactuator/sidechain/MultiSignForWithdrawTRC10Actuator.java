@@ -39,8 +39,8 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
         .copyFrom(ByteArray.fromHexString(originalTransactionId));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = MultiSignForWithdrawTRC10Event.newBuilder().setFrom(fromBS).setValue(valueBS)
-        .setTrc10(trc10BS)
-        .setUserSign(userSignBS).setDataHash(dataHashBS).setOriginalTransactionId(originalTransactionIdBS).setTransactionId(transactionIdBS)
+        .setTrc10(trc10BS).setUserSign(userSignBS).setDataHash(dataHashBS)
+        .setOriginalTransactionId(originalTransactionIdBS).setTransactionId(transactionIdBS)
         .build();
   }
 
@@ -75,7 +75,8 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
     if (tx == null) {
       return null;
     }
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN, transactionIdStr, tx);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
+        transactionIdStr, tx);
     return this.transactionExtensionCapsule;
   }
 

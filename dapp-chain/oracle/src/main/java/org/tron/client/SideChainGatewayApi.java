@@ -11,9 +11,9 @@ import org.spongycastle.util.encoders.Hex;
 import org.tron.common.config.Args;
 import org.tron.common.crypto.Hash;
 import org.tron.common.exception.RpcConnectException;
-import org.tron.common.exception.TxValidateException;
-import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxFailException;
+import org.tron.common.exception.TxRollbackException;
+import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.DataWord;
@@ -203,12 +203,14 @@ public class SideChainGatewayApi {
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static Transaction mappingTransaction(String mainChainAddress, String sideChainAddress, String txId) throws RpcConnectException {
+  public static Transaction mappingTransaction(String mainChainAddress, String sideChainAddress,
+      String txId) throws RpcConnectException {
     byte[] mainChainAddressBytes = WalletUtil.decodeFromBase58Check(mainChainAddress);
     byte[] sideChainAddressBytes = WalletUtil.decodeFromBase58Check(sideChainAddress);
     byte[] txIdBytes = new DataWord(txId).getData();
-    byte[] data = ByteUtil.merge(Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length),
-        Arrays.copyOfRange(sideChainAddressBytes, 1, sideChainAddressBytes.length), txIdBytes);
+    byte[] data = ByteUtil
+        .merge(Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length),
+            Arrays.copyOfRange(sideChainAddressBytes, 1, sideChainAddressBytes.length), txIdBytes);
     String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
@@ -244,7 +246,7 @@ public class SideChainGatewayApi {
   public static List<String> getWithdrawOracleSigns(String txId, String dataHash)
       throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "withdrawSigns(bytes32,bytes32)";
+    String method = "getWithdrawSigns(bytes32,bytes32)";
     List params = Arrays.asList(txId, dataHash);
     byte[] ret = GATEWAY_API.getInstance()
         .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
@@ -254,7 +256,7 @@ public class SideChainGatewayApi {
   public static List<String> getMappingOracleSigns(String txId, String dataHash)
       throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "mappingSigns(bytes32,bytes32)";
+    String method = "getMappingSigns(bytes32,bytes32)";
     List params = Arrays.asList(txId, dataHash);
     byte[] ret = GATEWAY_API.getInstance()
         .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);

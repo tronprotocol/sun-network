@@ -40,8 +40,8 @@ public class MultiSignForMappingActuator extends Actuator {
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = MultiSignForMappingEvent.newBuilder().setMainchainAddress(mainChainAddressBS)
         .setSidechainAddress(sideChainAddressBS).setDataHash(dataHashBS)
-        .setOriginalTransactionId(originalTransactionIdBS)
-        .setTransactionId(transactionIdBS).build();
+        .setOriginalTransactionId(originalTransactionIdBS).setTransactionId(transactionIdBS)
+        .build();
   }
 
   public MultiSignForMappingActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
@@ -64,10 +64,9 @@ public class MultiSignForMappingActuator extends Actuator {
         .toHexString(event.getOriginalTransactionId().toByteArray());
     String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
 
-    logger.info("MultiSignForMappingActuator,  mainChainAddress: {},"
-            + " sideChainAddress: {}, originalTransactionId: {}, transactionId: {}",
-        mainChainAddressStr,
-        sideChainAddressStr, originalTransactionIdStr, transactionIdStr);
+    logger.info("MultiSignForMappingActuator,  mainChainAddress: {}, sideChainAddress: {}, "
+            + "originalTransactionId: {}, dataHash: {}, transactionId: {}", mainChainAddressStr,
+        sideChainAddressStr, originalTransactionIdStr, dataHashStr, transactionIdStr);
     Transaction tx = MainChainGatewayApi
         .addTokenMappingTransaction(mainChainAddressStr, sideChainAddressStr, dataHashStr,
             originalTransactionIdStr);
