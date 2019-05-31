@@ -29,7 +29,7 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
   private EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TRC10_EVENT;
 
   public MultiSignForWithdrawTRC10Actuator(String from, String trc10, String value, String userSign,
-      String dataHash, String transactionId, String originalTransactionId) {
+      String dataHash, String originalTransactionId, String transactionId) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString trc10BS = ByteString.copyFrom(ByteArray.fromString(trc10));
