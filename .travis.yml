@@ -20,7 +20,7 @@ matrix:
   include:
   - name: build
     script:
-    - cd /dapp-chain/side-chain
+    - cd dapp-chain/side-chain
     - sh tron.sh
     -  "./gradlew build"
     - "./gradlew jacocoTestReport"
@@ -28,7 +28,7 @@ matrix:
 
   - name: stest
     script:
-    - cd /dapp-chain/side-chain
+    - cd dapp-chain/side-chain
     - sh tron.sh
     - bash deploy.sh
 
