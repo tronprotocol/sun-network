@@ -473,7 +473,7 @@ public class Program {
       try {
         TransferActuator.validateForSmartContract(deposit, senderAddress, newAddress, endowment);
         newBalance = TransferActuator.
-            executeAndReturnToAddressBalance(deposit,senderAddress,newAddress,endowment);
+            executeAndReturnToAddressBalance(deposit, senderAddress, newAddress, endowment);
       } catch (ContractValidateException | ContractExeException e) {
         throw new BytecodeExecutionException(VALIDATE_FOR_SMART_CONTRACT_FAILURE);
       }
@@ -489,7 +489,7 @@ public class Program {
         programCode, "create", nonce, null);
     long vmStartInUs = System.nanoTime() / 1000;
     ProgramInvoke programInvoke = programInvokeFactory.createProgramInvoke(
-        this, new DataWord(newAddress), getContractAddress(), value,new DataWord(0),
+        this, new DataWord(newAddress), getContractAddress(), value, new DataWord(0),
         new DataWord(0),
         newBalance, null, deposit, false, byTestingSuite(), vmStartInUs,
         getVmShouldEndInUs(), energyLimit.longValueSafe());
@@ -1300,7 +1300,6 @@ public class Program {
     long senderBalance = 0;
     byte[] tokenId = null;
 
-
     checkTokenId(msg);
     boolean isTokenTransfer = isTokenTransfer(msg);
     // transfer trx validation
@@ -1339,7 +1338,10 @@ public class Program {
       }
     }
 
-    long requiredEnergy = contract.getEnergyForData(data);
+    long requiredEnergy = 0;
+    if (VMConfig.isVmResourceChargingOn) {
+      requiredEnergy = contract.getEnergyForData(data);
+    }
     if (requiredEnergy > msg.getEnergy().longValue()) {
       // Not need to throw an exception, method caller needn't know that
       // regard as consumed the energy
@@ -1401,29 +1403,29 @@ public class Program {
    * ---------------------------------------------------------------------------------------------
    */
   public void checkTokenId(MessageCall msg) {
-      long tokenId = msg.getTokenId().sValue().longValueExact();
-      // tokenId can only be 0 when isTokenTransferMsg == false
-      // or tokenId can be (MIN_TOKEN_ID, Long.Max] when isTokenTransferMsg == true
-      if ((tokenId <= VMConstant.MIN_TOKEN_ID && tokenId != 0) ||
-          (tokenId == 0 && msg.isTokenTransferMsg())) {
-        // tokenId == 0 is a default value for token id DataWord.
-        throw new BytecodeExecutionException(
-            VALIDATE_FOR_SMART_CONTRACT_FAILURE + ", not valid token id");
-      }
+    long tokenId = msg.getTokenId().sValue().longValueExact();
+    // tokenId can only be 0 when isTokenTransferMsg == false
+    // or tokenId can be (MIN_TOKEN_ID, Long.Max] when isTokenTransferMsg == true
+    if ((tokenId <= VMConstant.MIN_TOKEN_ID && tokenId != 0) ||
+        (tokenId == 0 && msg.isTokenTransferMsg())) {
+      // tokenId == 0 is a default value for token id DataWord.
+      throw new BytecodeExecutionException(
+          VALIDATE_FOR_SMART_CONTRACT_FAILURE + ", not valid token id");
+    }
   }
 
   public boolean isTokenTransfer(MessageCall msg) {
-      return msg.isTokenTransferMsg();
+    return msg.isTokenTransferMsg();
   }
 
   public void checkTokenIdInTokenBalance(DataWord tokenIdDataWord) {
-      // tokenid should not get Long type overflow
-      long tokenId = tokenIdDataWord.sValue().longValueExact();
-      // or tokenId can only be (MIN_TOKEN_ID, Long.Max]
-      if (tokenId <= VMConstant.MIN_TOKEN_ID) {
-        throw new BytecodeExecutionException(
-            VALIDATE_FOR_SMART_CONTRACT_FAILURE + ", not valid token id");
-      }
+    // tokenid should not get Long type overflow
+    long tokenId = tokenIdDataWord.sValue().longValueExact();
+    // or tokenId can only be (MIN_TOKEN_ID, Long.Max]
+    if (tokenId <= VMConstant.MIN_TOKEN_ID) {
+      throw new BytecodeExecutionException(
+          VALIDATE_FOR_SMART_CONTRACT_FAILURE + ", not valid token id");
+    }
   }
 
   /**
