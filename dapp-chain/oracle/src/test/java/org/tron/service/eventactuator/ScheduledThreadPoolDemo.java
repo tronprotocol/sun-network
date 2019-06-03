@@ -18,7 +18,7 @@ public class ScheduledThreadPoolDemo {
     @Override
     public void run() {
       System.out.println("Thread-" + Thread.currentThread().getId() + " start. Command=" + command);
-      processCommand();
+      //processCommand();
       System.out.println("Thread-" + Thread.currentThread().getId() + " end.");
     }
 
@@ -37,8 +37,8 @@ public class ScheduledThreadPoolDemo {
     for (int i = 0; i < 10; i++) {
 
       Runnable work = new WorkThread("" + i);
-      syncExecutor.scheduleWithFixedDelay(work, 10000,
-          60000, TimeUnit.MILLISECONDS);
+      syncExecutor.scheduleWithFixedDelay(work, 2000,
+          5000, TimeUnit.MILLISECONDS);
     }
     try {
       Thread.sleep(100000);

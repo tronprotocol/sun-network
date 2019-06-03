@@ -1,8 +1,7 @@
 package org.tron.service.check;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.tron.client.MainChainGatewayApi;
@@ -27,18 +26,22 @@ public class CheckTransaction {
   private CheckTransaction() {
   }
 
-  private final ScheduledExecutorService syncExecutor = Executors
-      .newScheduledThreadPool(100);
+  private final ExecutorService syncExecutor = Executors
+      .newFixedThreadPool(100);
 
   public void submitCheck(TransactionExtensionCapsule txExtensionCapsule, int submitCnt) {
     // TODO: from solidity node
+    try {
+      Thread.sleep(60 * 1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     syncExecutor
-        .scheduleWithFixedDelay(() -> instance.checkTransaction(txExtensionCapsule, submitCnt),
-            60000,
-            60000, TimeUnit.MILLISECONDS);
+        .submit(() -> instance.checkTransaction(txExtensionCapsule, submitCnt));
   }
 
   private void checkTransaction(TransactionExtensionCapsule txExtensionCapsule, int checkCnt) {
+
     try {
       if (StringUtils.isEmpty(txExtensionCapsule.getTransactionId())) {
         return;
@@ -76,6 +79,7 @@ public class CheckTransaction {
           logger.error(e1.getMessage(), e1);
           return;
         }
+
         instance.submitCheck(txExtensionCapsule, checkCnt + 1);
       }
     } catch (TxFailException e) {
