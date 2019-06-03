@@ -31,6 +31,7 @@ matrix:
     - bash dapp-chain/side-chain/deploy.sh
 
 
+
 after_success:
 - "bash <(curl -s https://codecov.io/bash) -t 060bb400-c6fe-4d5f-a6c8-427105c746ac -s dapp-chain/side-chain/build/reports/jacoco/"
 
