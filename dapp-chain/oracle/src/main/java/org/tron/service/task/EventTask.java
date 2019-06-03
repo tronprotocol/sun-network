@@ -7,6 +7,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.tron.common.config.Args;
+import org.tron.common.crypto.ECKey;
+import org.tron.common.utils.WalletUtil;
 import org.tron.db.EventStore;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.eventactuator.Actuator;
@@ -25,9 +27,15 @@ public class EventTask {
   public EventTask(String mainGateway, String sideGateway) {
     this.mainGateway = mainGateway;
     this.sideGateway = sideGateway;
-    this.kfkConsumer = new KfkConsumer(Args.getInstance().getMainchainKafka(), "Oracle",
+    this.kfkConsumer = new KfkConsumer(Args.getInstance().getMainchainKafka(),
+        "Oracle_" + getOracleAddress(),
         Arrays.asList("contractevent"));
     this.store = EventStore.getInstance();
+  }
+
+  private String getOracleAddress() {
+    return WalletUtil.encode58Check(
+        ECKey.fromPrivate(Args.getInstance().getOraclePrivateKey()).getAddress());
   }
 
   public void processEvent() {
