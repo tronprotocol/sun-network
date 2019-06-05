@@ -54,7 +54,7 @@ import org.tron.api.GrpcAPI.ExchangeList;
 import org.tron.api.GrpcAPI.Node;
 import org.tron.api.GrpcAPI.NodeList;
 import org.tron.api.GrpcAPI.NumberMessage;
-import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.GrpcAPI.Return;
 import org.tron.api.GrpcAPI.Return.response_code;
 import org.tron.api.GrpcAPI.TransactionApprovedList;
@@ -129,7 +129,7 @@ import org.tron.protos.Protocol.DelegatedResourceAccountIndex;
 import org.tron.protos.Protocol.Exchange;
 import org.tron.protos.Protocol.Permission;
 import org.tron.protos.Protocol.Permission.PermissionType;
-import org.tron.protos.Protocol.Proposal;
+import org.tron.protos.Protocol.SideChainProposal;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.SmartContract.ABI;
 import org.tron.protos.Protocol.SmartContract.ABI.Entry.StateMutabilityType;
@@ -697,8 +697,8 @@ public class Wallet {
     return builder.build();
   }
 
-  public ProposalList getProposalList() {
-    ProposalList.Builder builder = ProposalList.newBuilder();
+  public SideChainProposalList getProposalList() {
+    SideChainProposalList.Builder builder = SideChainProposalList.newBuilder();
     List<ProposalCapsule> proposalCapsuleList = dbManager.getProposalStore().getAllProposals();
     proposalCapsuleList
         .forEach(proposalCapsule -> builder.addProposals(proposalCapsule.getInstance()));
@@ -1184,7 +1184,7 @@ public class Wallet {
     return null;
   }
 
-  public Proposal getProposalById(ByteString proposalId) {
+  public SideChainProposal getProposalById(ByteString proposalId) {
     if (Objects.isNull(proposalId)) {
       return null;
     }
@@ -1410,7 +1410,7 @@ public class Wallet {
   return
   id: 101~110
    */
-  public ProposalList getPaginatedProposalList(long offset, long limit) {
+  public SideChainProposalList getPaginatedProposalList(long offset, long limit) {
 
     if (limit < 0 || offset < 0) {
       return null;
@@ -1423,7 +1423,7 @@ public class Wallet {
     limit = limit > PROPOSAL_COUNT_LIMIT_MAX ? PROPOSAL_COUNT_LIMIT_MAX : limit;
     long end = offset + limit;
     end = end > latestProposalNum ? latestProposalNum : end;
-    ProposalList.Builder builder = ProposalList.newBuilder();
+    SideChainProposalList.Builder builder = SideChainProposalList.newBuilder();
 
     ImmutableList<Long> rangeList = ContiguousSet
         .create(Range.openClosed(offset, end), DiscreteDomain.longs()).asList();

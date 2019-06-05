@@ -19,7 +19,7 @@ import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.ItemNotFoundException;
 import org.tron.protos.Contract.ProposalDeleteContract;
-import org.tron.protos.Protocol.Proposal.State;
+import org.tron.protos.Protocol.SideChainProposal.State;
 import org.tron.protos.Protocol.Transaction.Result.code;
 
 @Slf4j(topic = "actuator")

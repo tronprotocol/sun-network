@@ -20,8 +20,8 @@ import org.tron.core.config.DefaultConfig;
 import org.tron.core.config.args.Args;
 import org.tron.core.db.DynamicPropertiesStore;
 import org.tron.core.db.Manager;
-import org.tron.protos.Protocol.Proposal;
-import org.tron.protos.Protocol.Proposal.State;
+import org.tron.protos.Protocol.SideChainProposal;
+import org.tron.protos.Protocol.SideChainProposal.State;
 
 public class ProposalControllerTest {
 
@@ -53,7 +53,7 @@ public class ProposalControllerTest {
   public void testSetDynamicParameters() {
 
     ProposalCapsule proposalCapsule = new ProposalCapsule(
-        Proposal.newBuilder().build());
+        SideChainProposal.newBuilder().build());
     Map<Long, String> parameters = new HashMap<>();
     DynamicPropertiesStore dynamicPropertiesStore = dbManager.getDynamicPropertiesStore();
     long accountUpgradeCostDefault = dynamicPropertiesStore.getAccountUpgradeCost();
@@ -75,7 +75,7 @@ public class ProposalControllerTest {
   @Test
   public void testProcessProposal() {
     ProposalCapsule proposalCapsule = new ProposalCapsule(
-        Proposal.newBuilder().build());
+        SideChainProposal.newBuilder().build());
     proposalCapsule.setState(State.PENDING);
     proposalCapsule.setID(1);
 
@@ -130,29 +130,29 @@ public class ProposalControllerTest {
   @Test
   public void testProcessProposals() {
     ProposalCapsule proposalCapsule1 = new ProposalCapsule(
-        Proposal.newBuilder().build());
+        SideChainProposal.newBuilder().build());
     proposalCapsule1.setState(State.APPROVED);
     proposalCapsule1.setID(1);
 
     ProposalCapsule proposalCapsule2 = new ProposalCapsule(
-        Proposal.newBuilder().build());
+        SideChainProposal.newBuilder().build());
     proposalCapsule2.setState(State.DISAPPROVED);
     proposalCapsule2.setID(2);
 
     ProposalCapsule proposalCapsule3 = new ProposalCapsule(
-        Proposal.newBuilder().build());
+        SideChainProposal.newBuilder().build());
     proposalCapsule3.setState(State.PENDING);
     proposalCapsule3.setID(3);
     proposalCapsule3.setExpirationTime(10000L);
 
     ProposalCapsule proposalCapsule4 = new ProposalCapsule(
-        Proposal.newBuilder().build());
+        SideChainProposal.newBuilder().build());
     proposalCapsule4.setState(State.CANCELED);
     proposalCapsule4.setID(4);
     proposalCapsule4.setExpirationTime(11000L);
 
     ProposalCapsule proposalCapsule5 = new ProposalCapsule(
-        Proposal.newBuilder().build());
+        SideChainProposal.newBuilder().build());
     proposalCapsule5.setState(State.PENDING);
     proposalCapsule5.setID(5);
     proposalCapsule5.setExpirationTime(12000L);
@@ -178,7 +178,7 @@ public class ProposalControllerTest {
   @Test
   public void testHasMostApprovals() {
     ProposalCapsule proposalCapsule = new ProposalCapsule(
-        Proposal.newBuilder().build());
+        SideChainProposal.newBuilder().build());
     proposalCapsule.setState(State.APPROVED);
     proposalCapsule.setID(1);
 

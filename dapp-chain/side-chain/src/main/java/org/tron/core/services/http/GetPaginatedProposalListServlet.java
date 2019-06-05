@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tron.api.GrpcAPI.PaginatedMessage;
-import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.core.Wallet;
 
 
@@ -31,7 +31,7 @@ public class GetPaginatedProposalListServlet extends HttpServlet {
       Util.checkBodySize(input);
       PaginatedMessage.Builder build = PaginatedMessage.newBuilder();
       JsonFormat.merge(input, build);
-      ProposalList reply = wallet.getPaginatedProposalList(build.getOffset(), build.getLimit());
+      SideChainProposalList reply = wallet.getPaginatedProposalList(build.getOffset(), build.getLimit());
       if (reply != null) {
         response.getWriter().println(JsonFormat.printToString(reply));
       } else {
