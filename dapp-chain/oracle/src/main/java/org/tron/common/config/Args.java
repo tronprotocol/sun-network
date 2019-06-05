@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.utils.WalletUtil;
-import org.apache.commons.lang3.ArrayUtils;
 
 
 @Slf4j
@@ -158,7 +157,7 @@ public class Args {
         .decodeFromBase58Check(config.getString("gateway.sidechain.address"));
     if (StringUtils.isEmpty(this.oraclePrivateKeyStr)) {
       this.oraclePrivateKey = Hex.decode(config.getString("oracle.private.key"));
-    }else{
+    } else {
       this.oraclePrivateKey = Hex.decode(this.oraclePrivateKeyStr);
     }
 
