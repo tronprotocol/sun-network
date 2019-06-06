@@ -45,6 +45,7 @@ import org.tron.api.GrpcAPI.ExchangeList;
 import org.tron.api.GrpcAPI.NodeList;
 import org.tron.api.GrpcAPI.ProposalList;
 import org.tron.api.GrpcAPI.Return;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.GrpcAPI.TransactionApprovedList;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.GrpcAPI.TransactionList;
@@ -1534,6 +1535,10 @@ public class WalletApi {
 
   public static Optional<ProposalList> listProposals() {
     return rpcCli.listProposals();
+  }
+
+  public static Optional<SideChainProposalList> sideChainListProposals() {
+    return rpcCli.sideChianListProposals();
   }
 
   public static Optional<Proposal> getProposal(String id) {
