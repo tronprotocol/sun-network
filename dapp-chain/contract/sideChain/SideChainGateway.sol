@@ -50,7 +50,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     address public sunTokenAddress;
     address mintTRXContract = 0x10000;
     address mintTRC10Contract = 0x10001;
-
+    uint256 mappingFee;
 
     mapping(bytes32 => mapping(bytes32 => SignMsg)) public depositSigns;
     mapping(bytes32 => mapping(bytes32 => SignMsg)) public withdrawSigns;
@@ -107,6 +107,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     function deployDAppTRC20AndMapping(bytes txId, string name, string symbol, uint8 decimals) public returns (address r) {
         // can be called by everyone (contract developer)
         // require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
+        require(msg.value>100000000);
         address mainChainAddress = calcContractAddress(txId, msg.sender);
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
@@ -121,6 +122,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     function deployDAppTRC721AndMapping(bytes txId, string name, string symbol) public returns (address r) {
         // can be called by everyone (contract developer)
         // require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
+        require(msg.value>mappingFee);
         address mainChainAddress = calcContractAddress(txId, msg.sender);
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
@@ -170,6 +172,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     function withdrawTRC10(bytes userSign) payable public {
         // TODO: verify userSign
         require(trc10Map[msg.tokenid], "trc10Map[msg.tokenid] == false");
+        require(msg.tokenvalue>0, "tokenvalue must be > 0");
         // burn
         address(0).transferToken(msg.tokenvalue, msg.tokenid);
         emit WithdrawTRC10(msg.sender, msg.tokenvalue, msg.tokenid, userSign);
@@ -181,6 +184,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "mainChainAddress == address(0)");
+        require(value>0, "value must be > 0");
         DAppTRC20(sideChainAddress).burn(value);
         emit WithdrawTRC20(from, value, mainChainAddress, userSign);
 
@@ -203,6 +207,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     function withdrawTRX(bytes userSign) payable public {
         // TODO: verify userSign
         // burn
+        require(msg.value>0, "value must be > 0");
         address(0).transfer(msg.value);
         emit WithdrawTRX(msg.sender, msg.value, userSign);
     }
@@ -352,4 +357,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
             emit MultiSignForDeployAndMapping(mainChainAddress, sideChainAddress, dataHash, txId);
         }
     }
+    function setMappingFee(uint256 fee) public onlyOwner{
+        mappingFee=fee;
+    }
+
 }
