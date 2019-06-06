@@ -112,6 +112,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     // Requires first to have called `approve` on the specified TRC20 contract
     function depositTRC20(uint256 amount, address contractAddress) public {
         require(allows[contractAddress]!=address(0), "Not an allowe token");
+        require(amount>0,"value must > 0");
         TRC20(contractAddress).transferFrom(msg.sender, address(this), amount);
         balances.trc20[contractAddress] = balances.trc20[contractAddress].add(amount);
         emit TRC20Received(msg.sender, amount, contractAddress);
@@ -124,11 +125,13 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     }
 
     function depositTRX() payable public {
+        require(msg.value>0,"tokenvalue must > 0");
         balances.tron = balances.tron.add(msg.value);
         emit TRXReceived(msg.sender, msg.value);
     }
 
     function depositTRC10() payable public {
+        require(msg.tokenvalue>0,"tokenvalue must > 0");
         balances.trc10[msg.tokenid] = balances.trc10[msg.tokenid].add(msg.tokenvalue);
         emit TRC10Received(msg.sender, msg.tokenvalue, msg.tokenid);
     }
@@ -159,7 +162,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     function() external payable {
         if (msg.tokenid > 1000000) {
             depositTRC10();
-        }else if(msg.value > 0){
+        }else {
             depositTRX();
         }
     }
