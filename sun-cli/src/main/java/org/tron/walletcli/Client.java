@@ -2765,6 +2765,10 @@ public class Client {
     String value = parameters[2];
     long feeLimit = Long.parseLong(parameters[3]);
     byte[] txData = walletApiWrapper.sideSignTokenData(mainAddress, value);
+    if (txData == null || txData.length == 0) {
+      System.out.println("failed to withdraw due to invalid address: " + mainAddress);
+      return;
+    }
 
     byte[] sideAddress = walletApiWrapper.getSideTokenAddress(mainAddress);
 
@@ -2794,6 +2798,10 @@ public class Client {
     String uid = parameters[2];
     long feeLimit = Long.parseLong(parameters[3]);
     byte[] txData = walletApiWrapper.sideSignTokenData(mainAddress, uid);
+    if (txData == null || txData.length == 0) {
+      System.out.println("failed to withdraw due to invalid address: " + mainAddress);
+      return;
+    }
 
     byte[] sideAddress = walletApiWrapper.getSideTokenAddress(mainAddress);
 
