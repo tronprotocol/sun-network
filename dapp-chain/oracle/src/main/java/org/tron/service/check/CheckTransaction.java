@@ -1,16 +1,15 @@
 package org.tron.service.check;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
-import org.tron.common.exception.TxValidateException;
-import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxFailException;
+import org.tron.common.exception.TxRollbackException;
+import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AlertUtil;
 import org.tron.db.TransactionExtentionStore;
 
@@ -26,14 +25,18 @@ public class CheckTransaction {
   private CheckTransaction() {
   }
 
-  private final ScheduledExecutorService syncExecutor = Executors
-    .newScheduledThreadPool(100);
+  private final ExecutorService syncExecutor = Executors
+      .newFixedThreadPool(100);
 
   public void submitCheck(TransactionExtensionCapsule txExtensionCapsule, int submitCnt) {
     // TODO: from solidity node
+    try {
+      Thread.sleep(60 * 1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     syncExecutor
-      .scheduleWithFixedDelay(() -> instance.checkTransaction(txExtensionCapsule, submitCnt), 60000,
-        60000,TimeUnit.MILLISECONDS);
+        .submit(() -> instance.checkTransaction(txExtensionCapsule, submitCnt));
   }
 
   private void checkTransaction(TransactionExtensionCapsule txExtensionCapsule, int checkCnt) {
@@ -49,7 +52,8 @@ public class CheckTransaction {
           SideChainGatewayApi.checkTxInfo(txExtensionCapsule);
           break;
       }
-      TransactionExtentionStore.getInstance().deleteData(txExtensionCapsule.getTransactionIdBytes());
+      TransactionExtentionStore.getInstance()
+          .deleteData(txExtensionCapsule.getTransactionIdBytes());
     } catch (TxRollbackException e) {
       // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 4.2
       logger.error(e.getMessage());
@@ -81,7 +85,7 @@ public class CheckTransaction {
   }
 
   public boolean broadcastTransaction(TransactionExtensionCapsule txExtensionCapsule)
-    throws RpcConnectException, TxValidateException {
+      throws RpcConnectException, TxValidateException {
     switch (txExtensionCapsule.getType()) {
       case MAIN_CHAIN:
         return MainChainGatewayApi.broadcast(txExtensionCapsule.getTransaction());
