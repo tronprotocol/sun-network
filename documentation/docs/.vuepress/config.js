@@ -1,5 +1,5 @@
 module.exports = {
-  base: '/Sun-Network/',
+  base: '/sun-network/',
   title: 'Sun Network',
   head: [['link', { rel: 'icon', href: '/favicon.png' }]],
   locales: {
@@ -7,7 +7,7 @@ module.exports = {
     '/zh/': {}
   },
   themeConfig: {
-    repo: 'tronprotocol/Sun-Network',
+    repo: 'tronprotocol/sun-network',
     locales: {
       '/': {
         selectText: 'Languages',
