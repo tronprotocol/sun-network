@@ -55,3 +55,10 @@ nodeId.properties
 
 # vm_trace
 dapp-chain/side-chain/vm_trace/
+
+
+# node
+node_modules/
+/documentation/config.js
+/documentation/package-lock.json
+/documentation/docs/.vuepress/dist

@@ -1,0 +1,31 @@
+{
+  "name": "sun-stage",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "config": "cp sample.config.js config.js",
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs",
+    "dev": "node index 3000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/llwslc/sun-stage.git"
+  },
+  "author": "llwslc <llwslc@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/llwslc/sun-stage/issues"
+  },
+  "homepage": "https://github.com/llwslc/sun-stage#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "express": "^4.17.1",
+    "tronweb": "^2.5.6"
+  },
+  "devDependencies": {
+    "@vue/ui": "^0.9.2",
+    "vuepress": "^1.0.0-alpha.48"
+  }
+}
