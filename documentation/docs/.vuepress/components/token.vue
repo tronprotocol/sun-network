@@ -46,6 +46,9 @@ export default {
       if (process.env.NODE_ENV == 'development') {
         dataUrl = 'http://localhost:3000';
       }
+      if (process.env.GITHUB == 'github') {
+        dataUrl = 'https://tron.network';
+      }
       this.$axios
         .post(`${dataUrl}/sunnetwork/token`, {
           addr: this.addr

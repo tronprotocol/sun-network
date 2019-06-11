@@ -1,10 +1,14 @@
 module.exports = {
-  base: '/sunnetwork/',
+  base: process.env.GITHUB == 'github' ? '/sun-network/' : '/sunnetwork/',
+  dest: process.env.GITHUB == 'github' ? 'docs/.vuepress/github' : 'docs/.vuepress/dist',
   title: 'Sun Network',
   head: [['link', { rel: 'icon', href: '/favicon.png' }]],
   locales: {
     '/': {},
     '/zh/': {}
+  },
+  define: {
+    'process.env.GITHUB': process.env.GITHUB
   },
   themeConfig: {
     repo: 'tronprotocol/sun-network',

@@ -61,3 +61,4 @@ dapp-chain/side-chain/vm_trace/
 node_modules/
 /documentation/config.js
 /documentation/package-lock.json
+/documentation/docs/.vuepress/github
