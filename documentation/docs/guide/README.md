@@ -71,7 +71,7 @@ Users can deposit the assets of the main chain to the side chain by the Sun Clie
 
 Deposit asset operations are sent by Sun Client to the main chain.
 
-<details>
+<details open>
 <summary>Command list</summary>
 
 #### 1. deposit TRX:
@@ -96,7 +96,7 @@ Deposit asset operations are sent by Sun Client to the main chain.
   mainGatewayAddress|main chain gateway address|
   num| number of TRC10|
   feelimit|cost limit|
-- Use case: deposit trc10 TUGgrkC2CoAG2xd31BY6VnyTTRfbaWeiPb 1000001 100000 100000000)
+- Use case: deposit trc10 TUGgrkC2CoAG2xd31BY6VnyTTRfbaWeiPb 1000001 100000 100000000
 
 #### 3. deposit TRC20
 
@@ -132,7 +132,7 @@ The user must map the main contract asset TRC20/TRC721 to DAppChain before the d
 
 Map asset operations are sent by Sun Client to the side chain.
 
-<details>
+<details open>
 <summary>Command list</summary>
 
 #### 1. mapping TRC20
@@ -172,7 +172,7 @@ Users can withdraw the assets of the main chain to the side chain by the Sun Cli
 
 Extracting asset operations is sent by Sun Client to the side chain.
 
-<details>
+<details open>
 <summary>Command list</summary>
 
 #### 1. withdraw TRX

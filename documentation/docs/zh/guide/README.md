@@ -67,7 +67,7 @@ Sun Client 是 Sun Network 官方提供给用户用于跟 DAppChain 交互的命
 
 质押资产操作由 Sun Client 向主链发送命令。
 
-<details>
+<details open>
 <summary>命令列表</summary>
 
 #### 1. deposit TRX:
@@ -92,7 +92,7 @@ Sun Client 是 Sun Network 官方提供给用户用于跟 DAppChain 交互的命
   mainGatewayAddress|主链 gateway 地址|
   num|质押的 TRC10 数量|
   feelimit|费用限制|
-- 用例：deposit trc10 TUGgrkC2CoAG2xd31BY6VnyTTRfbaWeiPb 1000001 100000 100000000）
+- 用例：deposit trc10 TUGgrkC2CoAG2xd31BY6VnyTTRfbaWeiPb 1000001 100000 100000000
 
 #### 3. deposit TRC20
 
@@ -128,7 +128,7 @@ Sun Client 是 Sun Network 官方提供给用户用于跟 DAppChain 交互的命
 
 映射资产操作由 Sun Client 向侧链发送命令。
 
-<details>
+<details open>
 <summary>命令列表</summary>
 
 #### 1. mapping TRC20
@@ -168,7 +168,7 @@ Sun Client 是 Sun Network 官方提供给用户用于跟 DAppChain 交互的命
 
 提取资产操作由 Sun Client 向侧链发送命令。
 
-<details>
+<details open>
 <summary>命令列表</summary>
 
 #### 1. withdraw TRX
