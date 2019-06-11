@@ -90,7 +90,7 @@ Sun Client 是 Sun Network 官方提供给用户用于跟 DAppChain 交互的命
   --|--|--
   deposit trc10|命令|
   mainGatewayAddress|主链 gateway 地址|
-  trc10id|trc10 Id|
+  trc10id|TRC10 的 token ID|
   num|质押的 TRC10 数量|
   feelimit|费用限制|
 - 用例：deposit trc10 TUGgrkC2CoAG2xd31BY6VnyTTRfbaWeiPb 1000001 100000 100000000
