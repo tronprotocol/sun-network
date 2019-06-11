@@ -42,21 +42,14 @@ contract OracleManagerContract is Ownable {
     }
 
     function checkGainer(address _to, uint256 num, address contractAddress, bytes sig) internal {
-        uint256[] memory nonum = new uint256[](2);
-        nonum[0] = nonce[_to];
-        nonum[1] = num;
-        bytes32 hash = keccak256(abi.encodePacked(contractAddress, nonum));
+        bytes32 hash = keccak256(abi.encodePacked(contractAddress, nonce[_to],num));
         address sender = hash.recover(sig);
         require(sender == _to, "Message not signed by a gainer");
 
     }
 
     function checkTrc10Gainer(address _to, uint256 num, trcToken tokenId, bytes sig) internal {
-        uint256[] memory nonum = new uint256[](3);
-        nonum[0] = tokenId;
-        nonum[1] = nonce[_to];
-        nonum[2] = num;
-        bytes32 hash = keccak256(abi.encodePacked(nonum));
+        bytes32 hash = keccak256(abi.encodePacked(uint256(tokenId),nonce[_to],num));
         address sender = hash.recover(sig);
         require(sender == _to, "Message not signed by a gainer");
     }
@@ -76,11 +69,7 @@ contract OracleManagerContract is Ownable {
 
     function checkOracles(address _to, address contractAddress, uint256 num,uint256 _type, bytes sign, bytes32 txid, bytes[] sigList) internal {
         SignMsg storage msl = multiSignList[txid];
-
-        uint256[] memory nonum = new uint256[](2);
-        nonum[0] = num;
-        nonum[1] = _type;
-        bytes32 hash = keccak256(abi.encodePacked(_to,contractAddress, nonum, sign, txid));
+        bytes32 hash = keccak256(abi.encodePacked(_to,contractAddress, num,_type, sign, txid));
         for (uint256 i = 0; i < sigList.length; i++) {
             address _oracle = hash.recover(sigList[i]);
             if (isOracle(_oracle) && !msl.signedOracle[_oracle]) {
@@ -94,10 +83,7 @@ contract OracleManagerContract is Ownable {
 
     function checkTrxOracles(address _to,  uint256 num, bytes sign, bytes32 txid, bytes[] sigList) internal {
         SignMsg storage msl = multiSignList[txid];
-
-        uint256[] memory nonum = new uint256[](1);
-        nonum[0] = num;
-        bytes32 hash = keccak256(abi.encodePacked(_to, nonum, sign, txid));
+        bytes32 hash = keccak256(abi.encodePacked(_to, num, sign, txid));
         for (uint256 i = 0; i < sigList.length; i++) {
             address _oracle = hash.recover(sigList[i]);
             if (isOracle(_oracle) && !msl.signedOracle[_oracle]) {
@@ -110,11 +96,7 @@ contract OracleManagerContract is Ownable {
     }
     function checkTrc10Oracles(address _to, trcToken tokenId, uint256 num, bytes sign, bytes32 txid, bytes[] sigList) internal {
         SignMsg storage msl = multiSignList[txid];
-
-        uint256[] memory tokenIdAndNum = new uint256[](2);
-        tokenIdAndNum[0] = tokenId;
-        tokenIdAndNum[1] = num;
-        bytes32 hash = keccak256(abi.encodePacked(_to, tokenIdAndNum, sign, txid));
+        bytes32 hash = keccak256(abi.encodePacked(_to, uint256(tokenId), num, sign, txid));
         for (uint256 i = 0; i < sigList.length; i++) {
             address _oracle = hash.recover(sigList[i]);
             if (isOracle(_oracle)) {

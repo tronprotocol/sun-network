@@ -105,7 +105,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 1. deployDAppTRC20AndMapping
-    function deployDAppTRC20AndMapping(address mainChainAddress, string name, string symbol, uint8 decimals) public returns (address r) {
+    function deployDAppTRC20AndMapping(address mainChainAddress, string name, string symbol, uint8 decimals) internal returns (address r) {
 
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
@@ -143,7 +143,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     function multiSignForDeployDAppTRC721AndMapping(address mainChainAddress, string name, string symbol, bytes32 txId, bytes oracleSign) public onlyOracle {
-
         bytes32 dataHash = keccak256(abi.encodePacked(mainChainAddress, name, symbol, txId));
 
         require(dataHash.recover(oracleSign) == msg.sender, "sign error");
@@ -283,12 +282,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     function multiSignForDepositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, bytes32 txId, bytes oracleSign) public onlyOracle {
-        uint256[] memory trc10IdAndValueAndDecimals = new uint256[](3);
-        trc10IdAndValueAndDecimals[0] = trc10;
-        trc10IdAndValueAndDecimals[1] = value;
-        trc10IdAndValueAndDecimals[2] = decimals;
-        bytes32 dataHash = keccak256(abi.encodePacked(to, trc10IdAndValueAndDecimals, name, symbol, txId));
-
+        bytes32 dataHash = keccak256(abi.encodePacked(to, trc10, value, uint256(decimals), name, symbol, txId));
         require(dataHash.recover(oracleSign) == msg.sender, "sign error");
 
         bool needDeposit = multiSignForDeposit(txId, dataHash, oracleSign);
@@ -302,10 +296,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     //      2: trc20
     //      3: trc721
     function multiSignForDepositToken(address to, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 txId, bytes oracleSign) public onlyOracle {
-        uint256[] memory valueAndType = new uint256[](2);
-        valueAndType[0] = valueOrTokenId;
-        valueAndType[1] = _type;
-        bytes32 dataHash = keccak256(abi.encodePacked(to, mainChainAddress, valueAndType, txId));
+
+        bytes32 dataHash = keccak256(abi.encodePacked(to, mainChainAddress, valueOrTokenId, _type, txId));
 
         require(dataHash.recover(oracleSign) == msg.sender, "sign error");
 

@@ -29,7 +29,9 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     event TRC721Mapping(address contractAddress);
 
     uint256 public mappingFee;
-    mapping (address =>bool) public mainToSideContractMap;
+    address public sunTokenAddress;
+    mapping (address =>uint256) public mainToSideContractMap;
+
     enum TokenKind {
         TRX,
         TRC10,
@@ -173,11 +175,12 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     function mappingTRC20(bytes txId) public payable {
         require(msg.value>=mappingFee,"trc20MappingFee not enough");
         address trc20Address = calcContractAddress(txId, msg.sender);
-        require(!mainToSideContractMap[trc20Address],"trc20Address mapped");
+        require(trc20Address != sunTokenAddress, "mainChainAddress == sunTokenAddress");
+        require(mainToSideContractMap[trc20Address] != 1,"trc20Address mapped");
         uint256 size;
         assembly { size := extcodesize(trc20Address) }
         require( size > 0);
-        mainToSideContractMap[trc20Address] = true;
+        mainToSideContractMap[trc20Address] = 1;
         emit TRC20Mapping( trc20Address);
     }
 
@@ -185,11 +188,12 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     function mappingTRC721(bytes txId) public payable {
         require(msg.value>=mappingFee,"trc721MappingFee not enough");
         address trc721Address = calcContractAddress(txId, msg.sender);
-        require(!mainToSideContractMap[trc721Address],"trc721Address mapped");
+        require(trc721Address != sunTokenAddress, "mainChainAddress == sunTokenAddress");
+        require(mainToSideContractMap[trc721Address] != 1,"trc721Address mapped");
         uint256 size;
         assembly { size := extcodesize(trc721Address) }
        require( size > 0);
-        mainToSideContractMap[trc721Address] = true;
+        mainToSideContractMap[trc721Address] = 1;
         emit TRC721Mapping( trc721Address);
     }
 
@@ -240,5 +244,9 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
 
     function setMappingFee(uint256 fee) public onlyOwner{
         mappingFee=fee;
+    }
+    function setSunTokenAddress(address _sunTokenAddress) public onlyOwner {
+        require(_sunTokenAddress != address(0), "_sunTokenAddress == address(0)");
+        sunTokenAddress = _sunTokenAddress;
     }
 }
