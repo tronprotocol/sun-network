@@ -94,6 +94,7 @@ Deposit asset operations are sent by Sun Client to the main chain.
   --|--|--
   deposit trc10|command|
   mainGatewayAddress|main chain gateway address|
+  trc10Id|Token ID of TRC10
   num| number of TRC10|
   feelimit|cost limit|
 - Use case: deposit trc10 TUGgrkC2CoAG2xd31BY6VnyTTRfbaWeiPb 1000001 100000 100000000
