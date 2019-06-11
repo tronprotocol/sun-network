@@ -21,7 +21,8 @@ app.all('*', function(req, res, next) {
 });
 
 app.use(express.json());
-app.post('/token', async (req, res) => {
+app.use('/sunnetwork', express.static('docs/.vuepress/dist'));
+app.post('/sunnetwork/token', async (req, res) => {
   let to_address = '';
   let amount = 1e10;
   let maxAmountDaily = 5e10;
@@ -64,9 +65,13 @@ app.post('/token', async (req, res) => {
       result.ok = true;
     }
   } catch (error) {
-    console.error('e', error);
+    console.error(`${new Date().toLocaleString()} -- e: `, error);
   }
   res.send(result);
+});
+
+app.use(function(req, res, next) {
+  res.status(404).sendFile('docs/.vuepress/dist/404.html', { root: __dirname });
 });
 
 app.listen(port, () => console.log(`App listening on port ${port}!`));
