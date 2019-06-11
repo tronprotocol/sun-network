@@ -526,11 +526,31 @@ public class AbiUtil {
     return !(new DataWord(data)).isZero();
   }
 
+  public static int unpackUint(byte[] data) {
+    return new DataWord(data).intValue();
+  }
+
+  public static String unpackString(byte[] data) {
+    if (data.length % WORD_LENGTH != 0 || data.length / WORD_LENGTH < 2) {
+      return "";
+    }
+
+    int index = DataWord.getDataWord(data, 0).intValue();
+    int valueLength = DataWord.getDataWord(data, index / WORD_LENGTH).intValue();
+    if (valueLength > 0) {
+      byte[] range = Arrays
+          .copyOfRange(data, index + WORD_LENGTH, index + WORD_LENGTH + valueLength);
+      return ByteArray.toStr(range);
+    }
+    return "";
+  }
+
   public static void main(String[] args) throws EncodingException {
 
     //test();
     //test2();
-    test6();
+    //test6();
+    test7();
 //    String method = "test(address,string,int)";
 //    String method = "test(string,int2,string)";
 //    String params = "asdf,3123,adf";
@@ -579,6 +599,12 @@ public class AbiUtil {
     String data = "00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000051234567890000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000622222222901100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007033333338902220000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000074444444490333300000000000000000000000000000000000000000000000000";
     List<String> strings = AbiUtil.unpackOracleSigns(ByteArray.fromHexString(data));
     strings.forEach(s -> System.out.println(s));
+  }
+
+  public static void test7() {
+    String data = "0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000f6161616161616161616161616161610000000000000000000000000000000000";
+    String strings = AbiUtil.unpackString(ByteArray.fromHexString(data));
+    System.out.println(strings);
   }
 
   public static void test6() {

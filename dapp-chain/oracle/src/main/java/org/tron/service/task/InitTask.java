@@ -1,9 +1,5 @@
 package org.tron.service.task;
 
-import static org.tron.protos.Protocol.Transaction.Contract.ContractType.AccountUpdateContract;
-import static org.tron.protos.Protocol.Transaction.Contract.ContractType.TransferAssetContract;
-import static org.tron.protos.Protocol.Transaction.Contract.ContractType.TransferContract;
-
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -11,7 +7,6 @@ import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.db.EventStore;
 import org.tron.db.TransactionExtensionStore;
-import org.tron.protos.Protocol.Transaction.Contract;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.service.check.CheckTransaction;
 import org.tron.service.check.TransactionExtensionCapsule;
@@ -21,6 +16,8 @@ import org.tron.service.eventactuator.mainchain.DepositTRC10Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC20Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC721Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRXActuator;
+import org.tron.service.eventactuator.mainchain.MappingTRC20Actuator;
+import org.tron.service.eventactuator.mainchain.MappingTRC721Actuator;
 import org.tron.service.eventactuator.sidechain.DeployDAppTRC20AndMappingActuator;
 import org.tron.service.eventactuator.sidechain.DeployDAppTRC721AndMappingActuator;
 import org.tron.service.eventactuator.sidechain.MultiSignForMappingActuator;
@@ -71,7 +68,7 @@ public class InitTask {
   }
 
   private static Actuator getActuatorByEventMsg(byte[] data) throws InvalidProtocolBufferException {
-    EventMsg eventMsg =  EventMsg.parseFrom(data);
+    EventMsg eventMsg = EventMsg.parseFrom(data);
     switch (eventMsg.getType()) {
       case DEPOSIT_TRX_EVENT:
         return new DepositTRXActuator(eventMsg);
@@ -101,6 +98,10 @@ public class InitTask {
         return new DeployDAppTRC20AndMappingActuator(eventMsg);
       case DEPLOY_DAPPTRC721_AND_MAPPING_EVENT:
         return new DeployDAppTRC721AndMappingActuator(eventMsg);
+      case MAPPING_TRC20:
+        return new MappingTRC20Actuator(eventMsg);
+      case MAPPING_TRC721:
+        return new MappingTRC721Actuator(eventMsg);
       default:
         return null;
     }

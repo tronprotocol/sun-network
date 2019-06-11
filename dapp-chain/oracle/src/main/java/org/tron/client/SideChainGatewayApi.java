@@ -221,6 +221,56 @@ public class SideChainGatewayApi {
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
+  public static Transaction multiSignForMappingTRC20(String contractAddressStr, String trcName,
+      String trcSymbol, long trcDecimals, String transactionIdStr) throws RpcConnectException {
+    String ownSign = getMappingTRC20Sign(contractAddressStr, trcName, trcSymbol, trcDecimals,
+        transactionIdStr);
+
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    String method = "multiSignForDeployDAppTRC20AndMapping(address,string,string,uint8,byte32,bytes)";
+    List params = Arrays
+        .asList(contractAddressStr, trcName, trcSymbol, trcDecimals, transactionIdStr, ownSign);
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
+  }
+
+  private static String getMappingTRC20Sign(String contractAddressStr, String trcName,
+      String trcSymbol, long trcDecimals, String transactionIdStr) {
+    byte[] contractAddressStrBytes = WalletUtil.decodeFromBase58Check(contractAddressStr);
+    byte[] trcDecimalsBytes = new DataWord(trcDecimals).getData();
+    byte[] trcNameBytes = ByteArray.fromString(trcName);
+    byte[] trcSymbolBytes = ByteArray.fromString(trcSymbol);
+    byte[] txIdBytes = new DataWord(transactionIdStr).getData();
+    byte[] data = ByteUtil
+        .merge(Arrays.copyOfRange(contractAddressStrBytes, 1, contractAddressStrBytes.length),
+            trcNameBytes, trcSymbolBytes, trcDecimalsBytes, txIdBytes);
+    return Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+  }
+
+  public static Transaction multiSignForMappingTRC721(String contractAddressStr, String trcName,
+      String trcSymbol, String transactionIdStr) throws RpcConnectException {
+    String ownSign = getMappingTRC721Sign(contractAddressStr, trcName, trcSymbol, transactionIdStr);
+
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    String method = "multiSignForDeployDAppTRC20AndMapping(address,string,string,byte32,bytes)";
+    List params = Arrays
+        .asList(contractAddressStr, trcName, trcSymbol, transactionIdStr, ownSign);
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
+  }
+
+  private static String getMappingTRC721Sign(String contractAddressStr, String trcName,
+      String trcSymbol, String transactionIdStr) {
+    byte[] contractAddressStrBytes = WalletUtil.decodeFromBase58Check(contractAddressStr);
+    byte[] trcNameBytes = ByteArray.fromString(trcName);
+    byte[] trcSymbolBytes = ByteArray.fromString(trcSymbol);
+    byte[] txIdBytes = new DataWord(transactionIdStr).getData();
+    byte[] data = ByteUtil
+        .merge(Arrays.copyOfRange(contractAddressStrBytes, 1, contractAddressStrBytes.length),
+            trcNameBytes, trcSymbolBytes, txIdBytes);
+    return Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+  }
+
   // Singleton
   enum GatewayApi {
     GATEWAY_API;

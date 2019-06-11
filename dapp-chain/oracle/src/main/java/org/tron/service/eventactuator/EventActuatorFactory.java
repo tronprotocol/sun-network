@@ -7,6 +7,8 @@ import org.tron.service.eventactuator.mainchain.DepositTRC10Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC20Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC721Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRXActuator;
+import org.tron.service.eventactuator.mainchain.MappingTRC20Actuator;
+import org.tron.service.eventactuator.mainchain.MappingTRC721Actuator;
 import org.tron.service.eventactuator.sidechain.DeployDAppTRC20AndMappingActuator;
 import org.tron.service.eventactuator.sidechain.DeployDAppTRC721AndMappingActuator;
 import org.tron.service.eventactuator.sidechain.MultiSignForMappingActuator;
@@ -69,6 +71,16 @@ public class EventActuatorFactory {
         String txId = obj.get("transactionId").toString();
         task = new DepositTRC721Actuator(dataMap.get("from").toString(),
             dataMap.get("uid").toString(), dataMap.get("contractAddress").toString(), txId);
+        return task;
+      }
+      case TRC20_MAPPING: {
+        String txId = obj.get("transactionId").toString();
+        task = new MappingTRC20Actuator(dataMap.get("contractAddress").toString(), txId);
+        return task;
+      }
+      case TRC721_MAPPING: {
+        String txId = obj.get("transactionId").toString();
+        task = new MappingTRC721Actuator(dataMap.get("contractAddress").toString(), txId);
         return task;
       }
       default: {

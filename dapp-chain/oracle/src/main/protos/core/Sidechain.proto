@@ -39,6 +39,8 @@ message EventMsg {
     WITHDRAW_TRC20_EVENT = 11;
     WITHDRAW_TRC721_EVENT = 12;
     WITHDRAW_TRX_EVENT = 13;
+    MAPPING_TRC20 = 14;
+    MAPPING_TRC721 = 15;
   }
   EventType type = 1;
   google.protobuf.Any parameter = 2;
@@ -73,6 +75,17 @@ message DepositTRXEvent {
   bytes transaction_id = 3;
 }
 
+message MappingTRC20Event {
+  bytes contract_address = 3;
+  bytes transaction_id = 4;
+}
+
+message MappingTRC721Event {
+  bytes contract_address = 3;
+  bytes transaction_id = 4;
+}
+
+// Update account name. Account name is not unique now.
 message DeployDAppTRC20AndMappingEvent {
   bytes developer = 1;
   bytes mainchain_address = 2;
@@ -80,7 +93,7 @@ message DeployDAppTRC20AndMappingEvent {
   bytes transaction_id = 4;
 }
 
-
+// Set account id if the account has no id. Account id is unique and case insensitive.
 message DeployDAppTRC721AndMappingEvent {
   bytes developer = 1;
   bytes mainchain_address = 2;
