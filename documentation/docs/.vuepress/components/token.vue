@@ -42,12 +42,12 @@ export default {
   },
   methods: {
     token: function() {
-      let dataUrl = 'http://47.252.84.158:8080/token';
+      let dataUrl = '';
       if (process.env.NODE_ENV == 'development') {
-        dataUrl = 'http://localhost:3000/token';
+        dataUrl = 'http://localhost:3000';
       }
       this.$axios
-        .post(dataUrl, {
+        .post(`${dataUrl}/sunnetwork/token`, {
           addr: this.addr
         })
         .then(_ => {

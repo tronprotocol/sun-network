@@ -1,5 +1,5 @@
 module.exports = {
-  base: '/sun-network/',
+  base: '/sunnetwork/',
   title: 'Sun Network',
   head: [['link', { rel: 'icon', href: '/favicon.png' }]],
   locales: {
