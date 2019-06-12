@@ -29,12 +29,9 @@ message EventMsg {
     DEPOSIT_TRC20_EVENT = 1;
     DEPOSIT_TRC721_EVENT = 2;
     DEPOSIT_TRX_EVENT = 3;
-    DEPLOY_DAPPTRC20_AND_MAPPING_EVENT = 4;
-    DEPLOY_DAPPTRC721_AND_MAPPING_EVENT = 5;
     MULTISIGN_FOR_WITHDRAW_TOKEN_EVENT = 6;
     MULTISIGN_FOR_WITHDRAW_TRC10_EVENT = 7;
     MULTISIGN_FOR_WITHDRAW_TRX_EVENT = 8;
-    MULTISIGN_FOR_MAPPING_EVENT = 9;
     WITHDRAW_TRC10_EVENT = 10;
     WITHDRAW_TRC20_EVENT = 11;
     WITHDRAW_TRC721_EVENT = 12;
@@ -85,22 +82,6 @@ message MappingTRC721Event {
   bytes transaction_id = 4;
 }
 
-// Update account name. Account name is not unique now.
-message DeployDAppTRC20AndMappingEvent {
-  bytes developer = 1;
-  bytes mainchain_address = 2;
-  bytes sidechain_address = 3;
-  bytes transaction_id = 4;
-}
-
-// Set account id if the account has no id. Account id is unique and case insensitive.
-message DeployDAppTRC721AndMappingEvent {
-  bytes developer = 1;
-  bytes mainchain_address = 2;
-  bytes sidechain_address = 3;
-  bytes transaction_id = 4;
-}
-
 message MultiSignForWithdrawTokenEvent {
   bytes from = 1;
   bytes mainchain_address = 2;
@@ -129,14 +110,6 @@ message MultiSignForWithdrawTRXEvent {
   bytes data_hash = 4;
   bytes original_transaction_id = 5;
   bytes transaction_id = 6;
-}
-
-message MultiSignForMappingEvent {
-  bytes mainchain_address = 1;
-  bytes sidechain_address = 2;
-  bytes data_hash = 3;
-  bytes original_transaction_id = 4;
-  bytes transaction_id = 5;
 }
 
 message WithdrawTRC10Event {
