@@ -132,7 +132,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 1. deployDAppTRC20AndMapping
-    function deployDAppTRC20AndMapping(bytes txId, string name, string symbol, uint8 decimals) public returns (address r) {
+    function deployDAppTRC20AndMapping(bytes txId, string name, string symbol, uint8 decimals) payable public returns (address r) {
         // can be called by everyone (contract developer)
         // require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
         require(msg.value > mappingFee);
@@ -148,7 +148,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 2. deployDAppTRC721AndMapping
-    function deployDAppTRC721AndMapping(bytes txId, string name, string symbol) public returns (address r) {
+    function deployDAppTRC721AndMapping(bytes txId, string name, string symbol) payable public returns (address r) {
         // can be called by everyone (contract developer)
         // require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
         require(msg.value > mappingFee);
@@ -305,7 +305,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
             emit WithdrawTRC721(nonce, withdrawMsg.user, withdrawMsg.valueOrTokenId, withdrawMsg.mainChainAddress, withdrawMsg.userSign);
         } else {
             // 4
-            emit WithdrawTRC10(nonce, withdrawMsg.user, msg.sender, withdrawMsg.valueOrTokenId, withdrawMsg.trc10, userSign);
+            emit WithdrawTRC10(nonce, withdrawMsg.user, withdrawMsg.valueOrTokenId, withdrawMsg.trc10, withdrawMsg.userSign);
         }
     }
 
