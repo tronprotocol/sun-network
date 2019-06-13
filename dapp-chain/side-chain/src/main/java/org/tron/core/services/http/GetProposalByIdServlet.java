@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tron.common.utils.ByteArray;
 import org.tron.core.Wallet;
-import org.tron.protos.Protocol.Proposal;
+import org.tron.protos.Protocol.SideChainProposal;
 
 @Component
 @Slf4j(topic = "API")
@@ -25,7 +25,7 @@ public class GetProposalByIdServlet extends HttpServlet {
     try {
       String input = request.getParameter("id");
       long id = new Long(input);
-      Proposal reply = wallet.getProposalById(ByteString.copyFrom(ByteArray.fromLong(id)));
+      SideChainProposal reply = wallet.getProposalById(ByteString.copyFrom(ByteArray.fromLong(id)));
       if (reply != null) {
         response.getWriter().println(JsonFormat.printToString(reply));
       } else {
@@ -48,7 +48,7 @@ public class GetProposalByIdServlet extends HttpServlet {
       Util.checkBodySize(input);
       JSONObject jsonObject = JSONObject.parseObject(input);
       long id = jsonObject.getLong("id");
-      Proposal reply = wallet.getProposalById(ByteString.copyFrom(ByteArray.fromLong(id)));
+      SideChainProposal reply = wallet.getProposalById(ByteString.copyFrom(ByteArray.fromLong(id)));
       if (reply != null) {
         response.getWriter().println(JsonFormat.printToString(reply));
       } else {

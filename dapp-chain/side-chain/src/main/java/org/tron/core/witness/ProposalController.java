@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.db.Manager;
-import org.tron.protos.Protocol.Proposal.State;
+import org.tron.protos.Protocol.SideChainProposal.State;
 
 @Slf4j(topic = "witness")
 public class ProposalController {

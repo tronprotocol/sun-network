@@ -45,6 +45,7 @@ import org.tron.api.GrpcAPI.ExchangeList;
 import org.tron.api.GrpcAPI.NodeList;
 import org.tron.api.GrpcAPI.ProposalList;
 import org.tron.api.GrpcAPI.Return;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.GrpcAPI.TransactionApprovedList;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.GrpcAPI.TransactionList;
@@ -532,6 +533,10 @@ public class WalletApi {
     org.tron.keystore.StringUtils.clear(password);
 
     byte[] mainTokenAddress = WalletApi.decode58Check(tokenAddress);
+    if (mainTokenAddress == null || mainTokenAddress.length == 0) {
+      System.out.println("Invalide adreess: " + tokenAddress);
+      return null;
+    }
     byte[] data = ByteUtil
       .merge(Arrays.copyOfRange(mainTokenAddress, 1, mainTokenAddress.length), nonce.getData(),
         valueI.getData());
@@ -1534,6 +1539,10 @@ public class WalletApi {
 
   public static Optional<ProposalList> listProposals() {
     return rpcCli.listProposals();
+  }
+
+  public static Optional<SideChainProposalList> sideChainListProposals() {
+    return rpcCli.sideChianListProposals();
   }
 
   public static Optional<Proposal> getProposal(String id) {

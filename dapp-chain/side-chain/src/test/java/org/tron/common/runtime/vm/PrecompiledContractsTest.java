@@ -44,7 +44,7 @@ import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.ItemNotFoundException;
 import org.tron.protos.Contract;
 import org.tron.protos.Protocol.AccountType;
-import org.tron.protos.Protocol.Proposal.State;
+import org.tron.protos.Protocol.SideChainProposal.State;
 
 @Slf4j
 public class PrecompiledContractsTest {
