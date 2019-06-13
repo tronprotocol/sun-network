@@ -189,8 +189,9 @@ contract TRC721 is ITRC721 {
         emit Transfer(from, to, tokenId);
     }
 
-    function transfer(address to, uint256 tokenId) public {
+    function transfer(address to, uint256 tokenId) public returns (bool) {
         _transferFrom(msg.sender, to, tokenId);
+        return true;
     }
 
     /**

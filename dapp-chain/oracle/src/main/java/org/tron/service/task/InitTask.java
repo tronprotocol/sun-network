@@ -2,9 +2,8 @@ package org.tron.service.task;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
+import org.spongycastle.util.encoders.Hex;
 import org.tron.db.EventStore;
 import org.tron.db.TransactionExtensionStore;
 import org.tron.protos.Sidechain.EventMsg;
@@ -29,16 +28,11 @@ import org.tron.service.eventactuator.sidechain.WithdrawTRXActuator;
 @Slf4j(topic = "task")
 public class InitTask {
 
-  private ExecutorService executor;
-
-  public InitTask(int fixedThreads) {
-    this.executor = Executors.newFixedThreadPool(fixedThreads);
-  }
-
   public void batchProcessTxInDb() {
 
     Set<byte[]> allTxs = TransactionExtensionStore.getInstance().allValues();
     for (byte[] txExtensionBytes : allTxs) {
+      // FIXME: handle expire
       try {
         CheckTransaction.getInstance()
             .submitCheck(new TransactionExtensionCapsule(txExtensionBytes), 1);
@@ -49,11 +43,11 @@ public class InitTask {
     }
 
     Set<byte[]> allEvents = EventStore.getInstance().allValues();
-    Set<byte[]> allTxKeys = TransactionExtensionStore.getInstance().allKeys();
+    Set<String> allTxKeyHexStrings = TransactionExtensionStore.getInstance().allKeyHexStrings();
     for (byte[] event : allEvents) {
       try {
         Actuator actuator = getActuatorByEventMsg(event);
-        if (actuator == null || allTxKeys.contains(actuator.getKey())) {
+        if (actuator == null || allTxKeyHexStrings.contains(Hex.toHexString(actuator.getKey()))) {
           continue;
         }
         ActuatorRun.getInstance().start(actuator);
@@ -64,7 +58,7 @@ public class InitTask {
     }
   }
 
-  private static Actuator getActuatorByEventMsg(byte[] data) throws InvalidProtocolBufferException {
+  public static Actuator getActuatorByEventMsg(byte[] data) throws InvalidProtocolBufferException {
     EventMsg eventMsg = EventMsg.parseFrom(data);
     switch (eventMsg.getType()) {
       case DEPOSIT_TRX_EVENT:

@@ -28,8 +28,7 @@ public class App {
     String mainGateway = WalletUtil.encode58Check(arg.getMainchainGateway());
     String sideGateway = WalletUtil.encode58Check(arg.getSidechainGateway());
 
-    (new InitTask(10)).batchProcessTxInDb();
+    (new InitTask()).batchProcessTxInDb();
     (new EventTask(mainGateway, sideGateway)).processEvent();
-    return;
   }
 }

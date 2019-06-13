@@ -47,6 +47,23 @@ message Proposal {
   State state = 7;
 }
 
+// SideChainProposal
+message SideChainProposal {
+  int64 proposal_id = 1;
+  bytes proposer_address = 2;
+  map<int64, string> parameters = 3;
+  int64 expiration_time = 4;
+  int64 create_time = 5;
+  repeated bytes approvals = 6;
+  enum State {
+    PENDING = 0;
+    DISAPPROVED = 1;
+    APPROVED = 2;
+    CANCELED = 3;
+  }
+  State state = 7;
+}
+
 // Exchange
 message Exchange {
   int64 exchange_id = 1;

@@ -89,4 +89,9 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
   public byte[] getKey() {
     return event.getTransactionId().toByteArray();
   }
+
+  @Override
+  public byte[] getNonce() {
+    return null;
+  }
 }

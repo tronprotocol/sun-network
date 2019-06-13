@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.core.Wallet;
 
 
@@ -20,7 +20,7 @@ public class ListProposalsServlet extends HttpServlet {
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {
     try {
-      ProposalList reply = wallet.getProposalList();
+      SideChainProposalList reply = wallet.getProposalList();
       if (reply != null) {
         response.getWriter().println(JsonFormat.printToString(reply));
       } else {

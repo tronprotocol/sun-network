@@ -41,6 +41,7 @@ import org.tron.api.GrpcAPI.BlockListExtention;
 import org.tron.api.GrpcAPI.DelegatedResourceList;
 import org.tron.api.GrpcAPI.ExchangeList;
 import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.GrpcAPI.TransactionApprovedList;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.GrpcAPI.TransactionList;
@@ -64,6 +65,7 @@ import org.tron.protos.Contract.ParticipateAssetIssueContract;
 import org.tron.protos.Contract.ProposalApproveContract;
 import org.tron.protos.Contract.ProposalCreateContract;
 import org.tron.protos.Contract.ProposalDeleteContract;
+import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Contract.TransferAssetContract;
 import org.tron.protos.Contract.TransferContract;
 import org.tron.protos.Contract.TriggerSmartContract;
@@ -92,6 +94,7 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import org.tron.protos.Protocol.Proposal;
 import org.tron.protos.Protocol.ResourceReceipt;
+import org.tron.protos.Protocol.SideChainProposal;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
@@ -102,7 +105,6 @@ import org.tron.protos.Protocol.TransactionInfo.code;
 import org.tron.protos.Protocol.Vote;
 import org.tron.protos.Protocol.Witness;
 import org.tron.walletserver.WalletApi;
-import org.tron.protos.Contract.SideChainProposalCreateContract;
 
 public class Utils {
 
@@ -465,6 +467,32 @@ public class Utils {
     return result;
   }
 
+  public static String sideChainprintProposal(SideChainProposal proposal) {
+    String result = "";
+    result += "id: ";
+    result += proposal.getProposalId();
+    result += "\n";
+    result += "state: ";
+    result += proposal.getState();
+    result += "\n";
+    result += "createTime: ";
+    result += proposal.getCreateTime();
+    result += "\n";
+    result += "expirationTime: ";
+    result += proposal.getExpirationTime();
+    result += "\n";
+    result += "parametersMap: ";
+    result += proposal.getParametersMap();
+    result += "\n";
+    result += "approvalsList: [ \n";
+    for (ByteString address : proposal.getApprovalsList()) {
+      result += WalletApi.encode58Check(address.toByteArray());
+      result += "\n";
+    }
+    result += "]";
+    return result;
+  }
+
   public static String printProposalsList(ProposalList proposalList) {
     String result = "\n";
     int i = 0;
@@ -482,6 +510,22 @@ public class Utils {
     return result;
   }
 
+  public static String sideChianPrintProposalsList(SideChainProposalList proposalList) {
+    String result = "\n";
+    int i = 0;
+    for (SideChainProposal proposal : proposalList.getSideChainProposalsList()) {
+      result += "proposal " + i + " :::";
+      result += "\n";
+      result += "[";
+      result += "\n";
+      result += sideChainprintProposal(proposal);
+      result += "]";
+      result += "\n";
+      result += "\n";
+      i++;
+    }
+    return result;
+  }
 
   public static String printDelegatedResourceList(DelegatedResourceList delegatedResourceList) {
     String result = "" + delegatedResourceList.getDelegatedResourceCount() + "\n";

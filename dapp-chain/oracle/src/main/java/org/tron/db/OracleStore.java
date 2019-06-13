@@ -15,6 +15,7 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBException;
 import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
+import org.spongycastle.util.encoders.Hex;
 
 @Slf4j(topic = "db")
 public class OracleStore {
@@ -146,12 +147,12 @@ public class OracleStore {
     }
   }
 
-  public Set<byte[]> allKeys() {
+  public Set<String> allKeyHexStrings() {
     resetDbLock.readLock().lock();
     try (DBIterator iterator = database.iterator()) {
-      Set<byte[]> result = Sets.newHashSet();
+      Set<String> result = Sets.newHashSet();
       for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
-        result.add(iterator.peekNext().getKey());
+        result.add(Hex.toHexString(iterator.peekNext().getKey()));
       }
       return result;
     } catch (IOException e) {

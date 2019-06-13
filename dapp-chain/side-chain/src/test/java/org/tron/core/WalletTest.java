@@ -34,7 +34,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.tron.api.GrpcAPI.BlockList;
-import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.common.application.TronApplicationContext;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
@@ -55,7 +55,7 @@ import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.BlockHeader;
 import org.tron.protos.Protocol.BlockHeader.raw;
 import org.tron.protos.Protocol.Exchange;
-import org.tron.protos.Protocol.Proposal;
+import org.tron.protos.Protocol.SideChainProposal;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
@@ -202,7 +202,7 @@ public class WalletTest {
 
 
   private static void buildProposal() {
-    Proposal.Builder builder = Proposal.newBuilder();
+    SideChainProposal.Builder builder = SideChainProposal.newBuilder();
     builder.setProposalId(1L).setProposerAddress(ByteString.copyFromUtf8("Address1"));
     ProposalCapsule proposalCapsule = new ProposalCapsule(builder.build());
     manager.getProposalStore().put(proposalCapsule.createDbKey(), proposalCapsule);
@@ -346,7 +346,7 @@ public class WalletTest {
   public void getPaginatedProposalList() {
     buildProposal();
     //
-    ProposalList proposalList = wallet.getPaginatedProposalList(0, 100);
+    SideChainProposalList proposalList = wallet.getPaginatedProposalList(0, 100);
 
     Assert.assertEquals(2, proposalList.getProposalsCount());
     Assert.assertEquals("Address1",

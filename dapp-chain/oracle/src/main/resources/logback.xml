@@ -56,6 +56,8 @@
   <logger name="mainChainTask" level="INFO"/>
   <logger name="alert" level="INFO"/>
   <logger name="rpcClient" level="INFO"/>
+  <logger name="rpcClient" level="INFO"/>
+  <logger name="eventTask" level="INFO"/>
 
 </configuration>
 
