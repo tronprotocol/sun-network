@@ -28,10 +28,11 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     event DepositTRC20(address sideChainAddress, address to, uint256 value);
     event DepositTRC721(address sideChainAddress, address to, uint256 tokenId);
     event DepositTRX(address to, uint256 value);
-    event WithdrawTRC10(address from, uint256 value, uint256 trc10, bytes userSign);
-    event WithdrawTRC20(address from, uint256 value, address mainChainAddress, bytes userSign);
-    event WithdrawTRC721(address from, uint256 tokenId, address mainChainAddress, bytes userSign);
-    event WithdrawTRX(address from, uint256 value, bytes userSign);
+
+    event WithdrawTRC10(uint256 nonce, address from, uint256 value, uint256 trc10, bytes userSign);
+    event WithdrawTRC20(uint256 nonce, address from, uint256 value, address mainChainAddress, bytes userSign);
+    event WithdrawTRC721(uint256 nonce, address from, uint256 tokenId, address mainChainAddress, bytes userSign);
+    event WithdrawTRX(uint256 nonce, address from, uint256 value, bytes userSign);
 
     event MultiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes userSign, bytes32 dataHash, bytes32 txId);
     event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes userSign, bytes32 dataHash, bytes32 txId);
@@ -51,17 +52,44 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     address mintTRXContract = 0x10000;
     address mintTRC10Contract = 0x10001;
     uint256 mappingFee;
+    uint256 withdrawMinTrx = 0;
+    uint256 withdrawMinTrc10 = 0;
+    uint256 withdrawMinTrc20 = 0;
+    uint256 bonus;
 
     mapping(bytes32 => mapping(bytes32 => SignMsg)) public depositSigns;
     mapping(bytes32 => mapping(bytes32 => SignMsg)) public withdrawSigns;
     mapping(bytes32 => mapping(bytes32 => SignMsg)) public mappingSigns;
+    SignMsg[] public withdrawStatusSigns;
+
     mapping(bytes32 => SignMsg) depositList;
+    WithdrawMsg[] userWithdrawList;
 
     struct SignMsg {
         mapping(address => bool) oracleSigned;
         bytes[] signs;
         uint256 signCnt;
         bool success;
+    }
+
+    struct WithdrawMsg {
+        // _type:
+        // 1: trx
+        // 2: trc20
+        // 3: trc721
+        // 4: trc10
+        uint8 _type;
+        address user;
+        uint256 valueOrTokenId;
+        uint256 trc10;
+        address mainChainAddress;
+        bytes userSign;
+        // status:
+        // 0: locking
+        // 1: success
+        // 2: fail
+        // 3: refunded
+        uint8 status;
     }
 
     constructor (address _oracle) public {
@@ -107,7 +135,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     function deployDAppTRC20AndMapping(bytes txId, string name, string symbol, uint8 decimals) public returns (address r) {
         // can be called by everyone (contract developer)
         // require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
-        require(msg.value>mappingFee);
+        require(msg.value > mappingFee);
+        bonus += msg.value;
         address mainChainAddress = calcContractAddress(txId, msg.sender);
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
@@ -122,7 +151,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     function deployDAppTRC721AndMapping(bytes txId, string name, string symbol) public returns (address r) {
         // can be called by everyone (contract developer)
         // require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
-        require(msg.value>mappingFee);
+        require(msg.value > mappingFee);
+        bonus += msg.value;
         address mainChainAddress = calcContractAddress(txId, msg.sender);
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
@@ -132,7 +162,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         emit DeployDAppTRC721AndMapping(msg.sender, mainChainAddress, sideChainAddress);
         r = sideChainAddress;
     }
-    // deposit deposit deposit
+
     // 3. depositTRC10
     function depositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals) internal {
         require(trc10 > 1000000 && trc10 <= 2000000, "trc10 <= 1000000 or trc10 > 2000000");
@@ -168,49 +198,133 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         emit DepositTRX(to, value);
     }
 
+    // _type:
+    //      1: trx
+    //      2: trc20
+    //      3: trc721
+    //      4: trc10
+
     // 7. withdrawTRC10
     function withdrawTRC10(bytes userSign) payable public {
         // TODO: verify userSign
+        if (msg.value > 0) {
+            bonus += msg.value;
+        }
         require(trc10Map[msg.tokenid], "trc10Map[msg.tokenid] == false");
-        require(msg.tokenvalue>0, "tokenvalue must be > 0");
+        require(msg.tokenvalue > withdrawMinTrc10, "tokenvalue must be > withdrawMinTrc10");
+
+        userWithdrawList.push(WithdrawMsg(4, msg.sender, msg.tokenvalue, msg.tokenid, address(0), userSign, 0));
         // burn
         address(0).transferToken(msg.tokenvalue, msg.tokenid);
-        emit WithdrawTRC10(msg.sender, msg.tokenvalue, msg.tokenid, userSign);
+        emit WithdrawTRC10(userWithdrawList.length - 1, msg.sender, msg.tokenvalue, msg.tokenid, userSign);
     }
 
     // 8. withdrawTRC20
     function onTRC20Received(address from, uint256 value, bytes userSign) public returns (bytes4) {
-        // TODO: verify txData
+        // TODO: verify userSign
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "mainChainAddress == address(0)");
-        require(value>0, "value must be > 0");
+        require(value > withdrawMinTrc20, "value must be > withdrawMinTrc20");
+
+        userWithdrawList.push(WithdrawMsg(2, from, value, 0, mainChainAddress, userSign, 0));
+
         DAppTRC20(sideChainAddress).burn(value);
-        emit WithdrawTRC20(from, value, mainChainAddress, userSign);
+        emit WithdrawTRC20(userWithdrawList.length - 1, from, value, mainChainAddress, userSign);
 
         return _TRC20_RECEIVED;
     }
 
     // 9. withdrawTRC721
     function onTRC721Received(address from, uint256 tokenId, bytes userSign) public returns (bytes4) {
-        // TODO: verify txData
+        // TODO: verify userSign
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "the trc721 must have been deposited");
+
+        userWithdrawList.push(WithdrawMsg(3, from, tokenId, 0, mainChainAddress, userSign, 0));
+
         // burn
         DAppTRC721(sideChainAddress).burn(tokenId);
-        emit WithdrawTRC721(from, tokenId, mainChainAddress, userSign);
+        emit WithdrawTRC721(userWithdrawList.length - 1, from, tokenId, mainChainAddress, userSign);
+
         return _TRC721_RECEIVED;
     }
 
     // 10. withdrawTRX
     function withdrawTRX(bytes userSign) payable public {
         // TODO: verify userSign
+
+        require(msg.value > withdrawMinTrx, "value must be > withdrawMinTrx");
         // burn
-        require(msg.value>0, "value must be > 0");
+        userWithdrawList.push(WithdrawMsg(1, msg.sender, msg.value, 0, address(0), userSign, 0));
         address(0).transfer(msg.value);
-        emit WithdrawTRX(msg.sender, msg.value, userSign);
+        emit WithdrawTRX(userWithdrawList.length - 1, msg.sender, msg.value, userSign);
     }
+
+//    function multiSignForSet(uint256 nonce) internal returns (bool) {
+//        SignMsg storage statusSign = withdrawStatusSigns[nonce];
+//        if (statusSign.oracleSigned[msg.sender]) {
+//            return false;
+//        }
+//        statusSign.oracleSigned[msg.sender] = true;
+//        // depositSigns[txId][dataHash].signs.push(oracleSign);
+//        statusSign.signCnt += 1;
+//
+//        if (statusSign.signCnt > oracleCnt * 2 / 3 && !statusSign.success) {
+//            statusSign.success = true;
+//            return true;
+//        }
+//        return false;
+//    }
+//
+//    function multiSignForSetWithdrawStatus(uint256 nonce, uint8 status) public onlyOracle {
+//        require(status == 1 || status == 2, "status != 1 && status != 2");
+//        WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
+//        require(withdrawMsg.status == 0, "withdrawMsg.status != 0");
+//        // withdraw in sign: 2
+//        bool canSet = multiSignForSet(nonce);
+//        if (canSet) {
+//            withdrawMsg.status = status;
+//        }
+//    }
+
+    function retryWithdraw(uint256 nonce) public {
+        // TODO: free attack ?
+        require(nonce < userWithdrawList.length, "nonce >= userWithdrawList.length");
+        WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
+        require(withdrawMsg.status == 0 || withdrawMsg.status == 2, "withdrawMsg.status != 0 && withdrawMsg.status != 2");
+        if (withdrawMsg.status == 2) {
+            withdrawMsg.status = 0;
+        }
+        if (withdrawMsg._type == 1) {
+            emit WithdrawTRX(nonce, withdrawMsg.user, withdrawMsg.valueOrTokenId, withdrawMsg.userSign);
+        } else if (withdrawMsg._type == 2) {
+            emit WithdrawTRC20(nonce, withdrawMsg.user, withdrawMsg.valueOrTokenId, withdrawMsg.mainChainAddress, withdrawMsg.userSign);
+        } else if (withdrawMsg._type == 3) {
+            emit WithdrawTRC721(nonce, withdrawMsg.user, withdrawMsg.valueOrTokenId, withdrawMsg.mainChainAddress, withdrawMsg.userSign);
+        } else {
+            // 4
+            emit WithdrawTRC10(nonce, withdrawMsg.user, msg.sender, withdrawMsg.valueOrTokenId, withdrawMsg.trc10, userSign);
+        }
+    }
+
+//    function refund(uint256 nonce) public {
+//        require(nonce < userWithdrawList.length, "nonce >= userWithdrawList.length");
+//        WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
+//        require(withdrawMsg.status == 2, "withdrawMsg.status != 2");
+//        if (withdrawMsg._type == 1) {
+//            withdrawMsg.user.transfer(withdrawMsg.valueOrTokenId);
+//        } else if (withdrawMsg._type == 2) {
+//            DAppTRC20(mainToSideContractMap[withdrawMsg.mainChainAddress]).transfer(withdrawMsg.user, withdrawMsg.valueOrTokenId);
+//        } else if (withdrawMsg._type == 3) {
+//            DAppTRC721(mainToSideContractMap[withdrawMsg.mainChainAddress]).transfer(withdrawMsg.user, withdrawMsg.valueOrTokenId);
+//        } else {
+//            // 4
+//            withdrawMsg.user.transferToken(withdrawMsg.valueOrTokenId, withdrawMsg.trc10);
+//        }
+//        withdrawMsg.status = 3;
+//    }
 
     function calcContractAddress(bytes txId, address _owner) public pure returns (address r) {
         bytes memory addressBytes = addressToBytes(_owner);
@@ -357,8 +471,9 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
             emit MultiSignForDeployAndMapping(mainChainAddress, sideChainAddress, dataHash, txId);
         }
     }
-    function setMappingFee(uint256 fee) public onlyOwner{
-        mappingFee=fee;
+
+    function setMappingFee(uint256 fee) public onlyOwner {
+        mappingFee = fee;
     }
 
 }

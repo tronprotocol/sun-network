@@ -1,26 +1,36 @@
 package org.tron.service.task;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.spongycastle.util.Store;
 import org.tron.common.config.Args;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.WalletUtil;
 import org.tron.db.EventStore;
+import org.tron.db.NonceStore;
+import org.tron.db.TransactionExtensionStore;
 import org.tron.protos.Sidechain.TaskEnum;
+import org.tron.service.check.CheckTransaction;
+import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.ActuatorRun;
 import org.tron.service.eventactuator.EventActuatorFactory;
 import org.tron.service.kafka.KfkConsumer;
 
+@Slf4j(topic = "eventTask")
 public class EventTask {
 
   private KfkConsumer kfkConsumer;
 
   private EventStore store;
+  private NonceStore nonceStore;
   private String mainGateway;
   private String sideGateway;
 
@@ -31,6 +41,7 @@ public class EventTask {
         "Oracle_" + getOracleAddress(),
         Arrays.asList("contractevent"));
     this.store = EventStore.getInstance();
+    this.nonceStore = NonceStore.getInstance();
   }
 
   private String getOracleAddress() {
@@ -62,10 +73,24 @@ public class EventTask {
           this.kfkConsumer.commit();
           continue;
         }
-        store.putData(eventActuator.getKey(), eventActuator.getMessage().toByteArray());
-        this.kfkConsumer.commit();
 
-        ActuatorRun.getInstance().start(eventActuator);
+        if (eventActuator.getNonce() != null && nonceStore.exist(eventActuator.getNonce())) {
+          // TODO: handle expire
+          byte[] txKeyBytes = nonceStore.getData(eventActuator.getNonce());
+          byte[] txExtensionBytes = TransactionExtensionStore.getInstance().getData(txKeyBytes);
+          try {
+            CheckTransaction.getInstance()
+                .submitCheck(new TransactionExtensionCapsule(txExtensionBytes), 1);
+          } catch (InvalidProtocolBufferException e) {
+            // FIXME
+            logger.error(e.getMessage(), e);
+          }
+        } else {
+          store.putData(eventActuator.getKey(), eventActuator.getMessage().toByteArray());
+          nonceStore.putData(eventActuator.getNonce(), eventActuator.getKey());
+          ActuatorRun.getInstance().start(eventActuator);
+        }
+        this.kfkConsumer.commit();
       }
     }
   }

@@ -27,14 +27,15 @@ public class WithdrawTRC10Actuator extends Actuator {
   @Getter
   private EventType type = EventType.WITHDRAW_TRC10_EVENT;
 
-  public WithdrawTRC10Actuator(String from, String value, String trc10, String userSign,
+  public WithdrawTRC10Actuator(String nonce, String from, String value, String trc10, String userSign,
       String transactionId) {
+    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString trc10BS = ByteString.copyFrom(ByteArray.fromString(trc10));
     ByteString userSignBS = ByteString.copyFrom(ByteArray.fromHexString(userSign));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
-    this.event = WithdrawTRC10Event.newBuilder().setFrom(fromBS).setValue(valueBS).setTrc10(trc10BS)
+    this.event = WithdrawTRC10Event.newBuilder().setNonce(nonceBS).setFrom(fromBS).setValue(valueBS).setTrc10(trc10BS)
         .setUserSign(userSignBS).setTransactionId(transactionIdBS).build();
   }
 
@@ -49,14 +50,15 @@ public class WithdrawTRC10Actuator extends Actuator {
       return this.transactionExtensionCapsule;
     }
 
+    String nonceStr = event.getNonce().toStringUtf8();
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
     String valueStr = event.getValue().toStringUtf8();
     String trc10Str = event.getTrc10().toStringUtf8();
     String userSignStr = ByteArray.toHexString(event.getUserSign().toByteArray());
     String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
 
-    logger.info("WithdrawTRC10Actuator, from: {}, value: {}, trc10: {}, userSign: {}, txId: {}",
-        fromStr, valueStr, trc10Str, userSignStr, transactionIdStr);
+    logger.info("WithdrawTRC10Actuator, nonce: {}, from: {}, value: {}, trc10: {}, userSign: {}, txId: {}",
+        nonceStr, fromStr, valueStr, trc10Str, userSignStr, transactionIdStr);
 
     Transaction tx = SideChainGatewayApi
         .withdrawTRC10Transaction(fromStr, trc10Str, valueStr, userSignStr, transactionIdStr);
@@ -74,5 +76,11 @@ public class WithdrawTRC10Actuator extends Actuator {
   public byte[] getKey() {
     return event.getTransactionId().toByteArray();
   }
+
+  @Override
+  public byte[] getNonce() {
+    return event.getNonce().toByteArray();
+  }
+
 }
 

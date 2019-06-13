@@ -19,4 +19,7 @@ public abstract class Actuator {
 
 
   public abstract byte[] getKey();
+
+  public abstract byte[] getNonce();
+
 }

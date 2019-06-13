@@ -87,4 +87,10 @@ public class MultiSignForMappingActuator extends Actuator {
   public byte[] getKey() {
     return event.getTransactionId().toByteArray();
   }
+
+  @Override
+  public byte[] getNonce() {
+    return null;
+  }
+
 }

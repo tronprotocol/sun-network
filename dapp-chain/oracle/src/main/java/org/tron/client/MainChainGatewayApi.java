@@ -79,6 +79,7 @@ public class MainChainGatewayApi {
   public static void sleeping(String dataHash, List<String> oracleSigns) {
     String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hex.decode(dataHash)));
     int sleepCnt = 0;
+
     for (String signs : oracleSigns) {
       if (signs.equalsIgnoreCase(ownSign)) {
         break;

@@ -12,6 +12,7 @@ import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AlertUtil;
 import org.tron.db.EventStore;
+import org.tron.db.NonceStore;
 import org.tron.db.TransactionExtensionStore;
 
 @Slf4j
@@ -53,6 +54,11 @@ public class CheckTransaction {
         case SIDE_CHAIN:
           SideChainGatewayApi.checkTxInfo(txExtensionCapsule);
           break;
+      }
+      // FIXME: fail to delete db, so in main chain contract, it must check dup using nonce.
+      byte[] nonce = EventStore.getInstance().getNonce(txExtensionCapsule.getEventTransactionIdBytes());
+      if (nonce != null) {
+        NonceStore.getInstance().deleteData(nonce);
       }
       EventStore.getInstance()
           .deleteData(txExtensionCapsule.getEventTransactionIdBytes());

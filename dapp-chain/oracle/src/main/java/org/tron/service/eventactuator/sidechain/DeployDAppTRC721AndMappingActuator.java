@@ -81,4 +81,11 @@ public class DeployDAppTRC721AndMappingActuator extends Actuator {
   public byte[] getKey() {
     return event.getTransactionId().toByteArray();
   }
+
+
+  @Override
+  public byte[] getNonce() {
+    return null;
+  }
+
 }

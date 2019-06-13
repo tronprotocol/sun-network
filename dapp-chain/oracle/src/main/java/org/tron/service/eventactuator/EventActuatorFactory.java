@@ -111,32 +111,32 @@ public class EventActuatorFactory {
       case WITHDRAW_TRC10: {
         String txId = obj.get("transactionId").toString();
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
-        task = new WithdrawTRC10Actuator(dataMap.get("from").toString(),
-            dataMap.get("value").toString(), dataMap.get("trc10").toString(),
-            dataMap.get("userSign").toString(), txId);
+        task = new WithdrawTRC10Actuator(dataMap.get("nonce").toString(),
+            dataMap.get("from").toString(), dataMap.get("value").toString(),
+            dataMap.get("trc10").toString(), dataMap.get("userSign").toString(), txId);
         return task;
       }
       case WITHDRAW_TRC20: {
         String txId = obj.get("transactionId").toString();
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
-        task = new WithdrawTRC20Actuator(dataMap.get("from").toString(),
-            dataMap.get("value").toString(), dataMap.get("mainChainAddress").toString(),
-            dataMap.get("userSign").toString(), txId);
+        task = new WithdrawTRC20Actuator(dataMap.get("nonce").toString(),
+            dataMap.get("from").toString(), dataMap.get("value").toString(),
+            dataMap.get("mainChainAddress").toString(), dataMap.get("userSign").toString(), txId);
         return task;
       }
       case WITHDRAW_TRC721: {
         String txId = obj.get("transactionId").toString();
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
-        task = new WithdrawTRC721Actuator(dataMap.get("from").toString(),
-            dataMap.get("tokenId").toString(), dataMap.get("mainChainAddress").toString(),
-            dataMap.get("userSign").toString(), txId);
+        task = new WithdrawTRC721Actuator(dataMap.get("nonce").toString(),
+            dataMap.get("from").toString(), dataMap.get("tokenId").toString(),
+            dataMap.get("mainChainAddress").toString(), dataMap.get("userSign").toString(), txId);
         return task;
       }
       case WITHDRAW_TRX: {
         String txId = obj.get("transactionId").toString();
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
-        task = new WithdrawTRXActuator(dataMap.get("from").toString(),
-            dataMap.get("value").toString(),
+        task = new WithdrawTRXActuator(dataMap.get("nonce").toString(),
+            dataMap.get("from").toString(), dataMap.get("value").toString(),
             dataMap.get("userSign").toString(), txId);
         return task;
       }

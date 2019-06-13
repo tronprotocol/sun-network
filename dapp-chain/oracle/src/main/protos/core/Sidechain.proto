@@ -42,6 +42,8 @@ message EventMsg {
   }
   EventType type = 1;
   google.protobuf.Any parameter = 2;
+
+
 }
 
 message DepositTRC10Event {
@@ -127,32 +129,36 @@ message MultiSignForMappingEvent {
 }
 
 message WithdrawTRC10Event {
-  bytes from = 1;
-  bytes trc10 = 2;
-  bytes value = 3;
-  bytes user_sign = 4;
-  bytes transaction_id = 5;
+  bytes nonce = 1;
+  bytes from = 2;
+  bytes trc10 = 3;
+  bytes value = 4;
+  bytes user_sign = 5;
+  bytes transaction_id = 6;
 }
 
 message WithdrawTRC20Event {
-  bytes from = 1;
-  bytes mainchain_address = 2;
-  bytes value = 3;
-  bytes user_sign = 4;
-  bytes transaction_id = 5;
+  bytes nonce = 1;
+  bytes from = 2;
+  bytes mainchain_address = 3;
+  bytes value = 4;
+  bytes user_sign = 5;
+  bytes transaction_id = 6;
 }
 
 message WithdrawTRC721Event {
-  bytes from = 1;
-  bytes mainchain_address = 2;
-  bytes token_id = 3;
-  bytes user_sign = 4;
-  bytes transaction_id = 5;
+  bytes nonce = 1;
+  bytes from = 2;
+  bytes mainchain_address = 3;
+  bytes token_id = 4;
+  bytes user_sign = 5;
+  bytes transaction_id = 6;
 }
 
 message WithdrawTRXEvent {
-  bytes from = 1;
-  bytes value = 2;
-  bytes user_sign = 3;
-  bytes transaction_id = 4;
+  bytes nonce = 1;
+  bytes from = 2;
+  bytes value = 3;
+  bytes user_sign = 4;
+  bytes transaction_id = 5;
 }

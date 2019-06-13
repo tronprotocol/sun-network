@@ -27,16 +27,17 @@ public class WithdrawTRC721Actuator extends Actuator {
   @Getter
   private EventType type = EventType.WITHDRAW_TRC721_EVENT;
 
-  public WithdrawTRC721Actuator(String from, String tokenId, String mainChainAddress,
+  public WithdrawTRC721Actuator(String nonce, String from, String tokenId, String mainChainAddress,
       String userSign,
       String transactionId) {
+    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString tokenIdBS = ByteString.copyFrom(ByteArray.fromString(tokenId));
     ByteString mainChainAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(mainChainAddress));
     ByteString userSignBS = ByteString.copyFrom(ByteArray.fromHexString(userSign));
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
-    this.event = WithdrawTRC721Event.newBuilder().setFrom(fromBS).setTokenId(tokenIdBS)
+    this.event = WithdrawTRC721Event.newBuilder().setNonce(nonceBS).setFrom(fromBS).setTokenId(tokenIdBS)
         .setMainchainAddress(mainChainAddressBS).setUserSign(userSignBS)
         .setTransactionId(transactionIdBS).build();
   }
@@ -51,6 +52,7 @@ public class WithdrawTRC721Actuator extends Actuator {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;
     }
+    String nonceStr = event.getNonce().toStringUtf8();
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
     String tokenIdStr = event.getTokenId().toStringUtf8();
     String mainChainAddressStr = WalletUtil
@@ -60,8 +62,8 @@ public class WithdrawTRC721Actuator extends Actuator {
 
     logger
         .info(
-            "WithdrawTRC721Actuator, from: {}, tokenId: {}, mainChainAddress: {}, userSign: {}, txId: {}",
-            fromStr, tokenIdStr, mainChainAddressStr, userSignStr, transactionIdStr);
+            "WithdrawTRC721Actuator, nonce: {}, from: {}, tokenId: {}, mainChainAddress: {}, userSign: {}, txId: {}",
+            nonceStr, fromStr, tokenIdStr, mainChainAddressStr, userSignStr, transactionIdStr);
     Transaction tx = SideChainGatewayApi
         .withdrawTRC721Transaction(fromStr, mainChainAddressStr, tokenIdStr, userSignStr,
             transactionIdStr);
@@ -79,5 +81,10 @@ public class WithdrawTRC721Actuator extends Actuator {
   @Override
   public byte[] getKey() {
     return event.getTransactionId().toByteArray();
+  }
+
+  @Override
+  public byte[] getNonce() {
+    return event.getNonce().toByteArray();
   }
 }
