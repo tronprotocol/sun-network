@@ -199,6 +199,7 @@ public class WitnessService implements Service {
       return BlockProductionCondition.LOW_PARTICIPATION;
     }
 
+
     if (!controller.activeWitnessesContain(this.getLocalWitnessStateMap().keySet())) {
       logger.info("Unelected. Elected Witnesses: {}",
           StringUtil.getAddressStringList(controller.getActiveWitnesses()));

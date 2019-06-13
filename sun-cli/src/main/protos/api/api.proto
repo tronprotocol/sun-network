@@ -433,6 +433,36 @@ service Wallet {
       }
     };
   };
+
+  rpc ListSideChainProposals (EmptyMessage) returns (SideChainProposalList) {
+    option (google.api.http) = {
+      post: "/wallet/listproposals"
+      body: "*"
+      additional_bindings {
+        get: "/wallet/listproposals"
+      }
+    };
+  };
+
+  rpc GetPaginatedSideChainProposalList (PaginatedMessage) returns (SideChainProposalList) {
+    option (google.api.http) = {
+          post: "/wallet/getpaginatedproposallist"
+          body: "*"
+          additional_bindings {
+            get: "/wallet/getpaginatedproposallist"
+          }
+        };
+  }
+  rpc GetSideChainProposalById (BytesMessage) returns (SideChainProposal) {
+    option (google.api.http) = {
+        post: "/wallet/getproposalbyid"
+        body: "*"
+        additional_bindings {
+          get: "/wallet/getproposalbyid"
+        }
+      };
+  };
+
   rpc GetPaginatedProposalList (PaginatedMessage) returns (ProposalList) {
     option (google.api.http) = {
           post: "/wallet/getpaginatedproposallist"
@@ -837,6 +867,9 @@ message WitnessList {
 }
 message ProposalList {
   repeated Proposal proposals = 1;
+}
+message SideChainProposalList {
+  repeated SideChainProposal sideChainProposals = 1;
 }
 message ExchangeList {
   repeated Exchange exchanges = 1;

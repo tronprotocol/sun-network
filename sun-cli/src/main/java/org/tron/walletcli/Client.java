@@ -37,6 +37,7 @@ import org.tron.api.GrpcAPI.Node;
 import org.tron.api.GrpcAPI.NodeList;
 import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.GrpcAPI.TransactionApprovedList;
 import org.tron.api.GrpcAPI.TransactionList;
 import org.tron.api.GrpcAPI.TransactionListExtention;
@@ -1070,6 +1071,16 @@ public class Client {
     if (result.isPresent()) {
       ProposalList proposalList = result.get();
       logger.info(Utils.printProposalsList(proposalList));
+    } else {
+      logger.info("List witnesses " + " failed !!");
+    }
+  }
+
+  private void sideChainListProposals() {
+    Optional<SideChainProposalList> result = walletApiWrapper.sideChainGetProposalsList();
+    if (result.isPresent()) {
+      SideChainProposalList proposalList = result.get();
+      logger.info(Utils.sideChianPrintProposalsList(proposalList));
     } else {
       logger.info("List witnesses " + " failed !!");
     }
@@ -2746,7 +2757,7 @@ public class Client {
     throws IOException, CipherException, CancelException, EncodingException {
     if (parameters == null || parameters.length != 4) {
       System.out.println("withdraw Trc20 needs 3 parameters like following: ");
-      System.out.println("withdraw Trc20 mainAddress value fee_limit ");
+      System.out.println("withdraw Trc20 mainTrc20Address value fee_limit ");
       return;
     }
 
@@ -2754,6 +2765,10 @@ public class Client {
     String value = parameters[2];
     long feeLimit = Long.parseLong(parameters[3]);
     byte[] txData = walletApiWrapper.sideSignTokenData(mainAddress, value);
+    if (txData == null || txData.length == 0) {
+      System.out.println("failed to withdraw due to invalid address: " + mainAddress);
+      return;
+    }
 
     byte[] sideAddress = walletApiWrapper.getSideTokenAddress(mainAddress);
 
@@ -2783,6 +2798,10 @@ public class Client {
     String uid = parameters[2];
     long feeLimit = Long.parseLong(parameters[3]);
     byte[] txData = walletApiWrapper.sideSignTokenData(mainAddress, uid);
+    if (txData == null || txData.length == 0) {
+      System.out.println("failed to withdraw due to invalid address: " + mainAddress);
+      return;
+    }
 
     byte[] sideAddress = walletApiWrapper.getSideTokenAddress(mainAddress);
 
@@ -3045,7 +3064,7 @@ public class Client {
           break;
         }
         case "listproposals": {
-          listProposals();
+          sideChainListProposals();
           break;
         }
         case "getproposal": {

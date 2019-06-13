@@ -14,16 +14,14 @@ import org.tron.api.GrpcAPI.BlockExtention;
 import org.tron.api.GrpcAPI.ExchangeList;
 import org.tron.api.GrpcAPI.NodeList;
 import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.GrpcAPI.WitnessList;
 import org.tron.common.crypto.Hash;
-import org.tron.common.crypto.Sha256Hash;
-import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.Utils;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
 import org.tron.core.exception.EncodingException;
 import org.tron.keystore.StringUtils;
-import org.tron.keystore.Wallet;
 import org.tron.keystore.WalletFile;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.AssetIssueContract;
@@ -535,6 +533,15 @@ public class WalletApiWrapper {
   public Optional<ProposalList> getProposalsList() {
     try {
       return WalletApi.listProposals();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return Optional.empty();
+    }
+  }
+
+  public Optional<SideChainProposalList> sideChainGetProposalsList() {
+    try {
+      return WalletApi.sideChainListProposals();
     } catch (Exception ex) {
       ex.printStackTrace();
       return Optional.empty();

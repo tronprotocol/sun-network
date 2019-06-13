@@ -34,6 +34,7 @@ import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.GrpcAPI.PaginatedMessage;
 import org.tron.api.GrpcAPI.ProposalList;
 import org.tron.api.GrpcAPI.Return.response_code;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.GrpcAPI.TransactionApprovedList;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.GrpcAPI.TransactionList;
@@ -313,6 +314,12 @@ public class GrpcClient {
   public Optional<ProposalList> listProposals() {
     ProposalList proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
     return Optional.ofNullable(proposalList);
+  }
+
+  public Optional<SideChainProposalList> sideChianListProposals() {
+    SideChainProposalList sideChainProposalList = blockingStubFull
+        .listSideChainProposals(EmptyMessage.newBuilder().build());
+    return Optional.ofNullable(sideChainProposalList);
   }
 
   public Optional<Proposal> getProposal(String id) {
