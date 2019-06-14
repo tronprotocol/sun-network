@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.spongycastle.util.encoders.Hex;
 import org.tron.common.crypto.Hash;
+import org.tron.common.utils.ByteArray;
 import org.tron.core.Wallet;
 
 public class AbiUtil {
@@ -63,7 +64,7 @@ public class AbiUtil {
       case "bytes":
         return new CoderDynamicBytes();
       case "trcToken":
-        return new CoderNumber();
+        return new CoderToken();
       default:
 
     }
@@ -255,7 +256,7 @@ public class AbiUtil {
 
     @Override
     byte[] encode(String value) {
-      return encodeDynamicBytes(value);
+      return encodeString(value);
     }
 
     @Override
@@ -264,11 +265,7 @@ public class AbiUtil {
     }
   }
 
-  /**
-   * constructor.
-   */
-
-  public static byte[] encodeDynamicBytes(String value) {
+  public static byte[] encodeString(String value) {
     byte[] data = value.getBytes();
     List<DataWord> ret = new ArrayList<>();
     ret.add(new DataWord(data.length));
@@ -276,6 +273,37 @@ public class AbiUtil {
     int readInx = 0;
     int len = value.getBytes().length;
     while (readInx < value.getBytes().length) {
+      byte[] wordData = new byte[32];
+      int readLen = len - readInx >= 32 ? 32 : (len - readInx);
+      System.arraycopy(data, readInx, wordData, 0, readLen);
+      DataWord word = new DataWord(wordData);
+      ret.add(word);
+      readInx += 32;
+    }
+
+    byte[] retBytes = new byte[ret.size() * 32];
+    int retIndex = 0;
+
+    for (DataWord w : ret) {
+      System.arraycopy(w.getData(), 0, retBytes, retIndex, 32);
+      retIndex += 32;
+    }
+
+    return retBytes;
+  }
+
+  /**
+   * constructor.
+   */
+
+  public static byte[] encodeDynamicBytes(String value) {
+    byte[] data = ByteArray.fromHexString(value);
+    List<DataWord> ret = new ArrayList<>();
+    ret.add(new DataWord(data.length));
+
+    int readInx = 0;
+    int len = data.length;
+    while (readInx < data.length) {
       byte[] wordData = new byte[32];
       int readLen = len - readInx >= 32 ? 32 : (len - readInx);
       System.arraycopy(data, readInx, wordData, 0, readLen);
@@ -308,7 +336,20 @@ public class AbiUtil {
 
     for (int idx = 0; idx < codes.size(); idx++) {
       Coder coder = codes.get(idx);
-      String value = values.get(idx).toString();
+      Object parameter = values.get(idx);
+      String value;
+      if (parameter instanceof List) {
+        StringBuilder sb = new StringBuilder();
+        for (Object item : (List) parameter) {
+          if (sb.length() != 0) {
+            sb.append(",");
+          }
+          sb.append("\"").append(item).append("\"");
+        }
+        value = "[" + sb.toString() + "]";
+      } else {
+        value = parameter.toString();
+      }
 
       byte[] encoded = coder.encode(value);
 
