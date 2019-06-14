@@ -117,14 +117,14 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     // Approve and Deposit function for 2-step deposits
     // Requires first to have called `approve` on the specified TRC20 contract
     function depositTRC20(uint256 amount, address contractAddress) public {
-        require(allows[contractAddress]!=address(0), "Not an allowe token");
+        require(mainToSideContractMap[contractAddress]==1, "Not an allowe token");
         require(amount>0,"value must > 0");
         TRC20(contractAddress).transferFrom(msg.sender, address(this), amount);
         balances.trc20[contractAddress] = balances.trc20[contractAddress].add(amount);
         emit TRC20Received(msg.sender, amount, contractAddress);
     }
     function depositTRC721(uint256 uid, address contractAddress) public {
-        require(allows[contractAddress]!=address(0), "Not an allowe token");
+        require(mainToSideContractMap[contractAddress]==1, "Not an allowe token");
         TRC721(contractAddress).transferFrom(msg.sender, address(this), uid);
         balances.trc721[contractAddress][uid] = true;
         emit TRC721Received(msg.sender, uid, contractAddress);
@@ -149,7 +149,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     public
     returns (bytes4)
     {
-        require(allows[msg.sender]!=address(0), "Not an allowe token");
+        require(mainToSideContractMap[msg.sender]==1, "Not an allowe token");
         _depositTRC20(amount);
         emit TRC20Received(_from, amount, msg.sender);
         return _TRC20_RECEIVED;
@@ -159,7 +159,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     public
     returns (bytes4)
     {
-        require(allows[msg.sender]!=address(0), "Not an allowe token");
+        require(mainToSideContractMap[msg.sender]==1, "Not an allowe token");
         _depositTRC721(_uid);
         emit TRC721Received(_from, _uid, msg.sender);
         return _TRC721_RECEIVED;
