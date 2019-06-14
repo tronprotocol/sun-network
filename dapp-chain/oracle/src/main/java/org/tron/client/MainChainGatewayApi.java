@@ -13,6 +13,7 @@ import org.tron.common.exception.TxFailException;
 import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AbiUtil;
+import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.service.check.TransactionExtensionCapsule;
@@ -43,52 +44,27 @@ public class MainChainGatewayApi {
 
   }
 
-  public static Transaction addTokenMappingTransaction(String mainChainAddress,
-      String sideChainAddress, String dataHash, String txId) throws RpcConnectException {
-    List<String> oracleSigns = SideChainGatewayApi.getMappingOracleSigns(txId, dataHash);
-    sleeping(dataHash, oracleSigns);
-    boolean done = getMappingStatus(mainChainAddress);
-    if (done) {
-      return null;
-    } else {
-      byte[] contractAddress = Args.getInstance().getMainchainGateway();
-      String method = "migrationToken(address,address,bytes32,bytes[])";
-      List params = Arrays.asList(mainChainAddress, sideChainAddress, txId, oracleSigns);
-      return GATEWAY_API.getInstance()
-          .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
-    }
-  }
-
-  public static boolean getMappingStatus(String mainChainAddress) throws RpcConnectException {
-    byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "allows(address)";
-    List params = Arrays.asList(mainChainAddress);
-    byte[] ret = GATEWAY_API.getInstance()
-        .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
-    return AbiUtil.unpackStatus(ret);
-  }
-
-  public static String getTRCName(String mainChainAddress) throws RpcConnectException {
-    byte[] contractAddress = Args.getInstance().getMainchainGateway();
+  public static String getTRCName(String contractAddress) throws RpcConnectException {
     String method = "name()";
     byte[] ret = GATEWAY_API.getInstance()
-        .triggerConstantContractAndReturn(contractAddress, method, Lists.newArrayList(), 0, 0, 0);
+        .triggerConstantContractAndReturn(WalletUtil.decodeFromBase58Check(contractAddress), method,
+            Lists.newArrayList(), 0, 0, 0);
     return AbiUtil.unpackString(ret);
   }
 
-  public static String getTRCSymbol(String mainChainAddress) throws RpcConnectException {
-    byte[] contractAddress = Args.getInstance().getMainchainGateway();
+  public static String getTRCSymbol(String contractAddress) throws RpcConnectException {
     String method = "symbol()";
     byte[] ret = GATEWAY_API.getInstance()
-        .triggerConstantContractAndReturn(contractAddress, method, Lists.newArrayList(), 0, 0, 0);
+        .triggerConstantContractAndReturn(WalletUtil.decodeFromBase58Check(contractAddress), method,
+            Lists.newArrayList(), 0, 0, 0);
     return AbiUtil.unpackString(ret);
   }
 
-  public static long getTRCDecimals(String mainChainAddress) throws RpcConnectException {
-    byte[] contractAddress = Args.getInstance().getMainchainGateway();
+  public static long getTRCDecimals(String contractAddress) throws RpcConnectException {
     String method = "decimals()";
     byte[] ret = GATEWAY_API.getInstance()
-        .triggerConstantContractAndReturn(contractAddress, method, Lists.newArrayList(), 0, 0, 0);
+        .triggerConstantContractAndReturn(WalletUtil.decodeFromBase58Check(contractAddress), method,
+            Lists.newArrayList(), 0, 0, 0);
     return AbiUtil.unpackUint(ret);
   }
 
