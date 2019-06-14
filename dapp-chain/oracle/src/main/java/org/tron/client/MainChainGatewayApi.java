@@ -2,6 +2,7 @@ package org.tron.client;
 
 import static org.tron.client.MainChainGatewayApi.GatewayApi.GATEWAY_API;
 
+import com.beust.jcommander.internal.Lists;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -70,27 +71,24 @@ public class MainChainGatewayApi {
   public static String getTRCName(String mainChainAddress) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "name()";
-    List params = Arrays.asList(mainChainAddress);
     byte[] ret = GATEWAY_API.getInstance()
-        .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
+        .triggerConstantContractAndReturn(contractAddress, method, Lists.newArrayList(), 0, 0, 0);
     return AbiUtil.unpackString(ret);
   }
 
   public static String getTRCSymbol(String mainChainAddress) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "symbol()";
-    List params = Arrays.asList(mainChainAddress);
     byte[] ret = GATEWAY_API.getInstance()
-        .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
+        .triggerConstantContractAndReturn(contractAddress, method, Lists.newArrayList(), 0, 0, 0);
     return AbiUtil.unpackString(ret);
   }
 
   public static long getTRCDecimals(String mainChainAddress) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "decimals()";
-    List params = Arrays.asList(mainChainAddress);
     byte[] ret = GATEWAY_API.getInstance()
-        .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
+        .triggerConstantContractAndReturn(contractAddress, method, Lists.newArrayList(), 0, 0, 0);
     return AbiUtil.unpackUint(ret);
   }
 
