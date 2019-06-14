@@ -7,9 +7,8 @@ import org.tron.service.eventactuator.mainchain.DepositTRC10Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC20Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC721Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRXActuator;
-import org.tron.service.eventactuator.sidechain.DeployDAppTRC20AndMappingActuator;
-import org.tron.service.eventactuator.sidechain.DeployDAppTRC721AndMappingActuator;
-import org.tron.service.eventactuator.sidechain.MultiSignForMappingActuator;
+import org.tron.service.eventactuator.mainchain.MappingTRC20Actuator;
+import org.tron.service.eventactuator.mainchain.MappingTRC721Actuator;
 import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRC10Actuator;
 import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRXActuator;
 import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTokenActuator;
@@ -71,6 +70,16 @@ public class EventActuatorFactory {
             dataMap.get("uid").toString(), dataMap.get("contractAddress").toString(), txId);
         return task;
       }
+      case TRC20_MAPPING: {
+        String txId = obj.get("transactionId").toString();
+        task = new MappingTRC20Actuator(dataMap.get("contractAddress").toString(), txId);
+        return task;
+      }
+      case TRC721_MAPPING: {
+        String txId = obj.get("transactionId").toString();
+        task = new MappingTRC721Actuator(dataMap.get("contractAddress").toString(), txId);
+        return task;
+      }
       default: {
         logger.warn("event:{},signature:{}.", obj.get("eventSignature").toString(),
             eventSignature.getSignature());
@@ -84,30 +93,6 @@ public class EventActuatorFactory {
     SideEventType eventType = SideEventType
         .fromMethod(obj.get("eventSignature").toString());
     switch (eventType) {
-      case DEPLOY_DAPPTRC20_AND_MAPPING: {
-        String txId = obj.get("transactionId").toString();
-        JSONObject dataMap = (JSONObject) obj.get("dataMap");
-        task = new DeployDAppTRC20AndMappingActuator(dataMap.get("developer").toString(),
-            dataMap.get("mainChainAddress").toString(), dataMap.get("sideChainAddress").toString(),
-            txId);
-        return task;
-      }
-      case DEPLOY_DAPPTRC721_AND_MAPPING: {
-        String txId = obj.get("transactionId").toString();
-        JSONObject dataMap = (JSONObject) obj.get("dataMap");
-        task = new DeployDAppTRC721AndMappingActuator(dataMap.get("developer").toString(),
-            dataMap.get("mainChainAddress").toString(), dataMap.get("sideChainAddress").toString(),
-            txId);
-        return task;
-      }
-      case MULTISIGN_FOR_DEPLOY_AND_MAPPING: {
-        String txId = obj.get("transactionId").toString();
-        JSONObject dataMap = (JSONObject) obj.get("dataMap");
-        task = new MultiSignForMappingActuator(dataMap.get("mainChainAddress").toString(),
-            dataMap.get("sideChainAddress").toString(), dataMap.get("dataHash").toString(),
-            dataMap.get("txId").toString(), txId);
-        return task;
-      }
       case WITHDRAW_TRC10: {
         String txId = obj.get("transactionId").toString();
         JSONObject dataMap = (JSONObject) obj.get("dataMap");

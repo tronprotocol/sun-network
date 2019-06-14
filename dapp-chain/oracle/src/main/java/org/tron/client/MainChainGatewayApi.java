@@ -67,6 +67,33 @@ public class MainChainGatewayApi {
     return AbiUtil.unpackStatus(ret);
   }
 
+  public static String getTRCName(String mainChainAddress) throws RpcConnectException {
+    byte[] contractAddress = Args.getInstance().getMainchainGateway();
+    String method = "name()";
+    List params = Arrays.asList(mainChainAddress);
+    byte[] ret = GATEWAY_API.getInstance()
+        .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
+    return AbiUtil.unpackString(ret);
+  }
+
+  public static String getTRCSymbol(String mainChainAddress) throws RpcConnectException {
+    byte[] contractAddress = Args.getInstance().getMainchainGateway();
+    String method = "symbol()";
+    List params = Arrays.asList(mainChainAddress);
+    byte[] ret = GATEWAY_API.getInstance()
+        .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
+    return AbiUtil.unpackString(ret);
+  }
+
+  public static long getTRCDecimals(String mainChainAddress) throws RpcConnectException {
+    byte[] contractAddress = Args.getInstance().getMainchainGateway();
+    String method = "decimals()";
+    List params = Arrays.asList(mainChainAddress);
+    byte[] ret = GATEWAY_API.getInstance()
+        .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
+    return AbiUtil.unpackUint(ret);
+  }
+
   public static boolean getWithdrawStatus(String txId) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawDone(bytes32)";

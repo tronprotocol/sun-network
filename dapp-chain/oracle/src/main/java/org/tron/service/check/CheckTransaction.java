@@ -56,7 +56,8 @@ public class CheckTransaction {
           break;
       }
       // FIXME: fail to delete db, so in main chain contract, it must check dup using nonce.
-      byte[] nonce = EventStore.getInstance().getNonce(txExtensionCapsule.getEventTransactionIdBytes());
+      byte[] nonce = EventStore.getInstance()
+          .getNonce(txExtensionCapsule.getEventTransactionIdBytes());
       if (nonce != null) {
         NonceStore.getInstance().deleteData(nonce);
       }

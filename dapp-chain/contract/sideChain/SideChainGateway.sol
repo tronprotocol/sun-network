@@ -61,7 +61,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     mapping(bytes32 => mapping(bytes32 => SignMsg)) public withdrawSigns;
     mapping(bytes32 => mapping(bytes32 => SignMsg)) public mappingSigns;
     SignMsg[] public withdrawStatusSigns;
-
+    mapping(bytes32 => mapping(bytes32 => SignMsg)) public mappingToSideSigns;
     mapping(bytes32 => SignMsg) depositList;
     WithdrawMsg[] userWithdrawList;
 
@@ -132,12 +132,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 1. deployDAppTRC20AndMapping
-    function deployDAppTRC20AndMapping(bytes txId, string name, string symbol, uint8 decimals) payable public returns (address r) {
-        // can be called by everyone (contract developer)
-        // require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
-        require(msg.value > mappingFee);
-        bonus += msg.value;
-        address mainChainAddress = calcContractAddress(txId, msg.sender);
+    function deployDAppTRC20AndMapping(address mainChainAddress, string name, string symbol, uint8 decimals) internal returns (address r) {
+
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         address sideChainAddress = new DAppTRC20(address(this), name, symbol, decimals);
@@ -147,13 +143,23 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         r = sideChainAddress;
     }
 
+    function multiSignForDeployDAppTRC20AndMapping(address mainChainAddress, string name, string symbol, uint8 decimals, bytes32 txId, bytes oracleSign) public onlyOracle {
+
+        bytes32 dataHash = keccak256(abi.encodePacked(mainChainAddress, name, symbol, decimals, txId));
+
+        require(dataHash.recover(oracleSign) == msg.sender, "sign error");
+
+        bool needMapping = multiSignForMappingToSide(txId, dataHash, oracleSign);
+        if (needMapping) {
+            deployDAppTRC20AndMapping(mainChainAddress, name, symbol, decimals);
+        }
+    }
+
     // 2. deployDAppTRC721AndMapping
-    function deployDAppTRC721AndMapping(bytes txId, string name, string symbol) payable public returns (address r) {
+    function deployDAppTRC721AndMapping(address mainChainAddress, string name, string symbol) public returns (address r) {
         // can be called by everyone (contract developer)
         // require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
-        require(msg.value > mappingFee);
-        bonus += msg.value;
-        address mainChainAddress = calcContractAddress(txId, msg.sender);
+
         require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         address sideChainAddress = new DAppTRC721(address(this), name, symbol);
@@ -163,6 +169,17 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         r = sideChainAddress;
     }
 
+    function multiSignForDeployDAppTRC721AndMapping(address mainChainAddress, string name, string symbol, bytes32 txId, bytes oracleSign) public onlyOracle {
+        bytes32 dataHash = keccak256(abi.encodePacked(mainChainAddress, name, symbol, txId));
+
+        require(dataHash.recover(oracleSign) == msg.sender, "sign error");
+
+        bool needMapping = multiSignForMappingToSide(txId, dataHash, oracleSign);
+        if (needMapping) {
+            deployDAppTRC721AndMapping(mainChainAddress, name, symbol);
+        }
+    }
+    // deposit deposit deposit
     // 3. depositTRC10
     function depositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals) internal {
         require(trc10 > 1000000 && trc10 <= 2000000, "trc10 <= 1000000 or trc10 > 2000000");
@@ -262,33 +279,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         emit WithdrawTRX(userWithdrawList.length - 1, msg.sender, msg.value, userSign);
     }
 
-//    function multiSignForSet(uint256 nonce) internal returns (bool) {
-//        SignMsg storage statusSign = withdrawStatusSigns[nonce];
-//        if (statusSign.oracleSigned[msg.sender]) {
-//            return false;
-//        }
-//        statusSign.oracleSigned[msg.sender] = true;
-//        // depositSigns[txId][dataHash].signs.push(oracleSign);
-//        statusSign.signCnt += 1;
-//
-//        if (statusSign.signCnt > oracleCnt * 2 / 3 && !statusSign.success) {
-//            statusSign.success = true;
-//            return true;
-//        }
-//        return false;
-//    }
-//
-//    function multiSignForSetWithdrawStatus(uint256 nonce, uint8 status) public onlyOracle {
-//        require(status == 1 || status == 2, "status != 1 && status != 2");
-//        WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
-//        require(withdrawMsg.status == 0, "withdrawMsg.status != 0");
-//        // withdraw in sign: 2
-//        bool canSet = multiSignForSet(nonce);
-//        if (canSet) {
-//            withdrawMsg.status = status;
-//        }
-//    }
-
     function retryWithdraw(uint256 nonce) public {
         // TODO: free attack ?
         require(nonce < userWithdrawList.length, "nonce >= userWithdrawList.length");
@@ -308,23 +298,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
             emit WithdrawTRC10(nonce, withdrawMsg.user, withdrawMsg.valueOrTokenId, withdrawMsg.trc10, withdrawMsg.userSign);
         }
     }
-
-//    function refund(uint256 nonce) public {
-//        require(nonce < userWithdrawList.length, "nonce >= userWithdrawList.length");
-//        WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
-//        require(withdrawMsg.status == 2, "withdrawMsg.status != 2");
-//        if (withdrawMsg._type == 1) {
-//            withdrawMsg.user.transfer(withdrawMsg.valueOrTokenId);
-//        } else if (withdrawMsg._type == 2) {
-//            DAppTRC20(mainToSideContractMap[withdrawMsg.mainChainAddress]).transfer(withdrawMsg.user, withdrawMsg.valueOrTokenId);
-//        } else if (withdrawMsg._type == 3) {
-//            DAppTRC721(mainToSideContractMap[withdrawMsg.mainChainAddress]).transfer(withdrawMsg.user, withdrawMsg.valueOrTokenId);
-//        } else {
-//            // 4
-//            withdrawMsg.user.transferToken(withdrawMsg.valueOrTokenId, withdrawMsg.trc10);
-//        }
-//        withdrawMsg.status = 3;
-//    }
 
     function calcContractAddress(bytes txId, address _owner) public pure returns (address r) {
         bytes memory addressBytes = addressToBytes(_owner);
@@ -360,14 +333,23 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         }
         return false;
     }
+    function multiSignForMappingToSide(bytes32 txId, bytes32 dataHash, bytes oracleSign) internal returns (bool) {
+        if (mappingToSideSigns[txId][dataHash].oracleSigned[msg.sender]) {
+            return false;
+        }
+        mappingToSideSigns[txId][dataHash].oracleSigned[msg.sender] = true;
+        // depositSigns[txId][dataHash].signs.push(oracleSign);
+        mappingToSideSigns[txId][dataHash].signCnt += 1;
+
+        if (mappingToSideSigns[txId][dataHash].signCnt > oracleCnt * 2 / 3 && !mappingToSideSigns[txId][dataHash].success) {
+            mappingToSideSigns[txId][dataHash].success = true;
+            return true;
+        }
+        return false;
+    }
 
     function multiSignForDepositTRC10(address to, uint256 trc10, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, bytes32 txId, bytes oracleSign) public onlyOracle {
-        uint256[] memory trc10IdAndValueAndDecimals = new uint256[](3);
-        trc10IdAndValueAndDecimals[0] = trc10;
-        trc10IdAndValueAndDecimals[1] = value;
-        trc10IdAndValueAndDecimals[2] = decimals;
-        bytes32 dataHash = keccak256(abi.encodePacked(to, trc10IdAndValueAndDecimals, name, symbol, txId));
-
+        bytes32 dataHash = keccak256(abi.encodePacked(to, trc10, value, uint256(decimals), name, symbol, txId));
         require(dataHash.recover(oracleSign) == msg.sender, "sign error");
 
         bool needDeposit = multiSignForDeposit(txId, dataHash, oracleSign);
@@ -381,10 +363,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     //      2: trc20
     //      3: trc721
     function multiSignForDepositToken(address to, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 txId, bytes oracleSign) public onlyOracle {
-        uint256[] memory valueAndType = new uint256[](2);
-        valueAndType[0] = valueOrTokenId;
-        valueAndType[1] = _type;
-        bytes32 dataHash = keccak256(abi.encodePacked(to, mainChainAddress, valueAndType, txId));
+
+        bytes32 dataHash = keccak256(abi.encodePacked(to, mainChainAddress, valueOrTokenId, _type, txId));
 
         require(dataHash.recover(oracleSign) == msg.sender, "sign error");
 

@@ -25,6 +25,12 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     event TRC10Received(address from, uint256 amount, uint256 tokenId);
     event TRC20Received(address from, uint256 amount, address contractAddress);
     event TRC721Received(address from, uint256 uid, address contractAddress);
+    event TRC20Mapping(address contractAddress);
+    event TRC721Mapping(address contractAddress);
+
+    uint256 public mappingFee;
+    address public sunTokenAddress;
+    mapping (address =>uint256) public mainToSideContractMap;
 
     enum TokenKind {
         TRX,
@@ -131,7 +137,7 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     }
 
     function depositTRC10() payable public {
-        require(msg.tokenvalue>0,"tokenvalue must > 0");
+        require(msg.tokenvalue > 0,"tokenvalue must > 0");
         balances.trc10[msg.tokenid] = balances.trc10[msg.tokenid].add(msg.tokenvalue);
         emit TRC10Received(msg.sender, msg.tokenvalue, msg.tokenid);
     }
@@ -166,6 +172,50 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
             depositTRX();
         }
     }
+    function mappingTRC20(bytes txId) public payable {
+        require(msg.value>=mappingFee,"trc20MappingFee not enough");
+        address trc20Address = calcContractAddress(txId, msg.sender);
+        require(trc20Address != sunTokenAddress, "mainChainAddress == sunTokenAddress");
+        require(mainToSideContractMap[trc20Address] != 1,"trc20Address mapped");
+        uint256 size;
+        assembly { size := extcodesize(trc20Address) }
+        require( size > 0);
+        mainToSideContractMap[trc20Address] = 1;
+        emit TRC20Mapping( trc20Address);
+    }
+
+    // 2. deployDAppTRC721AndMapping
+    function mappingTRC721(bytes txId) public payable {
+        require(msg.value>=mappingFee,"trc721MappingFee not enough");
+        address trc721Address = calcContractAddress(txId, msg.sender);
+        require(trc721Address != sunTokenAddress, "mainChainAddress == sunTokenAddress");
+        require(mainToSideContractMap[trc721Address] != 1,"trc721Address mapped");
+        uint256 size;
+        assembly { size := extcodesize(trc721Address) }
+       require( size > 0);
+        mainToSideContractMap[trc721Address] = 1;
+        emit TRC721Mapping( trc721Address);
+    }
+
+    function calcContractAddress(bytes txId, address _owner) public pure returns (address r) {
+        bytes memory addressBytes = addressToBytes(_owner);
+        bytes memory combinedBytes = concatBytes(txId, addressBytes);
+        r = address(keccak256(combinedBytes));
+    }
+
+    function addressToBytes(address a) public pure returns (bytes memory b) {
+        assembly {
+            let m := mload(0x40)
+            a := and(a, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+            mstore(add(m, 20), xor(0x140000000000000000000000000000000000000000, a))
+            mstore(0x40, add(m, 52))
+            b := m
+        }
+    }
+
+    function concatBytes(bytes memory b1, bytes memory b2) pure public returns (bytes memory r) {
+        r = abi.encodePacked(b1, 0x41, b2);
+    }
 
     function migrationToken(address mainChainToken,address sideChainToken, bytes32 txId, bytes[] oracleSign) public onlyOracle {
         checkMappingMultiSign(mainChainToken, sideChainToken, txId, oracleSign);
@@ -190,5 +240,13 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     // Returns TRC721 token by uid
     function getNFT(uint256 uid, address contractAddress) external view returns (bool) {
         return balances.trc721[contractAddress][uid];
+    }
+
+    function setMappingFee(uint256 fee) public onlyOwner{
+        mappingFee=fee;
+    }
+    function setSunTokenAddress(address _sunTokenAddress) public onlyOwner {
+        require(_sunTokenAddress != address(0), "_sunTokenAddress == address(0)");
+        sunTokenAddress = _sunTokenAddress;
     }
 }
