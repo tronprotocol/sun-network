@@ -1,7 +1,6 @@
 package org.tron.service.task;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -69,7 +68,7 @@ public class InitTask {
   }
 
   public static Actuator getActuatorByEventMsg(byte[] data) throws InvalidProtocolBufferException {
-    EventMsg eventMsg =  EventMsg.parseFrom(data);
+    EventMsg eventMsg = EventMsg.parseFrom(data);
     switch (eventMsg.getType()) {
       case DEPOSIT_TRX_EVENT:
         return new DepositTRXActuator(eventMsg);
