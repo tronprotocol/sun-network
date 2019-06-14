@@ -24,7 +24,7 @@ public class MappingTRC20Actuator extends Actuator {
 
   private MappingTRC20Event event;
   @Getter
-  private EventType type = EventType.DEPOSIT_TRC20_EVENT;
+  private EventType type = EventType.MAPPING_TRC20;
 
   public MappingTRC20Actuator(String contractAddress, String transactionId) {
     ByteString contractAddressBS = ByteString

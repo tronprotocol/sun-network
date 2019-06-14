@@ -54,11 +54,6 @@ public class Args {
   @Getter
   private String mainchainKafka;
 
-
-  @Getter
-  private String sidechainKafka;
-
-
   @Getter
   @Parameter(names = {"-p", "--private-key"}, description = "Oracle Private Key")
   private String oraclePrivateKeyStr;
