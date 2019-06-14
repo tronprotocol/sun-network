@@ -145,7 +145,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     function multiSignForDeployDAppTRC20AndMapping(address mainChainAddress, string name, string symbol, uint8 decimals, bytes32 txId, bytes oracleSign) public onlyOracle {
 
-        bytes32 dataHash = keccak256(abi.encodePacked(mainChainAddress, name, symbol, decimals, txId));
+        bytes32 dataHash = keccak256(abi.encodePacked(mainChainAddress, name, symbol, uint256(decimals), txId));
 
         require(dataHash.recover(oracleSign) == msg.sender, "sign error");
 
