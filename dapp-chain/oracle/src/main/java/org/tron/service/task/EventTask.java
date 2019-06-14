@@ -3,13 +3,11 @@ package org.tron.service.task;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.spongycastle.util.Store;
 import org.tron.common.config.Args;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.WalletUtil;
@@ -87,7 +85,9 @@ public class EventTask {
           }
         } else {
           store.putData(eventActuator.getKey(), eventActuator.getMessage().toByteArray());
-          nonceStore.putData(eventActuator.getNonce(), eventActuator.getKey());
+          if (eventActuator.getNonce() != null) {
+            nonceStore.putData(eventActuator.getNonce(), eventActuator.getKey());
+          }
           ActuatorRun.getInstance().start(eventActuator);
         }
         this.kfkConsumer.commit();
