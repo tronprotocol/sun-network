@@ -108,7 +108,7 @@ public class HandshakeHandler extends ByteToMessageDecoder {
   }
 
   protected void sendHelloMsg(ChannelHandlerContext ctx, long time) {
-
+  //TODO: FIX ORACLE
 //    HelloMessage message = new HelloMessage(nodeManager.getPublicHomeNode(), time,
 //        manager.getGenesisBlockId(), manager.getSolidBlockId(), manager.getHeadBlockId());
 //    ctx.writeAndFlush(message.getSendData());
