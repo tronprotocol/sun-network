@@ -2,7 +2,14 @@ package org.tron.service;
 
 import java.util.TimeZone;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.tron.common.application.Application;
+import org.tron.common.application.ApplicationFactory;
+import org.tron.common.application.TronApplicationContext;
 import org.tron.common.config.Args;
+import org.tron.common.config.DefaultConfig;
+import org.tron.common.exception.RpcConnectException;
+import org.tron.common.utils.WalletUtil;
 import org.tron.service.task.EventTask;
 import org.tron.service.task.InitTask;
 
@@ -26,5 +33,24 @@ public class App {
     }
     logger.info("event task begins");
     (new EventTask()).processEvent();
+    DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+    beanFactory.setAllowCircularReferences(false);
+    TronApplicationContext context =
+        new TronApplicationContext(beanFactory);
+    context.register(DefaultConfig.class);
+
+    context.refresh();
+    Application appT = ApplicationFactory.create(context);
+    shutdown(appT);
+
+    appT.initServices(arg);
+    appT.startServices();
+    appT.startup();
+
+  }
+
+  public static void shutdown(final Application app) {
+    logger.info("********register application shutdown hook********");
+    Runtime.getRuntime().addShutdownHook(new Thread(app::shutdown));
   }
 }
