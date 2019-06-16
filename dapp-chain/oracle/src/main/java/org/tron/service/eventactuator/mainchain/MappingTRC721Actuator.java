@@ -50,7 +50,7 @@ public class MappingTRC721Actuator extends Actuator {
     String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
     String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
     logger.info(
-        "MappingTRC20Event, contractAddress: {}, transactionId: {}, trcName: {}, trcSymbol: {}.",
+        "MappingTRC721Event, contractAddress: {}, transactionId: {}, trcName: {}, trcSymbol: {}.",
         contractAddressStr, transactionIdStr, trcName, trcSymbol);
 
     Transaction tx = SideChainGatewayApi
