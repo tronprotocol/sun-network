@@ -252,7 +252,7 @@ public class SideChainGatewayApi {
     String ownSign = getMappingTRC721Sign(contractAddressStr, trcName, trcSymbol, transactionIdStr);
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "multiSignForDeployDAppTRC20AndMapping(address,string,string,bytes32,bytes)";
+    String method = "multiSignForDeployDAppTRC721AndMapping(address,string,string,bytes32,bytes)";
     List params = Arrays
         .asList(contractAddressStr, trcName, trcSymbol, transactionIdStr, ownSign);
     return GATEWAY_API.getInstance()

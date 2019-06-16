@@ -156,7 +156,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 2. deployDAppTRC721AndMapping
-    function deployDAppTRC721AndMapping(address mainChainAddress, string name, string symbol) public returns (address r) {
+    function deployDAppTRC721AndMapping(address mainChainAddress, string name, string symbol) internal returns (address r) {
         // can be called by everyone (contract developer)
         // require(sunTokenAddress != address(0), "sunTokenAddress == address(0)");
 
