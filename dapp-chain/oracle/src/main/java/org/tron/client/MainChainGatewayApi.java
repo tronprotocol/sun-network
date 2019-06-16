@@ -44,27 +44,45 @@ public class MainChainGatewayApi {
 
   }
 
-  public static String getTRCName(String contractAddress) throws RpcConnectException {
+  public static String getTRCName(String contractAddress) {
     String method = "name()";
-    byte[] ret = GATEWAY_API.getInstance()
-        .triggerConstantContractAndReturn(WalletUtil.decodeFromBase58Check(contractAddress), method,
-            Lists.newArrayList(), 0, 0, 0);
+    byte[] ret = new byte[0];
+    try {
+      ret = GATEWAY_API.getInstance()
+          .triggerConstantContractAndReturn(WalletUtil.decodeFromBase58Check(contractAddress),
+              method,
+              Lists.newArrayList(), 0, 0, 0);
+    } catch (RpcConnectException e) {
+      return "default token name";
+    }
     return AbiUtil.unpackString(ret);
   }
 
-  public static String getTRCSymbol(String contractAddress) throws RpcConnectException {
+  public static String getTRCSymbol(String contractAddress) {
     String method = "symbol()";
-    byte[] ret = GATEWAY_API.getInstance()
-        .triggerConstantContractAndReturn(WalletUtil.decodeFromBase58Check(contractAddress), method,
-            Lists.newArrayList(), 0, 0, 0);
+    byte[] ret = new byte[0];
+    try {
+      ret = GATEWAY_API.getInstance()
+          .triggerConstantContractAndReturn(WalletUtil.decodeFromBase58Check(contractAddress),
+              method,
+              Lists.newArrayList(), 0, 0, 0);
+    } catch (RpcConnectException e) {
+      return "default token symbol";
+    }
     return AbiUtil.unpackString(ret);
   }
 
-  public static long getTRCDecimals(String contractAddress) throws RpcConnectException {
+  public static long getTRCDecimals(String contractAddress) {
     String method = "decimals()";
-    byte[] ret = GATEWAY_API.getInstance()
-        .triggerConstantContractAndReturn(WalletUtil.decodeFromBase58Check(contractAddress), method,
-            Lists.newArrayList(), 0, 0, 0);
+    byte[] ret = new byte[0];
+    try {
+      ret = GATEWAY_API.getInstance()
+          .triggerConstantContractAndReturn(WalletUtil.decodeFromBase58Check(contractAddress),
+              method,
+              Lists.newArrayList(), 0, 0, 0);
+    } catch (RpcConnectException e) {
+      return 0;
+    }
     return AbiUtil.unpackUint(ret);
   }
 
