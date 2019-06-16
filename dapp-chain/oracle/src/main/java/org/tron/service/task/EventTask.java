@@ -76,12 +76,16 @@ public class EventTask {
           // TODO: handle expire
           byte[] txKeyBytes = nonceStore.getData(eventActuator.getNonce());
           byte[] txExtensionBytes = TransactionExtensionStore.getInstance().getData(txKeyBytes);
-          try {
-            CheckTransaction.getInstance()
-                .submitCheck(new TransactionExtensionCapsule(txExtensionBytes), 1);
-          } catch (InvalidProtocolBufferException e) {
-            // FIXME
-            logger.error(e.getMessage(), e);
+          if (txExtensionBytes != null) {
+            try {
+              CheckTransaction.getInstance()
+                  .submitCheck(new TransactionExtensionCapsule(txExtensionBytes), 1);
+            } catch (InvalidProtocolBufferException e) {
+              // FIXME
+              logger.error("retry fail: {}", e.getMessage(), e);
+            }
+          } else {
+            logger.info("the retried nonce has succeeded");
           }
         } else {
           store.putData(eventActuator.getKey(), eventActuator.getMessage().toByteArray());
