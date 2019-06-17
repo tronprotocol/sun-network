@@ -1,6 +1,7 @@
 package org.tron.service.task;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AlertUtil;
@@ -10,7 +11,11 @@ import org.tron.service.check.TransactionExtensionCapsule;
 @Slf4j(topic = "task")
 public class TxExtensionTask implements Runnable {
 
+  @Autowired
   private TransactionExtensionCapsule txExtensionCapsule;
+
+  @Autowired
+  private CheckTransaction checkTransaction;
 
   public TxExtensionTask(TransactionExtensionCapsule txExtensionCapsule) {
     this.txExtensionCapsule = txExtensionCapsule;
@@ -19,8 +24,8 @@ public class TxExtensionTask implements Runnable {
   @Override
   public void run() {
     try {
-      CheckTransaction.getInstance().broadcastTransaction(this.txExtensionCapsule);
-      CheckTransaction.getInstance().submitCheck(this.txExtensionCapsule, 1);
+      checkTransaction.broadcastTransaction(this.txExtensionCapsule);
+      checkTransaction.submitCheck(this.txExtensionCapsule, 1);
     } catch (RpcConnectException e) {
       // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 1.2
       // NOTE: have retried for 5 times in broadcastTransaction

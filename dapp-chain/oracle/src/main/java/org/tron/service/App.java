@@ -2,6 +2,7 @@ package org.tron.service;
 
 import java.util.TimeZone;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.tron.common.application.Application;
 import org.tron.common.application.ApplicationFactory;
@@ -30,11 +31,6 @@ public class App {
       System.exit(1);
     }
 
-    String mainGateway = WalletUtil.encode58Check(arg.getMainchainGateway());
-    String sideGateway = WalletUtil.encode58Check(arg.getSidechainGateway());
-
-    (new InitTask(10)).batchProcessTxInDb();
-    (new EventTask(mainGateway, sideGateway)).processEvent();
     DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
     beanFactory.setAllowCircularReferences(false);
     TronApplicationContext context =
@@ -44,6 +40,11 @@ public class App {
     context.refresh();
     Application appT = ApplicationFactory.create(context);
     shutdown(appT);
+
+    InitTask task = context.getBean(InitTask.class);
+    task.batchProcessTxInDb();
+    EventTask evenTask = context.getBean(EventTask.class);
+    evenTask.processEvent();
 
     appT.initServices(arg);
     appT.startServices();

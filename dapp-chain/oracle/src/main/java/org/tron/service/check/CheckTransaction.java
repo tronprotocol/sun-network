@@ -4,6 +4,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
@@ -15,13 +17,11 @@ import org.tron.db.EventStore;
 import org.tron.db.TransactionExtensionStore;
 
 @Slf4j
+@Component
 public class CheckTransaction {
 
-  private static CheckTransaction instance = new CheckTransaction();
-
-  public static CheckTransaction getInstance() {
-    return instance;
-  }
+  @Autowired
+  private EventStore eventStore;
 
   private CheckTransaction() {
   }
@@ -37,7 +37,7 @@ public class CheckTransaction {
       e.printStackTrace();
     }
     syncExecutor
-        .submit(() -> instance.checkTransaction(txExtensionCapsule, submitCnt));
+        .submit(() -> checkTransaction(txExtensionCapsule, submitCnt));
   }
 
   private void checkTransaction(TransactionExtensionCapsule txExtensionCapsule, int checkCnt) {
@@ -54,9 +54,9 @@ public class CheckTransaction {
           SideChainGatewayApi.checkTxInfo(txExtensionCapsule);
           break;
       }
-      EventStore.getInstance()
+      eventStore
           .deleteData(txExtensionCapsule.getEventTransactionIdBytes());
-      TransactionExtensionStore.getInstance()
+      eventStore
           .deleteData(txExtensionCapsule.getEventTransactionIdBytes());
     } catch (TxRollbackException e) {
       // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 4.2
@@ -80,7 +80,7 @@ public class CheckTransaction {
           return;
         }
 
-        instance.submitCheck(txExtensionCapsule, checkCnt + 1);
+        submitCheck(txExtensionCapsule, checkCnt + 1);
       }
     } catch (TxFailException e) {
       // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 5.1 5.2 5.3

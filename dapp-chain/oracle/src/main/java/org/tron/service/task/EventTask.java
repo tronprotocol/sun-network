@@ -2,10 +2,12 @@ package org.tron.service.task;
 
 import java.util.Arrays;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.tron.common.config.Args;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.WalletUtil;
@@ -16,10 +18,12 @@ import org.tron.service.eventactuator.ActuatorRun;
 import org.tron.service.eventactuator.EventActuatorFactory;
 import org.tron.service.kafka.KfkConsumer;
 
+@Slf4j
 public class EventTask {
 
   private KfkConsumer kfkConsumer;
 
+  @Autowired
   private EventStore store;
   private String mainGateway;
   private String sideGateway;
@@ -30,7 +34,6 @@ public class EventTask {
     this.kfkConsumer = new KfkConsumer(Args.getInstance().getMainchainKafka(),
         "Oracle_" + getOracleAddress(),
         Arrays.asList("contractevent"));
-    this.store = EventStore.getInstance();
   }
 
   private String getOracleAddress() {
