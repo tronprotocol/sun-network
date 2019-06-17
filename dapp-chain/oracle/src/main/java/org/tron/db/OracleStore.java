@@ -15,6 +15,7 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBException;
 import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
+import org.springframework.stereotype.Component;
 
 @Slf4j(topic = "db")
 public class OracleStore {

@@ -1,8 +1,9 @@
 package org.tron.db;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
-@Slf4j
+@Slf4j(topic = "DB")
 public class EventStore extends OracleStore {
 
   private static EventStore instance = new EventStore();

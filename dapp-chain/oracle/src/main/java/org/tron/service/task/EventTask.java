@@ -39,34 +39,37 @@ public class EventTask {
   }
 
   public void processEvent() {
-    for (; ; ) {
-      ConsumerRecords<String, String> record = this.kfkConsumer.getRecord();
-      for (ConsumerRecord<String, String> key : record) {
-        JSONObject obj = (JSONObject) JSONValue.parse(key.value());
-        if (Objects.isNull(obj.get("contractAddress"))) {
+    new Thread(() -> {
+      for (; ; ) {
+        ConsumerRecords<String, String> record = this.kfkConsumer.getRecord();
+        for (ConsumerRecord<String, String> key : record) {
+          JSONObject obj = (JSONObject) JSONValue.parse(key.value());
+          if (Objects.isNull(obj.get("contractAddress"))) {
+            this.kfkConsumer.commit();
+            continue;
+          }
+          Actuator eventActuator;
+          if (obj.get("contractAddress").equals(this.mainGateway)) {
+            eventActuator = EventActuatorFactory.CreateActuator(TaskEnum.MAIN_CHAIN, obj);
+          } else if (obj.get("contractAddress").equals(this.sideGateway)) {
+            eventActuator = EventActuatorFactory.CreateActuator(TaskEnum.SIDE_CHAIN, obj);
+          } else {
+            //Unrelated contract address
+            this.kfkConsumer.commit();
+            continue;
+          }
+          if (Objects.isNull(eventActuator)) {
+            //Unrelated contract event
+            this.kfkConsumer.commit();
+            continue;
+          }
+          store.putData(eventActuator.getKey(), eventActuator.getMessage().toByteArray());
           this.kfkConsumer.commit();
-          continue;
-        }
-        Actuator eventActuator;
-        if (obj.get("contractAddress").equals(this.mainGateway)) {
-          eventActuator = EventActuatorFactory.CreateActuator(TaskEnum.MAIN_CHAIN, obj);
-        } else if (obj.get("contractAddress").equals(this.sideGateway)) {
-          eventActuator = EventActuatorFactory.CreateActuator(TaskEnum.SIDE_CHAIN, obj);
-        } else {
-          //Unrelated contract address
-          this.kfkConsumer.commit();
-          continue;
-        }
-        if (Objects.isNull(eventActuator)) {
-          //Unrelated contract event
-          this.kfkConsumer.commit();
-          continue;
-        }
-        store.putData(eventActuator.getKey(), eventActuator.getMessage().toByteArray());
-        this.kfkConsumer.commit();
 
-        ActuatorRun.getInstance().start(eventActuator);
+          ActuatorRun.getInstance().start(eventActuator);
+        }
       }
-    }
+    }).start();
+
   }
 }

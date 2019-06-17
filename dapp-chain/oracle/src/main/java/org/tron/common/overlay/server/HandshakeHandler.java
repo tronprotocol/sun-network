@@ -36,6 +36,7 @@ import org.tron.common.overlay.message.P2pMessage;
 import org.tron.common.overlay.message.P2pMessageFactory;
 import org.tron.common.config.Args;
 import org.tron.core.net.peer.PeerConnection;
+import org.tron.db.BlockStore;
 import org.tron.protos.Protocol.ReasonCode;
 
 @Slf4j(topic = "net")
@@ -52,9 +53,6 @@ public class HandshakeHandler extends ByteToMessageDecoder {
 
   @Autowired
   protected ChannelManager channelManager;
-
-//  @Autowired
-//  protected Manager manager;
 
   private P2pMessageFactory messageFactory = new P2pMessageFactory();
 

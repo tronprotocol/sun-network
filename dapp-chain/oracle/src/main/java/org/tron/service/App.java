@@ -33,8 +33,8 @@ public class App {
     String mainGateway = WalletUtil.encode58Check(arg.getMainchainGateway());
     String sideGateway = WalletUtil.encode58Check(arg.getSidechainGateway());
 
-//    (new InitTask(10)).batchProcessTxInDb();
-//    (new EventTask(mainGateway, sideGateway)).processEvent();
+    (new InitTask(10)).batchProcessTxInDb();
+    (new EventTask(mainGateway, sideGateway)).processEvent();
     DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
     beanFactory.setAllowCircularReferences(false);
     TronApplicationContext context =
