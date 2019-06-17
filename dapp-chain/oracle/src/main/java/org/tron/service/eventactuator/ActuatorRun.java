@@ -2,13 +2,19 @@ package org.tron.service.eventactuator;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.utils.AlertUtil;
 import org.tron.db.TransactionExtensionStore;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.task.TxExtensionTask;
 
+@Slf4j
 public class ActuatorRun {
+
+  @Autowired
+  private TransactionExtensionStore transactionExtensionStore;
 
   private static ActuatorRun instance = new ActuatorRun();
 
@@ -20,8 +26,6 @@ public class ActuatorRun {
   }
 
   private final ExecutorService executor = Executors.newFixedThreadPool(5);
-
-  private final TransactionExtensionStore store = TransactionExtensionStore.getInstance();
 
   public void start(Actuator eventActuator) {
     executor.submit(() -> {
@@ -37,8 +41,8 @@ public class ActuatorRun {
         return;
       }
 
-      if (!this.store.exist(eventActuator.getKey())) {
-        this.store.putData(eventActuator.getKey(), txExtensionCapsule.getData());
+      if (!transactionExtensionStore.exist(eventActuator.getKey())) {
+        transactionExtensionStore.putData(eventActuator.getKey(), txExtensionCapsule.getData());
       }
       executor.execute(new TxExtensionTask(txExtensionCapsule));
     });

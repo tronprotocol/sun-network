@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.tron.db.EventStore;
 import org.tron.db.TransactionExtensionStore;
 import org.tron.protos.Protocol.Transaction.Contract;
@@ -37,16 +39,25 @@ public class InitTask {
 
   private ExecutorService executor;
 
+  @Autowired
+  private CheckTransaction checkTransaction;
+
+  @Autowired
+  private TransactionExtensionStore transactionExtensionStore;
+
+  @Autowired
+  private EventStore eventStore;
+
   public InitTask(int fixedThreads) {
     this.executor = Executors.newFixedThreadPool(fixedThreads);
   }
 
   public void batchProcessTxInDb() {
 
-    Set<byte[]> allTxs = TransactionExtensionStore.getInstance().allValues();
+    Set<byte[]> allTxs = transactionExtensionStore.allValues();
     for (byte[] txExtensionBytes : allTxs) {
       try {
-        CheckTransaction.getInstance()
+        checkTransaction
             .submitCheck(new TransactionExtensionCapsule(txExtensionBytes), 1);
       } catch (InvalidProtocolBufferException e) {
         // FIXME
@@ -54,8 +65,8 @@ public class InitTask {
       }
     }
 
-    Set<byte[]> allEvents = EventStore.getInstance().allValues();
-    Set<byte[]> allTxKeys = TransactionExtensionStore.getInstance().allKeys();
+    Set<byte[]> allEvents = eventStore.allValues();
+    Set<byte[]> allTxKeys = transactionExtensionStore.allKeys();
     for (byte[] event : allEvents) {
       try {
         Actuator actuator = getActuatorByEventMsg(event);

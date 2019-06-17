@@ -4,13 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j(topic = "DB")
+@Component
 public class TransactionExtensionStore extends OracleStore {
 
-  private static TransactionExtensionStore instance = new TransactionExtensionStore();
-
-  public static TransactionExtensionStore getInstance() {
-    return instance;
-  }
+//  private static TransactionExtensionStore instance = new TransactionExtensionStore();
+//
+//  public static TransactionExtensionStore getInstance() {
+//    return instance;
+//  }
 
   private TransactionExtensionStore() {
     this.dataBaseName = "transaction";
