@@ -20,25 +20,13 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     }
 
     Balance balances;
-    mapping(bytes32 => bool) public withdrawDone;
-    event TRXReceived(address from, uint256 amount);
-    event TRC10Received(address from, uint256 amount, uint256 tokenId);
-    event TRC20Received(address from, uint256 amount, address contractAddress);
-    event TRC721Received(address from, uint256 uid, address contractAddress);
-    event TRC20Mapping(address contractAddress);
-    event TRC721Mapping(address contractAddress);
-
-    uint256 public mappingFee;
-    address public sunTokenAddress;
-    mapping (address =>uint256) public mainToSideContractMap;
-
-    enum TokenKind {
-        TRX,
-        TRC10,
-        TRC20,
-        TRC721
-    }
-    
+    mapping(uint256 => bool) public withdrawDone;
+    event TRXReceived(address from, uint256 value,uint256 nonce);
+    event TRC10Received(address from, uint256 value, uint256 tokenId,uint256 nonce);
+    event TRC20Received(address from, uint256 value, address contractAddress,uint256 nonce);
+    event TRC721Received(address from, uint256 uid, address contractAddress,uint256 nonce);
+    event TRC20Mapping(address contractAddress,uint256 nonce);
+    event TRC721Mapping(address contractAddress,uint256 nonce);
     /**
      * Event to log the withdrawal of a token from the Gateway.
      * @param owner Address of the entity that made the withdrawal.
@@ -46,8 +34,52 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
      * @param contractAddress Address of token contract the token belong to.
      * @param value For TRC721 this is the uid of the token, for TRX/TRC20/TRC10 this is the amount.
      */
-    event TokenWithdrawn(address indexed owner, TokenKind kind, address contractAddress, uint256 value, bytes32 txId);
-    event Token10Withdrawn(address indexed owner, TokenKind kind, trcToken tokenId, uint256 value, bytes32 txId);
+    event TokenWithdrawn(address indexed owner, TokenKind kind, address contractAddress, uint256 value, uint256 nonce);
+    event Token10Withdrawn(address indexed owner, TokenKind kind, trcToken tokenId, uint256 value, uint256 nonce);
+
+    uint256 public mappingFee;
+    address public sunTokenAddress;
+    mapping (address =>uint256) public mainToSideContractMap;
+    DepositMsg[] userDepositList;
+    MappingMsg[] userMappingList;
+
+    struct DepositMsg {
+        // _type:
+        // 1: trx
+        // 2: trc20
+        // 3: trc721
+        // 4: trc10
+        uint8 _type;
+        address user;
+        uint256 valueOrUid;
+        uint256 tokenId;
+        address mainChainAddress;
+        // status:
+        // 0: locking
+        // 1: success
+        // 2: fail
+        // 3: refunded
+        uint8 status;
+    }
+    struct MappingMsg {
+        // _type:
+        // 2: trc20
+        // 3: trc721
+        uint8 _type;
+        address mainChainAddress;
+        // status:
+        // 0: locking
+        // 1: success
+        // 2: fail
+        // 3: refunded
+        uint8 status;
+    }
+    enum TokenKind {
+        TRX,
+        TRC10,
+        TRC20,
+        TRC721
+    }
 
     constructor (address _oracle)
     public OracleManagerContract(_oracle) {
@@ -59,99 +91,104 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
         balances.trc721[msg.sender][uid] = true;
     }
 
-    function _depositTRC20(uint256 amount) private {
-        balances.trc20[msg.sender] = balances.trc20[msg.sender].add(amount);
+    function _depositTRC20(uint256 value) private {
+        balances.trc20[msg.sender] = balances.trc20[msg.sender].add(value);
     }
 
     // Withdrawal functions
-    function withdrawTRC20(address _to, address contractAddress, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
+    function withdrawTRC20(address _to, address contractAddress, uint256 value, bytes sig, uint256 nonce, bytes[] oracleSign)
     public onlyOracle()
     {
-        checkGainer(_to, amount, contractAddress, sig) ;
-        checkOracles( _to, contractAddress, amount, 2, sig, txid, oracleSign);
-        nonce[_to]++;
-        balances.trc20[contractAddress] = balances.trc20[contractAddress].sub(amount);
-        TRC20(contractAddress).transfer(_to, amount);
-        withdrawDone[txid]=true;
-        emit TokenWithdrawn(_to, TokenKind.TRC20, contractAddress, amount, txid);
+        checkGainer(_to, value, contractAddress, sig) ;
+        checkOracles( _to, contractAddress, value, 2, sig, nonce, oracleSign);
+        withdrawNonce[_to]++;
+        balances.trc20[contractAddress] = balances.trc20[contractAddress].sub(value);
+        TRC20(contractAddress).transfer(_to, value);
+        withdrawDone[nonce]=true;
+        emit TokenWithdrawn(_to, TokenKind.TRC20, contractAddress, value, nonce);
     }
 
-    function withdrawTRC721(address _to, address contractAddress,uint256 uid, bytes sig, bytes32 txid, bytes[] oracleSign)
+    function withdrawTRC721(address _to, address contractAddress,uint256 uid, bytes sig,  uint256 nonce, bytes[] oracleSign)
     public onlyOracle()
     {
         checkGainer(_to,uid, contractAddress, sig);
-        checkOracles( _to, contractAddress, uid, 3, sig, txid, oracleSign);
-        nonce[_to]++;
+        checkOracles( _to, contractAddress, uid, 3, sig, nonce, oracleSign);
+        withdrawNonce[_to]++;
         require(balances.trc721[contractAddress][uid], "Does not own token");
         TRC721(contractAddress).transfer(_to, uid);
         delete balances.trc721[contractAddress][uid];
-        withdrawDone[txid]=true;
-        emit TokenWithdrawn(_to, TokenKind.TRC721, contractAddress, uid, txid);
+        withdrawDone[nonce]=true;
+        emit TokenWithdrawn(_to, TokenKind.TRC721, contractAddress, uid, nonce);
     }
 
-    function withdrawTRX(address _to, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
+    function withdrawTRX(address _to, uint256 value, bytes sig,  uint256 nonce, bytes[] oracleSign)
     public onlyOracle()
     {
-        checkGainer(_to,amount, address(this), sig);
-        checkTrxOracles( _to, amount, sig, txid, oracleSign);
-        nonce[_to]++;
-        balances.tron = balances.tron.sub(amount);
-        _to.transfer(amount);
+        checkGainer(_to, value, address(this), sig);
+        checkTrxOracles( _to, value, sig, nonce, oracleSign);
+        withdrawNonce[_to]++;
+        balances.tron = balances.tron.sub(value);
+        _to.transfer(value);
         // ensure it's not reentrant
-        withdrawDone[txid]=true;
-        emit TokenWithdrawn(_to, TokenKind.TRX, address(0), amount, txid);
+        withdrawDone[nonce]=true;
+        emit TokenWithdrawn(_to, TokenKind.TRX, address(0), value, nonce);
     }
 
-    function withdrawTRC10(address _to, trcToken tokenId, uint256 amount, bytes sig, bytes32 txid, bytes[] oracleSign)
+    function withdrawTRC10(address _to, trcToken tokenId, uint256 value, bytes sig,  uint256 nonce, bytes[] oracleSign)
     public onlyOracle()
     {
-        checkTrc10Gainer(_to,amount, tokenId, sig);
-        checkTrc10Oracles( _to, tokenId, amount, sig, txid, oracleSign);
-        nonce[_to]++;
-        balances.trc10[tokenId] = balances.trc10[tokenId].sub(amount);
-        _to.transferToken(amount, tokenId);
-        withdrawDone[txid]=true;
-        emit Token10Withdrawn(msg.sender, TokenKind.TRC10, tokenId, amount, txid);
+        checkTrc10Gainer(_to, value, tokenId, sig);
+        checkTrc10Oracles( _to, tokenId, value, sig, nonce, oracleSign);
+        withdrawNonce[_to]++;
+        balances.trc10[tokenId] = balances.trc10[tokenId].sub(value);
+        _to.transferToken(value, tokenId);
+        withdrawDone[nonce]=true;
+        emit Token10Withdrawn(msg.sender, TokenKind.TRC10, tokenId, value, nonce);
     }
 
     // Approve and Deposit function for 2-step deposits
     // Requires first to have called `approve` on the specified TRC20 contract
-    function depositTRC20(uint256 amount, address contractAddress) public {
+    function depositTRC20(uint256 value, address contractAddress) public {
         require(mainToSideContractMap[contractAddress]==1, "Not an allowe token");
-        require(amount>0,"value must > 0");
-        TRC20(contractAddress).transferFrom(msg.sender, address(this), amount);
-        balances.trc20[contractAddress] = balances.trc20[contractAddress].add(amount);
-        emit TRC20Received(msg.sender, amount, contractAddress);
+        require(value >0,"value must > 0");
+        TRC20(contractAddress).transferFrom(msg.sender, address(this), value);
+        userDepositList.push(DepositMsg(2, msg.sender, value, 0, contractAddress, 0));
+        balances.trc20[contractAddress] = balances.trc20[contractAddress].add(value);
+        emit TRC20Received(msg.sender, value, contractAddress, userDepositList.length - 1);
     }
     function depositTRC721(uint256 uid, address contractAddress) public {
         require(mainToSideContractMap[contractAddress]==1, "Not an allowe token");
         TRC721(contractAddress).transferFrom(msg.sender, address(this), uid);
+        userDepositList.push(DepositMsg(3, msg.sender, uid, 0, contractAddress, 0));
         balances.trc721[contractAddress][uid] = true;
-        emit TRC721Received(msg.sender, uid, contractAddress);
+        emit TRC721Received(msg.sender, uid, contractAddress, userDepositList.length - 1);
     }
 
     function depositTRX() payable public {
         require(msg.value>0,"tokenvalue must > 0");
+        userDepositList.push(DepositMsg(1, msg.sender, msg.value, 0, address(0), 0));
         balances.tron = balances.tron.add(msg.value);
-        emit TRXReceived(msg.sender, msg.value);
+        emit TRXReceived(msg.sender, msg.value, userDepositList.length - 1);
     }
 
     function depositTRC10() payable public {
         require(msg.tokenvalue > 0,"tokenvalue must > 0");
+        userDepositList.push(DepositMsg(4, msg.sender, msg.tokenvalue, msg.tokenid, address(0), 0));
         balances.trc10[msg.tokenid] = balances.trc10[msg.tokenid].add(msg.tokenvalue);
-        emit TRC10Received(msg.sender, msg.tokenvalue, msg.tokenid);
+        emit TRC10Received(msg.sender, msg.tokenvalue, msg.tokenid, userDepositList.length - 1);
     }
 
     // Receiver functions for 1-step deposits to the gateway
 
 
-    function onTRC20Received(address _from, uint256 amount,bytes)
+    function onTRC20Received(address _from, uint256 value,bytes)
     public
     returns (bytes4)
     {
         require(mainToSideContractMap[msg.sender]==1, "Not an allowe token");
-        _depositTRC20(amount);
-        emit TRC20Received(_from, amount, msg.sender);
+        userDepositList.push(DepositMsg(2, _from, value, 0, msg.sender, 0));
+        _depositTRC20(value);
+        emit TRC20Received(_from, value, msg.sender,userDepositList.length - 1);
         return _TRC20_RECEIVED;
     }
 
@@ -160,8 +197,9 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
     returns (bytes4)
     {
         require(mainToSideContractMap[msg.sender]==1, "Not an allowe token");
+        userDepositList.push(DepositMsg(3, _from, _uid, 0, msg.sender, 0));
         _depositTRC721(_uid);
-        emit TRC721Received(_from, _uid, msg.sender);
+        emit TRC721Received(_from, _uid, msg.sender,userDepositList.length - 1);
         return _TRC721_RECEIVED;
     }
 
@@ -180,8 +218,9 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
         uint256 size;
         assembly { size := extcodesize(trc20Address) }
         require( size > 0);
+        userMappingList.push(MappingMsg(1,trc20Address,0));
         mainToSideContractMap[trc20Address] = 1;
-        emit TRC20Mapping( trc20Address);
+        emit TRC20Mapping( trc20Address, userMappingList.length-1);
     }
 
     // 2. deployDAppTRC721AndMapping
@@ -192,9 +231,10 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
         require(mainToSideContractMap[trc721Address] != 1,"trc721Address mapped");
         uint256 size;
         assembly { size := extcodesize(trc721Address) }
-       require( size > 0);
+        require( size > 0);
+        userMappingList.push(MappingMsg(2,trc721Address,0));
         mainToSideContractMap[trc721Address] = 1;
-        emit TRC721Mapping( trc721Address);
+        emit TRC721Mapping( trc721Address, userMappingList.length-1);
     }
 
     function calcContractAddress(bytes txId, address _owner) public pure returns (address r) {
@@ -217,18 +257,13 @@ contract MainChainGateway is  ITRC20Receiver, ITRC721Receiver, OracleManagerCont
         r = abi.encodePacked(b1, 0x41, b2);
     }
 
-    function migrationToken(address mainChainToken,address sideChainToken, bytes32 txId, bytes[] oracleSign) public onlyOracle {
-        checkMappingMultiSign(mainChainToken, sideChainToken, txId, oracleSign);
-        allows[mainChainToken] = sideChainToken;
-    }
-
     // Returns all the TRX
     function getTRX() external view returns (uint256) {
         return balances.tron;
     }
 
     // Returns all the TRC10
-    function getTRC10(uint256 tokenId) external view returns (uint256) {
+    function getTRC10(trcToken tokenId) external view returns (uint256) {
         return balances.trc10[tokenId];
     }
 
