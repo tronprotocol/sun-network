@@ -26,12 +26,12 @@ public class DepositTRXActuator extends Actuator {
   @Getter
   private EventType type = EventType.DEPOSIT_TRX_EVENT;
 
-  public DepositTRXActuator(String from, String value, String transactionId) {
+  public DepositTRXActuator(String from, String value, String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
-    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
+    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromHexString(nonce));
     this.event = DepositTRXEvent.newBuilder().setFrom(fromBS).setValue(valueBS)
-        .setTransactionId(transactionIdBS).build();
+        .setNonce(nonceBS).build();
   }
 
   public DepositTRXActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
@@ -46,14 +46,14 @@ public class DepositTRXActuator extends Actuator {
     }
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
     String valueStr = event.getValue().toStringUtf8();
-    String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
+    String nonceStr = ByteArray.toHexString(event.getNonce().toByteArray());
 
-    logger.info("DepositTRXActuator, from: {}, value: {}, transactionId: {}", fromStr, valueStr,
-        transactionIdStr);
+    logger.info("DepositTRXActuator, from: {}, value: {}, nonce: {}", fromStr, valueStr,
+        nonceStr);
 
-    Transaction tx = SideChainGatewayApi.mintTrxTransaction(fromStr, valueStr, transactionIdStr);
+    Transaction tx = SideChainGatewayApi.mintTrxTransaction(fromStr, valueStr, nonceStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        transactionIdStr, tx);
+        nonceStr, tx);
     return this.transactionExtensionCapsule;
   }
 
@@ -64,7 +64,7 @@ public class DepositTRXActuator extends Actuator {
 
   @Override
   public byte[] getKey() {
-    return event.getTransactionId().toByteArray();
+    return event.getNonce().toByteArray();
   }
 
   @Override

@@ -27,18 +27,16 @@ public class WithdrawTRC20Actuator extends Actuator {
   @Getter
   private EventType type = EventType.WITHDRAW_TRC20_EVENT;
 
-  public WithdrawTRC20Actuator(String nonce, String from, String value, String mainChainAddress, String userSign,
-      String transactionId) {
+  public WithdrawTRC20Actuator(String nonce, String from, String value, String mainChainAddress,
+      String userSign) {
     ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString mainChainAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(mainChainAddress));
     ByteString userSignBS = ByteString.copyFrom(ByteArray.fromHexString(userSign));
-    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = WithdrawTRC20Event.newBuilder().setNonce(nonceBS).setFrom(fromBS).setValue(valueBS)
-        .setMainchainAddress(mainChainAddressBS).setUserSign(userSignBS)
-        .setTransactionId(transactionIdBS).build();
+        .setMainchainAddress(mainChainAddressBS).setUserSign(userSignBS).build();
   }
 
   public WithdrawTRC20Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
@@ -58,16 +56,14 @@ public class WithdrawTRC20Actuator extends Actuator {
     String mainChainAddressStr = WalletUtil
         .encode58Check(event.getMainchainAddress().toByteArray());
     String userSignStr = ByteArray.toHexString(event.getUserSign().toByteArray());
-    String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
 
     logger.info(
-        "WithdrawTRC20Actuator, nonce: {}, from: {}, value: {}, mainChainAddress: {}, userSign: {}, txId: {}",
-        nonceStr, fromStr, valueStr, mainChainAddressStr, userSignStr, transactionIdStr);
+        "WithdrawTRC20Actuator, nonce: {}, from: {}, value: {}, mainChainAddress: {}, userSign: {}",
+        nonceStr, fromStr, valueStr, mainChainAddressStr, userSignStr);
     Transaction tx = SideChainGatewayApi
-        .withdrawTRC20Transaction(fromStr, mainChainAddressStr, valueStr, userSignStr,
-            transactionIdStr);
+        .withdrawTRC20Transaction(fromStr, mainChainAddressStr, valueStr, userSignStr, nonceStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        transactionIdStr, tx);
+        nonceStr, tx);
     return this.transactionExtensionCapsule;
   }
 
@@ -78,7 +74,7 @@ public class WithdrawTRC20Actuator extends Actuator {
 
   @Override
   public byte[] getKey() {
-    return event.getTransactionId().toByteArray();
+    return event.getNonce().toByteArray();
   }
 
   @Override

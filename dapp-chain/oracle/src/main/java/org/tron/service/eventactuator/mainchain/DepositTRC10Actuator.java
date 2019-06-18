@@ -27,13 +27,13 @@ public class DepositTRC10Actuator extends Actuator {
   @Getter
   private EventType type = EventType.DEPOSIT_TRC10_EVENT;
 
-  public DepositTRC10Actuator(String from, String value, String trc10, String transactionId) {
+  public DepositTRC10Actuator(String from, String value, String trc10, String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString trc10BS = ByteString.copyFrom(ByteArray.fromString(trc10));
-    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
+    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
     this.event = DepositTRC10Event.newBuilder().setFrom(fromBS).setValue(valueBS).setTrc10(trc10BS)
-        .setTransactionId(transactionIdBS).build();
+        .setNonce(nonceBS).build();
   }
 
   public DepositTRC10Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
@@ -50,10 +50,10 @@ public class DepositTRC10Actuator extends Actuator {
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
     String valueStr = event.getValue().toStringUtf8();
     String trc10Str = event.getTrc10().toStringUtf8();
-    String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
+    String nonceStr = ByteArray.toHexString(event.getNonce().toByteArray());
 
     logger.info("DepositTRC10Actuator, from: {}, value: {}, trc10: {}, transactionId: {}",
-        fromStr, valueStr, trc10Str, transactionIdStr);
+        fromStr, valueStr, trc10Str, nonceStr);
 
     // TODO: throw RpcConnectException
     AssetIssueContract assetIssue = MainChainGatewayApi
@@ -65,9 +65,9 @@ public class DepositTRC10Actuator extends Actuator {
         assetIssue.getPrecision());
     Transaction tx = SideChainGatewayApi
         .mintToken10Transaction(fromStr, trc10Str, valueStr, assetIssue.getName().toStringUtf8(),
-            assetIssue.getName().toStringUtf8(), assetIssue.getPrecision(), transactionIdStr);
+            assetIssue.getName().toStringUtf8(), assetIssue.getPrecision(), nonceStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        transactionIdStr, tx);
+        nonceStr, tx);
     return this.transactionExtensionCapsule;
   }
 
@@ -78,7 +78,7 @@ public class DepositTRC10Actuator extends Actuator {
 
   @Override
   public byte[] getKey() {
-    return event.getTransactionId().toByteArray();
+    return event.getNonce().toByteArray();
   }
 
   @Override

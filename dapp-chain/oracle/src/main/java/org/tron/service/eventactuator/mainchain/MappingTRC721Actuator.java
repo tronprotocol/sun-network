@@ -26,12 +26,12 @@ public class MappingTRC721Actuator extends Actuator {
   @Getter
   private EventType type = EventType.MAPPING_TRC721;
 
-  public MappingTRC721Actuator(String contractAddress, String transactionId) {
+  public MappingTRC721Actuator(String contractAddress, String nonce) {
     ByteString contractAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(contractAddress));
-    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
+    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromHexString(nonce));
     this.event = MappingTRC721Event.newBuilder().setContractAddress(contractAddressBS)
-        .setContractAddress(contractAddressBS).setTransactionId(transactionIdBS).build();
+        .setContractAddress(contractAddressBS).setNonce(nonceBS).build();
   }
 
   public MappingTRC721Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
@@ -45,19 +45,19 @@ public class MappingTRC721Actuator extends Actuator {
       return transactionExtensionCapsule;
     }
     String contractAddressStr = WalletUtil.encode58Check(event.getContractAddress().toByteArray());
-    String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
+    String nonceStr = ByteArray.toHexString(event.getNonce().toByteArray());
 
     String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
     String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
     logger.info(
-        "MappingTRC721Event, contractAddress: {}, transactionId: {}, trcName: {}, trcSymbol: {}.",
-        contractAddressStr, transactionIdStr, trcName, trcSymbol);
+        "MappingTRC721Event, contractAddress: {}, nonce: {}, trcName: {}, trcSymbol: {}.",
+        contractAddressStr, nonceStr, trcName, trcSymbol);
 
     Transaction tx = SideChainGatewayApi
         .multiSignForMappingTRC721(contractAddressStr, trcName, trcSymbol,
-            transactionIdStr);
+            nonceStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        transactionIdStr, tx);
+        nonceStr, tx);
     return this.transactionExtensionCapsule;
   }
 
@@ -68,7 +68,7 @@ public class MappingTRC721Actuator extends Actuator {
 
   @Override
   public byte[] getKey() {
-    return event.getTransactionId().toByteArray();
+    return event.getNonce().toByteArray();
   }
 
   @Override

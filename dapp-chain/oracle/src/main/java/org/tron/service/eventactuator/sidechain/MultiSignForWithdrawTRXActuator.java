@@ -29,17 +29,17 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
 
 
   public MultiSignForWithdrawTRXActuator(String from, String value, String userSign,
-      String dataHash, String originalTransactionId, String transactionId) {
+      String dataHash, String originalTransactiionId, String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString userSignBS = ByteString.copyFrom(ByteArray.fromHexString(userSign));
     ByteString dataHashBS = ByteString.copyFrom(ByteArray.fromHexString(dataHash));
-    ByteString originalTransactionIdBS = ByteString
-        .copyFrom(ByteArray.fromHexString(originalTransactionId));
-    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
+    ByteString originalTransactiionIdBS = ByteString
+        .copyFrom(ByteArray.fromHexString(originalTransactiionId));
+    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromHexString(nonce));
     this.event = MultiSignForWithdrawTRXEvent.newBuilder().setFrom(fromBS).setValue(valueBS)
         .setUserSign(userSignBS).setDataHash(dataHashBS)
-        .setOriginalTransactionId(originalTransactionIdBS).setTransactionId(transactionIdBS)
+        .setOriginalTransactionId(originalTransactiionIdBS).setNonce(nonceBS)
         .build();
   }
 
@@ -57,21 +57,21 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
     String valueStr = event.getValue().toStringUtf8();
     String userSignStr = ByteArray.toHexString(event.getUserSign().toByteArray());
     String dataHashStr = ByteArray.toHexString(event.getDataHash().toByteArray());
-    String originalTransactionIdStr = ByteArray
+    String originalTransactiionIdStr = ByteArray
         .toHexString(event.getOriginalTransactionId().toByteArray());
-    String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
+    String nonceStr = ByteArray.toHexString(event.getNonce().toByteArray());
 
     logger.info(
-        "MultiSignForWithdrawTRXActuator, from: {}, value: {}, userSign: {}, dataHash: {}, originalTransactionId: {}, transactionId: {}",
-        fromStr, valueStr, userSignStr, dataHashStr, originalTransactionIdStr, transactionIdStr);
+        "MultiSignForWithdrawTRXActuator, from: {}, value: {}, userSign: {}, dataHash: {}, originalTransactiionId: {}, nonce: {}",
+        fromStr, valueStr, userSignStr, dataHashStr, originalTransactiionIdStr, nonceStr);
     Transaction tx = MainChainGatewayApi
         .multiSignForWithdrawTRXTransaction(fromStr, valueStr, userSignStr, dataHashStr,
-            originalTransactionIdStr);
+            originalTransactiionIdStr);
     if (tx == null) {
       return null;
     }
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
-        transactionIdStr, tx);
+        nonceStr, tx);
     return this.transactionExtensionCapsule;
   }
 
@@ -82,7 +82,7 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
 
   @Override
   public byte[] getKey() {
-    return event.getTransactionId().toByteArray();
+    return event.getNonce().toByteArray();
   }
 
 

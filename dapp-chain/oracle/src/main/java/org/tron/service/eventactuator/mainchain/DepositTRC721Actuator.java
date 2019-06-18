@@ -26,14 +26,14 @@ public class DepositTRC721Actuator extends Actuator {
   private EventType type = EventType.DEPOSIT_TRC721_EVENT;
 
   public DepositTRC721Actuator(String from, String tokenId, String contractAddress,
-      String transactionId) {
+      String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString tokenIdBS = ByteString.copyFrom(ByteArray.fromString(tokenId));
     ByteString contractAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(contractAddress));
-    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
+    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
     this.event = DepositTRC721Event.newBuilder().setFrom(fromBS).setTokenId(tokenIdBS)
-        .setContractAddress(contractAddressBS).setTransactionId(transactionIdBS).build();
+        .setContractAddress(contractAddressBS).setNonce(nonceBS).build();
   }
 
   public DepositTRC721Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
@@ -50,13 +50,14 @@ public class DepositTRC721Actuator extends Actuator {
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
     String tokenIdStr = event.getTokenId().toStringUtf8();
     String contractAddressStr = WalletUtil.encode58Check(event.getContractAddress().toByteArray());
-    String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
+    String nonceStr = ByteArray.toHexString(event.getNonce().toByteArray());
     logger.info(
-        "DepositTRC721Actuator, from: {}, tokenId: {}, contractAddress: {}, transactionId: {}",
-        fromStr, tokenIdStr, contractAddressStr, transactionIdStr);
+        "DepositTRC721Actuator, from: {}, tokenId: {}, contractAddress: {}, nonce: {}",
+        fromStr, tokenIdStr, contractAddressStr, nonceStr);
     Transaction tx = SideChainGatewayApi
-        .mintToken721Transaction(fromStr, contractAddressStr, tokenIdStr, transactionIdStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN, transactionIdStr, tx);
+        .mintToken721Transaction(fromStr, contractAddressStr, tokenIdStr, nonceStr);
+    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
+        nonceStr, tx);
     return this.transactionExtensionCapsule;
   }
 
@@ -67,7 +68,7 @@ public class DepositTRC721Actuator extends Actuator {
 
   @Override
   public byte[] getKey() {
-    return event.getTransactionId().toByteArray();
+    return event.getNonce().toByteArray();
   }
 
   @Override

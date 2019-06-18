@@ -49,7 +49,7 @@ message DepositTRC10Event {
   bytes from = 1;
   bytes value = 2;
   bytes trc10 = 3;
-  bytes transaction_id = 4;
+  bytes nonce = 4;
 }
 
 // Update account name. Account name is not unique now.
@@ -57,7 +57,7 @@ message DepositTRC20Event {
   bytes from = 1;
   bytes value = 2;
   bytes contract_address = 3;
-  bytes transaction_id = 4;
+  bytes nonce = 4;
 }
 
 // Set account id if the account has no id. Account id is unique and case insensitive.
@@ -65,23 +65,23 @@ message DepositTRC721Event {
   bytes from = 1;
   bytes token_id = 2;
   bytes contract_address = 3;
-  bytes transaction_id = 4;
+  bytes nonce = 4;
 }
 
 message DepositTRXEvent {
   bytes from = 1;
   bytes value = 2;
-  bytes transaction_id = 3;
+  bytes nonce = 3;
 }
 
 message MappingTRC20Event {
   bytes contract_address = 3;
-  bytes transaction_id = 4;
+  bytes nonce = 4;
 }
 
 message MappingTRC721Event {
   bytes contract_address = 3;
-  bytes transaction_id = 4;
+  bytes nonce = 4;
 }
 
 message MultiSignForWithdrawTokenEvent {
@@ -92,7 +92,7 @@ message MultiSignForWithdrawTokenEvent {
   bytes user_sign = 5;
   bytes data_hash = 6;
   bytes original_transaction_id = 7;
-  bytes transaction_id = 8;
+  bytes nonce = 8;
 }
 
 message MultiSignForWithdrawTRC10Event {
@@ -102,7 +102,7 @@ message MultiSignForWithdrawTRC10Event {
   bytes user_sign = 4;
   bytes data_hash = 5;
   bytes original_transaction_id = 6;
-  bytes transaction_id = 7;
+  bytes nonce = 7;
 }
 
 message MultiSignForWithdrawTRXEvent {
@@ -111,7 +111,7 @@ message MultiSignForWithdrawTRXEvent {
   bytes user_sign = 3;
   bytes data_hash = 4;
   bytes original_transaction_id = 5;
-  bytes transaction_id = 6;
+  bytes nonce = 6;
 }
 
 message WithdrawTRC10Event {
@@ -120,7 +120,6 @@ message WithdrawTRC10Event {
   bytes trc10 = 3;
   bytes value = 4;
   bytes user_sign = 5;
-  bytes transaction_id = 6;
 }
 
 message WithdrawTRC20Event {
@@ -129,7 +128,6 @@ message WithdrawTRC20Event {
   bytes mainchain_address = 3;
   bytes value = 4;
   bytes user_sign = 5;
-  bytes transaction_id = 6;
 }
 
 message WithdrawTRC721Event {
@@ -138,7 +136,6 @@ message WithdrawTRC721Event {
   bytes mainchain_address = 3;
   bytes token_id = 4;
   bytes user_sign = 5;
-  bytes transaction_id = 6;
 }
 
 message WithdrawTRXEvent {
@@ -146,5 +143,4 @@ message WithdrawTRXEvent {
   bytes from = 2;
   bytes value = 3;
   bytes user_sign = 4;
-  bytes transaction_id = 5;
 }

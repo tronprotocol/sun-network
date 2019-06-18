@@ -26,12 +26,12 @@ public class MappingTRC20Actuator extends Actuator {
   @Getter
   private EventType type = EventType.MAPPING_TRC20;
 
-  public MappingTRC20Actuator(String contractAddress, String transactionId) {
+  public MappingTRC20Actuator(String contractAddress, String nonce) {
     ByteString contractAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(contractAddress));
-    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
+    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromHexString(nonce));
     this.event = MappingTRC20Event.newBuilder().setContractAddress(contractAddressBS)
-        .setTransactionId(transactionIdBS).build();
+        .setNonce(nonceBS).build();
   }
 
   public MappingTRC20Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
@@ -46,20 +46,20 @@ public class MappingTRC20Actuator extends Actuator {
     }
 
     String contractAddressStr = WalletUtil.encode58Check(event.getContractAddress().toByteArray());
-    String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
+    String nonceStr = ByteArray.toHexString(event.getNonce().toByteArray());
 
     long trcDecimals = MainChainGatewayApi.getTRCDecimals(contractAddressStr);
     String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
     String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
     logger.info(
-        "MappingTRC20Event, contractAddress: {}, transactionId: {}, trcName: {}, trcSymbol: {}, trcDecimals: {}.",
-        contractAddressStr, transactionIdStr, trcName, trcSymbol, trcDecimals);
+        "MappingTRC20Event, contractAddress: {}, nonce: {}, trcName: {}, trcSymbol: {}, trcDecimals: {}.",
+        contractAddressStr, nonceStr, trcName, trcSymbol, trcDecimals);
 
     Transaction tx = SideChainGatewayApi
         .multiSignForMappingTRC20(contractAddressStr, trcName, trcSymbol, trcDecimals,
-            transactionIdStr);
+            nonceStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        transactionIdStr, tx);
+        nonceStr, tx);
     return this.transactionExtensionCapsule;
   }
 
@@ -70,7 +70,7 @@ public class MappingTRC20Actuator extends Actuator {
 
   @Override
   public byte[] getKey() {
-    return event.getTransactionId().toByteArray();
+    return event.getNonce().toByteArray();
   }
 
   @Override

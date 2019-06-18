@@ -26,14 +26,13 @@ public class WithdrawTRXActuator extends Actuator {
   @Getter
   private EventType type = EventType.WITHDRAW_TRX_EVENT;
 
-  public WithdrawTRXActuator(String nonce, String from, String value, String userSign, String transactionId) {
+  public WithdrawTRXActuator(String nonce, String from, String value, String userSign) {
     ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString userSignBS = ByteString.copyFrom(ByteArray.fromHexString(userSign));
-    ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = WithdrawTRXEvent.newBuilder().setNonce(nonceBS).setFrom(fromBS).setValue(valueBS)
-        .setUserSign(userSignBS).setTransactionId(transactionIdBS).build();
+        .setUserSign(userSignBS).build();
   }
 
   public WithdrawTRXActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
@@ -50,18 +49,18 @@ public class WithdrawTRXActuator extends Actuator {
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
     String valueStr = event.getValue().toStringUtf8();
     String userSignStr = ByteArray.toHexString(event.getUserSign().toByteArray());
-    String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
 
     logger
-        .info("WithdrawTRXActuator, nonce: {}, from: {}, value: {}, userSign: {}, transactionId: {}", nonceStr, fromStr,
-            valueStr, userSignStr, transactionIdStr);
+        .info("WithdrawTRXActuator, nonce: {}, from: {}, value: {}, userSign: {}", nonceStr,
+            fromStr,
+            valueStr, userSignStr);
 
     // TODO: nonce just filter
 
     Transaction tx = SideChainGatewayApi
-        .withdrawTRXTransaction(fromStr, valueStr, userSignStr, transactionIdStr);
+        .withdrawTRXTransaction(fromStr, valueStr, userSignStr, nonceStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        transactionIdStr, tx);
+        nonceStr, tx);
 
     return this.transactionExtensionCapsule;
   }
@@ -73,7 +72,7 @@ public class WithdrawTRXActuator extends Actuator {
 
   @Override
   public byte[] getKey() {
-    return event.getTransactionId().toByteArray();
+    return event.getNonce().toByteArray();
   }
 
   @Override

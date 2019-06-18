@@ -1,14 +1,14 @@
 package org.tron.service.eventenum;
 
 public enum MainEventType implements EventType {
-  TRX_RECEIVED("TRXReceived(address,uint256)"),
-  TRC10_RECEIVED("TRC10Received(address,uint256,uint256)"),
-  TRC20_RECEIVED("TRC20Received(address,uint256,address)"),
-  TRC721_RECEIVED("TRC721Received(address,uint256,address)"),
-  TOKEN_WITHDRAWN("TokenWithdrawn(address,uint8,address,uint256,bytes32)"),
-  TOKEN10_WITHDRAWN("Token10Withdrawn(address,uint8,uint256,uint256,bytes32)"),
-  TRC20_MAPPING("TRC20Mapping(address)"),
-  TRC721_MAPPING("TRC721Mapping(address)"),
+  TRX_RECEIVED("TRXReceived(address,uint256,uint256)"),
+  TRC10_RECEIVED("TRC10Received(address,uint256,uint256,uint256)"),
+  TRC20_RECEIVED("TRC20Received(address,uint256,address,uint256)"),
+  TRC721_RECEIVED("TRC721Received(address,uint256,address,uint256)"),
+  TOKEN_WITHDRAWN("TokenWithdrawn(address,uint8,address,uint256,uint256)"),
+  TOKEN10_WITHDRAWN("Token10Withdrawn(address,uint8,trcToken,uint256,uint256)"),
+  TRC20_MAPPING("TRC20Mapping(address,uint256)"),
+  TRC721_MAPPING("TRC721Mapping(address,uint256)"),
   UNKNOWN_EVENT("UnknownEvent");
   private String signature;
 

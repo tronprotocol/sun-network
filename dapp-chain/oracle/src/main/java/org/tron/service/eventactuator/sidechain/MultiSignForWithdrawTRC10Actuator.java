@@ -40,7 +40,7 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
     ByteString transactionIdBS = ByteString.copyFrom(ByteArray.fromHexString(transactionId));
     this.event = MultiSignForWithdrawTRC10Event.newBuilder().setFrom(fromBS).setValue(valueBS)
         .setTrc10(trc10BS).setUserSign(userSignBS).setDataHash(dataHashBS)
-        .setOriginalTransactionId(originalTransactionIdBS).setTransactionId(transactionIdBS)
+        .setOriginalTransactionId(originalTransactionIdBS).setNonce(transactionIdBS)
         .build();
   }
 
@@ -63,7 +63,7 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
     String dataHashStr = ByteArray.toHexString(event.getDataHash().toByteArray());
     String originalTransactionIdStr = ByteArray
         .toHexString(event.getOriginalTransactionId().toByteArray());
-    String transactionIdStr = ByteArray.toHexString(event.getTransactionId().toByteArray());
+    String transactionIdStr = ByteArray.toHexString(event.getNonce().toByteArray());
 
     logger.info(
         "MultiSignForWithdrawTRC10Actuator, from: {}, trc10: {}, value: {}, userSign: {}, dataHash: {}, originalTransactionId: {}, txId: {}",
@@ -87,7 +87,7 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
 
   @Override
   public byte[] getKey() {
-    return event.getTransactionId().toByteArray();
+    return event.getNonce().toByteArray();
   }
 
   @Override
