@@ -34,9 +34,9 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     event WithdrawTRC721(uint256 nonce, address from, uint256 tokenId, address mainChainAddress, bytes userSign);
     event WithdrawTRX(uint256 nonce, address from, uint256 value, bytes userSign);
 
-    event MultiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes userSign, bytes32 dataHash, bytes32 txId);
-    event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes userSign, bytes32 dataHash, bytes32 txId);
-    event MultiSignForWithdrawTRX(address from, uint256 value, bytes userSign, bytes32 dataHash, bytes32 txId);
+    event MultiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes userSign, bytes32 dataHash, uint256 nonce);
+    event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes userSign, bytes32 dataHash, uint256 nonce);
+    event MultiSignForWithdrawTRX(address from, uint256 value, bytes userSign, bytes32 dataHash, uint256 nonce);
     event MultiSignForDeployAndMapping(address mainChainAddress, address sideChainAddress, bytes32 dataHash, bytes32 txId);
 
 
@@ -58,8 +58,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     uint256 bonus;
 
     mapping(bytes32 => mapping(bytes32 => SignMsg)) public depositSigns;
-    mapping(bytes32 => mapping(bytes32 => SignMsg)) public withdrawSigns;
-    mapping(bytes32 => mapping(bytes32 => SignMsg)) public mappingSigns;
+    mapping(uint256 => mapping(bytes32 => SignMsg)) public withdrawSigns;
     SignMsg[] public withdrawStatusSigns;
     mapping(bytes32 => mapping(bytes32 => SignMsg)) public mappingToSideSigns;
     mapping(bytes32 => SignMsg) depositList;
@@ -108,12 +107,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         _;
     }
 
-    function getWithdrawSigns(bytes32 txId, bytes32 dataHash) view returns (bytes[]) {
-        return withdrawSigns[txId][dataHash].signs;
-    }
-
-    function getMappingSigns(bytes32 txId, bytes32 dataHash) view returns (bytes[]) {
-        return mappingSigns[txId][dataHash].signs;
+    function getWithdrawSigns(uint256 nonce, bytes32 dataHash) view returns (bytes[]) {
+        return withdrawSigns[nonce][dataHash].signs;
     }
 
     function modifyOracle(address _oracle, bool isOracle) public onlyOwner {
@@ -382,53 +377,42 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         }
     }
 
-    function multiSignForWithdraw(bytes32 txId, bytes32 dataHash, bytes oracleSign) internal returns (bool) {
+    function multiSignForWithdraw(uint256 nonce, bytes32 dataHash, bytes oracleSign) internal returns (bool) {
 
-        if (withdrawSigns[txId][dataHash].oracleSigned[msg.sender]) {
+        if (withdrawSigns[nonce][dataHash].oracleSigned[msg.sender]) {
             return false;
         }
 
-        withdrawSigns[txId][dataHash].oracleSigned[msg.sender] = true;
-        withdrawSigns[txId][dataHash].signs.push(oracleSign);
-        withdrawSigns[txId][dataHash].signCnt += 1;
+        withdrawSigns[nonce][dataHash].oracleSigned[msg.sender] = true;
+        withdrawSigns[nonce][dataHash].signs.push(oracleSign);
+        withdrawSigns[nonce][dataHash].signCnt += 1;
 
-        if (withdrawSigns[txId][dataHash].signCnt > oracleCnt * 2 / 3 && !withdrawSigns[txId][dataHash].success) {
-            withdrawSigns[txId][dataHash].success = true;
+        if (withdrawSigns[nonce][dataHash].signCnt > oracleCnt * 2 / 3 && !withdrawSigns[nonce][dataHash].success) {
+            withdrawSigns[nonce][dataHash].success = true;
             return true;
         }
         return false;
     }
 
-    function multiSignForMapping(bytes32 txId, bytes32 dataHash, bytes oracleSign) internal returns (bool) {
-
-        if (mappingSigns[txId][dataHash].oracleSigned[msg.sender]) {
-            return false;
-        }
-
-        mappingSigns[txId][dataHash].oracleSigned[msg.sender] = true;
-        mappingSigns[txId][dataHash].signs.push(oracleSign);
-        mappingSigns[txId][dataHash].signCnt += 1;
-
-        if (mappingSigns[txId][dataHash].signCnt > oracleCnt * 2 / 3 && !mappingSigns[txId][dataHash].success) {
-            mappingSigns[txId][dataHash].success = true;
-            return true;
-        }
-        return false;
-    }
-
-    function multiSignForWithdrawTRX(address from, uint256 value, bytes userSign, bytes32 txId, bytes oracleSign) public onlyOracle {
-        bytes32 dataHash = keccak256(abi.encodePacked(from, value, userSign, txId));
-        bool needEmit = multiSignForWithdraw(txId, dataHash, oracleSign);
+    function multiSignForWithdrawTRX(uint256 nonce, bytes oracleSign) public onlyOracle {
+        WithdrawMsg withdrawMsg = userWithdrawList[nonce];
+        bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user,
+            withdrawMsg.valueOrTokenId, withdrawMsg.userSign,nonce));
+        bool needEmit = multiSignForWithdraw(nonce, dataHash, oracleSign);
         if (needEmit) {
-            emit MultiSignForWithdrawTRX(from, value, userSign, dataHash, txId);
+            emit MultiSignForWithdrawTRX(withdrawMsg.user,
+                withdrawMsg.valueOrTokenId, withdrawMsg.userSign, dataHash, nonce);
         }
     }
 
-    function multiSignForWithdrawTRC10(address from, uint256 trc10, uint256 value, bytes userSign, bytes32 txId, bytes oracleSign) public onlyOracle {
-        bytes32 dataHash = keccak256(abi.encodePacked(from, trc10, value, userSign, txId));
-        bool needEmit = multiSignForWithdraw(txId, dataHash, oracleSign);
+    function multiSignForWithdrawTRC10(uint256 nonce, bytes oracleSign) public onlyOracle {
+        WithdrawMsg withdrawMsg = userWithdrawList[nonce];
+        bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.trc10,
+            withdrawMsg.valueOrTokenId, withdrawMsg.userSign,nonce));
+        bool needEmit = multiSignForWithdraw(nonce, dataHash, oracleSign);
         if (needEmit) {
-            emit MultiSignForWithdrawTRC10(from, trc10, value, userSign, dataHash, txId);
+            emit MultiSignForWithdrawTRC10(withdrawMsg.user, withdrawMsg.trc10,
+            withdrawMsg.valueOrTokenId, withdrawMsg.userSign, dataHash, nonce);
         }
     }
 
@@ -436,19 +420,14 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     //      1: trx
     //      2: trc20
     //      3: trc721
-    function multiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes userSign, bytes32 txId, bytes oracleSign) public onlyOracle {
-        bytes32 dataHash = keccak256(abi.encodePacked(from, mainChainAddress, valueOrTokenId, _type, userSign, txId));
-        bool needEmit = multiSignForWithdraw(txId, dataHash, oracleSign);
+    function multiSignForWithdrawToken(uint256 nonce, bytes oracleSign) public onlyOracle {
+        WithdrawMsg withdrawMsg = userWithdrawList[nonce];
+        bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.mainChainAddress,
+            withdrawMsg.valueOrTokenId, withdrawMsg._type, withdrawMsg.userSign,nonce));
+        bool needEmit = multiSignForWithdraw(nonce, dataHash, oracleSign);
         if (needEmit) {
-            emit MultiSignForWithdrawToken(from, mainChainAddress, valueOrTokenId, _type, userSign, dataHash, txId);
-        }
-    }
-
-    function multiSignForDeployAndMapping(address mainChainAddress, address sideChainAddress, bytes32 txId, bytes oracleSign) public onlyOracle {
-        bytes32 dataHash = keccak256(abi.encodePacked(mainChainAddress, sideChainAddress, txId));
-        bool needEmit = multiSignForMapping(txId, dataHash, oracleSign);
-        if (needEmit) {
-            emit MultiSignForDeployAndMapping(mainChainAddress, sideChainAddress, dataHash, txId);
+            emit MultiSignForWithdrawToken(withdrawMsg.user, withdrawMsg.mainChainAddress,
+            withdrawMsg.valueOrTokenId, withdrawMsg._type, withdrawMsg.userSign, dataHash, nonce);
         }
     }
 
