@@ -8,11 +8,13 @@ contract OracleManagerContract is Ownable {
     using ECVerify for bytes32;
 
     mapping(address => address) public allows;
+
+    // TODO: can delete ?
     mapping(address => uint256) public withdrawNonce;
     mapping(address => bool) oracles;
 
     uint256 public numOracles;
-    mapping(uint256 => SignMsg) multiSignList;
+    mapping(uint256 => SignMsg) withdrawMultiSignList;
 
     struct SignMsg {
         mapping(address => bool) signedOracle;
@@ -21,7 +23,7 @@ contract OracleManagerContract is Ownable {
     // address[]  _oracles;
     event NewOracles(address oracle);
 
-    modifier onlyOracle() {require(isOracle(msg.sender),"not oracle");
+    modifier onlyOracle() {require(isOracle(msg.sender), "not oracle");
         _;}
 
     constructor(address _oracle) public {
@@ -41,61 +43,30 @@ contract OracleManagerContract is Ownable {
         emit NewOracles(_oracle);
     }
 
-    function checkGainer(address _to, uint256 num, address contractAddress, bytes sig) internal {
-        bytes32 hash = keccak256(abi.encodePacked(contractAddress, withdrawNonce[_to],num));
-        address sender = hash.recover(sig);
-        require(sender == _to, "Message not signed by a gainer");
-
-    }
-
-    function checkTrc10Gainer(address _to, uint256 num, trcToken tokenId, bytes sig) internal {
-        bytes32 hash = keccak256(abi.encodePacked(uint256(tokenId), withdrawNonce[_to],num));
-        address sender = hash.recover(sig);
-        require(sender == _to, "Message not signed by a gainer");
-    }
-
-    function checkOracles(address _to, address contractAddress, uint256 valueOrUid,uint256 _type, bytes sign, uint256 nonce, bytes[] sigList) internal {
-        SignMsg storage msl = multiSignList[nonce];
-        bytes32 hash = keccak256(abi.encodePacked(_to,contractAddress, valueOrUid,_type, sign, nonce));
+    function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] sigList) internal {
+        SignMsg storage msl = withdrawMultiSignList[nonce];
         for (uint256 i = 0; i < sigList.length; i++) {
-            address _oracle = hash.recover(sigList[i]);
+            address _oracle = dataHash.recover(sigList[i]);
             if (isOracle(_oracle) && !msl.signedOracle[_oracle]) {
                 msl.signedOracle[_oracle] = true;
                 msl.countSign++;
-                if(msl.countSign > numOracles * 2 / 3){
+                if (msl.countSign > numOracles * 2 / 3) {
                     return;
                 }
             }
         }
-        require(msl.countSign > numOracles * 2 / 3, "oracle num not enough 2/3");
-
+        revert("oracle num is not enough 2/3");
     }
 
-    function checkTrxOracles(address _to,  uint256 num, bytes sign, uint256 nonce, bytes[] sigList) internal {
-        SignMsg storage msl = multiSignList[nonce];
-        bytes32 hash = keccak256(abi.encodePacked(_to, num, sign, nonce));
-        for (uint256 i = 0; i < sigList.length; i++) {
-            address _oracle = hash.recover(sigList[i]);
-            if (isOracle(_oracle) && !msl.signedOracle[_oracle]) {
-                msl.signedOracle[_oracle] = true;
-                msl.countSign++;
-                if(msl.countSign > numOracles * 2 / 3){
-                    return;
-                }
-            }
-        }
-        require(msl.countSign > numOracles * 2 / 3, "oracle num not enough 2/3");
-
-    }
     function checkTrc10Oracles(address _to, trcToken tokenId, uint256 num, bytes sign, uint256 nonce, bytes[] sigList) internal {
-        SignMsg storage msl = multiSignList[nonce];
+        SignMsg storage msl = withdrawMultiSignList[nonce];
         bytes32 hash = keccak256(abi.encodePacked(_to, uint256(tokenId), num, sign, nonce));
         for (uint256 i = 0; i < sigList.length; i++) {
             address _oracle = hash.recover(sigList[i]);
             if (isOracle(_oracle)) {
                 msl.signedOracle[_oracle] = true;
                 msl.countSign++;
-                if(msl.countSign > numOracles * 2 / 3){
+                if (msl.countSign > numOracles * 2 / 3) {
                     return;
                 }
             }
@@ -112,13 +83,13 @@ contract OracleManagerContract is Ownable {
     }
 
     function addOracle(address _oracle) public onlyOwner {
-        require(!isOracle(_oracle),"oracle is oracle");
+        require(!isOracle(_oracle), "oracle is oracle");
         oracles[_oracle] = true;
         numOracles++;
     }
 
     function delOracle(address _oracle) public onlyOwner {
-        require(isOracle(_oracle),"oracle is not oracle");
+        require(isOracle(_oracle), "oracle is not oracle");
         oracles[_oracle] = false;
         numOracles--;
     }
