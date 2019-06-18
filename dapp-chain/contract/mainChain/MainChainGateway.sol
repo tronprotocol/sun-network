@@ -4,12 +4,13 @@ pragma experimental ABIEncoderV2;
 import "../common/token/TRC721/TRC721.sol";
 import "../common/token/TRC20/TRC20.sol";
 import "../common/math/SafeMath.sol";
+import "../common/DataModel.sol";
 import "../common/token/TRC721/ITRC721Receiver.sol";
 import "../common/token/TRC20/ITRC20Receiver.sol";
 import "./OracleManagerContract.sol";
 
 
-contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
+contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContract, DataModel {
 
     using SafeMath for uint256;
 
@@ -24,9 +25,9 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
     mapping(uint256 => bool) public withdrawDone;
 
     event TRXReceived(address from, uint256 value, uint256 nonce);
-    event TRC10Received(address from, uint256 value, uint256 tokenId, uint256 nonce);
-    event TRC20Received(address from, uint256 value, address contractAddress, uint256 nonce);
-    event TRC721Received(address from, uint256 uid, address contractAddress, uint256 nonce);
+    event TRC10Received(address from, trcToken tokenId, uint256 value, uint256 nonce);
+    event TRC20Received(address from, address contractAddress, uint256 value, uint256 nonce);
+    event TRC721Received(address from, address contractAddress, uint256 uid, uint256 nonce);
     event TRC20Mapping(address contractAddress, uint256 nonce);
     event TRC721Mapping(address contractAddress, uint256 nonce);
     /**
@@ -46,43 +47,20 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
     MappingMsg[] userMappingList;
 
     struct DepositMsg {
-        // _type:
-        // 1: trx
-        // 2: trc20
-        // 3: trc721
-        // 4: trc10
-        uint8 _type;
         address user;
-        uint256 valueOrUid;
-        uint256 tokenId;
         address mainChainAddress;
-        // status:
-        // 0: locking
-        // 1: success
-        // 2: fail
-        // 3: refunded
-        uint8 status;
+        trcToken tokenId;
+        uint256 valueOrUid;
+        TokenKind _type;
+        Status status;
     }
 
     struct MappingMsg {
-        // _type:
-        // 2: trc20
-        // 3: trc721
-        uint8 _type;
         address mainChainAddress;
-        // status:
-        // 0: locking
-        // 1: success
-        // 2: fail
-        // 3: refunded
-        uint8 status;
+        TokenKind _type;
+        Status status;
     }
-    enum TokenKind {
-        TRX,
-        TRC10,
-        TRC20,
-        TRC721
-    }
+
 
     constructor (address _oracle)
     public OracleManagerContract(_oracle) {
@@ -152,33 +130,33 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
 
     // Approve and Deposit function for 2-step deposits
     // Requires first to have called `approve` on the specified TRC20 contract
-    function depositTRC20(uint256 value, address contractAddress) public {
+    function depositTRC20( address contractAddress, uint256 value) public {
         require(mainToSideContractMap[contractAddress] == 1, "Not an allowe token");
         require(value > 0, "value must > 0");
         TRC20(contractAddress).transferFrom(msg.sender, address(this), value);
-        userDepositList.push(DepositMsg(2, msg.sender, value, 0, contractAddress, 0));
+        userDepositList.push(DepositMsg( msg.sender, contractAddress, 0, value, TokenKind.TRC20, Status.locking));
         balances.trc20[contractAddress] = balances.trc20[contractAddress].add(value);
-        emit TRC20Received(msg.sender, value, contractAddress, userDepositList.length - 1);
+        emit TRC20Received(msg.sender,contractAddress, value,  userDepositList.length - 1);
     }
 
-    function depositTRC721(uint256 uid, address contractAddress) public {
+    function depositTRC721( address contractAddress, uint256 uid) public {
         require(mainToSideContractMap[contractAddress] == 1, "Not an allowe token");
         TRC721(contractAddress).transferFrom(msg.sender, address(this), uid);
-        userDepositList.push(DepositMsg(3, msg.sender, uid, 0, contractAddress, 0));
+        userDepositList.push(DepositMsg( msg.sender, contractAddress, 0, uid ,TokenKind.TRC721, Status.locking));
         balances.trc721[contractAddress][uid] = true;
-        emit TRC721Received(msg.sender, uid, contractAddress, userDepositList.length - 1);
+        emit TRC721Received(msg.sender,contractAddress, uid,  userDepositList.length - 1);
     }
 
     function depositTRX() payable public {
         require(msg.value > 0, "tokenvalue must > 0");
-        userDepositList.push(DepositMsg(1, msg.sender, msg.value, 0, address(0), 0));
+        userDepositList.push(DepositMsg( msg.sender, address(0), 0, msg.value, TokenKind.TRX, Status.locking));
         balances.tron = balances.tron.add(msg.value);
         emit TRXReceived(msg.sender, msg.value, userDepositList.length - 1);
     }
 
     function depositTRC10() payable public {
         require(msg.tokenvalue > 0, "tokenvalue must > 0");
-        userDepositList.push(DepositMsg(4, msg.sender, msg.tokenvalue, msg.tokenid, address(0), 0));
+        userDepositList.push(DepositMsg( msg.sender,  address(0), msg.tokenid, msg.tokenvalue, TokenKind.TRC10, Status.locking));
         balances.trc10[msg.tokenid] = balances.trc10[msg.tokenid].add(msg.tokenvalue);
         emit TRC10Received(msg.sender, msg.tokenvalue, msg.tokenid, userDepositList.length - 1);
     }
@@ -191,9 +169,9 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
     returns (bytes4)
     {
         require(mainToSideContractMap[msg.sender] == 1, "Not an allowe token");
-        userDepositList.push(DepositMsg(2, _from, value, 0, msg.sender, 0));
+        userDepositList.push(DepositMsg( _from, msg.sender, 0, value, TokenKind.TRC20, Status.locking));
         _depositTRC20(value);
-        emit TRC20Received(_from, value, msg.sender, userDepositList.length - 1);
+        emit TRC20Received(_from, msg.sender, value, userDepositList.length - 1);
         return _TRC20_RECEIVED;
     }
 
@@ -202,9 +180,9 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
     returns (bytes4)
     {
         require(mainToSideContractMap[msg.sender] == 1, "Not an allowe token");
-        userDepositList.push(DepositMsg(3, _from, _uid, 0, msg.sender, 0));
+        userDepositList.push(DepositMsg( _from,  msg.sender, 0, _uid, TokenKind.TRC721, Status.locking));
         _depositTRC721(_uid);
-        emit TRC721Received(_from, _uid, msg.sender, userDepositList.length - 1);
+        emit TRC721Received(_from, msg.sender, _uid, userDepositList.length - 1);
         return _TRC721_RECEIVED;
     }
 
@@ -224,7 +202,7 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
         uint256 size;
         assembly {size := extcodesize(trc20Address)}
         require(size > 0);
-        userMappingList.push(MappingMsg(1, trc20Address, 0));
+        userMappingList.push(MappingMsg( trc20Address,TokenKind.TRC20, Status.locking));
         mainToSideContractMap[trc20Address] = 1;
         emit TRC20Mapping(trc20Address, userMappingList.length - 1);
     }
@@ -238,7 +216,7 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
         uint256 size;
         assembly {size := extcodesize(trc721Address)}
         require(size > 0);
-        userMappingList.push(MappingMsg(2, trc721Address, 0));
+        userMappingList.push(MappingMsg( trc721Address,TokenKind.TRC721, Status.locking));
         mainToSideContractMap[trc721Address] = 1;
         emit TRC721Mapping(trc721Address, userMappingList.length - 1);
     }

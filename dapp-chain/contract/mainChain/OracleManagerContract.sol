@@ -8,9 +8,6 @@ contract OracleManagerContract is Ownable {
     using ECVerify for bytes32;
 
     mapping(address => address) public allows;
-
-    // TODO: can delete ?
-    mapping(address => uint256) public withdrawNonce;
     mapping(address => bool) oracles;
 
     uint256 public numOracles;
