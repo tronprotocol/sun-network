@@ -8,9 +8,9 @@ contract DataModel {
         TRC721
     }
     enum Status {
-        locking,
-        success,
-        fail,
-        refunded
+        LOCKING,
+        SUCCESS,
+        FAIL,
+        REFUNDED
     }
 }
