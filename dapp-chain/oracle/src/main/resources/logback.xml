@@ -58,6 +58,7 @@
   <logger name="rpcClient" level="INFO"/>
   <logger name="rpcClient" level="INFO"/>
   <logger name="eventTask" level="INFO"/>
+  <logger name="actuatorRun" level="INFO"/>
 
 </configuration>
 

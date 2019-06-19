@@ -14,10 +14,10 @@ public class TransactionExtensionCapsule {
 
   public TransactionExtensionCapsule(TaskEnum type, String nonceKey,
       Transaction transaction) {
-    byte[] trxId = Sha256Hash.hash(transaction.getRawData().toByteArray());
+    byte[] txId = Sha256Hash.hash(transaction.getRawData().toByteArray());
     instance = TransactionExtension.newBuilder().setTaskEnum(type)
         .setNonceKey(ByteString.copyFrom(ByteArray.fromString(nonceKey)))
-        .setTransactionId(ByteString.copyFrom(trxId)).setTransaction(transaction);
+        .setTransactionId(ByteString.copyFrom(txId)).setTransaction(transaction);
   }
 
   public TransactionExtensionCapsule(byte[] data) throws InvalidProtocolBufferException {
