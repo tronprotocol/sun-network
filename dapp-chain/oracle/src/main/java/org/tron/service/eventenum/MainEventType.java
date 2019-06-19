@@ -5,8 +5,13 @@ public enum MainEventType implements EventType {
   TRC10_RECEIVED("TRC10Received(address,uint256,uint256,uint256)"),
   TRC20_RECEIVED("TRC20Received(address,uint256,address,uint256)"),
   TRC721_RECEIVED("TRC721Received(address,uint256,address,uint256)"),
-  TOKEN_WITHDRAWN("TokenWithdrawn(address,uint8,address,uint256,uint256)"),
-  TOKEN10_WITHDRAWN("Token10Withdrawn(address,uint8,trcToken,uint256,uint256)"),
+  TRX_WITHDRAW("TRXWithdraw(address  owner,  uint256 value, uint256 nonce);"),
+  TRC10_WITHDRAW(
+      "TRC10Withdraw(address  owner,  trcToken tokenId, uint256 value, uint256 nonce)"),
+  TRC20_WITHDRAW(
+      "TRC20Withdraw(address  owner,  address contractAddress, uint256 value, uint256 nonce);"),
+  TRC721_WITHDRAW(
+      "TRC721Withdraw(address  owner,  address contractAddress, uint256 uid, uint256 nonce);"),
   TRC20_MAPPING("TRC20Mapping(address,uint256)"),
   TRC721_MAPPING("TRC721Mapping(address,uint256)"),
   UNKNOWN_EVENT("UnknownEvent");
