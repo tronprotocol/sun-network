@@ -28,8 +28,7 @@ public class ActuatorRun {
     executor.submit(() -> {
       TransactionExtensionCapsule txExtensionCapsule = null;
       try {
-        txExtensionCapsule = eventActuator
-            .createTransactionExtensionCapsule();
+        txExtensionCapsule = eventActuator.createTransactionExtensionCapsule();
       } catch (RpcConnectException e) {
         AlertUtil.sendAlert("createTransactionExtensionCapsule fail, system exit");
         System.exit(1);

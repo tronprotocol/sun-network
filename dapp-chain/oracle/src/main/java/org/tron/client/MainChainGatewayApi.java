@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.encoders.Hex;
 import org.tron.common.config.Args;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.common.exception.TxExpiredException;
 import org.tron.common.exception.TxFailException;
 import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
@@ -177,7 +178,7 @@ public class MainChainGatewayApi {
   }
 
   public static boolean broadcast(Transaction transaction)
-      throws RpcConnectException, TxValidateException {
+      throws RpcConnectException, TxValidateException, TxExpiredException {
     return GATEWAY_API.getInstance().broadcast(transaction);
   }
 }

@@ -15,9 +15,10 @@ import org.tron.common.config.SystemSetting;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.crypto.ECKey.ECDSASignature;
 import org.tron.common.exception.RpcConnectException;
-import org.tron.common.exception.TxValidateException;
-import org.tron.common.exception.TxRollbackException;
+import org.tron.common.exception.TxExpiredException;
 import org.tron.common.exception.TxFailException;
+import org.tron.common.exception.TxRollbackException;
+import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.Base58;
 import org.tron.common.utils.ByteArray;
@@ -30,7 +31,6 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.Protocol.TransactionInfo.code;
-import org.tron.service.check.TransactionExtensionCapsule;
 
 @Slf4j
 public class WalletClient {
@@ -238,7 +238,7 @@ public class WalletClient {
   }
 
   public boolean broadcast(Transaction transaction)
-      throws RpcConnectException, TxValidateException {
+      throws RpcConnectException, TxValidateException, TxExpiredException {
     return rpcCli.broadcastTransaction(transaction);
   }
 

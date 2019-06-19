@@ -14,6 +14,7 @@ import org.tron.api.GrpcAPI.Return.response_code;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.WalletGrpc;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.common.exception.TxExpiredException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Sha256Hash;
@@ -45,7 +46,7 @@ class RpcClient {
   }
 
   boolean broadcastTransaction(Transaction signaturedTransaction)
-      throws RpcConnectException, TxValidateException {
+      throws RpcConnectException, TxValidateException, TxExpiredException {
     String txId = Hex
         .toHexString(Sha256Hash.hash(signaturedTransaction.getRawData().toByteArray()));
     logger.info("tx id: {}", txId);
@@ -68,6 +69,9 @@ class RpcClient {
           }
         } else if (response.getCode().equals(response_code.DUP_TRANSACTION_ERROR)) {
           logger.info("this tx has broadcasted");
+        } else if (response.getCode().equals(response_code.TRANSACTION_EXPIRATION_ERROR)) {
+          logger.info("transaction expired");
+          throw new TxExpiredException("tx error, " + response.getMessage().toStringUtf8());
         } else {
           logger.error("tx error, fail, code: {}, message {}", response.getCode(),
               response.getMessage().toStringUtf8());
