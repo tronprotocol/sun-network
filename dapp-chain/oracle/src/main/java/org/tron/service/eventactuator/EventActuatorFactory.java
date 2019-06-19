@@ -93,67 +93,56 @@ public class EventActuatorFactory {
     switch (eventType) {
       case WITHDRAW_TRC10: {
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
-        task = new WithdrawTRC10Actuator(dataMap.get("nonce").toString(),
-            dataMap.get("from").toString(), dataMap.get("value").toString(),
-            dataMap.get("trc10").toString(), dataMap.get("userSign").toString());
+        task = new WithdrawTRC10Actuator(dataMap.get("from").toString(),
+            dataMap.get("tokenId").toString(), dataMap.get("value").toString(),
+            dataMap.get("nonce").toString());
         return task;
       }
       case WITHDRAW_TRC20: {
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
-        task = new WithdrawTRC20Actuator(dataMap.get("nonce").toString(),
-            dataMap.get("from").toString(), dataMap.get("value").toString(),
-            dataMap.get("mainChainAddress").toString(), dataMap.get("userSign").toString());
+        task = new WithdrawTRC20Actuator(dataMap.get("from").toString(),
+            dataMap.get("mainChainAddress").toString(), dataMap.get("value").toString(),
+            dataMap.get("nonce").toString());
         return task;
       }
       case WITHDRAW_TRC721: {
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
-        task = new WithdrawTRC721Actuator(dataMap.get("nonce").toString(),
-            dataMap.get("from").toString(), dataMap.get("tokenId").toString(),
-            dataMap.get("mainChainAddress").toString(), dataMap.get("userSign").toString());
+        task = new WithdrawTRC721Actuator(dataMap.get("from").toString(),
+            dataMap.get("mainChainAddress").toString(), dataMap.get("uId").toString(),
+            dataMap.get("nonce").toString());
         return task;
       }
       case WITHDRAW_TRX: {
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
-        task = new WithdrawTRXActuator(dataMap.get("nonce").toString(),
-            dataMap.get("from").toString(), dataMap.get("value").toString(),
-            dataMap.get("userSign").toString());
-        return task;
-      }
-      case MULTISIGN_FOR_WITHDRAW_TRX: {
-        String txId = obj.get("transactionId").toString();
-        JSONObject dataMap = (JSONObject) obj.get("dataMap");
-        task = new MultiSignForWithdrawTRXActuator(dataMap.get("from").toString(),
-            dataMap.get("value").toString(), dataMap.get("userSign").toString(),
-            dataMap.get("dataHash").toString(), dataMap.get("txId").toString(), txId);
+        task = new WithdrawTRXActuator(dataMap.get("from").toString(),
+            dataMap.get("value").toString(), dataMap.get("nonce").toString());
         return task;
       }
       case MULTISIGN_FOR_WITHDRAW_TRC10: {
-        String txId = obj.get("transactionId").toString();
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
         task = new MultiSignForWithdrawTRC10Actuator(dataMap.get("from").toString(),
-            dataMap.get("trc10").toString(), dataMap.get("value").toString(),
-            dataMap.get("userSign").toString(), dataMap.get("dataHash").toString(),
-            dataMap.get("txId").toString(), txId);
+            dataMap.get("tokenId").toString(), dataMap.get("value").toString(),
+            dataMap.get("nonce").toString());
         return task;
       }
       case MULTISIGN_FOR_WITHDRAW_TRC20: {
-        String txId = obj.get("transactionId").toString();
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
         task = new MultiSignForWithdrawTRC20Actuator(dataMap.get("from").toString(),
-            dataMap.get("mainChainAddress").toString(),
-            dataMap.get("valueOrTokenId").toString(), dataMap.get("_type").toString(),
-            dataMap.get("userSign").toString(), dataMap.get("dataHash").toString(),
-            dataMap.get("txId").toString(), txId);
+            dataMap.get("mainChainAddress").toString(), dataMap.get("value").toString(),
+            dataMap.get("nonce").toString());
         return task;
       }
       case MULTISIGN_FOR_WITHDRAW_TRC721: {
-        String txId = obj.get("transactionId").toString();
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
         task = new MultiSignForWithdrawTRC721Actuator(dataMap.get("from").toString(),
-            dataMap.get("mainChainAddress").toString(),
-            dataMap.get("valueOrTokenId").toString(), dataMap.get("_type").toString(),
-            dataMap.get("userSign").toString(), dataMap.get("dataHash").toString(),
-            dataMap.get("txId").toString(), txId);
+            dataMap.get("mainChainAddress").toString(), dataMap.get("uId").toString(),
+            dataMap.get("nonce").toString());
+        return task;
+      }
+      case MULTISIGN_FOR_WITHDRAW_TRX: {
+        JSONObject dataMap = (JSONObject) obj.get("dataMap");
+        task = new MultiSignForWithdrawTRXActuator(dataMap.get("from").toString(),
+            dataMap.get("value").toString(), dataMap.get("nonce").toString());
         return task;
       }
       default: {

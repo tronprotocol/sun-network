@@ -71,87 +71,74 @@ public class SideChainGatewayApi {
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static Transaction withdrawTRXTransaction(String from, String value, String userSign,
-      String txId) throws RpcConnectException {
+  public static Transaction withdrawTRC10Transaction(String from, String tokenId, String value,
+      String nonce) throws RpcConnectException {
 
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
+    byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
     byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
-    // FIXME: right ? hx string in log ?
-    byte[] userSignBytes = ByteArray.fromHexString(userSign);
-    byte[] txIdBytes = ByteArray.fromHexString(txId);
+    byte[] nonceBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
     byte[] data = ByteUtil
-        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), valueBytes, userSignBytes,
-            txIdBytes);
+        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), tokenIdBytes, valueBytes,
+            nonceBytes);
     String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "multiSignForWithdrawTRX(address,uint256,bytes,bytes32,bytes)";
-    List params = Arrays.asList(from, value, userSign, txId, ownSign);
-    return GATEWAY_API.getInstance()
-        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
-  }
-
-  public static Transaction withdrawTRC10Transaction(String from, String trc10, String value,
-      String userSign, String nonce) throws RpcConnectException {
-
-    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
-    byte[] trc10Bytes = new DataWord((new BigInteger(trc10, 10)).toByteArray()).getData();
-    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
-    // FIXME: right ? hx string in log ?
-    byte[] userSignBytes = ByteArray.fromHexString(userSign);
-    byte[] data = ByteUtil
-        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), trc10Bytes, valueBytes,
-            userSignBytes);
-    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
-
-    byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "multiSignForWithdrawTRC10(address,uint256,uint256,bytes,bytes32,uint256)";
-    List params = Arrays.asList(from, trc10, value, userSign, ownSign, nonce);
+    String method = "multiSignForWithdrawTRC10(uint256,bytes)";
+    List params = Arrays.asList(nonce, ownSign);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
   public static Transaction withdrawTRC20Transaction(String from, String mainChainAddress,
-      String value, String userSign, String txId) throws RpcConnectException {
+      String value, String nonce) throws RpcConnectException {
 
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
     byte[] mainChainAddressBytes = WalletUtil.decodeFromBase58Check(mainChainAddress);
     byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
-    long type = 2;
-    byte[] typeBytes = new DataWord(type).getData();
-    // FIXME: right ? hx string in log ?
-    byte[] userSignBytes = ByteArray.fromHexString(userSign);
-    byte[] txIdBytes = ByteArray.fromHexString(txId);
+    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
     byte[] data = ByteUtil.merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length),
         Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length), valueBytes,
-        typeBytes, userSignBytes, txIdBytes);
+        nonceBytes);
     String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "multiSignForWithdrawToken(address,address,uint256,uint256,bytes,bytes32,bytes)";
-    List params = Arrays.asList(from, mainChainAddress, value, type, userSign, txId, ownSign);
+    String method = "multiSignForWithdrawTRC20(uint256,bytes)";
+    List params = Arrays.asList(nonce, ownSign);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
   public static Transaction withdrawTRC721Transaction(String from, String mainChainAddress,
-      String tokenId, String userSign, String txId) throws RpcConnectException {
+      String uId, String nonce) throws RpcConnectException {
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
     byte[] mainChainAddressBytes = WalletUtil.decodeFromBase58Check(mainChainAddress);
-    byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
-    long type = 3;
-    byte[] typeBytes = new DataWord(type).getData();
-    // FIXME: right ? hx string in log ?
-    byte[] userSignBytes = ByteArray.fromHexString(userSign);
-    byte[] txIdBytes = ByteArray.fromHexString(txId);
+    byte[] uIdBytes = new DataWord((new BigInteger(uId, 10)).toByteArray()).getData();
+    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
     byte[] data = ByteUtil.merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length),
-        Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length), tokenIdBytes,
-        typeBytes, userSignBytes, txIdBytes);
+        Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length), uIdBytes,
+        nonceBytes);
     String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "multiSignForWithdrawToken(address,address,uint256,uint256,bytes,bytes32,bytes)";
-    List params = Arrays.asList(from, mainChainAddress, tokenId, type, userSign, txId, ownSign);
+    String method = "multiSignForWithdrawTRC721(uint256,bytes)";
+    List params = Arrays.asList(nonce, ownSign);
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
+  }
+
+  public static Transaction withdrawTRXTransaction(String from, String value, String nonce)
+      throws RpcConnectException {
+    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
+    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
+    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
+    byte[] data = ByteUtil
+        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), valueBytes, nonceBytes);
+    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    String method = "multiSignForWithdrawTRX(uint256,bytes)";
+    List params = Arrays.asList(nonce, ownSign);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
@@ -218,11 +205,10 @@ public class SideChainGatewayApi {
     }
   }
 
-  public static List<String> getWithdrawOracleSigns(String txId, String dataHash)
-      throws RpcConnectException {
+  public static List<String> getWithdrawOracleSigns(String nonce) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "getWithdrawSigns(bytes32,bytes32)";
-    List params = Arrays.asList(txId, dataHash);
+    String method = "getWithdrawSigns(uint256)";
+    List params = Arrays.asList(nonce);
     byte[] ret = GATEWAY_API.getInstance()
         .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
     return AbiUtil.unpackOracleSigns(ret);

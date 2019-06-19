@@ -31,7 +31,7 @@ public class MappingTRC20Actuator extends Actuator {
   public MappingTRC20Actuator(String contractAddress, String nonce) {
     ByteString contractAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(contractAddress));
-    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromHexString(nonce));
+    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
     this.event = MappingTRC20Event.newBuilder().setContractAddress(contractAddressBS)
         .setNonce(nonceBS).build();
   }
@@ -48,7 +48,7 @@ public class MappingTRC20Actuator extends Actuator {
     }
 
     String contractAddressStr = WalletUtil.encode58Check(event.getContractAddress().toByteArray());
-    String nonceStr = ByteArray.toHexString(event.getNonce().toByteArray());
+    String nonceStr = event.getNonce().toStringUtf8();
 
     long trcDecimals = MainChainGatewayApi.getTRCDecimals(contractAddressStr);
     String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);

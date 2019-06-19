@@ -56,8 +56,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     uint256 withdrawMinTrc20 = 0;
     uint256 bonus;
 
-    // FIXME: just use nonce? one-level mapping
-
     mapping(uint256 => SignMsg) public depositSigns;
     mapping(uint256 => SignMsg) public withdrawSigns;
     mapping(uint256 => SignMsg) public mappingSigns;

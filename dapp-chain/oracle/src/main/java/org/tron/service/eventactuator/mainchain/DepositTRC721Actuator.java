@@ -52,7 +52,7 @@ public class DepositTRC721Actuator extends Actuator {
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
     String uidStr = event.getUId().toStringUtf8();
     String contractAddressStr = WalletUtil.encode58Check(event.getContractAddress().toByteArray());
-    String nonceStr = ByteArray.toHexString(event.getNonce().toByteArray());
+    String nonceStr = event.getNonce().toStringUtf8();
     logger.info(
         "DepositTRC721Actuator, from: {}, tokenId: {}, contractAddress: {}, nonce: {}",
         fromStr, uidStr, contractAddressStr, nonceStr);

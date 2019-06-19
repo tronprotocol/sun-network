@@ -30,7 +30,7 @@ public class DepositTRXActuator extends Actuator {
   public DepositTRXActuator(String from, String value, String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
-    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromHexString(nonce));
+    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
     this.event = DepositTRXEvent.newBuilder().setFrom(fromBS).setValue(valueBS)
         .setNonce(nonceBS).build();
   }
@@ -47,7 +47,7 @@ public class DepositTRXActuator extends Actuator {
     }
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
     String valueStr = event.getValue().toStringUtf8();
-    String nonceStr = ByteArray.toHexString(event.getNonce().toByteArray());
+    String nonceStr = event.getNonce().toStringUtf8();
 
     logger.info("DepositTRXActuator, from: {}, value: {}, nonce: {}", fromStr, valueStr,
         nonceStr);

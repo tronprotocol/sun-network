@@ -56,7 +56,7 @@ public class EventTask {
           continue;
         }
 
-        if (eventActuator.getNonce() != null && nonceStore.exist(eventActuator.getNonceKey())) {
+        if (nonceStore.exist(eventActuator.getNonceKey())) {
           // TODO: handle expire
           byte[] txExtensionBytes = TransactionExtensionStore.getInstance()
               .getData(eventActuator.getNonceKey());
@@ -76,6 +76,7 @@ public class EventTask {
           if (eventActuator.getNonce() != null) {
             nonceStore.putData(eventActuator.getNonceKey(), eventActuator.getNonceKey());
           }
+
           ActuatorRun.getInstance().start(eventActuator);
         }
         this.kfkConsumer.commit();
