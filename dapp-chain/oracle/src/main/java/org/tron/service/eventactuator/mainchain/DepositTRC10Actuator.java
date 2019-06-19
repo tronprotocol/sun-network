@@ -27,10 +27,8 @@ public class DepositTRC10Actuator extends Actuator {
   private DepositTRC10Event event;
   @Getter
   private EventType type = EventType.DEPOSIT_TRC10_EVENT;
-  private String nonceKey;
 
   public DepositTRC10Actuator(String from, String trc10, String value, String nonce) {
-    this.nonceKey = NONCE_TAG + nonce;
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString trc10BS = ByteString.copyFrom(ByteArray.fromString(trc10));
@@ -68,9 +66,9 @@ public class DepositTRC10Actuator extends Actuator {
         assetIssue.getPrecision());
     Transaction tx = SideChainGatewayApi
         .mintToken10Transaction(fromStr, trc10Str, valueStr, assetIssue.getName().toStringUtf8(),
-            assetIssue.getName().toStringUtf8(), assetIssue.getPrecision(), nonceKey);
+            assetIssue.getName().toStringUtf8(), assetIssue.getPrecision(), nonceStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        nonceStr, tx);
+        NONCE_TAG + nonceStr, tx);
     return this.transactionExtensionCapsule;
   }
 
@@ -81,7 +79,7 @@ public class DepositTRC10Actuator extends Actuator {
 
   @Override
   public byte[] getNonceKey() {
-    return ByteArray.fromString(nonceKey);
+    return ByteArray.fromString(NONCE_TAG + event.getNonce().toStringUtf8());
   }
 
   @Override

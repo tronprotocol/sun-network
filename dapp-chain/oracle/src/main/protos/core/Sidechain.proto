@@ -47,24 +47,24 @@ message EventMsg {
 
 message DepositTRC10Event {
   bytes from = 1;
-  bytes value = 2;
-  bytes trc10 = 3;
+  bytes trc10 = 2;
+  bytes value = 3;
   bytes nonce = 4;
 }
 
 // Update account name. Account name is not unique now.
 message DepositTRC20Event {
   bytes from = 1;
-  bytes value = 2;
-  bytes contract_address = 3;
+  bytes contract_address = 2;
+  bytes value = 3;
   bytes nonce = 4;
 }
 
 // Set account id if the account has no id. Account id is unique and case insensitive.
 message DepositTRC721Event {
   bytes from = 1;
-  bytes token_id = 2;
-  bytes contract_address = 3;
+  bytes contract_address = 2;
+  bytes token_id = 3;
   bytes nonce = 4;
 }
 
@@ -75,13 +75,13 @@ message DepositTRXEvent {
 }
 
 message MappingTRC20Event {
-  bytes contract_address = 3;
-  bytes nonce = 4;
+  bytes contract_address = 1;
+  bytes nonce = 2;
 }
 
 message MappingTRC721Event {
-  bytes contract_address = 3;
-  bytes nonce = 4;
+  bytes contract_address = 1;
+  bytes nonce = 2;
 }
 
 message MultiSignForWithdrawTokenEvent {
