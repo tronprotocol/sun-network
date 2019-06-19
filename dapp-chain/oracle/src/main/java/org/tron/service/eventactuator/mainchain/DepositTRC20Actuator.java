@@ -21,6 +21,8 @@ import org.tron.service.eventactuator.Actuator;
 @Slf4j(topic = "mainChainTask")
 public class DepositTRC20Actuator extends Actuator {
 
+  private static final String NONCE_TAG = "deposit_";
+
   private DepositTRC20Event event;
   @Getter
   private EventType type = EventType.DEPOSIT_TRC20_EVENT;
@@ -31,7 +33,7 @@ public class DepositTRC20Actuator extends Actuator {
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString contractAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(contractAddress));
-    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromHexString(nonce));
+    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
     this.event = DepositTRC20Event.newBuilder().setFrom(fromBS).setValue(valueBS)
         .setContractAddress(contractAddressBS).setNonce(nonceBS).build();
   }
@@ -50,7 +52,7 @@ public class DepositTRC20Actuator extends Actuator {
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
     String valueStr = event.getValue().toStringUtf8();
     String contractAddressStr = WalletUtil.encode58Check(event.getContractAddress().toByteArray());
-    String nonceStr = ByteArray.toHexString(event.getNonce().toByteArray());
+    String nonceStr = event.getNonce().toStringUtf8();
 
     logger.info("DepositTRC20Actuator, from: {}, value: {}, contractAddress: {}, nonce: {}",
         fromStr, valueStr, contractAddressStr, nonceStr);
@@ -58,7 +60,7 @@ public class DepositTRC20Actuator extends Actuator {
     Transaction tx = SideChainGatewayApi
         .mintToken20Transaction(fromStr, contractAddressStr, valueStr, nonceStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        nonceStr, tx);
+        NONCE_TAG + nonceStr, tx);
     return this.transactionExtensionCapsule;
   }
 
@@ -69,12 +71,12 @@ public class DepositTRC20Actuator extends Actuator {
 
   @Override
   public byte[] getNonceKey() {
-    return event.getNonce().toByteArray();
+    return ByteArray.fromString(NONCE_TAG + event.getNonce().toStringUtf8());
   }
 
   @Override
   public byte[] getNonce() {
-    return null;
+    return event.getNonce().toByteArray();
   }
 
 }

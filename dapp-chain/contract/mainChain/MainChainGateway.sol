@@ -8,9 +8,11 @@ import "../common/DataModel.sol";
 import "../common/token/TRC721/ITRC721Receiver.sol";
 import "../common/token/TRC20/ITRC20Receiver.sol";
 import "./OracleManagerContract.sol";
+import "../common/DataModel.sol";
+import "../common/DataModel.sol";
 
 
-contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContract, DataModel {
+contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
 
     using SafeMath for uint256;
 
@@ -51,14 +53,14 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
         address mainChainAddress;
         trcToken tokenId;
         uint256 valueOrUid;
-        TokenKind _type;
-        Status status;
+        DataModel.TokenKind _type;
+        DataModel.Status status;
     }
 
     struct MappingMsg {
         address mainChainAddress;
-        TokenKind _type;
-        Status status;
+        DataModel.TokenKind _type;
+        DataModel.Status status;
     }
 
 
@@ -134,7 +136,7 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
         require(mainToSideContractMap[contractAddress] == 1, "Not an allowe token");
         require(value > 0, "value must > 0");
         TRC20(contractAddress).transferFrom(msg.sender, address(this), value);
-        userDepositList.push(DepositMsg( msg.sender, contractAddress, 0, value, TokenKind.TRC20, Status.locking));
+        userDepositList.push(DepositMsg( msg.sender, contractAddress, 0, value, DataModel.TokenKind.TRC20, DataModel.Status.SUCCESS));
         balances.trc20[contractAddress] = balances.trc20[contractAddress].add(value);
         emit TRC20Received(msg.sender,contractAddress, value,  userDepositList.length - 1);
     }
@@ -142,21 +144,21 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
     function depositTRC721( address contractAddress, uint256 uid) public {
         require(mainToSideContractMap[contractAddress] == 1, "Not an allowe token");
         TRC721(contractAddress).transferFrom(msg.sender, address(this), uid);
-        userDepositList.push(DepositMsg( msg.sender, contractAddress, 0, uid ,TokenKind.TRC721, Status.locking));
+        userDepositList.push(DepositMsg( msg.sender, contractAddress, 0, uid ,DataModel.TokenKind.TRC721, DataModel.Status.SUCCESS));
         balances.trc721[contractAddress][uid] = true;
         emit TRC721Received(msg.sender,contractAddress, uid,  userDepositList.length - 1);
     }
 
     function depositTRX() payable public {
         require(msg.value > 0, "tokenvalue must > 0");
-        userDepositList.push(DepositMsg( msg.sender, address(0), 0, msg.value, TokenKind.TRX, Status.locking));
+        userDepositList.push(DepositMsg( msg.sender, address(0), 0, msg.value, DataModel.TokenKind.TRX, DataModel.Status.SUCCESS));
         balances.tron = balances.tron.add(msg.value);
         emit TRXReceived(msg.sender, msg.value, userDepositList.length - 1);
     }
 
     function depositTRC10() payable public {
         require(msg.tokenvalue > 0, "tokenvalue must > 0");
-        userDepositList.push(DepositMsg( msg.sender,  address(0), msg.tokenid, msg.tokenvalue, TokenKind.TRC10, Status.locking));
+        userDepositList.push(DepositMsg( msg.sender,  address(0), msg.tokenid, msg.tokenvalue, DataModel.TokenKind.TRC10, DataModel.Status.SUCCESS));
         balances.trc10[msg.tokenid] = balances.trc10[msg.tokenid].add(msg.tokenvalue);
         emit TRC10Received(msg.sender, msg.tokenvalue, msg.tokenid, userDepositList.length - 1);
     }
@@ -169,7 +171,7 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
     returns (bytes4)
     {
         require(mainToSideContractMap[msg.sender] == 1, "Not an allowe token");
-        userDepositList.push(DepositMsg( _from, msg.sender, 0, value, TokenKind.TRC20, Status.locking));
+        userDepositList.push(DepositMsg( _from, msg.sender, 0, value, DataModel.TokenKind.TRC20, DataModel.Status.SUCCESS));
         _depositTRC20(value);
         emit TRC20Received(_from, msg.sender, value, userDepositList.length - 1);
         return _TRC20_RECEIVED;
@@ -180,7 +182,7 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
     returns (bytes4)
     {
         require(mainToSideContractMap[msg.sender] == 1, "Not an allowe token");
-        userDepositList.push(DepositMsg( _from,  msg.sender, 0, _uid, TokenKind.TRC721, Status.locking));
+        userDepositList.push(DepositMsg( _from,  msg.sender, 0, _uid, DataModel.TokenKind.TRC721, DataModel.Status.SUCCESS));
         _depositTRC721(_uid);
         emit TRC721Received(_from, msg.sender, _uid, userDepositList.length - 1);
         return _TRC721_RECEIVED;
@@ -202,7 +204,7 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
         uint256 size;
         assembly {size := extcodesize(trc20Address)}
         require(size > 0);
-        userMappingList.push(MappingMsg( trc20Address,TokenKind.TRC20, Status.locking));
+        userMappingList.push(MappingMsg( trc20Address,DataModel.TokenKind.TRC20, DataModel.Status.SUCCESS));
         mainToSideContractMap[trc20Address] = 1;
         emit TRC20Mapping(trc20Address, userMappingList.length - 1);
     }
@@ -216,11 +218,40 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
         uint256 size;
         assembly {size := extcodesize(trc721Address)}
         require(size > 0);
-        userMappingList.push(MappingMsg( trc721Address,TokenKind.TRC721, Status.locking));
+        userMappingList.push(MappingMsg( trc721Address,DataModel.TokenKind.TRC721, DataModel.Status.SUCCESS));
         mainToSideContractMap[trc721Address] = 1;
         emit TRC721Mapping(trc721Address, userMappingList.length - 1);
     }
 
+    function retryDeposit(uint256 nonce) public {
+        // TODO: free attack ?
+        require(nonce < userDepositList.length, "nonce >= userDepositList.length");
+        DepositMsg storage depositMsg = userDepositList[nonce];
+        require(depositMsg.status == DataModel.Status.SUCCESS, "depositMsg.status != SUCCESS ");
+
+        if (depositMsg._type == DataModel.TokenKind.TRX) {
+            emit TRXReceived( depositMsg.user, depositMsg.valueOrUid, nonce);
+        } else if (depositMsg._type == DataModel.TokenKind.TRC20) {
+            emit TRC20Received( depositMsg.user, depositMsg.mainChainAddress, depositMsg.valueOrUid, nonce);
+        } else if (depositMsg._type == DataModel.TokenKind.TRC721) {
+            emit TRC721Received(depositMsg.user, depositMsg.mainChainAddress, depositMsg.valueOrUid, nonce);
+        } else {
+            emit TRC10Received(depositMsg.user, depositMsg.tokenId, depositMsg.valueOrUid, nonce);
+        }
+    }
+
+    function retryMapping(uint256 nonce) public {
+        // TODO: free attack ?
+        require(nonce < userMappingList.length, "nonce >= userMappingList.length");
+        MappingMsg storage mappingMsg = userMappingList[nonce];
+        require(mappingMsg.status == DataModel.Status.SUCCESS, "mappingMsg.status != SUCCESS ");
+
+         if (mappingMsg._type == DataModel.TokenKind.TRC20) {
+            emit TRC20Mapping( mappingMsg.mainChainAddress, nonce);
+        } else  {
+            emit TRC721Mapping( mappingMsg.mainChainAddress,  nonce);
+        }
+    }
     function calcContractAddress(bytes txId, address _owner) public pure returns (address r) {
         bytes memory addressBytes = addressToBytes(_owner);
         bytes memory combinedBytes = concatBytes(txId, addressBytes);

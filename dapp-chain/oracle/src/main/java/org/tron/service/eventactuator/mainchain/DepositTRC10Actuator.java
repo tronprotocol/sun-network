@@ -27,15 +27,14 @@ public class DepositTRC10Actuator extends Actuator {
   private DepositTRC10Event event;
   @Getter
   private EventType type = EventType.DEPOSIT_TRC10_EVENT;
-  private String nonceKey;
 
-  public DepositTRC10Actuator(String from, String trc10, String value, String nonce) {
-    this.nonceKey = NONCE_TAG + nonce;
+  public DepositTRC10Actuator(String from, String tokenId, String value, String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
-    ByteString trc10BS = ByteString.copyFrom(ByteArray.fromString(trc10));
+    ByteString tokenIdBS = ByteString.copyFrom(ByteArray.fromString(tokenId));
     ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
-    this.event = DepositTRC10Event.newBuilder().setFrom(fromBS).setValue(valueBS).setTrc10(trc10BS)
+    this.event = DepositTRC10Event.newBuilder().setFrom(fromBS).setValue(valueBS)
+        .setTokenId(tokenIdBS)
         .setNonce(nonceBS).build();
   }
 
@@ -52,25 +51,24 @@ public class DepositTRC10Actuator extends Actuator {
 
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
     String valueStr = event.getValue().toStringUtf8();
-    String trc10Str = event.getTrc10().toStringUtf8();
-    String nonceStr = ByteArray.toHexString(event.getNonce().toByteArray());
+    String tokenIdStr = event.getTokenId().toStringUtf8();
+    String nonceStr = event.getNonce().toStringUtf8();
 
-    logger.info("DepositTRC10Actuator, from: {}, value: {}, trc10: {}, transactionId: {}",
-        fromStr, valueStr, trc10Str, nonceStr);
+    logger.info("DepositTRC10Actuator, from: {}, value: {}, tokenId: {}, nonce: {}",
+        fromStr, valueStr, tokenIdStr, nonceStr);
 
-    // TODO: throw RpcConnectException
     AssetIssueContract assetIssue = MainChainGatewayApi
-        .getAssetIssueById(trc10Str);
+        .getAssetIssueById(tokenIdStr);
 
     logger.info(
         "DepositTRC10Actuator, assetIssue name: {}, assetIssue symbol: {}, assetIssue precision: {}",
         assetIssue.getName().toStringUtf8(), assetIssue.getName().toStringUtf8(),
         assetIssue.getPrecision());
     Transaction tx = SideChainGatewayApi
-        .mintToken10Transaction(fromStr, trc10Str, valueStr, assetIssue.getName().toStringUtf8(),
-            assetIssue.getName().toStringUtf8(), assetIssue.getPrecision(), nonceKey);
+        .mintToken10Transaction(fromStr, tokenIdStr, valueStr, assetIssue.getName().toStringUtf8(),
+            assetIssue.getName().toStringUtf8(), assetIssue.getPrecision(), nonceStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        nonceStr, tx);
+        NONCE_TAG + nonceStr, tx);
     return this.transactionExtensionCapsule;
   }
 
@@ -81,7 +79,7 @@ public class DepositTRC10Actuator extends Actuator {
 
   @Override
   public byte[] getNonceKey() {
-    return ByteArray.fromString(nonceKey);
+    return ByteArray.fromString(NONCE_TAG + event.getNonce().toStringUtf8());
   }
 
   @Override

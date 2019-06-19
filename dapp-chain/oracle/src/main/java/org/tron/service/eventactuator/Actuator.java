@@ -9,7 +9,6 @@ public abstract class Actuator {
 
   protected TransactionExtensionCapsule transactionExtensionCapsule;
 
-
   public abstract EventMsg getMessage();
 
   public abstract EventType getType();

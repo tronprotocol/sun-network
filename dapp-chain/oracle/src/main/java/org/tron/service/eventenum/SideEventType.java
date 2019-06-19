@@ -1,7 +1,7 @@
 package org.tron.service.eventenum;
 
 public enum SideEventType implements EventType {
-  
+
   WITHDRAW_TRC10("WithdrawTRC10(address,trcToken,uint256,uint256)"),
   WITHDRAW_TRC20("WithdrawTRC20(address,address,uint256,uint256)"),
   WITHDRAW_TRC721("WithdrawTRC721(address,address,uint256,uint256)"),

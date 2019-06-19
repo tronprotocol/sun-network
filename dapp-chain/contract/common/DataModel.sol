@@ -8,8 +8,8 @@ contract DataModel {
         TRC721
     }
     enum Status {
-        LOCKING,
         SUCCESS,
+        LOCKING,
         FAIL,
         REFUNDED
     }

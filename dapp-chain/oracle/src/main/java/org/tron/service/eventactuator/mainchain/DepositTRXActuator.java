@@ -21,6 +21,7 @@ import org.tron.service.eventactuator.Actuator;
 @Slf4j(topic = "mainChainTask")
 public class DepositTRXActuator extends Actuator {
 
+  private static final String NONCE_TAG = "deposit_";
 
   private DepositTRXEvent event;
   @Getter
@@ -29,7 +30,7 @@ public class DepositTRXActuator extends Actuator {
   public DepositTRXActuator(String from, String value, String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
-    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromHexString(nonce));
+    ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
     this.event = DepositTRXEvent.newBuilder().setFrom(fromBS).setValue(valueBS)
         .setNonce(nonceBS).build();
   }
@@ -46,14 +47,14 @@ public class DepositTRXActuator extends Actuator {
     }
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
     String valueStr = event.getValue().toStringUtf8();
-    String nonceStr = ByteArray.toHexString(event.getNonce().toByteArray());
+    String nonceStr = event.getNonce().toStringUtf8();
 
     logger.info("DepositTRXActuator, from: {}, value: {}, nonce: {}", fromStr, valueStr,
         nonceStr);
 
     Transaction tx = SideChainGatewayApi.mintTrxTransaction(fromStr, valueStr, nonceStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        nonceStr, tx);
+        NONCE_TAG + nonceStr, tx);
     return this.transactionExtensionCapsule;
   }
 
@@ -64,12 +65,12 @@ public class DepositTRXActuator extends Actuator {
 
   @Override
   public byte[] getNonceKey() {
-    return event.getNonce().toByteArray();
+    return ByteArray.fromString(NONCE_TAG + event.getNonce().toStringUtf8());
   }
 
   @Override
   public byte[] getNonce() {
-    return null;
+    return event.getNonce().toByteArray();
   }
 
 }
