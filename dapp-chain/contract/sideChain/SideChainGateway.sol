@@ -25,6 +25,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     event DeployDAppTRC20AndMapping(address mainChainAddress, address sideChainAddress);
     event DeployDAppTRC721AndMapping(address mainChainAddress, address sideChainAddress);
+
     event DepositTRC10(address to, trcToken tokenId, uint256 value);
     event DepositTRC20(address to, address sideChainAddress, uint256 value);
     event DepositTRC721(address to, address sideChainAddress, uint256 uId);
@@ -39,9 +40,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     event MultiSignForWithdrawTRC20(address from, address mainChainAddress, uint256 value, uint256 nonce);
     event MultiSignForWithdrawTRC721(address from, address mainChainAddress, uint256 uId, uint256 nonce);
     event MultiSignForWithdrawTRX(address from, uint256 value, uint256 nonce);
-
-    event MultiSignForDeployAndMapping(address mainChainAddress, address sideChainAddress, uint256 nonce);
-
 
     mapping(address => address) public mainToSideContractMap;
     mapping(address => address) public sideToMainContractMap;
