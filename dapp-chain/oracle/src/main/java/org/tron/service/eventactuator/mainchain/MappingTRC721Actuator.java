@@ -22,6 +22,8 @@ import org.tron.service.eventactuator.Actuator;
 @Slf4j(topic = "mainChainTask")
 public class MappingTRC721Actuator extends Actuator {
 
+  private static final String NONCE_TAG = "mapping_";
+
   private MappingTRC721Event event;
   @Getter
   private EventType type = EventType.MAPPING_TRC721;
@@ -50,14 +52,14 @@ public class MappingTRC721Actuator extends Actuator {
     String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
     String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
     logger.info(
-        "MappingTRC721Event, contractAddress: {}, nonce: {}, trcName: {}, trcSymbol: {}.",
-        contractAddressStr, nonceStr, trcName, trcSymbol);
+        "MappingTRC721Event, contractAddress: {}, trcName: {}, trcSymbol: {}, nonce: {}.",
+        contractAddressStr, trcName, trcSymbol, nonceStr);
 
     Transaction tx = SideChainGatewayApi
         .multiSignForMappingTRC721(contractAddressStr, trcName, trcSymbol,
             nonceStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        nonceStr, tx);
+        NONCE_TAG + nonceStr, tx);
     return this.transactionExtensionCapsule;
   }
 
@@ -68,11 +70,12 @@ public class MappingTRC721Actuator extends Actuator {
 
   @Override
   public byte[] getNonceKey() {
-    return event.getNonce().toByteArray();
+    return ByteArray.fromString(NONCE_TAG + event.getNonce().toStringUtf8());
   }
 
   @Override
   public byte[] getNonce() {
-    return null;
+    return event.getNonce().toByteArray();
   }
+
 }

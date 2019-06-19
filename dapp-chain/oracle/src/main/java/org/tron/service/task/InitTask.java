@@ -18,8 +18,9 @@ import org.tron.service.eventactuator.mainchain.DepositTRXActuator;
 import org.tron.service.eventactuator.mainchain.MappingTRC20Actuator;
 import org.tron.service.eventactuator.mainchain.MappingTRC721Actuator;
 import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRC10Actuator;
+import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRC20Actuator;
+import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRC721Actuator;
 import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRXActuator;
-import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTokenActuator;
 import org.tron.service.eventactuator.sidechain.WithdrawTRC10Actuator;
 import org.tron.service.eventactuator.sidechain.WithdrawTRC20Actuator;
 import org.tron.service.eventactuator.sidechain.WithdrawTRC721Actuator;
@@ -82,8 +83,10 @@ public class InitTask {
         return new MultiSignForWithdrawTRXActuator(eventMsg);
       case MULTISIGN_FOR_WITHDRAW_TRC10_EVENT:
         return new MultiSignForWithdrawTRC10Actuator(eventMsg);
-      case MULTISIGN_FOR_WITHDRAW_TOKEN_EVENT:
-        return new MultiSignForWithdrawTokenActuator(eventMsg);
+      case MULTISIGN_FOR_WITHDRAW_TRC20_EVENT:
+        return new MultiSignForWithdrawTRC20Actuator(eventMsg);
+      case MULTISIGN_FOR_WITHDRAW_TRC721_EVENT:
+        return new MultiSignForWithdrawTRC721Actuator(eventMsg);
       case MAPPING_TRC20:
         return new MappingTRC20Actuator(eventMsg);
       case MAPPING_TRC721:

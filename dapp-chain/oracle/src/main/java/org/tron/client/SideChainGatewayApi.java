@@ -24,95 +24,48 @@ import org.tron.protos.Protocol.Transaction;
 @Slf4j
 public class SideChainGatewayApi {
 
-  public static Transaction mintTrxTransaction(String to, String value, String txId)
+  public static Transaction mintTrxTransaction(String to, String value, String nonce)
       throws RpcConnectException {
-
-    byte[] toBytes = WalletUtil.decodeFromBase58Check(to);
-    byte[] mainChainAddressBytes = Args.getInstance().getMainchainGateway();
-    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
-    long type = 1;
-    byte[] typeBytes = new DataWord(type).getData();
-    // FIXME: right ? hex string in log ?
-    byte[] txIdBytes = new DataWord(txId).getData();
-    byte[] data = ByteUtil.merge(Arrays.copyOfRange(toBytes, 1, toBytes.length),
-        Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length), valueBytes,
-        typeBytes, txIdBytes);
-    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
-
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
 
-    String method = "multiSignForDepositToken(address,address,uint256,uint256,bytes32,bytes)";
-    List params = Arrays
-        .asList(to, WalletUtil.encode58Check(mainChainAddressBytes), value, type, txId, ownSign);
+    String method = "multiSignForDepositTRX(address,uint256,uint256)";
+    List params = Arrays.asList(to, value, nonce);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
   public static Transaction mintToken10Transaction(String to, String tokenId, String value,
-      String name, String symbol, int decimals, String txId)
+      String name, String symbol, int decimals, String nonce)
       throws RpcConnectException {
-    byte[] toBytes = WalletUtil.decodeFromBase58Check(to);
-    byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
-    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
-    byte[] decimalsBytes = new DataWord(decimals).getData();
+
     byte[] nameBytes = new DataWord(name.getBytes()).getData();
     byte[] symbolBytes = new DataWord(symbol.getBytes()).getData();
-    // FIXME: right ? hex string in log ?
-    byte[] txIdBytes = new DataWord(txId).getData();
-    byte[] data = ByteUtil
-        .merge(Arrays.copyOfRange(toBytes, 1, toBytes.length), tokenIdBytes, valueBytes,
-            decimalsBytes, nameBytes, symbolBytes, txIdBytes);
-    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "multiSignForDepositTRC10(address,uint256,uint256,bytes32,bytes32,uint8,bytes32,bytes)";
+    String method = "multiSignForDepositTRC10(address,trcToken,uint256,bytes32,bytes32,uint8,uint256)";
     List params = Arrays
         .asList(to, tokenId, value, Hex.toHexString(nameBytes), Hex.toHexString(symbolBytes),
-            decimals, txId, ownSign);
+            decimals, nonce);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
   public static Transaction mintToken20Transaction(String to, String mainAddress, String value,
-      String txId) throws RpcConnectException {
-    byte[] toBytes = WalletUtil.decodeFromBase58Check(to);
-    byte[] mainChainAddressBytes = WalletUtil.decodeFromBase58Check(mainAddress);
-    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
-    long type = 2;
-    byte[] typeBytes = new DataWord(type).getData();
-    // FIXME: right ? hex string in log ?
-    byte[] txIdBytes = new DataWord(txId).getData();
-    byte[] data = ByteUtil.merge(Arrays.copyOfRange(toBytes, 1, toBytes.length),
-        Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length), valueBytes,
-        typeBytes, txIdBytes);
-    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
-
+      String nonce) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
 
-    String method = "multiSignForDepositToken(address,address,uint256,uint256,bytes32,bytes)";
-    List params = Arrays.asList(to, mainAddress, value, type, txId, ownSign);
+    String method = "multiSignForDepositTRC20(address,address,uint256,uint256)";
+    List params = Arrays.asList(to, mainAddress, value, nonce);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static Transaction mintToken721Transaction(String to, String mainAddress, String tokenId,
-      String txId) throws RpcConnectException {
-    byte[] toBytes = WalletUtil.decodeFromBase58Check(to);
-    byte[] mainChainAddressBytes = WalletUtil.decodeFromBase58Check(mainAddress);
-    byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
-    long type = 3;
-    byte[] typeBytes = new DataWord(type).getData();
-    // FIXME: right ? hex string in log ?
-    byte[] txIdBytes = new DataWord(txId).getData();
-    byte[] data = ByteUtil.merge(Arrays.copyOfRange(toBytes, 1, toBytes.length),
-        Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length), tokenIdBytes,
-        typeBytes, txIdBytes);
-    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
-
+  public static Transaction mintToken721Transaction(String to, String mainAddress, String uid,
+      String nonce) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
 
-    String method = "multiSignForDepositToken(address,address,uint256,uint256,bytes32,bytes)";
-    List params = Arrays.asList(to, mainAddress, tokenId, type, txId, ownSign);
+    String method = "multiSignForDepositTRC721(address,address,uint256,uint256)";
+    List params = Arrays.asList(to, mainAddress, uid, nonce);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
@@ -220,53 +173,25 @@ public class SideChainGatewayApi {
   }
 
   public static Transaction multiSignForMappingTRC20(String contractAddressStr, String trcName,
-      String trcSymbol, long trcDecimals, String transactionIdStr) throws RpcConnectException {
-    String ownSign = getMappingTRC20Sign(contractAddressStr, trcName, trcSymbol, trcDecimals,
-        transactionIdStr);
+      String trcSymbol, long trcDecimals, String nonce) throws RpcConnectException {
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "multiSignForDeployDAppTRC20AndMapping(address,string,string,uint8,bytes32,bytes)";
+    String method = "multiSignForDeployDAppTRC20AndMapping(address,string,string,uint8,uint256)";
     List params = Arrays
-        .asList(contractAddressStr, trcName, trcSymbol, trcDecimals, transactionIdStr, ownSign);
+        .asList(contractAddressStr, trcName, trcSymbol, trcDecimals, nonce);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
-  }
-
-  private static String getMappingTRC20Sign(String contractAddressStr, String trcName,
-      String trcSymbol, long trcDecimals, String transactionIdStr) {
-    byte[] contractAddressStrBytes = WalletUtil.decodeFromBase58Check(contractAddressStr);
-    byte[] trcDecimalsBytes = new DataWord(trcDecimals).getData();
-    byte[] trcNameBytes = ByteArray.fromString(trcName);
-    byte[] trcSymbolBytes = ByteArray.fromString(trcSymbol);
-    byte[] txIdBytes = new DataWord(transactionIdStr).getData();
-    byte[] data = ByteUtil
-        .merge(Arrays.copyOfRange(contractAddressStrBytes, 1, contractAddressStrBytes.length),
-            trcNameBytes, trcSymbolBytes, trcDecimalsBytes, txIdBytes);
-    return Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
   }
 
   public static Transaction multiSignForMappingTRC721(String contractAddressStr, String trcName,
-      String trcSymbol, String transactionIdStr) throws RpcConnectException {
-    String ownSign = getMappingTRC721Sign(contractAddressStr, trcName, trcSymbol, transactionIdStr);
+      String trcSymbol, String nonce) throws RpcConnectException {
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "multiSignForDeployDAppTRC721AndMapping(address,string,string,bytes32,bytes)";
+    String method = "multiSignForDeployDAppTRC721AndMapping(address,string,string,uint256)";
     List params = Arrays
-        .asList(contractAddressStr, trcName, trcSymbol, transactionIdStr, ownSign);
+        .asList(contractAddressStr, trcName, trcSymbol, nonce);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
-  }
-
-  private static String getMappingTRC721Sign(String contractAddressStr, String trcName,
-      String trcSymbol, String transactionIdStr) {
-    byte[] contractAddressStrBytes = WalletUtil.decodeFromBase58Check(contractAddressStr);
-    byte[] trcNameBytes = ByteArray.fromString(trcName);
-    byte[] trcSymbolBytes = ByteArray.fromString(trcSymbol);
-    byte[] txIdBytes = new DataWord(transactionIdStr).getData();
-    byte[] data = ByteUtil
-        .merge(Arrays.copyOfRange(contractAddressStrBytes, 1, contractAddressStrBytes.length),
-            trcNameBytes, trcSymbolBytes, txIdBytes);
-    return Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
   }
 
   // Singleton
