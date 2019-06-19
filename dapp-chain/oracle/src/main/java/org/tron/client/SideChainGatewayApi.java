@@ -20,7 +20,6 @@ import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.DataWord;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
-import org.tron.service.check.TransactionExtensionCapsule;
 
 @Slf4j
 public class SideChainGatewayApi {
@@ -323,9 +322,9 @@ public class SideChainGatewayApi {
     return AbiUtil.unpackAddress(ret);
   }
 
-  public static byte[] checkTxInfo(TransactionExtensionCapsule txId)
+  public static byte[] checkTxInfo(String txId)
       throws TxFailException, TxRollbackException {
-    return GATEWAY_API.getSolidityInstance().checkTxInfo(txId.getTransactionId());
+    return GATEWAY_API.getSolidityInstance().checkTxInfo(txId);
   }
 
   public static boolean broadcast(Transaction transaction)

@@ -76,7 +76,7 @@ public class WithdrawTRC721Actuator extends Actuator {
   }
 
   @Override
-  public byte[] getKey() {
+  public byte[] getNonceKey() {
     return event.getNonce().toByteArray();
   }
 

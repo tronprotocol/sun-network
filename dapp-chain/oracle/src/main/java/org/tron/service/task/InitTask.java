@@ -47,7 +47,8 @@ public class InitTask {
     for (byte[] event : allEvents) {
       try {
         Actuator actuator = getActuatorByEventMsg(event);
-        if (actuator == null || allTxKeyHexStrings.contains(Hex.toHexString(actuator.getKey()))) {
+        if (actuator == null || allTxKeyHexStrings
+            .contains(Hex.toHexString(actuator.getNonceKey()))) {
           continue;
         }
         ActuatorRun.getInstance().start(actuator);

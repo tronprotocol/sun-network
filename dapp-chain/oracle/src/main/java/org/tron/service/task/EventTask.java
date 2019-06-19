@@ -14,7 +14,6 @@ import org.tron.common.utils.WalletUtil;
 import org.tron.db.EventStore;
 import org.tron.db.NonceStore;
 import org.tron.db.TransactionExtensionStore;
-import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.CheckTransaction;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
@@ -27,18 +26,15 @@ public class EventTask {
 
   private KfkConsumer kfkConsumer;
 
-  private EventStore store;
+  private EventStore eventStore;
   private NonceStore nonceStore;
-  private String mainGateway;
-  private String sideGateway;
 
-  public EventTask(String mainGateway, String sideGateway) {
-    this.mainGateway = mainGateway;
-    this.sideGateway = sideGateway;
+  public EventTask() {
+
     this.kfkConsumer = new KfkConsumer(Args.getInstance().getMainchainKafka(),
         "Oracle_" + getOracleAddress(),
         Arrays.asList("contractevent"));
-    this.store = EventStore.getInstance();
+    this.eventStore = EventStore.getInstance();
     this.nonceStore = NonceStore.getInstance();
   }
 
@@ -56,26 +52,17 @@ public class EventTask {
           this.kfkConsumer.commit();
           continue;
         }
-        Actuator eventActuator;
-        if (obj.get("contractAddress").equals(this.mainGateway)) {
-          eventActuator = EventActuatorFactory.CreateActuator(TaskEnum.MAIN_CHAIN, obj);
-        } else if (obj.get("contractAddress").equals(this.sideGateway)) {
-          eventActuator = EventActuatorFactory.CreateActuator(TaskEnum.SIDE_CHAIN, obj);
-        } else {
-          //Unrelated contract address
-          this.kfkConsumer.commit();
-          continue;
-        }
+        Actuator eventActuator = EventActuatorFactory.CreateActuator(obj);
         if (Objects.isNull(eventActuator)) {
-          //Unrelated contract event
+          //Unrelated contract or event
           this.kfkConsumer.commit();
           continue;
         }
 
-        if (eventActuator.getNonce() != null && nonceStore.exist(eventActuator.getNonce())) {
+        if (eventActuator.getNonce() != null && nonceStore.exist(eventActuator.getNonceKey())) {
           // TODO: handle expire
-          byte[] txKeyBytes = nonceStore.getData(eventActuator.getNonce());
-          byte[] txExtensionBytes = TransactionExtensionStore.getInstance().getData(txKeyBytes);
+          byte[] txExtensionBytes = TransactionExtensionStore.getInstance()
+              .getData(eventActuator.getNonceKey());
           if (txExtensionBytes != null) {
             try {
               CheckTransaction.getInstance()
@@ -88,9 +75,9 @@ public class EventTask {
             logger.info("the retried nonce has succeeded");
           }
         } else {
-          store.putData(eventActuator.getKey(), eventActuator.getMessage().toByteArray());
+          eventStore.putData(eventActuator.getNonceKey(), eventActuator.getMessage().toByteArray());
           if (eventActuator.getNonce() != null) {
-            nonceStore.putData(eventActuator.getNonce(), eventActuator.getKey());
+            nonceStore.putData(eventActuator.getNonceKey(), eventActuator.getNonceKey());
           }
           ActuatorRun.getInstance().start(eventActuator);
         }

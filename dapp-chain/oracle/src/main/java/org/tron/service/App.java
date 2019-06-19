@@ -4,7 +4,6 @@ import java.util.TimeZone;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.Args;
 import org.tron.common.exception.RpcConnectException;
-import org.tron.common.utils.WalletUtil;
 import org.tron.service.task.EventTask;
 import org.tron.service.task.InitTask;
 
@@ -25,10 +24,7 @@ public class App {
       System.exit(1);
     }
 
-    String mainGateway = WalletUtil.encode58Check(arg.getMainchainGateway());
-    String sideGateway = WalletUtil.encode58Check(arg.getSidechainGateway());
-
     (new InitTask()).batchProcessTxInDb();
-    (new EventTask(mainGateway, sideGateway)).processEvent();
+    (new EventTask()).processEvent();
   }
 }

@@ -63,7 +63,7 @@ public class DepositTRXActuator extends Actuator {
   }
 
   @Override
-  public byte[] getKey() {
+  public byte[] getNonceKey() {
     return event.getNonce().toByteArray();
   }
 

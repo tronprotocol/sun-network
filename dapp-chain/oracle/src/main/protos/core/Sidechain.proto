@@ -13,7 +13,7 @@ option go_package = "github.com/tronprotocol/grpc-gateway/core";
 message TransactionExtension {
   Transaction transaction = 1;
   bytes transaction_id = 2;
-  bytes event_transaction_id = 3;
+  bytes nonce_key = 3;
   TaskEnum task_enum = 4;
 }
 

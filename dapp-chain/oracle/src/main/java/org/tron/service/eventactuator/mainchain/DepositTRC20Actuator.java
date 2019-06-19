@@ -25,7 +25,7 @@ public class DepositTRC20Actuator extends Actuator {
   @Getter
   private EventType type = EventType.DEPOSIT_TRC20_EVENT;
 
-  public DepositTRC20Actuator(String from, String value, String contractAddress,
+  public DepositTRC20Actuator(String from, String contractAddress, String value,
       String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
@@ -68,7 +68,7 @@ public class DepositTRC20Actuator extends Actuator {
   }
 
   @Override
-  public byte[] getKey() {
+  public byte[] getNonceKey() {
     return event.getNonce().toByteArray();
   }
 

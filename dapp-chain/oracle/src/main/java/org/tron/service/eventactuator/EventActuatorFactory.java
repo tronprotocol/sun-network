@@ -2,7 +2,7 @@ package org.tron.service.eventactuator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
-import org.tron.protos.Sidechain.TaskEnum;
+import org.tron.common.config.Args;
 import org.tron.service.eventactuator.mainchain.DepositTRC10Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC20Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC721Actuator;
@@ -22,19 +22,15 @@ import org.tron.service.eventenum.SideEventType;
 @Slf4j(topic = "task")
 public class EventActuatorFactory {
 
-  public static Actuator CreateActuator(TaskEnum taskType,
-      JSONObject obj) {
-    try {
+  public static Actuator CreateActuator(JSONObject obj) {
+    Args args = Args.getInstance();
 
-      switch (taskType) {
-        case MAIN_CHAIN:
-          return createMainChainActuator(obj);
-        case SIDE_CHAIN:
-          return createSideChainActuator(obj);
-      }
-    } catch (Exception e) {
-      logger.error(e.getMessage());
+    if (obj.get("contractAddress").equals(args.getMainchainGatewayStr())) {
+      return createMainChainActuator(obj);
+    } else if (obj.get("contractAddress").equals(args.getSidechainGatewayStr())) {
+      return createSideChainActuator(obj);
     }
+    logger.debug("unknown contract address:{}", obj.get("contractAddress"));
     return null;
   }
 
@@ -47,24 +43,24 @@ public class EventActuatorFactory {
     switch (eventSignature) {
       case TRX_RECEIVED: {
         task = new DepositTRXActuator(dataMap.get("from").toString(),
-            dataMap.get("amount").toString(), dataMap.get("nonce").toString());
+            dataMap.get("value").toString(), dataMap.get("nonce").toString());
         return task;
       }
       case TRC10_RECEIVED: {
         task = new DepositTRC10Actuator(dataMap.get("from").toString(),
-            dataMap.get("amount").toString(), dataMap.get("tokenId").toString(),
+            dataMap.get("tokenId").toString(), dataMap.get("value").toString(),
             dataMap.get("nonce").toString());
         return task;
       }
       case TRC20_RECEIVED: {
         task = new DepositTRC20Actuator(dataMap.get("from").toString(),
-            dataMap.get("amount").toString(), dataMap.get("contractAddress").toString(),
+            dataMap.get("contractAddress").toString(), dataMap.get("value").toString(),
             dataMap.get("nonce").toString());
         return task;
       }
       case TRC721_RECEIVED: {
         task = new DepositTRC721Actuator(dataMap.get("from").toString(),
-            dataMap.get("uid").toString(), dataMap.get("contractAddress").toString(),
+            dataMap.get("contractAddress").toString(), dataMap.get("uid").toString(),
             dataMap.get("nonce").toString());
         return task;
       }
@@ -79,7 +75,7 @@ public class EventActuatorFactory {
         return task;
       }
       default: {
-        logger.warn("event:{},signature:{}.", obj.get("eventSignature").toString(),
+        logger.info("event:{},signature:{}.", obj.get("eventSignature").toString(),
             eventSignature.getSignature());
       }
     }

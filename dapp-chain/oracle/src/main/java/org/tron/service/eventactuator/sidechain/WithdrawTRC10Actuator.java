@@ -72,7 +72,7 @@ public class WithdrawTRC10Actuator extends Actuator {
   }
 
   @Override
-  public byte[] getKey() {
+  public byte[] getNonceKey() {
     return event.getNonce().toByteArray();
   }
 

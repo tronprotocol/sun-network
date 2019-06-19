@@ -12,11 +12,11 @@ public class TransactionExtensionCapsule {
 
   private TransactionExtension.Builder instance;
 
-  public TransactionExtensionCapsule(TaskEnum type, String eventTransactionId,
+  public TransactionExtensionCapsule(TaskEnum type, String nonceKey,
       Transaction transaction) {
     byte[] trxId = Sha256Hash.hash(transaction.getRawData().toByteArray());
     instance = TransactionExtension.newBuilder().setTaskEnum(type)
-        .setEventTransactionId(ByteString.copyFrom(ByteArray.fromHexString(eventTransactionId)))
+        .setNonceKey(ByteString.copyFrom(ByteArray.fromString(nonceKey)))
         .setTransactionId(ByteString.copyFrom(trxId)).setTransaction(transaction);
   }
 
@@ -36,8 +36,8 @@ public class TransactionExtensionCapsule {
     return ByteArray.toHexString(instance.getTransactionId().toByteArray());
   }
 
-  public byte[] getEventTransactionIdBytes() {
-    return instance.getEventTransactionId().toByteArray();
+  public byte[] getNonceKeyBytes() {
+    return instance.getNonceKey().toByteArray();
   }
 
   public byte[] getData() {

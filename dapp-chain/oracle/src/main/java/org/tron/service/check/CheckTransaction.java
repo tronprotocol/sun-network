@@ -48,19 +48,16 @@ public class CheckTransaction {
       }
       switch (txExtensionCapsule.getType()) {
         case MAIN_CHAIN:
-          MainChainGatewayApi.checkTxInfo(txExtensionCapsule);
+          MainChainGatewayApi.checkTxInfo(txExtensionCapsule.getTransactionId());
           break;
         case SIDE_CHAIN:
-          SideChainGatewayApi.checkTxInfo(txExtensionCapsule);
+          SideChainGatewayApi.checkTxInfo(txExtensionCapsule.getTransactionId());
           break;
       }
       // FIXME: fail to delete db, so in main chain contract, it must check dup using nonce.
-      byte[] nonce = EventStore.getInstance()
-          .getNonce(txExtensionCapsule.getEventTransactionIdBytes());
-      EventStore.getInstance()
-          .deleteData(txExtensionCapsule.getEventTransactionIdBytes());
-      TransactionExtensionStore.getInstance()
-          .deleteData(txExtensionCapsule.getEventTransactionIdBytes());
+      byte[] nonceKeyBytes = txExtensionCapsule.getNonceKeyBytes();
+      EventStore.getInstance().deleteData(nonceKeyBytes);
+      TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
     } catch (TxRollbackException e) {
       // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 4.2
       logger.error(e.getMessage());

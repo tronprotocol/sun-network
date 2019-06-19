@@ -16,7 +16,6 @@ import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Transaction;
-import org.tron.service.check.TransactionExtensionCapsule;
 
 @Slf4j
 public class MainChainGatewayApi {
@@ -172,9 +171,9 @@ public class MainChainGatewayApi {
     return GATEWAY_API.getInstance().getAssetIssueById(assetId);
   }
 
-  public static byte[] checkTxInfo(TransactionExtensionCapsule txId)
+  public static byte[] checkTxInfo(String txId)
       throws TxFailException, TxRollbackException {
-    return GATEWAY_API.getSolidityInstance().checkTxInfo(txId.getTransactionId());
+    return GATEWAY_API.getSolidityInstance().checkTxInfo(txId);
   }
 
   public static boolean broadcast(Transaction transaction)

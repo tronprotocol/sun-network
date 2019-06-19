@@ -46,10 +46,14 @@ public class Args {
 
   @Getter
   private byte[] mainchainGateway;
+  @Getter
+  private String mainchainGatewayStr;
 
 
   @Getter
   private byte[] sidechainGateway;
+  @Getter
+  private String sidechainGatewayStr;
 
   @Getter
   private String mainchainKafka;
@@ -146,15 +150,18 @@ public class Args {
     this.sidechainFullNode = this.sidechainFullNodeList.get(0);
     this.sidechainSolidity = config.getStringList("sidechain.solidity.ip.list").get(0);
 
+    this.mainchainGatewayStr = config.getString("gateway.mainchain.address");
     this.mainchainGateway = WalletUtil
-        .decodeFromBase58Check(config.getString("gateway.mainchain.address"));
+        .decodeFromBase58Check(this.mainchainGatewayStr);
+
+    this.sidechainGatewayStr = config.getString("gateway.sidechain.address");
     this.sidechainGateway = WalletUtil
-        .decodeFromBase58Check(config.getString("gateway.sidechain.address"));
+        .decodeFromBase58Check(sidechainGatewayStr);
+
     if (StringUtils.isEmpty(this.oraclePrivateKeyStr)) {
-      this.oraclePrivateKey = Hex.decode(config.getString("oracle.private.key"));
-    } else {
-      this.oraclePrivateKey = Hex.decode(this.oraclePrivateKeyStr);
+      this.oraclePrivateKeyStr = config.getString("oracle.private.key");
     }
+    this.oraclePrivateKey = Hex.decode(this.oraclePrivateKeyStr);
 
     this.mainchainKafka = config.getString("kafka.mainchain.server");
 

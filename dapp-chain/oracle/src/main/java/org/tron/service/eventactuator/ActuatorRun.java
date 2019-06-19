@@ -21,7 +21,8 @@ public class ActuatorRun {
 
   private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
-  private final TransactionExtensionStore store = TransactionExtensionStore.getInstance();
+  private final TransactionExtensionStore transactionExtensionStore = TransactionExtensionStore
+      .getInstance();
 
   public void start(Actuator eventActuator) {
     executor.submit(() -> {
@@ -37,8 +38,9 @@ public class ActuatorRun {
         return;
       }
 
-      if (!this.store.exist(eventActuator.getKey())) {
-        this.store.putData(eventActuator.getKey(), txExtensionCapsule.getData());
+      if (!this.transactionExtensionStore.exist(eventActuator.getNonceKey())) {
+        this.transactionExtensionStore
+            .putData(eventActuator.getNonceKey(), txExtensionCapsule.getData());
       }
       executor.execute(new TxExtensionTask(txExtensionCapsule));
     });
