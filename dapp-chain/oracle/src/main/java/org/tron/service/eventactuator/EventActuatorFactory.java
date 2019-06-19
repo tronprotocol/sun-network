@@ -11,8 +11,9 @@ import org.tron.service.eventactuator.mainchain.DepositTRXActuator;
 import org.tron.service.eventactuator.mainchain.MappingTRC20Actuator;
 import org.tron.service.eventactuator.mainchain.MappingTRC721Actuator;
 import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRC10Actuator;
+import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRC20Actuator;
+import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRC721Actuator;
 import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRXActuator;
-import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTokenActuator;
 import org.tron.service.eventactuator.sidechain.WithdrawTRC10Actuator;
 import org.tron.service.eventactuator.sidechain.WithdrawTRC20Actuator;
 import org.tron.service.eventactuator.sidechain.WithdrawTRC721Actuator;
@@ -135,10 +136,20 @@ public class EventActuatorFactory {
             dataMap.get("txId").toString(), txId);
         return task;
       }
-      case MULTISIGN_FOR_WITHDRAW_TOKEN: {
+      case MULTISIGN_FOR_WITHDRAW_TRC20: {
         String txId = obj.get("transactionId").toString();
         JSONObject dataMap = (JSONObject) obj.get("dataMap");
-        task = new MultiSignForWithdrawTokenActuator(dataMap.get("from").toString(),
+        task = new MultiSignForWithdrawTRC20Actuator(dataMap.get("from").toString(),
+            dataMap.get("mainChainAddress").toString(),
+            dataMap.get("valueOrTokenId").toString(), dataMap.get("_type").toString(),
+            dataMap.get("userSign").toString(), dataMap.get("dataHash").toString(),
+            dataMap.get("txId").toString(), txId);
+        return task;
+      }
+      case MULTISIGN_FOR_WITHDRAW_TRC721: {
+        String txId = obj.get("transactionId").toString();
+        JSONObject dataMap = (JSONObject) obj.get("dataMap");
+        task = new MultiSignForWithdrawTRC721Actuator(dataMap.get("from").toString(),
             dataMap.get("mainChainAddress").toString(),
             dataMap.get("valueOrTokenId").toString(), dataMap.get("_type").toString(),
             dataMap.get("userSign").toString(), dataMap.get("dataHash").toString(),

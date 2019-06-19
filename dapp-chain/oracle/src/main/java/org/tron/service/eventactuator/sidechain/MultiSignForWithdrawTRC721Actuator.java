@@ -19,14 +19,14 @@ import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "sideChainTask")
-public class MultiSignForWithdrawTokenActuator extends Actuator {
+public class MultiSignForWithdrawTRC721Actuator extends Actuator {
 
   // "event MultiSignForWithdrawToken(address from, address mainChainAddress, uint256 valueOrTokenId, uint256 _type, bytes32 userSign, bytes32 dataHash, bytes32 txId);"
   private MultiSignForWithdrawTokenEvent event;
   @Getter
   private EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TOKEN_EVENT;
 
-  public MultiSignForWithdrawTokenActuator(String from, String mainChainAddress,
+  public MultiSignForWithdrawTRC721Actuator(String from, String mainChainAddress,
       String valueOrTokenId, String type, String userSign, String dataHash,
       String originalTransactionId, String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
@@ -46,7 +46,7 @@ public class MultiSignForWithdrawTokenActuator extends Actuator {
         .build();
   }
 
-  public MultiSignForWithdrawTokenActuator(EventMsg eventMsg)
+  public MultiSignForWithdrawTRC721Actuator(EventMsg eventMsg)
       throws InvalidProtocolBufferException {
     this.event = eventMsg.getParameter().unpack(MultiSignForWithdrawTokenEvent.class);
   }

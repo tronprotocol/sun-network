@@ -13,7 +13,9 @@ public enum SideEventType implements EventType {
   MULTISIGN_FOR_WITHDRAW_TRX("MultiSignForWithdrawTRX(address,uint256,bytes,bytes32,nonce)"),
   MULTISIGN_FOR_WITHDRAW_TRC10(
       "MultiSignForWithdrawTRC10(address,uint256,uint256,bytes,bytes32,nonce)"),
-  MULTISIGN_FOR_WITHDRAW_TOKEN(
+  MULTISIGN_FOR_WITHDRAW_TRC20(
+      "MultiSignForWithdrawToken(address,address,uint256,uint256,bytes,bytes32,nonce)"),
+  MULTISIGN_FOR_WITHDRAW_TRC721(
       "MultiSignForWithdrawToken(address,address,uint256,uint256,bytes,bytes32,nonce)"),
   UNKNOWN_EVENT("UnknownEvent");
 
