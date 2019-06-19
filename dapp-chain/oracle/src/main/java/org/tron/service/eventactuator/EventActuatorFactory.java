@@ -1,5 +1,6 @@
 package org.tron.service.eventactuator;
 
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.tron.common.config.Args;
@@ -24,7 +25,9 @@ public class EventActuatorFactory {
 
   public static Actuator CreateActuator(JSONObject obj) {
     Args args = Args.getInstance();
-
+    if (Objects.isNull(obj.get("contractAddress"))) {
+      return null;
+    }
     if (obj.get("contractAddress").equals(args.getMainchainGatewayStr())) {
       return createMainChainActuator(obj);
     } else if (obj.get("contractAddress").equals(args.getSidechainGatewayStr())) {

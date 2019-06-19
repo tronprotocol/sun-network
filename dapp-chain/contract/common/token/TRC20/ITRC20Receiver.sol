@@ -13,5 +13,5 @@ contract ITRC20Receiver {
      */
     bytes4 constant _TRC20_RECEIVED = 0xbcad917b;
 
-    function onTRC20Received(address from, uint256 value, bytes txData) public returns (bytes4);
+    function onTRC20Received(address from, uint256 value) public returns (uint256);
 }

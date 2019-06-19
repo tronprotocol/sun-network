@@ -48,10 +48,7 @@ public class EventTask {
       ConsumerRecords<String, String> record = this.kfkConsumer.getRecord();
       for (ConsumerRecord<String, String> key : record) {
         JSONObject obj = (JSONObject) JSONValue.parse(key.value());
-        if (Objects.isNull(obj.get("contractAddress"))) {
-          this.kfkConsumer.commit();
-          continue;
-        }
+
         Actuator eventActuator = EventActuatorFactory.CreateActuator(obj);
         if (Objects.isNull(eventActuator)) {
           //Unrelated contract or event
