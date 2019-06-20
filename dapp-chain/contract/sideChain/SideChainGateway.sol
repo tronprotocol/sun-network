@@ -115,7 +115,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     // 1. deployDAppTRC20AndMapping
     function multiSignForDeployDAppTRC20AndMapping(address mainChainAddress, string name, string symbol, uint8 decimals, uint256 nonce) public onlyOracle {
-        require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         bool needMapping = multiSignForMapping(nonce);
         if (needMapping) {
@@ -133,7 +132,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     // 2. deployDAppTRC721AndMapping
     function multiSignForDeployDAppTRC721AndMapping(address mainChainAddress, string name, string symbol, uint256 nonce) public onlyOracle {
-        require(mainToSideContractMap[mainChainAddress] == address(0), "the main chain address has mapped");
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         bool needMapping = multiSignForMapping(nonce);
         if (needMapping) {
@@ -166,7 +164,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     // 3. depositTRC10
     function multiSignForDepositTRC10(address to, trcToken tokenId, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, uint256 nonce) public onlyOracle {
-        require(depositSigns[nonce].success == false, "depositSigns[nonce].success != false");
         require(tokenId > 1000000 && tokenId <= 2000000, "tokenId <= 1000000 or tokenId > 2000000");
         bool needDeposit = multiSignForDeposit(nonce);
         if (needDeposit) {
@@ -186,7 +183,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     // 4. depositTRC20
     function multiSignForDepositTRC20(address to, address mainChainAddress, uint256 value, uint256 nonce) public onlyOracle {
-        require(depositSigns[nonce].success == false, "depositSigns[nonce].success != false");
         address sideChainAddress = mainToSideContractMap[mainChainAddress];
         require(sideChainAddress != address(0), "the main chain address hasn't mapped");
         bool needDeposit = multiSignForDeposit(nonce);
@@ -202,7 +198,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     // 5. depositTRC721
     function multiSignForDepositTRC721(address to, address mainChainAddress, uint256 uId, uint256 nonce) public onlyOracle {
-        require(depositSigns[nonce].success == false, "depositSigns[nonce].success != false");
         address sideChainAddress = mainToSideContractMap[mainChainAddress];
         require(sideChainAddress != address(0), "the main chain address hasn't mapped");
         bool needDeposit = multiSignForDeposit(nonce);
@@ -218,7 +213,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     // 6. depositTRX
     function multiSignForDepositTRX(address to, uint256 value, uint256 nonce) public onlyOracle {
-        require(depositSigns[nonce].success == false, "depositSigns[nonce].success != false");
         bool needDeposit = multiSignForDeposit(nonce);
         if (needDeposit) {
             depositTRX(to, value);

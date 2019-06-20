@@ -78,6 +78,18 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
         balances.trc20[msg.sender] = balances.trc20[msg.sender].add(value);
     }
 
+    function withdrawTRC10(address _to, trcToken tokenId, uint256 value, uint256 nonce, bytes[] oracleSigns)
+    public onlyOracle()
+    {
+        require(withdrawDone[nonce] == false, "withdrawDone[nonce] != false");
+        bytes32 dataHash = keccak256(abi.encodePacked(_to, tokenId, value, nonce));
+        checkOracles(dataHash, nonce, oracleSigns);
+        balances.trc10[tokenId] = balances.trc10[tokenId].sub(value);
+        _to.transferToken(value, tokenId);
+        withdrawDone[nonce] = true;
+        emit TRC10Withdraw(msg.sender, tokenId, value, nonce);
+    }
+
     // Withdrawal functions
     function withdrawTRC20(address _to, address contractAddress, uint256 value, uint256 nonce, bytes[] oracleSigns)
     public onlyOracle()
@@ -116,18 +128,6 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
         // ensure it's not reentrant
         withdrawDone[nonce] = true;
         emit TRXWithdraw(_to, value, nonce);
-    }
-
-    function withdrawTRC10(address _to, trcToken tokenId, uint256 value, uint256 nonce, bytes[] oracleSigns)
-    public onlyOracle()
-    {
-        require(withdrawDone[nonce] == false, "withdrawDone[nonce] != false");
-        bytes32 dataHash = keccak256(abi.encodePacked(_to, tokenId, value, nonce));
-        checkOracles(dataHash, nonce, oracleSigns);
-        balances.trc10[tokenId] = balances.trc10[tokenId].sub(value);
-        _to.transferToken(value, tokenId);
-        withdrawDone[nonce] = true;
-        emit TRC10Withdraw(msg.sender, tokenId, value, nonce);
     }
 
     // Approve and Deposit function for 2-step deposits
