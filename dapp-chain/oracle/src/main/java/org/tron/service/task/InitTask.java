@@ -33,12 +33,10 @@ public class InitTask {
 
     Set<byte[]> allTxs = TransactionExtensionStore.getInstance().allValues();
     for (byte[] txExtensionBytes : allTxs) {
-      // FIXME: handle expire
       try {
         CheckTransaction.getInstance()
             .submitCheck(new TransactionExtensionCapsule(txExtensionBytes), 1);
       } catch (InvalidProtocolBufferException e) {
-        // FIXME
         logger.error(e.getMessage(), e);
       }
     }

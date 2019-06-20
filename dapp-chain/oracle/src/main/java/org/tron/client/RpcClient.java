@@ -52,7 +52,6 @@ class RpcClient {
     logger.info("tx id: {}", txId);
     int maxRetry = 5;
     for (int i = 0; i < maxRetry; i++) {
-
       Return response = blockingStub.broadcastTransaction(signaturedTransaction);
       if (response.getResult()) {
         // true is success
@@ -68,7 +67,8 @@ class RpcClient {
             logger.error(e.getMessage(), e);
           }
         } else if (response.getCode().equals(response_code.DUP_TRANSACTION_ERROR)) {
-          logger.info("this tx has broadcasted");
+          logger.info("this tx has be broadcasted");
+          return true;
         } else if (response.getCode().equals(response_code.TRANSACTION_EXPIRATION_ERROR)) {
           logger.info("transaction expired");
           throw new TxExpiredException("tx error, " + response.getMessage().toStringUtf8());
@@ -82,10 +82,6 @@ class RpcClient {
     }
     logger.error("broadcast transaction, exceed max retry, fail");
     throw new RpcConnectException("broadcast transaction, exceed max retry, fail");
-  }
-
-  TransactionExtention createTransaction2(Contract.TransferContract contract) {
-    return blockingStub.createTransaction2(contract);
   }
 
   Account queryAccount(byte[] address) {

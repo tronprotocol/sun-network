@@ -2,7 +2,6 @@ package org.tron.service.check;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.nio.ByteBuffer;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
@@ -53,14 +52,34 @@ public class CheckTransaction {
       return;
     }
     Boolean ret = checkTxInfoReturnNull(txExtensionCapsule);
-    if (Objects.isNull(ret)) {
-      logger.error("check tx not found txid:{}, checkTimes:{}",
-          txExtensionCapsule.getTransactionId(), checkCnt);
-      if (checkCnt > 5) {
-        AlertUtil.sendAlert("4.2, checkTransaction exceeds 5 times");
-        logger.error("checkTransaction exceeds 5 times");
-        return;
-      }
+    if (ret != null && ret) {
+      // success
+      byte[] nonceKeyBytes = txExtensionCapsule.getNonceKeyBytes();
+      NonceStore.getInstance()
+          .putData(nonceKeyBytes, ByteBuffer.allocate(1).putInt(NonceStatus.SUCCESS_VALUE).array());
+      EventStore.getInstance().deleteData(nonceKeyBytes);
+      TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
+      return;
+    }
+    if (ret != null && !ret) {
+      // tx fail
+      String msg = "tx: " + txExtensionCapsule.getTransactionId()
+          + ", fail, please resolve this problem by reviewing and inspecting logs of oracle";
+      logger.error(msg);
+      AlertUtil.sendAlert(msg);
+      return;
+    }
+    // ret == null
+    String msg = String
+        .format("tx: %s, not found, check count: %d", txExtensionCapsule.getTransactionId(),
+            checkCnt);
+    logger.error(msg);
+    if (checkCnt > 5) {
+      AlertUtil.sendAlert(msg + ", check transaction exceeds 5 times");
+      logger.error("check transaction exceeds 5 times");
+      return;
+    }
+    try {
       if (broadcastCheckExpired(txExtensionCapsule)) {
         byte[] nonceKeyBytes = txExtensionCapsule.getNonceKeyBytes();
         byte[] data = EventStore.getInstance().getData(nonceKeyBytes);
@@ -73,34 +92,26 @@ public class CheckTransaction {
       } else {
         instance.submitCheck(txExtensionCapsule, checkCnt + 1);
       }
-    } else if (ret) {
-
-      // FIXME: fail to delete db, so in main chain contract, it must check dup using nonce.
-      byte[] nonceKeyBytes = txExtensionCapsule.getNonceKeyBytes();
-      NonceStore.getInstance()
-          .putData(nonceKeyBytes, ByteBuffer.allocate(1).putInt(NonceStatus.SUCCESS_VALUE).array());
-      EventStore.getInstance().deleteData(nonceKeyBytes);
-      TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
-
-    } else {
-      AlertUtil.sendAlert("5.1 5.2 5.3");
-    }
-  }
-
-  private Boolean broadcastCheckExpired(TransactionExtensionCapsule txExtensionCapsule) {
-    try {
-      broadcastTransaction(txExtensionCapsule);
     } catch (RpcConnectException e1) {
       // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 1.2
       // NOTE: have retried for 5 times in broadcastTransaction
       AlertUtil.sendAlert("1.2");
       logger.error(e1.getMessage(), e1);
+      return;
     } catch (TxValidateException e1) {
       // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 4.1
       AlertUtil.sendAlert("4.1");
       logger.error(e1.getMessage(), e1);
+      return;
+    }
+  }
+
+  private Boolean broadcastCheckExpired(TransactionExtensionCapsule txExtensionCapsule)
+      throws TxValidateException, RpcConnectException {
+    try {
+      broadcastTransaction(txExtensionCapsule);
     } catch (TxExpiredException e1) {
-      AlertUtil.sendAlert("TxExpiredException txid is " + txExtensionCapsule.getTransactionId());
+      AlertUtil.sendAlert("TxExpiredException tx id is " + txExtensionCapsule.getTransactionId());
       return true;
     }
     return false;
