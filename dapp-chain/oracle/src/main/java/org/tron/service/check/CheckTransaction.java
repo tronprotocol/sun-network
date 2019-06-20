@@ -35,8 +35,7 @@ public class CheckTransaction {
   private CheckTransaction() {
   }
 
-  private final ExecutorService syncExecutor = Executors
-      .newFixedThreadPool(100);
+  private final ExecutorService syncExecutor = Executors.newFixedThreadPool(100);
 
   public void submitCheck(TransactionExtensionCapsule txExtensionCapsule, int submitCnt) {
     // TODO: from solidity node

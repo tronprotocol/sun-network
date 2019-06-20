@@ -8,11 +8,8 @@ import "../common/DataModel.sol";
 import "../common/token/TRC721/ITRC721Receiver.sol";
 import "../common/token/TRC20/ITRC20Receiver.sol";
 import "./OracleManagerContract.sol";
-import "../common/DataModel.sol";
-import "../common/DataModel.sol";
 
-
-contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContract {
+contract MainChainGateway is  OracleManagerContract {
 
     using SafeMath for uint256;
 
@@ -110,8 +107,7 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, uid, nonce));
         checkOracles(dataHash, nonce, oracleSigns);
         require(balances.trc721[contractAddress][uid], "Does not own token");
-        // FIXME: can not use transfer
-        TRC721(contractAddress).transfer(_to, uid);
+        TRC721(contractAddress).transferFrom(address(this), _to, uid);
         delete balances.trc721[contractAddress][uid];
         withdrawDone[nonce] = true;
         emit TRC721Withdraw(_to, contractAddress, uid, nonce);
@@ -161,31 +157,6 @@ contract MainChainGateway is ITRC20Receiver, ITRC721Receiver, OracleManagerContr
         userDepositList.push(DepositMsg( msg.sender,  address(0), msg.tokenid, msg.tokenvalue, DataModel.TokenKind.TRC10, DataModel.Status.SUCCESS));
         balances.trc10[msg.tokenid] = balances.trc10[msg.tokenid].add(msg.tokenvalue);
         emit TRC10Received(msg.sender, msg.tokenvalue, msg.tokenid, userDepositList.length - 1);
-    }
-
-    // Receiver functions for 1-step deposits to the gateway
-
-
-    function onTRC20Received(address _from, uint256 value, bytes)
-    public
-    returns (bytes4)
-    {
-        require(mainToSideContractMap[msg.sender] == 1, "Not an allowe token");
-        userDepositList.push(DepositMsg( _from, msg.sender, 0, value, DataModel.TokenKind.TRC20, DataModel.Status.SUCCESS));
-        _depositTRC20(value);
-        emit TRC20Received(_from, msg.sender, value, userDepositList.length - 1);
-        return _TRC20_RECEIVED;
-    }
-
-    function onTRC721Received(address _from, uint256 _uid, bytes)
-    public
-    returns (bytes4)
-    {
-        require(mainToSideContractMap[msg.sender] == 1, "Not an allowe token");
-        userDepositList.push(DepositMsg( _from,  msg.sender, 0, _uid, DataModel.TokenKind.TRC721, DataModel.Status.SUCCESS));
-        _depositTRC721(_uid);
-        emit TRC721Received(_from, msg.sender, _uid, userDepositList.length - 1);
-        return _TRC721_RECEIVED;
     }
 
     function() external payable {
