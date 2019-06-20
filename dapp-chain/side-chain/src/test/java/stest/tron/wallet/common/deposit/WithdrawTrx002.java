@@ -60,6 +60,8 @@ public class WithdrawTrx002 {
   byte[] depositAddress = ecKey1.getAddress();
   String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
+  final String mainGateWayAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key1");
 
   @BeforeSuite
   public void beforeSuite() {
@@ -104,8 +106,7 @@ public class WithdrawTrx002 {
 
     logger.info("accountBeforeBalance:" + accountMainBeforeBalance);
     logger.info("accountSideBeforeBalance:" + accountSideBeforeBalance);
-    final String mainGateWayAddress = Configuration.getByPath("testng.conf")
-        .getString("gateway_address.key1");
+
     logger.info("transferTokenContractAddress:" + mainGateWayAddress);
     String methodStr = "depositTRX()";
     byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
@@ -155,8 +156,7 @@ public class WithdrawTrx002 {
             callValue,
             maxFeeLimit, withdrawAddress, withdrawAddressKey, blockingStubFull,
             blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingSideStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
@@ -170,11 +170,11 @@ public class WithdrawTrx002 {
         .encode58Check(addressAfterWithdraw.toByteArray());
     logger.info("addressAfterWithdrawAddress:" + addressAfterWithdrawAddress);
     Assert.assertEquals(Base58.encode58Check(depositAddress), addressAfterWithdrawAddress);
-    Assert.assertEquals(0, accountSideAfterWithdrawBalance);
+    Assert.assertEquals(1, accountSideAfterWithdrawBalance);
     Account accountMainAfterWithdraw = PublicMethed.queryAccount(depositAddress, blockingStubFull);
     long accountMainAfterWithdrawBalance = accountMainAfterWithdraw.getBalance();
     logger.info("accountAfterWithdrawBalance:" + accountMainAfterWithdrawBalance);
-    Assert.assertEquals(accountMainAfterWithdrawBalance, accountMainAfterBalance - fee1 + 1);
+    Assert.assertEquals(accountMainAfterWithdrawBalance, accountMainAfterBalance);
 
 
   }
@@ -182,62 +182,19 @@ public class WithdrawTrx002 {
 
   @Test(enabled = true, description = "Withdraw Trx")
   public void test1WithdrawTrx002() {
-
-    Assert.assertTrue(PublicMethed
-        .sendcoin(depositAddress, 100000000L, testDepositAddress, testDepositTrx,
-            blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     Account accountMainBefore = PublicMethed.queryAccount(depositAddress, blockingStubFull);
     long accountMainBeforeBalance = accountMainBefore.getBalance();
-    Assert.assertTrue(accountMainBeforeBalance == 100000000);
+    logger.info("accountMainBeforeBalance:" + accountMainBeforeBalance);
     Account accountSideBefore = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
     long accountSideBeforeBalance = accountSideBefore.getBalance();
-    ByteString address = accountSideBefore.getAddress();
-    String accountSideBeforeAddress = Base58.encode58Check(address.toByteArray());
-    logger.info("accountSideBeforeAddress:" + accountSideBeforeAddress);
-    Assert.assertEquals("3QJmnh", accountSideBeforeAddress);
-
-    logger.info("accountBeforeBalance:" + accountMainBeforeBalance);
-    logger.info("accountSideBeforeBalance:" + accountSideBeforeBalance);
-    final String mainGateWayAddress = Configuration.getByPath("testng.conf")
-        .getString("gateway_address.key1");
-    logger.info("transferTokenContractAddress:" + mainGateWayAddress);
-    String methodStr = "depositTRX()";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
-
-    long callValue = 1;
-    String txid = PublicMethed
-        .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
-            callValue,
-            input,
-            maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(txid, blockingStubFull);
-    Assert.assertTrue(infoById.get().getResultValue() == 0);
-    long fee = infoById.get().getFee();
-    logger.info("fee:" + fee);
-    Account accountMainAfter = PublicMethed.queryAccount(depositAddress, blockingStubFull);
-    long accountMainAfterBalance = accountMainAfter.getBalance();
-    logger.info("accountAfterBalance:" + accountMainAfterBalance);
-    Assert.assertEquals(accountMainAfterBalance, accountMainBeforeBalance - fee - 1);
-    Account accountSideAfter = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
-    long accountSideAfterBalance = accountSideAfter.getBalance();
-    ByteString addressSideAfter = accountSideAfter.getAddress();
-    String accountSideAfterAddress = Base58.encode58Check(addressSideAfter.toByteArray());
-    logger.info("accountSideAfterAddress:" + accountSideAfterAddress);
-    Assert.assertEquals(Base58.encode58Check(depositAddress), accountSideAfterAddress);
-    Assert.assertEquals(1, accountSideAfterBalance);
+    Assert.assertEquals(1, accountSideBeforeBalance);
 
     final String sideGatewayAddress = Configuration.getByPath("testng.conf")
         .getString("gateway_address.key2");
     logger.info("sideGatewayAddress:" + sideGatewayAddress);
-//balance<value
-    long callValue1 = callValue + 1;
 
+    //balance<value
+    long callValue1 = accountSideBeforeBalance + 1;
     Return response = PublicMethed
         .withdrawTrxForReturn(mainGateWayAddress,
             sideGatewayAddress,
@@ -246,11 +203,66 @@ public class WithdrawTrx002 {
             blockingSideStubFull);
 
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
     Assert.assertEquals(
         "contract validate error : Validate InternalTransfer error, balance is not sufficient.",
         response.getMessage().toStringUtf8());
 
+    //value  is -1
+    long callValue2 = -1;
+
+    Return response1 = PublicMethed
+        .withdrawTrxForReturn(mainGateWayAddress,
+            sideGatewayAddress,
+            callValue2,
+            maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
+            blockingSideStubFull);
+
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response1.getCode());
+    Assert.assertEquals(
+        "contract validate error : callValue must >= 0",
+        response1.getMessage().toStringUtf8());
+
+    // value is 0
+//    long callValue3 = 0;
+//    Return response2 = PublicMethed
+//        .withdrawTrxForReturn(mainGateWayAddress,
+//            sideGatewayAddress,
+//            callValue3,
+//            maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
+//            blockingSideStubFull);
+//
+//    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response2.getCode());
+//    Assert.assertEquals(
+//        "contract validate error : callValue must >= 0",
+//        response2.getMessage().toStringUtf8());
+
+    // value is Long.MAX_VALUE+1
+    long callValue4 = Long.MAX_VALUE + 1;
+    Return response3 = PublicMethed
+        .withdrawTrxForReturn(mainGateWayAddress,
+            sideGatewayAddress,
+            callValue4,
+            maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
+            blockingSideStubFull);
+
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response3.getCode());
+    Assert.assertEquals(
+        "contract validate error : callValue must >= 0",
+        response3.getMessage().toStringUtf8());
+
+    // value is Long.MIN_VALUE - 1
+    long callValue5 = Long.MIN_VALUE - 1;
+    Return response4 = PublicMethed
+        .withdrawTrxForReturn(mainGateWayAddress,
+            sideGatewayAddress,
+            callValue4,
+            maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
+            blockingSideStubFull);
+
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response4.getCode());
+    Assert.assertEquals(
+        "contract validate error : callValue must >= 0",
+        response4.getMessage().toStringUtf8());
     Account accountSideAfterWithdraw = PublicMethed
         .queryAccount(depositAddress, blockingSideStubFull);
     long accountSideAfterWithdrawBalance = accountSideAfterWithdraw.getBalance();
@@ -259,11 +271,58 @@ public class WithdrawTrx002 {
         .encode58Check(addressAfterWithdraw.toByteArray());
     logger.info("addressAfterWithdrawAddress:" + addressAfterWithdrawAddress);
     Assert.assertEquals(Base58.encode58Check(depositAddress), addressAfterWithdrawAddress);
-    Assert.assertEquals(0, accountSideAfterWithdrawBalance);
+    Assert.assertEquals(accountSideBeforeBalance, accountSideAfterWithdrawBalance);
     Account accountMainAfterWithdraw = PublicMethed.queryAccount(depositAddress, blockingStubFull);
     long accountMainAfterWithdrawBalance = accountMainAfterWithdraw.getBalance();
     logger.info("accountAfterWithdrawBalance:" + accountMainAfterWithdrawBalance);
-    Assert.assertEquals(accountMainAfterWithdrawBalance, accountMainAfterBalance);
+    Assert.assertEquals(accountMainAfterWithdrawBalance, accountMainBeforeBalance);
+
+
+  }
+
+
+  @Test(enabled = true, description = "Withdraw Trx")
+  public void test1WithdrawTrx003() {
+    Account accountMainBefore = PublicMethed.queryAccount(depositAddress, blockingStubFull);
+    long accountMainBeforeBalance = accountMainBefore.getBalance();
+    logger.info("accountMainBeforeBalance:" + accountMainBeforeBalance);
+    Account accountSideBefore = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
+    long accountSideBeforeBalance = accountSideBefore.getBalance();
+    Assert.assertEquals(1, accountSideBeforeBalance);
+
+    final String sideGatewayAddress = Configuration.getByPath("testng.conf")
+        .getString("gateway_address.key2");
+    logger.info("sideGatewayAddress:" + sideGatewayAddress);
+
+    //feelimit is 1
+    long callValue1 = accountSideBeforeBalance;
+    long fee_limit = 1;
+    String txid = PublicMethed
+        .withdrawTrx(mainGateWayAddress,
+            sideGatewayAddress,
+            callValue1,
+            fee_limit, depositAddress, testKeyFordeposit, blockingStubFull,
+            blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById = PublicMethed
+        .getTransactionInfoById(txid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getResultValue() == 0);
+    long fee = infoById.get().getFee();
+    logger.info("fee:" + fee);
+    Account accountSideAfterWithdraw = PublicMethed
+        .queryAccount(depositAddress, blockingSideStubFull);
+    long accountSideAfterWithdrawBalance = accountSideAfterWithdraw.getBalance();
+    ByteString addressAfterWithdraw = accountSideAfterWithdraw.getAddress();
+    String addressAfterWithdrawAddress = Base58
+        .encode58Check(addressAfterWithdraw.toByteArray());
+    logger.info("addressAfterWithdrawAddress:" + addressAfterWithdrawAddress);
+    Assert.assertEquals(Base58.encode58Check(depositAddress), addressAfterWithdrawAddress);
+    Assert.assertEquals(accountSideBeforeBalance - callValue1, accountSideAfterWithdrawBalance);
+    Account accountMainAfterWithdraw = PublicMethed.queryAccount(depositAddress, blockingStubFull);
+    long accountMainAfterWithdrawBalance = accountMainAfterWithdraw.getBalance();
+    logger.info("accountAfterWithdrawBalance:" + accountMainAfterWithdrawBalance);
+    Assert.assertEquals(accountMainAfterWithdrawBalance, accountMainBeforeBalance + callValue1);
 
 
   }
