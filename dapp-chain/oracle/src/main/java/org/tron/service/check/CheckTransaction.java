@@ -1,6 +1,7 @@
 package org.tron.service.check;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,9 @@ import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AlertUtil;
 import org.tron.db.EventStore;
+import org.tron.db.NonceStore;
 import org.tron.db.TransactionExtensionStore;
+import org.tron.protos.Sidechain.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.ActuatorRun;
 import org.tron.service.task.InitTask;
@@ -61,6 +64,8 @@ public class CheckTransaction {
       }
       // FIXME: fail to delete db, so in main chain contract, it must check dup using nonce.
       byte[] nonceKeyBytes = txExtensionCapsule.getNonceKeyBytes();
+      NonceStore.getInstance()
+          .putData(nonceKeyBytes, ByteBuffer.allocate(1).putInt(NonceStatus.SUCCESS_VALUE).array());
       EventStore.getInstance().deleteData(nonceKeyBytes);
       TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
     } catch (TxRollbackException e) {

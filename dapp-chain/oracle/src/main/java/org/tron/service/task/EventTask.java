@@ -1,6 +1,7 @@
 package org.tron.service.task;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.tron.common.utils.WalletUtil;
 import org.tron.db.EventStore;
 import org.tron.db.NonceStore;
 import org.tron.db.TransactionExtensionStore;
+import org.tron.protos.Sidechain.NonceStatus;
 import org.tron.service.check.CheckTransaction;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
@@ -56,28 +58,28 @@ public class EventTask {
           continue;
         }
 
-        if (nonceStore.exist(eventActuator.getNonceKey())) {
-          // TODO: handle expire
-          byte[] txExtensionBytes = TransactionExtensionStore.getInstance()
-              .getData(eventActuator.getNonceKey());
-          if (txExtensionBytes != null) {
+        byte[] nonceStatusBytes = nonceStore.getData(eventActuator.getNonceKey());
+        if (nonceStatusBytes == null) {
+          // receive this nonce firstly
+          eventStore.putData(eventActuator.getNonceKey(), eventActuator.getMessage().toByteArray());
+          nonceStore.putData(eventActuator.getNonceKey(),
+              ByteBuffer.allocate(1).putInt(NonceStatus.PROCESSING_VALUE).array());
+          ActuatorRun.getInstance().start(eventActuator);
+        } else {
+          NonceStatus nonceStatus = NonceStatus
+              .forNumber(ByteBuffer.wrap(nonceStatusBytes).getInt());
+          if (nonceStatus.equals(NonceStatus.SUCCESS)) {
+            logger.info("the retried nonce has be executed successfully");
+          } else {
+            byte[] txExtensionBytes = TransactionExtensionStore.getInstance()
+                .getData(eventActuator.getNonceKey());
             try {
               CheckTransaction.getInstance()
                   .submitCheck(new TransactionExtensionCapsule(txExtensionBytes), 1);
             } catch (InvalidProtocolBufferException e) {
-              // FIXME
               logger.error("retry fail: {}", e.getMessage(), e);
             }
-          } else {
-            logger.info("the retried nonce has succeeded");
           }
-        } else {
-          eventStore.putData(eventActuator.getNonceKey(), eventActuator.getMessage().toByteArray());
-          if (eventActuator.getNonce() != null) {
-            nonceStore.putData(eventActuator.getNonceKey(), eventActuator.getNonceKey());
-          }
-
-          ActuatorRun.getInstance().start(eventActuator);
         }
         this.kfkConsumer.commit();
       }

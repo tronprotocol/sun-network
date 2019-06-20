@@ -22,6 +22,11 @@ enum TaskEnum {
   SIDE_CHAIN = 1;
 }
 
+enum NonceStatus {
+  PROCESSING = 0;
+  SUCCESS = 1;
+}
+
 message EventMsg {
   enum EventType {
     DEPOSIT_TRC10_EVENT = 0;
