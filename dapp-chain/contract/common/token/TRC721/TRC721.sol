@@ -101,7 +101,7 @@ contract TRC721 is ITRC721 {
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
      */
-    function transferFrom(address from, address to, uint256 tokenId) external {
+    function transferFrom(address from, address to, uint256 tokenId) public {
         require(_isApprovedOrOwner(msg.sender, tokenId));
 
         _transferFrom(from, to, tokenId);
@@ -182,7 +182,7 @@ contract TRC721 is ITRC721 {
         emit Transfer(from, to, tokenId);
     }
 
-    function transfer(address to, uint256 tokenId) external {
+    function transfer(address to, uint256 tokenId) public {
         _transferFrom(msg.sender, to, tokenId);
     }
 
