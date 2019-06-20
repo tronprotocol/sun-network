@@ -9,7 +9,6 @@ import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
 import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.Return;
-import org.tron.api.GrpcAPI.Return.response_code;
 import org.tron.common.config.Args;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.crypto.ECKey;
@@ -152,10 +151,6 @@ public class WalletClient {
       }
     }
     if (transactionExtension == null || !transactionExtension.getResult().getResult()) {
-      // FIXME: handle null
-      if (transactionExtension.getResult().getCode().equals(response_code.DUP_TRANSACTION_ERROR)) {
-        // TODO
-      }
       logger.error("rpc fail, code: {}, message: {}", transactionExtension.getResult().getCode(),
           transactionExtension.getResult().getMessage().toStringUtf8());
       throw new RpcConnectException(

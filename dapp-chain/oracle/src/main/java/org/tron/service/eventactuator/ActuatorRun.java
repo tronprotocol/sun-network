@@ -1,13 +1,19 @@
 package org.tron.service.eventactuator;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import lombok.extern.slf4j.Slf4j;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.utils.AlertUtil;
+import org.tron.db.EventStore;
+import org.tron.db.NonceStore;
 import org.tron.db.TransactionExtensionStore;
+import org.tron.protos.Sidechain.NonceStatus;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.task.TxExtensionTask;
 
+@Slf4j(topic = "actuatorRun")
 public class ActuatorRun {
 
   private static ActuatorRun instance = new ActuatorRun();
@@ -30,10 +36,16 @@ public class ActuatorRun {
       try {
         txExtensionCapsule = eventActuator.createTransactionExtensionCapsule();
       } catch (RpcConnectException e) {
-        AlertUtil.sendAlert("createTransactionExtensionCapsule fail, system exit");
-        System.exit(1);
+        AlertUtil.sendAlert("createTransactionExtensionCapsule fail");
+        logger.error("createTransactionExtensionCapsule fail", e);
+        return;
       }
       if (txExtensionCapsule == null) {
+        byte[] nonceKeyBytes = eventActuator.getNonceKey();
+        NonceStore.getInstance()
+            .putData(nonceKeyBytes,
+                ByteBuffer.allocate(1).putInt(NonceStatus.SUCCESS_VALUE).array());
+        EventStore.getInstance().deleteData(nonceKeyBytes);
         return;
       }
 
