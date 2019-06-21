@@ -34,8 +34,10 @@ public class InitTask {
     Set<byte[]> allTxs = TransactionExtensionStore.getInstance().allValues();
     for (byte[] txExtensionBytes : allTxs) {
       try {
-        CheckTransaction.getInstance()
-            .submitCheck(new TransactionExtensionCapsule(txExtensionBytes), 1);
+        TransactionExtensionCapsule txExtensionCapsule = new TransactionExtensionCapsule(
+            txExtensionBytes);
+        logger.info("init check tx id:{}", txExtensionCapsule.getTransactionId());
+        CheckTransaction.getInstance().submitCheck(txExtensionCapsule, 1);
       } catch (InvalidProtocolBufferException e) {
         logger.error(e.getMessage(), e);
       }

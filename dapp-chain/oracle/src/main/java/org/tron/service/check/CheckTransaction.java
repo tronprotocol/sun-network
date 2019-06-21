@@ -38,16 +38,15 @@ public class CheckTransaction {
   private final ExecutorService syncExecutor = Executors.newFixedThreadPool(100);
 
   public void submitCheck(TransactionExtensionCapsule txExtensionCapsule, int submitCnt) {
-    // TODO: from solidity node
+    syncExecutor.submit(() -> instance.checkTransaction(txExtensionCapsule, submitCnt));
+  }
+
+  private void checkTransaction(TransactionExtensionCapsule txExtensionCapsule, int checkCnt) {
     try {
       Thread.sleep(60 * 1000);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    syncExecutor.submit(() -> instance.checkTransaction(txExtensionCapsule, submitCnt));
-  }
-
-  private void checkTransaction(TransactionExtensionCapsule txExtensionCapsule, int checkCnt) {
 
     if (StringUtils.isEmpty(txExtensionCapsule.getTransactionId())) {
       return;
@@ -63,6 +62,7 @@ public class CheckTransaction {
         EventStore.getInstance().deleteData(nonceKeyBytes);
         TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
         return;
+
       } else {
         // tx fail
         String msg = "tx: " + txExtensionCapsule.getTransactionId()
