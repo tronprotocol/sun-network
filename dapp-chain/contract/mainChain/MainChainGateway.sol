@@ -156,7 +156,7 @@ contract MainChainGateway is  OracleManagerContract {
         require(msg.tokenvalue > 0, "tokenvalue must > 0");
         userDepositList.push(DepositMsg( msg.sender,  address(0), msg.tokenid, msg.tokenvalue, DataModel.TokenKind.TRC10, DataModel.Status.SUCCESS));
         balances.trc10[msg.tokenid] = balances.trc10[msg.tokenid].add(msg.tokenvalue);
-        emit TRC10Received(msg.sender, msg.tokenvalue, msg.tokenid, userDepositList.length - 1);
+        emit TRC10Received(msg.sender, msg.tokenid, msg.tokenvalue, userDepositList.length - 1);
     }
 
     function() external payable {

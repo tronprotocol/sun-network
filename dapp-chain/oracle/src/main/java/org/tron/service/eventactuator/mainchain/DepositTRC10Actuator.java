@@ -30,8 +30,8 @@ public class DepositTRC10Actuator extends Actuator {
 
   public DepositTRC10Actuator(String from, String tokenId, String value, String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
-    ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString tokenIdBS = ByteString.copyFrom(ByteArray.fromString(tokenId));
+    ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
     this.event = DepositTRC10Event.newBuilder().setFrom(fromBS).setValue(valueBS)
         .setTokenId(tokenIdBS)
