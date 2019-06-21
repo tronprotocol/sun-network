@@ -44,7 +44,7 @@ public class ActuatorRun {
         byte[] nonceKeyBytes = eventActuator.getNonceKey();
         NonceStore.getInstance()
             .putData(nonceKeyBytes,
-                ByteBuffer.allocate(1).putInt(NonceStatus.SUCCESS_VALUE).array());
+                ByteBuffer.allocate(4).putInt(NonceStatus.SUCCESS_VALUE).array());
         EventStore.getInstance().deleteData(nonceKeyBytes);
         return;
       }

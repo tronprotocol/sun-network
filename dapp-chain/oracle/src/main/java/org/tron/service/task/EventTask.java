@@ -63,7 +63,7 @@ public class EventTask {
           // receive this nonce firstly
           eventStore.putData(eventActuator.getNonceKey(), eventActuator.getMessage().toByteArray());
           nonceStore.putData(eventActuator.getNonceKey(),
-              ByteBuffer.allocate(1).putInt(NonceStatus.PROCESSING_VALUE).array());
+              ByteBuffer.allocate(4).putInt(NonceStatus.PROCESSING_VALUE).array());
           ActuatorRun.getInstance().start(eventActuator);
         } else {
           NonceStatus nonceStatus = NonceStatus

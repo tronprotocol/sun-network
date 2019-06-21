@@ -56,7 +56,7 @@ public class CheckTransaction {
       // success
       byte[] nonceKeyBytes = txExtensionCapsule.getNonceKeyBytes();
       NonceStore.getInstance()
-          .putData(nonceKeyBytes, ByteBuffer.allocate(1).putInt(NonceStatus.SUCCESS_VALUE).array());
+          .putData(nonceKeyBytes, ByteBuffer.allocate(4).putInt(NonceStatus.SUCCESS_VALUE).array());
       EventStore.getInstance().deleteData(nonceKeyBytes);
       TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
       return;
