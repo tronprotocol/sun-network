@@ -55,23 +55,6 @@ contract OracleManagerContract is Ownable {
         revert("oracle num is not enough 2/3");
     }
 
-    function checkTrc10Oracles(address _to, trcToken tokenId, uint256 num, bytes sign, uint256 nonce, bytes[] sigList) internal {
-        SignMsg storage msl = withdrawMultiSignList[nonce];
-        bytes32 hash = keccak256(abi.encodePacked(_to, uint256(tokenId), num, sign, nonce));
-        for (uint256 i = 0; i < sigList.length; i++) {
-            address _oracle = hash.recover(sigList[i]);
-            if (isOracle(_oracle)) {
-                msl.signedOracle[_oracle] = true;
-                msl.countSign++;
-                if (msl.countSign > numOracles * 2 / 3) {
-                    return;
-                }
-            }
-        }
-        require(msl.countSign > numOracles * 2 / 3, "oracle num not enough 2/3");
-
-    }
-
     function isOracle(address _address) public view returns (bool) {
         if (_address == owner) {
             return true;

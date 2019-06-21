@@ -25,7 +25,7 @@ public class ActuatorRun {
   private ActuatorRun() {
   }
 
-  private final ExecutorService executor = Executors.newFixedThreadPool(5);
+  private final ExecutorService executor = Executors.newFixedThreadPool(100);
 
   private final TransactionExtensionStore transactionExtensionStore = TransactionExtensionStore
       .getInstance();
