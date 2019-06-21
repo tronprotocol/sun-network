@@ -121,7 +121,7 @@ public class MainChainGatewayApi {
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
     byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
     byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
-    byte[] nonceBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
+    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
     byte[] data = ByteUtil
         .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), tokenIdBytes, valueBytes,
             nonceBytes);
