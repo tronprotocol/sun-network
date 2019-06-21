@@ -1,6 +1,6 @@
 sudo: required
 language: java
-jdk: oraclejdk13
+jdk: oraclejdk11
 addons:
   ssh_known_hosts:
     - 47.94.231.67:22008

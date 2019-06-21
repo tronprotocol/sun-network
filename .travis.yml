@@ -1,5 +1,6 @@
 sudo: required
 language: java
+dist: trusty
 jdk: oraclejdk11
 addons:
   ssh_known_hosts:
