@@ -21,6 +21,7 @@ matrix:
     - name: build
       script:
         - sh tron.sh
+        - "ls"
         - "./gradlew build"
         - "./gradlew jacocoTestReport"
 
