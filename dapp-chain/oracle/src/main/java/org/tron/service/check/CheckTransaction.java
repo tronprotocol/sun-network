@@ -2,6 +2,7 @@ package org.tron.service.check;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
@@ -52,27 +53,28 @@ public class CheckTransaction {
       return;
     }
     Boolean ret = checkTxInfoReturnNull(txExtensionCapsule);
-    if (ret != null && ret) {
-      // success
-      byte[] nonceKeyBytes = txExtensionCapsule.getNonceKeyBytes();
-      NonceStore.getInstance()
-          .putData(nonceKeyBytes, ByteBuffer.allocate(1).putInt(NonceStatus.SUCCESS_VALUE).array());
-      EventStore.getInstance().deleteData(nonceKeyBytes);
-      TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
-      return;
-    }
-    if (ret != null && !ret) {
-      // tx fail
-      String msg = "tx: " + txExtensionCapsule.getTransactionId()
-          + ", fail, please resolve this problem by reviewing and inspecting logs of oracle";
-      logger.error(msg);
-      AlertUtil.sendAlert(msg);
-      return;
+    if (Objects.nonNull(ret)) {
+      if (ret) {
+        // success
+        byte[] nonceKeyBytes = txExtensionCapsule.getNonceKeyBytes();
+        NonceStore.getInstance()
+            .putData(nonceKeyBytes,
+                ByteBuffer.allocate(1).putInt(NonceStatus.SUCCESS_VALUE).array());
+        EventStore.getInstance().deleteData(nonceKeyBytes);
+        TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
+        return;
+      } else {
+        // tx fail
+        String msg = "tx: " + txExtensionCapsule.getTransactionId()
+            + ", fail, please resolve this problem by reviewing and inspecting logs of oracle";
+        logger.error(msg);
+        AlertUtil.sendAlert(msg);
+        return;
+      }
     }
     // ret == null
-    String msg = String
-        .format("tx: %s, not found, check count: %d", txExtensionCapsule.getTransactionId(),
-            checkCnt);
+    String msg = String.format("tx: %s, not found, check count: %d",
+        txExtensionCapsule.getTransactionId(), checkCnt);
     logger.error(msg);
     if (checkCnt > 5) {
       AlertUtil.sendAlert(msg + ", check transaction exceeds 5 times");
