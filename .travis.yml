@@ -26,7 +26,6 @@ matrix:
     script:
     - cd dapp-chain/side-chain
     - sh tron.sh
-    - ls
     -  "./gradlew build"
     - "./gradlew jacocoTestReport"
 
