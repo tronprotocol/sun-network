@@ -1,7 +1,7 @@
 sudo: required
 language: java
 dist: trusty
-jdk: oraclejdk11
+jdk: oraclejdk8
 addons:
   ssh_known_hosts:
     - 47.95.206.44:22008
