@@ -36,8 +36,9 @@ public class ActuatorRun {
       try {
         txExtensionCapsule = eventActuator.createTransactionExtensionCapsule();
       } catch (RpcConnectException e) {
-        AlertUtil.sendAlert("createTransactionExtensionCapsule fail");
-        logger.error("createTransactionExtensionCapsule fail", e);
+        String msg = "create transaction extension capsule fail";
+        AlertUtil.sendAlert(msg);
+        logger.error(msg, e);
         return;
       }
       if (txExtensionCapsule == null) {

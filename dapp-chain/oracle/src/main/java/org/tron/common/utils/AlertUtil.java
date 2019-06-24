@@ -51,6 +51,6 @@ public class AlertUtil {
     } catch (RpcConnectException e) {
       logger.error(e.getMessage(), e);
     }
-    AlertUtil.sendAlert("oracle alert");
+    AlertUtil.sendAlert("oracle alert test");
   }
 }

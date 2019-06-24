@@ -23,16 +23,15 @@ public class TxExtensionTask implements Runnable {
       CheckTransaction.getInstance().broadcastTransaction(this.txExtensionCapsule);
       CheckTransaction.getInstance().submitCheck(this.txExtensionCapsule, 1);
     } catch (RpcConnectException e) {
-      // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 1.2
-      // NOTE: have retried for 5 times in broadcastTransaction
-      AlertUtil.sendAlert("1.2");
+      AlertUtil.sendAlert(
+          String.format("tx: %s, rpc connect fail", txExtensionCapsule.getTransactionId()));
       logger.error(e.getMessage(), e);
     } catch (TxValidateException e) {
-      // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 4.1
-      AlertUtil.sendAlert("4.1");
+      AlertUtil.sendAlert(String.format("tx: %s, validation fail, will not exist on chain",
+          txExtensionCapsule.getTransactionId()));
       logger.error(e.getMessage(), e);
     } catch (TxExpiredException e) {
-      AlertUtil.sendAlert("4.1.1");
+      AlertUtil.sendAlert(String.format("tx: %s, expired", txExtensionCapsule.getTransactionId()));
       logger.error(e.getMessage(), e);
     }
   }
