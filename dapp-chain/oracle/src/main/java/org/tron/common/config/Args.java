@@ -29,6 +29,10 @@ public class Args {
   private String shellConfFileName = "";
 
   @Getter
+  @Parameter(names = {"-i", "--init-task"}, description = "exe init task before event task")
+  private boolean initTask = true;
+
+  @Getter
   private List<String> mainchainFullNodeList;
   @Getter
   private String mainchainFullNode;
