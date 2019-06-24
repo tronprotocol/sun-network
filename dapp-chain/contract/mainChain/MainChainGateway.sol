@@ -78,7 +78,7 @@ contract MainChainGateway is  OracleManagerContract {
     function withdrawTRC10(address _to, trcToken tokenId, uint256 value, uint256 nonce, bytes[] oracleSigns)
     public onlyOracle()
     {
-        require(oracleSigns.length<=numOracles,"signs num > oracles num");
+        require(oracleSigns.length<=numOracles,"withdraw TRC10 signs num > oracles num");
         require(withdrawDone[nonce] == false, "withdrawDone[nonce] != false");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, tokenId, value, nonce));
         checkOracles(dataHash, nonce, oracleSigns);
@@ -92,7 +92,7 @@ contract MainChainGateway is  OracleManagerContract {
     function withdrawTRC20(address _to, address contractAddress, uint256 value, uint256 nonce, bytes[] oracleSigns)
     public onlyOracle()
     {
-        require(oracleSigns.length<=numOracles,"signs num > oracles num");
+        require(oracleSigns.length<=numOracles,"withdraw TRC20 signs num > oracles num");
         require(withdrawDone[nonce] == false, "withdrawDone[nonce] != false");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, value, nonce));
         checkOracles(dataHash, nonce, oracleSigns);
@@ -105,7 +105,7 @@ contract MainChainGateway is  OracleManagerContract {
     function withdrawTRC721(address _to, address contractAddress, uint256 uid, uint256 nonce, bytes[] oracleSigns)
     public onlyOracle()
     {
-        require(oracleSigns.length<=numOracles,"signs num > oracles num");
+        require(oracleSigns.length<=numOracles,"withdraw TRC721 signs num > oracles num");
         require(withdrawDone[nonce] == false, "withdrawDone[nonce] != false");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, uid, nonce));
         checkOracles(dataHash, nonce, oracleSigns);
@@ -119,7 +119,7 @@ contract MainChainGateway is  OracleManagerContract {
     function withdrawTRX(address _to, uint256 value, uint256 nonce, bytes[] oracleSigns)
     public onlyOracle()
     {
-        require(oracleSigns.length<=numOracles,"signs num > oracles num");
+        require(oracleSigns.length<=numOracles,"withdraw TRX signs num > oracles num");
         require(withdrawDone[nonce] == false, "withdrawDone[nonce] != false");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, value, nonce));
         checkOracles(dataHash, nonce, oracleSigns);
