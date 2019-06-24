@@ -1524,4 +1524,26 @@ public class PublicMethed {
     Transaction transaction = blockingStubFull.getTransactionById(request);
     return Optional.ofNullable(transaction);
   }
+
+  /**
+   * constructor.
+   */
+
+  public static SmartContract getContract(byte[] address, WalletGrpc
+      .WalletBlockingStub blockingStubFull) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    ByteString byteString = ByteString.copyFrom(address);
+    BytesMessage bytesMessage = BytesMessage.newBuilder().setValue(byteString).build();
+    Integer i = 0;
+    while (blockingStubFull.getContract(bytesMessage).getName().isEmpty() && i++ < 4) {
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+    logger.info("contract name is " + blockingStubFull.getContract(bytesMessage).getName());
+    logger.info("contract address is " + WalletClient.encode58Check(address));
+    return blockingStubFull.getContract(bytesMessage);
+  }
 }
