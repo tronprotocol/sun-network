@@ -16,6 +16,7 @@ import org.iq80.leveldb.DBException;
 import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
 import org.springframework.stereotype.Component;
+import org.tron.core.capsule.ProtoCapsule;
 
 @Slf4j(topic = "db")
 public class OracleStore {
@@ -169,5 +170,12 @@ public class OracleStore {
     } finally {
       resetDbLock.readLock().unlock();
     }
+  }
+
+  public boolean hasNext() {
+    if (database.iterator().hasNext()){
+      return  true;
+    }
+    return false;
   }
 }

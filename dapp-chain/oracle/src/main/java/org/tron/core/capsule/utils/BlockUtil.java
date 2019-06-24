@@ -16,9 +16,13 @@
 package org.tron.core.capsule.utils;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Empty;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.tron.common.config.Args;
+import org.tron.common.config.GenesisBlock;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.core.capsule.BlockCapsule;
@@ -35,33 +39,24 @@ public class BlockUtil {
    */
   public static BlockCapsule newGenesisBlockCapsule() {
 
-//    Args args = Args.getInstance();
-//    GenesisBlock genesisBlockArg = args.getGenesisBlock();
-//    List<Transaction> transactionList =
-//        genesisBlockArg.getAssets().stream()
-//            .map(key -> {
-//              byte[] address = key.getAddress();
-//              long balance = key.getBalance();
-//              return TransactionUtil.newGenesisTransaction(address, balance);
-//            })
-//            .collect(Collectors.toList());
-//
-//    long timestamp = Long.parseLong(genesisBlockArg.getTimestamp());
-//    ByteString parentHash =
-//        ByteString.copyFrom(ByteArray.fromHexString(genesisBlockArg.getParentHash()));
-//    long number = Long.parseLong(genesisBlockArg.getNumber());
-//
-//    BlockCapsule blockCapsule = new BlockCapsule(timestamp, parentHash, number, transactionList);
-//
-//    blockCapsule.setMerkleRoot();
-//    blockCapsule.setWitness(
-//        "A new system must allow existing systems to be linked together without "
-//            + "requiring any central control or coordination");
-//    blockCapsule.generatedByMyself = true;
-//
-//    return blockCapsule;
-    //TODO: FIX ORACLE
-    return null;
+    Args args = Args.getInstance();
+    GenesisBlock genesisBlockArg = args.getGenesisBlock();
+    List<Transaction> transactionList = Collections.emptyList();
+
+    long timestamp = Long.parseLong(genesisBlockArg.getTimestamp());
+    ByteString parentHash =
+        ByteString.copyFrom(ByteArray.fromHexString(genesisBlockArg.getParentHash()));
+    long number = Long.parseLong(genesisBlockArg.getNumber());
+
+    BlockCapsule blockCapsule = new BlockCapsule(timestamp, parentHash, number, transactionList);
+
+    blockCapsule.setMerkleRoot();
+    blockCapsule.setWitness(
+        "A new system must allow existing systems to be linked together without "
+            + "requiring any central control or coordination");
+    blockCapsule.generatedByMyself = true;
+
+    return blockCapsule;
   }
 
   /**

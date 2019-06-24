@@ -6,6 +6,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
@@ -38,6 +39,9 @@ public class Args {
 
   @Parameter(names = {"-c", "--config"}, description = "Config File")
   private String shellConfFileName = "";
+
+  @Parameter(names = {"-d", "--database"}, description = "Directory")
+  private String databaseDirectory = "database";
 
   @Getter
   private List<String> mainchainFullNodeList;
@@ -190,6 +194,12 @@ public class Args {
   @Parameter(names = {"--validate-sign-thread"}, description = "Num of validate thread")
   private int validateSignThreadNum;
 
+  @Getter
+  @Setter
+  private String chainId;
+
+  @Getter
+  private GenesisBlock genesisBlock;
   /**
    * set parameters.
    */
@@ -339,6 +349,20 @@ public class Args {
 
     this.validateSignThreadNum = config.hasPath("node.validateSignThreadNum") ? config
         .getInt("node.validateSignThreadNum") : Runtime.getRuntime().availableProcessors() / 2;
+
+
+    if (config.hasPath("genesis.block")) {
+      this.genesisBlock = new GenesisBlock();
+
+      this.genesisBlock.setTimestamp(config.getString("genesis.block.timestamp"));
+      this.genesisBlock.setParentHash(config.getString("genesis.block.parentHash"));
+
+//      if (config.hasPath("genesis.block.witnesses")) {
+//        this.genesisBlock.setWitnesses(getWitnessesFromConfig(config));
+//      }
+    } else {
+      this.genesisBlock = GenesisBlock.getDefault();
+    }
     // loadMysqlConf(config);
 
     // loadSunTokenAddress();
@@ -397,6 +421,15 @@ public class Args {
     return ret;
   }
 
+  /**
+   * get output directory.
+   */
+  public String getDatabaseDirectory() {
+    if (!this.databaseDirectory.equals("") && !this.databaseDirectory.endsWith(File.separator)) {
+      return this.databaseDirectory + File.separator;
+    }
+    return this.databaseDirectory;
+  }
   public static void main(String[] args) {
     try {
       Args.getInstance().setParam(args);

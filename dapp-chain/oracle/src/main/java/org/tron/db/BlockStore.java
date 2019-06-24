@@ -5,13 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
+@Component
 public class BlockStore extends OracleStore {
-
-  private static BlockStore instance = new BlockStore();
-
-  public static BlockStore getInstance() {
-    return instance;
-  }
 
   private BlockStore() {
     this.dataBaseName = "block";

@@ -48,6 +48,9 @@ public class InitTask {
   @Autowired
   private EventStore eventStore;
 
+  @Autowired
+  private ActuatorRun actuatorRun;
+
   public InitTask(int fixedThreads) {
     this.executor = Executors.newFixedThreadPool(fixedThreads);
   }
@@ -73,7 +76,7 @@ public class InitTask {
         if (actuator == null || allTxKeys.contains(actuator.getKey())) {
           continue;
         }
-        ActuatorRun.getInstance().start(actuator);
+        actuatorRun.start(actuator);
       } catch (InvalidProtocolBufferException e) {
         // FIXME
         logger.error(e.getMessage(), e);

@@ -4,6 +4,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.utils.AlertUtil;
 import org.tron.db.TransactionExtensionStore;
@@ -11,16 +12,11 @@ import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.task.TxExtensionTask;
 
 @Slf4j
+@Component
 public class ActuatorRun {
 
   @Autowired
   private TransactionExtensionStore transactionExtensionStore;
-
-  private static ActuatorRun instance = new ActuatorRun();
-
-  public static ActuatorRun getInstance() {
-    return instance;
-  }
 
   private ActuatorRun() {
   }

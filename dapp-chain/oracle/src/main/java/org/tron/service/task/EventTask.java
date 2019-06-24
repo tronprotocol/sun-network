@@ -25,6 +25,8 @@ public class EventTask {
 
   @Autowired
   private EventStore store;
+  @Autowired
+  private  ActuatorRun actuatorRun;
   private String mainGateway;
   private String sideGateway;
 
@@ -69,7 +71,7 @@ public class EventTask {
           store.putData(eventActuator.getKey(), eventActuator.getMessage().toByteArray());
           this.kfkConsumer.commit();
 
-          ActuatorRun.getInstance().start(eventActuator);
+          actuatorRun.start(eventActuator);
         }
       }
     }).start();
