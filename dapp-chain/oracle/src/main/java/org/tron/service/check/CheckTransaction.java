@@ -65,20 +65,19 @@ public class CheckTransaction {
 
       } else {
         // tx fail
-        String msg = "tx: " + txExtensionCapsule.getTransactionId()
-            + ", fail, please resolve this problem by reviewing and inspecting logs of oracle";
+        String msg = String.format("tx: %s, fail, please resolve this problem by reviewing and "
+            + "inspecting logs of oracle", txExtensionCapsule.getTransactionId());
         logger.error(msg);
         AlertUtil.sendAlert(msg);
         return;
       }
     }
     // ret == null
-    String msg = String.format("tx: %s, not found, check count: %d",
-        txExtensionCapsule.getTransactionId(), checkCnt);
-    logger.error(msg);
     if (checkCnt > 5) {
-      AlertUtil.sendAlert(msg + ", check transaction exceeds 5 times");
-      logger.error("check transaction exceeds 5 times");
+      String msg = String.format("tx: %s, not found, check count: %d, exceeds 5 times",
+          txExtensionCapsule.getTransactionId(), checkCnt);
+      AlertUtil.sendAlert(msg);
+      logger.error(msg);
       return;
     }
     try {
@@ -95,14 +94,13 @@ public class CheckTransaction {
         instance.submitCheck(txExtensionCapsule, checkCnt + 1);
       }
     } catch (RpcConnectException e1) {
-      // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 1.2
-      // NOTE: have retried for 5 times in broadcastTransaction
-      AlertUtil.sendAlert("1.2");
+      AlertUtil.sendAlert(
+          String.format("tx: %s, rpc connect fail", txExtensionCapsule.getTransactionId()));
       logger.error(e1.getMessage(), e1);
       return;
     } catch (TxValidateException e1) {
-      // NOTE: http://106.39.105.178:8090/pages/viewpage.action?pageId=8992655 4.1
-      AlertUtil.sendAlert("4.1");
+      AlertUtil.sendAlert(String.format("tx: %s, validation fail, will not exist on chain",
+          txExtensionCapsule.getTransactionId()));
       logger.error(e1.getMessage(), e1);
       return;
     }
@@ -113,7 +111,7 @@ public class CheckTransaction {
     try {
       broadcastTransaction(txExtensionCapsule);
     } catch (TxExpiredException e1) {
-      AlertUtil.sendAlert("TxExpiredException tx id is " + txExtensionCapsule.getTransactionId());
+      AlertUtil.sendAlert(String.format("tx: %s, expired", txExtensionCapsule.getTransactionId()));
       return true;
     }
     return false;
