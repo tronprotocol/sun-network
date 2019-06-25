@@ -15,6 +15,7 @@ message TransactionExtension {
   bytes transaction_id = 2;
   bytes nonce_key = 3;
   TaskEnum task_enum = 4;
+  int64 delay = 5;
 }
 
 enum TaskEnum {

@@ -3,12 +3,18 @@ package org.tron.service.eventactuator.sidechain;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
-import org.tron.common.exception.RpcConnectException;
+import org.tron.client.SideChainGatewayApi;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.ByteUtil;
+import org.tron.common.utils.DataWord;
+import org.tron.common.utils.SignUtils;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
@@ -44,27 +50,62 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule()
-      throws RpcConnectException {
+  public TransactionExtensionCapsule createTransactionExtensionCapsule() {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;
     }
+    try {
+      String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+      String tokenIdStr = event.getTokenId().toStringUtf8();
+      String valueStr = event.getValue().toStringUtf8();
+      String nonceStr = event.getNonce().toStringUtf8();
+      List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(nonceStr);
 
-    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
-    String tokenIdStr = event.getTokenId().toStringUtf8();
-    String valueStr = event.getValue().toStringUtf8();
-    String nonceStr = event.getNonce().toStringUtf8();
+      logger.info("MultiSignForWithdrawTRC10Actuator, from: {}, tokenId: {}, value: {}, nonce: {}",
+          fromStr, tokenIdStr, valueStr, nonceStr);
 
-    logger.info("MultiSignForWithdrawTRC10Actuator, from: {}, tokenId: {}, value: {}, nonce: {}",
-        fromStr, tokenIdStr, valueStr, nonceStr);
-    Transaction tx = MainChainGatewayApi
-        .multiSignForWithdrawTRC10Transaction(fromStr, tokenIdStr, valueStr, nonceStr);
-    if (tx == null) {
+      Transaction tx = MainChainGatewayApi.multiSignForWithdrawTRC10Transaction(fromStr,
+          tokenIdStr, valueStr, nonceStr, oracleSigns);
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
+          PREFIX + nonceStr, tx, getDelay(fromStr,
+          tokenIdStr, valueStr, nonceStr, oracleSigns));
+      return this.transactionExtensionCapsule;
+    } catch (Exception e) {
+      logger.error("when create transaction extension capsule", e);
       return null;
     }
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
-        PREFIX + nonceStr, tx);
-    return this.transactionExtensionCapsule;
+  }
+
+  private long getDelay(String from, String tokenId, String value, String nonce,
+      List<String> oracleSigns) {
+
+    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
+    byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
+    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
+    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
+    byte[] data = ByteUtil
+        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), tokenIdBytes, valueBytes,
+            nonceBytes);
+    String ownSign = MainChainGatewayApi.sign(data);
+    return SignUtils.getDelay(ownSign, oracleSigns);
+  }
+
+  @Override
+  public void broadcastTransactionExtensionCapsule() {
+
+    boolean done = getWithdrawStatus(nonce);
+    List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(nonce);
+//    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
+//    byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
+//    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
+//    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
+//    byte[] data = ByteUtil
+//        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), tokenIdBytes, valueBytes,
+//            nonceBytes);
+//    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+//
+//    sleeping(ownSign, oracleSigns);
+//    boolean done = getWithdrawStatus(nonce);
   }
 
   @Override

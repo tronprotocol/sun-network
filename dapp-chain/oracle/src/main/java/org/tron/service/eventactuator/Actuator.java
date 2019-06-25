@@ -13,7 +13,11 @@ public abstract class Actuator {
 
   public abstract EventType getType();
 
-  public abstract TransactionExtensionCapsule createTransactionExtensionCapsule()
+  public abstract TransactionExtensionCapsule createTransactionExtensionCapsule();
+
+  public abstract void broadcastTransactionExtensionCapsule();
+
+  public abstract TransactionExtensionCapsule checkTransactionExtensionCapsule()
       throws RpcConnectException;
 
   public abstract byte[] getNonceKey();
