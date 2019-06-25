@@ -58,8 +58,6 @@ public class approveGatewayProposal {
 
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
 
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
 
@@ -80,7 +78,7 @@ public class approveGatewayProposal {
   @BeforeClass(enabled = true)
   public void beforeClass() {
 //    PublicMethed.printAddress(testKeyFordeposit);
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
+    channelFull = ManagedChannelBuilder.forTarget(fullnode1)
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
