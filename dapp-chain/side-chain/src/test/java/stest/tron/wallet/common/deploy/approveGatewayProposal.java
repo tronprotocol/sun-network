@@ -116,7 +116,7 @@ public class approveGatewayProposal {
     org.testng.Assert.assertTrue(PublicMethed.sideChainCreateProposal(testDepositAddress,
         testDepositTrx,mainChainAddress, proposalMap, blockingStubFull));
     try {
-      Thread.sleep(20000);
+      Thread.sleep(10000);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
