@@ -13,7 +13,7 @@ public abstract class Actuator {
 
   public abstract EventType getType();
 
-  public abstract TransactionExtensionCapsule createTransactionExtensionCapsule();
+  public abstract TransactionExtensionCapsule getTransactionExtensionCapsule();
 
   public abstract void broadcastTransactionExtensionCapsule();
 

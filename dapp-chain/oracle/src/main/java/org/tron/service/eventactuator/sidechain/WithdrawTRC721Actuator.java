@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
@@ -21,7 +22,7 @@ import org.tron.service.eventactuator.Actuator;
 @Slf4j(topic = "sideChainTask")
 public class WithdrawTRC721Actuator extends Actuator {
 
-  // "event WithdrawTRC721(address from, address mainChainAddress, uint256 uId, uint256 nonce);"
+  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   private static final String PREFIX = "withdraw_1_";
   private WithdrawTRC721Event event;
@@ -43,7 +44,7 @@ public class WithdrawTRC721Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule()
+  public TransactionExtensionCapsule getTransactionExtensionCapsule()
       throws RpcConnectException {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;
@@ -54,7 +55,7 @@ public class WithdrawTRC721Actuator extends Actuator {
     String uIdStr = event.getUId().toStringUtf8();
     String nonceStr = event.getNonce().toStringUtf8();
 
-    logger
+    loggerOracle
         .info("WithdrawTRC721Actuator, from: {}, mainChainAddress: {}, uId: {}, nonce: {}", fromStr,
             mainChainAddressStr, uIdStr, nonceStr);
     Transaction tx = SideChainGatewayApi

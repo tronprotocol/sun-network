@@ -2,8 +2,9 @@ package org.tron.service.check;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.tron.client.MainChainGatewayApi;
@@ -32,18 +33,14 @@ public class CheckTransaction {
   private CheckTransaction() {
   }
 
-  private final ExecutorService syncExecutor = Executors.newFixedThreadPool(100);
+  private final ScheduledExecutorService syncExecutor = Executors.newScheduledThreadPool(100);
 
   public void submitCheck(TransactionExtensionCapsule txExtensionCapsule, int submitCnt) {
-    syncExecutor.submit(() -> instance.checkTransaction(txExtensionCapsule, submitCnt));
+    syncExecutor.schedule(() -> instance.checkTransaction(txExtensionCapsule, submitCnt), 60,
+        TimeUnit.SECONDS);
   }
 
   private void checkTransaction(TransactionExtensionCapsule txExtensionCapsule, int checkCnt) {
-    try {
-      Thread.sleep(60 * 1000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
 
     if (StringUtils.isEmpty(txExtensionCapsule.getTransactionId())) {
       return;
@@ -52,6 +49,7 @@ public class CheckTransaction {
     if (Objects.nonNull(ret)) {
       if (ret) {
         // success
+        // TODO  transaction success put store
         byte[] nonceKeyBytes = txExtensionCapsule.getNonceKeyBytes();
 //        NonceStore.getInstance()
 //            .putData(nonceKeyBytes,
@@ -61,7 +59,12 @@ public class CheckTransaction {
         return;
 
       } else {
-        // tx fail
+//        byte[] nonceKeyBytes = txExtensionCapsule.getNonceKeyBytes();
+//        NonceStore.getInstance()
+//            .putData(nonceKeyBytes,
+//                ByteBuffer.allocate(4).putInt(NonceStatus.).array());
+//        EventStore.getInstance().deleteData(nonceKeyBytes);
+//        TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
         String msg = String.format("tx: %s, fail, please resolve this problem by reviewing and "
             + "inspecting logs of oracle", txExtensionCapsule.getTransactionId());
         logger.error(msg);
@@ -78,18 +81,16 @@ public class CheckTransaction {
       return;
     }
     try {
-      if (broadcastCheckExpired(txExtensionCapsule)) {
-        byte[] nonceKeyBytes = txExtensionCapsule.getNonceKeyBytes();
-        byte[] data = EventStore.getInstance().getData(nonceKeyBytes);
-        try {
-          Actuator eventActuator = InitTask.getActuatorByEventMsg(data);
-          ActuatorRun.getInstance().start(eventActuator);
-        } catch (InvalidProtocolBufferException e2) {
-          e2.printStackTrace();
-        }
-      } else {
-        instance.submitCheck(txExtensionCapsule, checkCnt + 1);
+      broadcastTransaction(txExtensionCapsule);
+      byte[] nonceKeyBytes = txExtensionCapsule.getNonceKeyBytes();
+      byte[] data = EventStore.getInstance().getData(nonceKeyBytes);
+      try {
+        Actuator eventActuator = InitTask.getActuatorByEventMsg(data);
+        ActuatorRun.getInstance().start(eventActuator);
+      } catch (InvalidProtocolBufferException e2) {
+        logger.error("", e2);
       }
+
     } catch (RpcConnectException e1) {
       AlertUtil.sendAlert(
           String.format("tx: %s, rpc connect fail", txExtensionCapsule.getTransactionId()));
@@ -100,18 +101,9 @@ public class CheckTransaction {
           txExtensionCapsule.getTransactionId()));
       logger.error(e1.getMessage(), e1);
       return;
+    } catch (TxExpiredException e) {
+      e.printStackTrace();
     }
-  }
-
-  private Boolean broadcastCheckExpired(TransactionExtensionCapsule txExtensionCapsule)
-      throws TxValidateException, RpcConnectException {
-    try {
-      broadcastTransaction(txExtensionCapsule);
-    } catch (TxExpiredException e1) {
-      AlertUtil.sendAlert(String.format("tx: %s, expired", txExtensionCapsule.getTransactionId()));
-      return true;
-    }
-    return false;
   }
 
   private Boolean checkTxInfoReturnNull(TransactionExtensionCapsule txExtensionCapsule) {
@@ -124,7 +116,6 @@ public class CheckTransaction {
           SideChainGatewayApi.checkTxInfo(txExtensionCapsule.getTransactionId());
           break;
       }
-
     } catch (TxRollbackException e) {
       return null;
     } catch (TxFailException e) {

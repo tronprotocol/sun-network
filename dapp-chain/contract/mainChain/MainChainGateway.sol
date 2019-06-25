@@ -132,43 +132,48 @@ contract MainChainGateway is  OracleManagerContract {
 
     // Approve and Deposit function for 2-step deposits
     // Requires first to have called `approve` on the specified TRC20 contract
-    function depositTRC20( address contractAddress, uint256 value) public {
+    function depositTRC20( address contractAddress, uint256 value) public returns(uint256){
         require(mainToSideContractMap[contractAddress] == 1, "Not an allowe token");
         require(value > 0, "value must > 0");
         TRC20(contractAddress).transferFrom(msg.sender, address(this), value);
         userDepositList.push(DepositMsg( msg.sender, contractAddress, 0, value, DataModel.TokenKind.TRC20, DataModel.Status.SUCCESS));
         balances.trc20[contractAddress] = balances.trc20[contractAddress].add(value);
         emit TRC20Received(msg.sender,contractAddress, value,  userDepositList.length - 1);
+        return userDepositList.length - 1;
     }
 
-    function depositTRC721( address contractAddress, uint256 uid) public {
+    function depositTRC721( address contractAddress, uint256 uid) public returns(uint256) {
         require(mainToSideContractMap[contractAddress] == 1, "Not an allowe token");
         TRC721(contractAddress).transferFrom(msg.sender, address(this), uid);
         userDepositList.push(DepositMsg( msg.sender, contractAddress, 0, uid ,DataModel.TokenKind.TRC721, DataModel.Status.SUCCESS));
         balances.trc721[contractAddress][uid] = true;
         emit TRC721Received(msg.sender,contractAddress, uid,  userDepositList.length - 1);
+        return userDepositList.length - 1;
     }
 
-    function depositTRX() payable public {
+    function depositTRX() payable public returns(uint256) {
         require(msg.value > 0, "tokenvalue must > 0");
         userDepositList.push(DepositMsg( msg.sender, address(0), 0, msg.value, DataModel.TokenKind.TRX, DataModel.Status.SUCCESS));
         balances.tron = balances.tron.add(msg.value);
         emit TRXReceived(msg.sender, msg.value, userDepositList.length - 1);
+        return userDepositList.length - 1;
     }
 
-    function depositTRC10() payable public {
+    function depositTRC10() payable public returns(uint256) {
         require(msg.tokenvalue > 0, "tokenvalue must > 0");
         userDepositList.push(DepositMsg( msg.sender,  address(0), msg.tokenid, msg.tokenvalue, DataModel.TokenKind.TRC10, DataModel.Status.SUCCESS));
         balances.trc10[msg.tokenid] = balances.trc10[msg.tokenid].add(msg.tokenvalue);
         emit TRC10Received(msg.sender, msg.tokenid, msg.tokenvalue, userDepositList.length - 1);
+        return userDepositList.length - 1;
     }
 
-    function() external payable {
+    function() external payable  returns(uint256){
         if (msg.tokenid > 1000000) {
             depositTRC10();
         } else {
             depositTRX();
         }
+        return userDepositList.length - 1;
     }
 
     function mappingTRC20(bytes txId) public payable {

@@ -125,7 +125,6 @@ public class Args {
   }
 
   public static Args getInstance() {
-    // TODO: fix singleton
     if (instance == null) {
       instance = new Args();
     }

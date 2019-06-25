@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
+import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.DataWord;
@@ -27,7 +28,7 @@ import org.tron.service.eventactuator.Actuator;
 @Slf4j(topic = "sideChainTask")
 public class MultiSignForWithdrawTRC10Actuator extends Actuator {
 
-  // "event MultiSignForWithdrawTRC10(address from, trcToken tokenId, uint256 value, uint256 nonce);"
+  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   private static final String PREFIX = "withdraw_2_";
   private MultiSignForWithdrawTRC10Event event;
@@ -50,10 +51,11 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule() {
+  public TransactionExtensionCapsule getTransactionExtensionCapsule() {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;
     }
+
     try {
       String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
       String tokenIdStr = event.getTokenId().toStringUtf8();
@@ -61,11 +63,12 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
       String nonceStr = event.getNonce().toStringUtf8();
       List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(nonceStr);
 
-      logger.info("MultiSignForWithdrawTRC10Actuator, from: {}, tokenId: {}, value: {}, nonce: {}",
-          fromStr, tokenIdStr, valueStr, nonceStr);
-
-      Transaction tx = MainChainGatewayApi.multiSignForWithdrawTRC10Transaction(fromStr,
-          tokenIdStr, valueStr, nonceStr, oracleSigns);
+      loggerOracle
+          .info("MultiSignForWithdrawTRC10Actuator, from: {}, tokenId: {}, value: {}, nonce: {}",
+              fromStr, tokenIdStr, valueStr, nonceStr);
+      Transaction tx = MainChainGatewayApi
+          .multiSignForWithdrawTRC10Transaction(fromStr, tokenIdStr, valueStr, nonceStr,
+              oracleSigns);
       this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
           PREFIX + nonceStr, tx, getDelay(fromStr,
           tokenIdStr, valueStr, nonceStr, oracleSigns));

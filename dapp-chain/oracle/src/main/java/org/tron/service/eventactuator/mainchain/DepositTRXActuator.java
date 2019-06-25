@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
@@ -20,6 +21,8 @@ import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "mainChainTask")
 public class DepositTRXActuator extends Actuator {
+
+  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   private static final String NONCE_TAG = "deposit_";
 
@@ -40,7 +43,7 @@ public class DepositTRXActuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule()
+  public TransactionExtensionCapsule getTransactionExtensionCapsule()
       throws RpcConnectException {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return transactionExtensionCapsule;
@@ -49,7 +52,7 @@ public class DepositTRXActuator extends Actuator {
     String valueStr = event.getValue().toStringUtf8();
     String nonceStr = event.getNonce().toStringUtf8();
 
-    logger.info("DepositTRXActuator, from: {}, value: {}, nonce: {}", fromStr, valueStr,
+    loggerOracle.info("DepositTRXActuator, from: {}, value: {}, nonce: {}", fromStr, valueStr,
         nonceStr);
 
     Transaction tx = SideChainGatewayApi.mintTrxTransaction(fromStr, valueStr, nonceStr);
