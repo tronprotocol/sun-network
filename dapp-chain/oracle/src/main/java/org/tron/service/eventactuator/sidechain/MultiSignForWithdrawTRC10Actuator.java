@@ -101,11 +101,12 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
     try {
       boolean done = MainChainGatewayApi.getWithdrawStatus(nonceStr);
       if (!done) {
-        super.broadcastTransactionExtensionCapsule();
+        return super.broadcastTransactionExtensionCapsule();
       }
     } catch (Exception e) {
       // FIXME: exception level is right ?
       logger.error("when broadcast transaction extension capsule", e);
+      return false;
     }
 
 //    catch (RpcConnectException e) {

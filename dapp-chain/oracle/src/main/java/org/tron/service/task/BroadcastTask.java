@@ -17,7 +17,7 @@ public class BroadcastTask implements Runnable {
   public void run() {
     boolean success = eventActuator.broadcastTransactionExtensionCapsule();
     if (success) {
-      CheckTransaction.getInstance().submitCheck(eventActuator.getTransactionExtensionCapsule(), 1);
+      CheckTransaction.getInstance().submitCheck(eventActuator.getTransactionExtensionCapsule());
     } else {
       // FIXME: write fail to db
     }
