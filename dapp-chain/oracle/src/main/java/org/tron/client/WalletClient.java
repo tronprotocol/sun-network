@@ -177,7 +177,16 @@ public class WalletClient {
   }
 
   public AssetIssueContract getAssetIssueById(String assetId) {
-    return rpcCli.getAssetIssueById(assetId);
+    AssetIssueContract assetIssueById = null;
+    for (int i = maxRetry; i > 0; i--) {
+      assetIssueById = rpcCli.getAssetIssueById(assetId);
+      if (assetIssueById != null) {
+        break;
+      }
+      sleep(retryInterval);
+    }
+
+    return assetIssueById;
   }
 
   private Transaction getTransaction(
