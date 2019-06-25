@@ -108,7 +108,9 @@ public class approveGatewayProposal {
 
 
     HashMap<Long, String> proposalMap = new HashMap<Long, String>();
-    proposalMap.put(21L, sideChainAddress);
+    logger.info("mainChainAddress: "+ mainChainAddress);
+    logger.info("sideChainAddress: "+ sideChainAddress);
+    proposalMap.put(1000001L, sideChainAddress);
     org.testng.Assert.assertTrue(PublicMethed.sideChainCreateProposal(testDepositAddress,
         testDepositTrx,mainChainAddress, proposalMap, blockingStubFull));
     try {
