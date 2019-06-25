@@ -6,11 +6,7 @@ import java.util.Optional;
 import org.tron.api.GrpcAPI.ProposalList;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
-import org.tron.sunapi.request.DeployContractRequest;
-import org.tron.sunapi.request.TriggerContractRequest;
-import org.tron.sunapi.response.DeployContractResponse;
 import org.tron.sunapi.response.TransactionResponse;
-import org.tron.sunapi.response.TriggerContractResponse;
 
 public class MainchainApi extends Chain{
 
@@ -18,14 +14,6 @@ public class MainchainApi extends Chain{
 
   public SunNetworkResponse<Integer> init(String config, String priKey) {
     return super.init(config, priKey, true);
-  }
-
-  public SunNetworkResponse<DeployContractResponse> deployContract(DeployContractRequest request) {
-    return super.deployContract(request);
-  }
-
-  public SunNetworkResponse<TriggerContractResponse> triggerContract(TriggerContractRequest request) {
-    return super.triggerContract(request);
   }
 
   public SunNetworkResponse<TransactionResponse> createProposal(HashMap<Long, Long> parametersMap) {

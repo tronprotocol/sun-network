@@ -6,18 +6,12 @@ import java.util.Optional;
 import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
-import org.tron.sunapi.request.DeployContractRequest;
-import org.tron.sunapi.response.DeployContractResponse;
 import org.tron.sunapi.response.TransactionResponse;
 
 public class SidechainApi extends Chain{
 
   public SunNetworkResponse<Integer> init(String config, String priKey) {
     return super.init(config, priKey, false);
-  }
-
-  public SunNetworkResponse<DeployContractResponse> deployContract(DeployContractRequest request) {
-    return super.deployContract(request);
   }
 
   public SunNetworkResponse<TransactionResponse> createProposal(HashMap<Long, String> parametersMap) {
