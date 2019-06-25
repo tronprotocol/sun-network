@@ -21,6 +21,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.EmptyMessage;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
@@ -118,16 +119,16 @@ public class approveGatewayProposal {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-//    //Get proposal list
-//    ProposalList proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
-//    Optional<ProposalList> listProposals = Optional.ofNullable(proposalList);
-//    final Integer proposalId = listProposals.get().getProposalsCount();
-//    logger.info(Integer.toString(proposalId));
-//
-//    //Get proposal list after approve
-//    proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
-//    listProposals = Optional.ofNullable(proposalList);
-//    logger.info(Integer.toString(listProposals.get().getProposals(0).getApprovalsCount()));
+    //Get proposal list
+    SideChainProposalList proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    Optional<SideChainProposalList> listProposals = Optional.ofNullable(proposalList);
+    final Integer proposalId = listProposals.get().getProposalsCount();
+    logger.info(Integer.toString(proposalId));
+
+    //Get proposal list after approve
+    proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    listProposals = Optional.ofNullable(proposalList);
+    logger.info(Integer.toString(listProposals.get().getProposals(0).getApprovalsCount()));
 
     String[] witnessKey = {
         "369F095838EB6EED45D4F6312AF962D5B9DE52927DA9F04174EE49F9AF54BC77",
@@ -136,7 +137,7 @@ public class approveGatewayProposal {
     byte[] witnessAddress;
     for (String key : witnessKey) {
       witnessAddress = PublicMethed.getFinalAddress(key);
-      PublicMethed.approveProposal(witnessAddress, key, mainChainAddress,1000001,
+      PublicMethed.approveProposal(witnessAddress, key, mainChainAddress,proposalId,
           true, blockingStubFull);
       try {
         Thread.sleep(1000);
