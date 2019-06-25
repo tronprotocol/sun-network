@@ -79,7 +79,7 @@ public class EventActuatorFactory {
         return task;
       }
       default: {
-        logger.info("event:{},signature:{}.", obj.get("eventSignature").toString(),
+        logger.info("main chain event:{},signature:{}.", obj.get("eventSignature").toString(),
             eventSignature.getSignature());
       }
     }
@@ -146,8 +146,8 @@ public class EventActuatorFactory {
         return task;
       }
       default: {
-        logger.info("event:{},signature:{}.",
-            obj.get("eventSignature").toString(), eventType.getMethod());
+        logger.info("side chain event:{},signature:{}.", obj.get("eventSignature").toString(),
+            eventType.getMethod());
       }
     }
     return null;

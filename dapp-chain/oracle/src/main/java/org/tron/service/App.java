@@ -23,8 +23,10 @@ public class App {
       logger.error("failed to get sun token when setParam", e);
       System.exit(1);
     }
-
-    (new InitTask()).batchProcessTxInDb();
+    System.out.println(arg.isInitTask());
+    if (arg.isInitTask()) {
+      (new InitTask()).batchProcessTxInDb();
+    }
     (new EventTask()).processEvent();
   }
 }

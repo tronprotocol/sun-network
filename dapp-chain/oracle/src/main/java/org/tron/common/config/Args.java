@@ -29,6 +29,11 @@ public class Args {
   private String shellConfFileName = "";
 
   @Getter
+  @Parameter(names = {"-i",
+      "--init-task"}, help = true, description = "exe init task before event task")
+  private boolean initTask = false;
+
+  @Getter
   private List<String> mainchainFullNodeList;
   @Getter
   private String mainchainFullNode;
@@ -167,6 +172,9 @@ public class Args {
 
     if (config.hasPath("alert.dingding.webhook.token")) {
       this.alertDingWebhookToken = config.getString("alert.dingding.webhook.token");
+    }
+    if (config.hasPath("initTaskSwitch") && config.getBoolean("initTaskSwitch")) {
+      this.initTask = true;
     }
 
     // loadMysqlConf(config);
