@@ -44,8 +44,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 public class approveGatewayProposal {
 
 
-  private final String testDepositTrx = Configuration.getByPath("testng.conf")
-      .getString("witness.key2");
+  private final String testDepositTrx = "324a2052e491e99026442d81df4d2777292840c1b3949e20696c49096c6bacb7";
   private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
@@ -111,6 +110,7 @@ public class approveGatewayProposal {
     HashMap<Long, String> proposalMap = new HashMap<Long, String>();
     logger.info("mainChainAddress: "+ mainChainAddress);
     logger.info("sideChainAddress: "+ sideChainAddress);
+    logger.info("testDepositTrx: " + testDepositTrx);
     proposalMap.put(1000001L, sideChainAddress);
     org.testng.Assert.assertTrue(PublicMethed.sideChainCreateProposal(testDepositAddress,
         testDepositTrx,mainChainAddress, proposalMap, blockingStubFull));
