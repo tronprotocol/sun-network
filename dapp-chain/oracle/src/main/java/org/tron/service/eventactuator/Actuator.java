@@ -1,8 +1,8 @@
 package org.tron.service.eventactuator;
 
-import org.tron.common.exception.RpcConnectException;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
+import org.tron.service.check.CheckTransaction;
 import org.tron.service.check.TransactionExtensionCapsule;
 
 public abstract class Actuator {
@@ -15,13 +15,13 @@ public abstract class Actuator {
 
   public abstract TransactionExtensionCapsule getTransactionExtensionCapsule();
 
-  public abstract void broadcastTransactionExtensionCapsule();
-
-  public abstract TransactionExtensionCapsule checkTransactionExtensionCapsule()
-      throws RpcConnectException;
+  public boolean broadcastTransactionExtensionCapsule() {
+    CheckTransaction.getInstance().broadcastTransaction(this.txExtensionCapsule);
+    CheckTransaction.getInstance().submitCheck(this.txExtensionCapsule, 1);
+    return true;
+  }
 
   public abstract byte[] getNonceKey();
 
   public abstract byte[] getNonce();
-
 }

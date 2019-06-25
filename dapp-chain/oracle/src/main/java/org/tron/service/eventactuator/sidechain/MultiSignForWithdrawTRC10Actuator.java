@@ -74,6 +74,7 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
           tokenIdStr, valueStr, nonceStr, oracleSigns));
       return this.transactionExtensionCapsule;
     } catch (Exception e) {
+      // FIXME: exception level is right ?
       logger.error("when create transaction extension capsule", e);
       return null;
     }
@@ -94,10 +95,32 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
   }
 
   @Override
-  public void broadcastTransactionExtensionCapsule() {
+  public boolean broadcastTransactionExtensionCapsule() {
 
-    boolean done = getWithdrawStatus(nonce);
-    List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(nonce);
+    String nonceStr = event.getNonce().toStringUtf8();
+    try {
+      boolean done = MainChainGatewayApi.getWithdrawStatus(nonceStr);
+      if (!done) {
+        super.broadcastTransactionExtensionCapsule();
+      }
+    } catch (Exception e) {
+      // FIXME: exception level is right ?
+      logger.error("when broadcast transaction extension capsule", e);
+    }
+
+//    catch (RpcConnectException e) {
+//      AlertUtil.sendAlert(
+//          String.format("tx: %s, rpc connect fail", txExtensionCapsule.getTransactionId()));
+//      logger.error(e.getMessage(), e);
+//    } catch (TxValidateException e) {
+//      AlertUtil.sendAlert(String.format("tx: %s, validation fail, will not exist on chain",
+//          txExtensionCapsule.getTransactionId()));
+//      logger.error(e.getMessage(), e);
+//    } catch (TxExpiredException e) {
+//      AlertUtil.sendAlert(String.format("tx: %s, expired", txExtensionCapsule.getTransactionId()));
+//      logger.error(e.getMessage(), e);
+//    }
+
 //    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
 //    byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
 //    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();

@@ -47,4 +47,8 @@ public class TransactionExtensionCapsule {
   public Transaction getTransaction() {
     return instance.getTransaction();
   }
+
+  public long getDelay() {
+    return instance.getDelay();
+  }
 }
