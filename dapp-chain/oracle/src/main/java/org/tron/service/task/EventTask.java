@@ -14,10 +14,8 @@ import org.tron.common.utils.WalletUtil;
 import org.tron.db.EventStore;
 import org.tron.db.NonceStore;
 import org.tron.db.TransactionExtensionStore;
-import org.tron.service.check.CheckTransaction;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
-import org.tron.service.eventactuator.ActuatorRun;
 import org.tron.service.eventactuator.EventActuatorFactory;
 import org.tron.service.kafka.KfkConsumer;
 
@@ -62,7 +60,7 @@ public class EventTask {
           eventStore.putData(eventActuator.getNonceKey(), eventActuator.getMessage().toByteArray());
 //          nonceStore.putData(eventActuator.getNonceKey(),
 //              ByteBuffer.allocate(4).putInt(NonceStatus.PROCESSING_VALUE).array());
-          ActuatorRun.getInstance().start(eventActuator);
+          CreateTransactionTask.getInstance().submitCreate(eventActuator);
         } else {
 //          NonceStatus nonceStatus = NonceStatus
 //              .forNumber(ByteBuffer.wrap(nonceStatusBytes).getInt());
@@ -72,8 +70,8 @@ public class EventTask {
           byte[] txExtensionBytes = TransactionExtensionStore.getInstance()
               .getData(eventActuator.getNonceKey());
           try {
-            CheckTransaction.getInstance()
-                .submitCheck(new TransactionExtensionCapsule(txExtensionBytes), 1);
+            CheckTransactionTask.getInstance()
+                .submitCheck(new TransactionExtensionCapsule(txExtensionBytes));
           } catch (InvalidProtocolBufferException e) {
             logger.error("retry fail: {}", e.getMessage(), e);
           }

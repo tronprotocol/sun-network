@@ -1,28 +1,49 @@
 package org.tron.service.task;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.common.logger.LoggerOracle;
 import org.tron.db.Manager;
-import org.tron.service.check.CheckTransaction;
 import org.tron.service.eventactuator.Actuator;
+import org.tron.service.eventactuator.Actuator.BroadcastRet;
 
-@Slf4j(topic = "task")
-public class BroadcastTransactionTask implements Runnable {
+@Slf4j
+public class BroadcastTransactionTask {
 
-  private Actuator eventActuator;
+  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
-  public BroadcastTransactionTask(Actuator eventActuator) {
-    this.eventActuator = eventActuator;
+  private static BroadcastTransactionTask instance = new BroadcastTransactionTask();
+
+  public static BroadcastTransactionTask getInstance() {
+    return instance;
   }
 
-  @Override
-  public void run() {
-    boolean success = eventActuator.broadcastTransactionExtensionCapsule();
-    if (success) {
-      CheckTransaction.getInstance().submitCheck(eventActuator.getTransactionExtensionCapsule());
+  private BroadcastTransactionTask() {
+  }
+
+  private final ScheduledExecutorService broadcastPool = Executors.newScheduledThreadPool(100);
+
+  void submitBroadcast(Actuator eventActuator, long delay) {
+    broadcastPool
+        .schedule(() -> instance.broadcastTransaction(eventActuator), delay, TimeUnit.SECONDS);
+  }
+
+  private void broadcastTransaction(Actuator eventActuator) {
+    BroadcastRet broadcastRet = eventActuator.broadcastTransactionExtensionCapsule();
+    if (broadcastRet == BroadcastRet.SUCCESS) {
+      CheckTransactionTask.getInstance()
+          .submitCheck(eventActuator.getTransactionExtensionCapsule());
+    } else if (broadcastRet == BroadcastRet.DONE) {
+      // set nonce status = success
+      // delete event and tx store
     } else {
       // fail
       // FIXME: write fail to db
       Manager.getInstance().FinishProcessNonce(eventActuator.getNonceKey(), 1);
     }
   }
+
 }
+

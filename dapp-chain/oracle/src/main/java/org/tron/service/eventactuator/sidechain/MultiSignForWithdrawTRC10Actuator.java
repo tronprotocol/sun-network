@@ -51,11 +51,10 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule getTransactionExtensionCapsule() {
+  public CreateRet createTransactionExtensionCapsule() {
     if (Objects.nonNull(transactionExtensionCapsule)) {
-      return this.transactionExtensionCapsule;
+      return CreateRet.SUCCESS;
     }
-
     try {
       String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
       String tokenIdStr = event.getTokenId().toStringUtf8();
@@ -72,17 +71,16 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
       this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
           PREFIX + nonceStr, tx, getDelay(fromStr,
           tokenIdStr, valueStr, nonceStr, oracleSigns));
-      return this.transactionExtensionCapsule;
+      return CreateRet.SUCCESS;
     } catch (Exception e) {
       // FIXME: exception level is right ?
       logger.error("when create transaction extension capsule", e);
-      return null;
+      return CreateRet.FAIL;
     }
   }
 
   private long getDelay(String from, String tokenId, String value, String nonce,
       List<String> oracleSigns) {
-
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
     byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
     byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
@@ -95,18 +93,20 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
   }
 
   @Override
-  public boolean broadcastTransactionExtensionCapsule() {
+  public BroadcastRet broadcastTransactionExtensionCapsule() {
 
     String nonceStr = event.getNonce().toStringUtf8();
     try {
       boolean done = MainChainGatewayApi.getWithdrawStatus(nonceStr);
-      if (!done) {
+      if (done) {
+        return BroadcastRet.DONE;
+      } else {
         return super.broadcastTransactionExtensionCapsule();
       }
     } catch (Exception e) {
       // FIXME: exception level is right ?
       logger.error("when broadcast transaction extension capsule", e);
-      return false;
+      return BroadcastRet.FAIL;
     }
 
 //    catch (RpcConnectException e) {

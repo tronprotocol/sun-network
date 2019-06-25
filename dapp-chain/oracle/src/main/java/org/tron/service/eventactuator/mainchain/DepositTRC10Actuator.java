@@ -45,7 +45,7 @@ public class DepositTRC10Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule getTransactionExtensionCapsule()
+  public TransactionExtensionCapsule createTransactionExtensionCapsule()
       throws RpcConnectException {
 
     if (Objects.nonNull(this.transactionExtensionCapsule)) {
