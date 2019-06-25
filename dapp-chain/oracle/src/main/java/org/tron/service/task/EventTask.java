@@ -15,7 +15,7 @@ import org.tron.common.utils.WalletUtil;
 import org.tron.db.EventStore;
 import org.tron.db.NonceStore;
 import org.tron.db.TransactionExtensionStore;
-import org.tron.protos.Sidechain.NonceStatus;
+import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.check.CheckTransaction;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
@@ -75,7 +75,7 @@ public class EventTask {
                 .getData(eventActuator.getNonceKey());
             try {
               CheckTransaction.getInstance()
-                  .submitCheck(new TransactionExtensionCapsule(txExtensionBytes), 1);
+                  .submitCheck(new TransactionExtensionCapsule(txExtensionBytes));
             } catch (InvalidProtocolBufferException e) {
               logger.error("retry fail: {}", e.getMessage(), e);
             }

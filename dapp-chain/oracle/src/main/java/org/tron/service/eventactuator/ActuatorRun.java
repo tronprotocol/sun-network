@@ -9,7 +9,7 @@ import org.tron.common.utils.AlertUtil;
 import org.tron.db.EventStore;
 import org.tron.db.NonceStore;
 import org.tron.db.TransactionExtensionStore;
-import org.tron.protos.Sidechain.NonceStatus;
+import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.task.TxExtensionTask;
 

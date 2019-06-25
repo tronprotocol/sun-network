@@ -18,8 +18,8 @@ import org.tron.common.exception.RpcConnectException;
 public class AlertUtil {
 
   public static void sendAlert(String msg) {
+    logger.error("sendAlert: {}", msg);
     if (StringUtils.isEmpty(Args.getInstance().getAlertDingWebhookToken())) {
-      logger.error("sendAlert: {}", msg);
       return;
     }
     try (CloseableHttpClient httpclient = HttpClients.createDefault()) {

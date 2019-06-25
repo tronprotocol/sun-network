@@ -1,6 +1,8 @@
 package org.tron.service.task;
 
 import lombok.extern.slf4j.Slf4j;
+import org.tron.client.MainChainGatewayApi;
+import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.exception.TxExpiredException;
 import org.tron.common.exception.TxValidateException;
@@ -20,8 +22,8 @@ public class TxExtensionTask implements Runnable {
   @Override
   public void run() {
     try {
-      CheckTransaction.getInstance().broadcastTransaction(this.txExtensionCapsule);
-      CheckTransaction.getInstance().submitCheck(this.txExtensionCapsule, 1);
+      broadcastTransaction(this.txExtensionCapsule);
+      CheckTransaction.getInstance().submitCheck(this.txExtensionCapsule);
     } catch (RpcConnectException e) {
       AlertUtil.sendAlert(
           String.format("tx: %s, rpc connect fail", txExtensionCapsule.getTransactionId()));
@@ -33,6 +35,18 @@ public class TxExtensionTask implements Runnable {
     } catch (TxExpiredException e) {
       AlertUtil.sendAlert(String.format("tx: %s, expired", txExtensionCapsule.getTransactionId()));
       logger.error(e.getMessage(), e);
+    }
+  }
+
+  private boolean broadcastTransaction(TransactionExtensionCapsule txExtensionCapsule)
+      throws RpcConnectException, TxValidateException, TxExpiredException {
+    switch (txExtensionCapsule.getType()) {
+      case MAIN_CHAIN:
+        return MainChainGatewayApi.broadcast(txExtensionCapsule.getTransaction());
+      case SIDE_CHAIN:
+        return SideChainGatewayApi.broadcast(txExtensionCapsule.getTransaction());
+      default:
+        return false;
     }
   }
 }
