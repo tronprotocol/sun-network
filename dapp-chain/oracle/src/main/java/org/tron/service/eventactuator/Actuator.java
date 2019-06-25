@@ -16,8 +16,7 @@ public abstract class Actuator {
   public abstract TransactionExtensionCapsule getTransactionExtensionCapsule();
 
   public boolean broadcastTransactionExtensionCapsule() {
-    CheckTransaction.getInstance().broadcastTransaction(this.txExtensionCapsule);
-    CheckTransaction.getInstance().submitCheck(this.txExtensionCapsule, 1);
+    CheckTransaction.getInstance().broadcastTransaction(this.transactionExtensionCapsule);
     return true;
   }
 
