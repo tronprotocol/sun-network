@@ -22,9 +22,14 @@ enum TaskEnum {
   SIDE_CHAIN = 1;
 }
 
-enum NonceStatus {
-  PROCESSING = 0;
-  SUCCESS = 1;
+message NonceMsg {
+  enum NonceStatus {
+    PROCESSING = 0;
+    SUCCESS = 1;
+    FAIL = 2;
+  }
+  NonceStatus status = 1;
+  int64 next_process_timestamp = 2;
 }
 
 message EventMsg {
