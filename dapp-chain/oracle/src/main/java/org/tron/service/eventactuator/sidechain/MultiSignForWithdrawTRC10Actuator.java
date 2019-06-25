@@ -3,13 +3,19 @@ package org.tron.service.eventactuator.sidechain;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
-import org.tron.common.exception.RpcConnectException;
+import org.tron.client.SideChainGatewayApi;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.ByteUtil;
+import org.tron.common.utils.DataWord;
+import org.tron.common.utils.SignUtils;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
@@ -45,28 +51,88 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule getTransactionExtensionCapsule()
-      throws RpcConnectException {
-
+  public CreateRet createTransactionExtensionCapsule() {
     if (Objects.nonNull(transactionExtensionCapsule)) {
-      return this.transactionExtensionCapsule;
+      return CreateRet.SUCCESS;
     }
-    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
-    String tokenIdStr = event.getTokenId().toStringUtf8();
-    String valueStr = event.getValue().toStringUtf8();
-    String nonceStr = event.getNonce().toStringUtf8();
+    try {
+      String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+      String tokenIdStr = event.getTokenId().toStringUtf8();
+      String valueStr = event.getValue().toStringUtf8();
+      String nonceStr = event.getNonce().toStringUtf8();
+      List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(nonceStr);
 
-    loggerOracle
-        .info("MultiSignForWithdrawTRC10Actuator, from: {}, tokenId: {}, value: {}, nonce: {}",
-            fromStr, tokenIdStr, valueStr, nonceStr);
-    Transaction tx = MainChainGatewayApi
-        .multiSignForWithdrawTRC10Transaction(fromStr, tokenIdStr, valueStr, nonceStr);
-    if (tx == null) {
-      return null;
+      loggerOracle
+          .info("MultiSignForWithdrawTRC10Actuator, from: {}, tokenId: {}, value: {}, nonce: {}",
+              fromStr, tokenIdStr, valueStr, nonceStr);
+      Transaction tx = MainChainGatewayApi
+          .multiSignForWithdrawTRC10Transaction(fromStr, tokenIdStr, valueStr, nonceStr,
+              oracleSigns);
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
+          PREFIX + nonceStr, tx, getDelay(fromStr,
+          tokenIdStr, valueStr, nonceStr, oracleSigns));
+      return CreateRet.SUCCESS;
+    } catch (Exception e) {
+      // FIXME: exception level is right ?
+      logger.error("when create transaction extension capsule", e);
+      return CreateRet.FAIL;
     }
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
-        PREFIX + nonceStr, tx);
-    return this.transactionExtensionCapsule;
+  }
+
+  private long getDelay(String from, String tokenId, String value, String nonce,
+      List<String> oracleSigns) {
+    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
+    byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
+    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
+    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
+    byte[] data = ByteUtil
+        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), tokenIdBytes, valueBytes,
+            nonceBytes);
+    String ownSign = MainChainGatewayApi.sign(data);
+    return SignUtils.getDelay(ownSign, oracleSigns);
+  }
+
+  @Override
+  public BroadcastRet broadcastTransactionExtensionCapsule() {
+
+    String nonceStr = event.getNonce().toStringUtf8();
+    try {
+      boolean done = MainChainGatewayApi.getWithdrawStatus(nonceStr);
+      if (done) {
+        return BroadcastRet.DONE;
+      } else {
+        return super.broadcastTransactionExtensionCapsule();
+      }
+    } catch (Exception e) {
+      // FIXME: exception level is right ?
+      logger.error("when broadcast transaction extension capsule", e);
+      return BroadcastRet.FAIL;
+    }
+
+//    catch (RpcConnectException e) {
+//      AlertUtil.sendAlert(
+//          String.format("tx: %s, rpc connect fail", txExtensionCapsule.getTransactionId()));
+//      logger.error(e.getMessage(), e);
+//    } catch (TxValidateException e) {
+//      AlertUtil.sendAlert(String.format("tx: %s, validation fail, will not exist on chain",
+//          txExtensionCapsule.getTransactionId()));
+//      logger.error(e.getMessage(), e);
+//    } catch (TxExpiredException e) {
+//      AlertUtil.sendAlert(String.format("tx: %s, expired", txExtensionCapsule.getTransactionId()));
+//      logger.error(e.getMessage(), e);
+//    }
+
+//    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
+//    byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
+//    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
+//    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
+//    byte[] data = ByteUtil
+//        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), tokenIdBytes, valueBytes,
+//            nonceBytes);
+//    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+//
+//    sleeping(ownSign, oracleSigns);
+//    boolean done = getWithdrawStatus(nonce);
   }
 
   @Override

@@ -99,45 +99,13 @@ public class MainChainGatewayApi {
     return AbiUtil.unpackStatus(ret);
   }
 
-  public static void sleeping(String ownSign, List<String> oracleSigns) {
-    int sleepCnt = 0;
-    for (String signs : oracleSigns) {
-      if (signs.equalsIgnoreCase(ownSign)) {
-        break;
-      }
-      sleepCnt++;
-    }
-
-    try {
-      Thread.sleep(sleepCnt * 3_000L);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
   public static Transaction multiSignForWithdrawTRC10Transaction(String from, String tokenId,
-      String value, String nonce) throws RpcConnectException {
-    List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(nonce);
-    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
-    byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
-    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
-    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
-    byte[] data = ByteUtil
-        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), tokenIdBytes, valueBytes,
-            nonceBytes);
-    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
-
-    sleeping(ownSign, oracleSigns);
-    boolean done = getWithdrawStatus(nonce);
-    if (done) {
-      return null;
-    } else {
-      byte[] contractAddress = Args.getInstance().getMainchainGateway();
-      String method = "withdrawTRC10(address,trcToken,uint256,uint256,bytes[])";
-      List params = Arrays.asList(from, tokenId, value, nonce, oracleSigns);
-      return GATEWAY_API.getInstance()
-          .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
-    }
+      String value, String nonce, List<String> oracleSigns) throws RpcConnectException {
+    byte[] contractAddress = Args.getInstance().getMainchainGateway();
+    String method = "withdrawTRC10(address,trcToken,uint256,uint256,bytes[])";
+    List params = Arrays.asList(from, tokenId, value, nonce, oracleSigns);
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
   public static Transaction multiSignForWithdrawTRC20Transaction(String from,
@@ -211,6 +179,10 @@ public class MainChainGatewayApi {
       return GATEWAY_API.getInstance()
           .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
     }
+  }
+
+  public static String sign(byte[] data) {
+    return Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
   }
 
   public static AssetIssueContract getAssetIssueById(String assetId) {

@@ -42,7 +42,7 @@ public class WithdrawTRXActuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule getTransactionExtensionCapsule()
+  public TransactionExtensionCapsule createTransactionExtensionCapsule()
       throws RpcConnectException {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;

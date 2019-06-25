@@ -7,10 +7,8 @@ import org.spongycastle.util.encoders.Hex;
 import org.tron.db.EventStore;
 import org.tron.db.TransactionExtensionStore;
 import org.tron.protos.Sidechain.EventMsg;
-import org.tron.service.check.CheckTransaction;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
-import org.tron.service.eventactuator.ActuatorRun;
 import org.tron.service.eventactuator.mainchain.DepositTRC10Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC20Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC721Actuator;
@@ -37,7 +35,7 @@ public class InitTask {
         TransactionExtensionCapsule txExtensionCapsule = new TransactionExtensionCapsule(
             txExtensionBytes);
         logger.info("init check tx id:{}", txExtensionCapsule.getTransactionId());
-        CheckTransaction.getInstance().submitCheck(txExtensionCapsule);
+        CheckTransactionTask.getInstance().submitCheck(txExtensionCapsule);
       } catch (InvalidProtocolBufferException e) {
         logger.error(e.getMessage(), e);
       }
@@ -52,7 +50,7 @@ public class InitTask {
             .contains(Hex.toHexString(actuator.getNonceKey()))) {
           continue;
         }
-        ActuatorRun.getInstance().start(actuator);
+        CreateTransactionTask.getInstance().submitCreate(actuator);
       } catch (InvalidProtocolBufferException e) {
         logger.error("", e);
       }

@@ -7,7 +7,6 @@ import org.tron.common.exception.RpcConnectException;
 import org.tron.common.exception.TxExpiredException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AlertUtil;
-import org.tron.service.check.CheckTransaction;
 import org.tron.service.check.TransactionExtensionCapsule;
 
 @Slf4j(topic = "task")
@@ -23,7 +22,7 @@ public class TxExtensionTask implements Runnable {
   public void run() {
     try {
       broadcastTransaction(this.txExtensionCapsule);
-      CheckTransaction.getInstance().submitCheck(this.txExtensionCapsule);
+      CheckTransactionTask.getInstance().submitCheck(this.txExtensionCapsule);
     } catch (RpcConnectException e) {
       AlertUtil.sendAlert(
           String.format("tx: %s, rpc connect fail", txExtensionCapsule.getTransactionId()));

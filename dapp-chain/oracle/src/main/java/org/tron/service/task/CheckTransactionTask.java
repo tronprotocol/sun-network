@@ -1,4 +1,4 @@
-package org.tron.service.check;
+package org.tron.service.task;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -12,25 +12,26 @@ import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.AlertUtil;
 import org.tron.db.Manager;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
+import org.tron.service.check.TransactionExtensionCapsule;
 
 @Slf4j
-public class CheckTransaction {
+public class CheckTransactionTask {
 
   private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
-  private static CheckTransaction instance = new CheckTransaction();
+  private static CheckTransactionTask instance = new CheckTransactionTask();
 
-  public static CheckTransaction getInstance() {
+  public static CheckTransactionTask getInstance() {
     return instance;
   }
 
-  private CheckTransaction() {
+  private CheckTransactionTask() {
   }
 
-  private final ScheduledExecutorService syncExecutor = Executors.newScheduledThreadPool(100);
+  private final ScheduledExecutorService checkPool = Executors.newScheduledThreadPool(100);
 
   public void submitCheck(TransactionExtensionCapsule txExtensionCapsule) {
-    syncExecutor.schedule(() -> instance.checkTransaction(txExtensionCapsule), 60,
+    checkPool.schedule(() -> instance.checkTransaction(txExtensionCapsule), 60,
         TimeUnit.SECONDS);
   }
 
@@ -54,7 +55,6 @@ public class CheckTransaction {
       Manager.getInstance().FinishProcessNonce(nonceKeyBytes, NonceStatus.SUCCESS_VALUE);
       String msg = ErrorCode.getCheckTransactionSuccess(transactionId);
       loggerOracle.info(msg);
-      return;
 
     } catch (Exception e) {
       // fail
@@ -62,7 +62,6 @@ public class CheckTransaction {
       Manager.getInstance().FinishProcessNonce(nonceKeyBytes, NonceStatus.FAIL_VALUE);
       String msg = ErrorCode.getCheckTransactionFail(transactionId);
       AlertUtil.sendAlert(msg);
-      return;
     }
   }
 
