@@ -1,14 +1,15 @@
 package org.tron.client;
 
+import static org.tron.common.utils.WalletUtil.sleep;
+
 import com.google.protobuf.ByteString;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.api.GrpcAPI;
-import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
-import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.Return;
+import org.tron.api.GrpcAPI.Return.response_code;
 import org.tron.common.config.Args;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.crypto.ECKey;
@@ -20,13 +21,11 @@ import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.AbiUtil;
-import org.tron.common.utils.Base58;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.TransactionUtils;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.AssetIssueContract;
-import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.TransactionInfo;
@@ -42,38 +41,14 @@ public class WalletClient {
   private byte[] address;
   private boolean isMainChain;
 
+  private int maxRetry = 5;
+  private int retryInterval = 500;
+
   public WalletClient(String target, byte[] priateKey, boolean isMainChain) {
     rpcCli = new RpcClient(target);
     ecKey = ECKey.fromPrivate(priateKey);
     address = ecKey.getAddress();
     this.isMainChain = isMainChain;
-  }
-
-  public Optional<TransactionInfo> getTransactionInfoById(String txID) {
-    return rpcCli.getTransactionInfoById(txID);
-  }
-
-  public Account queryAccount() {
-    return rpcCli.queryAccount(this.address);
-  }
-
-  public Account queryAccount(String address) {
-    return rpcCli.queryAccount(WalletUtil.decodeFromBase58Check(address));
-  }
-
-  public Account queryAccount(byte[] address) {
-    return rpcCli.queryAccount(address);
-  }
-
-  public ECKey generateAddress() {
-    EmptyMessage.Builder builder = EmptyMessage.newBuilder();
-    AddressPrKeyPairMessage result = rpcCli.generateAddress(builder.build());
-
-    byte[] priKey = Base58.hexs2Bytes(result.getPrivateKey().getBytes());
-    if (!Base58.priKeyValid(priKey)) {
-      return null;
-    }
-    return ECKey.fromPrivate(priKey);
   }
 
   public byte[] triggerConstantContractAndReturn(byte[] contractAddress, String method,
@@ -113,13 +88,18 @@ public class WalletClient {
   }
 
   private org.tron.api.GrpcAPI.TransactionExtention triggerConstantContract(byte[] contractAddress,
-      byte[] data,
-      long callValue, long tokenValue, Long tokenId) throws RpcConnectException {
+      byte[] data, long callValue, long tokenValue, Long tokenId) throws RpcConnectException {
     byte[] owner = address;
     Contract.TriggerSmartContract triggerContract = buildTriggerContract(owner, contractAddress,
         callValue, data, tokenValue, tokenId);
-    org.tron.api.GrpcAPI.TransactionExtention transactionExtention = rpcCli
-        .triggerContract(triggerContract);
+    org.tron.api.GrpcAPI.TransactionExtention transactionExtention = null;
+    for (int i = maxRetry; i > 0; i--) {
+      transactionExtention = rpcCli.triggerContract(triggerContract);
+      if (transactionExtention != null && transactionExtention.getResult().getResult()) {
+        break;
+      }
+      WalletUtil.sleep(retryInterval);
+    }
     if (!transactionExtention.getResult().getResult()) {
       loggerOracle
           .error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
@@ -146,12 +126,12 @@ public class WalletClient {
         callValue, data, tokenValue, tokenId);
 
     GrpcAPI.TransactionExtention transactionExtension = null;
-    int maxRetry = 5;
-    for (int i = 0; i < maxRetry; i++) {
+    for (int i = maxRetry; i > 0; i--) {
       transactionExtension = rpcCli.triggerContract(triggerContract);
       if (transactionExtension != null && transactionExtension.getResult().getResult()) {
         break;
       }
+      sleep(retryInterval);
     }
     if (transactionExtension == null || !transactionExtension.getResult().getResult()) {
       loggerOracle
@@ -217,7 +197,6 @@ public class WalletClient {
     if (transaction.getRawData().getTimestamp() == 0) {
       transaction = TransactionUtils.setTimestamp(transaction);
     }
-    // return TransactionUtils.sign(transaction, this.ecKey);
     return TransactionUtils.sign(transaction, this.ecKey, getCurrentChainId(), isMainChain);
   }
 
@@ -230,7 +209,6 @@ public class WalletClient {
     if (isMainChain) {
       return new byte[0];
     }
-    // TODO: add list
     List<byte[]> chainIdList = new ArrayList();
     chainIdList.add(Args.getInstance().getMainchainGateway());
     return ByteArray.fromBytes21List(chainIdList);
@@ -238,21 +216,44 @@ public class WalletClient {
 
   public boolean broadcast(Transaction transaction)
       throws RpcConnectException, TxValidateException, TxExpiredException {
-    return rpcCli.broadcastTransaction(transaction);
+    for (int i = maxRetry; i > 0; i--) {
+      Optional<Return> broadcastResponse = rpcCli.broadcastTransaction(transaction);
+      Return response = broadcastResponse.get();
+      if (response.getResult()) {
+        // true is success
+        return true;
+      } else {
+        // false is fail
+        if (response.getCode().equals(response_code.SERVER_BUSY)) {
+          // when SERVER_BUSY, retry
+          loggerOracle.info("will retry {} time(s)", i + 1);
+          sleep(retryInterval);
+        } else if (response.getCode().equals(response_code.DUP_TRANSACTION_ERROR)) {
+          loggerOracle.info("this tx has be broadcasted");
+          return true;
+        } else if (response.getCode().equals(response_code.TRANSACTION_EXPIRATION_ERROR)) {
+          loggerOracle.info("transaction expired");
+          throw new TxExpiredException("tx error, " + response.getMessage().toStringUtf8());
+        } else {
+          loggerOracle.error("tx error, fail, code: {}, message {}", response.getCode(),
+              response.getMessage().toStringUtf8());
+          // fail, not retry
+          throw new TxValidateException("tx error, " + response.getMessage().toStringUtf8());
+        }
+      }
+    }
+    loggerOracle.error("broadcast transaction, exceed max retry, fail");
+    throw new RpcConnectException("broadcast transaction, exceed max retry, fail");
   }
 
   public byte[] checkTxInfo(String txId) throws TxRollbackException, TxFailException {
-    for (int i = 3; i > 0; i--) {
+    for (int i = maxRetry; i > 0; i--) {
       // TODO rpcCli exception
       Optional<TransactionInfo> transactionInfo = rpcCli.getTransactionInfoById(txId);
       TransactionInfo info = transactionInfo.get();
       if (info.getBlockTimeStamp() == 0L) {
         loggerOracle.info("will retry {} time(s)", i + 1);
-        try {
-          Thread.sleep(3_000);
-        } catch (InterruptedException e) {
-          loggerOracle.error("", e);
-        }
+        sleep(retryInterval);
       } else {
         if (info.getResult().equals(code.SUCESS)) {
           return info.getContractResult(0).toByteArray();
