@@ -18,6 +18,7 @@ import org.tron.common.exception.TxExpiredException;
 import org.tron.common.exception.TxFailException;
 import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
+import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.Base58;
 import org.tron.common.utils.ByteArray;
@@ -33,6 +34,8 @@ import org.tron.protos.Protocol.TransactionInfo.code;
 
 @Slf4j
 public class WalletClient {
+
+  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   private RpcClient rpcCli;
   private ECKey ecKey;
@@ -77,13 +80,13 @@ public class WalletClient {
       List<Object> params, long callValue, long tokenId, long tokenValue)
       throws RpcConnectException {
 
-    logger.info(
+    loggerOracle.info(
         "trigger constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
         WalletUtil.encode58Check(contractAddress), method, params.toString(), callValue, tokenId,
         tokenValue);
 
     byte[] data = AbiUtil.parseMethod(method, params);
-
+    // TODO retry
     org.tron.api.GrpcAPI.TransactionExtention transactionExtention = this
         .triggerConstantContract(contractAddress, data, callValue, tokenValue, tokenId);
 
@@ -98,8 +101,7 @@ public class WalletClient {
   public Transaction triggerContractTransaction(byte[] contractAddress, String method,
       List<Object> params,
       long callValue, long tokenId, long tokenValue) throws RpcConnectException {
-
-    logger.info(
+    loggerOracle.info(
         "trigger not constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
         WalletUtil.encode58Check(contractAddress), method, params.toString(), callValue, tokenId,
         tokenValue);
@@ -119,8 +121,9 @@ public class WalletClient {
     org.tron.api.GrpcAPI.TransactionExtention transactionExtention = rpcCli
         .triggerContract(triggerContract);
     if (!transactionExtention.getResult().getResult()) {
-      logger.error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
-          transactionExtention.getResult().getMessage().toStringUtf8());
+      loggerOracle
+          .error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
+              transactionExtention.getResult().getMessage().toStringUtf8());
       throw new RpcConnectException(
           "rpc fail, code: " + transactionExtention.getResult().getCode());
     }
@@ -151,8 +154,9 @@ public class WalletClient {
       }
     }
     if (transactionExtension == null || !transactionExtension.getResult().getResult()) {
-      logger.error("rpc fail, code: {}, message: {}", transactionExtension.getResult().getCode(),
-          transactionExtension.getResult().getMessage().toStringUtf8());
+      loggerOracle
+          .error("rpc fail, code: {}, message: {}", transactionExtension.getResult().getCode(),
+              transactionExtension.getResult().getMessage().toStringUtf8());
       throw new RpcConnectException(
           "rpc fail, code: " + transactionExtension.getResult().getCode());
     }
@@ -204,7 +208,7 @@ public class WalletClient {
     }
     Return ret = transactionExtention.getResult();
     if (!ret.getResult()) {
-      logger
+      loggerOracle
           .error("rpc fail, code: {}, message: {}", ret.getCode(), ret.getMessage().toStringUtf8());
       throw new RpcConnectException("rpc fail, code: " + ret.getCode());
     }
@@ -238,16 +242,16 @@ public class WalletClient {
   }
 
   public byte[] checkTxInfo(String txId) throws TxRollbackException, TxFailException {
-    int maxRetry = 3;
-    for (int i = 0; i < maxRetry; i++) {
+    for (int i = 3; i > 0; i--) {
+      // TODO rpcCli exception
       Optional<TransactionInfo> transactionInfo = rpcCli.getTransactionInfoById(txId);
       TransactionInfo info = transactionInfo.get();
       if (info.getBlockTimeStamp() == 0L) {
-        logger.info("will retry {} time(s)", i + 1);
+        loggerOracle.info("will retry {} time(s)", i + 1);
         try {
           Thread.sleep(3_000);
         } catch (InterruptedException e) {
-          logger.error(e.getMessage(), e);
+          loggerOracle.error("", e);
         }
       } else {
         if (info.getResult().equals(code.SUCESS)) {

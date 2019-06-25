@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
@@ -21,7 +22,7 @@ import org.tron.service.eventactuator.Actuator;
 @Slf4j(topic = "sideChainTask")
 public class MultiSignForWithdrawTRC721Actuator extends Actuator {
 
-  // "event MultiSignForWithdrawTRC721(address from, address mainChainAddress, uint256 uId, uint256 nonce);
+  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   private static final String PREFIX = "withdraw_2_";
   private MultiSignForWithdrawTRC721Event event;
@@ -45,7 +46,7 @@ public class MultiSignForWithdrawTRC721Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule()
+  public TransactionExtensionCapsule getTransactionExtensionCapsule()
       throws RpcConnectException {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return this.transactionExtensionCapsule;
@@ -57,7 +58,7 @@ public class MultiSignForWithdrawTRC721Actuator extends Actuator {
     String uIdStr = event.getUId().toStringUtf8();
     String nonceStr = event.getNonce().toStringUtf8();
 
-    logger.info(
+    loggerOracle.info(
         "MultiSignForWithdrawTRC721Actuator, from: {}, mainChainAddress: {}, uId: {}, nonce: {}",
         fromStr, mainChainAddressStr, uIdStr, nonceStr);
     Transaction tx = MainChainGatewayApi

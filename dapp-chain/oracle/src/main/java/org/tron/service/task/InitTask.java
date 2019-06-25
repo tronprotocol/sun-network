@@ -54,8 +54,7 @@ public class InitTask {
         }
         ActuatorRun.getInstance().start(actuator);
       } catch (InvalidProtocolBufferException e) {
-        // FIXME
-        logger.error(e.getMessage(), e);
+        logger.error("", e);
       }
     }
   }
@@ -92,6 +91,7 @@ public class InitTask {
       case MAPPING_TRC721:
         return new MappingTRC721Actuator(eventMsg);
       default:
+        logger.warn("unknown event ");
         return null;
     }
   }

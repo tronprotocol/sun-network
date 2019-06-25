@@ -34,15 +34,17 @@ public class ActuatorRun {
     executor.submit(() -> {
       TransactionExtensionCapsule txExtensionCapsule = null;
       try {
-        txExtensionCapsule = eventActuator.createTransactionExtensionCapsule();
+        txExtensionCapsule = eventActuator.getTransactionExtensionCapsule();
       } catch (RpcConnectException e) {
+        // TODO
         String msg = "create transaction extension capsule fail";
         AlertUtil.sendAlert(msg);
         logger.error(msg, e);
         return;
       }
-      if (txExtensionCapsule == null) {
+      if (txExtensionCapsule == null) {//TODO move
         byte[] nonceKeyBytes = eventActuator.getNonceKey();
+        //TODO ByteBuffer.allocate(4).putInt(NonceStatus.SUCCESS_VALUE).array()
         NonceStore.getInstance()
             .putData(nonceKeyBytes,
                 ByteBuffer.allocate(4).putInt(NonceStatus.SUCCESS_VALUE).array());

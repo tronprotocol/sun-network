@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
@@ -21,6 +22,8 @@ import org.tron.service.eventactuator.Actuator;
 @Slf4j(topic = "mainChainTask")
 public class DepositTRC721Actuator extends Actuator {
 
+  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
+
   private static final String NONCE_TAG = "deposit_";
 
   private DepositTRC721Event event;
@@ -30,9 +33,9 @@ public class DepositTRC721Actuator extends Actuator {
   public DepositTRC721Actuator(String from, String contractAddress, String uid,
       String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
-    ByteString uidBS = ByteString.copyFrom(ByteArray.fromString(uid));
     ByteString contractAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(contractAddress));
+    ByteString uidBS = ByteString.copyFrom(ByteArray.fromString(uid));
     ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
     this.event = DepositTRC721Event.newBuilder().setFrom(fromBS).setUId(uidBS)
         .setContractAddress(contractAddressBS).setNonce(nonceBS).build();
@@ -43,21 +46,21 @@ public class DepositTRC721Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule()
+  public TransactionExtensionCapsule getTransactionExtensionCapsule()
       throws RpcConnectException {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return transactionExtensionCapsule;
     }
-
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
-    String uidStr = event.getUId().toStringUtf8();
     String contractAddressStr = WalletUtil.encode58Check(event.getContractAddress().toByteArray());
+    String uIdStr = event.getUId().toStringUtf8();
     String nonceStr = event.getNonce().toStringUtf8();
-    logger.info(
+
+    loggerOracle.info(
         "DepositTRC721Actuator, from: {}, tokenId: {}, contractAddress: {}, nonce: {}",
-        fromStr, uidStr, contractAddressStr, nonceStr);
+        fromStr, uIdStr, contractAddressStr, nonceStr);
     Transaction tx = SideChainGatewayApi
-        .mintToken721Transaction(fromStr, contractAddressStr, uidStr, nonceStr);
+        .mintToken721Transaction(fromStr, contractAddressStr, uIdStr, nonceStr);
     this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
         NONCE_TAG + nonceStr, tx);
     return this.transactionExtensionCapsule;

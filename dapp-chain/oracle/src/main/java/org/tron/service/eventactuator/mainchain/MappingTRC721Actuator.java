@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.exception.RpcConnectException;
+import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
@@ -21,6 +22,8 @@ import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "mainChainTask")
 public class MappingTRC721Actuator extends Actuator {
+
+  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   private static final String NONCE_TAG = "mapping_";
 
@@ -41,7 +44,7 @@ public class MappingTRC721Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule()
+  public TransactionExtensionCapsule getTransactionExtensionCapsule()
       throws RpcConnectException {
     if (Objects.nonNull(transactionExtensionCapsule)) {
       return transactionExtensionCapsule;
@@ -51,7 +54,7 @@ public class MappingTRC721Actuator extends Actuator {
 
     String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
     String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
-    logger.info(
+    loggerOracle.info(
         "MappingTRC721Event, contractAddress: {}, trcName: {}, trcSymbol: {}, nonce: {}.",
         contractAddressStr, trcName, trcSymbol, nonceStr);
 
