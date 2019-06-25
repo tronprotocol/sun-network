@@ -18,7 +18,7 @@ public class ScheduledThreadPoolDemo {
     @Override
     public void run() {
       System.out.println("Thread-" + Thread.currentThread().getId() + " start. Command=" + command);
-      //processCommand();
+      processCommand();
       System.out.println("Thread-" + Thread.currentThread().getId() + " end.");
     }
 
@@ -32,6 +32,11 @@ public class ScheduledThreadPoolDemo {
   }
 
   public static void main(String[] args) {
+    //submit();
+    schedule();
+  }
+
+  private static void submit() {
     ScheduledExecutorService syncExecutor = Executors
         .newScheduledThreadPool(5);
     for (int i = 0; i < 10; i++) {
@@ -39,6 +44,21 @@ public class ScheduledThreadPoolDemo {
       Runnable work = new WorkThread("" + i);
       syncExecutor.scheduleWithFixedDelay(work, 2000,
           5000, TimeUnit.MILLISECONDS);
+    }
+    try {
+      Thread.sleep(100000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    System.out.println("Finish all threads.");
+  }
+
+  private static void schedule() {
+    ScheduledExecutorService syncExecutor = Executors.newScheduledThreadPool(5);
+    for (int i = 0; i < 10; i++) {
+      System.out.println("init input " + i);
+      Runnable work = new WorkThread("" + i);
+      syncExecutor.schedule(work, 5, TimeUnit.SECONDS);
     }
     try {
       Thread.sleep(100000);
