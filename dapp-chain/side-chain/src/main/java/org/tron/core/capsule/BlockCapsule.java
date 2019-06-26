@@ -17,6 +17,7 @@ package org.tron.core.capsule;
 
 import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.security.SignatureException;
 import java.util.ArrayList;
@@ -179,6 +180,16 @@ public class BlockCapsule implements ProtoCapsule<Block> {
     }
   }
 
+  public BlockCapsule(CodedInputStream codedInputStream) throws BadItemException {
+    try {
+      this.block = Block.parseFrom(codedInputStream);
+      initTxs();
+    } catch (Exception e) {
+      logger.error("constructor block error : {}", e.getMessage());
+      throw new BadItemException("Block proto data parse exception");
+    }
+  }
+
   public void addTransaction(TransactionCapsule pendingTrx) {
     this.block = this.block.toBuilder().addTransactions(pendingTrx.getInstance()).build();
     getTransactions().add(pendingTrx);
@@ -217,13 +228,9 @@ public class BlockCapsule implements ProtoCapsule<Block> {
       byte[] witnessAccountAddress = block.getBlockHeader().getRawData().getWitnessAddress()
           .toByteArray();
 
-      if (dbManager.getDynamicPropertiesStore().getAllowMultiSign() != 1) {
-        return Arrays.equals(sigAddress, witnessAccountAddress);
-      } else {
-        byte[] witnessPermissionAddress = dbManager.getAccountStore().get(witnessAccountAddress)
-            .getWitnessPermissionAddress();
-        return Arrays.equals(sigAddress, witnessPermissionAddress);
-      }
+      byte[] witnessPermissionAddress = dbManager.getAccountStore().get(witnessAccountAddress)
+          .getWitnessPermissionAddress();
+      return Arrays.equals(sigAddress, witnessPermissionAddress);
 
     } catch (SignatureException e) {
       throw new ValidateSignatureException(e.getMessage());
@@ -262,6 +269,16 @@ public class BlockCapsule implements ProtoCapsule<Block> {
         this.block.getBlockHeader().toBuilder().setRawData(blockHeaderRaw)).build();
   }
 
+  public void setAccountStateRoot(byte[] root) {
+    BlockHeader.raw blockHeaderRaw =
+        this.block.getBlockHeader().getRawData().toBuilder()
+            .setAccountStateRoot(ByteString.copyFrom(root)).build();
+
+    this.block = this.block.toBuilder().setBlockHeader(
+        this.block.getBlockHeader().toBuilder().setRawData(blockHeaderRaw)).build();
+  }
+
+
   /* only for genisis */
   public void setWitness(String witness) {
     BlockHeader.raw blockHeaderRaw =
@@ -274,6 +291,14 @@ public class BlockCapsule implements ProtoCapsule<Block> {
 
   public Sha256Hash getMerkleRoot() {
     return Sha256Hash.wrap(this.block.getBlockHeader().getRawData().getTxTrieRoot());
+  }
+
+  public Sha256Hash getAccountRoot() {
+    if (this.block.getBlockHeader().getRawData().getAccountStateRoot() != null
+        && !this.block.getBlockHeader().getRawData().getAccountStateRoot().isEmpty()) {
+      return Sha256Hash.wrap(this.block.getBlockHeader().getRawData().getAccountStateRoot());
+    }
+    return Sha256Hash.ZERO_HASH;
   }
 
   public ByteString getWitnessAddress() {
@@ -328,6 +353,7 @@ public class BlockCapsule implements ProtoCapsule<Block> {
 
     if (!getTransactions().isEmpty()) {
       toStringBuff.append("merkle root=").append(getMerkleRoot()).append("\n");
+      toStringBuff.append("account root=").append(getAccountRoot()).append("\n");
       toStringBuff.append("txs size=").append(getTransactions().size()).append("\n");
     } else {
       toStringBuff.append("txs are empty\n");

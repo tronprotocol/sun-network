@@ -1,8 +1,10 @@
 package org.tron.common.logsfilter.capsule;
 
+import static org.tron.protos.Protocol.Transaction.Contract.ContractType.TransferAssetContract;
 import static org.tron.protos.Protocol.Transaction.Contract.ContractType.TransferContract;
 
 import com.google.protobuf.Any;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ import org.tron.core.Wallet;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.db.TransactionTrace;
+import org.tron.protos.Contract.TransferAssetContract;
 import org.tron.protos.Contract.TransferContract;
 import org.tron.protos.Protocol;
 
@@ -91,6 +94,26 @@ public class TransactionLogTriggerCapsule extends TriggerCapsule {
               transactionLogTrigger.setAssetAmount(contractTransfer.getAmount());
             }
 
+          } else if (contract.getType() == TransferAssetContract) {
+            TransferAssetContract contractTransfer = contractParameter
+                .unpack(TransferAssetContract.class);
+
+            if (Objects.nonNull(contractTransfer)) {
+              if (Objects.nonNull(contractTransfer.getAssetName())) {
+                transactionLogTrigger.setAssetName(contractTransfer.getAssetName().toStringUtf8());
+              }
+
+              if (Objects.nonNull(contractTransfer.getOwnerAddress())) {
+                transactionLogTrigger.setFromAddress(
+                    Wallet.encode58Check(contractTransfer.getOwnerAddress().toByteArray()));
+              }
+
+              if (Objects.nonNull(contractTransfer.getToAddress())) {
+                transactionLogTrigger.setToAddress(
+                    Wallet.encode58Check(contractTransfer.getToAddress().toByteArray()));
+              }
+              transactionLogTrigger.setAssetAmount(contractTransfer.getAmount());
+            }
           }
         } catch (Exception e) {
           logger.error("failed to load transferAssetContract, error'{}'", e);
@@ -109,8 +132,8 @@ public class TransactionLogTriggerCapsule extends TriggerCapsule {
     }
 
     // program result
-    ProgramResult programResult = trxTrace.getRuntime().getResult();
-    if (Objects.nonNull(trxTrace) && Objects.nonNull(programResult)) {
+    if (Objects.nonNull(trxTrace) && Objects.nonNull(trxTrace.getRuntime()) &&  Objects.nonNull(trxTrace.getRuntime().getResult())) {
+      ProgramResult programResult = trxTrace.getRuntime().getResult();
       ByteString contractResult = ByteString.copyFrom(programResult.getHReturn());
       ByteString contractAddress = ByteString.copyFrom(programResult.getContractAddress());
 
@@ -138,6 +161,7 @@ public class TransactionLogTriggerCapsule extends TriggerCapsule {
 
       item.setHash(Hex.toHexString(internalTransaction.getHash()));
       item.setCallValue(internalTransaction.getValue());
+      item.setTokenInfo(internalTransaction.getTokenInfo());
       item.setCaller_address(Hex.toHexString(internalTransaction.getSender()));
       item.setTransferTo_address(Hex.toHexString(internalTransaction.getTransferToAddress()));
       item.setData(Hex.toHexString(internalTransaction.getData()));

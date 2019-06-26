@@ -103,19 +103,19 @@ service Wallet {
   //Use this function instead of VoteWitnessAccount.
   rpc VoteWitnessAccount2 (VoteWitnessContract) returns (TransactionExtention) {
   };
-  //Please use CreateAssetIssue2 instead of this function.
-  rpc CreateAssetIssue (AssetIssueContract) returns (Transaction) {
-    option (google.api.http) = {
-      post: "/wallet/createassetissue"
-      body: "*"
-      additional_bindings {
-        get: "/wallet/createassetissue"
-      }
-    };
-  };
-  //Use this function instead of CreateAssetIssue.
-  rpc CreateAssetIssue2 (AssetIssueContract) returns (TransactionExtention) {
-  };
+//  //Please use CreateAssetIssue2 instead of this function.
+//  rpc CreateAssetIssue (AssetIssueContract) returns (Transaction) {
+//    option (google.api.http) = {
+//      post: "/wallet/createassetissue"
+//      body: "*"
+//      additional_bindings {
+//        get: "/wallet/createassetissue"
+//      }
+//    };
+//  };
+//  //Use this function instead of CreateAssetIssue.
+//  rpc CreateAssetIssue2 (AssetIssueContract) returns (TransactionExtention) {
+//  };
   //Please use UpdateWitness2 instead of this function.
   rpc UpdateWitness (WitnessUpdateContract) returns (Transaction) {
     option (google.api.http) = {

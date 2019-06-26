@@ -1,6 +1,7 @@
 package org.tron.core.config.args;
 
 import static java.lang.Math.max;
+import static java.lang.System.exit;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -46,6 +47,7 @@ import org.tron.core.Wallet;
 import org.tron.core.config.Configuration;
 import org.tron.core.config.Parameter.ChainConstant;
 import org.tron.core.config.Parameter.NetConstants;
+import org.tron.core.config.Parameter.NodeConstant;
 import org.tron.core.db.AccountStore;
 import org.tron.core.db.backup.DbBackupConfig;
 import org.tron.keystore.CipherException;
@@ -105,6 +107,11 @@ public class Args {
   private int longRunningTime = 10;
 
   @Getter
+  @Setter
+  @Parameter(names = {"--max-connect-number"})
+  private int maxHttpConnectNumber = 50;
+
+  @Getter
   @Parameter(description = "--seed-nodes")
   private List<String> seedNodes = new ArrayList<>();
 
@@ -131,6 +138,10 @@ public class Args {
       "--storage-db-synchronous"}, description = "Storage db is synchronous or not.(true or flase)")
   private String storageDbSynchronous = "";
 
+  @Parameter(names = {
+      "--contract-parse-enable"}, description = "enable contract parses in java-tron or not.(true or flase)")
+  private String contractParseEnable = "";
+
   @Parameter(names = {"--storage-index-directory"}, description = "Storage index directory")
   private String storageIndexDirectory = "";
 
@@ -140,6 +151,10 @@ public class Args {
   @Parameter(names = {
       "--storage-transactionHistory-switch"}, description = "Storage transaction history switch.(on or off)")
   private String storageTransactionHistoreSwitch = "";
+
+  @Getter
+  @Parameter(names = {"--fast-forward"})
+  private boolean fastForward = false;
 
   @Getter
   private Storage storage;
@@ -187,6 +202,10 @@ public class Args {
 
   @Getter
   @Setter
+  private List<Node> fastForwardNodes;
+
+  @Getter
+  @Setter
   private int nodeChannelReadTimeout;
 
   @Getter
@@ -221,9 +240,6 @@ public class Args {
   @Setter
   private long nodeP2pPingInterval;
 
-  //  @Getter
-//  @Setter
-//  private long syncNodeCount;
   @Getter
   @Setter
   @Parameter(names = {"--save-internaltx"})
@@ -317,25 +333,35 @@ public class Args {
   @Setter
   private int checkFrozenTime; // for test only
 
-  @Getter
-  @Setter
-  private long allowCreationOfContracts; //committee parameter
+  // remove in side-chain
+//  @Getter
+//  @Setter
+//  private long allowCreationOfContracts; //committee parameter
 
   @Getter
   @Setter
   private long allowAdaptiveEnergy; //committee parameter
 
-  @Getter
-  @Setter
-  private long allowDelegateResource; //committee parameter
+  // remove in side-chain
+//  @Getter
+//  @Setter
+//  private long allowDelegateResource; //committee parameter
 
-  @Getter
-  @Setter
-  private long allowSameTokenName; //committee parameter
+  // remove in side-chain
+//  @Getter
+//  @Setter
+//  private long allowSameTokenName; //committee parameter
 
-  @Getter
-  @Setter
-  private long allowTvmTransferTrc10; //committee parameter
+
+  // remove in side-chain
+//  @Getter
+//  @Setter
+//  private long allowTvmTransferTrc10; //committee parameter
+
+  // remove in side-chain
+//  @Getter
+//  @Setter
+//  private long allowTvmConstantinople; //committee parameter
 
   @Getter
   @Setter
@@ -390,9 +416,10 @@ public class Args {
   @Setter
   private boolean isOpenFullTcpDisconnect;
 
-  @Getter
-  @Setter
-  private int allowMultiSign;
+//  remove in side-chain
+//  @Getter
+//  @Setter
+//  private int allowMultiSign;
 
   @Getter
   @Setter
@@ -435,6 +462,20 @@ public class Args {
   @Getter
   private RocksDbSettings rocksDBCustomSettings;
 
+  @Parameter(names = {"-v", "--version"}, description = "output code version", help = true)
+  private boolean version;
+
+  @Getter
+  @Setter
+  private long allowProtoFilterNum;
+
+  @Getter
+  @Setter
+  private long allowAccountStateRoot;
+
+  @Getter
+  @Setter
+  private int validContractProtoThreadNum;
 
   //side-chain
   @Getter
@@ -495,6 +536,7 @@ public class Args {
     INSTANCE.nodeConnectionTimeout = 0;
     INSTANCE.activeNodes = Collections.emptyList();
     INSTANCE.passiveNodes = Collections.emptyList();
+    INSTANCE.fastForwardNodes = Collections.emptyList();
     INSTANCE.nodeChannelReadTimeout = 0;
     INSTANCE.nodeMaxActiveNodes = 30;
     INSTANCE.nodeMaxActiveNodesWithSameIp = 2;
@@ -513,11 +555,12 @@ public class Args {
     INSTANCE.maintenanceTimeInterval = 0;
     INSTANCE.proposalExpireTime = 0;
     INSTANCE.checkFrozenTime = 1;
-    INSTANCE.allowCreationOfContracts = 0;
+//    INSTANCE.allowCreationOfContracts = 0;
     INSTANCE.allowAdaptiveEnergy = 0;
-    INSTANCE.allowTvmTransferTrc10 = 0;
-    INSTANCE.allowDelegateResource = 0;
-    INSTANCE.allowSameTokenName = 0;
+//    INSTANCE.allowTvmTransferTrc10 = 0;
+//    INSTANCE.allowTvmConstantinople = 0;
+//    INSTANCE.allowDelegateResource = 0;
+//    INSTANCE.allowSameTokenName = 0;
     INSTANCE.tcpNettyWorkThreadNum = 0;
     INSTANCE.udpNettyWorkThreadNum = 0;
     INSTANCE.p2pNodeId = "";
@@ -535,8 +578,11 @@ public class Args {
     INSTANCE.minTimeRatio = 0.0;
     INSTANCE.maxTimeRatio = 5.0;
     INSTANCE.longRunningTime = 10;
-    INSTANCE.allowMultiSign = 0;
+    INSTANCE.maxHttpConnectNumber = 50;
+//    INSTANCE.allowMultiSign = 0;
     INSTANCE.trxExpirationTimeInMilliseconds = 0;
+    INSTANCE.allowAccountStateRoot = 0;
+    INSTANCE.validContractProtoThreadNum = 1;
 
     // side chain
     INSTANCE.chargingSwitchOn = 0;
@@ -550,6 +596,11 @@ public class Args {
    */
   public static void setParam(final String[] args, final String confFileName) {
     JCommander.newBuilder().addObject(INSTANCE).build().parse(args);
+    if (INSTANCE.version) {
+      JCommander.getConsole()
+          .println(Version.getVersion() + "\n" + Version.versionName + "\n" + Version.versionCode);
+      exit(0);
+    }
     Config config = Configuration.getByFileName(INSTANCE.shellConfFileName, confFileName);
 
     if (config.hasPath("net.type") && "testnet".equalsIgnoreCase(config.getString("net.type"))) {
@@ -620,11 +671,11 @@ public class Args {
           } catch (IOException e) {
             logger.error(e.getMessage());
             logger.error("Witness node start faild!");
-            System.exit(-1);
+            exit(-1);
           } catch (CipherException e) {
             logger.error(e.getMessage());
             logger.error("Witness node start faild!");
-            System.exit(-1);
+            exit(-1);
           }
         }
       }
@@ -671,6 +722,11 @@ public class Args {
         .filter(StringUtils::isNotEmpty)
         .map(Boolean::valueOf)
         .orElse(Storage.getDbVersionSyncFromConfig(config)));
+
+    INSTANCE.storage.setContractParseSwitch(Optional.ofNullable(INSTANCE.contractParseEnable)
+        .filter(StringUtils::isNotEmpty)
+        .map(Boolean::valueOf)
+        .orElse(Storage.getContractParseSwitchFromConfig(config)));
 
     INSTANCE.storage.setDbDirectory(Optional.ofNullable(INSTANCE.storageDbDirectory)
         .filter(StringUtils::isNotEmpty)
@@ -730,6 +786,8 @@ public class Args {
 
     INSTANCE.passiveNodes = getNodes(config, "node.passive");
 
+    INSTANCE.fastForwardNodes = getNodes(config, "node.fastForward");
+
     INSTANCE.nodeChannelReadTimeout =
         config.hasPath("node.channel.read.timeout") ? config.getInt("node.channel.read.timeout")
             : 0;
@@ -757,9 +815,6 @@ public class Args {
 
     INSTANCE.nodeP2pPingInterval =
         config.hasPath("node.p2p.pingInterval") ? config.getLong("node.p2p.pingInterval") : 0;
-//
-//    INSTANCE.syncNodeCount =
-//        config.hasPath("sync.node.count") ? config.getLong("sync.node.count") : 0;
 
     INSTANCE.nodeP2pVersion =
         config.hasPath("node.p2p.version") ? config.getInt("node.p2p.version") : 0;
@@ -797,6 +852,10 @@ public class Args {
 
     INSTANCE.blockProducedTimeOut = config.hasPath("node.blockProducedTimeOut") ?
         config.getInt("node.blockProducedTimeOut") : ChainConstant.BLOCK_PRODUCED_TIME_OUT;
+
+    INSTANCE.maxHttpConnectNumber = config.hasPath("node.maxHttpConnectNumber") ?
+        config.getInt("node.maxHttpConnectNumber") : NodeConstant.MAX_HTTP_CONNECT_NUMBER;
+
     if (INSTANCE.blockProducedTimeOut < 30) {
       INSTANCE.blockProducedTimeOut = 30;
     }
@@ -828,28 +887,32 @@ public class Args {
         config.hasPath("block.checkFrozenTime") ? config
             .getInt("block.checkFrozenTime") : 1;
 
-    INSTANCE.allowCreationOfContracts =
-        config.hasPath("committee.allowCreationOfContracts") ? config
-            .getInt("committee.allowCreationOfContracts") : 0;
-
-    INSTANCE.allowMultiSign =
-        config.hasPath("committee.allowMultiSign") ? config
-            .getInt("committee.allowMultiSign") : 0;
+//    INSTANCE.allowCreationOfContracts =
+//        config.hasPath("committee.allowCreationOfContracts") ? config
+//            .getInt("committee.allowCreationOfContracts") : 0;
+//
+//    INSTANCE.allowMultiSign =
+//        config.hasPath("committee.allowMultiSign") ? config
+//            .getInt("committee.allowMultiSign") : 0;
     INSTANCE.allowAdaptiveEnergy =
         config.hasPath("committee.allowAdaptiveEnergy") ? config
             .getInt("committee.allowAdaptiveEnergy") : 0;
 
-    INSTANCE.allowDelegateResource =
-        config.hasPath("committee.allowDelegateResource") ? config
-            .getInt("committee.allowDelegateResource") : 0;
+//    INSTANCE.allowDelegateResource =
+//        config.hasPath("committee.allowDelegateResource") ? config
+//            .getInt("committee.allowDelegateResource") : 0;
+//
+//    INSTANCE.allowSameTokenName =
+//        config.hasPath("committee.allowSameTokenName") ? config
+//            .getInt("committee.allowSameTokenName") : 0;
+//
+//    INSTANCE.allowTvmTransferTrc10 =
+//        config.hasPath("committee.allowTvmTransferTrc10") ? config
+//            .getInt("committee.allowTvmTransferTrc10") : 0;
 
-    INSTANCE.allowSameTokenName =
-        config.hasPath("committee.allowSameTokenName") ? config
-            .getInt("committee.allowSameTokenName") : 0;
-
-    INSTANCE.allowTvmTransferTrc10 =
-        config.hasPath("committee.allowTvmTransferTrc10") ? config
-            .getInt("committee.allowTvmTransferTrc10") : 0;
+//    INSTANCE.allowTvmConstantinople =
+//        config.hasPath("committee.allowTvmConstantinople") ? config
+//            .getInt("committee.allowTvmConstantinople") : 0;
 
     INSTANCE.tcpNettyWorkThreadNum = config.hasPath("node.tcpNettyWorkThreadNum") ? config
         .getInt("node.tcpNettyWorkThreadNum") : 0;
@@ -917,6 +980,19 @@ public class Args {
 
     INSTANCE.eventFilter =
         config.hasPath("event.subscribe.filter") ? getEventFilter(config) : null;
+
+    INSTANCE.allowProtoFilterNum =
+        config.hasPath("committee.allowProtoFilterNum") ? config
+            .getInt("committee.allowProtoFilterNum") : 0;
+
+    INSTANCE.allowAccountStateRoot =
+        config.hasPath("committee.allowAccountStateRoot") ? config
+            .getInt("committee.allowAccountStateRoot") : 0;
+
+    INSTANCE.validContractProtoThreadNum =
+        config.hasPath("node.validContractProto.threads") ? config
+            .getInt("node.validContractProto.threads")
+            : Runtime.getRuntime().availableProcessors();
 
     initBackupProperty(config);
     if ("ROCKSDB".equals(Args.getInstance().getStorage().getDbEngine().toUpperCase())) {
@@ -1047,24 +1123,46 @@ public class Args {
   private static EventPluginConfig getEventPluginConfig(final com.typesafe.config.Config config) {
     EventPluginConfig eventPluginConfig = new EventPluginConfig();
 
-    if (config.hasPath("event.subscribe.path")) {
-      String pluginPath = config.getString("event.subscribe.path");
-      if (StringUtils.isNotEmpty(pluginPath)) {
-        eventPluginConfig.setPluginPath(pluginPath.trim());
+    boolean useNativeQueue = false;
+    int bindPort = 0;
+    int sendQueueLength = 0;
+    if (config.hasPath("event.subscribe.native.useNativeQueue")) {
+      useNativeQueue = config.getBoolean("event.subscribe.native.useNativeQueue");
+
+      if (config.hasPath("event.subscribe.native.bindport")) {
+        bindPort = config.getInt("event.subscribe.native.bindport");
       }
+
+      if (config.hasPath("event.subscribe.native.sendqueuelength")) {
+        sendQueueLength = config.getInt("event.subscribe.native.sendqueuelength");
+      }
+
+      eventPluginConfig.setUseNativeQueue(useNativeQueue);
+      eventPluginConfig.setBindPort(bindPort);
+      eventPluginConfig.setSendQueueLength(sendQueueLength);
     }
 
-    if (config.hasPath("event.subscribe.server")) {
-      String serverAddress = config.getString("event.subscribe.server");
-      if (StringUtils.isNotEmpty(serverAddress)) {
-        eventPluginConfig.setServerAddress(serverAddress.trim());
+    // use event plugin
+    if (!useNativeQueue) {
+      if (config.hasPath("event.subscribe.path")) {
+        String pluginPath = config.getString("event.subscribe.path");
+        if (StringUtils.isNotEmpty(pluginPath)) {
+          eventPluginConfig.setPluginPath(pluginPath.trim());
+        }
       }
-    }
 
-    if (config.hasPath("event.subscribe.dbconfig")) {
-      String dbConfig = config.getString("event.subscribe.dbconfig");
-      if (StringUtils.isNotEmpty(dbConfig)) {
-        eventPluginConfig.setDbConfig(dbConfig.trim());
+      if (config.hasPath("event.subscribe.server")) {
+        String serverAddress = config.getString("event.subscribe.server");
+        if (StringUtils.isNotEmpty(serverAddress)) {
+          eventPluginConfig.setServerAddress(serverAddress.trim());
+        }
+      }
+
+      if (config.hasPath("event.subscribe.dbconfig")) {
+        String dbConfig = config.getString("event.subscribe.dbconfig");
+        if (StringUtils.isNotEmpty(dbConfig)) {
+          eventPluginConfig.setDbConfig(dbConfig.trim());
+        }
       }
     }
 
@@ -1303,7 +1401,7 @@ public class Args {
     logger.info("Passive node size: {}", args.getPassiveNodes().size());
     logger.info("Seed node size: {}", args.getSeedNode().getIpList().size());
     logger.info("Max connection: {}", args.getNodeMaxActiveNodes());
-    logger.info("Max connection with same IP: {}", args.getNodeMaxActiveNodesWithSameIp());
+    logger.info("Max connection with same IP: {}", args.getNodemMaxActiveNodesWithSameIp());
     logger.info("Solidity threads: {}", args.getSolidityThreads());
     logger.info("************************ Backup config ************************");
     logger.info("Backup listen port: {}", args.getBackupPort());
@@ -1311,6 +1409,8 @@ public class Args {
     logger.info("Backup priority: {}", args.getBackupPriority());
     logger.info("************************ Code version *************************");
     logger.info("Code version : {}", Version.getVersion());
+    logger.info("Version name: {}", Version.versionName);
+    logger.info("Version code: {}", Version.versionCode);
     logger.info("************************ DB config *************************");
     logger.info("DB version : {}", args.getStorage().getDbVersion());
     logger.info("DB engine : {}", args.getStorage().getDbEngine());

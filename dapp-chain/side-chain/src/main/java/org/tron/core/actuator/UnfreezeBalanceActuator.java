@@ -25,6 +25,7 @@ import org.tron.core.exception.ContractValidateException;
 import org.tron.protos.Contract.UnfreezeBalanceContract;
 import org.tron.protos.Protocol.Account.AccountResource;
 import org.tron.protos.Protocol.Account.Frozen;
+import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.Transaction.Result.code;
 
 @Slf4j(topic = "actuator")
@@ -70,32 +71,44 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
       DelegatedResourceCapsule delegatedResourceCapsule = dbManager.getDelegatedResourceStore()
           .get(key);
 
-      AccountCapsule receiverCapsule = dbManager.getAccountStore().get(receiverAddress);
-
       switch (unfreezeBalanceContract.getResource()) {
         case BANDWIDTH:
           unfreezeBalance = delegatedResourceCapsule.getFrozenBalanceForBandwidth();
           delegatedResourceCapsule.setFrozenBalanceForBandwidth(0, 0);
-          receiverCapsule.addAcquiredDelegatedFrozenBalanceForBandwidth(-unfreezeBalance);
           accountCapsule.addDelegatedFrozenBalanceForBandwidth(-unfreezeBalance);
           break;
         case ENERGY:
           unfreezeBalance = delegatedResourceCapsule.getFrozenBalanceForEnergy();
           delegatedResourceCapsule.setFrozenBalanceForEnergy(0, 0);
-          receiverCapsule.addAcquiredDelegatedFrozenBalanceForEnergy(-unfreezeBalance);
           accountCapsule.addDelegatedFrozenBalanceForEnergy(-unfreezeBalance);
           break;
         default:
           //this should never happen
           break;
       }
+
+      AccountCapsule receiverCapsule = dbManager.getAccountStore().get(receiverAddress);
+      if (receiverCapsule != null && receiverCapsule.getType() != AccountType.Contract) {
+        switch (unfreezeBalanceContract.getResource()) {
+          case BANDWIDTH:
+            receiverCapsule.addAcquiredDelegatedFrozenBalanceForBandwidth(-unfreezeBalance);
+            break;
+          case ENERGY:
+            receiverCapsule.addAcquiredDelegatedFrozenBalanceForEnergy(-unfreezeBalance);
+            break;
+          default:
+            //this should never happen
+            break;
+        }
+        dbManager.getAccountStore().put(receiverCapsule.createDbKey(), receiverCapsule);
+      }
+
       if (chargingType == 1) {
         accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(), oldBalance + unfreezeBalance);
       }
       else {
         accountCapsule.setBalance(oldBalance + unfreezeBalance);
       }
-      dbManager.getAccountStore().put(receiverCapsule.createDbKey(), receiverCapsule);
 
       if (delegatedResourceCapsule.getFrozenBalanceForBandwidth() == 0
           && delegatedResourceCapsule.getFrozenBalanceForEnergy() == 0) {
@@ -270,9 +283,9 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
 
       AccountCapsule receiverCapsule = dbManager.getAccountStore().get(receiverAddress);
       if (receiverCapsule == null) {
-        String readableOwnerAddress = StringUtil.createReadableString(receiverAddress);
+        String readableReceiverAddress = StringUtil.createReadableString(receiverAddress);
         throw new ContractValidateException(
-            "Account[" + readableOwnerAddress + "] not exists");
+            "Receiver Account[" + readableReceiverAddress + "] not exists");
       }
 
       byte[] key = DelegatedResourceCapsule
@@ -290,14 +303,17 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
           if (delegatedResourceCapsule.getFrozenBalanceForBandwidth() <= 0) {
             throw new ContractValidateException("no delegatedFrozenBalance(BANDWIDTH)");
           }
-          if (receiverCapsule.getAcquiredDelegatedFrozenBalanceForBandwidth()
+
+          if (receiverCapsule != null && receiverCapsule.getType() != AccountType.Contract
+              && receiverCapsule.getAcquiredDelegatedFrozenBalanceForBandwidth()
               < delegatedResourceCapsule.getFrozenBalanceForBandwidth()) {
             throw new ContractValidateException(
                 "AcquiredDelegatedFrozenBalanceForBandwidth[" + receiverCapsule
                     .getAcquiredDelegatedFrozenBalanceForBandwidth() + "] < delegatedBandwidth["
                     + delegatedResourceCapsule.getFrozenBalanceForBandwidth()
-                    + "],this should never happen");
+                    + "]");
           }
+
           if (delegatedResourceCapsule.getExpireTimeForBandwidth() > now) {
             throw new ContractValidateException("It's not time to unfreeze.");
           }
@@ -306,13 +322,14 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
           if (delegatedResourceCapsule.getFrozenBalanceForEnergy() <= 0) {
             throw new ContractValidateException("no delegateFrozenBalance(Energy)");
           }
-          if (receiverCapsule.getAcquiredDelegatedFrozenBalanceForEnergy()
+          if (receiverCapsule != null && receiverCapsule.getType() != AccountType.Contract
+              && receiverCapsule.getAcquiredDelegatedFrozenBalanceForEnergy()
               < delegatedResourceCapsule.getFrozenBalanceForEnergy()) {
             throw new ContractValidateException(
                 "AcquiredDelegatedFrozenBalanceForEnergy[" + receiverCapsule
                     .getAcquiredDelegatedFrozenBalanceForEnergy() + "] < delegatedEnergy["
                     + delegatedResourceCapsule.getFrozenBalanceForEnergy() +
-                    "],this should never happen");
+                    "]");
           }
           if (delegatedResourceCapsule.getExpireTimeForEnergy(dbManager) > now) {
             throw new ContractValidateException("It's not time to unfreeze.");
