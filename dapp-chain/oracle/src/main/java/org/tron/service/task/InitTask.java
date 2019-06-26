@@ -7,7 +7,6 @@ import org.spongycastle.util.encoders.Hex;
 import org.tron.db.EventStore;
 import org.tron.db.TransactionExtensionStore;
 import org.tron.protos.Sidechain.EventMsg;
-import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC10Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC20Actuator;
@@ -27,23 +26,30 @@ import org.tron.service.eventactuator.sidechain.WithdrawTRXActuator;
 @Slf4j(topic = "task")
 public class InitTask {
 
-  public void batchProcessTxInDb() {
+  public void batchProcessEventAndTx() {
 
-    Set<byte[]> allTxs = TransactionExtensionStore.getInstance().allValues();
-    for (byte[] txExtensionBytes : allTxs) {
+    // process txs
+    Set<String> allTxKeyHexStrings = TransactionExtensionStore.getInstance().allKeyHexStrings();
+    for (String TxKey : allTxKeyHexStrings) {
+      byte[] nonceKey = Hex.decode(TxKey);
+      byte[] event = EventStore.getInstance().getData(nonceKey);
+      if (event == null) {
+        // impossible
+        continue;
+      }
       try {
-        TransactionExtensionCapsule txExtensionCapsule = new TransactionExtensionCapsule(
-            txExtensionBytes);
-        logger.info("init check tx id:{}", txExtensionCapsule.getTransactionId());
-        //TODO CheckTransactionTask submitCheck
-        //CheckTransactionTask.getInstance().submitCheck(txExtensionCapsule);
+        Actuator actuator = getActuatorByEventMsg(event);
+        if (actuator == null) {
+          continue;
+        }
+        CreateTransactionTask.getInstance().submitCreate(actuator);
       } catch (InvalidProtocolBufferException e) {
-        logger.error(e.getMessage(), e);
+        logger.error("parse pb error", e);
       }
     }
 
+    // process events
     Set<byte[]> allEvents = EventStore.getInstance().allValues();
-    Set<String> allTxKeyHexStrings = TransactionExtensionStore.getInstance().allKeyHexStrings();
     for (byte[] event : allEvents) {
       try {
         Actuator actuator = getActuatorByEventMsg(event);
@@ -53,7 +59,7 @@ public class InitTask {
         }
         CreateTransactionTask.getInstance().submitCreate(actuator);
       } catch (InvalidProtocolBufferException e) {
-        logger.error("", e);
+        logger.error("parse pb error", e);
       }
     }
   }
@@ -94,5 +100,4 @@ public class InitTask {
         return null;
     }
   }
-
 }

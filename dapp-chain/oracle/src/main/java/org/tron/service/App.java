@@ -19,7 +19,7 @@ public class App {
     arg.setParam(args);
 
     if (arg.isInitTask()) {
-      (new InitTask()).batchProcessTxInDb();
+      (new InitTask()).batchProcessEventAndTx();
     }
     (new EventTask()).processEvent();
   }
