@@ -11,7 +11,6 @@ import org.tron.common.exception.ErrorCode;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.AlertUtil;
 import org.tron.db.Manager;
-import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.check.TransactionExtensionCapsule;
 
 @Slf4j
@@ -52,14 +51,15 @@ public class CheckTransactionTask {
       }
       // success
       byte[] nonceKeyBytes = txExtensionCapsule.getNonceKeyBytes();
-      Manager.getInstance().FinishProcessNonce(nonceKeyBytes, NonceStatus.SUCCESS_VALUE);
+      Manager.getInstance().setProcessSuccess(nonceKeyBytes);
       String msg = ErrorCode.getCheckTransactionSuccess(transactionId);
       loggerOracle.info(msg);
 
     } catch (Exception e) {
       // fail
+      // FIXME: do not catch in this task level, just return ret
       byte[] nonceKeyBytes = txExtensionCapsule.getNonceKeyBytes();
-      Manager.getInstance().FinishProcessNonce(nonceKeyBytes, NonceStatus.FAIL_VALUE);
+      Manager.getInstance().setProcessFail(nonceKeyBytes);
       String msg = ErrorCode.getCheckTransactionFail(transactionId);
       AlertUtil.sendAlert(msg);
     }

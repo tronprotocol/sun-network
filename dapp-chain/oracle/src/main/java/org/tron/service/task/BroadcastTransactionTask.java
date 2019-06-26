@@ -36,12 +36,9 @@ public class BroadcastTransactionTask {
       CheckTransactionTask.getInstance()
           .submitCheck(eventActuator.getTransactionExtensionCapsule());
     } else if (broadcastRet == BroadcastRet.DONE) {
-      // set nonce status = success
-      // delete event and tx store
+      Manager.getInstance().setProcessSuccess(eventActuator.getNonceKey());
     } else {
-      // fail
-      // FIXME: write fail to db
-      Manager.getInstance().FinishProcessNonce(eventActuator.getNonceKey(), 1);
+      Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
     }
   }
 

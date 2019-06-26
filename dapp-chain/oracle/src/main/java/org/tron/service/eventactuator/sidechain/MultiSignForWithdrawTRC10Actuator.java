@@ -73,7 +73,6 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
           tokenIdStr, valueStr, nonceStr, oracleSigns));
       return CreateRet.SUCCESS;
     } catch (Exception e) {
-      // FIXME: exception level is right ?
       logger.error("when create transaction extension capsule", e);
       return CreateRet.FAIL;
     }
