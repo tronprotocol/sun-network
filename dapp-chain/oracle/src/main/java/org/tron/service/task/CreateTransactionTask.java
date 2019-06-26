@@ -42,8 +42,7 @@ public class CreateTransactionTask {
       BroadcastTransactionTask.getInstance()
           .submitBroadcast(eventActuator, txExtensionCapsule.getDelay());
     } else {
-      byte[] nonceKeyBytes = eventActuator.getNonceKey();
-      Manager.getInstance().setProcessFail(nonceKeyBytes);
+      Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
     }
   }
 }

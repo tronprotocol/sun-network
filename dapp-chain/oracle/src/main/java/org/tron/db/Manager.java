@@ -14,6 +14,13 @@ public class Manager {
   private Manager() {
   }
 
+  public void setProcessProcessing(byte[] nonceKeyBytes, byte[] msgBytes) {
+    EventStore.getInstance().putData(nonceKeyBytes, msgBytes);
+    NonceMsg nonceMsg = NonceMsg.newBuilder().setStatus(NonceStatus.PROCESSING)
+        .setNextProcessTimestamp(System.currentTimeMillis()).build();
+    NonceStore.getInstance().putData(nonceKeyBytes, nonceMsg.toByteArray());
+  }
+
   public void setProcessSuccess(byte[] nonceKeyBytes) {
     NonceMsg nonceMsg = NonceMsg.newBuilder().setStatus(NonceStatus.SUCCESS)
         .setNextProcessTimestamp(0).build();

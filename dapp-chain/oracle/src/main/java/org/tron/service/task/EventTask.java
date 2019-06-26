@@ -12,8 +12,11 @@ import org.tron.common.config.Args;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.WalletUtil;
 import org.tron.db.EventStore;
+import org.tron.db.Manager;
 import org.tron.db.NonceStore;
 import org.tron.db.TransactionExtensionStore;
+import org.tron.protos.Sidechain.NonceMsg;
+import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.EventActuatorFactory;
@@ -54,22 +57,28 @@ public class EventTask {
           continue;
         }
 
-        byte[] nonceStatusBytes = nonceStore.getData(eventActuator.getNonceKey());
-        if (nonceStatusBytes == null) {
+        byte[] nonceMsgBytes = nonceStore.getData(eventActuator.getNonceKey());
+        if (nonceMsgBytes == null) {
           // receive this nonce firstly
-          eventStore.putData(eventActuator.getNonceKey(), eventActuator.getMessage().toByteArray());
-//          nonceStore.putData(eventActuator.getNonceKey(),
-//              ByteBuffer.allocate(4).putInt(NonceStatus.PROCESSING_VALUE).array());
+          Manager.getInstance().setProcessProcessing(eventActuator.getNonceKey(),
+              eventActuator.getMessage().toByteArray());
           CreateTransactionTask.getInstance().submitCreate(eventActuator);
         } else {
-//          NonceStatus nonceStatus = NonceStatus
-//              .forNumber(ByteBuffer.wrap(nonceStatusBytes).getInt());
+          try {
+            NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
+            if (nonceMsg.getStatus() == NonceStatus.SUCCESS) {
+              logger.info("the retried nonce {} has be processed successfully",
+                  eventActuator.getNonce());
+
+              String nonceStr = event.getNonce().toStringUtf8();
+
+            }
 //          if (nonceStatus.equals(NonceStatus.SUCCESS)) {
 //            logger.info("the retried nonce has be executed successfully");
 //          } else {
-          byte[] txExtensionBytes = TransactionExtensionStore.getInstance()
-              .getData(eventActuator.getNonceKey());
-          try {
+            byte[] txExtensionBytes = TransactionExtensionStore.getInstance()
+                .getData(eventActuator.getNonceKey());
+
             CheckTransactionTask.getInstance()
                 .submitCheck(new TransactionExtensionCapsule(txExtensionBytes));
           } catch (InvalidProtocolBufferException e) {
