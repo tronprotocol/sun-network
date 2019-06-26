@@ -73,14 +73,7 @@ public class SideChainGatewayApi {
   public static Transaction withdrawTRC10Transaction(String from, String tokenId, String value,
       String nonce) throws RpcConnectException {
 
-    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
-    byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
-    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
-    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
-    byte[] data = ByteUtil
-        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), tokenIdBytes, valueBytes,
-            nonceBytes);
-    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+    String ownSign = getWithdrawTRC10Sign(from, tokenId, value, nonce);
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "multiSignForWithdrawTRC10(uint256,bytes)";
@@ -89,17 +82,23 @@ public class SideChainGatewayApi {
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
+
+  public static String getWithdrawTRC10Sign(String from, String tokenId, String value,
+      String nonce) {
+    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
+    byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
+    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
+    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
+    byte[] data = ByteUtil
+        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), tokenIdBytes, valueBytes,
+            nonceBytes);
+    return Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+  }
+
   public static Transaction withdrawTRC20Transaction(String from, String mainChainAddress,
       String value, String nonce) throws RpcConnectException {
 
-    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
-    byte[] mainChainAddressBytes = WalletUtil.decodeFromBase58Check(mainChainAddress);
-    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
-    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
-    byte[] data = ByteUtil.merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length),
-        Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length), valueBytes,
-        nonceBytes);
-    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+    String ownSign = getWithdrawTRCTokenSign(from, mainChainAddress, value, nonce);
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "multiSignForWithdrawTRC20(uint256,bytes)";
@@ -108,16 +107,21 @@ public class SideChainGatewayApi {
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
-  public static Transaction withdrawTRC721Transaction(String from, String mainChainAddress,
-      String uId, String nonce) throws RpcConnectException {
+  public static String getWithdrawTRCTokenSign(String from, String mainChainAddress, String value,
+      String nonce) {
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
     byte[] mainChainAddressBytes = WalletUtil.decodeFromBase58Check(mainChainAddress);
-    byte[] uIdBytes = new DataWord((new BigInteger(uId, 10)).toByteArray()).getData();
+    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
     byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
     byte[] data = ByteUtil.merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length),
-        Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length), uIdBytes,
+        Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length), valueBytes,
         nonceBytes);
-    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+    return Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+  }
+
+  public static Transaction withdrawTRC721Transaction(String from, String mainChainAddress,
+      String uId, String nonce) throws RpcConnectException {
+    String ownSign = getWithdrawTRCTokenSign(from, mainChainAddress, uId, nonce);
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "multiSignForWithdrawTRC721(uint256,bytes)";
@@ -128,18 +132,22 @@ public class SideChainGatewayApi {
 
   public static Transaction withdrawTRXTransaction(String from, String value, String nonce)
       throws RpcConnectException {
-    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
-    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
-    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
-    byte[] data = ByteUtil
-        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), valueBytes, nonceBytes);
-    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+    String ownSign = getWithdrawTRXSign(from, value, nonce);
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "multiSignForWithdrawTRX(uint256,bytes)";
     List params = Arrays.asList(nonce, ownSign);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
+  }
+
+  public static String getWithdrawTRXSign(String from, String value, String nonce) {
+    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
+    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
+    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
+    byte[] data = ByteUtil
+        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), valueBytes, nonceBytes);
+    return Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
   }
 
   public static Transaction mappingTransaction(String mainChainAddress, String sideChainAddress,

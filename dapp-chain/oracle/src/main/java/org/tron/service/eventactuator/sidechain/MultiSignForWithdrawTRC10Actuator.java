@@ -3,8 +3,6 @@ package org.tron.service.eventactuator.sidechain;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import lombok.Getter;
@@ -13,8 +11,6 @@ import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.ByteUtil;
-import org.tron.common.utils.DataWord;
 import org.tron.common.utils.SignUtils;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
@@ -80,14 +76,7 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
 
   private long getDelay(String from, String tokenId, String value, String nonce,
       List<String> oracleSigns) {
-    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
-    byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
-    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
-    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
-    byte[] data = ByteUtil
-        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), tokenIdBytes, valueBytes,
-            nonceBytes);
-    String ownSign = MainChainGatewayApi.sign(data);
+    String ownSign = SideChainGatewayApi.getWithdrawTRC10Sign(from, tokenId, value, nonce);
     return SignUtils.getDelay(ownSign, oracleSigns);
   }
 
@@ -107,31 +96,6 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
       logger.error("when broadcast transaction extension capsule", e);
       return BroadcastRet.FAIL;
     }
-
-//    catch (RpcConnectException e) {
-//      AlertUtil.sendAlert(
-//          String.format("tx: %s, rpc connect fail", txExtensionCapsule.getTransactionId()));
-//      logger.error(e.getMessage(), e);
-//    } catch (TxValidateException e) {
-//      AlertUtil.sendAlert(String.format("tx: %s, validation fail, will not exist on chain",
-//          txExtensionCapsule.getTransactionId()));
-//      logger.error(e.getMessage(), e);
-//    } catch (TxExpiredException e) {
-//      AlertUtil.sendAlert(String.format("tx: %s, expired", txExtensionCapsule.getTransactionId()));
-//      logger.error(e.getMessage(), e);
-//    }
-
-//    byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
-//    byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
-//    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
-//    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
-//    byte[] data = ByteUtil
-//        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), tokenIdBytes, valueBytes,
-//            nonceBytes);
-//    String ownSign = Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
-//
-//    sleeping(ownSign, oracleSigns);
-//    boolean done = getWithdrawStatus(nonce);
   }
 
   @Override

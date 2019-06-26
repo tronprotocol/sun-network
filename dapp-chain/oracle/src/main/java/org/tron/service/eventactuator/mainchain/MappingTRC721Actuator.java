@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.exception.RpcConnectException;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
@@ -44,26 +43,31 @@ public class MappingTRC721Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule()
-      throws RpcConnectException {
+  public CreateRet createTransactionExtensionCapsule() {
     if (Objects.nonNull(transactionExtensionCapsule)) {
-      return transactionExtensionCapsule;
+      return CreateRet.SUCCESS;
     }
-    String contractAddressStr = WalletUtil.encode58Check(event.getContractAddress().toByteArray());
-    String nonceStr = event.getNonce().toStringUtf8();
+    try {
+      String contractAddressStr = WalletUtil
+          .encode58Check(event.getContractAddress().toByteArray());
+      String nonceStr = event.getNonce().toStringUtf8();
 
-    String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
-    String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
-    loggerOracle.info(
-        "MappingTRC721Event, contractAddress: {}, trcName: {}, trcSymbol: {}, nonce: {}.",
-        contractAddressStr, trcName, trcSymbol, nonceStr);
+      String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
+      String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
+      loggerOracle.info(
+          "MappingTRC721Event, contractAddress: {}, trcName: {}, trcSymbol: {}, nonce: {}.",
+          contractAddressStr, trcName, trcSymbol, nonceStr);
 
-    Transaction tx = SideChainGatewayApi
-        .multiSignForMappingTRC721(contractAddressStr, trcName, trcSymbol,
-            nonceStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        NONCE_TAG + nonceStr, tx);
-    return this.transactionExtensionCapsule;
+      Transaction tx = SideChainGatewayApi
+          .multiSignForMappingTRC721(contractAddressStr, trcName, trcSymbol,
+              nonceStr);
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
+          NONCE_TAG + nonceStr, tx, 0);
+      return CreateRet.SUCCESS;
+    } catch (Exception e) {
+      logger.error("when create transaction extension capsule", e);
+      return CreateRet.FAIL;
+    }
   }
 
   @Override

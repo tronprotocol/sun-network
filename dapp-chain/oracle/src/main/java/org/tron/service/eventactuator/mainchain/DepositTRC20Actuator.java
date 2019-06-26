@@ -7,7 +7,6 @@ import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.exception.RpcConnectException;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
@@ -46,25 +45,29 @@ public class DepositTRC20Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule()
-      throws RpcConnectException {
+  public CreateRet createTransactionExtensionCapsule() {
     if (Objects.nonNull(transactionExtensionCapsule)) {
-      return this.transactionExtensionCapsule;
+      return CreateRet.SUCCESS;
     }
+    try {
+      String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+      String contractAddressStr = WalletUtil
+          .encode58Check(event.getContractAddress().toByteArray());
+      String valueStr = event.getValue().toStringUtf8();
+      String nonceStr = event.getNonce().toStringUtf8();
 
-    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
-    String contractAddressStr = WalletUtil.encode58Check(event.getContractAddress().toByteArray());
-    String valueStr = event.getValue().toStringUtf8();
-    String nonceStr = event.getNonce().toStringUtf8();
+      loggerOracle.info("DepositTRC20Actuator, from: {}, value: {}, contractAddress: {}, nonce: {}",
+          fromStr, valueStr, contractAddressStr, nonceStr);
 
-    loggerOracle.info("DepositTRC20Actuator, from: {}, value: {}, contractAddress: {}, nonce: {}",
-        fromStr, valueStr, contractAddressStr, nonceStr);
-
-    Transaction tx = SideChainGatewayApi
-        .mintToken20Transaction(fromStr, contractAddressStr, valueStr, nonceStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        NONCE_TAG + nonceStr, tx);
-    return this.transactionExtensionCapsule;
+      Transaction tx = SideChainGatewayApi
+          .mintToken20Transaction(fromStr, contractAddressStr, valueStr, nonceStr);
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
+          NONCE_TAG + nonceStr, tx, 0);
+      return CreateRet.SUCCESS;
+    } catch (Exception e) {
+      logger.error("when create transaction extension capsule", e);
+      return CreateRet.FAIL;
+    }
   }
 
   @Override

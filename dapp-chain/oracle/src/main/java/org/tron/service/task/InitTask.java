@@ -35,7 +35,8 @@ public class InitTask {
         TransactionExtensionCapsule txExtensionCapsule = new TransactionExtensionCapsule(
             txExtensionBytes);
         logger.info("init check tx id:{}", txExtensionCapsule.getTransactionId());
-        CheckTransactionTask.getInstance().submitCheck(txExtensionCapsule);
+        //TODO CheckTransactionTask submitCheck
+        //CheckTransactionTask.getInstance().submitCheck(txExtensionCapsule);
       } catch (InvalidProtocolBufferException e) {
         logger.error(e.getMessage(), e);
       }

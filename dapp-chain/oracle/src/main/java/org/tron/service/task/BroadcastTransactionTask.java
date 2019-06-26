@@ -34,7 +34,7 @@ public class BroadcastTransactionTask {
     BroadcastRet broadcastRet = eventActuator.broadcastTransactionExtensionCapsule();
     if (broadcastRet == BroadcastRet.SUCCESS) {
       CheckTransactionTask.getInstance()
-          .submitCheck(eventActuator.getTransactionExtensionCapsule());
+          .submitCheck(eventActuator);
     } else if (broadcastRet == BroadcastRet.DONE) {
       Manager.getInstance().setProcessSuccess(eventActuator.getNonceKey());
     } else {

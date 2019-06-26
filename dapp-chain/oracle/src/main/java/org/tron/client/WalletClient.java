@@ -273,4 +273,5 @@ public class WalletClient {
     }
     throw new TxRollbackException(txId);
   }
+
 }

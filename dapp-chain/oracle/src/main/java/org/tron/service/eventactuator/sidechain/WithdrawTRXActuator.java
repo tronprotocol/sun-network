@@ -7,7 +7,6 @@ import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.exception.RpcConnectException;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
@@ -42,23 +41,27 @@ public class WithdrawTRXActuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule()
-      throws RpcConnectException {
+  public CreateRet createTransactionExtensionCapsule() {
     if (Objects.nonNull(transactionExtensionCapsule)) {
-      return this.transactionExtensionCapsule;
+      return CreateRet.SUCCESS;
     }
-    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
-    String valueStr = event.getValue().toStringUtf8();
-    String nonceStr = event.getNonce().toStringUtf8();
+    try {
+      String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+      String valueStr = event.getValue().toStringUtf8();
+      String nonceStr = event.getNonce().toStringUtf8();
 
-    loggerOracle
-        .info("WithdrawTRXActuator, from: {}, value: {}, nonce: {}", fromStr, valueStr, nonceStr);
+      loggerOracle
+          .info("WithdrawTRXActuator, from: {}, value: {}, nonce: {}", fromStr, valueStr, nonceStr);
 
-    Transaction tx = SideChainGatewayApi
-        .withdrawTRXTransaction(fromStr, valueStr, nonceStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        PREFIX + nonceStr, tx);
-    return this.transactionExtensionCapsule;
+      Transaction tx = SideChainGatewayApi
+          .withdrawTRXTransaction(fromStr, valueStr, nonceStr);
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
+          PREFIX + nonceStr, tx, 0);
+      return CreateRet.SUCCESS;
+    } catch (Exception e) {
+      logger.error("when create transaction extension capsule", e);
+      return CreateRet.FAIL;
+    }
   }
 
   @Override

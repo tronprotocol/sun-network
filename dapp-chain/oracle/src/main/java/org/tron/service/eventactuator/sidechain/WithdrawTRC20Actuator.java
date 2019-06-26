@@ -7,7 +7,6 @@ import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.exception.RpcConnectException;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
@@ -44,25 +43,30 @@ public class WithdrawTRC20Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule()
-      throws RpcConnectException {
+  public CreateRet createTransactionExtensionCapsule() {
     if (Objects.nonNull(transactionExtensionCapsule)) {
-      return this.transactionExtensionCapsule;
+      return CreateRet.SUCCESS;
     }
 
-    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
-    String mainChainAddressStr = WalletUtil
-        .encode58Check(event.getMainchainAddress().toByteArray());
-    String valueStr = event.getValue().toStringUtf8();
-    String nonceStr = event.getNonce().toStringUtf8();
+    try {
+      String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+      String mainChainAddressStr = WalletUtil
+          .encode58Check(event.getMainchainAddress().toByteArray());
+      String valueStr = event.getValue().toStringUtf8();
+      String nonceStr = event.getNonce().toStringUtf8();
 
-    loggerOracle.info("WithdrawTRC20Actuator, from: {}, mainChainAddress: {}, value: {}, nonce: {}",
-        fromStr, mainChainAddressStr, valueStr, nonceStr);
-    Transaction tx = SideChainGatewayApi
-        .withdrawTRC20Transaction(fromStr, mainChainAddressStr, valueStr, nonceStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        PREFIX + nonceStr, tx);
-    return this.transactionExtensionCapsule;
+      loggerOracle
+          .info("WithdrawTRC20Actuator, from: {}, mainChainAddress: {}, value: {}, nonce: {}",
+              fromStr, mainChainAddressStr, valueStr, nonceStr);
+      Transaction tx = SideChainGatewayApi
+          .withdrawTRC20Transaction(fromStr, mainChainAddressStr, valueStr, nonceStr);
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
+          PREFIX + nonceStr, tx, 0);
+      return CreateRet.SUCCESS;
+    } catch (Exception e) {
+      logger.error("when create transaction extension capsule", e);
+      return CreateRet.FAIL;
+    }
   }
 
   @Override
