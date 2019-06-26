@@ -29,6 +29,7 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
+import org.tron.protos.Protocol.SideChainProposal;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Result.contractResult;
@@ -145,6 +146,22 @@ public class approveGatewayProposal {
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
+    }
+  }
+
+  @Test(enabled = true)
+  public void testListProposal(){
+    SideChainProposalList sideChainProposalList = blockingStubFull
+        .listSideChainProposals(EmptyMessage.newBuilder().build());
+    Optional<SideChainProposalList> result = Optional.ofNullable(sideChainProposalList);
+    if (result.isPresent()) {
+      SideChainProposalList proposalList = result.get();
+
+      for(int i=0;i<proposalList.getProposalsCount();i++){
+        logger.info(""+proposalList.getProposals(i).toString());
+      }
+    } else {
+      logger.info("List witnesses " + " failed !!");
     }
   }
 

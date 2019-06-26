@@ -55,8 +55,6 @@ public class deploySideGateway {
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
 
   private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-  private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
 
   ECKey ecKey1 = new ECKey(Utils.getRandom());
