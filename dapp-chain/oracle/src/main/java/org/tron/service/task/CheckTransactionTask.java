@@ -4,6 +4,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.common.config.SystemSetting;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.db.Manager;
 import org.tron.service.eventactuator.Actuator;
@@ -23,7 +24,8 @@ public class CheckTransactionTask {
   private CheckTransactionTask() {
   }
 
-  private final ScheduledExecutorService checkPool = Executors.newScheduledThreadPool(100);
+  private final ScheduledExecutorService checkPool = Executors
+      .newScheduledThreadPool(SystemSetting.CHECK_POOL_SIZE);
 
   public void submitCheck(Actuator eventActuator) {
     checkPool.schedule(() -> instance.checkTransaction(eventActuator), 60,
@@ -34,10 +36,8 @@ public class CheckTransactionTask {
     CheckTxRet checkTxRet = eventActuator.checkTxInfo();
     if (checkTxRet == CheckTxRet.SUCCESS) {
       Manager.getInstance().setProcessSuccess(eventActuator.getNonceKey());
-
     } else {
       Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
     }
   }
-
 }

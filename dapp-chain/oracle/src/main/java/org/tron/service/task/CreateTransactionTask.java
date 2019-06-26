@@ -3,6 +3,7 @@ package org.tron.service.task;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.common.config.SystemSetting;
 import org.tron.db.Manager;
 import org.tron.db.TransactionExtensionStore;
 import org.tron.service.check.TransactionExtensionCapsule;
@@ -21,7 +22,8 @@ public class CreateTransactionTask {
   private CreateTransactionTask() {
   }
 
-  private final ScheduledExecutorService createPool = Executors.newScheduledThreadPool(100);
+  private final ScheduledExecutorService createPool = Executors
+      .newScheduledThreadPool(SystemSetting.CREATE_POOL_SIZE);
 
   private final TransactionExtensionStore transactionExtensionStore = TransactionExtensionStore
       .getInstance();

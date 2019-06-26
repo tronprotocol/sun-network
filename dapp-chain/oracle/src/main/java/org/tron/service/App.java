@@ -3,7 +3,6 @@ package org.tron.service;
 import java.util.TimeZone;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.Args;
-import org.tron.common.exception.RpcConnectException;
 import org.tron.service.task.EventTask;
 import org.tron.service.task.InitTask;
 
@@ -17,13 +16,8 @@ public class App {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     logger.info("start...");
     Args arg = Args.getInstance();
-    try {
-      arg.setParam(args);
-    } catch (RpcConnectException e) {
-      logger.error("failed to get sun token when setParam", e);
-      System.exit(1);
-    }
-
+    arg.setParam(args);
+    
     if (arg.isInitTask()) {
       (new InitTask()).batchProcessTxInDb();
     }

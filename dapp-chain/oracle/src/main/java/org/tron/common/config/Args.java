@@ -131,7 +131,7 @@ public class Args {
     return instance;
   }
 
-  public void setParam(String[] args) throws RpcConnectException {
+  public void setParam(String[] args) {
     JCommander.newBuilder().addObject(instance).build().parse(args);
     loadConf(shellConfFileName);
   }
@@ -141,7 +141,7 @@ public class Args {
         .decodeFromBase58Check(SideChainGatewayApi.getSunTokenAddress());
   }
 
-  public void loadConf(String confName) throws RpcConnectException {
+  public void loadConf(String confName) {
     if (StringUtils.isEmpty(confName)) {
       confName = "config.conf";
     }
@@ -177,16 +177,11 @@ public class Args {
     }
 
     // loadMysqlConf(config);
-
     // loadSunTokenAddress();
   }
 
   public static void main(String[] args) {
-    try {
-      Args.getInstance().setParam(args);
-    } catch (RpcConnectException e) {
-      e.printStackTrace();
-    }
+    Args.getInstance().setParam(args);
   }
 
 }

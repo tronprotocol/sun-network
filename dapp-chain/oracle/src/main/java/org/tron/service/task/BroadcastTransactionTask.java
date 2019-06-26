@@ -4,6 +4,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.common.config.SystemSetting;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.db.Manager;
 import org.tron.service.eventactuator.Actuator;
@@ -23,7 +24,8 @@ public class BroadcastTransactionTask {
   private BroadcastTransactionTask() {
   }
 
-  private final ScheduledExecutorService broadcastPool = Executors.newScheduledThreadPool(100);
+  private final ScheduledExecutorService broadcastPool = Executors
+      .newScheduledThreadPool(SystemSetting.BROADCAST_POOL_SIZE);
 
   void submitBroadcast(Actuator eventActuator, long delay) {
     broadcastPool
