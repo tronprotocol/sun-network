@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.tron.common.config.Args;
+import org.tron.common.exception.MessageCode;
 import org.tron.common.utils.ByteArray;
 import org.tron.db.Manager;
 import org.tron.db.NonceStore;
@@ -50,8 +51,9 @@ public class EventTask {
           try {
             NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
             if (nonceMsg.getStatus() == NonceStatus.SUCCESS) {
-              logger.info("the nonce {} has be processed successfully",
-                  ByteArray.toStr(eventActuator.getNonce()));
+              String msg = MessageCode.NONCE_HAS_BE_SUCCEED
+                  .getMsg(ByteArray.toStr(eventActuator.getNonce()));
+              logger.info(msg);
             } else if (nonceMsg.getStatus() == NonceStatus.FAIL) {
               processAndSubmit(eventActuator);
             } else {
@@ -59,8 +61,9 @@ public class EventTask {
               if (System.currentTimeMillis() / 1000 >= nonceMsg.getNextProcessTimestamp()) {
                 processAndSubmit(eventActuator);
               } else {
-                logger.info("the nonce {} is processing",
-                    ByteArray.toStr(eventActuator.getNonce()));
+                String msg = MessageCode.NONCE_IS_PROCESSING
+                    .getMsg(ByteArray.toStr(eventActuator.getNonce()));
+                logger.info(msg);
               }
             }
           } catch (InvalidProtocolBufferException e) {

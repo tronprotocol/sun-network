@@ -4,7 +4,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.SystemSetting;
-import org.tron.common.exception.ErrorCode;
+import org.tron.common.exception.MessageCode;
 import org.tron.common.utils.AlertUtil;
 import org.tron.common.utils.ByteArray;
 import org.tron.db.Manager;
@@ -45,12 +45,12 @@ public class CreateTransactionTask {
           .putData(eventActuator.getNonceKey(), txExtensionCapsule.getData());
       BroadcastTransactionTask.getInstance()
           .submitBroadcast(eventActuator, txExtensionCapsule.getDelay());
-      String msg = ErrorCode.CREATE_TRANSACTION_SUCCESS
+      String msg = MessageCode.CREATE_TRANSACTION_SUCCESS
           .getMsg(txExtensionCapsule.getTransactionId());
       logger.info(msg);
     } else {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
-      String msg = ErrorCode.CREATE_TRANSACTION_FAIL
+      String msg = MessageCode.CREATE_TRANSACTION_FAIL
           .getMsg(ByteArray.toStr(eventActuator.getNonceKey()));
       AlertUtil.sendAlert(msg);
     }

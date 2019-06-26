@@ -5,7 +5,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.SystemSetting;
-import org.tron.common.exception.ErrorCode;
+import org.tron.common.exception.MessageCode;
 import org.tron.common.utils.AlertUtil;
 import org.tron.db.Manager;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
@@ -36,11 +36,11 @@ public class CheckTransactionTask {
     String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
     if (checkTxRet == CheckTxRet.SUCCESS) {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
-      String msg = ErrorCode.CHECK_TRANSACTION_SUCCESS.getMsg(transactionId);
+      String msg = MessageCode.CHECK_TRANSACTION_SUCCESS.getMsg(transactionId);
       logger.info(msg);
     } else {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
-      String msg = ErrorCode.CHECK_TRANSACTION_FAIL.getMsg(transactionId);
+      String msg = MessageCode.CHECK_TRANSACTION_FAIL.getMsg(transactionId);
       AlertUtil.sendAlert(msg);
     }
   }
