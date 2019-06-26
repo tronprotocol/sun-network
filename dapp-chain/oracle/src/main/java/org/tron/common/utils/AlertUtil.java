@@ -12,7 +12,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.tron.common.config.Args;
-import org.tron.common.exception.RpcConnectException;
 import org.tron.common.logger.LoggerOracle;
 
 @Slf4j(topic = "alert")
@@ -49,11 +48,6 @@ public class AlertUtil {
   }
 
   public static void main(String[] args) {
-    try {
-      Args.getInstance().setParam(args);
-    } catch (RpcConnectException e) {
-      loggerOracle.error(e.getMessage(), e);
-    }
-    AlertUtil.sendAlert("oracle alert test");
+    Args.getInstance().setParam(args);
   }
 }

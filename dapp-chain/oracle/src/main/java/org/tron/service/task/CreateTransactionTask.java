@@ -3,6 +3,7 @@ package org.tron.service.task;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.common.config.SystemSetting;
 import org.tron.common.exception.ErrorCode;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.AlertUtil;
@@ -26,7 +27,8 @@ public class CreateTransactionTask {
   private CreateTransactionTask() {
   }
 
-  private final ScheduledExecutorService createPool = Executors.newScheduledThreadPool(100);
+  private final ScheduledExecutorService createPool = Executors
+      .newScheduledThreadPool(SystemSetting.CREATE_POOL_SIZE);
 
   private final TransactionExtensionStore transactionExtensionStore = TransactionExtensionStore
       .getInstance();
@@ -49,8 +51,7 @@ public class CreateTransactionTask {
           .getMsg(txExtensionCapsule.getTransactionId());
       loggerOracle.info(msg);
     } else {
-      byte[] nonceKeyBytes = eventActuator.getNonceKey();
-      Manager.getInstance().setProcessFail(nonceKeyBytes);
+      Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
       String msg = ErrorCode.CREATE_TRANSACTION_FAIL.getMsg("fail");
       AlertUtil.sendAlert(msg);
     }

@@ -6,6 +6,7 @@ import org.tron.client.SideChainGatewayApi;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
+import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
 
 @Slf4j(topic = "actuator")
@@ -27,11 +28,10 @@ public abstract class Actuator {
 
   public BroadcastRet broadcastTransactionExtensionCapsule() {
     try {
-      switch (transactionExtensionCapsule.getType()) {
-        case MAIN_CHAIN:
-          MainChainGatewayApi.broadcast(transactionExtensionCapsule.getTransaction());
-        case SIDE_CHAIN:
-          SideChainGatewayApi.broadcast(transactionExtensionCapsule.getTransaction());
+      if (transactionExtensionCapsule.getType() == TaskEnum.MAIN_CHAIN) {
+        MainChainGatewayApi.broadcast(transactionExtensionCapsule.getTransaction());
+      } else {
+        SideChainGatewayApi.broadcast(transactionExtensionCapsule.getTransaction());
       }
       return BroadcastRet.SUCCESS;
     } catch (Exception e) {

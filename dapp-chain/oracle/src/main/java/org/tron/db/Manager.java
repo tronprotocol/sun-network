@@ -1,5 +1,6 @@
 package org.tron.db;
 
+import org.tron.common.config.SystemSetting;
 import org.tron.protos.Sidechain.NonceMsg;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 
@@ -12,6 +13,14 @@ public class Manager {
   }
 
   private Manager() {
+  }
+
+  public void setProcessProcessing(byte[] nonceKeyBytes, byte[] msgBytes) {
+    EventStore.getInstance().putData(nonceKeyBytes, msgBytes);
+    NonceMsg nonceMsg = NonceMsg.newBuilder().setStatus(NonceStatus.PROCESSING)
+        .setNextProcessTimestamp(System.currentTimeMillis() / 1000 +
+            SystemSetting.RETRY_PROCESSING_INTERVAL).build();
+    NonceStore.getInstance().putData(nonceKeyBytes, nonceMsg.toByteArray());
   }
 
   public void setProcessSuccess(byte[] nonceKeyBytes) {
