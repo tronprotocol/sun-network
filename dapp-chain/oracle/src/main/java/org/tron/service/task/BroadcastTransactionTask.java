@@ -9,6 +9,7 @@ import org.tron.common.exception.ErrorCode;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.AlertUtil;
 import org.tron.db.Manager;
+import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.Actuator.BroadcastRet;
 
@@ -39,13 +40,13 @@ public class BroadcastTransactionTask {
     String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
     if (broadcastRet == BroadcastRet.SUCCESS) {
       CheckTransactionTask.getInstance()
-          .submitCheck(eventActuator);
+          .submitCheck(eventActuator, 60);
     } else if (broadcastRet == BroadcastRet.DONE) {
-      Manager.getInstance().setProcessSuccess(eventActuator.getNonceKey());
+      Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
       String msg = ErrorCode.BROADCAST_TRANSACTION_SUCCESS.getMsg(transactionId);
       loggerOracle.info(msg);
     } else {
-      Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
+      Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
       String msg = ErrorCode.BROADCAST_TRANSACTION_FAIL.getMsg(transactionId);
       AlertUtil.sendAlert(msg);
     }

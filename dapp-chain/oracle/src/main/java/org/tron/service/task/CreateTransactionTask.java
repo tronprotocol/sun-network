@@ -10,6 +10,7 @@ import org.tron.common.utils.AlertUtil;
 import org.tron.common.utils.ByteArray;
 import org.tron.db.Manager;
 import org.tron.db.TransactionExtensionStore;
+import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.Actuator.CreateRet;
@@ -52,7 +53,7 @@ public class CreateTransactionTask {
           .getMsg(txExtensionCapsule.getTransactionId());
       loggerOracle.info(msg);
     } else {
-      Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
+      Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
       String msg = ErrorCode.CREATE_TRANSACTION_FAIL
           .getMsg(ByteArray.toStr(eventActuator.getNonceKey()));
       AlertUtil.sendAlert(msg);

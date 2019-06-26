@@ -5,6 +5,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.encoders.Hex;
 import org.tron.db.EventStore;
+import org.tron.db.Manager;
 import org.tron.db.TransactionExtensionStore;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.service.eventactuator.Actuator;
@@ -42,7 +43,8 @@ public class InitTask {
         if (actuator == null) {
           continue;
         }
-        CreateTransactionTask.getInstance().submitCreate(actuator);
+        Manager.getInstance().setProcessProcessing(actuator.getNonceKey());
+        CheckTransactionTask.getInstance().submitCheck(actuator, 0);
       } catch (InvalidProtocolBufferException e) {
         logger.error("parse pb error", e);
       }
@@ -57,6 +59,7 @@ public class InitTask {
             .contains(Hex.toHexString(actuator.getNonceKey()))) {
           continue;
         }
+        Manager.getInstance().setProcessProcessing(actuator.getNonceKey());
         CreateTransactionTask.getInstance().submitCreate(actuator);
       } catch (InvalidProtocolBufferException e) {
         logger.error("parse pb error", e);

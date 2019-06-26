@@ -9,6 +9,7 @@ import org.tron.common.exception.ErrorCode;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.AlertUtil;
 import org.tron.db.Manager;
+import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.Actuator.CheckTxRet;
 
@@ -29,20 +30,19 @@ public class CheckTransactionTask {
   private final ScheduledExecutorService checkPool = Executors
       .newScheduledThreadPool(SystemSetting.CHECK_POOL_SIZE);
 
-  public void submitCheck(Actuator eventActuator) {
-    checkPool.schedule(() -> instance.checkTransaction(eventActuator), 60,
-        TimeUnit.SECONDS);
+  public void submitCheck(Actuator eventActuator, long delay) {
+    checkPool.schedule(() -> instance.checkTransaction(eventActuator), delay, TimeUnit.SECONDS);
   }
 
   private void checkTransaction(Actuator eventActuator) {
     CheckTxRet checkTxRet = eventActuator.checkTxInfo();
     String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
     if (checkTxRet == CheckTxRet.SUCCESS) {
-      Manager.getInstance().setProcessSuccess(eventActuator.getNonceKey());
+      Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
       String msg = ErrorCode.CHECK_TRANSACTION_SUCCESS.getMsg(transactionId);
       loggerOracle.info(msg);
     } else {
-      Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
+      Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
       String msg = ErrorCode.CHECK_TRANSACTION_FAIL.getMsg(transactionId);
       AlertUtil.sendAlert(msg);
     }
