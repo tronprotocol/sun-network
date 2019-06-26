@@ -531,7 +531,7 @@ public class AbiUtil {
   }
 
   public static String unpackString(byte[] data) {
-    if (data.length % WORD_LENGTH != 0 || data.length / WORD_LENGTH < 2) {
+    if (data.length < 2 * WORD_LENGTH || data.length % WORD_LENGTH != 0) {
       return "";
     }
 

@@ -34,8 +34,6 @@ import org.tron.protos.Protocol.TransactionInfo.code;
 @Slf4j
 public class WalletClient {
 
-  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
-
   private RpcClient rpcCli;
   private ECKey ecKey;
   private byte[] address;
@@ -55,10 +53,12 @@ public class WalletClient {
       List<Object> params, long callValue, long tokenId, long tokenValue)
       throws RpcConnectException {
 
-    loggerOracle.info(
-        "trigger constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
-        WalletUtil.encode58Check(contractAddress), method, params.toString(), callValue, tokenId,
-        tokenValue);
+    if (logger.isInfoEnabled()) {
+      logger.info(
+          "trigger constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
+          WalletUtil.encode58Check(contractAddress), method, params.toString(), callValue, tokenId,
+          tokenValue);
+    }
 
     byte[] data = AbiUtil.parseMethod(method, params);
     // TODO retry
@@ -76,10 +76,12 @@ public class WalletClient {
   public Transaction triggerContractTransaction(byte[] contractAddress, String method,
       List<Object> params,
       long callValue, long tokenId, long tokenValue) throws RpcConnectException {
-    loggerOracle.info(
-        "trigger not constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
-        WalletUtil.encode58Check(contractAddress), method, params.toString(), callValue, tokenId,
-        tokenValue);
+    if (logger.isInfoEnabled()){
+      logger.info(
+          "trigger not constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
+          WalletUtil.encode58Check(contractAddress), method, params.toString(), callValue, tokenId,
+          tokenValue);
+    }
 
     byte[] data = AbiUtil.parseMethod(method, params);
     return triggerContractTransaction(contractAddress, data, SystemSetting.FEE_LIMIT,
@@ -101,8 +103,7 @@ public class WalletClient {
       WalletUtil.sleep(retryInterval);
     }
     if (!transactionExtention.getResult().getResult()) {
-      loggerOracle
-          .error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
+      logger.error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
               transactionExtention.getResult().getMessage().toStringUtf8());
       throw new RpcConnectException(
           "rpc fail, code: " + transactionExtention.getResult().getCode());
@@ -134,8 +135,7 @@ public class WalletClient {
       sleep(retryInterval);
     }
     if (transactionExtension == null || !transactionExtension.getResult().getResult()) {
-      loggerOracle
-          .error("rpc fail, code: {}, message: {}", transactionExtension.getResult().getCode(),
+      logger.error("rpc fail, code: {}, message: {}", transactionExtension.getResult().getCode(),
               transactionExtension.getResult().getMessage().toStringUtf8());
       throw new RpcConnectException(
           "rpc fail, code: " + transactionExtension.getResult().getCode());
@@ -197,8 +197,7 @@ public class WalletClient {
     }
     Return ret = transactionExtention.getResult();
     if (!ret.getResult()) {
-      loggerOracle
-          .error("rpc fail, code: {}, message: {}", ret.getCode(), ret.getMessage().toStringUtf8());
+      logger.error("rpc fail, code: {}, message: {}", ret.getCode(), ret.getMessage().toStringUtf8());
       throw new RpcConnectException("rpc fail, code: " + ret.getCode());
     }
     Transaction transaction = transactionExtention.getTransaction();
@@ -235,23 +234,23 @@ public class WalletClient {
         // false is fail
         if (response.getCode().equals(response_code.SERVER_BUSY)) {
           // when SERVER_BUSY, retry
-          loggerOracle.info("will retry {} time(s)", i + 1);
+          logger.info("will retry {} time(s)", i + 1);
           sleep(retryInterval);
         } else if (response.getCode().equals(response_code.DUP_TRANSACTION_ERROR)) {
-          loggerOracle.info("this tx has be broadcasted");
+          logger.info("this tx has be broadcasted");
           return true;
         } else if (response.getCode().equals(response_code.TRANSACTION_EXPIRATION_ERROR)) {
-          loggerOracle.info("transaction expired");
+          logger.info("transaction expired");
           throw new TxExpiredException("tx error, " + response.getMessage().toStringUtf8());
         } else {
-          loggerOracle.error("tx error, fail, code: {}, message {}", response.getCode(),
-              response.getMessage().toStringUtf8());
+            logger.error("tx error, fail, code: {}, message {}", response.getCode(),
+                response.getMessage().toStringUtf8());
           // fail, not retry
           throw new TxValidateException("tx error, " + response.getMessage().toStringUtf8());
         }
       }
     }
-    loggerOracle.error("broadcast transaction, exceed max retry, fail");
+    logger.error("broadcast transaction, exceed max retry, fail");
     throw new RpcConnectException("broadcast transaction, exceed max retry, fail");
   }
 
@@ -261,7 +260,7 @@ public class WalletClient {
       Optional<TransactionInfo> transactionInfo = rpcCli.getTransactionInfoById(txId);
       TransactionInfo info = transactionInfo.get();
       if (info.getBlockTimeStamp() == 0L) {
-        loggerOracle.info("will retry {} time(s)", i + 1);
+        logger.info("will retry {} time(s)", i + 1);
         sleep(retryInterval);
       } else {
         if (info.getResult().equals(code.SUCESS)) {
