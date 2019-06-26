@@ -3,7 +3,6 @@ package org.tron.service.eventactuator;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.logger.LoggerOracle;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.TaskEnum;
@@ -11,8 +10,6 @@ import org.tron.service.check.TransactionExtensionCapsule;
 
 @Slf4j(topic = "actuator")
 public abstract class Actuator {
-
-  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   protected TransactionExtensionCapsule transactionExtensionCapsule;
 
@@ -36,7 +33,7 @@ public abstract class Actuator {
       return BroadcastRet.SUCCESS;
     } catch (Exception e) {
       //ERROR code
-      loggerOracle
+      logger
           .error("broadcast err txId is {}", transactionExtensionCapsule.getTransactionId(), e);
       return BroadcastRet.FAIL;
     }
@@ -61,7 +58,7 @@ public abstract class Actuator {
       return CheckTxRet.SUCCESS;
     } catch (Exception e) {
       // fail
-      loggerOracle.error("check err txId is {}", transactionId, e);
+      logger.error("check err txId is {}", transactionId, e);
       return CheckTxRet.FAIL;
     }
   }
