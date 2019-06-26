@@ -44,7 +44,7 @@ public class InitTask {
           continue;
         }
         Manager.getInstance().setProcessProcessing(actuator.getNonceKey());
-        CheckTransactionTask.getInstance().submitCheck(actuator, 0);
+        CheckTransactionTask.getInstance().submitCheck(actuator, 60);
       } catch (InvalidProtocolBufferException e) {
         logger.error("parse pb error", e);
       }

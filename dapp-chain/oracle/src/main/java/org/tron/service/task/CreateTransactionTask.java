@@ -35,7 +35,7 @@ public class CreateTransactionTask {
   private final TransactionExtensionStore transactionExtensionStore = TransactionExtensionStore
       .getInstance();
 
-  public void submitCreate(Actuator eventActuator) {
+  void submitCreate(Actuator eventActuator) {
     createPool.submit(() -> instance.createTransaction(eventActuator));
   }
 
@@ -46,7 +46,6 @@ public class CreateTransactionTask {
           .getTransactionExtensionCapsule();
       this.transactionExtensionStore
           .putData(eventActuator.getNonceKey(), txExtensionCapsule.getData());
-      // TODO: and store_success status
       BroadcastTransactionTask.getInstance()
           .submitBroadcast(eventActuator, txExtensionCapsule.getDelay());
       String msg = ErrorCode.CREATE_TRANSACTION_SUCCESS

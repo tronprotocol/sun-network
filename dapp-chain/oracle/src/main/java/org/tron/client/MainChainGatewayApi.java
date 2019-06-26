@@ -45,7 +45,7 @@ public class MainChainGatewayApi {
 
   public static String getTRCName(String contractAddress) {
     String method = "name()";
-    byte[] ret = new byte[0];
+    byte[] ret;
     try {
       ret = GATEWAY_API.getInstance()
           .triggerConstantContractAndReturn(WalletUtil.decodeFromBase58Check(contractAddress),
@@ -59,7 +59,7 @@ public class MainChainGatewayApi {
 
   public static String getTRCSymbol(String contractAddress) {
     String method = "symbol()";
-    byte[] ret = new byte[0];
+    byte[] ret;
     try {
       ret = GATEWAY_API.getInstance()
           .triggerConstantContractAndReturn(WalletUtil.decodeFromBase58Check(contractAddress),
@@ -73,7 +73,7 @@ public class MainChainGatewayApi {
 
   public static long getTRCDecimals(String contractAddress) {
     String method = "decimals()";
-    byte[] ret = new byte[0];
+    byte[] ret;
     try {
       ret = GATEWAY_API.getInstance()
           .triggerConstantContractAndReturn(WalletUtil.decodeFromBase58Check(contractAddress),

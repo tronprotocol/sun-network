@@ -60,9 +60,6 @@ public class MultiSignForWithdrawTRXActuator extends MultSignForWIthdrawActuator
               nonceStr);
       Transaction tx = MainChainGatewayApi
           .multiSignForWithdrawTRXTransaction(fromStr, valueStr, nonceStr, oracleSigns);
-      if (tx == null) {
-        return null;
-      }
       this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
           PREFIX + nonceStr, tx,
           getDelay(fromStr, valueStr, nonceStr, oracleSigns));

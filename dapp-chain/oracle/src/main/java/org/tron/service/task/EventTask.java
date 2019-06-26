@@ -33,7 +33,7 @@ public class EventTask {
   }
 
   public void processEvent() {
-    for (; ; ) {
+    while (true) {
       ConsumerRecords<String, String> record = this.kfkConsumer.getRecord();
       for (ConsumerRecord<String, String> key : record) {
         JSONObject obj = (JSONObject) JSONValue.parse(key.value());
@@ -48,9 +48,7 @@ public class EventTask {
         byte[] nonceMsgBytes = NonceStore.getInstance().getData(eventActuator.getNonceKey());
         if (nonceMsgBytes == null) {
           // receive this nonce firstly
-          Manager.getInstance().setProcessProcessing(eventActuator.getNonceKey(),
-              eventActuator.getMessage().toByteArray());
-          CreateTransactionTask.getInstance().submitCreate(eventActuator);
+          processAndSubmit(eventActuator);
         } else {
           try {
             NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
@@ -58,15 +56,11 @@ public class EventTask {
               loggerOracle.info("the nonce {} has be processed successfully",
                   ByteArray.toStr(eventActuator.getNonce()));
             } else if (nonceMsg.getStatus() == NonceStatus.FAIL) {
-              Manager.getInstance().setProcessProcessing(eventActuator.getNonceKey(),
-                  eventActuator.getMessage().toByteArray());
-              CreateTransactionTask.getInstance().submitCreate(eventActuator);
+              processAndSubmit(eventActuator);
             } else {
               // processing
               if (System.currentTimeMillis() / 1000 >= nonceMsg.getNextProcessTimestamp()) {
-                Manager.getInstance().setProcessProcessing(eventActuator.getNonceKey(),
-                    eventActuator.getMessage().toByteArray());
-                CreateTransactionTask.getInstance().submitCreate(eventActuator);
+                processAndSubmit(eventActuator);
               } else {
                 loggerOracle.info("the nonce {} is processing",
                     ByteArray.toStr(eventActuator.getNonce()));
@@ -79,5 +73,11 @@ public class EventTask {
         this.kfkConsumer.commit();
       }
     }
+  }
+
+  private void processAndSubmit(Actuator eventActuator) {
+    Manager.getInstance().setProcessProcessing(eventActuator.getNonceKey(),
+        eventActuator.getMessage().toByteArray());
+    CreateTransactionTask.getInstance().submitCreate(eventActuator);
   }
 }

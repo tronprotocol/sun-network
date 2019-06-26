@@ -65,9 +65,6 @@ public class MultiSignForWithdrawTRC721Actuator extends MultSignForWIthdrawActua
       Transaction tx = MainChainGatewayApi
           .multiSignForWithdrawTRC721Transaction(fromStr, mainChainAddressStr, uIdStr, nonceStr,
               oracleSigns);
-      if (tx == null) {
-        return null;
-      }
       this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
           PREFIX + nonceStr, tx,
           getDelay(fromStr, mainChainAddressStr, uIdStr, nonceStr, oracleSigns));
