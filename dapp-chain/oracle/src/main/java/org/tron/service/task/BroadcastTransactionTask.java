@@ -5,7 +5,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.SystemSetting;
+import org.tron.common.exception.ErrorCode;
 import org.tron.common.logger.LoggerOracle;
+import org.tron.common.utils.AlertUtil;
 import org.tron.db.Manager;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
@@ -35,13 +37,18 @@ public class BroadcastTransactionTask {
 
   private void broadcastTransaction(Actuator eventActuator) {
     BroadcastRet broadcastRet = eventActuator.broadcastTransactionExtensionCapsule();
+    String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
     if (broadcastRet == BroadcastRet.SUCCESS) {
       CheckTransactionTask.getInstance()
           .submitCheck(eventActuator, 60);
     } else if (broadcastRet == BroadcastRet.DONE) {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
+      String msg = ErrorCode.BROADCAST_TRANSACTION_SUCCESS.getMsg(transactionId);
+      loggerOracle.info(msg);
     } else {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
+      String msg = ErrorCode.BROADCAST_TRANSACTION_FAIL.getMsg(transactionId);
+      AlertUtil.sendAlert(msg);
     }
   }
 

@@ -4,6 +4,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.SystemSetting;
+import org.tron.common.exception.ErrorCode;
+import org.tron.common.logger.LoggerOracle;
+import org.tron.common.utils.AlertUtil;
 import org.tron.db.Manager;
 import org.tron.db.TransactionExtensionStore;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
@@ -13,6 +16,8 @@ import org.tron.service.eventactuator.Actuator.CreateRet;
 
 @Slf4j(topic = "actuatorRun")
 public class CreateTransactionTask {
+
+  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   private static CreateTransactionTask instance = new CreateTransactionTask();
 
@@ -34,8 +39,7 @@ public class CreateTransactionTask {
   }
 
   private void createTransaction(Actuator eventActuator) {
-    CreateRet createRet = eventActuator
-        .createTransactionExtensionCapsule();
+    CreateRet createRet = eventActuator.createTransactionExtensionCapsule();
     if (createRet == CreateRet.SUCCESS) {
       TransactionExtensionCapsule txExtensionCapsule = eventActuator
           .getTransactionExtensionCapsule();
@@ -44,8 +48,13 @@ public class CreateTransactionTask {
       // TODO: and store_success status
       BroadcastTransactionTask.getInstance()
           .submitBroadcast(eventActuator, txExtensionCapsule.getDelay());
+      String msg = ErrorCode.CREATE_TRANSACTION_SUCCESS
+          .getMsg(txExtensionCapsule.getTransactionId());
+      loggerOracle.info(msg);
     } else {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
+      String msg = ErrorCode.CREATE_TRANSACTION_FAIL.getMsg("fail");
+      AlertUtil.sendAlert(msg);
     }
   }
 }

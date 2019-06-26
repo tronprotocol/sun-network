@@ -19,10 +19,9 @@ import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.MultiSignForWithdrawTRXEvent;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
-import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "sideChainTask")
-public class MultiSignForWithdrawTRXActuator extends Actuator {
+public class MultiSignForWithdrawTRXActuator extends MultSignForWIthdrawActuator {
 
   private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 

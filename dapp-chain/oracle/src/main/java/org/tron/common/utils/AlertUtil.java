@@ -19,8 +19,8 @@ public class AlertUtil {
 
   private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
-  public static void sendAlert(String msg, Exception exception) {
-    loggerOracle.error("sendAlert: {} , {}", msg, exception);
+  public static void sendAlert(String msg) {
+    loggerOracle.error("sendAlert: {} ", msg);
     if (StringUtils.isEmpty(Args.getInstance().getAlertDingWebhookToken())) {
       return;
     }
