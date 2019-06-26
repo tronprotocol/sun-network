@@ -19,7 +19,6 @@ import org.tron.common.exception.TxExpiredException;
 import org.tron.common.exception.TxFailException;
 import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
-import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.TransactionUtils;
@@ -102,11 +101,17 @@ public class WalletClient {
       }
       WalletUtil.sleep(retryInterval);
     }
-    if (!transactionExtention.getResult().getResult()) {
-      logger.error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
-              transactionExtention.getResult().getMessage().toStringUtf8());
+    if (transactionExtention == null) {
+      logger.error("rpc fail, return null");
+      throw new RpcConnectException("rpc fail, return null: ");
+    }
+
+    Return ret = transactionExtention.getResult();
+    if (!ret.getResult()) {
+      logger.error("rpc fail, code: {}, message: {}", ret.getCode(),
+          ret.getMessage().toStringUtf8());
       throw new RpcConnectException(
-          "rpc fail, code: " + transactionExtention.getResult().getCode());
+          "rpc fail, code: " + ret.getCode());
     }
     return transactionExtention;
   }
