@@ -4,7 +4,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.common.exception.ErrorCode;
 import org.tron.common.logger.LoggerOracle;
+import org.tron.common.utils.AlertUtil;
 import org.tron.db.Manager;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.Actuator.CheckTxRet;
@@ -32,11 +34,15 @@ public class CheckTransactionTask {
 
   private void checkTransaction(Actuator eventActuator) {
     CheckTxRet checkTxRet = eventActuator.checkTxInfo();
+    String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
     if (checkTxRet == CheckTxRet.SUCCESS) {
       Manager.getInstance().setProcessSuccess(eventActuator.getNonceKey());
-
+      String msg = ErrorCode.CHECK_TRANSACTION_SUCCESS.getMsg(transactionId);
+      loggerOracle.info(msg);
     } else {
       Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
+      String msg = ErrorCode.CHECK_TRANSACTION_FAIL.getMsg(transactionId);
+      AlertUtil.sendAlert(msg);
     }
   }
 

@@ -19,10 +19,9 @@ import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.MultiSignForWithdrawTRC10Event;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
-import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "sideChainTask")
-public class MultiSignForWithdrawTRC10Actuator extends Actuator {
+public class MultiSignForWithdrawTRC10Actuator extends MultSignForWIthdrawActuator {
 
   private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
@@ -78,24 +77,6 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
       List<String> oracleSigns) {
     String ownSign = SideChainGatewayApi.getWithdrawTRC10Sign(from, tokenId, value, nonce);
     return SignUtils.getDelay(ownSign, oracleSigns);
-  }
-
-  @Override
-  public BroadcastRet broadcastTransactionExtensionCapsule() {
-
-    String nonceStr = event.getNonce().toStringUtf8();
-    try {
-      boolean done = MainChainGatewayApi.getWithdrawStatus(nonceStr);
-      if (done) {
-        return BroadcastRet.DONE;
-      } else {
-        return super.broadcastTransactionExtensionCapsule();
-      }
-    } catch (Exception e) {
-      // FIXME: exception level is right ?
-      logger.error("when broadcast transaction extension capsule", e);
-      return BroadcastRet.FAIL;
-    }
   }
 
   @Override
