@@ -4,9 +4,11 @@ import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Optional;
@@ -82,6 +84,18 @@ public class deploySideGateway {
 
   @Test(enabled = true, description = "deploy Side Chain Gateway")
   public void test1DepositTrc20001() {
+    String mainChainAddress = "";
+    try {
+      File mainChainFile = new File("/home/mainChainGatewayAddress");
+      FileReader reader = new FileReader(mainChainFile);
+      BufferedReader breader = new BufferedReader(reader);
+      mainChainAddress = breader.readLine();
+      breader.close();
+    }catch (Exception e){
+      logger.info("Read main/side Gateway ContractAddress Failed");
+      return;
+    }
+
     int count = 0;
     String mainChainGatewayAddress = null;
     while (count<3) {
@@ -99,10 +113,10 @@ public class deploySideGateway {
       String parame = "\"" + Base58.encode58Check(testDepositAddress) + "\"";
 
       String deployTxid = PublicMethed
-          .deployContractWithConstantParame(contractName, abi, code, "constructor(address)",
+          .deploySideContractWithConstantParame(contractName, abi, code, "constructor(address)",
               parame, "",
               maxFeeLimit,
-              0L, 100, null, testDepositTrx, testDepositAddress
+              0L, 100, null, testDepositTrx, testDepositAddress,mainChainAddress
               , blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
 
