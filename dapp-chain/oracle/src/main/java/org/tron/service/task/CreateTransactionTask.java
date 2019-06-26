@@ -3,7 +3,7 @@ package org.tron.service.task;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.extern.slf4j.Slf4j;
-import org.tron.db.EventStore;
+import org.tron.db.Manager;
 import org.tron.db.TransactionExtensionStore;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
@@ -42,12 +42,8 @@ public class CreateTransactionTask {
       BroadcastTransactionTask.getInstance()
           .submitBroadcast(eventActuator, txExtensionCapsule.getDelay());
     } else {
-      // TODO: fail
       byte[] nonceKeyBytes = eventActuator.getNonceKey();
-//        NonceStore.getInstance()
-//            .putData(nonceKeyBytes,
-//                ByteBuffer.allocate(4).putInt(NonceStatus.SUCCESS_VALUE).array());
-      EventStore.getInstance().deleteData(nonceKeyBytes);
+      Manager.getInstance().setProcessFail(nonceKeyBytes);
     }
   }
 }

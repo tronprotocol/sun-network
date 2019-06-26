@@ -1,6 +1,7 @@
 package org.tron.db;
 
-import java.nio.ByteBuffer;
+import org.tron.protos.Sidechain.NonceMsg;
+import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 
 public class Manager {
 
@@ -13,10 +14,26 @@ public class Manager {
   private Manager() {
   }
 
-  public void FinishProcessNonce(byte[] nonceKeyBytes, int status) {
+  public void setProcessSuccess(byte[] nonceKeyBytes) {
+    NonceMsg nonceMsg = NonceMsg.newBuilder().setStatus(NonceStatus.SUCCESS)
+        .setNextProcessTimestamp(0).build();
     NonceStore.getInstance()
-        .putData(nonceKeyBytes, ByteBuffer.allocate(4).putInt(status).array());
+        .putData(nonceKeyBytes, nonceMsg.toByteArray());
+    deleteEventAndTxStore(nonceKeyBytes);
+  }
+
+  public void setProcessFail(byte[] nonceKeyBytes) {
+    NonceMsg nonceMsg = NonceMsg.newBuilder().setStatus(NonceStatus.FAIL)
+        .setNextProcessTimestamp(0).build();
+    NonceStore.getInstance()
+        .putData(nonceKeyBytes, nonceMsg.toByteArray());
+    deleteEventAndTxStore(nonceKeyBytes);
+  }
+
+  private void deleteEventAndTxStore(byte[] nonceKeyBytes) {
     EventStore.getInstance().deleteData(nonceKeyBytes);
     TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
   }
+
+
 }
