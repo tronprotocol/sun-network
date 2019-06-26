@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.exception.RpcConnectException;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
@@ -44,27 +43,31 @@ public class MappingTRC20Actuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule()
-      throws RpcConnectException {
+  public CreateRet createTransactionExtensionCapsule() {
     if (Objects.nonNull(transactionExtensionCapsule)) {
-      return this.transactionExtensionCapsule;
+      return CreateRet.SUCCESS;
     }
+    try {
+      String contractAddressStr = WalletUtil
+          .encode58Check(event.getContractAddress().toByteArray());
+      String nonceStr = event.getNonce().toStringUtf8();
 
-    String contractAddressStr = WalletUtil.encode58Check(event.getContractAddress().toByteArray());
-    String nonceStr = event.getNonce().toStringUtf8();
+      long trcDecimals = MainChainGatewayApi.getTRCDecimals(contractAddressStr);
+      String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
+      String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
+      loggerOracle.info(
+          "MappingTRC20Event, contractAddress: {}, trcName: {}, trcSymbol: {}, trcDecimals: {}, nonce: {}.",
+          contractAddressStr, trcName, trcSymbol, trcDecimals, nonceStr);
 
-    long trcDecimals = MainChainGatewayApi.getTRCDecimals(contractAddressStr);
-    String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
-    String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
-    loggerOracle.info(
-        "MappingTRC20Event, contractAddress: {}, trcName: {}, trcSymbol: {}, trcDecimals: {}, nonce: {}.",
-        contractAddressStr, trcName, trcSymbol, trcDecimals, nonceStr);
-
-    Transaction tx = SideChainGatewayApi
-        .multiSignForMappingTRC20(contractAddressStr, trcName, trcSymbol, trcDecimals, nonceStr);
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-        NONCE_TAG + nonceStr, tx);
-    return this.transactionExtensionCapsule;
+      Transaction tx = SideChainGatewayApi
+          .multiSignForMappingTRC20(contractAddressStr, trcName, trcSymbol, trcDecimals, nonceStr);
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
+          NONCE_TAG + nonceStr, tx, 0);
+      return CreateRet.SUCCESS;
+    } catch (Exception e) {
+      logger.error("when create transaction extension capsule", e);
+      return CreateRet.FAIL;
+    }
   }
 
   @Override

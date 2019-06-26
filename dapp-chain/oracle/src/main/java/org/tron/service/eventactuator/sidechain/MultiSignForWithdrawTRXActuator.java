@@ -3,13 +3,15 @@ package org.tron.service.eventactuator.sidechain;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.util.List;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
-import org.tron.common.exception.RpcConnectException;
+import org.tron.client.SideChainGatewayApi;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.SignUtils;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
@@ -43,26 +45,39 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
   }
 
   @Override
-  public TransactionExtensionCapsule createTransactionExtensionCapsule()
-      throws RpcConnectException {
+  public CreateRet createTransactionExtensionCapsule() {
     if (Objects.nonNull(transactionExtensionCapsule)) {
-      return this.transactionExtensionCapsule;
+      return CreateRet.SUCCESS;
     }
-    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
-    String valueStr = event.getValue().toStringUtf8();
-    String nonceStr = event.getNonce().toStringUtf8();
+    try {
+      String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+      String valueStr = event.getValue().toStringUtf8();
+      String nonceStr = event.getNonce().toStringUtf8();
+      List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(nonceStr);
 
-    loggerOracle
-        .info("MultiSignForWithdrawTRXActuator, from: {}, value: {}, nonce: {}", fromStr, valueStr,
-            nonceStr);
-    Transaction tx = MainChainGatewayApi
-        .multiSignForWithdrawTRXTransaction(fromStr, valueStr, nonceStr);
-    if (tx == null) {
-      return null;
+      loggerOracle
+          .info("MultiSignForWithdrawTRXActuator, from: {}, value: {}, nonce: {}", fromStr,
+              valueStr,
+              nonceStr);
+      Transaction tx = MainChainGatewayApi
+          .multiSignForWithdrawTRXTransaction(fromStr, valueStr, nonceStr, oracleSigns);
+      if (tx == null) {
+        return null;
+      }
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
+          PREFIX + nonceStr, tx,
+          getDelay(fromStr, valueStr, nonceStr, oracleSigns));
+      return CreateRet.SUCCESS;
+    } catch (Exception e) {
+      logger.error("when create transaction extension capsule", e);
+      return CreateRet.FAIL;
     }
-    this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
-        PREFIX + nonceStr, tx);
-    return this.transactionExtensionCapsule;
+  }
+
+  private long getDelay(String fromStr, String valueStr,
+      String nonceStr, List<String> oracleSigns) {
+    String ownSign = SideChainGatewayApi.getWithdrawTRXSign(fromStr, valueStr, nonceStr);
+    return SignUtils.getDelay(ownSign, oracleSigns);
   }
 
   @Override

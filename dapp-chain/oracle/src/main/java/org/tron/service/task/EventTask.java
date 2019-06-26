@@ -1,6 +1,5 @@
 package org.tron.service.task;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Arrays;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;

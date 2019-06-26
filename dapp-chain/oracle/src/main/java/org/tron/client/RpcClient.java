@@ -4,28 +4,18 @@ import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
-import lombok.extern.slf4j.Slf4j;
-import org.spongycastle.util.encoders.Hex;
-import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
 import org.tron.api.GrpcAPI.BytesMessage;
-import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.Return;
-import org.tron.api.GrpcAPI.Return.response_code;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.WalletGrpc;
-import org.tron.common.exception.RpcConnectException;
-import org.tron.common.exception.TxExpiredException;
-import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.Sha256Hash;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.AssetIssueContract;
-import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 
-@Slf4j(topic = "rpcClient")
 class RpcClient {
+
 
   private WalletGrpc.WalletBlockingStub blockingStub;
 
@@ -45,53 +35,9 @@ class RpcClient {
     return Optional.ofNullable(transactionInfo);
   }
 
-  boolean broadcastTransaction(Transaction signaturedTransaction)
-      throws RpcConnectException, TxValidateException, TxExpiredException {
-    String txId = Hex
-        .toHexString(Sha256Hash.hash(signaturedTransaction.getRawData().toByteArray()));
-    logger.info("tx id: {}", txId);
-    int maxRetry = 5;
-    for (int i = 0; i < maxRetry; i++) {
-      Return response = blockingStub.broadcastTransaction(signaturedTransaction);
-      if (response.getResult()) {
-        // true is success
-        return true;
-      } else {
-        // false is fail
-        if (response.getCode().equals(response_code.SERVER_BUSY)) {
-          // when SERVER_BUSY, retry
-          logger.info("will retry {} time(s)", i + 1);
-          try {
-            Thread.sleep(300);
-          } catch (InterruptedException e) {
-            logger.error(e.getMessage(), e);
-          }
-        } else if (response.getCode().equals(response_code.DUP_TRANSACTION_ERROR)) {
-          logger.info("this tx has be broadcasted");
-          return true;
-        } else if (response.getCode().equals(response_code.TRANSACTION_EXPIRATION_ERROR)) {
-          logger.info("transaction expired");
-          throw new TxExpiredException("tx error, " + response.getMessage().toStringUtf8());
-        } else {
-          logger.error("tx error, fail, code: {}, message {}", response.getCode(),
-              response.getMessage().toStringUtf8());
-          // fail, not retry
-          throw new TxValidateException("tx error, " + response.getMessage().toStringUtf8());
-        }
-      }
-    }
-    logger.error("broadcast transaction, exceed max retry, fail");
-    throw new RpcConnectException("broadcast transaction, exceed max retry, fail");
-  }
-
-  Account queryAccount(byte[] address) {
-    ByteString addressBS = ByteString.copyFrom(address);
-    Account request = Account.newBuilder().setAddress(addressBS).build();
-    return blockingStub.getAccount(request);
-  }
-
-  AddressPrKeyPairMessage generateAddress(EmptyMessage emptyMessage) {
-    return blockingStub.generateAddress(emptyMessage);
+  Optional<Return> broadcastTransaction(Transaction signaturedTransaction) {
+    Return response = blockingStub.broadcastTransaction(signaturedTransaction);
+    return Optional.ofNullable(response);
   }
 
   AssetIssueContract getAssetIssueById(String assetId) {
