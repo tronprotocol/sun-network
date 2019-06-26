@@ -9,7 +9,7 @@ public enum ErrorCode {
       "tx: %s, broadcast transaction  fail, please resolve this problem by reviewing and inspecting logs of oracle"),
   CREATE_TRANSACTION_SUCCESS(5, "tx: %s, create transaction result success"),
   CREATE_TRANSACTION_FAIL(6,
-      "tx: %s, create transaction  fail, please resolve this problem by reviewing and inspecting logs of oracle");
+      "nonce key : %s, create transaction  fail, please resolve this problem by reviewing and inspecting logs of oracle");
   private int code;
   private String msg;
 

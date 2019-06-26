@@ -4,6 +4,7 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.tron.common.config.Args;
+import org.tron.common.logger.LoggerOracle;
 import org.tron.service.eventactuator.mainchain.DepositTRC10Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC20Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC721Actuator;
@@ -24,6 +25,8 @@ import org.tron.service.eventenum.SideEventType;
 @Slf4j(topic = "task")
 public class EventActuatorFactory {
 
+  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
+
   public static Actuator CreateActuator(JSONObject obj) {
     Args args = Args.getInstance();
     if (Objects.isNull(obj.get("contractAddress"))) {
@@ -34,7 +37,7 @@ public class EventActuatorFactory {
     } else if (obj.get("contractAddress").equals(args.getSidechainGatewayStr())) {
       return createSideChainActuator(obj);
     }
-    logger.debug("unknown contract address:{}", obj.get("contractAddress"));
+    loggerOracle.debug("unknown contract address:{}", obj.get("contractAddress"));
     return null;
   }
 
@@ -79,7 +82,7 @@ public class EventActuatorFactory {
         return task;
       }
       default: {
-        logger.info("main chain event:{},signature:{}.", obj.get("eventSignature").toString(),
+        loggerOracle.info("main chain event:{},signature:{}.", obj.get("eventSignature").toString(),
             eventSignature.getSignature());
       }
     }
@@ -146,7 +149,7 @@ public class EventActuatorFactory {
         return task;
       }
       default: {
-        logger.info("side chain event:{},signature:{}.", obj.get("eventSignature").toString(),
+        loggerOracle.info("side chain event:{},signature:{}.", obj.get("eventSignature").toString(),
             eventType.getMethod());
       }
     }

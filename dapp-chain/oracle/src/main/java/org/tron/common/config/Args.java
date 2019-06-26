@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.encoders.Hex;
 import org.springframework.stereotype.Component;
 import org.tron.client.SideChainGatewayApi;
+import org.tron.common.crypto.ECKey;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.utils.WalletUtil;
 
@@ -178,6 +179,11 @@ public class Args {
 
     // loadMysqlConf(config);
     // loadSunTokenAddress();
+  }
+
+  public String getOracleAddress() {
+    return WalletUtil.encode58Check(
+        ECKey.fromPrivate(getOraclePrivateKey()).getAddress());
   }
 
   public static void main(String[] args) {

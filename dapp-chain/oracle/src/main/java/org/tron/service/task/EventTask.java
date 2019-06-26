@@ -9,10 +9,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.tron.common.config.Args;
-import org.tron.common.crypto.ECKey;
+import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.WalletUtil;
-import org.tron.db.EventStore;
 import org.tron.db.Manager;
 import org.tron.db.NonceStore;
 import org.tron.protos.Sidechain.NonceMsg;
@@ -24,23 +22,14 @@ import org.tron.service.kafka.KfkConsumer;
 @Slf4j(topic = "eventTask")
 public class EventTask {
 
+  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
+
   private KfkConsumer kfkConsumer;
 
-  private EventStore eventStore;
-  private NonceStore nonceStore;
-
   public EventTask() {
-
-    this.kfkConsumer = new KfkConsumer(Args.getInstance().getMainchainKafka(),
-        "Oracle_" + getOracleAddress(),
-        Arrays.asList("contractevent"));
-    this.eventStore = EventStore.getInstance();
-    this.nonceStore = NonceStore.getInstance();
-  }
-
-  private String getOracleAddress() {
-    return WalletUtil.encode58Check(
-        ECKey.fromPrivate(Args.getInstance().getOraclePrivateKey()).getAddress());
+    Args args = Args.getInstance();
+    this.kfkConsumer = new KfkConsumer(args.getMainchainKafka(),
+        "Oracle_" + args.getOracleAddress(), Arrays.asList("contractevent"));
   }
 
   public void processEvent() {
@@ -56,7 +45,7 @@ public class EventTask {
           continue;
         }
 
-        byte[] nonceMsgBytes = nonceStore.getData(eventActuator.getNonceKey());
+        byte[] nonceMsgBytes = NonceStore.getInstance().getData(eventActuator.getNonceKey());
         if (nonceMsgBytes == null) {
           // receive this nonce firstly
           Manager.getInstance().setProcessProcessing(eventActuator.getNonceKey(),
@@ -66,7 +55,7 @@ public class EventTask {
           try {
             NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
             if (nonceMsg.getStatus() == NonceStatus.SUCCESS) {
-              logger.info("the nonce {} has be processed successfully",
+              loggerOracle.info("the nonce {} has be processed successfully",
                   ByteArray.toStr(eventActuator.getNonce()));
             } else if (nonceMsg.getStatus() == NonceStatus.FAIL) {
               Manager.getInstance().setProcessProcessing(eventActuator.getNonceKey(),
@@ -79,12 +68,12 @@ public class EventTask {
                     eventActuator.getMessage().toByteArray());
                 CreateTransactionTask.getInstance().submitCreate(eventActuator);
               } else {
-                logger.info("the nonce {} is processing, retry later",
+                loggerOracle.info("the nonce {} is processing",
                     ByteArray.toStr(eventActuator.getNonce()));
               }
             }
           } catch (InvalidProtocolBufferException e) {
-            logger.error("retry fail: {}", e.getMessage(), e);
+            loggerOracle.error("retry fail: {}", e.getMessage(), e);
           }
         }
         this.kfkConsumer.commit();
