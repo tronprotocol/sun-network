@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.SignUtils;
 import org.tron.common.utils.WalletUtil;
@@ -22,8 +21,6 @@ import org.tron.service.check.TransactionExtensionCapsule;
 
 @Slf4j(topic = "sideChainTask")
 public class MultiSignForWithdrawTRC20Actuator extends MultSignForWIthdrawActuator {
-
-  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   private static final String PREFIX = "withdraw_2_";
   private MultiSignForWithdrawTRC20Event event;
@@ -58,7 +55,7 @@ public class MultiSignForWithdrawTRC20Actuator extends MultSignForWIthdrawActuat
       String valueStr = event.getValue().toStringUtf8();
       String nonceStr = event.getNonce().toStringUtf8();
       List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(nonceStr);
-      loggerOracle.info(
+      logger.info(
           "MultiSignForWithdrawTRC20Actuator, from: {}, mainChainAddress: {}, value: {}, nonce: {}",
           fromStr, mainChainAddressStr, valueStr, nonceStr);
       Transaction tx = MainChainGatewayApi

@@ -7,7 +7,6 @@ import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
@@ -20,8 +19,6 @@ import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "mainChainTask")
 public class DepositTRC20Actuator extends Actuator {
-
-  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   private static final String NONCE_TAG = "deposit_";
 
@@ -56,7 +53,7 @@ public class DepositTRC20Actuator extends Actuator {
       String valueStr = event.getValue().toStringUtf8();
       String nonceStr = event.getNonce().toStringUtf8();
 
-      loggerOracle.info("DepositTRC20Actuator, from: {}, value: {}, contractAddress: {}, nonce: {}",
+      logger.info("DepositTRC20Actuator, from: {}, value: {}, contractAddress: {}, nonce: {}",
           fromStr, valueStr, contractAddressStr, nonceStr);
 
       Transaction tx = SideChainGatewayApi

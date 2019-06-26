@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.exception.ErrorCode;
-import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.AlertUtil;
 import org.tron.db.Manager;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
@@ -15,8 +14,6 @@ import org.tron.service.eventactuator.Actuator.CheckTxRet;
 
 @Slf4j
 public class CheckTransactionTask {
-
-  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   private static CheckTransactionTask instance = new CheckTransactionTask();
 
@@ -40,7 +37,7 @@ public class CheckTransactionTask {
     if (checkTxRet == CheckTxRet.SUCCESS) {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
       String msg = ErrorCode.CHECK_TRANSACTION_SUCCESS.getMsg(transactionId);
-      loggerOracle.info(msg);
+      logger.info(msg);
     } else {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
       String msg = ErrorCode.CHECK_TRANSACTION_FAIL.getMsg(transactionId);

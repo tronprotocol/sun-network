@@ -5,7 +5,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.exception.ErrorCode;
-import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.AlertUtil;
 import org.tron.common.utils.ByteArray;
 import org.tron.db.Manager;
@@ -17,8 +16,6 @@ import org.tron.service.eventactuator.Actuator.CreateRet;
 
 @Slf4j(topic = "actuatorRun")
 public class CreateTransactionTask {
-
-  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   private static CreateTransactionTask instance = new CreateTransactionTask();
 
@@ -50,7 +47,7 @@ public class CreateTransactionTask {
           .submitBroadcast(eventActuator, txExtensionCapsule.getDelay());
       String msg = ErrorCode.CREATE_TRANSACTION_SUCCESS
           .getMsg(txExtensionCapsule.getTransactionId());
-      loggerOracle.info(msg);
+      logger.info(msg);
     } else {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
       String msg = ErrorCode.CREATE_TRANSACTION_FAIL

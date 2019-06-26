@@ -9,7 +9,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.tron.common.config.Args;
-import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.db.Manager;
 import org.tron.db.NonceStore;
@@ -21,8 +20,6 @@ import org.tron.service.kafka.KfkConsumer;
 
 @Slf4j(topic = "eventTask")
 public class EventTask {
-
-  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   private KfkConsumer kfkConsumer;
 
@@ -53,7 +50,7 @@ public class EventTask {
           try {
             NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
             if (nonceMsg.getStatus() == NonceStatus.SUCCESS) {
-              loggerOracle.info("the nonce {} has be processed successfully",
+              logger.info("the nonce {} has be processed successfully",
                   ByteArray.toStr(eventActuator.getNonce()));
             } else if (nonceMsg.getStatus() == NonceStatus.FAIL) {
               processAndSubmit(eventActuator);
@@ -62,12 +59,12 @@ public class EventTask {
               if (System.currentTimeMillis() / 1000 >= nonceMsg.getNextProcessTimestamp()) {
                 processAndSubmit(eventActuator);
               } else {
-                loggerOracle.info("the nonce {} is processing",
+                logger.info("the nonce {} is processing",
                     ByteArray.toStr(eventActuator.getNonce()));
               }
             }
           } catch (InvalidProtocolBufferException e) {
-            loggerOracle.error("retry fail: {}", e.getMessage(), e);
+            logger.error("retry fail: {}", e.getMessage(), e);
           }
         }
         this.kfkConsumer.commit();
