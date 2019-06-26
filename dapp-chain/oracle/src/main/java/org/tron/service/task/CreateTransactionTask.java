@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.SystemSetting;
 import org.tron.db.Manager;
 import org.tron.db.TransactionExtensionStore;
+import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.check.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.Actuator.CreateRet;
@@ -44,7 +45,7 @@ public class CreateTransactionTask {
       BroadcastTransactionTask.getInstance()
           .submitBroadcast(eventActuator, txExtensionCapsule.getDelay());
     } else {
-      Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
+      Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
     }
   }
 }

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.logger.LoggerOracle;
 import org.tron.db.Manager;
+import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.Actuator.BroadcastRet;
 
@@ -36,11 +37,11 @@ public class BroadcastTransactionTask {
     BroadcastRet broadcastRet = eventActuator.broadcastTransactionExtensionCapsule();
     if (broadcastRet == BroadcastRet.SUCCESS) {
       CheckTransactionTask.getInstance()
-          .submitCheck(eventActuator);
+          .submitCheck(eventActuator, 60);
     } else if (broadcastRet == BroadcastRet.DONE) {
-      Manager.getInstance().setProcessSuccess(eventActuator.getNonceKey());
+      Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
     } else {
-      Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
+      Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
     }
   }
 
