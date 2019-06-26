@@ -17,9 +17,9 @@ public class App {
     logger.info("start...");
     Args arg = Args.getInstance();
     arg.setParam(args);
-    
+
     if (arg.isInitTask()) {
-      (new InitTask()).batchProcessTxInDb();
+      (new InitTask()).batchProcessEventAndTx();
     }
     (new EventTask()).processEvent();
   }

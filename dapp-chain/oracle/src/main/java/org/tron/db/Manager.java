@@ -40,8 +40,8 @@ public class Manager {
   }
 
   private void deleteEventAndTxStore(byte[] nonceKeyBytes) {
-    EventStore.getInstance().deleteData(nonceKeyBytes);
     TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
+    EventStore.getInstance().deleteData(nonceKeyBytes);
   }
 
 
