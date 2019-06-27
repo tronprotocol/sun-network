@@ -62,7 +62,7 @@ public class TvmTestUtils {
       throws ContractExeException, ReceiptCheckErrException,
       ContractValidateException, VMIllegalException {
     Transaction trx = generateDeploySmartContractAndGetTransaction(contractName, callerAddress, abi,
-        code, value, feeLimit, consumeUserResourcePercent, tokenValue, tokenId, libraryAddressPair);
+        code, value, feeLimit, consumeUserResourcePercent, tokenValue, tokenId, libraryAddressPair, 1);
     processTransactionAndReturnRuntime(trx, deposit, block);
     return Wallet.generateContractAddress(trx);
   }
@@ -84,6 +84,15 @@ public class TvmTestUtils {
     return generateDeploySmartContractAndGetTransaction(contractName, callerAddress, abi, code,
         value, feeLimit, consumeUserResourcePercent,
         libraryAddressPair, 0, tokenValue, tokenId);
+  }
+
+  public static Transaction generateDeploySmartContractAndGetTransaction(String contractName,
+                                                                         byte[] callerAddress,
+                                                                         String abi, String code, long value, long feeLimit, long consumeUserResourcePercent,
+                                                                         long tokenValue, long tokenId, String libraryAddressPair, long orginEngeryLimit) {
+    return generateDeploySmartContractAndGetTransaction(contractName, callerAddress, abi, code,
+            value, feeLimit, consumeUserResourcePercent,
+            libraryAddressPair, orginEngeryLimit, tokenValue, tokenId);
   }
 
   /**

@@ -49,7 +49,7 @@ contract TestExtCodeHash {
 
     // deploy contract
     Transaction trx = TvmTestUtils.generateDeploySmartContractAndGetTransaction(
-        contractName, address, ABI, factoryCode, value, fee, consumeUserResourcePercent, null);
+        contractName, address, ABI, factoryCode, value, fee, consumeUserResourcePercent, null, 1);
     byte[] factoryAddress = Wallet.generateContractAddress(trx);
     runtime = TvmTestUtils.processTransactionAndReturnRuntime(trx, rootDeposit, null);
     Assert.assertNull(runtime.getRuntimeError());
