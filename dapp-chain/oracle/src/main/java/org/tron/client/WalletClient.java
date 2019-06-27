@@ -38,9 +38,6 @@ class WalletClient {
   private byte[] address;
   private boolean isMainChain;
 
-  private int maxRetry = 5;
-  private int retryInterval = 500;
-
   WalletClient(String target, byte[] priateKey, boolean isMainChain) {
     rpcCli = new RpcClient(target);
     ecKey = ECKey.fromPrivate(priateKey);
@@ -94,12 +91,12 @@ class WalletClient {
     Contract.TriggerSmartContract triggerContract = buildTriggerContract(owner, contractAddress,
         callValue, data, tokenValue, tokenId);
     org.tron.api.GrpcAPI.TransactionExtention transactionExtention = null;
-    for (int i = maxRetry; i > 0; i--) {
+    for (int i = SystemSetting.CLIENT_MAX_RETRY; i > 0; i--) {
       transactionExtention = rpcCli.triggerContract(triggerContract);
       if (transactionExtention != null && transactionExtention.getResult().getResult()) {
         break;
       }
-      WalletUtil.sleep(retryInterval);
+      WalletUtil.sleep(SystemSetting.CLIENT_RETRY_INTERVAL);
     }
     if (!transactionExtention.getResult().getResult()) {
       logger.error("rpc fail, code: {}, message: {}", transactionExtention.getResult().getCode(),
@@ -126,12 +123,12 @@ class WalletClient {
         callValue, data, tokenValue, tokenId);
 
     GrpcAPI.TransactionExtention transactionExtension = null;
-    for (int i = maxRetry; i > 0; i--) {
+    for (int i = SystemSetting.CLIENT_MAX_RETRY; i > 0; i--) {
       transactionExtension = rpcCli.triggerContract(triggerContract);
       if (transactionExtension != null && transactionExtension.getResult().getResult()) {
         break;
       }
-      sleep(retryInterval);
+      sleep(SystemSetting.CLIENT_RETRY_INTERVAL);
     }
     if (transactionExtension == null || !transactionExtension.getResult().getResult()) {
       logger.error("rpc fail, code: {}, message: {}", transactionExtension.getResult().getCode(),
@@ -177,12 +174,12 @@ class WalletClient {
 
   AssetIssueContract getAssetIssueById(String assetId) {
     AssetIssueContract assetIssueById = null;
-    for (int i = maxRetry; i > 0; i--) {
+    for (int i = SystemSetting.CLIENT_MAX_RETRY; i > 0; i--) {
       assetIssueById = rpcCli.getAssetIssueById(assetId);
       if (assetIssueById != null) {
         break;
       }
-      sleep(retryInterval);
+      sleep(SystemSetting.CLIENT_RETRY_INTERVAL);
     }
 
     return assetIssueById;
@@ -224,7 +221,7 @@ class WalletClient {
 
   boolean broadcast(Transaction transaction)
       throws RpcConnectException, TxValidateException, TxExpiredException {
-    for (int i = maxRetry; i > 0; i--) {
+    for (int i = SystemSetting.CLIENT_MAX_RETRY; i > 0; i--) {
       Optional<Return> broadcastResponse = rpcCli.broadcastTransaction(transaction);
       Return response = broadcastResponse.get();
       if (response.getResult()) {
@@ -235,7 +232,7 @@ class WalletClient {
         if (response.getCode().equals(response_code.SERVER_BUSY)) {
           // when SERVER_BUSY, retry
           logger.info("will retry {} time(s)", i + 1);
-          sleep(retryInterval);
+          sleep(SystemSetting.CLIENT_RETRY_INTERVAL);
         } else if (response.getCode().equals(response_code.DUP_TRANSACTION_ERROR)) {
           logger.info("this tx has be broadcasted");
           return true;
@@ -255,12 +252,12 @@ class WalletClient {
   }
 
   byte[] checkTxInfo(String txId) throws TxRollbackException, TxFailException {
-    for (int i = maxRetry; i > 0; i--) {
+    for (int i = SystemSetting.CLIENT_MAX_RETRY; i > 0; i--) {
       Optional<TransactionInfo> transactionInfo = rpcCli.getTransactionInfoById(txId);
       TransactionInfo info = transactionInfo.get();
       if (info.getBlockTimeStamp() == 0L) {
         logger.info("will retry {} time(s)", i + 1);
-        sleep(retryInterval);
+        sleep(SystemSetting.CLIENT_RETRY_INTERVAL);
       } else {
         if (info.getResult().equals(code.SUCESS)) {
           return info.getContractResult(0).toByteArray();

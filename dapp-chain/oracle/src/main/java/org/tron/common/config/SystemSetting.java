@@ -14,4 +14,8 @@ public class SystemSetting {
 
   public static final int CHECK_POOL_SIZE = 100;
 
+  public static final int CLIENT_MAX_RETRY = 5;
+
+  public static final int CLIENT_RETRY_INTERVAL = 500;
+
 }
