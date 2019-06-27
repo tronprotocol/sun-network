@@ -2,6 +2,7 @@ package org.tron.db;
 
 import com.google.common.collect.Sets;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +17,7 @@ import org.iq80.leveldb.DBException;
 import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
 import org.spongycastle.util.encoders.Hex;
+
 
 @Slf4j(topic = "db")
 public class OracleStore {
@@ -147,12 +149,12 @@ public class OracleStore {
     }
   }
 
-  public Set<String> allKeyHexStrings() {
+  public Set<ByteBuffer> allKeyHexStrings() {
     resetDbLock.readLock().lock();
     try (DBIterator iterator = database.iterator()) {
-      Set<String> result = Sets.newHashSet();
+      Set<ByteBuffer> result = Sets.newHashSet();
       for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
-        result.add(Hex.toHexString(iterator.peekNext().getKey()));
+        result.add(ByteBuffer.wrap(iterator.peekNext().getKey()).asReadOnlyBuffer());
       }
       return result;
     } catch (IOException e) {
