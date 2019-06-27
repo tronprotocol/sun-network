@@ -5,7 +5,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.nio.ByteBuffer;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
-import org.spongycastle.util.encoders.Hex;
 import org.tron.db.EventStore;
 import org.tron.db.Manager;
 import org.tron.db.TransactionExtensionStore;
@@ -32,8 +31,8 @@ public class InitTask {
   public void batchProcessEventAndTx() {
 
     // process txs
-    Set<ByteBuffer> allTxKeyHexStrings = TransactionExtensionStore.getInstance().allKeyHexStrings();
-    for (ByteBuffer TxKey : allTxKeyHexStrings) {
+    Set<ByteBuffer> allTxKeys = TransactionExtensionStore.getInstance().allKeys();
+    for (ByteBuffer TxKey : allTxKeys) {
       byte[] event = EventStore.getInstance().getData(TxKey.array());
       if (event == null) {
         // impossible
@@ -56,7 +55,7 @@ public class InitTask {
     for (byte[] event : allEvents) {
       try {
         Actuator actuator = getActuatorByEventMsg(event);
-        if (actuator == null || allTxKeyHexStrings
+        if (actuator == null || allTxKeys
             .contains(ByteBuffer.wrap(actuator.getNonceKey()).asReadOnlyBuffer())) {
           continue;
         }

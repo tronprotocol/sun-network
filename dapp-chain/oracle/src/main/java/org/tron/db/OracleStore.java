@@ -149,7 +149,7 @@ public class OracleStore {
     }
   }
 
-  public Set<ByteBuffer> allKeyHexStrings() {
+  public Set<ByteBuffer> allKeys() {
     resetDbLock.readLock().lock();
     try (DBIterator iterator = database.iterator()) {
       Set<ByteBuffer> result = Sets.newHashSet();
