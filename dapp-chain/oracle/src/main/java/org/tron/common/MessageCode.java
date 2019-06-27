@@ -1,4 +1,4 @@
-package org.tron.common.exception;
+package org.tron.common;
 
 public enum MessageCode {
   CHECK_TRANSACTION_SUCCESS(1, "tx: %s, check transaction result success"),

@@ -2,8 +2,6 @@ package org.tron.common.config;
 
 public class SystemSetting {
 
-  public static final SystemSetting INSTANCE = new SystemSetting();
-
   public static final long TRX = 1_000_000;
 
   public static final long FEE_LIMIT = 100 * TRX;
@@ -16,6 +14,4 @@ public class SystemSetting {
 
   public static final int CHECK_POOL_SIZE = 100;
 
-  private SystemSetting() {
-  }
 }

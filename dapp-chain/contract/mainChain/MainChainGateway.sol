@@ -167,13 +167,12 @@ contract MainChainGateway is  OracleManagerContract {
         return userDepositList.length - 1;
     }
 
-    function() external payable  returns(uint256){
+    function() external payable {
         if (msg.tokenid > 1000000) {
             depositTRC10();
         } else {
             depositTRX();
         }
-        return userDepositList.length - 1;
     }
 
     function mappingTRC20(bytes txId) public payable {
