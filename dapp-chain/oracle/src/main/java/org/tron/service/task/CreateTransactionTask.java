@@ -49,9 +49,11 @@ public class CreateTransactionTask {
           .putData(eventActuator.getNonceKey(), txExtensionCapsule.getData());
       BroadcastTransactionTask.getInstance()
           .submitBroadcast(eventActuator, txExtensionCapsule.getDelay());
-      String msg = MessageCode.CREATE_TRANSACTION_SUCCESS
-          .getMsg(txExtensionCapsule.getTransactionId());
-      logger.info(msg);
+      if (logger.isInfoEnabled()) {
+        String msg = MessageCode.CREATE_TRANSACTION_SUCCESS
+            .getMsg(txExtensionCapsule.getTransactionId());
+        logger.info(msg);
+      }
     } else {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
       String msg = MessageCode.CREATE_TRANSACTION_FAIL

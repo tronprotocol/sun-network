@@ -40,8 +40,10 @@ public class CheckTransactionTask {
     String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
     if (checkTxRet == CheckTxRet.SUCCESS) {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
-      String msg = MessageCode.CHECK_TRANSACTION_SUCCESS.getMsg(transactionId);
-      logger.info(msg);
+      if (logger.isInfoEnabled()) {
+        String msg = MessageCode.CHECK_TRANSACTION_SUCCESS.getMsg(transactionId);
+        logger.info(msg);
+      }
     } else {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
       String msg = MessageCode.CHECK_TRANSACTION_FAIL.getMsg(transactionId);
