@@ -14,6 +14,6 @@ public class SignUtils {
       }
       sleepCnt++;
     }
-    return sleepCnt * 3_000L;
+    return sleepCnt * 3L;
   }
 }
