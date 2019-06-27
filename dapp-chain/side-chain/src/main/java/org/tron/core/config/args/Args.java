@@ -1401,7 +1401,7 @@ public class Args {
     logger.info("Passive node size: {}", args.getPassiveNodes().size());
     logger.info("Seed node size: {}", args.getSeedNode().getIpList().size());
     logger.info("Max connection: {}", args.getNodeMaxActiveNodes());
-    logger.info("Max connection with same IP: {}", args.getNodemMaxActiveNodesWithSameIp());
+    logger.info("Max connection with same IP: {}", args.getNodeMaxActiveNodesWithSameIp());
     logger.info("Solidity threads: {}", args.getSolidityThreads());
     logger.info("************************ Backup config ************************");
     logger.info("Backup listen port: {}", args.getBackupPort());

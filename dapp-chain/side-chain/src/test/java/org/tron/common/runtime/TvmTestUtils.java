@@ -1,7 +1,5 @@
 package org.tron.common.runtime;
 
-import static stest.tron.wallet.common.client.utils.PublicMethed.jsonStr2Abi;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -32,6 +30,7 @@ import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.AbiUtil;
+import stest.tron.wallet.common.client.utils.PublicMethed;
 
 
 /**
@@ -40,16 +39,30 @@ import stest.tron.wallet.common.client.utils.AbiUtil;
  * commands.
  */
 @Slf4j
-public class TVMTestUtils {
+public class TvmTestUtils {
 
   public static byte[] deployContractWholeProcessReturnContractAddress(String contractName,
       byte[] callerAddress,
-      String ABI, String code, long value, long feeLimit, long consumeUserResourcePercent,
+      String abi, String code, long value, long feeLimit, long consumeUserResourcePercent,
       String libraryAddressPair,  DepositImpl deposit, BlockCapsule block,
       long energyLimit)
-      throws ContractExeException, ReceiptCheckErrException, ContractValidateException, VMIllegalException {
-    Transaction trx = generateDeploySmartContractAndGetTransaction(contractName, callerAddress, ABI,
+      throws ContractExeException, ReceiptCheckErrException,
+      ContractValidateException, VMIllegalException {
+    Transaction trx = generateDeploySmartContractAndGetTransaction(contractName, callerAddress, abi,
         code, value, feeLimit, consumeUserResourcePercent, null, energyLimit);
+    processTransactionAndReturnRuntime(trx, deposit, block);
+    return Wallet.generateContractAddress(trx);
+  }
+
+  public static byte[] deployContractWholeProcessReturnContractAddress(String contractName,
+      byte[] callerAddress,
+      String abi, String code, long value, long feeLimit, long consumeUserResourcePercent,
+      String libraryAddressPair, long tokenValue, long tokenId, DepositImpl deposit,
+      BlockCapsule block)
+      throws ContractExeException, ReceiptCheckErrException,
+      ContractValidateException, VMIllegalException {
+    Transaction trx = generateDeploySmartContractAndGetTransaction(contractName, callerAddress, abi,
+        code, value, feeLimit, consumeUserResourcePercent, tokenValue, tokenId, libraryAddressPair);
     processTransactionAndReturnRuntime(trx, deposit, block);
     return Wallet.generateContractAddress(trx);
   }
@@ -57,22 +70,42 @@ public class TVMTestUtils {
   public static Runtime triggerContractWholeProcessReturnContractAddress(byte[] callerAddress,
       byte[] contractAddress, byte[] data, long callValue, long feeLimit, DepositImpl deposit,
       BlockCapsule block)
-      throws ContractExeException, ReceiptCheckErrException, ContractValidateException, VMIllegalException {
+      throws ContractExeException, ReceiptCheckErrException,
+      ContractValidateException, VMIllegalException {
     Transaction trx = generateTriggerSmartContractAndGetTransaction(callerAddress, contractAddress,
         data, callValue, feeLimit);
     return processTransactionAndReturnRuntime(trx, deposit, block);
+  }
+
+  public static Transaction generateDeploySmartContractAndGetTransaction(String contractName,
+      byte[] callerAddress,
+      String abi, String code, long value, long feeLimit, long consumeUserResourcePercent,
+      long tokenValue, long tokenId, String libraryAddressPair) {
+    return generateDeploySmartContractAndGetTransaction(contractName, callerAddress, abi, code,
+        value, feeLimit, consumeUserResourcePercent,
+        libraryAddressPair, 0, tokenValue, tokenId);
   }
 
   /**
    * return generated smart contract Transaction, just before we use it to broadcast and push
    * transaction
    */
+
   public static Transaction generateDeploySmartContractAndGetTransaction(String contractName,
       byte[] callerAddress,
-      String ABI, String code, long value, long feeLimit, long consumeUserResourcePercent,
+      String abi, String code, long value, long feeLimit, long consumeUserResourcePercent,
+      String libraryAddressPair) {
+    return generateDeploySmartContractAndGetTransaction(contractName, callerAddress, abi, code,
+        value, feeLimit, consumeUserResourcePercent,
+        libraryAddressPair, 0);
+  }
+
+  public static Transaction generateDeploySmartContractAndGetTransaction(String contractName,
+      byte[] callerAddress,
+      String abi, String code, long value, long feeLimit, long consumeUserResourcePercent,
       String libraryAddressPair, long orginEngeryLimit) {
 
-    CreateSmartContract contract = buildCreateSmartContract(contractName, callerAddress, ABI, code,
+    CreateSmartContract contract = buildCreateSmartContract(contractName, callerAddress, abi, code,
         value, consumeUserResourcePercent, libraryAddressPair, orginEngeryLimit);
     TransactionCapsule trxCapWithoutFeeLimit = new TransactionCapsule(contract,
         ContractType.CreateSmartContract);
@@ -88,10 +121,10 @@ public class TVMTestUtils {
 
   public static Transaction generateDeploySmartContractAndGetTransaction(String contractName,
       byte[] callerAddress,
-      String ABI, String code, long value, long feeLimit, long consumeUserResourcePercent,
+      String abi, String code, long value, long feeLimit, long consumeUserResourcePercent,
       String libraryAddressPair, long orginEngeryLimit, long tokenValue, long tokenId) {
 
-    CreateSmartContract contract = buildCreateSmartContract(contractName, callerAddress, ABI, code,
+    CreateSmartContract contract = buildCreateSmartContract(contractName, callerAddress, abi, code,
         value, consumeUserResourcePercent, libraryAddressPair, orginEngeryLimit, tokenValue,
         tokenId);
     TransactionCapsule trxCapWithoutFeeLimit = new TransactionCapsule(contract,
@@ -109,11 +142,11 @@ public class TVMTestUtils {
   public static Transaction generateDeploySmartContractWithCreatorEnergyLimitAndGetTransaction(
       String contractName,
       byte[] callerAddress,
-      String ABI, String code, long value, long feeLimit, long consumeUserResourcePercent,
+      String abi, String code, long value, long feeLimit, long consumeUserResourcePercent,
       String libraryAddressPair, long creatorEnergyLimit) {
 
     CreateSmartContract contract = buildCreateSmartContractWithCreatorEnergyLimit(contractName,
-        callerAddress, ABI, code,
+        callerAddress, abi, code,
         value, consumeUserResourcePercent, libraryAddressPair, creatorEnergyLimit);
     TransactionCapsule trxCapWithoutFeeLimit = new TransactionCapsule(contract,
         ContractType.CreateSmartContract);
@@ -128,12 +161,13 @@ public class TVMTestUtils {
 
   /**
    * use given input Transaction,deposit,block and execute TVM  (for both Deploy and Trigger
-   * contracts)
+   * contracts).
    */
 
   public static Runtime processTransactionAndReturnRuntime(Transaction trx,
       Deposit deposit, BlockCapsule block)
-      throws ContractExeException, ContractValidateException, ReceiptCheckErrException, VMIllegalException {
+      throws ContractExeException, ContractValidateException,
+      ReceiptCheckErrException, VMIllegalException {
     TransactionCapsule trxCap = new TransactionCapsule(trx);
     deposit.commit();
     TransactionTrace trace = new TransactionTrace(trxCap, deposit.getDbManager());
@@ -149,7 +183,8 @@ public class TVMTestUtils {
 
   public static Runtime processTransactionAndReturnRuntime(Transaction trx,
       Manager dbmanager, BlockCapsule block)
-      throws ContractExeException, ContractValidateException, ReceiptCheckErrException, VMIllegalException {
+      throws ContractExeException, ContractValidateException,
+      ReceiptCheckErrException, VMIllegalException {
     TransactionCapsule trxCap = new TransactionCapsule(trx);
 
     TransactionTrace trace = new TransactionTrace(trxCap, dbmanager);
@@ -165,7 +200,8 @@ public class TVMTestUtils {
 
   public static TransactionTrace processTransactionAndReturnTrace(Transaction trx,
       DepositImpl deposit, BlockCapsule block)
-      throws ContractExeException, ContractValidateException, ReceiptCheckErrException, VMIllegalException {
+      throws ContractExeException, ContractValidateException,
+      ReceiptCheckErrException, VMIllegalException {
     TransactionCapsule trxCap = new TransactionCapsule(trx);
     deposit.commit();
     TransactionTrace trace = new TransactionTrace(trxCap, deposit.getDbManager());
@@ -180,50 +216,54 @@ public class TVMTestUtils {
   }
 
 
-  public static TVMTestResult deployContractAndReturnTVMTestResult(String contractName,
+  public static TVMTestResult deployContractAndReturnTvmTestResult(String contractName,
       byte[] callerAddress,
-      String ABI, String code, long value, long feeLimit, long consumeUserResourcePercent,
+      String abi, String code, long value, long feeLimit, long consumeUserResourcePercent,
       String libraryAddressPair, Manager dbManager, BlockCapsule blockCap)
-      throws ContractExeException, ReceiptCheckErrException, ContractValidateException, VMIllegalException {
-    Transaction trx = generateDeploySmartContractAndGetTransaction(contractName, callerAddress, ABI,
+      throws ContractExeException, ReceiptCheckErrException,
+      ContractValidateException, VMIllegalException {
+    Transaction trx = generateDeploySmartContractAndGetTransaction(contractName, callerAddress, abi,
         code, value, feeLimit, consumeUserResourcePercent, libraryAddressPair,1);
 
     byte[] contractAddress = Wallet.generateContractAddress(trx);
 
-    return processTransactionAndReturnTVMTestResult(trx, dbManager, blockCap)
+    return processTransactionAndReturnTvmTestResult(trx, dbManager, blockCap)
         .setContractAddress(Wallet.generateContractAddress(trx));
   }
 
-  public static TVMTestResult deployContractWithCreatorEnergyLimitAndReturnTVMTestResult(
+  public static TVMTestResult deployContractWithCreatorEnergyLimitAndReturnTvmTestResult(
       String contractName,
       byte[] callerAddress,
-      String ABI, String code, long value, long feeLimit, long consumeUserResourcePercent,
+      String abi, String code, long value, long feeLimit, long consumeUserResourcePercent,
       String libraryAddressPair, Manager dbManager, BlockCapsule blockCap, long creatorEnergyLimit)
-      throws ContractExeException, ReceiptCheckErrException, ContractValidateException, VMIllegalException {
+      throws ContractExeException, ReceiptCheckErrException,
+      ContractValidateException, VMIllegalException {
     Transaction trx = generateDeploySmartContractWithCreatorEnergyLimitAndGetTransaction(
-        contractName, callerAddress, ABI,
+        contractName, callerAddress, abi,
         code, value, feeLimit, consumeUserResourcePercent, libraryAddressPair, creatorEnergyLimit);
 
     byte[] contractAddress = Wallet.generateContractAddress(trx);
 
-    return processTransactionAndReturnTVMTestResult(trx, dbManager, blockCap)
+    return processTransactionAndReturnTvmTestResult(trx, dbManager, blockCap)
         .setContractAddress(Wallet.generateContractAddress(trx));
   }
 
-  public static TVMTestResult triggerContractAndReturnTVMTestResult(byte[] callerAddress,
+  public static TVMTestResult triggerContractAndReturnTvmTestResult(byte[] callerAddress,
       byte[] contractAddress, byte[] data, long callValue, long feeLimit, Manager dbManager,
       BlockCapsule blockCap)
-      throws ContractExeException, ReceiptCheckErrException, ContractValidateException, VMIllegalException {
+      throws ContractExeException, ReceiptCheckErrException,
+      ContractValidateException, VMIllegalException {
     Transaction trx = generateTriggerSmartContractAndGetTransaction(callerAddress, contractAddress,
         data, callValue, feeLimit);
-    return processTransactionAndReturnTVMTestResult(trx, dbManager, blockCap)
+    return processTransactionAndReturnTvmTestResult(trx, dbManager, blockCap)
         .setContractAddress(contractAddress);
   }
 
 
-  public static TVMTestResult processTransactionAndReturnTVMTestResult(Transaction trx,
+  public static TVMTestResult processTransactionAndReturnTvmTestResult(Transaction trx,
       Manager dbManager, BlockCapsule blockCap)
-      throws ContractExeException, ContractValidateException, ReceiptCheckErrException, VMIllegalException {
+      throws ContractExeException, ContractValidateException,
+      ReceiptCheckErrException, VMIllegalException {
     TransactionCapsule trxCap = new TransactionCapsule(trx);
     TransactionTrace trace = new TransactionTrace(trxCap, dbManager);
 
@@ -234,14 +274,15 @@ public class TVMTestUtils {
 
     trace.finalization();
 
+    trace.setResult();
     return new TVMTestResult(trace.getRuntime(), trace.getReceipt(), null);
   }
 
   public static CreateSmartContract buildCreateSmartContract(String contractName,
       byte[] address,
-      String ABI, String code, long value, long consumeUserResourcePercent,
+      String abiString, String code, long value, long consumeUserResourcePercent,
       String libraryAddressPair, long engeryLimit) {
-    SmartContract.ABI abi = jsonStr2ABI(ABI);
+    SmartContract.ABI abi = jsonStr2Abi(abiString);
     if (abi == null) {
       logger.error("abi is null");
       return null;
@@ -265,15 +306,15 @@ public class TVMTestUtils {
     }
 
     builder.setBytecode(ByteString.copyFrom(byteCode));
-    return CreateSmartContract.newBuilder().setOwnerAddress(ByteString.copyFrom(address)).
-        setNewContract(builder.build()).build();
+    return CreateSmartContract.newBuilder().setOwnerAddress(ByteString.copyFrom(address))
+        .setNewContract(builder.build()).build();
   }
 
   public static CreateSmartContract buildCreateSmartContract(String contractName,
       byte[] address,
-      String ABI, String code, long value, long consumeUserResourcePercent,
+      String abiString, String code, long value, long consumeUserResourcePercent,
       String libraryAddressPair, long engeryLimit, long tokenValue, long tokenId) {
-    SmartContract.ABI abi = jsonStr2ABI(ABI);
+    SmartContract.ABI abi = jsonStr2Abi(abiString);
     if (abi == null) {
       logger.error("abi is null");
       return null;
@@ -297,9 +338,9 @@ public class TVMTestUtils {
     }
 
     builder.setBytecode(ByteString.copyFrom(byteCode));
-    return CreateSmartContract.newBuilder().setOwnerAddress(ByteString.copyFrom(address)).
-        setCallTokenValue(tokenValue).setTokenId(tokenId).
-        setNewContract(builder.build()).build();
+    return CreateSmartContract.newBuilder().setOwnerAddress(ByteString.copyFrom(address))
+        .setCallTokenValue(tokenValue).setTokenId(tokenId)
+        .setNewContract(builder.build()).build();
   }
 
   /**
@@ -307,20 +348,20 @@ public class TVMTestUtils {
    */
   public static CreateSmartContract buildCreateSmartContract(String contractName,
       byte[] address,
-      String ABI, String code, long value, long consumeUserResourcePercent,
+      String abi, String code, long value, long consumeUserResourcePercent,
       String libraryAddressPair) {
     return buildCreateSmartContract(contractName,
         address,
-        ABI, code, value, consumeUserResourcePercent,
+        abi, code, value, consumeUserResourcePercent,
         libraryAddressPair, 0);
   }
 
   public static CreateSmartContract buildCreateSmartContractWithCreatorEnergyLimit(
       String contractName,
       byte[] address,
-      String ABI, String code, long value, long consumeUserResourcePercent,
+      String abiString, String code, long value, long consumeUserResourcePercent,
       String libraryAddressPair, long creatorEnergyLimit) {
-    SmartContract.ABI abi = jsonStr2ABI(ABI);
+    SmartContract.ABI abi = jsonStr2Abi(abiString);
     if (abi == null) {
       logger.error("abi is null");
       return null;
@@ -344,8 +385,8 @@ public class TVMTestUtils {
     }
 
     builder.setBytecode(ByteString.copyFrom(byteCode));
-    return CreateSmartContract.newBuilder().setOwnerAddress(ByteString.copyFrom(address)).
-        setNewContract(builder.build()).build();
+    return CreateSmartContract.newBuilder().setOwnerAddress(ByteString.copyFrom(address))
+        .setNewContract(builder.build()).build();
   }
 
 
@@ -465,7 +506,7 @@ public class TVMTestUtils {
     }
   }
 
-  public static SmartContract.ABI jsonStr2ABI(String jsonStr) {
+  public static SmartContract.ABI jsonStr2Abi(String jsonStr) {
     if (jsonStr == null) {
       return null;
     }
@@ -476,22 +517,22 @@ public class TVMTestUtils {
     SmartContract.ABI.Builder abiBuilder = SmartContract.ABI.newBuilder();
     for (int index = 0; index < jsonRoot.size(); index++) {
       JsonElement abiItem = jsonRoot.get(index);
-      boolean anonymous = abiItem.getAsJsonObject().get("anonymous") != null &&
-          abiItem.getAsJsonObject().get("anonymous").getAsBoolean();
-      boolean constant = abiItem.getAsJsonObject().get("constant") != null &&
-          abiItem.getAsJsonObject().get("constant").getAsBoolean();
-      String name = abiItem.getAsJsonObject().get("name") != null ?
-          abiItem.getAsJsonObject().get("name").getAsString() : null;
-      JsonArray inputs = abiItem.getAsJsonObject().get("inputs") != null ?
-          abiItem.getAsJsonObject().get("inputs").getAsJsonArray() : null;
-      JsonArray outputs = abiItem.getAsJsonObject().get("outputs") != null ?
-          abiItem.getAsJsonObject().get("outputs").getAsJsonArray() : null;
-      String type = abiItem.getAsJsonObject().get("type") != null ?
-          abiItem.getAsJsonObject().get("type").getAsString() : null;
-      boolean payable = abiItem.getAsJsonObject().get("payable") != null &&
-          abiItem.getAsJsonObject().get("payable").getAsBoolean();
-      String stateMutability = abiItem.getAsJsonObject().get("stateMutability") != null ?
-          abiItem.getAsJsonObject().get("stateMutability").getAsString() : null;
+      boolean anonymous = abiItem.getAsJsonObject().get("anonymous") != null
+          && abiItem.getAsJsonObject().get("anonymous").getAsBoolean();
+      final boolean constant = abiItem.getAsJsonObject().get("constant") != null
+          && abiItem.getAsJsonObject().get("constant").getAsBoolean();
+      final String name = abiItem.getAsJsonObject().get("name") != null
+          ? abiItem.getAsJsonObject().get("name").getAsString() : null;
+      JsonArray inputs = abiItem.getAsJsonObject().get("inputs") != null
+          ? abiItem.getAsJsonObject().get("inputs").getAsJsonArray() : null;
+      final JsonArray outputs = abiItem.getAsJsonObject().get("outputs") != null
+          ? abiItem.getAsJsonObject().get("outputs").getAsJsonArray() : null;
+      String type = abiItem.getAsJsonObject().get("type") != null
+          ? abiItem.getAsJsonObject().get("type").getAsString() : null;
+      final boolean payable = abiItem.getAsJsonObject().get("payable") != null
+          && abiItem.getAsJsonObject().get("payable").getAsBoolean();
+      final String stateMutability = abiItem.getAsJsonObject().get("stateMutability") != null
+          ? abiItem.getAsJsonObject().get("stateMutability").getAsString() : null;
       if (type == null) {
         logger.error("No type!");
         return null;
@@ -512,8 +553,8 @@ public class TVMTestUtils {
       if (null != inputs) {
         for (int j = 0; j < inputs.size(); j++) {
           JsonElement inputItem = inputs.get(j);
-          if (inputItem.getAsJsonObject().get("name") == null ||
-              inputItem.getAsJsonObject().get("type") == null) {
+          if (inputItem.getAsJsonObject().get("name") == null
+              || inputItem.getAsJsonObject().get("type") == null) {
             logger.error("Input argument invalid due to no name or no type!");
             return null;
           }
@@ -533,8 +574,8 @@ public class TVMTestUtils {
       if (outputs != null) {
         for (int k = 0; k < outputs.size(); k++) {
           JsonElement outputItem = outputs.get(k);
-          if (outputItem.getAsJsonObject().get("name") == null ||
-              outputItem.getAsJsonObject().get("type") == null) {
+          if (outputItem.getAsJsonObject().get("name") == null
+              || outputItem.getAsJsonObject().get("type") == null) {
             logger.error("Output argument invalid due to no name or no type!");
             return null;
           }
@@ -562,7 +603,7 @@ public class TVMTestUtils {
   }
 
 
-  public static byte[] parseABI(String selectorStr, String params) {
+  public static byte[] parseAbi(String selectorStr, String params) {
     if (params == null) {
       params = "";
     }
@@ -576,7 +617,7 @@ public class TVMTestUtils {
       String abiString, String code, long value, long consumeUserResourcePercent) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
 
-    SmartContract.ABI abi = jsonStr2Abi(abiString);
+    SmartContract.ABI abi = PublicMethed.jsonStr2Abi(abiString);
     if (abi == null) {
       return null;
     }
@@ -599,7 +640,7 @@ public class TVMTestUtils {
       String abiString, String code, long value, long consumeUserResourcePercent, long originEnergyLimit) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
 
-    SmartContract.ABI abi = jsonStr2Abi(abiString);
+    SmartContract.ABI abi = PublicMethed.jsonStr2Abi(abiString);
     if (abi == null) {
       return null;
     }
