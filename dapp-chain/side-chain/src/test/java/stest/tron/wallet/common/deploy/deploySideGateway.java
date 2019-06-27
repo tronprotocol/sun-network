@@ -92,7 +92,7 @@ public class deploySideGateway {
       mainChainAddress = breader.readLine();
       breader.close();
     }catch (Exception e){
-      logger.info("Read main/side Gateway ContractAddress Failed");
+      logger.info("Read main Gateway ContractAddress Failed");
       return;
     }
 
