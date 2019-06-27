@@ -1,9 +1,9 @@
 package org.tron.common;
 
 public enum MessageCode {
-  CHECK_TRANSACTION_SUCCESS(1, "tx: %s, capsule transaction result success"),
+  CHECK_TRANSACTION_SUCCESS(1, "tx: %s, check transaction result success"),
   CHECK_TRANSACTION_FAIL(2,
-      "tx: %s, capsule transaction fail, please resolve this problem by reviewing and inspecting logs of oracle"),
+      "tx: %s, check transaction fail, please resolve this problem by reviewing and inspecting logs of oracle"),
   BROADCAST_TRANSACTION_SUCCESS(3, "tx: %s, broadcast transaction result success"),
   BROADCAST_TRANSACTION_FAIL(4,
       "tx: %s, broadcast transaction  fail, please resolve this problem by reviewing and inspecting logs of oracle"),
@@ -21,7 +21,7 @@ public enum MessageCode {
   }
 
   public String getMsg(String arg) {
-    return String.format(CHECK_TRANSACTION_SUCCESS.msg, arg);
+    return String.format(msg, arg);
   }
 
 }
