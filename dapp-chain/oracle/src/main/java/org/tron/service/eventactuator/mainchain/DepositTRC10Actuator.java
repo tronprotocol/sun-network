@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Contract.AssetIssueContract;
@@ -23,7 +22,6 @@ import org.tron.service.eventactuator.Actuator;
 @Slf4j(topic = "mainChainTask")
 public class DepositTRC10Actuator extends Actuator {
 
-  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
   private static final String NONCE_TAG = "deposit_";
   private DepositTRC10Event event;
   @Getter
@@ -55,13 +53,13 @@ public class DepositTRC10Actuator extends Actuator {
       String valueStr = event.getValue().toStringUtf8();
       String nonceStr = event.getNonce().toStringUtf8();
 
-      loggerOracle.info("DepositTRC10Actuator, from: {}, value: {}, tokenId: {}, nonce: {}",
+      logger.info("DepositTRC10Actuator, from: {}, value: {}, tokenId: {}, nonce: {}",
           fromStr, valueStr, tokenIdStr, nonceStr);
 
       AssetIssueContract assetIssue = MainChainGatewayApi
           .getAssetIssueById(tokenIdStr);
 
-      loggerOracle.info(
+      logger.info(
           "DepositTRC10Actuator, assetIssue name: {}, assetIssue symbol: {}, assetIssue precision: {}",
           assetIssue.getName().toStringUtf8(), assetIssue.getName().toStringUtf8(),
           assetIssue.getPrecision());

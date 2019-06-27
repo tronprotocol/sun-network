@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.SignUtils;
 import org.tron.common.utils.WalletUtil;
@@ -19,12 +18,9 @@ import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.MultiSignForWithdrawTRXEvent;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
-import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "sideChainTask")
-public class MultiSignForWithdrawTRXActuator extends Actuator {
-
-  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
+public class MultiSignForWithdrawTRXActuator extends MultSignForWIthdrawActuator {
 
   private static final String PREFIX = "withdraw_2_";
   private MultiSignForWithdrawTRXEvent event;
@@ -55,15 +51,12 @@ public class MultiSignForWithdrawTRXActuator extends Actuator {
       String nonceStr = event.getNonce().toStringUtf8();
       List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(nonceStr);
 
-      loggerOracle
+      logger
           .info("MultiSignForWithdrawTRXActuator, from: {}, value: {}, nonce: {}", fromStr,
               valueStr,
               nonceStr);
       Transaction tx = MainChainGatewayApi
           .multiSignForWithdrawTRXTransaction(fromStr, valueStr, nonceStr, oracleSigns);
-      if (tx == null) {
-        return null;
-      }
       this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
           PREFIX + nonceStr, tx,
           getDelay(fromStr, valueStr, nonceStr, oracleSigns));

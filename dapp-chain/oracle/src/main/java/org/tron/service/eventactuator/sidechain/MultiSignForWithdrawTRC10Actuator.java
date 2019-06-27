@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.SignUtils;
 import org.tron.common.utils.WalletUtil;
@@ -19,12 +18,9 @@ import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.MultiSignForWithdrawTRC10Event;
 import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
-import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "sideChainTask")
-public class MultiSignForWithdrawTRC10Actuator extends Actuator {
-
-  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
+public class MultiSignForWithdrawTRC10Actuator extends MultSignForWIthdrawActuator {
 
   private static final String PREFIX = "withdraw_2_";
   private MultiSignForWithdrawTRC10Event event;
@@ -58,7 +54,7 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
       String nonceStr = event.getNonce().toStringUtf8();
       List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(nonceStr);
 
-      loggerOracle
+      logger
           .info("MultiSignForWithdrawTRC10Actuator, from: {}, tokenId: {}, value: {}, nonce: {}",
               fromStr, tokenIdStr, valueStr, nonceStr);
       Transaction tx = MainChainGatewayApi
@@ -78,24 +74,6 @@ public class MultiSignForWithdrawTRC10Actuator extends Actuator {
       List<String> oracleSigns) {
     String ownSign = SideChainGatewayApi.getWithdrawTRC10Sign(from, tokenId, value, nonce);
     return SignUtils.getDelay(ownSign, oracleSigns);
-  }
-
-  @Override
-  public BroadcastRet broadcastTransactionExtensionCapsule() {
-
-    String nonceStr = event.getNonce().toStringUtf8();
-    try {
-      boolean done = MainChainGatewayApi.getWithdrawStatus(nonceStr);
-      if (done) {
-        return BroadcastRet.DONE;
-      } else {
-        return super.broadcastTransactionExtensionCapsule();
-      }
-    } catch (Exception e) {
-      // FIXME: exception level is right ?
-      logger.error("when broadcast transaction extension capsule", e);
-      return BroadcastRet.FAIL;
-    }
   }
 
   @Override

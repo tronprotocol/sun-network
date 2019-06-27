@@ -3,17 +3,13 @@ package org.tron.service.eventactuator;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.exception.ErrorCode;
-import org.tron.common.logger.LoggerOracle;
-import org.tron.common.utils.AlertUtil;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
+import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.check.TransactionExtensionCapsule;
 
 @Slf4j(topic = "actuator")
 public abstract class Actuator {
-
-  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   protected TransactionExtensionCapsule transactionExtensionCapsule;
 
@@ -29,15 +25,16 @@ public abstract class Actuator {
 
   public BroadcastRet broadcastTransactionExtensionCapsule() {
     try {
-      switch (transactionExtensionCapsule.getType()) {
-        case MAIN_CHAIN:
-          MainChainGatewayApi.broadcast(transactionExtensionCapsule.getTransaction());
-        case SIDE_CHAIN:
-          SideChainGatewayApi.broadcast(transactionExtensionCapsule.getTransaction());
+      if (transactionExtensionCapsule.getType() == TaskEnum.MAIN_CHAIN) {
+        MainChainGatewayApi.broadcast(transactionExtensionCapsule.getTransaction());
+      } else {
+        SideChainGatewayApi.broadcast(transactionExtensionCapsule.getTransaction());
       }
       return BroadcastRet.SUCCESS;
     } catch (Exception e) {
       //ERROR code
+      logger
+          .error("broadcast err txId is {}", transactionExtensionCapsule.getTransactionId(), e);
       return BroadcastRet.FAIL;
     }
   }
@@ -58,14 +55,10 @@ public abstract class Actuator {
           break;
       }
       // success
-      String msg = ErrorCode.getCheckTransactionSuccess(transactionId);
-      loggerOracle.info(msg);
       return CheckTxRet.SUCCESS;
     } catch (Exception e) {
       // fail
-      String msg = ErrorCode.getCheckTransactionFail(transactionId, e.getMessage());
-      AlertUtil.sendAlert(msg, e);
-      loggerOracle.error(msg, e);
+      logger.error("check err txId is {}", transactionId, e);
       return CheckTxRet.FAIL;
     }
   }

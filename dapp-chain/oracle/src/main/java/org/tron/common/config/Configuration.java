@@ -10,7 +10,7 @@ import java.io.InputStreamReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Configuration {
+class Configuration {
 
   private static Config config;
 
@@ -22,7 +22,7 @@ public class Configuration {
    * @param configurationPath path to configuration file
    * @return loaded configuration
    */
-  public static Config getByPath(final String configurationPath) {
+  static Config getByPath(final String configurationPath) {
     if (Strings.isNullOrEmpty(configurationPath)) {
       throw new IllegalArgumentException("Configuration path is required!");
     }
@@ -33,7 +33,7 @@ public class Configuration {
       if (configFile.exists()) {
         try {
           config = ConfigFactory
-            .parseReader(new InputStreamReader(new FileInputStream(configFile)));
+              .parseReader(new InputStreamReader(new FileInputStream(configFile)));
           logger.info("use user defined config file in current dir");
         } catch (FileNotFoundException e) {
           logger.error("load user defined config file exception: " + e.getMessage());

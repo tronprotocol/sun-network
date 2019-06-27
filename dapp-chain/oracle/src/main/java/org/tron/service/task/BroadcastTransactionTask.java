@@ -4,15 +4,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
-import org.tron.common.logger.LoggerOracle;
+import org.tron.common.MessageCode;
+import org.tron.common.config.SystemSetting;
+import org.tron.common.utils.AlertUtil;
 import org.tron.db.Manager;
+import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.Actuator.BroadcastRet;
 
 @Slf4j
 public class BroadcastTransactionTask {
-
-  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   private static BroadcastTransactionTask instance = new BroadcastTransactionTask();
 
@@ -23,7 +24,8 @@ public class BroadcastTransactionTask {
   private BroadcastTransactionTask() {
   }
 
-  private final ScheduledExecutorService broadcastPool = Executors.newScheduledThreadPool(100);
+  private final ScheduledExecutorService broadcastPool = Executors
+      .newScheduledThreadPool(SystemSetting.BROADCAST_POOL_SIZE);
 
   void submitBroadcast(Actuator eventActuator, long delay) {
     broadcastPool
@@ -32,13 +34,18 @@ public class BroadcastTransactionTask {
 
   private void broadcastTransaction(Actuator eventActuator) {
     BroadcastRet broadcastRet = eventActuator.broadcastTransactionExtensionCapsule();
+    String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
     if (broadcastRet == BroadcastRet.SUCCESS) {
       CheckTransactionTask.getInstance()
-          .submitCheck(eventActuator);
+          .submitCheck(eventActuator, 60);
     } else if (broadcastRet == BroadcastRet.DONE) {
-      Manager.getInstance().setProcessSuccess(eventActuator.getNonceKey());
+      Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
+      String msg = MessageCode.BROADCAST_TRANSACTION_SUCCESS.getMsg(transactionId);
+      logger.info(msg);
     } else {
-      Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
+      Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
+      String msg = MessageCode.BROADCAST_TRANSACTION_FAIL.getMsg(transactionId);
+      AlertUtil.sendAlert(msg);
     }
   }
 

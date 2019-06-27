@@ -31,24 +31,21 @@ import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.Protocol.TransactionInfo.code;
 
 @Slf4j
-public class WalletClient {
+class WalletClient {
 
   private RpcClient rpcCli;
   private ECKey ecKey;
   private byte[] address;
   private boolean isMainChain;
 
-  private int maxRetry = 5;
-  private int retryInterval = 500;
-
-  public WalletClient(String target, byte[] priateKey, boolean isMainChain) {
+  WalletClient(String target, byte[] priateKey, boolean isMainChain) {
     rpcCli = new RpcClient(target);
     ecKey = ECKey.fromPrivate(priateKey);
     address = ecKey.getAddress();
     this.isMainChain = isMainChain;
   }
 
-  public byte[] triggerConstantContractAndReturn(byte[] contractAddress, String method,
+  byte[] triggerConstantContractAndReturn(byte[] contractAddress, String method,
       List<Object> params, long callValue, long tokenId, long tokenValue)
       throws RpcConnectException {
 
@@ -72,10 +69,10 @@ public class WalletClient {
     throw new RpcConnectException("no result");
   }
 
-  public Transaction triggerContractTransaction(byte[] contractAddress, String method,
+  Transaction triggerContractTransaction(byte[] contractAddress, String method,
       List<Object> params,
       long callValue, long tokenId, long tokenValue) throws RpcConnectException {
-    if (logger.isInfoEnabled()){
+    if (logger.isInfoEnabled()) {
       logger.info(
           "trigger not constant, contract address: {}, method: {}, params: {}, call value: {}, token id: {}, token value: {}",
           WalletUtil.encode58Check(contractAddress), method, params.toString(), callValue, tokenId,
@@ -94,12 +91,12 @@ public class WalletClient {
     Contract.TriggerSmartContract triggerContract = buildTriggerContract(owner, contractAddress,
         callValue, data, tokenValue, tokenId);
     org.tron.api.GrpcAPI.TransactionExtention transactionExtention = null;
-    for (int i = maxRetry; i > 0; i--) {
+    for (int i = SystemSetting.CLIENT_MAX_RETRY; i > 0; i--) {
       transactionExtention = rpcCli.triggerContract(triggerContract);
       if (transactionExtention != null && transactionExtention.getResult().getResult()) {
         break;
       }
-      WalletUtil.sleep(retryInterval);
+      WalletUtil.sleep(SystemSetting.CLIENT_RETRY_INTERVAL);
     }
     if (transactionExtention == null) {
       logger.error("rpc fail, return null");
@@ -132,16 +129,16 @@ public class WalletClient {
         callValue, data, tokenValue, tokenId);
 
     GrpcAPI.TransactionExtention transactionExtension = null;
-    for (int i = maxRetry; i > 0; i--) {
+    for (int i = SystemSetting.CLIENT_MAX_RETRY; i > 0; i--) {
       transactionExtension = rpcCli.triggerContract(triggerContract);
       if (transactionExtension != null && transactionExtension.getResult().getResult()) {
         break;
       }
-      sleep(retryInterval);
+      sleep(SystemSetting.CLIENT_RETRY_INTERVAL);
     }
     if (transactionExtension == null || !transactionExtension.getResult().getResult()) {
       logger.error("rpc fail, code: {}, message: {}", transactionExtension.getResult().getCode(),
-              transactionExtension.getResult().getMessage().toStringUtf8());
+          transactionExtension.getResult().getMessage().toStringUtf8());
       throw new RpcConnectException(
           "rpc fail, code: " + transactionExtension.getResult().getCode());
     }
@@ -168,7 +165,7 @@ public class WalletClient {
     return transactionExtension;
   }
 
-  public static Contract.TriggerSmartContract buildTriggerContract(byte[] address,
+  static Contract.TriggerSmartContract buildTriggerContract(byte[] address,
       byte[] contractAddress,
       long callValue, byte[] data, long tokenValue, Long tokenId) {
     Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
@@ -181,14 +178,14 @@ public class WalletClient {
     return builder.build();
   }
 
-  public AssetIssueContract getAssetIssueById(String assetId) {
+  AssetIssueContract getAssetIssueById(String assetId) {
     AssetIssueContract assetIssueById = null;
-    for (int i = maxRetry; i > 0; i--) {
+    for (int i = SystemSetting.CLIENT_MAX_RETRY; i > 0; i--) {
       assetIssueById = rpcCli.getAssetIssueById(assetId);
       if (assetIssueById != null) {
         break;
       }
-      sleep(retryInterval);
+      sleep(SystemSetting.CLIENT_RETRY_INTERVAL);
     }
 
     return assetIssueById;
@@ -202,7 +199,8 @@ public class WalletClient {
     }
     Return ret = transactionExtention.getResult();
     if (!ret.getResult()) {
-      logger.error("rpc fail, code: {}, message: {}", ret.getCode(), ret.getMessage().toStringUtf8());
+      logger
+          .error("rpc fail, code: {}, message: {}", ret.getCode(), ret.getMessage().toStringUtf8());
       throw new RpcConnectException("rpc fail, code: " + ret.getCode());
     }
     Transaction transaction = transactionExtention.getTransaction();
@@ -213,7 +211,7 @@ public class WalletClient {
     return TransactionUtils.sign(transaction, this.ecKey, getCurrentChainId(), isMainChain);
   }
 
-  public byte[] signDigest(byte[] digest) {
+  byte[] signDigest(byte[] digest) {
     ECDSASignature signature = this.ecKey.sign(digest);
     return signature.toByteArray();
   }
@@ -227,9 +225,9 @@ public class WalletClient {
     return ByteArray.fromBytes21List(chainIdList);
   }
 
-  public boolean broadcast(Transaction transaction)
+  boolean broadcast(Transaction transaction)
       throws RpcConnectException, TxValidateException, TxExpiredException {
-    for (int i = maxRetry; i > 0; i--) {
+    for (int i = SystemSetting.CLIENT_MAX_RETRY; i > 0; i--) {
       Optional<Return> broadcastResponse = rpcCli.broadcastTransaction(transaction);
       Return response = broadcastResponse.get();
       if (response.getResult()) {
@@ -240,7 +238,7 @@ public class WalletClient {
         if (response.getCode().equals(response_code.SERVER_BUSY)) {
           // when SERVER_BUSY, retry
           logger.info("will retry {} time(s)", i + 1);
-          sleep(retryInterval);
+          sleep(SystemSetting.CLIENT_RETRY_INTERVAL);
         } else if (response.getCode().equals(response_code.DUP_TRANSACTION_ERROR)) {
           logger.info("this tx has be broadcasted");
           return true;
@@ -248,8 +246,8 @@ public class WalletClient {
           logger.info("transaction expired");
           throw new TxExpiredException("tx error, " + response.getMessage().toStringUtf8());
         } else {
-            logger.error("tx error, fail, code: {}, message {}", response.getCode(),
-                response.getMessage().toStringUtf8());
+          logger.error("tx error, fail, code: {}, message {}", response.getCode(),
+              response.getMessage().toStringUtf8());
           // fail, not retry
           throw new TxValidateException("tx error, " + response.getMessage().toStringUtf8());
         }
@@ -259,14 +257,13 @@ public class WalletClient {
     throw new RpcConnectException("broadcast transaction, exceed max retry, fail");
   }
 
-  public byte[] checkTxInfo(String txId) throws TxRollbackException, TxFailException {
-    for (int i = maxRetry; i > 0; i--) {
-      // TODO rpcCli exception
+  byte[] checkTxInfo(String txId) throws TxRollbackException, TxFailException {
+    for (int i = SystemSetting.CLIENT_MAX_RETRY; i > 0; i--) {
       Optional<TransactionInfo> transactionInfo = rpcCli.getTransactionInfoById(txId);
       TransactionInfo info = transactionInfo.get();
       if (info.getBlockTimeStamp() == 0L) {
         logger.info("will retry {} time(s)", i + 1);
-        sleep(retryInterval);
+        sleep(SystemSetting.CLIENT_RETRY_INTERVAL);
       } else {
         if (info.getResult().equals(code.SUCESS)) {
           return info.getContractResult(0).toByteArray();

@@ -12,16 +12,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.tron.common.config.Args;
-import org.tron.common.exception.RpcConnectException;
-import org.tron.common.logger.LoggerOracle;
 
 @Slf4j(topic = "alert")
 public class AlertUtil {
 
-  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
-  public static void sendAlert(String msg, Exception exception) {
-    loggerOracle.error("sendAlert: {} , {}", msg, exception);
+  public static void sendAlert(String msg) {
+    logger.error("sendAlert: {} ", msg);
     if (StringUtils.isEmpty(Args.getInstance().getAlertDingWebhookToken())) {
       return;
     }
@@ -40,20 +37,15 @@ public class AlertUtil {
         System.out.println(result);
       }
     } catch (ClientProtocolException e) {
-      loggerOracle.error("ClientProtocolException {}", e.getMessage());
+      logger.error("ClientProtocolException {}", e.getMessage());
       e.printStackTrace();
     } catch (IOException e) {
-      loggerOracle.error("IOException {}", e.getMessage());
+      logger.error("IOException {}", e.getMessage());
       e.printStackTrace();
     }
   }
 
   public static void main(String[] args) {
-    try {
-      Args.getInstance().setParam(args);
-    } catch (RpcConnectException e) {
-      loggerOracle.error(e.getMessage(), e);
-      AlertUtil.sendAlert("oracle alert test", e);
-    }
+    Args.getInstance().setParam(args);
   }
 }

@@ -3,8 +3,6 @@ package org.tron.common.config;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.encoders.Hex;
 import org.springframework.stereotype.Component;
-import org.tron.client.SideChainGatewayApi;
-import org.tron.common.exception.RpcConnectException;
+import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.WalletUtil;
 
 
@@ -87,43 +84,6 @@ public class Args {
   private Args() {
   }
 
-  private void loadMysqlConf(Config config) {
-    for (Map.Entry<String, ConfigValue> entry : config.getConfig("mysql").root().entrySet()) {
-      String dbName = entry.getKey();
-      for (Map.Entry<String, ConfigValue> e : ((ConfigObject) entry.getValue()).entrySet()) {
-
-      }
-      ConfigObject common = (ConfigObject) (((ConfigObject) entry.getValue()).get("common"));
-      ConfigObject read = (ConfigObject) (((ConfigObject) entry.getValue()).get("read"));
-      ConfigObject write = (ConfigObject) (((ConfigObject) entry.getValue()).get("write"));
-
-      Properties readProperties = new Properties();
-      Properties writeProperties = new Properties();
-
-      if (common != null && common.entrySet().size() > 0) {
-        for (Map.Entry<String, ConfigValue> e : common.entrySet()) {
-          readProperties.put(e.getKey(), e.getValue().unwrapped().toString());
-          writeProperties.put(e.getKey(), e.getValue().unwrapped().toString());
-        }
-      }
-
-      if (write != null && write.entrySet().size() > 0) {
-        for (Map.Entry<String, ConfigValue> e : write.entrySet()) {
-          writeProperties.put(e.getKey(), e.getValue().unwrapped());
-        }
-      }
-      // 默认会有写的库
-      mysqlWriteConfs.put(dbName, writeProperties);
-
-      if (read != null && read.entrySet().size() > 0) {
-        for (Map.Entry<String, ConfigValue> e : read.entrySet()) {
-          readProperties.put(e.getKey(), e.getValue().unwrapped());
-        }
-        mysqlReadConfs.put(dbName, readProperties);
-      }
-    }
-  }
-
   public static Args getInstance() {
     if (instance == null) {
       instance = new Args();
@@ -131,17 +91,12 @@ public class Args {
     return instance;
   }
 
-  public void setParam(String[] args) throws RpcConnectException {
+  public void setParam(String[] args) {
     JCommander.newBuilder().addObject(instance).build().parse(args);
     loadConf(shellConfFileName);
   }
 
-  public void loadSunTokenAddress() throws RpcConnectException {
-    this.sunTokenAddress = WalletUtil
-        .decodeFromBase58Check(SideChainGatewayApi.getSunTokenAddress());
-  }
-
-  public void loadConf(String confName) throws RpcConnectException {
+  private void loadConf(String confName) {
     if (StringUtils.isEmpty(confName)) {
       confName = "config.conf";
     }
@@ -176,17 +131,15 @@ public class Args {
       this.initTask = true;
     }
 
-    // loadMysqlConf(config);
+  }
 
-    // loadSunTokenAddress();
+  public String getOracleAddress() {
+    return WalletUtil.encode58Check(
+        ECKey.fromPrivate(getOraclePrivateKey()).getAddress());
   }
 
   public static void main(String[] args) {
-    try {
-      Args.getInstance().setParam(args);
-    } catch (RpcConnectException e) {
-      e.printStackTrace();
-    }
+    Args.getInstance().setParam(args);
   }
 
 }

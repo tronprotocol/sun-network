@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
-import org.tron.common.logger.LoggerOracle;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
@@ -21,8 +20,6 @@ import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "mainChainTask")
 public class MappingTRC20Actuator extends Actuator {
-
-  private static final LoggerOracle loggerOracle = new LoggerOracle(logger);
 
   private static final String NONCE_TAG = "mapping_";
 
@@ -55,7 +52,7 @@ public class MappingTRC20Actuator extends Actuator {
       long trcDecimals = MainChainGatewayApi.getTRCDecimals(contractAddressStr);
       String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
       String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
-      loggerOracle.info(
+      logger.info(
           "MappingTRC20Event, contractAddress: {}, trcName: {}, trcSymbol: {}, trcDecimals: {}, nonce: {}.",
           contractAddressStr, trcName, trcSymbol, trcDecimals, nonceStr);
 
