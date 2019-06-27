@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.common.MessageCode;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.utils.AlertUtil;
-import org.tron.common.utils.ByteArray;
 import org.tron.db.Manager;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
@@ -29,8 +28,10 @@ public class CheckTransactionTask {
       .newScheduledThreadPool(SystemSetting.CHECK_POOL_SIZE);
 
   public void submitCheck(Actuator eventActuator, long delay) {
-    logger.info("check tx submit nonceKey is {} , delay is {} ",
-        ByteArray.toStr(eventActuator.getNonceKey()), delay);
+    if (logger.isInfoEnabled()) {
+      logger.info("check tx submit txId is {} , delay is {} ",
+          eventActuator.getTransactionExtensionCapsule().getTransactionId(), delay);
+    }
     checkPool.schedule(() -> instance.checkTransaction(eventActuator), delay, TimeUnit.SECONDS);
   }
 

@@ -33,8 +33,10 @@ public class CreateTransactionTask {
       .getInstance();
 
   void submitCreate(Actuator eventActuator) {
-    logger.info("create tx task submit check nonceKey is {}  ",
-        ByteArray.toStr(eventActuator.getNonceKey()));
+    if (logger.isInfoEnabled()) {
+      logger.info("create tx task submit check nonceKey is {}  ",
+          ByteArray.toStr(eventActuator.getNonceKey()));
+    }
     createPool.submit(() -> instance.createTransaction(eventActuator));
   }
 
