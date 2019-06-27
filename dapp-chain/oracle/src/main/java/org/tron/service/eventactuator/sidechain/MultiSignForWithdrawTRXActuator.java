@@ -17,7 +17,7 @@ import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.MultiSignForWithdrawTRXEvent;
 import org.tron.protos.Sidechain.TaskEnum;
-import org.tron.service.check.TransactionExtensionCapsule;
+import org.tron.service.capsule.TransactionExtensionCapsule;
 
 @Slf4j(topic = "sideChainTask")
 public class MultiSignForWithdrawTRXActuator extends MultSignForWIthdrawActuator {

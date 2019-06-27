@@ -5,7 +5,7 @@ import org.tron.client.MainChainGatewayApi;
 import org.tron.common.utils.ByteArray;
 import org.tron.service.eventactuator.Actuator;
 
-@Slf4j
+@Slf4j(topic = "sideChainTask")
 public abstract class MultSignForWIthdrawActuator extends Actuator {
 
   @Override

@@ -12,7 +12,7 @@ import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.Actuator.BroadcastRet;
 
-@Slf4j
+@Slf4j(topic = "broadcastTxTask")
 public class BroadcastTransactionTask {
 
   private static BroadcastTransactionTask instance = new BroadcastTransactionTask();

@@ -17,7 +17,7 @@ import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Transaction;
 
-@Slf4j
+@Slf4j(topic = "mainApi")
 public class MainChainGatewayApi {
 
   // Singleton

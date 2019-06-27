@@ -30,7 +30,7 @@ import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.Protocol.TransactionInfo.code;
 
-@Slf4j
+@Slf4j(topic = "walletClient")
 class WalletClient {
 
   private RpcClient rpcCli;
