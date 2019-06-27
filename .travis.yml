@@ -29,7 +29,7 @@ matrix:
     script:
     - cd dapp-chain/side-chain
     - sh tron.sh
-    -  "./gradlew build"
+    - "./gradlew build"
     - "./gradlew jacocoTestReport"
 
 
