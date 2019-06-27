@@ -45,7 +45,7 @@
     <appender-ref ref="FILE"/>
   </appender>
 
-  <root level="INFO">
+  <root level="ERROR">
     <!--<appender-ref ref="STDOUT"/>-->
     <appender-ref ref="ASYNC"/>
   </root>
