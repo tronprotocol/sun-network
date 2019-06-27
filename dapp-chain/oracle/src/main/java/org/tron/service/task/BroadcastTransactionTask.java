@@ -28,6 +28,10 @@ public class BroadcastTransactionTask {
       .newScheduledThreadPool(SystemSetting.BROADCAST_POOL_SIZE);
 
   void submitBroadcast(Actuator eventActuator, long delay) {
+    if (logger.isInfoEnabled()) {
+      logger.info("broadcast tx submit Broadcast txId is {} , delay is {} ",
+          eventActuator.getTransactionExtensionCapsule().getTransactionId(), delay);
+    }
     broadcastPool
         .schedule(() -> instance.broadcastTransaction(eventActuator), delay, TimeUnit.SECONDS);
   }
@@ -40,8 +44,10 @@ public class BroadcastTransactionTask {
           .submitCheck(eventActuator, 60);
     } else if (broadcastRet == BroadcastRet.DONE) {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
-      String msg = MessageCode.BROADCAST_TRANSACTION_SUCCESS.getMsg(transactionId);
-      logger.info(msg);
+      if (logger.isInfoEnabled()) {
+        String msg = MessageCode.BROADCAST_TRANSACTION_SUCCESS.getMsg(transactionId);
+        logger.info(msg);
+      }
     } else {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
       String msg = MessageCode.BROADCAST_TRANSACTION_FAIL.getMsg(transactionId);

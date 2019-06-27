@@ -58,11 +58,12 @@ public class DepositTRC10Actuator extends Actuator {
 
       AssetIssueContract assetIssue = MainChainGatewayApi
           .getAssetIssueById(tokenIdStr);
-
-      logger.info(
-          "DepositTRC10Actuator, assetIssue name: {}, assetIssue symbol: {}, assetIssue precision: {}",
-          assetIssue.getName().toStringUtf8(), assetIssue.getName().toStringUtf8(),
-          assetIssue.getPrecision());
+      if (logger.isInfoEnabled()) {
+        logger.info(
+            "DepositTRC10Actuator, assetIssue name: {}, assetIssue symbol: {}, assetIssue precision: {}",
+            assetIssue.getName().toStringUtf8(), assetIssue.getName().toStringUtf8(),
+            assetIssue.getPrecision());
+      }
       Transaction tx = SideChainGatewayApi
           .mintToken10Transaction(fromStr, tokenIdStr, valueStr,
               assetIssue.getName().toStringUtf8(),

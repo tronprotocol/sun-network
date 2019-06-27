@@ -51,9 +51,11 @@ public class EventTask {
           try {
             NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
             if (nonceMsg.getStatus() == NonceStatus.SUCCESS) {
-              String msg = MessageCode.NONCE_HAS_BE_SUCCEED
-                  .getMsg(ByteArray.toStr(eventActuator.getNonce()));
-              logger.info(msg);
+              if (logger.isInfoEnabled()) {
+                String msg = MessageCode.NONCE_HAS_BE_SUCCEED
+                    .getMsg(ByteArray.toStr(eventActuator.getNonce()));
+                logger.info(msg);
+              }
             } else if (nonceMsg.getStatus() == NonceStatus.FAIL) {
               processAndSubmit(eventActuator);
             } else {
@@ -61,9 +63,11 @@ public class EventTask {
               if (System.currentTimeMillis() / 1000 >= nonceMsg.getNextProcessTimestamp()) {
                 processAndSubmit(eventActuator);
               } else {
-                String msg = MessageCode.NONCE_IS_PROCESSING
-                    .getMsg(ByteArray.toStr(eventActuator.getNonce()));
-                logger.info(msg);
+                if (logger.isInfoEnabled()) {
+                  String msg = MessageCode.NONCE_IS_PROCESSING
+                      .getMsg(ByteArray.toStr(eventActuator.getNonce()));
+                  logger.info(msg);
+                }
               }
             }
           } catch (InvalidProtocolBufferException e) {

@@ -28,6 +28,10 @@ public class CheckTransactionTask {
       .newScheduledThreadPool(SystemSetting.CHECK_POOL_SIZE);
 
   public void submitCheck(Actuator eventActuator, long delay) {
+    if (logger.isInfoEnabled()) {
+      logger.info("check tx submit txId is {} , delay is {} ",
+          eventActuator.getTransactionExtensionCapsule().getTransactionId(), delay);
+    }
     checkPool.schedule(() -> instance.checkTransaction(eventActuator), delay, TimeUnit.SECONDS);
   }
 
@@ -36,8 +40,10 @@ public class CheckTransactionTask {
     String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
     if (checkTxRet == CheckTxRet.SUCCESS) {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
-      String msg = MessageCode.CHECK_TRANSACTION_SUCCESS.getMsg(transactionId);
-      logger.info(msg);
+      if (logger.isInfoEnabled()) {
+        String msg = MessageCode.CHECK_TRANSACTION_SUCCESS.getMsg(transactionId);
+        logger.info(msg);
+      }
     } else {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
       String msg = MessageCode.CHECK_TRANSACTION_FAIL.getMsg(transactionId);
