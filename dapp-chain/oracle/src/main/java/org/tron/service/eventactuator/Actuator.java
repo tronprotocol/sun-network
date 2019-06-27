@@ -6,7 +6,7 @@ import org.tron.client.SideChainGatewayApi;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.TaskEnum;
-import org.tron.service.check.TransactionExtensionCapsule;
+import org.tron.service.capsule.TransactionExtensionCapsule;
 
 @Slf4j(topic = "actuator")
 public abstract class Actuator {
@@ -58,7 +58,7 @@ public abstract class Actuator {
       return CheckTxRet.SUCCESS;
     } catch (Exception e) {
       // fail
-      logger.error("check err txId is {}", transactionId, e);
+      logger.error("capsule err txId is {}", transactionId, e);
       return CheckTxRet.FAIL;
     }
   }

@@ -58,7 +58,12 @@
   <logger name="rpcClient" level="INFO"/>
   <logger name="rpcClient" level="INFO"/>
   <logger name="eventTask" level="INFO"/>
-  <logger name="actuatorRun" level="INFO"/>
+  <logger name="broadcastTxTask" level="INFO"/>
+  <logger name="checkTxTask" level="INFO"/>
+  <logger name="createTxTask" level="INFO"/>
+  <logger name="walletClient" level="INFO"/>
+  <logger name="mainApi" level="INFO"/>
+  <logger name="sideApi" level="INFO"/>
 
 </configuration>
 

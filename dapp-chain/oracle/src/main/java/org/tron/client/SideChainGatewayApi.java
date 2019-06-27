@@ -21,7 +21,7 @@ import org.tron.common.utils.DataWord;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
 
-@Slf4j
+@Slf4j(topic = "sideApi")
 public class SideChainGatewayApi {
 
   public static Transaction mintTrxTransaction(String to, String value, String nonce)

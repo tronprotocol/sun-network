@@ -51,78 +51,78 @@ public class TransactionUtils {
       switch (contract.getType()) {
         case AccountCreateContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.AccountCreateContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.AccountCreateContract.class)
+              .getOwnerAddress();
           break;
         case TransferContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.TransferContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.TransferContract.class)
+              .getOwnerAddress();
           break;
         case TransferAssetContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.TransferAssetContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.TransferAssetContract.class)
+              .getOwnerAddress();
           break;
         case VoteAssetContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.VoteAssetContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.VoteAssetContract.class)
+              .getOwnerAddress();
           break;
         case VoteWitnessContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.VoteWitnessContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.VoteWitnessContract.class)
+              .getOwnerAddress();
           break;
         case WitnessCreateContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.WitnessCreateContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.WitnessCreateContract.class)
+              .getOwnerAddress();
           break;
         case AssetIssueContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.AssetIssueContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.AssetIssueContract.class)
+              .getOwnerAddress();
           break;
         case ParticipateAssetIssueContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.ParticipateAssetIssueContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.ParticipateAssetIssueContract.class)
+              .getOwnerAddress();
           break;
         case CreateSmartContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.CreateSmartContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.CreateSmartContract.class)
+              .getOwnerAddress();
           break;
         case TriggerSmartContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.TriggerSmartContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.TriggerSmartContract.class)
+              .getOwnerAddress();
           break;
         case FreezeBalanceContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.FreezeBalanceContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.FreezeBalanceContract.class)
+              .getOwnerAddress();
           break;
         case UnfreezeBalanceContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.UnfreezeBalanceContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.UnfreezeBalanceContract.class)
+              .getOwnerAddress();
           break;
         case UnfreezeAssetContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.UnfreezeAssetContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.UnfreezeAssetContract.class)
+              .getOwnerAddress();
           break;
         case WithdrawBalanceContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.WithdrawBalanceContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.WithdrawBalanceContract.class)
+              .getOwnerAddress();
           break;
         case UpdateAssetContract:
           owner = contract.getParameter()
-            .unpack(org.tron.protos.Contract.UpdateAssetContract.class)
-            .getOwnerAddress();
+              .unpack(org.tron.protos.Contract.UpdateAssetContract.class)
+              .getOwnerAddress();
           break;
 
         default:
@@ -147,14 +147,14 @@ public class TransactionUtils {
   }
 
   /*
-   * 1. check hash
-   * 2. check double spent
-   * 3. check sign
-   * 4. check balance
+   * 1. capsule hash
+   * 2. capsule double spent
+   * 3. capsule sign
+   * 4. capsule balance
    */
   public static boolean validTransaction(Transaction signedTransaction) {
     assert (signedTransaction.getSignatureCount() ==
-      signedTransaction.getRawData().getContractCount());
+        signedTransaction.getRawData().getContractCount());
     List<Contract> listContract = signedTransaction.getRawData().getContractList();
     byte[] hash = Sha256Hash.hash(signedTransaction.getRawData().toByteArray());
     int count = signedTransaction.getSignatureCount();
@@ -166,8 +166,8 @@ public class TransactionUtils {
         Transaction.Contract contract = listContract.get(i);
         byte[] owner = getOwner(contract);
         byte[] address = ECKey
-          .signatureToAddress(hash,
-            getBase64FromByteString(signedTransaction.getSignature(i)));
+            .signatureToAddress(hash,
+                getBase64FromByteString(signedTransaction.getSignature(i)));
         if (!Arrays.equals(owner, address)) {
           return false;
         }
@@ -188,19 +188,20 @@ public class TransactionUtils {
       ECDSASignature signature = myKey.sign(hash);
       ByteString bsSign = ByteString.copyFrom(signature.toByteArray());
       transactionBuilderSigned.addSignature(
-        bsSign);//Each contract may be signed with a different private key in the future.
+          bsSign);//Each contract may be signed with a different private key in the future.
     }
 
     transaction = transactionBuilderSigned.build();
     return transaction;
   }
 
-  public static Transaction sign(Transaction transaction, ECKey myKey, byte[] chainId, boolean isMainChain) {
+  public static Transaction sign(Transaction transaction, ECKey myKey, byte[] chainId,
+      boolean isMainChain) {
     Transaction.Builder transactionBuilderSigned = transaction.toBuilder();
     byte[] hash = Sha256Hash.hash(transaction.getRawData().toByteArray());
 
     byte[] newHash;
-    if(isMainChain) {
+    if (isMainChain) {
       newHash = hash;
     } else {
       byte[] hashWithChainId = Arrays.copyOf(hash, hash.length + chainId.length);
@@ -220,7 +221,7 @@ public class TransactionUtils {
     long currentTime = System.currentTimeMillis();//*1000000 + System.nanoTime()%1000000;
     Transaction.Builder builder = transaction.toBuilder();
     org.tron.protos.Protocol.Transaction.raw.Builder rowBuilder = transaction.getRawData()
-      .toBuilder();
+        .toBuilder();
     rowBuilder.setTimestamp(currentTime);
     builder.setRawData(rowBuilder.build());
     return builder.build();

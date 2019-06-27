@@ -12,7 +12,7 @@ import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.Actuator.CheckTxRet;
 
-@Slf4j
+@Slf4j(topic = "checkTxTask")
 public class CheckTransactionTask {
 
   private static CheckTransactionTask instance = new CheckTransactionTask();
