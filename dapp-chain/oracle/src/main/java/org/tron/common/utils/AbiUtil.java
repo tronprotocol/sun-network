@@ -11,8 +11,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.encoders.Hex;
+import org.tron.common.config.Args;
 import org.tron.common.crypto.Hash;
 import org.tron.common.exception.EncodingException;
+import org.tron.common.exception.RpcConnectException;
 
 
 public class AbiUtil {
@@ -386,7 +388,7 @@ public class AbiUtil {
     if (parameters == null || parameters.isEmpty()) {
       return parseMethod(methodSign, "", isHex);
     } else {
-      String[] inputArr = new String[parameters.size()];
+      Object[] inputArr = new Object[parameters.size()];
       int i = 0;
       for (Object parameter : parameters) {
         if (parameter instanceof List) {
@@ -400,7 +402,7 @@ public class AbiUtil {
           inputArr[i++] = "[" + sb.toString() + "]";
         } else {
           inputArr[i++] =
-              (parameter instanceof String) ? ("\"" + parameter + "\"") : ("" + parameter);
+              (parameter instanceof String) ? ("\"" + parameter + "\"") : parameter;
         }
       }
       return parseMethod(methodSign, StringUtils.join(inputArr, ','), isHex);
@@ -547,6 +549,8 @@ public class AbiUtil {
 
   public static void main(String[] args) throws EncodingException {
 
+    Object[] arr = {1,'a',"b", 3};
+    System.out.print(StringUtils.join(arr, ","));
     //test();
     //test2();
     //test6();
