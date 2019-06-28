@@ -38,6 +38,7 @@ public class BroadcastTransactionTask {
 
   private void broadcastTransaction(Actuator eventActuator) {
     BroadcastRet broadcastRet = eventActuator.broadcastTransactionExtensionCapsule();
+    Manager.getInstance().setProcessBroadcasted(eventActuator.getNonceKey());
     String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
     if (broadcastRet == BroadcastRet.SUCCESS) {
       CheckTransactionTask.getInstance()

@@ -26,8 +26,9 @@ enum TaskEnum {
 message NonceMsg {
   enum NonceStatus {
     PROCESSING = 0;
-    SUCCESS = 1;
-    FAIL = 2;
+    BROADCASTED = 1;
+    SUCCESS = 2;
+    FAIL = 3;
   }
   NonceStatus status = 1;
   int64 next_process_timestamp = 2;

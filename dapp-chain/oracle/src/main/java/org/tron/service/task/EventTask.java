@@ -59,7 +59,7 @@ public class EventTask {
             } else if (nonceMsg.getStatus() == NonceStatus.FAIL) {
               processAndSubmit(eventActuator);
             } else {
-              // processing
+              // processing or broadcasted
               if (System.currentTimeMillis() / 1000 >= nonceMsg.getNextProcessTimestamp()) {
                 processAndSubmit(eventActuator);
               } else {

@@ -1,14 +1,16 @@
 package org.tron.service.task;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-
 import java.nio.ByteBuffer;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.db.EventStore;
 import org.tron.db.Manager;
+import org.tron.db.NonceStore;
 import org.tron.db.TransactionExtensionStore;
 import org.tron.protos.Sidechain.EventMsg;
+import org.tron.protos.Sidechain.NonceMsg;
+import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC10Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC20Actuator;
@@ -43,8 +45,15 @@ public class InitTask {
         if (actuator == null) {
           continue;
         }
-        Manager.getInstance().setProcessProcessing(actuator.getNonceKey());
-        CheckTransactionTask.getInstance().submitCheck(actuator, 60);
+        byte[] nonceMsgBytes = NonceStore.getInstance().getData(actuator.getNonceKey());
+        NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
+        if (nonceMsg.getStatus() == NonceStatus.BROADCASTED) {
+          CheckTransactionTask.getInstance().submitCheck(actuator, 60);
+        } else {
+          Manager.getInstance().setProcessProcessing(actuator.getNonceKey());
+          BroadcastTransactionTask.getInstance()
+              .submitBroadcast(actuator, actuator.getTransactionExtensionCapsule().getDelay());
+        }
       } catch (InvalidProtocolBufferException e) {
         logger.error("parse pb error", e);
       }
