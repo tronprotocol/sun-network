@@ -60,42 +60,33 @@ contract MainChainGateway is  OracleManagerContract {
         DataModel.Status status;
     }
 
-
-    constructor (address _oracle)
-    public OracleManagerContract(_oracle) {
-    }
-
-    // Deposit functions
-
-    function _depositTRC721(uint256 uid) private {
-        balances.trc721[msg.sender][uid] = true;
-    }
-
-    function _depositTRC20(uint256 value) private {
-        balances.trc20[msg.sender] = balances.trc20[msg.sender].add(value);
-    }
-
+    // Withdrawal functions
     function withdrawTRC10(address _to, trcToken tokenId, uint256 value, uint256 nonce, bytes[] oracleSigns)
     public onlyOracle()
     {
         require(oracleSigns.length<=numOracles,"withdraw TRC10 signs num > oracles num");
         require(withdrawDone[nonce] == false, "withdrawDone[nonce] != false");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, tokenId, value, nonce));
-        checkOracles(dataHash, nonce, oracleSigns);
+        uint256 numCommonSign=checkOracles(dataHash, nonce, oracleSigns);
+        if ( numCommonSign <= numCommonOracles){
+            return ;
+        }
         balances.trc10[tokenId] = balances.trc10[tokenId].sub(value);
         _to.transferToken(value, tokenId);
         withdrawDone[nonce] = true;
         emit TRC10Withdraw(msg.sender, tokenId, value, nonce);
     }
 
-    // Withdrawal functions
     function withdrawTRC20(address _to, address contractAddress, uint256 value, uint256 nonce, bytes[] oracleSigns)
     public onlyOracle()
     {
         require(oracleSigns.length<=numOracles,"withdraw TRC20 signs num > oracles num");
         require(withdrawDone[nonce] == false, "withdrawDone[nonce] != false");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, value, nonce));
-        checkOracles(dataHash, nonce, oracleSigns);
+        uint256 numCommonSign=checkOracles(dataHash, nonce, oracleSigns);
+        if ( numCommonSign <= numCommonOracles){
+            return ;
+        }
         balances.trc20[contractAddress] = balances.trc20[contractAddress].sub(value);
         TRC20(contractAddress).transfer(_to, value);
         withdrawDone[nonce] = true;
@@ -108,7 +99,10 @@ contract MainChainGateway is  OracleManagerContract {
         require(oracleSigns.length<=numOracles,"withdraw TRC721 signs num > oracles num");
         require(withdrawDone[nonce] == false, "withdrawDone[nonce] != false");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, uid, nonce));
-        checkOracles(dataHash, nonce, oracleSigns);
+        uint256 numCommonSign=checkOracles(dataHash, nonce, oracleSigns);
+        if ( numCommonSign <= numCommonOracles){
+            return ;
+        }
         require(balances.trc721[contractAddress][uid], "Does not own token");
         TRC721(contractAddress).transferFrom(address(this), _to, uid);
         delete balances.trc721[contractAddress][uid];
@@ -122,7 +116,10 @@ contract MainChainGateway is  OracleManagerContract {
         require(oracleSigns.length<=numOracles,"withdraw TRX signs num > oracles num");
         require(withdrawDone[nonce] == false, "withdrawDone[nonce] != false");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, value, nonce));
-        checkOracles(dataHash, nonce, oracleSigns);
+        uint256 numCommonSign=checkOracles(dataHash, nonce, oracleSigns);
+        if ( numCommonSign <= numCommonOracles){
+            return ;
+        }
         balances.tron = balances.tron.sub(value);
         _to.transfer(value);
         // ensure it's not reentrant
@@ -152,7 +149,7 @@ contract MainChainGateway is  OracleManagerContract {
     }
 
     function depositTRX() payable public returns(uint256) {
-        require(msg.value > 0, "tokenvalue must > 0");
+        require(msg.value > 0, "value must > 0");
         userDepositList.push(DepositMsg( msg.sender, address(0), 0, msg.value, DataModel.TokenKind.TRX, DataModel.Status.SUCCESS));
         balances.tron = balances.tron.add(msg.value);
         emit TRXReceived(msg.sender, msg.value, userDepositList.length - 1);

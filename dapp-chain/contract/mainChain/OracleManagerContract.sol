@@ -7,14 +7,15 @@ import "../common/ECVerify.sol";
 contract OracleManagerContract is Ownable {
     using ECVerify for bytes32;
 
-    mapping(address => address) public allows;
     mapping(address => bool) oracles;
 
     uint256 public numOracles;
-    mapping(uint256 => SignMsg) withdrawMultiSignList;
+    uint256 public numCommonOracles;
+    mapping(uint256=>mapping(bytes32 => SignMsg)) withdrawMultiSignList;
 
     struct SignMsg {
         mapping(address => bool) signedOracle;
+        mapping(bytes => bool) signList;
         uint256 countSign;
     }
     // address[]  _oracles;
@@ -23,42 +24,29 @@ contract OracleManagerContract is Ownable {
     modifier onlyOracle() {require(isOracle(msg.sender), "not oracle");
         _;}
 
-    constructor(address _oracle) public {
-        // _oracles.push(_oracle);
-        // uint256 length = _oracles.length;
-        // require(length > 0);
-
-        // for (uint256 i = 0; i < length; i++) {
-        //     require(_oracles[i] != address(0));
-        //     oracles[_oracles[i]] = true;
-        //     emit NewOracles(_oracles[i]);
-        // }
-        // numOracles = _oracles.length;
-
-        numOracles = 1;
-        oracles[_oracle] = true;
-        emit NewOracles(_oracle);
-    }
-
-    function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] sigList) internal {
-        SignMsg storage msl = withdrawMultiSignList[nonce];
+    function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] sigList) internal returns(uint256) {
+        SignMsg storage msl = withdrawMultiSignList[nonce][dataHash];
+        if (msl.countSign > numCommonOracles) {
+            return msl.countSign;
+        }
         for (uint256 i = 0; i < sigList.length; i++) {
+            if(msl.signList[sigList[i]]){
+                continue;
+            }
             address _oracle = dataHash.recover(sigList[i]);
             if (isOracle(_oracle) && !msl.signedOracle[_oracle]) {
                 msl.signedOracle[_oracle] = true;
+                msl.signList[sigList[i]] =true;
                 msl.countSign++;
-                if (msl.countSign > numOracles * 2 / 3) {
-                    return;
+                if (msl.countSign > numCommonOracles) {
+                    break;
                 }
             }
         }
-        revert("oracle num is not enough 2/3");
+        return msl.countSign;
     }
 
     function isOracle(address _address) public view returns (bool) {
-        if (_address == owner) {
-            return true;
-        }
         return oracles[_address];
     }
 
@@ -66,11 +54,13 @@ contract OracleManagerContract is Ownable {
         require(!isOracle(_oracle), "oracle is oracle");
         oracles[_oracle] = true;
         numOracles++;
+        numCommonOracles=numOracles * 2 / 3;
     }
 
     function delOracle(address _oracle) public onlyOwner {
         require(isOracle(_oracle), "oracle is not oracle");
         oracles[_oracle] = false;
         numOracles--;
+        numCommonOracles=numOracles * 2 / 3;
     }
 }
