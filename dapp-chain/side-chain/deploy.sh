@@ -5,7 +5,7 @@ if [[ "$TRAVIS_BRANCH" = "develop" || "$TRAVIS_BRANCH" = "master" ]];then
      timeout 10 ping -c 5  39.106.81.60 > /dev/null || exit 1
 
      stest_server=39.106.81.60
-     change_branch_CMD="sed -i '1c branch_name_side=$TRAVIS_BRANCH' /data/databackup/docker_workspace_sideChain/do_stest.sh"
+     change_branch_CMD="sed -i '1c branch_name_side=$TRAVIS_BRANCH' /data/databackup/docker_workspace_sideChain/do_stest_sidechain.sh"
      ssh java-tron@$stest_server -p 22008 $change_branch_CMD
      ssh java-tron@$stest_server -p 22008 sh /data/databackup/docker_workspace_sideChain/do_stest_sidechain.sh >$stestlogname
      echo "stest start"
