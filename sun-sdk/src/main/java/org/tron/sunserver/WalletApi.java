@@ -11,7 +11,6 @@ import com.typesafe.config.Config;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,7 +57,6 @@ import org.tron.common.crypto.Sha256Hash;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.Base58;
 import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.DataWord;
 import org.tron.common.utils.MUtil;
 import org.tron.common.utils.TransactionUtils;
@@ -68,8 +66,6 @@ import org.tron.core.config.Parameter.CommonConstant;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
 import org.tron.core.exception.EncodingException;
-import org.tron.keystore.CheckStrength;
-import org.tron.keystore.Credentials;
 import org.tron.keystore.Wallet;
 import org.tron.keystore.WalletFile;
 import org.tron.keystore.WalletUtils;
@@ -119,7 +115,7 @@ public class WalletApi {
   private static List<byte[]> mainChainGateWayList;
   private static ECKey priEcKey;
 
-  private static boolean isMainChain;
+  private boolean isMainChain;
   private GrpcClient rpcCli;
 
 
@@ -246,7 +242,7 @@ public class WalletApi {
     this.address = priEcKey.getAddress();
   }
 
-  public ECKey getEcKey(WalletFile walletFile, byte[] password) throws CipherException {
+  public ECKey getEcKey() {
     return priEcKey;
   }
 
@@ -303,23 +299,6 @@ public class WalletApi {
     return wallet;
   }
 
-  public WalletFile selcetWalletFileE()  {
-    return new WalletFile();
-  }
-
-  public static boolean changeKeystorePassword(byte[] oldPassword, byte[] newPassowrd)
-    throws IOException, CipherException {
-    File wallet = selcetWalletFile();
-    if (wallet == null) {
-      throw new IOException(
-        "No keystore file found, please use registerwallet or importwallet first!");
-    }
-    Credentials credentials = WalletUtils.loadCredentials(oldPassword, wallet);
-    WalletUtils.updateWalletFile(newPassowrd, credentials.getEcKeyPair(), wallet, true);
-    return true;
-  }
-
-
   private static WalletFile loadWalletFile() throws IOException {
     File wallet = selcetWalletFile();
     if (wallet == null) {
@@ -347,114 +326,6 @@ public class WalletApi {
     TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract);  //side
     byte[] sideAddress = transactionExtention.getConstantResult(0).toByteArray();
     return MUtil.convertToTronAddress(new DataWord(sideAddress).getLast20Bytes());
-  }
-
-  public byte[] sideSignTrxData(String address, long trxNum)
-    throws CipherException, IOException, EncodingException {
-//    if (!WalletApi.addressValid(decodeFromBase58Check(address))) {
-//          throw new RuntimeException("failed to signature, invalid address.");
-//    }
-
-    byte[] input = org.bouncycastle.util.encoders.Hex.decode(
-      AbiUtil.parseMethod("nonces(address)", "\"" + encode58Check(getAddress()) + "\"", false));
-    Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
-      mainGatewayAddress,
-      0, input, 0, "0");
-    TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract); //rpcmain
-    byte[] nonceTemp = transactionExtention.getConstantResult(0).toByteArray();
-    DataWord nonce = new DataWord(nonceTemp);
-
-    byte[] amountTemp = ByteArray.fromLong(trxNum);
-    DataWord amount = new DataWord(amountTemp);
-
-    System.out.println("Please choose your key for sign.");
-    WalletFile walletFile = selcetWalletFileE();
-    System.out.println("Please input your password.");
-
-    char[] password = Utils.inputPassword(false);
-    byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
-    org.tron.keystore.StringUtils.clear(password);
-
-    byte[] data = ByteUtil
-      .merge(Arrays.copyOfRange(mainGatewayAddress, 1, mainGatewayAddress.length), nonce.getData(),
-        amount.getData());
-    ECKey myKey = getEcKey(walletFile, passwd);
-    ECKey.ECDSASignature signature = myKey.sign(Hash.sha3(data));
-
-    return signature.toByteArray();
-  }
-
-  public byte[] sideSignTokenData(String tokenAddress, String value)
-    throws CipherException, IOException, EncodingException {
-//    if (!WalletApi.addressValid(decodeFromBase58Check(address))) {
-//          throw new RuntimeException("failed to signature, invalid address.");
-//    }
-
-    byte[] input = org.bouncycastle.util.encoders.Hex.decode(
-      AbiUtil.parseMethod("nonces(address)", "\"" + encode58Check(getAddress()) + "\"", false));
-    Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
-      mainGatewayAddress,
-      0, input, 0, "0");
-    TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract); //rpcmain
-    byte[] nonceTemp = transactionExtention.getConstantResult(0).toByteArray();
-    DataWord nonce = new DataWord(nonceTemp);
-
-    DataWord valueI = new DataWord(new BigInteger(value, 10).toByteArray());
-
-    System.out.println("Please choose your key for sign.");
-    WalletFile walletFile = selcetWalletFileE();
-    System.out.println("Please input your password.");
-
-    char[] password = Utils.inputPassword(false);
-    byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
-    org.tron.keystore.StringUtils.clear(password);
-
-    byte[] mainTokenAddress = WalletApi.decode58Check(tokenAddress);
-    if (mainTokenAddress == null || mainTokenAddress.length == 0) {
-      System.out.println("Invalide adreess: " + tokenAddress);
-      return null;
-    }
-    byte[] data = ByteUtil
-      .merge(Arrays.copyOfRange(mainTokenAddress, 1, mainTokenAddress.length), nonce.getData(),
-        valueI.getData());
-    ECKey myKey = getEcKey(walletFile, passwd);
-    ECKey.ECDSASignature signature = myKey.sign(Hash.sha3(data));
-
-    return signature.toByteArray();
-  }
-
-  public byte[] sideSignTrc10Data(String tc10, String value)
-    throws CipherException, IOException, EncodingException {
-//    if (!WalletApi.addressValid(decodeFromBase58Check(address))) {
-//          throw new RuntimeException("failed to signature, invalid address.");
-//    }
-
-    byte[] input = org.bouncycastle.util.encoders.Hex.decode(
-      AbiUtil.parseMethod("nonces(address)", "\"" + encode58Check(getAddress()) + "\"", false));
-    Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
-      mainGatewayAddress,
-      0, input, 0, "0");
-    TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract); //rpcmain
-    byte[] nonceTemp = transactionExtention.getConstantResult(0).toByteArray();
-    DataWord nonce = new DataWord(nonceTemp);
-
-    DataWord valueI = new DataWord(new BigInteger(value, 10).toByteArray());
-    DataWord tc10I = new DataWord(new BigInteger(tc10, 10).toByteArray());
-
-    System.out.println("Please choose your key for sign.");
-    WalletFile walletFile = selcetWalletFileE();
-    System.out.println("Please input your password.");
-
-    char[] password = Utils.inputPassword(false);
-    byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
-    org.tron.keystore.StringUtils.clear(password);
-
-    byte[] data = ByteUtil
-      .merge(tc10I.getData(), nonce.getData(), valueI.getData());
-    ECKey myKey = getEcKey(walletFile, passwd);
-    ECKey.ECDSASignature signature = myKey.sign(Hash.sha3(data));
-
-    return signature.toByteArray();
   }
 
   public  void sideGetMappingAddress(String sideGateway, String mainContractAddress)
@@ -503,53 +374,33 @@ public class WalletApi {
 
     return ByteArray.fromBytes21List(mainChainGateWayList);
   }
-  private Transaction signTransaction(Transaction transaction)
-    throws CipherException, IOException, CancelException {
+
+  private Transaction signTransaction(Transaction transaction) {
     if (transaction.getRawData().getTimestamp() == 0) {
       transaction = TransactionUtils.setTimestamp(transaction);
     }
     transaction = TransactionUtils.setExpirationTime(transaction);
-    System.out.println("Your transaction details are as follows, please confirm.");
-    System.out
-      .println("transaction hex string is " + ByteArray.toHexString(transaction.toByteArray()));
-    System.out.println(Utils.printTransaction(transaction));
 
-    System.out.println(
-      "Please confirm and input your permission id, if input y or Y means default 0, other non-numeric characters will cancell transaction.");
     transaction = TransactionUtils.setPermissionId(transaction);
     while (true) {
-      System.out.println("Please choose your key for sign.");
-      WalletFile walletFile = selcetWalletFileE();
-      System.out.println("Please input your password.");
-      char[] password = Utils.inputPassword(false);
-      byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
-      org.tron.keystore.StringUtils.clear(password);
-
-      transaction = TransactionUtils.sign(transaction, this.getEcKey(walletFile, passwd), getCurrentChainId(), isMainChain());
-      System.out
-        .println("current transaction hex string is " + ByteArray
-          .toHexString(transaction.toByteArray()));
-
-      System.out
-        .println("transaction hash is " + ByteArray
-          .toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray())));
-
-      org.tron.keystore.StringUtils.clear(passwd);
+      transaction = TransactionUtils.sign(transaction, this.getEcKey(), getCurrentChainId(), isMainChain());
 
       TransactionSignWeight weight = getTransactionSignWeight(transaction);
       if (weight.getResult().getCode() == response_code.ENOUGH_PERMISSION) {
         break;
       }
       if (weight.getResult().getCode() == response_code.NOT_ENOUGH_PERMISSION) {
-        System.out.println("Current signWeight is:");
-        System.out.println(Utils.printTransactionSignWeight(weight));
-        System.out.println("Please confirm if continue add signature enter y or Y, else any other");
-        if (!confirm()) {
-          throw new CancelException("User cancelled");
-        }
-        continue;
+//        System.out.println("Current signWeight is:");
+//        System.out.println(Utils.printTransactionSignWeight(weight));
+//        System.out.println("Please confirm if continue add signature enter y or Y, else any other");
+//        if (!confirm()) {
+//          throw new CancelException("User cancelled");
+//        }
+//        continue;
       }
-      throw new CancelException(weight.getResult().getMessage());
+
+      break;
+      //throw new CancelException(weight.getResult().getMessage());
     }
     return transaction;
   }
@@ -592,8 +443,7 @@ public class WalletApi {
     return null;
   }
 
-  private TransactionResponse processTransactionExt2(TransactionExtention transactionExtention)
-      throws CipherException, IOException, CancelException {
+  private TransactionResponse processTransactionExt2(TransactionExtention transactionExtention) {
     if (transactionExtention == null) {
       return new TransactionResponse("Transaction extention is empty");
     }
@@ -1014,40 +864,13 @@ public class WalletApi {
     return builder.build();
   }
 
-  public static boolean passwordValid(char[] password) {
-    if (ArrayUtils.isEmpty(password)) {
-      throw new IllegalArgumentException("password is empty");
-    }
-    if (password.length < 6) {
-      logger.warn("Warning: Password is too short !!");
-      return false;
-    }
-    //Other rule;
-    int level = CheckStrength.checkPasswordStrength(password);
-    if (level <= 4) {
-      System.out.println("Your password is too weak!");
-      System.out.println("The password should be at least 8 characters.");
-      System.out.println("The password should contains uppercase, lowercase, numeric and other.");
-      System.out.println(
-        "The password should not contain more than 3 duplicate numbers or letters; For example: 1111.");
-      System.out.println(
-        "The password should not contain more than 3 consecutive Numbers or letters; For example: 1234.");
-      System.out.println("The password should not contain weak password combination; For example:");
-      System.out.println("ababab, abcabc, password, passw0rd, p@ssw0rd, admin1234, etc.");
-      return false;
-    }
-    return true;
-  }
-
   public static boolean addressValid(byte[] address) {
     if (ArrayUtils.isEmpty(address)) {
       logger.warn("Warning: Address is empty !!");
       return false;
     }
     if (address.length != CommonConstant.ADDRESS_SIZE) {
-      logger.warn(
-        "Warning: Address length need " + CommonConstant.ADDRESS_SIZE + " but " + address.length
-          + " !!");
+      logger.warn("Warning: Address length need " + CommonConstant.ADDRESS_SIZE + " but " + address.length + " !!");
       return false;
     }
     byte preFixbyte = address[0];
@@ -1937,8 +1760,7 @@ public class WalletApi {
   }
 
   public TransactionResponse triggerContract(byte[] contractAddress, long callValue, byte[] data, long feeLimit,
-    long tokenValue, String tokenId)
-    throws IOException, CipherException, CancelException {
+      long tokenValue, String tokenId) {
     byte[] owner = getAddress();
     Contract.TriggerSmartContract triggerContract = triggerCallContract(owner, contractAddress,
       callValue, data, tokenValue, tokenId);
@@ -1954,7 +1776,7 @@ public class WalletApi {
       transactionExtention.getResult() != null) {
       byte[] result = transactionExtention.getConstantResult(0).toByteArray();
 
-      Return ret = transactionExtention.getResult();
+      //Return ret = transactionExtention.getResult();
       System.out.println("message:" + transaction.getRet(0).getRet());
       System.out.println(":" + ByteArray
         .toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -2110,18 +1932,10 @@ public class WalletApi {
       transaction = TransactionUtils.setTimestamp(transaction);
     }
     transaction = TransactionUtils.setExpirationTime(transaction);
-    System.out.println("Please input permission id.");
     transaction = TransactionUtils.setPermissionId(transaction);
 
-    System.out.println("Please choose your key for sign.");
-    WalletFile walletFile = selcetWalletFileE();
-    System.out.println("Please input your password.");
-    char[] password = Utils.inputPassword(false);
-    byte[] passwd = org.tron.keystore.StringUtils.char2Byte(password);
-    org.tron.keystore.StringUtils.clear(password);
+    transaction = TransactionUtils.sign(transaction, this.getEcKey(), getCurrentChainId(), isMainChain());
 
-    transaction = TransactionUtils.sign(transaction, this.getEcKey(walletFile, passwd), getCurrentChainId(), isMainChain());
-    org.tron.keystore.StringUtils.clear(passwd);
     return transaction;
   }
 

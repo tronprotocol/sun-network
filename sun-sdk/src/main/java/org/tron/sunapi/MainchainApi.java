@@ -10,8 +10,6 @@ import org.tron.sunapi.response.TransactionResponse;
 
 public class MainchainApi extends Chain{
 
-  public int test = 0;
-
   public SunNetworkResponse<Integer> init(String config, String priKey) {
     return super.init(config, priKey, true);
   }

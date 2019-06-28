@@ -5,6 +5,7 @@ apply plugin: 'java'
 apply plugin: 'com.google.protobuf'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'application'
+apply plugin: "jacoco"
 
 sourceCompatibility = 1.8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -63,6 +64,7 @@ task wrapper(type: Wrapper) {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'junit', name: 'junit', version: '4.12'
     compile group: 'com.beust', name: 'jcommander', version: '1.72'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.25'
@@ -113,6 +115,28 @@ protobuf {
                 outputSubDir = "gen"
             }
         }
+    }
+}
+
+tasks.matching { it instanceof Test }.all {
+    testLogging.events = ["failed", "passed", "skipped"]
+}
+
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+    jacoco {
+        append = true
+        destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
+        classDumpDir = file("$buildDir/jacoco/classpathdumps")
+    }
+}
+
+test {
+    testLogging {
+        // Show that tests are run in the command-line output
+        events 'started', 'passed'
     }
 }
 

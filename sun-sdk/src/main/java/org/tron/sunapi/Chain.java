@@ -70,7 +70,7 @@ public class Chain implements  ChainInterface{
   }
 
   public SunNetworkResponse<DeployContractResponse> deployContract(DeployContractRequest request) {
-    SunNetworkResponse<DeployContractResponse> resp = new SunNetworkResponse();
+    SunNetworkResponse<DeployContractResponse> resp = new SunNetworkResponse<DeployContractResponse>();
 
     String contractName = request.getContractName();
     String abiStr = request.getAbiStr();
@@ -128,9 +128,8 @@ public class Chain implements  ChainInterface{
     return resp;
   }
 
-
   public SunNetworkResponse<TransactionResponse> triggerContract(TriggerContractRequest request) {
-    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse();
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
     String contractAddrStr = request.getContractAddrStr();
     String methodStr = request.getMethodStr();
@@ -158,12 +157,6 @@ public class Chain implements  ChainInterface{
       } else {
         resp.success(result);
       }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
     } catch(EncodingException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_ENCODING);
     } catch (Exception e) {
@@ -177,7 +170,7 @@ public class Chain implements  ChainInterface{
   public SunNetworkResponse<String>  getAddress() {
     SunNetworkResponse<String> resp = new SunNetworkResponse<>();
 
-    String address = serverApi.encode58Check(serverApi.getAddress());
+    String address = WalletApi.encode58Check(serverApi.getAddress());
     resp.success(address);
 
     return resp;
@@ -199,7 +192,7 @@ public class Chain implements  ChainInterface{
 
   public SunNetworkResponse<Account> getAccount(String address){
     SunNetworkResponse<Account> resp = new SunNetworkResponse<>();
-    byte[] addressBytes = serverApi.decodeFromBase58Check(address);
+    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
     if (addressBytes == null) {
       resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
       return null;
@@ -277,6 +270,7 @@ public class Chain implements  ChainInterface{
     return resp;
   }
 
+  //TODO main
   public SunNetworkResponse<Integer> updateAsset(UpdateAssetRequest request) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
@@ -461,6 +455,7 @@ public class Chain implements  ChainInterface{
     return resp;
   }
 
+  //TODO main
   public SunNetworkResponse<Integer> participateAssetIssue(String toAddress, String assertName, String amountStr) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
@@ -556,6 +551,7 @@ public class Chain implements  ChainInterface{
     return serverApi.createAssetIssue(builder.build());
   }
 
+  //TODO main
   public SunNetworkResponse<Integer> assetIssue(AssertIssueRequest request) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
@@ -724,6 +720,7 @@ public class Chain implements  ChainInterface{
     return resp;
   }
 
+  //TODO main
   public SunNetworkResponse<ExchangeList> getExchangesListPaginated(int offset, int limit) {
     SunNetworkResponse<ExchangeList> resp = new SunNetworkResponse<>();
 
@@ -821,71 +818,6 @@ public class Chain implements  ChainInterface{
     return resp;
   }
 
-  public SunNetworkResponse<Integer> buyStorage(long quantity) {
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
-
-    try {
-      boolean result = serverApi.buyStorage(quantity);
-      if (result) {
-        resp.success(0);
-      } else {
-        resp.failed(ErrorCodeEnum.FAILED);
-      }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
-    }
-
-    return resp;
-  }
-
-  public SunNetworkResponse<Integer> buyStorageBytes(long bytes){
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
-
-    try {
-      boolean result = serverApi.buyStorageBytes(bytes);
-      if (result) {
-        resp.success(0);
-      } else {
-        resp.failed(ErrorCodeEnum.FAILED);
-      }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
-    }
-
-    return resp;
-  }
-
-  public SunNetworkResponse<TransactionResponse> sellStorage(long storageBytes) {
-    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
-
-    try {
-      TransactionResponse result = serverApi.sellStorage(storageBytes);
-      resp.setData(result);
-      if (result.getResult()) {
-        resp.success(result);
-      } else {
-        resp.failed(ErrorCodeEnum.FAILED);
-      }
-    }  catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
-    }
-
-    return resp;
-  }
-
-
   public SunNetworkResponse<TransactionResponse> unfreezeBalance(int resourceCode, String receiverAddress) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
@@ -908,7 +840,7 @@ public class Chain implements  ChainInterface{
     return resp;
   }
 
-
+  //TODO main
   public SunNetworkResponse<TransactionResponse> unfreezeAsset() {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
@@ -1031,7 +963,7 @@ public class Chain implements  ChainInterface{
     return resp;
   }
 
-
+  //TODO main
   public SunNetworkResponse<TransactionResponse> exchangeCreate(ExchangeCreateRequest request) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
     if (request == null || StringUtils.isEmpty(request.getFirstTokenId()) || StringUtils.isEmpty(request.getSecondTokenId())) {
@@ -1063,6 +995,7 @@ public class Chain implements  ChainInterface{
     return resp;
   }
 
+  //TODO main
   public SunNetworkResponse<TransactionResponse>  exchangeInject(long exchangeId, String tokenIdStr, long quant) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
@@ -1090,6 +1023,7 @@ public class Chain implements  ChainInterface{
     return resp;
   }
 
+  //TODO main
   public SunNetworkResponse<TransactionResponse> exchangeWithdraw(long exchangeId, String tokenIdStr, long quant) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
@@ -1117,6 +1051,7 @@ public class Chain implements  ChainInterface{
     return resp;
   }
 
+  //TODO main
   public SunNetworkResponse<TransactionResponse> exchangeTransaction(ExchangeTransactionRequest request) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
@@ -1148,6 +1083,7 @@ public class Chain implements  ChainInterface{
     return resp;
   }
 
+  //TODO main
   public SunNetworkResponse<ExchangeList> listExchanges() {
     SunNetworkResponse<ExchangeList> resp = new SunNetworkResponse<>();
 
@@ -1162,6 +1098,7 @@ public class Chain implements  ChainInterface{
     return resp;
   }
 
+  //TODO main
   public SunNetworkResponse<Exchange> getExchange(String id) {
     SunNetworkResponse<Exchange> resp = new SunNetworkResponse<>();
 

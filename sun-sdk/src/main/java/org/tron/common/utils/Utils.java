@@ -20,15 +20,12 @@ package org.tron.common.utils;
 
 import com.beust.jcommander.Strings;
 import com.google.protobuf.ByteString;
-import java.io.Console;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.bouncycastle.util.encoders.Hex;
@@ -49,7 +46,6 @@ import org.tron.api.GrpcAPI.TransactionListExtention;
 import org.tron.api.GrpcAPI.TransactionSignWeight;
 import org.tron.api.GrpcAPI.WitnessList;
 import org.tron.common.crypto.Sha256Hash;
-import org.tron.keystore.StringUtils;
 import org.tron.protos.Contract.AccountCreateContract;
 import org.tron.protos.Contract.AccountPermissionUpdateContract;
 import org.tron.protos.Contract.AccountUpdateContract;
@@ -2009,35 +2005,5 @@ public class Utils {
     return result.toString();
   }
 
-  public static char[] inputPassword(boolean checkStrength) throws IOException {
-    char[] password;
-    Console cons = System.console();
-    while (true) {
-      if (cons != null) {
-        password = cons.readPassword("password: ");
-      } else {
-        byte[] passwd0 = new byte[64];
-        int len = System.in.read(passwd0, 0, passwd0.length);
-        int i;
-        for (i = 0; i < len; i++) {
-          if (passwd0[i] == 0x09 || passwd0[i] == 0x0A) {
-            break;
-          }
-        }
-        byte[] passwd1 = Arrays.copyOfRange(passwd0, 0, i);
-        password = StringUtils.byte2Char(passwd1);
-        StringUtils.clear(passwd0);
-        StringUtils.clear(passwd1);
-      }
-      if (WalletApi.passwordValid(password)) {
-        return password;
-      }
-      if (!checkStrength) {
-        return password;
-      }
-      StringUtils.clear(password);
-      System.out.println("Invalid password, please input again.");
-    }
-  }
 }
 

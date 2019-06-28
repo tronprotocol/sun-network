@@ -99,12 +99,6 @@ public interface ChainInterface {
 
   SunNetworkResponse<Integer>  freezeBalance(FreezeBalanceRequest request);
 
-  SunNetworkResponse<Integer> buyStorage(long quantity);
-
-  SunNetworkResponse<Integer> buyStorageBytes(long bytes);
-
-  SunNetworkResponse<TransactionResponse> sellStorage(long storageBytes);
-
   SunNetworkResponse<TransactionResponse> unfreezeBalance(int resourceCode, String receiverAddress);
 
   SunNetworkResponse<TransactionResponse> unfreezeAsset();
