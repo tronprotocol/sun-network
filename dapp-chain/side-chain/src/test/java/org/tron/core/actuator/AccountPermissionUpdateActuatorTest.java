@@ -1158,7 +1158,7 @@ public class AccountPermissionUpdateActuatorTest {
   @Test
   public void checkAvailableContractType() {
     //use side-chain value
-    String validContractType = "3f3d1ec003600100000000000000000000000000000000000000000000000000";
+    String validContractType = "3f3d1ec003600100000000000000000000000000000000000000000000000080";
     //String validContractType = "7fff1fc0037e0100000000000000000000000000000000000000000000000000";
 
     byte[] availableContractType = new byte[32];
@@ -1167,6 +1167,9 @@ public class AccountPermissionUpdateActuatorTest {
         continue;
       }
       int id = contractType.getNumber();
+      if (id == 48){
+        System.out.println("here");
+      }
       System.out.println("id is " + id);
       if (id > 255) {
         System.out.println("It's a side-chain proposal, just ignore.");
@@ -1183,7 +1186,7 @@ public class AccountPermissionUpdateActuatorTest {
 
   @Test
   public void checkActiveDefaultOperations() {
-    String validContractType = "3f3d1ec003200100000000000000000000000000000000000000000000000000";
+    String validContractType = "3f3d1ec003200100000000000000000000000000000000000000000000000080";
 
     byte[] availableContractType = new byte[32];
     for (ContractType contractType : ContractType.values()) {

@@ -453,7 +453,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getMaxCpuTimeOfOneTx();
     } catch (IllegalArgumentException e) {
-      this.saveMaxCpuTimeOfOneTx(50L);
+      this.saveMaxCpuTimeOfOneTx(Args.getInstance().getMaxCpuTimeOfOneTx());
     }
 
     try {
@@ -635,7 +635,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       this.getAvailableContractType();
     } catch (IllegalArgumentException e) {
       //7fff1fc0037e0000000000000000000000000000000000000000000000000000
-      String contractType = "3f3d1ec003600100000000000000000000000000000000000000000000000000";
+      String contractType = "3f3d1ec003600100000000000000000000000000000000000000000000000080";
       byte[] bytes = ByteArray.fromHexString(contractType);
       this.saveAvailableContractType(bytes);
     }
@@ -644,7 +644,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       this.getActiveDefaultOperations();
     } catch (IllegalArgumentException e) {
       //7fff1fc0033e0000000000000000000000000000000000000000000000000000
-      String contractType = "3f3d1ec003200100000000000000000000000000000000000000000000000000";
+      String contractType = "3f3d1ec003200100000000000000000000000000000000000000000000000080";
       byte[] bytes = ByteArray.fromHexString(contractType);
       this.saveActiveDefaultOperations(bytes);
     }
