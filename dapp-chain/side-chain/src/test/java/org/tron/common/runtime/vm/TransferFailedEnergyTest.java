@@ -227,7 +227,7 @@ contract Caller {
 
 //     deploy contract
     Transaction trx = TvmTestUtils.generateDeploySmartContractAndGetTransaction(
-        contractName, address, ABI, code, value, fee, consumeUserResourcePercent, null);
+        contractName, address, ABI, code, value, fee, consumeUserResourcePercent, null, 1);
     byte[] addressWithSufficientBalance = Wallet.generateContractAddress(trx);
     runtime = TvmTestUtils.processTransactionAndReturnRuntime(trx, rootDeposit, null);
     Assert.assertNull(runtime.getRuntimeError());
@@ -237,7 +237,7 @@ contract Caller {
     }
 
     trx = TvmTestUtils.generateDeploySmartContractAndGetTransaction(
-        contractName, address, ABI, code, 0, fee, consumeUserResourcePercent, null);
+        contractName, address, ABI, code, 0, fee, consumeUserResourcePercent, null, 1);
     byte[] addressWithoutBalance = Wallet.generateContractAddress(trx);
     runtime = TvmTestUtils.processTransactionAndReturnRuntime(trx, rootDeposit, null);
     Assert.assertNull(runtime.getRuntimeError());
