@@ -257,7 +257,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     function multiSignForWithdrawTRC10(uint256 nonce, bytes oracleSign) public onlyOracle {
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
-        // bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.tokenId, withdrawMsg.valueOrUid, nonce));
+        bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.tokenId, withdrawMsg.valueOrUid, nonce));
+        require(dataHash.recover(oracleSign) == msg.sender, "sign error");
         bool needEmit = multiSignForWithdraw(nonce, oracleSign);
         if (needEmit) {
             emit MultiSignForWithdrawTRC10(withdrawMsg.user, withdrawMsg.tokenId, withdrawMsg.valueOrUid, nonce);
@@ -281,7 +282,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     function multiSignForWithdrawTRC20(uint256 nonce, bytes oracleSign) public onlyOracle {
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
-        // bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.mainChainAddress, withdrawMsg.valueOrUid, nonce));
+        bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.mainChainAddress, withdrawMsg.valueOrUid, nonce));
+        require(dataHash.recover(oracleSign) == msg.sender, "sign error");
         bool needEmit = multiSignForWithdraw(nonce, oracleSign);
         if (needEmit) {
             emit MultiSignForWithdrawTRC20(withdrawMsg.user, withdrawMsg.mainChainAddress, withdrawMsg.valueOrUid, nonce);
@@ -304,7 +306,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     function multiSignForWithdrawTRC721(uint256 nonce, bytes oracleSign) public onlyOracle {
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
-        // bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.mainChainAddress, withdrawMsg.valueOrUid, nonce));
+        bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.mainChainAddress, withdrawMsg.valueOrUid, nonce));
+        require(dataHash.recover(oracleSign) == msg.sender, "sign error");
         bool needEmit = multiSignForWithdraw(nonce, oracleSign);
         if (needEmit) {
             emit MultiSignForWithdrawTRC721(withdrawMsg.user, withdrawMsg.mainChainAddress, withdrawMsg.valueOrUid, nonce);
@@ -324,7 +327,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     function multiSignForWithdrawTRX(uint256 nonce, bytes oracleSign) public onlyOracle {
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
-        // bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.valueOrUid, nonce));
+        bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.valueOrUid, nonce));
+        require(dataHash.recover(oracleSign) == msg.sender, "sign error");
         bool needEmit = multiSignForWithdraw(nonce, oracleSign);
         if (needEmit) {
             emit MultiSignForWithdrawTRX(withdrawMsg.user, withdrawMsg.valueOrUid, nonce);
