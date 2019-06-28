@@ -167,9 +167,6 @@ public class DepositTrc20001 {
     String mapTxid = map.get("TID").toString();
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(mapTxid, blockingSideStubFull);
-    byte[] trc20ContractSide = infoById1.get().getContractAddress().toByteArray();
-    logger.info("infoById1: " + infoById1);
-    logger.info("trc20ContractSide :   " + WalletClient.encode58Check(trc20ContractSide));
 
     String deposittrx = PublicMethed
         .depositTrc20(WalletClient.encode58Check(trc20Contract), mainChainAddress, 100, 1000000000,
