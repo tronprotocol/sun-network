@@ -9,7 +9,8 @@ if [[ "$TRAVIS_BRANCH" = "develop" || "$TRAVIS_BRANCH" = "master" ]];then
      ssh java-tron@$stest_server -p 22008 $change_branch_CMD
      ssh java-tron@$stest_server -p 22008 sh /data/databackup/docker_workspace_sideChain/do_stest_sidechain.sh >$stestlogname
      echo "stest start"
-     cat $stestlogname | grep "Stest result is:" -A 10000
+     cat $stestlogname
+     #cat $stestlogname | grep "Stest result is:" -A 10000
      echo "stest end"
 fi
 echo "bye bye"
