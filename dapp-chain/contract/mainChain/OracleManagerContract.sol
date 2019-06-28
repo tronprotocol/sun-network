@@ -7,7 +7,7 @@ import "../common/ECVerify.sol";
 contract OracleManagerContract is Ownable {
     using ECVerify for bytes32;
 
-    mapping(address => bool) oracles;
+    mapping(address => bool) public isOracle;
 
     uint256 public numOracles;
     uint256 public numCommonOracles;
@@ -18,10 +18,10 @@ contract OracleManagerContract is Ownable {
         mapping(bytes => bool) signList;
         uint256 countSign;
     }
-    // address[]  _oracles;
+
     event NewOracles(address oracle);
 
-    modifier onlyOracle() {require(isOracle(msg.sender), "not oracle");
+    modifier onlyOracle() {require(isOracle[msg.sender], "not oracle");
         _;}
 
     function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] sigList) internal returns(uint256) {
@@ -34,7 +34,7 @@ contract OracleManagerContract is Ownable {
                 continue;
             }
             address _oracle = dataHash.recover(sigList[i]);
-            if (isOracle(_oracle) && !msl.signedOracle[_oracle]) {
+            if (isOracle[_oracle] && !msl.signedOracle[_oracle]) {
                 msl.signedOracle[_oracle] = true;
                 msl.signList[sigList[i]] =true;
                 msl.countSign++;
@@ -46,20 +46,16 @@ contract OracleManagerContract is Ownable {
         return msl.countSign;
     }
 
-    function isOracle(address _address) public view returns (bool) {
-        return oracles[_address];
-    }
-
     function addOracle(address _oracle) public onlyOwner {
-        require(!isOracle(_oracle), "oracle is oracle");
-        oracles[_oracle] = true;
+        require(!isOracle[_oracle], "oracle is oracle");
+        isOracle[_oracle] = true;
         numOracles++;
         numCommonOracles=numOracles * 2 / 3;
     }
 
     function delOracle(address _oracle) public onlyOwner {
-        require(isOracle(_oracle), "oracle is not oracle");
-        oracles[_oracle] = false;
+        require(isOracle[_oracle], "oracle is not oracle");
+        isOracle[_oracle] = false;
         numOracles--;
         numCommonOracles=numOracles * 2 / 3;
     }

@@ -25,17 +25,4 @@ public abstract class MultSignForWIthdrawActuator extends Actuator {
       return BroadcastRet.FAIL;
     }
   }
-
-  public CheckTxRet checkTxInfo() {
-    String transactionId = transactionExtensionCapsule.getTransactionId();
-    try {
-      byte[] txInfo = MainChainGatewayApi.checkTxInfo(transactionId);
-      // success
-      return CheckTxRet.SUCCESS;
-    } catch (Exception e) {
-      // fail
-      logger.error("capsule err txId is {}", transactionId, e);
-      return CheckTxRet.FAIL;
-    }
-  }
 }
