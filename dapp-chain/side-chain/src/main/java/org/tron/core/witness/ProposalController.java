@@ -234,7 +234,8 @@ public class ProposalController {
           break;
         }
         case (26): {
-          manager.getDynamicPropertiesStore().addSystemContractAndSetPermission(48);
+          //should not to do anything, we initiated this value in dynamic store
+//          manager.getDynamicPropertiesStore().addSystemContractAndSetPermission(48);
           break;
         }
         case (1_000_000): {

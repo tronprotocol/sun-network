@@ -170,18 +170,22 @@ public class ChargeTest {
 
     /* ======================================CALL testNegative() with -100 callvalue ================================ */
     triggerData = TvmTestUtils.parseAbi("testNegative()", "");
-    result = TvmTestUtils
-        .triggerContractAndReturnTvmTestResult(Hex.decode(OWNER_ADDRESS),
-            contractAddress, triggerData, -100, feeLimit, dbManager, null);
+    try {
+      result = TvmTestUtils
+          .triggerContractAndReturnTvmTestResult(Hex.decode(OWNER_ADDRESS),
+              contractAddress, triggerData, -100, feeLimit, dbManager, null);
+    } catch (ContractValidateException e){
+      Assert.assertEquals(e.toString(),"org.tron.core.exception.ContractValidateException: callValue must >= 0");
+    }
 
-    long expectEnergyUsageTotal3 = feeLimit / 100;
-    Assert.assertEquals(result.getReceipt().getEnergyUsageTotal(), expectEnergyUsageTotal3);
-    Assert.assertEquals(result.getRuntime().getResult().isRevert(), false);
-    Assert.assertTrue(
-        result.getRuntime().getResult().getException() instanceof ArithmeticException);
-    Assert.assertEquals(dbManager.getAccountStore().get(address).getBalance(),
-        totalBalance
-            - (expectEnergyUsageTotal + expectEnergyUsageTotal2 + expectEnergyUsageTotal3) * 100);
+//    long expectEnergyUsageTotal3 = feeLimit / 100;
+//    Assert.assertEquals(result.getReceipt().getEnergyUsageTotal(), expectEnergyUsageTotal3);
+//    Assert.assertEquals(result.getRuntime().getResult().isRevert(), false);
+//    Assert.assertTrue(
+//        result.getRuntime().getResult().getException() instanceof ArithmeticException);
+//    Assert.assertEquals(dbManager.getAccountStore().get(address).getBalance(),
+//        totalBalance
+//            - (expectEnergyUsageTotal + expectEnergyUsageTotal2 + expectEnergyUsageTotal3) * 100);
 
   }
 

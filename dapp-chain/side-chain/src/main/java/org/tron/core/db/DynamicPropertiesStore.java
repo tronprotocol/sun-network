@@ -634,7 +634,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getAvailableContractType();
     } catch (IllegalArgumentException e) {
-      String contractType = "7fff1fc0037e0000000000000000000000000000000000000000000000000000";
+      //7fff1fc0037e0000000000000000000000000000000000000000000000000000
+      String contractType = "3f3d1ec003600100000000000000000000000000000000000000000000000000";
       byte[] bytes = ByteArray.fromHexString(contractType);
       this.saveAvailableContractType(bytes);
     }
@@ -642,7 +643,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getActiveDefaultOperations();
     } catch (IllegalArgumentException e) {
-      String contractType = "7fff1fc0033e0000000000000000000000000000000000000000000000000000";
+      //7fff1fc0033e0000000000000000000000000000000000000000000000000000
+      String contractType = "3f3d1ec003200100000000000000000000000000000000000000000000000000";
       byte[] bytes = ByteArray.fromHexString(contractType);
       this.saveActiveDefaultOperations(bytes);
     }
@@ -690,6 +692,18 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       this.getBlockEnergyUsage();
     } catch (IllegalArgumentException e) {
       this.saveBlockEnergyUsage(0);
+    }
+
+    try {
+      this.getAllowAccountStateRoot();
+    } catch (IllegalArgumentException e) {
+      this.saveAllowAccountStateRoot(1);
+    }
+
+    try {
+      this.getAllowProtoFilterNum();
+    } catch (IllegalArgumentException e) {
+      this.saveAllowProtoFilterNum(1);
     }
 
     try {
