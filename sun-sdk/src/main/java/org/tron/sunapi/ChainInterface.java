@@ -80,9 +80,9 @@ public interface ChainInterface {
 
   SunNetworkResponse<AssetIssueContract> getAssetIssueById(String assetId);
 
-  SunNetworkResponse<Integer> transferAsset(String toAddress, String assertName, String amountStr);
+  SunNetworkResponse<Integer> transferAsset(String toAddress, String assertName, long amount);
 
-  SunNetworkResponse<Integer> participateAssetIssue(String toAddress, String assertName, String amountStr);
+  SunNetworkResponse<Integer> participateAssetIssue(String toAddress, String assertName, long amount);
 
   SunNetworkResponse<Integer> assetIssue(AssertIssueRequest request);
 
@@ -169,7 +169,7 @@ public interface ChainInterface {
   SunNetworkResponse<TransactionResponse> updateAccountPermission(String address, String permissionJson);
 
   //core
-  SunNetworkResponse<Integer> sendCoin(String toAddress, String amountStr);
+  SunNetworkResponse<Integer> sendCoin(String toAddress, long amount);
 
   SunNetworkResponse<TransactionResponse>  broadcastTransaction(String transactionStr);
 
