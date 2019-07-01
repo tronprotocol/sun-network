@@ -132,6 +132,7 @@ public class DepositTrx001 {
     Assert.assertEquals(Base58.encode58Check(depositAddress), accountSideAfterAddress);
     Assert.assertEquals(1, accountSideAfterBalance);
 
+
   }
 
 
