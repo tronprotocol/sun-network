@@ -14,6 +14,16 @@ public class SidechainApi extends Chain{
     return super.init(config, priKey, false);
   }
 
+  /**
+   * get balance
+   *
+   * @return the result of initialize
+   * @author
+   */
+  public SunNetworkResponse<Long> getBalance() {
+    return super.getBalance();
+  }
+
   public SunNetworkResponse<TransactionResponse> createProposal(HashMap<Long, String> parametersMap) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
@@ -40,6 +50,9 @@ public class SidechainApi extends Chain{
     return resp;
   }
 
+  /*
+   *
+   */
   public SunNetworkResponse<SideChainProposalList> listProposals() {
     SunNetworkResponse<SideChainProposalList> resp = new SunNetworkResponse<>();
 

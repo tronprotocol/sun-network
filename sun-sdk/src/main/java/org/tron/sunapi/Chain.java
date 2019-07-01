@@ -53,10 +53,19 @@ import org.tron.sunapi.response.TransactionResponse;
 import org.tron.sunserver.WalletApi;
 
 @Slf4j
-public class Chain implements  ChainInterface{
+class Chain implements ChainInterface {
   @Getter
   private WalletApi serverApi;
 
+  /**
+   * initialize environment
+   *
+   * @param config the environment configuration path
+   * @param priKey the private key of user
+   * @param isMainChain main chain or side chain
+   * @return the result of initialize
+   * @author
+   */
   public SunNetworkResponse<Integer> init(String config, String priKey, boolean isMainChain) {
     SunNetworkResponse<Integer> ret = new SunNetworkResponse<>();
     byte[] temp =  org.tron.keystore.StringUtils.hexs2Bytes(priKey.getBytes());
@@ -69,6 +78,10 @@ public class Chain implements  ChainInterface{
     return ret.success(0);
   }
 
+  /**
+   * @param request request of deploy contract
+   * @return the response of deploy contract which contains the address of contract deployed
+   */
   public SunNetworkResponse<DeployContractResponse> deployContract(DeployContractRequest request) {
     SunNetworkResponse<DeployContractResponse> resp = new SunNetworkResponse<DeployContractResponse>();
 
@@ -128,6 +141,10 @@ public class Chain implements  ChainInterface{
     return resp;
   }
 
+  /**
+   * @param request request of trigger contract
+   * @return the response of trigger contract which contains the id of transaction
+   */
   public SunNetworkResponse<TransactionResponse> triggerContract(TriggerContractRequest request) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
