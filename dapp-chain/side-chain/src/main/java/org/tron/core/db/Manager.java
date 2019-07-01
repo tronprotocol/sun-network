@@ -759,6 +759,18 @@ public class Manager {
     }
   }
 
+  void validateResultConsistence(byte[] originData, TransactionCapsule trxCap,
+      BlockCapsule blockCapsule)
+      throws ContractExeException {
+    if (trxCap.getBlockNum() >= 0 && blockCapsule != null
+        && !blockCapsule.generatedByMyself
+        && blockCapsule.getTransactions().contains(trxCap)) {
+      if (!Arrays.equals(trxCap.getInstance().getRet(0).toByteArray(), originData)) {
+        throw new ContractExeException("consistence check fail");
+      }
+    }
+  }
+
   private boolean containsTransaction(TransactionCapsule transactionCapsule) {
     if (transactionCache != null) {
       return transactionCache.has(transactionCapsule.getTransactionId().getBytes());
@@ -1251,6 +1263,11 @@ public class Manager {
       throw new ValidateSignatureException("trans sig validate failed");
     }
 
+    byte[] originData = null;
+    if (trxCap.getInstance().getRetCount() > 0) {
+      originData = trxCap.getInstance().getRet(0).toByteArray();
+    }
+
     TransactionTrace trace = new TransactionTrace(trxCap, this);
     trxCap.setTrxTrace(trace);
 
@@ -1292,6 +1309,7 @@ public class Manager {
     if (Objects.nonNull(blockCap)) {
       trxCap.setResult(trace.getRuntime());
     }
+    validateResultConsistence(originData, trxCap, blockCap);
     transactionStore.put(trxCap.getTransactionId().getBytes(), trxCap);
 
     Optional.ofNullable(transactionCache)
