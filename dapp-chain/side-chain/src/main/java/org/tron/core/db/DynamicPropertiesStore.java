@@ -55,6 +55,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
 
   private static final byte[] MAINTENANCE_TIME_INTERVAL = "MAINTENANCE_TIME_INTERVAL".getBytes();
 
+  private static final byte[] PROPOSAL_EXPIRE_TIME = "PROPOSAL_EXPIRE_TIME".getBytes();
+
   private static final byte[] ACCOUNT_UPGRADE_COST = "ACCOUNT_UPGRADE_COST".getBytes();
 
   private static final byte[] WITNESS_PAY_PER_BLOCK = "WITNESS_PAY_PER_BLOCK".getBytes();
@@ -362,6 +364,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       this.getMaintenanceTimeInterval();
     } catch (IllegalArgumentException e) {
       this.saveMaintenanceTimeInterval(Args.getInstance().getMaintenanceTimeInterval()); // 6 hours
+    }
+
+    try {
+      this.getProposalExpireTime();
+    } catch (IllegalArgumentException e) {
+      this.saveProposalExpireTime(Args.getInstance().getProposalExpireTime());
     }
 
     try {
@@ -1017,6 +1025,20 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         .map(ByteArray::toLong)
         .orElseThrow(
             () -> new IllegalArgumentException("not found MAINTENANCE_TIME_INTERVAL"));
+  }
+
+  public void saveProposalExpireTime(long proposalExpireTime) {
+    logger.debug("PROPOSAL_EXPIRE_TIME:" + proposalExpireTime);
+    this.put(PROPOSAL_EXPIRE_TIME,
+            new BytesCapsule(ByteArray.fromLong(proposalExpireTime)));
+  }
+
+  public long getProposalExpireTime() {
+    return Optional.ofNullable(getUnchecked(PROPOSAL_EXPIRE_TIME))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found PROPOSAL_EXPIRE_TIME"));
   }
 
   public void saveAccountUpgradeCost(long accountUpgradeCost) {

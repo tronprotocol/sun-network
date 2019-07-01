@@ -939,6 +939,13 @@ public class Wallet {
         .setValue(convertGateWayListToString(dbManager.getDynamicPropertiesStore().getGateWayList()))
         .build());
 
+    // PROPOSAL_EXPIRE_TIME, //ms  ,259_200_000L
+    builder.addChainParameter(
+            Protocol.ChainParameters.ChainParameter.newBuilder()
+                    .setKey("getProposalExpireTime")
+                    .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getProposalExpireTime()))
+                    .build());
+
     return builder.build();
   }
 

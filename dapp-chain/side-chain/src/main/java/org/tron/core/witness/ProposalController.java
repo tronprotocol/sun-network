@@ -259,6 +259,12 @@ public class ProposalController {
           manager.getDynamicPropertiesStore().saveMainChainGateWayList(byteList);
           break;
         }
+        case (1_000_003): {
+          // replace all side chain proposal expire time
+          manager.getDynamicPropertiesStore()
+                  .saveProposalExpireTime(Long.valueOf(entry.getValue()));
+          break;
+        }
         default:
           break;
       }
