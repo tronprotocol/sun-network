@@ -53,6 +53,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     uint256 withdrawMinTrc10 = 0;
     uint256 withdrawMinTrc20 = 0;
     uint256 bonus;
+    bool pause;
+    bool stop;
 
     mapping(address => address) public mainToSideContractMap;
     mapping(address => address) public sideToMainContractMap;
@@ -104,6 +106,16 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         _;
     }
 
+    modifier onlyNotPause {
+        require(!pause, "pause is true");
+        _;
+    }
+
+    modifier onlyNotStop {
+        require(!stop, "stop is true");
+        _;
+    }
+
     function getWithdrawSigns(uint256 nonce) view public returns (bytes[]) {
         return withdrawSigns[nonce].signs;
     }
@@ -124,7 +136,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 1. deployDAppTRC20AndMapping
-    function multiSignForDeployDAppTRC20AndMapping(address mainChainAddress, string name, string symbol, uint8 decimals, uint256 nonce) public onlyOracle goDelegateCall {
+    function multiSignForDeployDAppTRC20AndMapping(address mainChainAddress, string name, string symbol, uint8 decimals, uint256 nonce) public onlyNotStop onlyOracle goDelegateCall {
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         bool needMapping = multiSignForMapping(nonce);
         if (needMapping) {
@@ -141,7 +153,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 2. deployDAppTRC721AndMapping
-    function multiSignForDeployDAppTRC721AndMapping(address mainChainAddress, string name, string symbol, uint256 nonce) public onlyOracle goDelegateCall {
+    function multiSignForDeployDAppTRC721AndMapping(address mainChainAddress, string name, string symbol, uint256 nonce) public onlyNotStop onlyOracle goDelegateCall {
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         bool needMapping = multiSignForMapping(nonce);
         if (needMapping) {
@@ -173,7 +185,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 3. depositTRC10
-    function multiSignForDepositTRC10(address to, trcToken tokenId, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, uint256 nonce) public onlyOracle goDelegateCall {
+    function multiSignForDepositTRC10(address to, trcToken tokenId, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, uint256 nonce) public onlyNotStop onlyOracle goDelegateCall {
         require(tokenId > 1000000 && tokenId <= 2000000, "tokenId <= 1000000 or tokenId > 2000000");
         bool needDeposit = multiSignForDeposit(nonce);
         if (needDeposit) {
@@ -192,7 +204,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 4. depositTRC20
-    function multiSignForDepositTRC20(address to, address mainChainAddress, uint256 value, uint256 nonce) public onlyOracle goDelegateCall {
+    function multiSignForDepositTRC20(address to, address mainChainAddress, uint256 value, uint256 nonce) public onlyNotStop onlyOracle goDelegateCall {
         address sideChainAddress = mainToSideContractMap[mainChainAddress];
         require(sideChainAddress != address(0), "the main chain address hasn't mapped");
         bool needDeposit = multiSignForDeposit(nonce);
@@ -207,7 +219,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 5. depositTRC721
-    function multiSignForDepositTRC721(address to, address mainChainAddress, uint256 uId, uint256 nonce) public onlyOracle goDelegateCall {
+    function multiSignForDepositTRC721(address to, address mainChainAddress, uint256 uId, uint256 nonce) public onlyNotStop onlyOracle goDelegateCall {
         address sideChainAddress = mainToSideContractMap[mainChainAddress];
         require(sideChainAddress != address(0), "the main chain address hasn't mapped");
         bool needDeposit = multiSignForDeposit(nonce);
@@ -222,7 +234,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 6. depositTRX
-    function multiSignForDepositTRX(address to, uint256 value, uint256 nonce) public onlyOracle goDelegateCall {
+    function multiSignForDepositTRX(address to, uint256 value, uint256 nonce) public onlyNotStop onlyOracle goDelegateCall {
         bool needDeposit = multiSignForDeposit(nonce);
         if (needDeposit) {
             depositTRX(to, value);
@@ -251,7 +263,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 7. withdrawTRC10
-    function withdrawTRC10() payable public goDelegateCall returns (uint256 r) {
+    function withdrawTRC10() payable public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
         if (msg.value > 0) {
             bonus += msg.value;
         }
@@ -265,7 +277,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         r = userWithdrawList.length - 1;
     }
 
-    function multiSignForWithdrawTRC10(uint256 nonce, bytes oracleSign) public onlyOracle goDelegateCall {
+    function multiSignForWithdrawTRC10(uint256 nonce, bytes oracleSign) public onlyNotStop onlyOracle goDelegateCall {
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
         bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.tokenId, withdrawMsg.valueOrUid, nonce));
         require(dataHash.recover(oracleSign) == msg.sender, "sign error");
@@ -276,7 +288,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 8. withdrawTRC20
-    function onTRC20Received(address from, uint256 value) public goDelegateCall returns (uint256 r) {
+    function onTRC20Received(address from, uint256 value) public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "mainChainAddress == address(0)");
@@ -290,7 +302,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         r = userWithdrawList.length - 1;
     }
 
-    function multiSignForWithdrawTRC20(uint256 nonce, bytes oracleSign) public onlyOracle goDelegateCall {
+    function multiSignForWithdrawTRC20(uint256 nonce, bytes oracleSign) public onlyNotStop onlyOracle goDelegateCall {
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
         bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.mainChainAddress, withdrawMsg.valueOrUid, nonce));
         require(dataHash.recover(oracleSign) == msg.sender, "sign error");
@@ -301,7 +313,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 9. withdrawTRC721
-    function onTRC721Received(address from, uint256 uId) public goDelegateCall returns (uint256 r) {
+    function onTRC721Received(address from, uint256 uId) public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "mainChainAddress == address(0)");
@@ -314,7 +326,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         r = userWithdrawList.length - 1;
     }
 
-    function multiSignForWithdrawTRC721(uint256 nonce, bytes oracleSign) public onlyOracle goDelegateCall {
+    function multiSignForWithdrawTRC721(uint256 nonce, bytes oracleSign) public onlyNotStop onlyOracle goDelegateCall {
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
         bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.mainChainAddress, withdrawMsg.valueOrUid, nonce));
         require(dataHash.recover(oracleSign) == msg.sender, "sign error");
@@ -325,7 +337,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 10. withdrawTRX
-    function withdrawTRX() payable public goDelegateCall returns (uint256 r) {
+    function withdrawTRX() payable public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
         require(msg.value > withdrawMinTrx, "value must be > withdrawMinTrx");
 
         userWithdrawList.push(WithdrawMsg(msg.sender, address(0), 0, msg.value, DataModel.TokenKind.TRX, DataModel.Status.SUCCESS));
@@ -335,7 +347,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         r = userWithdrawList.length - 1;
     }
 
-    function multiSignForWithdrawTRX(uint256 nonce, bytes oracleSign) public onlyOracle goDelegateCall {
+    function multiSignForWithdrawTRX(uint256 nonce, bytes oracleSign) public onlyNotStop onlyOracle goDelegateCall {
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
         bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.valueOrUid, nonce));
         require(dataHash.recover(oracleSign) == msg.sender, "sign error");
@@ -361,7 +373,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 11. retryWithdraw
-    function retryWithdraw(uint256 nonce) public goDelegateCall {
+    function retryWithdraw(uint256 nonce) public onlyNotPause onlyNotStop goDelegateCall {
         // FIXME: free retry attack
         require(nonce < userWithdrawList.length, "nonce >= userWithdrawList.length");
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
@@ -390,10 +402,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
                 emit MultiSignForWithdrawTRX(withdrawMsg.user, withdrawMsg.valueOrUid, nonce);
             }
         }
-    }
-
-    function setMappingFee(uint256 fee) public onlyOwner {
-        mappingFee = fee;
     }
 
     function changeLogicAddress(address _logicAddress) public onlyOracle {
@@ -425,5 +433,17 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         if (msg.value > 0) {
             bonus += msg.value;
         }
+    }
+
+    function setMappingFee(uint256 fee) public onlyOwner {
+        mappingFee = fee;
+    }
+
+    function setPause(bool isPause) public onlyOwner {
+        pause = isPause;
+    }
+
+    function setStop(bool isStop) public onlyOwner {
+        stop = isStop;
     }
 }
