@@ -14,6 +14,11 @@ public class CrosschainApi {
   public WalletApi mainchainServer;
   public WalletApi sidechainServer;
 
+  /**
+   * @param mainchainApi the main chain
+   * @param sidechainApi the side chain
+   * @author sun-network
+   */
   public CrosschainApi(MainchainApi mainchainApi, SidechainApi sidechainApi) {
     this.mainchainApi = mainchainApi;
     this.sidechainApi = sidechainApi;
@@ -22,6 +27,12 @@ public class CrosschainApi {
     this.sidechainServer = sidechainApi.getServerApi();
   }
 
+  /**
+   * @param trxNum the number of trx
+   * @param feeLimit the fee limit
+   * @return the result of withdraw trx
+   * @author sun-network
+   */
   public SunNetworkResponse<TransactionResponse> withdrawTrx(long trxNum, long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
@@ -51,6 +62,13 @@ public class CrosschainApi {
     return resp;
   }
 
+  /**
+   * @param tokenId the token ID of trc10
+   * @param tokenValue the token value of trc10
+   * @param feeLimit the fee limit
+   * @return the result of withdraw trc10
+   * @author sun-network
+   */
   public SunNetworkResponse<TransactionResponse> withdrawTrc10(String tokenId, long tokenValue, long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
@@ -83,6 +101,13 @@ public class CrosschainApi {
     return resp;
   }
 
+  /**
+   * @param contractAddrStr the trc20 contract address in side chain
+   * @param value the token value of trc20
+   * @param feeLimit the fee limit
+   * @return the result of withdraw trc20
+   * @author sun-network
+   */
   public SunNetworkResponse<TransactionResponse> withdrawTrc20(String contractAddrStr, String value,
       long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
@@ -114,6 +139,13 @@ public class CrosschainApi {
     return resp;
   }
 
+  /**
+   * @param contractAddrStr the trc721 contract address in side chain
+   * @param value the token value of trc721
+   * @param feeLimit the fee limit
+   * @return the result of withdraw trc721
+   * @author sun-network
+   */
   public SunNetworkResponse<TransactionResponse> withdrawTrc721(String contractAddrStr,
       String value, long feeLimit) {
     return withdrawTrc20(contractAddrStr, value, feeLimit);
@@ -183,6 +215,14 @@ public class CrosschainApi {
 //  }
 //
 //
+
+  /**
+   * @param mainChainGateway the gateway address of main chain
+   * @param trxNum the number of trx
+   * @param feeLimit the fee limit
+   * @return the result of deposit trx
+   * @author sun-network
+   */
   public SunNetworkResponse<TransactionResponse> depositTrx(String mainChainGateway, long trxNum,
       long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
@@ -209,6 +249,13 @@ public class CrosschainApi {
     return resp;
   }
 
+  /**
+   * @param mainChainGateway the gateway address of main chain
+   * @param tokenId the token id of trc10
+   * @param feeLimit the fee limit
+   * @return the result of deposit trc10
+   * @author sun-network
+   */
   public SunNetworkResponse<TransactionResponse> depositTrc10(String mainChainGateway,
       String tokenId, long tokenValue, long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
