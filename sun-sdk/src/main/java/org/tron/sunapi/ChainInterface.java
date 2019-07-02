@@ -82,10 +82,18 @@ public interface ChainInterface {
 
   SunNetworkResponse<AssetIssueContract> getAssetIssueById(String assetId);
 
-  SunNetworkResponse<Integer> transferAsset(String toAddress, String assertName, String amountStr);
+  SunNetworkResponse<Integer> transferAsset(String toAddress, String assertName, long amount);
 
+<<<<<<
+
+  <HEAD
   SunNetworkResponse<Integer> participateAssetIssue(String toAddress, String assertName,
       String amountStr);
+=======
+
+  SunNetworkResponse<Integer> participateAssetIssue(String toAddress, String assertName,
+      long amount);
+>>>>>>>8afb481fb2c8d89751ee3fe01f63f181cc71d3a0
 
   SunNetworkResponse<Integer> assetIssue(AssertIssueRequest request);
 
@@ -177,7 +185,7 @@ public interface ChainInterface {
       String permissionJson);
 
   //core
-  SunNetworkResponse<Integer> sendCoin(String toAddress, String amountStr);
+  SunNetworkResponse<Integer> sendCoin(String toAddress, long amount);
 
   SunNetworkResponse<TransactionResponse> broadcastTransaction(String transactionStr);
 

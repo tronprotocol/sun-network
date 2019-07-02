@@ -1,14 +1,12 @@
 sudo: required
 language: java
+dist: trusty
 jdk: oraclejdk8
 addons:
   ssh_known_hosts:
-  - 47.94.231.67:22008
-  - 47.94.231.67:22008
-  - 47.94.231.67:22008
-  - 47.94.10.122:22008
-  - 47.94.10.122:22008
-  - 47.94.10.122:22008
+    - 39.106.81.60:22008
+    - 39.106.81.60:22008
+    - 39.106.81.60:22008
   sonarcloud:
     organization: tron-zhaohong
     token:
@@ -22,7 +20,7 @@ matrix:
     script:
     - cd dapp-chain/side-chain
     - sh tron.sh
-    -  "./gradlew build"
+    - "./gradlew build"
     - "./gradlew jacocoTestReport"
 
 

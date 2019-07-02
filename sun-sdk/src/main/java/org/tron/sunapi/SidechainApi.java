@@ -10,20 +10,21 @@ import org.tron.sunapi.response.TransactionResponse;
 
 public class SidechainApi extends Chain{
 
+  /**
+   * @param config the configuration path
+   * @param priKey the private key of user
+   * @return the result of init side chain
+   * @author sun-network
+   */
   public SunNetworkResponse<Integer> init(String config, String priKey) {
     return super.init(config, priKey, false);
   }
 
   /**
-   * get balance
-   *
-   * @return the result of initialize
-   * @author
+   * @param parametersMap the id and content of proposal
+   * @return the result of creating proposal
+   * @author sun-network
    */
-  public SunNetworkResponse<Long> getBalance() {
-    return super.getBalance();
-  }
-
   public SunNetworkResponse<TransactionResponse> createProposal(HashMap<Long, String> parametersMap) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
@@ -50,8 +51,9 @@ public class SidechainApi extends Chain{
     return resp;
   }
 
-  /*
-   *
+  /**
+   * @return the proposal list
+   * @author sun-network
    */
   public SunNetworkResponse<SideChainProposalList> listProposals() {
     SunNetworkResponse<SideChainProposalList> resp = new SunNetworkResponse<>();

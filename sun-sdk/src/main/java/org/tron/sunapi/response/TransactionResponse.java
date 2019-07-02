@@ -7,14 +7,40 @@ import org.tron.protos.Protocol.Transaction.Result.code;
 
 @Data
 public class TransactionResponse {
+
+  /**
+   * the response type, constant transaction or normal transaction
+   */
   public ResponseType responseType;
+
+  /**
+   * the response code for normal transaction, see response_code
+   */
   public response_code respCode;
+
+  /**
+   * the result for normal transaction, success or fail
+   */
   public boolean result;
+
+  /**
+   * the result for normal transaction
+   */
   public String message;
+
+  /**
+   * the transaction ID
+   */
   public String trxId;
 
-  //constant transaction
+  /**
+   * the response code for constant transaction
+   */
   public code   constantCode;
+
+  /**
+   * the result for constant transaction
+   */
   public String constantResult;
 
   public enum ResponseType {

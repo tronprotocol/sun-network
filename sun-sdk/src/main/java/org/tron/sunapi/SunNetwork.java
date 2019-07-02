@@ -14,7 +14,12 @@ public class SunNetwork {
   @Getter
   public CrosschainApi crossChainService;
 
-
+  /**
+   * @param config the configuration path
+   * @param priKey the private key
+   * @return the result of initialize
+   * @author sun-network
+   */
   public SunNetworkResponse<Integer> init(String config, String priKey) {
     SunNetworkResponse<Integer> ret;
 

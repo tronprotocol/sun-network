@@ -53,19 +53,18 @@ import org.tron.sunapi.response.TransactionResponse;
 import org.tron.sunserver.WalletApi;
 
 @Slf4j
-class Chain implements ChainInterface {
+public class Chain implements ChainInterface {
   @Getter
   private WalletApi serverApi;
 
   /**
-   * initialize environment
-   *
+   * @author sun-network
    * @param config the environment configuration path
    * @param priKey the private key of user
    * @param isMainChain main chain or side chain
    * @return the result of initialize
-   * @author
    */
+
   public SunNetworkResponse<Integer> init(String config, String priKey, boolean isMainChain) {
     SunNetworkResponse<Integer> ret = new SunNetworkResponse<>();
     byte[] temp =  org.tron.keystore.StringUtils.hexs2Bytes(priKey.getBytes());
@@ -79,6 +78,7 @@ class Chain implements ChainInterface {
   }
 
   /**
+   * @author sun-network
    * @param request request of deploy contract
    * @return the response of deploy contract which contains the address of contract deployed
    */
@@ -142,6 +142,7 @@ class Chain implements ChainInterface {
   }
 
   /**
+   * @author sun-network
    * @param request request of trigger contract
    * @return the response of trigger contract which contains the id of transaction
    */
@@ -183,7 +184,10 @@ class Chain implements ChainInterface {
     return resp;
   }
 
-
+  /**
+   * @author sun-network
+   * @return address
+   */
   public SunNetworkResponse<String>  getAddress() {
     SunNetworkResponse<String> resp = new SunNetworkResponse<>();
 
@@ -193,6 +197,10 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @return balance
+   */
   public SunNetworkResponse<Long>  getBalance() {
     SunNetworkResponse<Long> resp = new SunNetworkResponse<>();
 
@@ -207,6 +215,10 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @return account information
+   */
   public SunNetworkResponse<Account> getAccount(String address){
     SunNetworkResponse<Account> resp = new SunNetworkResponse<>();
     byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
@@ -220,6 +232,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param accountId account ID
+   * @return account information
+   */
   public SunNetworkResponse<Account> getAccountById( String accountId) {
     SunNetworkResponse<Account> resp = new SunNetworkResponse<>();
 
@@ -233,6 +250,11 @@ class Chain implements ChainInterface {
     return  resp;
   }
 
+  /**
+   * @author sun-network
+   * @param accountName accountName
+   * @return the result of update
+   */
   public SunNetworkResponse<Integer> updateAccount(String accountName) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
@@ -260,6 +282,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param accountId the account ID
+   * @return the result of update
+   */
   public SunNetworkResponse<Integer> setAccountId(String accountId){
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
@@ -288,6 +315,12 @@ class Chain implements ChainInterface {
   }
 
   //TODO main
+
+  /**
+   * @author sun-network
+   * @param request
+   * @return the result of update
+   */
   public SunNetworkResponse<Integer> updateAsset(UpdateAssetRequest request) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
@@ -319,6 +352,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param address
+   * @return asset issue list
+   */
   public SunNetworkResponse<AssetIssueList> getAssetIssueByAccount(String address) {
     SunNetworkResponse<AssetIssueList> resp = new SunNetworkResponse<>();
 
@@ -339,6 +377,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param address
+   * @return asset issue list
+   */
   public SunNetworkResponse<AccountNetMessage> getAccountNet(String address) {
     SunNetworkResponse<AccountNetMessage> resp = new SunNetworkResponse<>();
 
@@ -357,6 +400,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param address
+   * @return account resource
+   */
   public SunNetworkResponse<AccountResourceMessage> getAccountResource(String address) {
     SunNetworkResponse<AccountResourceMessage> resp = new SunNetworkResponse<>();
 
@@ -375,6 +423,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param assetName
+   * @return asset issue
+   */
   // In 3.2 version, this function will return null if there are two or more asset with the same token name,
   // so please use getAssetIssueById or getAssetIssueListByName. This function just remains for compatibility.
   public SunNetworkResponse<AssetIssueContract> getAssetIssueByName(String assetName) {
@@ -390,6 +443,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param assetName
+   * @return asset issue list
+   */
   public SunNetworkResponse<AssetIssueList> getAssetIssueListByName(String assetName) {
     SunNetworkResponse<AssetIssueList> resp = new SunNetworkResponse<>();
 
@@ -404,6 +462,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param assetId the asset ID
+   * @return asset issue
+   */
   public SunNetworkResponse<AssetIssueContract> getAssetIssueById(String assetId) {
     SunNetworkResponse<AssetIssueContract> resp = new SunNetworkResponse<>();
 
@@ -417,10 +480,15 @@ class Chain implements ChainInterface {
     return resp;
   }
 
-  public SunNetworkResponse<Integer> sendCoin(String toAddress, String amountStr)  {
+  /**
+   * @author sun-network
+   * @param toAddress the destination address
+   * @param amount the amount of trx
+   * @return the result of send
+   */
+  public SunNetworkResponse<Integer> sendCoin(String toAddress, long amount) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
-    long amount = new Long(amountStr);
     byte[] to = WalletApi.decodeFromBase58Check(toAddress);
     if (to == null) {
       resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
@@ -444,8 +512,14 @@ class Chain implements ChainInterface {
     return resp;
   }
 
-
-  public SunNetworkResponse<Integer> transferAsset(String toAddress, String assertName, String amountStr) {
+  /**
+   * @author sun-network
+   * @param toAddress the destination address
+   * @param assertName the asset name
+   * @param amount the amount of asset
+   * @return the result of transfer
+   */
+  public SunNetworkResponse<Integer> transferAsset(String toAddress, String assertName, long amount) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
     byte[] to = WalletApi.decodeFromBase58Check(toAddress);
@@ -453,7 +527,6 @@ class Chain implements ChainInterface {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
 
-    long amount = new Long(amountStr);
     try {
       boolean result = serverApi.transferAsset(to, assertName.getBytes(), amount);
       if (result) {
@@ -472,8 +545,15 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param toAddress the destination address
+   * @param assertName the asset name
+   * @param amount the amount of asset
+   * @return the result of participating asset issue
+   */
   //TODO main
-  public SunNetworkResponse<Integer> participateAssetIssue(String toAddress, String assertName, String amountStr) {
+  public SunNetworkResponse<Integer> participateAssetIssue(String toAddress, String assertName, long amount) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
     byte[] to = WalletApi.decodeFromBase58Check(toAddress);
@@ -481,7 +561,6 @@ class Chain implements ChainInterface {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
 
-    long amount = Long.parseLong(amountStr);
     try {
       boolean result = serverApi.participateAssetIssue(to, assertName.getBytes(), amount);
       if (result) {
@@ -501,7 +580,7 @@ class Chain implements ChainInterface {
   }
 
 
-  public boolean assetIssueProc(String name, long totalSupply, int trxNum, int icoNum, int precision,
+  private boolean assetIssueProc(String name, long totalSupply, int trxNum, int icoNum, int precision,
       long startTime, long endTime, int voteScore, String description, String url,
       long freeNetLimit, long publicFreeNetLimit, HashMap<String, String> frozenSupply)
       throws CipherException, IOException, CancelException {
@@ -568,6 +647,11 @@ class Chain implements ChainInterface {
     return serverApi.createAssetIssue(builder.build());
   }
 
+  /**
+   * @author sun-network
+   * @param request the request of assert issue
+   * @return the result of creating assert issue
+   */
   //TODO main
   public SunNetworkResponse<Integer> assetIssue(AssertIssueRequest request) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
@@ -617,6 +701,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param address the account address
+   * @return the result of creating account
+   */
   public SunNetworkResponse<Integer> createAccount(String address) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
@@ -639,6 +728,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param url
+   * @return the result of creating witness
+   */
   public SunNetworkResponse<Integer> createWitness(String url) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
@@ -660,6 +754,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param url
+   * @return the result of update
+   */
   public SunNetworkResponse<Integer> updateWitness(String url) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
@@ -681,6 +780,10 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @return the witness list
+   */
   public SunNetworkResponse<WitnessList> listWitnesses() {
     SunNetworkResponse<WitnessList> resp = new SunNetworkResponse<>();
 
@@ -695,6 +798,10 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @return the asset issue list
+   */
   public SunNetworkResponse<AssetIssueList> getAssetIssueList() {
     SunNetworkResponse<AssetIssueList> resp = new SunNetworkResponse<>();
 
@@ -709,6 +816,12 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param offset the offset from the first asset
+   * @param limit the number of asset issues
+   * @return assert issue list
+   */
   public SunNetworkResponse<AssetIssueList> getAssetIssueList(int offset, int limit) {
     SunNetworkResponse<AssetIssueList> resp = new SunNetworkResponse<>();
 
@@ -723,6 +836,12 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param offset the offset from the first proposal
+   * @param limit the number of proposal
+   * @return proposal list
+   */
   public SunNetworkResponse<ProposalList> getProposalsListPaginated(int offset, int limit) {
     SunNetworkResponse<ProposalList> resp = new SunNetworkResponse<>();
 
@@ -737,6 +856,12 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param offset the offset from the first exchange
+   * @param limit the number of exchange
+   * @return exchange list
+   */
   //TODO main
   public SunNetworkResponse<ExchangeList> getExchangesListPaginated(int offset, int limit) {
     SunNetworkResponse<ExchangeList> resp = new SunNetworkResponse<>();
@@ -752,6 +877,10 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @return node list
+   */
   public SunNetworkResponse<NodeList> listNodes() {
     SunNetworkResponse<NodeList> resp = new SunNetworkResponse<>();
 
@@ -766,6 +895,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param blockNum the block number
+   * @return Block
+   */
   public SunNetworkResponse<Block> getBlock(long blockNum) {
     SunNetworkResponse<Block> resp = new SunNetworkResponse<>();
 
@@ -775,6 +909,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param blockNum the block number
+   * @return the count of transaction
+   */
   public SunNetworkResponse<Long> getTransactionCountByBlockNum(long blockNum) {
     SunNetworkResponse<Long> resp = new SunNetworkResponse<>();
 
@@ -784,6 +923,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param witness the vote information which contains address and vote count
+   * @return the result of vote
+   */
   public SunNetworkResponse<Integer> voteWitness(HashMap<String, String> witness)  {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
@@ -809,6 +953,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param request the request of freeze balance
+   * @return the result of freeze balance
+   */
   public SunNetworkResponse<Integer>  freezeBalance(FreezeBalanceRequest request) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
@@ -835,6 +984,12 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param resourceCode the resource code
+   * @param receiverAddress the receive address
+   * @return the result of unfreeze balance
+   */
   public SunNetworkResponse<TransactionResponse> unfreezeBalance(int resourceCode, String receiverAddress) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
@@ -857,6 +1012,10 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @return the result of unfreeze asset
+   */
   //TODO main
   public SunNetworkResponse<TransactionResponse> unfreezeAsset() {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
@@ -880,12 +1039,17 @@ class Chain implements ChainInterface {
     return resp;
   }
 
-
-  public SunNetworkResponse<TransactionResponse> approveProposal(long id, boolean is_add_approval)  {
+  /**
+   * @author sun-network
+   * @param id the proposal id
+   * @param approval the proposal or not
+   * @return the result of approving proposal
+   */
+  public SunNetworkResponse<TransactionResponse> approveProposal(long id, boolean approval) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
     try {
-      TransactionResponse result = serverApi.approveProposal(id, is_add_approval);
+      TransactionResponse result = serverApi.approveProposal(id, approval);
       resp.setData(result);
       if (result.getResult()) {
         resp.success(result);
@@ -903,6 +1067,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param id the id of proposal
+   * @return the result of deleting proposal
+   */
   public SunNetworkResponse<TransactionResponse> deleteProposal(long id) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
@@ -925,6 +1094,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param id the id of proposal
+   * @return the proposal
+   */
   public SunNetworkResponse<Proposal> getProposal(String id) {
     SunNetworkResponse<Proposal> resp = new SunNetworkResponse<>();
 
@@ -943,7 +1117,12 @@ class Chain implements ChainInterface {
     return resp;
   }
 
-
+  /**
+   * @author sun-network
+   * @param fromAddress the from address
+   * @param toAddress the address delegated
+   * @return the delegated resource list
+   */
   public SunNetworkResponse<DelegatedResourceList> getDelegatedResource(String fromAddress, String toAddress) {
     SunNetworkResponse<DelegatedResourceList> resp = new SunNetworkResponse<>();
 
@@ -962,6 +1141,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param address
+   * @return the delegated resource account index
+   */
   public SunNetworkResponse<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndex(String address) {
     SunNetworkResponse<DelegatedResourceAccountIndex> resp = new SunNetworkResponse<>();
 
@@ -980,6 +1164,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param request the request of exchange
+   * @return the result of creating exchange
+   */
   //TODO main
   public SunNetworkResponse<TransactionResponse> exchangeCreate(ExchangeCreateRequest request) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
@@ -1012,8 +1201,15 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param exchangeId the exchange id
+   * @param tokenIdStr the token id
+   * @param quantity the quantity
+   * @return the result of injecting exchange
+   */
   //TODO main
-  public SunNetworkResponse<TransactionResponse>  exchangeInject(long exchangeId, String tokenIdStr, long quant) {
+  public SunNetworkResponse<TransactionResponse> exchangeInject(long exchangeId, String tokenIdStr, long quantity) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
     if(StringUtils.isEmpty(tokenIdStr)) {
@@ -1022,7 +1218,7 @@ class Chain implements ChainInterface {
 
     byte[] tokenId = tokenIdStr.getBytes();
     try {
-      TransactionResponse result = serverApi.exchangeInject(exchangeId, tokenId, quant);
+      TransactionResponse result = serverApi.exchangeInject(exchangeId, tokenId, quantity);
       resp.setData(result);
       if (result.getResult()) {
         resp.success(result);
@@ -1040,8 +1236,15 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param exchangeId the exchange id
+   * @param tokenIdStr the token id
+   * @param quantity the quantity
+   * @return the result of withdrawing exchange
+   */
   //TODO main
-  public SunNetworkResponse<TransactionResponse> exchangeWithdraw(long exchangeId, String tokenIdStr, long quant) {
+  public SunNetworkResponse<TransactionResponse> exchangeWithdraw(long exchangeId, String tokenIdStr, long quantity) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
     if(StringUtils.isEmpty(tokenIdStr)) {
@@ -1050,7 +1253,7 @@ class Chain implements ChainInterface {
 
     byte[] tokenId = tokenIdStr.getBytes();
     try {
-      TransactionResponse result = serverApi.exchangeWithdraw(exchangeId, tokenId, quant);
+      TransactionResponse result = serverApi.exchangeWithdraw(exchangeId, tokenId, quantity);
       resp.setData(result);
       if (result.getResult()) {
         resp.success(result);
@@ -1068,6 +1271,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param request the request of exchange request
+   * @return the result of exchange transaction
+   */
   //TODO main
   public SunNetworkResponse<TransactionResponse> exchangeTransaction(ExchangeTransactionRequest request) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
@@ -1100,6 +1308,10 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @return exchange list
+   */
   //TODO main
   public SunNetworkResponse<ExchangeList> listExchanges() {
     SunNetworkResponse<ExchangeList> resp = new SunNetworkResponse<>();
@@ -1115,6 +1327,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param id the exchange id
+   * @return exchange
+   */
   //TODO main
   public SunNetworkResponse<Exchange> getExchange(String id) {
     SunNetworkResponse<Exchange> resp = new SunNetworkResponse<>();
@@ -1134,6 +1351,10 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @return the result of withdrawing balance
+   */
   public SunNetworkResponse<TransactionResponse>  withdrawBalance()  {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
@@ -1156,6 +1377,10 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @return the total amount of transaction
+   */
   public SunNetworkResponse<NumberMessage> getTotalTransaction() {
     SunNetworkResponse<NumberMessage> resp = new SunNetworkResponse<>();
 
@@ -1164,6 +1389,10 @@ class Chain implements ChainInterface {
     return resp.success(totalTransition);
   }
 
+  /**
+   * @author sun-network
+   * @return the next maintenance time
+   */
   public SunNetworkResponse<String> getNextMaintenanceTime() {
     SunNetworkResponse<String> resp = new SunNetworkResponse<>();
 
@@ -1174,6 +1403,11 @@ class Chain implements ChainInterface {
     return resp.success(date);
   }
 
+  /**
+   * @author sun-network
+   * @param trxId the transaction ID
+   * @return transaction
+   */
   public SunNetworkResponse<Transaction> getTransactionById(String trxId) {
     SunNetworkResponse<Transaction> resp = new SunNetworkResponse<>();
 
@@ -1192,6 +1426,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param trxId the transaction ID
+   * @return transaction information
+   */
   public SunNetworkResponse<TransactionInfo> getTransactionInfoById(String trxId) {
     SunNetworkResponse<TransactionInfo> resp = new SunNetworkResponse<>();
 
@@ -1210,6 +1449,13 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param address the account address
+   * @param offset the offset from first transaction
+   * @param limit the number of transaction
+   * @return transaction list extension
+   */
   public SunNetworkResponse<TransactionListExtention> getTransactionsFromThis(String address, int offset, int limit) {
     SunNetworkResponse<TransactionListExtention> resp = new SunNetworkResponse<>();
 
@@ -1229,6 +1475,13 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param address the account address
+   * @param offset the offset from first transaction
+   * @param limit the number of transaction
+   * @return transaction list extension
+   */
   public SunNetworkResponse<TransactionListExtention> getTransactionsToThis(String address, int offset, int limit) {
     SunNetworkResponse<TransactionListExtention> resp = new SunNetworkResponse<>();
 
@@ -1248,6 +1501,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param blockID the block ID
+   * @return Block
+   */
   public SunNetworkResponse<Block> getBlockById(String blockID) {
     SunNetworkResponse<Block> resp = new SunNetworkResponse<>();
 
@@ -1262,6 +1520,12 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param start the start number
+   * @param end the end number
+   * @return Block list extension
+   */
   public SunNetworkResponse<BlockListExtention> getBlockByLimitNext(long start, long end) {
     SunNetworkResponse<BlockListExtention> resp = new SunNetworkResponse<>();
 
@@ -1276,6 +1540,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param num the latest number
+   * @return Block list extension
+   */
   public SunNetworkResponse<BlockListExtention> getBlockByLatestNum(long num) {
     SunNetworkResponse<BlockListExtention> resp = new SunNetworkResponse<>();
 
@@ -1290,6 +1559,12 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param address the account address
+   * @param consumeUserResourcePercent the percent of user resource consuming
+   * @return the result of update
+   */
   public SunNetworkResponse<TransactionResponse> updateSetting(String address, long consumeUserResourcePercent) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
@@ -1321,6 +1596,12 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param address the account address
+   * @param originEnergyLimit the limit of origin energy
+   * @return the result of update
+   */
   public SunNetworkResponse<TransactionResponse> updateEnergyLimit(String address, long originEnergyLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
@@ -1352,6 +1633,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param address the contact address
+   * @return smart contract information
+   */
   public SunNetworkResponse<SmartContract> getContract(String address) {
     SunNetworkResponse<SmartContract> resp = new SunNetworkResponse<>();
 
@@ -1370,7 +1656,10 @@ class Chain implements ChainInterface {
     return resp;
   }
 
-
+  /**
+   * @author sun-network
+   * @return the address pair
+   */
   public SunNetworkResponse<AddressPrKeyPairMessage> generateAddress() {
     SunNetworkResponse<AddressPrKeyPairMessage> resp = new SunNetworkResponse<>();
 
@@ -1384,6 +1673,12 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param address the account address
+   * @param permissionJson the permission information
+   * @return the result of update
+   */
   public SunNetworkResponse<TransactionResponse> updateAccountPermission(String address, String permissionJson) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
@@ -1415,6 +1710,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param transactionStr the transaction string
+   * @return the sign weight of transaction
+   */
   public SunNetworkResponse<TransactionSignWeight> getTransactionSignWeight(String transactionStr)  {
     SunNetworkResponse<TransactionSignWeight> resp = new SunNetworkResponse<>();
 
@@ -1435,6 +1735,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   ** @param transactionStr the transaction string
+   * @return the  approved list of transaction
+   */
   public SunNetworkResponse<TransactionApprovedList> getTransactionApprovedList(String transactionStr) {
     SunNetworkResponse<TransactionApprovedList> resp = new SunNetworkResponse<>();
 
@@ -1456,6 +1761,11 @@ class Chain implements ChainInterface {
     return  resp;
   }
 
+  /**
+   * @author sun-network
+   * @param transactionStr the transaction string
+   * @return the transaction added signature
+   */
   public SunNetworkResponse<Transaction>  addTransactionSign(String transactionStr) {
     SunNetworkResponse<Transaction> resp = new SunNetworkResponse<>();
 
@@ -1487,6 +1797,11 @@ class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @author sun-network
+   * @param transactionStr the transaction string
+   * @return the result of broadcast
+   */
   public SunNetworkResponse<TransactionResponse>  broadcastTransaction(String transactionStr) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
