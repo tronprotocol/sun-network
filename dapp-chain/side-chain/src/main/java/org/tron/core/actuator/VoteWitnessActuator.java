@@ -54,6 +54,10 @@ public class VoteWitnessActuator extends AbstractActuator {
 
   @Override
   public boolean validate() throws ContractValidateException {
+    if (dbManager.getDynamicPropertiesStore().getVoteWitnessSwitch() != 1) {
+      throw new ContractValidateException(
+          "vote witness switch is off, need to wait the proposal to be approved");
+    }
     if (this.contract == null) {
       throw new ContractValidateException("No contract!");
     }

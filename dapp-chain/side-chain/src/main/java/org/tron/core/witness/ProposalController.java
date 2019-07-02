@@ -265,6 +265,11 @@ public class ProposalController {
                   .saveProposalExpireTime(Long.valueOf(entry.getValue()));
           break;
         }
+        case (1_000_004): {
+          manager.getDynamicPropertiesStore()
+              .saveVoteWitnessSwitch(Long.valueOf(entry.getValue()));
+          break;
+        }
         default:
           break;
       }

@@ -55,8 +55,6 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
 
   private static final byte[] MAINTENANCE_TIME_INTERVAL = "MAINTENANCE_TIME_INTERVAL".getBytes();
 
-  private static final byte[] PROPOSAL_EXPIRE_TIME = "PROPOSAL_EXPIRE_TIME".getBytes();
-
   private static final byte[] ACCOUNT_UPGRADE_COST = "ACCOUNT_UPGRADE_COST".getBytes();
 
   private static final byte[] WITNESS_PAY_PER_BLOCK = "WITNESS_PAY_PER_BLOCK".getBytes();
@@ -226,6 +224,10 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
 
   // ACCOUNT_UPGRADE_COST
   private static final byte[] ACCOUNT_UPGRADE_TOKEN_COST = "ACCOUNT_UPGRADE_TOKEN_COST".getBytes();
+
+  private static final byte[] PROPOSAL_EXPIRE_TIME = "PROPOSAL_EXPIRE_TIME".getBytes();
+
+  private static final byte[] VOTE_WITNESS_SWITCH = "VOTE_WITNESS_SWITCH".getBytes();
 
 
 
@@ -743,6 +745,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     } catch (IllegalArgumentException e) {
       this.saveSideChainChargingBandwidth(Args.getInstance().getSideChainChargingBandwidth());
     }
+
+    // disable vote witness functionality by default
+    try {
+      this.getVoteWitnessSwitch();
+    } catch (IllegalArgumentException e) {
+      this.saveVoteWitnessSwitch(0);
+    }
   }
 
   public String intArrayToString(int[] a) {
@@ -879,6 +888,19 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   public void saveSideChainChargingBandwidth(long num) {
     this.put(SIDECHAIN_CHARGING_BANDWIDTH,
             new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public int getVoteWitnessSwitch(){
+    return Optional.ofNullable(getUnchecked(VOTE_WITNESS_SWITCH))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toInt)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found VOTE_WITNESS_SWITCH"));
+  }
+
+  public void saveVoteWitnessSwitch(long num) {
+    this.put(VOTE_WITNESS_SWITCH,
+        new BytesCapsule(ByteArray.fromLong(num)));
   }
 
 
