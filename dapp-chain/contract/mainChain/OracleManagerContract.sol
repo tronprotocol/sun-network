@@ -7,12 +7,16 @@ import "../common/ECVerify.sol";
 contract OracleManagerContract is Ownable {
     using ECVerify for bytes32;
 
-    mapping(address => bool) public isOracle;
 
     uint256 public numOracles;
     uint256 public numCommonOracles;
-    mapping(uint256 => mapping(bytes32 => SignMsg)) withdrawMultiSignList;
+    mapping(address => bool) public isOracle;
     mapping(address => SignMsg)  delegateSigns;
+    mapping(uint256 => mapping(bytes32 => SignMsg)) withdrawMultiSignList;
+
+    address logicAddress;
+    bool pause;
+    bool stop;
 
     struct SignMsg {
         mapping(address => bool) signedOracle;
@@ -20,10 +24,6 @@ contract OracleManagerContract is Ownable {
         uint256 countSign;
         bool success;
     }
-
-    address logicAddress;
-    bool pause;
-    bool stop;
 
     event NewOracles(address oracle);
     event LogicAddressChanged(address oldAddress, address newAddress);
@@ -100,7 +100,6 @@ contract OracleManagerContract is Ownable {
             return false;
         }
         delegateSigns[newAddress].signedOracle[msg.sender] = true;
-        // depositSigns[nonce].signs.push(oracleSign);
         delegateSigns[newAddress].countSign += 1;
 
         if (delegateSigns[newAddress].countSign > numCommonOracles && !delegateSigns[newAddress].success) {
