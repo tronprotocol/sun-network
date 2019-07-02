@@ -35,27 +35,27 @@ import org.tron.sunapi.response.DeployContractResponse;
 import org.tron.sunapi.response.TransactionResponse;
 
 public interface ChainInterface {
+
   //SmartContract
   SunNetworkResponse<DeployContractResponse> deployContract(DeployContractRequest request);
 
   SunNetworkResponse<TransactionResponse> triggerContract(TriggerContractRequest request);
 
-  SunNetworkResponse<TransactionResponse> triggerConstantContract(TriggerContractRequest request);
-
-  SunNetworkResponse<TransactionResponse> updateSetting(String address, long consumeUserResourcePercent);
+  SunNetworkResponse<TransactionResponse> updateSetting(String address,
+      long consumeUserResourcePercent);
 
   SunNetworkResponse<TransactionResponse> updateEnergyLimit(String address, long originEnergyLimit);
 
   SunNetworkResponse<SmartContract> getContract(String address);
 
   //account
-  SunNetworkResponse<String>  getAddress();
+  SunNetworkResponse<String> getAddress();
 
-  SunNetworkResponse<Long>  getBalance();
+  SunNetworkResponse<Long> getBalance();
 
   SunNetworkResponse<Account> getAccount(String address);
 
-  SunNetworkResponse<Account> getAccountById( String accountId);
+  SunNetworkResponse<Account> getAccountById(String accountId);
 
   SunNetworkResponse<Integer> updateAccount(String accountName);
 
@@ -63,9 +63,11 @@ public interface ChainInterface {
 
   SunNetworkResponse<Integer> createAccount(String address);
 
-  SunNetworkResponse<TransactionListExtention> getTransactionsFromThis(String address, int offset, int limit);
+  SunNetworkResponse<TransactionListExtention> getTransactionsFromThis(String address, int offset,
+      int limit);
 
-  SunNetworkResponse<TransactionListExtention> getTransactionsToThis(String address, int offset, int limit);
+  SunNetworkResponse<TransactionListExtention> getTransactionsToThis(String address, int offset,
+      int limit);
 
   SunNetworkResponse<AddressPrKeyPairMessage> generateAddress();
 
@@ -82,7 +84,8 @@ public interface ChainInterface {
 
   SunNetworkResponse<Integer> transferAsset(String toAddress, String assertName, String amountStr);
 
-  SunNetworkResponse<Integer> participateAssetIssue(String toAddress, String assertName, String amountStr);
+  SunNetworkResponse<Integer> participateAssetIssue(String toAddress, String assertName,
+      String amountStr);
 
   SunNetworkResponse<Integer> assetIssue(AssertIssueRequest request);
 
@@ -100,7 +103,7 @@ public interface ChainInterface {
 
   SunNetworkResponse<Integer> voteWitness(HashMap<String, String> witness);
 
-  SunNetworkResponse<TransactionResponse>  withdrawBalance();
+  SunNetworkResponse<TransactionResponse> withdrawBalance();
 
   SunNetworkResponse<ProposalList> getProposalsListPaginated(int offset, int limit);
 
@@ -113,9 +116,11 @@ public interface ChainInterface {
   //Exchanges
   SunNetworkResponse<TransactionResponse> exchangeCreate(ExchangeCreateRequest request);
 
-  SunNetworkResponse<TransactionResponse>  exchangeInject(long exchangeId, String tokenIdStr, long quant);
+  SunNetworkResponse<TransactionResponse> exchangeInject(long exchangeId, String tokenIdStr,
+      long quant);
 
-  SunNetworkResponse<TransactionResponse> exchangeWithdraw(long exchangeId, String tokenIdStr, long quant);
+  SunNetworkResponse<TransactionResponse> exchangeWithdraw(long exchangeId, String tokenIdStr,
+      long quant);
 
   SunNetworkResponse<TransactionResponse> exchangeTransaction(ExchangeTransactionRequest request);
 
@@ -149,11 +154,13 @@ public interface ChainInterface {
 
   SunNetworkResponse<AccountNetMessage> getAccountNet(String address);
 
-  SunNetworkResponse<DelegatedResourceList> getDelegatedResource(String fromAddress, String toAddress);
+  SunNetworkResponse<DelegatedResourceList> getDelegatedResource(String fromAddress,
+      String toAddress);
 
-  SunNetworkResponse<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndex(String address);
+  SunNetworkResponse<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndex(
+      String address);
 
-  SunNetworkResponse<Integer>  freezeBalance(FreezeBalanceRequest request);
+  SunNetworkResponse<Integer> freezeBalance(FreezeBalanceRequest request);
 
   SunNetworkResponse<TransactionResponse> unfreezeBalance(int resourceCode, String receiverAddress);
 
@@ -164,13 +171,14 @@ public interface ChainInterface {
 
   SunNetworkResponse<TransactionApprovedList> getTransactionApprovedList(String transactionStr);
 
-  SunNetworkResponse<Transaction>  addTransactionSign(String transactionStr);
+  SunNetworkResponse<Transaction> addTransactionSign(String transactionStr);
 
-  SunNetworkResponse<TransactionResponse> updateAccountPermission(String address, String permissionJson);
+  SunNetworkResponse<TransactionResponse> updateAccountPermission(String address,
+      String permissionJson);
 
   //core
   SunNetworkResponse<Integer> sendCoin(String toAddress, String amountStr);
 
-  SunNetworkResponse<TransactionResponse>  broadcastTransaction(String transactionStr);
+  SunNetworkResponse<TransactionResponse> broadcastTransaction(String transactionStr);
 
 }
