@@ -705,7 +705,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getAllowAccountStateRoot();
     } catch (IllegalArgumentException e) {
-      this.saveAllowAccountStateRoot(1);
+      this.saveAllowAccountStateRoot(Args.getInstance().getAllowAccountStateRoot());
     }
 
     try {
