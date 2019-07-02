@@ -20,17 +20,18 @@ contract OracleManagerContract is Ownable {
         bool success;
     }
 
-    address delegate;
+    address logicAddress;
 
     event NewOracles(address oracle);
-    event NewDelegateAddress(address delegate);
+    event LogicAddressChanged(address oldAddress,address newAddress);
 
     modifier onlyOracle() {require(isOracle[msg.sender], "not oracle");
         _;}
 
-    modifier callDelegate() {
-        if(delegate!=0x00){
-            delegate.delegatecall(msg.data);
+    modifier goDelegateCall() {
+        if(logicAddress !=0x00){
+            logicAddress.delegatecall(msg.data);
+            return;
         }
         _;
     }
@@ -73,8 +74,8 @@ contract OracleManagerContract is Ownable {
     function setDelegateAddress(address newAddress) public onlyOracle{
         bool needDelegate = multiSignForDelegate(newAddress);
         if (needDelegate) {
-            delegate =newAddress;
-            emit NewDelegateAddress(delegate);
+            emit LogicAddressChanged(logicAddress, newAddress);
+            logicAddress = newAddress;
         }
     }
     function multiSignForDelegate(address newAddress) internal returns (bool) {
