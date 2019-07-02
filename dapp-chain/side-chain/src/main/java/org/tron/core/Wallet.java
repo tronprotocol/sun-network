@@ -946,6 +946,13 @@ public class Wallet {
                     .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getProposalExpireTime()))
                     .build());
 
+    // vote witness switch
+    builder.addChainParameter(
+        Protocol.ChainParameters.ChainParameter.newBuilder()
+            .setKey("getVoteWitnessSwitch")
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getVoteWitnessSwitch()))
+            .build());
+
     return builder.build();
   }
 
