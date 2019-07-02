@@ -59,7 +59,7 @@ public class ProposalCreateActuator extends AbstractActuator {
           (Objects.isNull(getDeposit())) ? dbManager.getDynamicPropertiesStore()
               .getNextMaintenanceTime() :
               getDeposit().getNextMaintenanceTime();
-      long now3 = now + Args.getInstance().getProposalExpireTime();
+      long now3 = now + dbManager.getDynamicPropertiesStore().getProposalExpireTime();
       long round = (now3 - currentMaintenanceTime) / maintenanceTimeInterval;
       long expirationTime =
           currentMaintenanceTime + (round + 1) * maintenanceTimeInterval;
@@ -265,6 +265,13 @@ public class ProposalCreateActuator extends AbstractActuator {
             throw new ContractValidateException(
                 "gateway address has to be 21 bytes");
           }
+        }
+        break;
+      }
+      case (1_000_003) :{
+        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 259_200_000L) {
+          throw new ContractValidateException(
+                  "Bad chain parameter value,valid range is [0,259_200_000L]");
         }
         break;
       }

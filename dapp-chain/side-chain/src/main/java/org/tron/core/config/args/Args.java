@@ -506,6 +506,10 @@ public class Args {
   @Setter
   private int sideChainChargingBandwidth;
 
+  @Getter
+  @Setter
+  private long maxCpuTimeOfOneTx;
+
 
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
@@ -589,6 +593,7 @@ public class Args {
     INSTANCE.sideChainChargingType = 0;
     INSTANCE.energyFee = 1;
     INSTANCE.totalEnergyLimit = 100000000000L;
+    INSTANCE.maxCpuTimeOfOneTx = 50L;
   }
 
   /**
@@ -1020,6 +1025,10 @@ public class Args {
     INSTANCE.totalEnergyLimit =
         config.hasPath("sidechain.totalEnergyLimit") ? config
             .getLong("sidechain.totalEnergyLimit") : 100_000_000_000L;
+
+    INSTANCE.maxCpuTimeOfOneTx =
+        config.hasPath("sidechain.maxCpuTimeOfOneTx") ? config
+            .getLong("sidechain.maxCpuTimeOfOneTx") : 50L;
 
     logConfig();
   }

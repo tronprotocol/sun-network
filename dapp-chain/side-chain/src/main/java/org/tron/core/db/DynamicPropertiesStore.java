@@ -55,6 +55,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
 
   private static final byte[] MAINTENANCE_TIME_INTERVAL = "MAINTENANCE_TIME_INTERVAL".getBytes();
 
+  private static final byte[] PROPOSAL_EXPIRE_TIME = "PROPOSAL_EXPIRE_TIME".getBytes();
+
   private static final byte[] ACCOUNT_UPGRADE_COST = "ACCOUNT_UPGRADE_COST".getBytes();
 
   private static final byte[] WITNESS_PAY_PER_BLOCK = "WITNESS_PAY_PER_BLOCK".getBytes();
@@ -365,6 +367,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getProposalExpireTime();
+    } catch (IllegalArgumentException e) {
+      this.saveProposalExpireTime(Args.getInstance().getProposalExpireTime());
+    }
+
+    try {
       this.getAccountUpgradeCost();
     } catch (IllegalArgumentException e) {
       this.saveAccountUpgradeCost(9_999_000_000L);
@@ -453,7 +461,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getMaxCpuTimeOfOneTx();
     } catch (IllegalArgumentException e) {
-      this.saveMaxCpuTimeOfOneTx(50L);
+      this.saveMaxCpuTimeOfOneTx(Args.getInstance().getMaxCpuTimeOfOneTx());
     }
 
     try {
@@ -634,7 +642,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getAvailableContractType();
     } catch (IllegalArgumentException e) {
-      String contractType = "7fff1fc0037e0000000000000000000000000000000000000000000000000000";
+      //7fff1fc0037e0000000000000000000000000000000000000000000000000000
+      String contractType = "3f3d1ec003600100000000000000000000000000000000000000000000000080";
       byte[] bytes = ByteArray.fromHexString(contractType);
       this.saveAvailableContractType(bytes);
     }
@@ -642,7 +651,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getActiveDefaultOperations();
     } catch (IllegalArgumentException e) {
-      String contractType = "7fff1fc0033e0000000000000000000000000000000000000000000000000000";
+      //7fff1fc0033e0000000000000000000000000000000000000000000000000000
+      String contractType = "3f3d1ec003200100000000000000000000000000000000000000000000000080";
       byte[] bytes = ByteArray.fromHexString(contractType);
       this.saveActiveDefaultOperations(bytes);
     }
@@ -690,6 +700,18 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       this.getBlockEnergyUsage();
     } catch (IllegalArgumentException e) {
       this.saveBlockEnergyUsage(0);
+    }
+
+    try {
+      this.getAllowAccountStateRoot();
+    } catch (IllegalArgumentException e) {
+      this.saveAllowAccountStateRoot(Args.getInstance().getAllowAccountStateRoot());
+    }
+
+    try {
+      this.getAllowProtoFilterNum();
+    } catch (IllegalArgumentException e) {
+      this.saveAllowProtoFilterNum(1);
     }
 
     try {
@@ -1003,6 +1025,20 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         .map(ByteArray::toLong)
         .orElseThrow(
             () -> new IllegalArgumentException("not found MAINTENANCE_TIME_INTERVAL"));
+  }
+
+  public void saveProposalExpireTime(long proposalExpireTime) {
+    logger.debug("PROPOSAL_EXPIRE_TIME:" + proposalExpireTime);
+    this.put(PROPOSAL_EXPIRE_TIME,
+            new BytesCapsule(ByteArray.fromLong(proposalExpireTime)));
+  }
+
+  public long getProposalExpireTime() {
+    return Optional.ofNullable(getUnchecked(PROPOSAL_EXPIRE_TIME))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found PROPOSAL_EXPIRE_TIME"));
   }
 
   public void saveAccountUpgradeCost(long accountUpgradeCost) {

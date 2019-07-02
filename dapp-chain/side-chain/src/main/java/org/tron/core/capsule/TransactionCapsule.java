@@ -547,6 +547,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
 //      case ProposalCreateContract:
 //        clazz = ProposalCreateContract.class;
 //        break;
+      case SideChainProposalCreateContract:
+        clazz = SideChainProposalCreateContract.class;
+        break;
       case ProposalApproveContract:
         clazz = ProposalApproveContract.class;
         break;
