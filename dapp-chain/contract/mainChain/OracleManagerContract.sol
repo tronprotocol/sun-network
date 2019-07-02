@@ -12,17 +12,28 @@ contract OracleManagerContract is Ownable {
     uint256 public numOracles;
     uint256 public numCommonOracles;
     mapping(uint256=>mapping(bytes32 => SignMsg)) withdrawMultiSignList;
-
+    mapping(address => SignMsg)  delegateSigns;
     struct SignMsg {
         mapping(address => bool) signedOracle;
         mapping(bytes => bool) signList;
         uint256 countSign;
+        bool success;
     }
 
+    address delegate;
+
     event NewOracles(address oracle);
+    event NewDelegateAddress(address delegate);
 
     modifier onlyOracle() {require(isOracle[msg.sender], "not oracle");
         _;}
+
+    modifier callDelegate() {
+        if(delegate!=0x00){
+            delegate.delegatecall(msg.data);
+        }
+        _;
+    }
 
     function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] sigList) internal returns(uint256) {
         SignMsg storage msl = withdrawMultiSignList[nonce][dataHash];
@@ -58,5 +69,26 @@ contract OracleManagerContract is Ownable {
         isOracle[_oracle] = false;
         numOracles--;
         numCommonOracles=numOracles * 2 / 3;
+    }
+    function setDelegateAddress(address newAddress) public onlyOracle{
+        bool needDelegate = multiSignForDelegate(newAddress);
+        if (needDelegate) {
+            delegate =newAddress;
+            emit NewDelegateAddress(delegate);
+        }
+    }
+    function multiSignForDelegate(address newAddress) internal returns (bool) {
+        if (delegateSigns[newAddress].signedOracle[msg.sender]) {
+            return false;
+        }
+        delegateSigns[newAddress].signedOracle[msg.sender] = true;
+        // depositSigns[nonce].signs.push(oracleSign);
+        delegateSigns[newAddress].countSign += 1;
+
+        if (delegateSigns[newAddress].countSign > numCommonOracles && !delegateSigns[newAddress].success) {
+            delegateSigns[newAddress].success = true;
+            return true;
+        }
+        return false;
     }
 }

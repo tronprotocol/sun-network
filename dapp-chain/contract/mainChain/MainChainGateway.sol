@@ -62,7 +62,7 @@ contract MainChainGateway is  OracleManagerContract {
 
     // Withdrawal functions
     function withdrawTRC10(address _to, trcToken tokenId, uint256 value, uint256 nonce, bytes[] oracleSigns)
-    public onlyOracle()
+    public onlyOracle callDelegate
     {
         require(oracleSigns.length<=numOracles,"withdraw TRC10 signs num > oracles num");
         require(withdrawDone[nonce] == false, "withdrawDone[nonce] != false");
@@ -78,7 +78,7 @@ contract MainChainGateway is  OracleManagerContract {
     }
 
     function withdrawTRC20(address _to, address contractAddress, uint256 value, uint256 nonce, bytes[] oracleSigns)
-    public onlyOracle()
+    public onlyOracle callDelegate
     {
         require(oracleSigns.length<=numOracles,"withdraw TRC20 signs num > oracles num");
         require(withdrawDone[nonce] == false, "withdrawDone[nonce] != false");
@@ -94,7 +94,7 @@ contract MainChainGateway is  OracleManagerContract {
     }
 
     function withdrawTRC721(address _to, address contractAddress, uint256 uid, uint256 nonce, bytes[] oracleSigns)
-    public onlyOracle()
+    public onlyOracle callDelegate
     {
         require(oracleSigns.length<=numOracles,"withdraw TRC721 signs num > oracles num");
         require(withdrawDone[nonce] == false, "withdrawDone[nonce] != false");
@@ -111,7 +111,7 @@ contract MainChainGateway is  OracleManagerContract {
     }
 
     function withdrawTRX(address _to, uint256 value, uint256 nonce, bytes[] oracleSigns)
-    public onlyOracle()
+    public onlyOracle callDelegate
     {
         require(oracleSigns.length<=numOracles,"withdraw TRX signs num > oracles num");
         require(withdrawDone[nonce] == false, "withdrawDone[nonce] != false");
@@ -129,7 +129,7 @@ contract MainChainGateway is  OracleManagerContract {
 
     // Approve and Deposit function for 2-step deposits
     // Requires first to have called `approve` on the specified TRC20 contract
-    function depositTRC20( address contractAddress, uint256 value) public returns(uint256){
+    function depositTRC20( address contractAddress, uint256 value) public callDelegate returns(uint256){
         require(mainToSideContractMap[contractAddress] == 1, "Not an allowe token");
         require(value > 0, "value must > 0");
         TRC20(contractAddress).transferFrom(msg.sender, address(this), value);
@@ -139,7 +139,7 @@ contract MainChainGateway is  OracleManagerContract {
         return userDepositList.length - 1;
     }
 
-    function depositTRC721( address contractAddress, uint256 uid) public returns(uint256) {
+    function depositTRC721( address contractAddress, uint256 uid) public callDelegate returns(uint256) {
         require(mainToSideContractMap[contractAddress] == 1, "Not an allowe token");
         TRC721(contractAddress).transferFrom(msg.sender, address(this), uid);
         userDepositList.push(DepositMsg( msg.sender, contractAddress, 0, uid ,DataModel.TokenKind.TRC721, DataModel.Status.SUCCESS));
@@ -148,7 +148,7 @@ contract MainChainGateway is  OracleManagerContract {
         return userDepositList.length - 1;
     }
 
-    function depositTRX() payable public returns(uint256) {
+    function depositTRX() payable public callDelegate returns(uint256) {
         require(msg.value > 0, "value must > 0");
         userDepositList.push(DepositMsg( msg.sender, address(0), 0, msg.value, DataModel.TokenKind.TRX, DataModel.Status.SUCCESS));
         balances.tron = balances.tron.add(msg.value);
@@ -156,7 +156,7 @@ contract MainChainGateway is  OracleManagerContract {
         return userDepositList.length - 1;
     }
 
-    function depositTRC10() payable public returns(uint256) {
+    function depositTRC10() payable public callDelegate returns(uint256) {
         require(msg.tokenvalue > 0, "tokenvalue must > 0");
         userDepositList.push(DepositMsg( msg.sender,  address(0), msg.tokenid, msg.tokenvalue, DataModel.TokenKind.TRC10, DataModel.Status.SUCCESS));
         balances.trc10[msg.tokenid] = balances.trc10[msg.tokenid].add(msg.tokenvalue);
@@ -164,7 +164,7 @@ contract MainChainGateway is  OracleManagerContract {
         return userDepositList.length - 1;
     }
 
-    function() external payable {
+    function() external callDelegate payable {
         if (msg.tokenid > 1000000) {
             depositTRC10();
         } else {
@@ -172,7 +172,7 @@ contract MainChainGateway is  OracleManagerContract {
         }
     }
 
-    function mappingTRC20(bytes txId) public payable {
+    function mappingTRC20(bytes txId) public callDelegate payable {
         require(msg.value >= mappingFee, "trc20MappingFee not enough");
         address trc20Address = calcContractAddress(txId, msg.sender);
         require(trc20Address != sunTokenAddress, "mainChainAddress == sunTokenAddress");
@@ -186,7 +186,7 @@ contract MainChainGateway is  OracleManagerContract {
     }
 
     // 2. deployDAppTRC721AndMapping
-    function mappingTRC721(bytes txId) public payable {
+    function mappingTRC721(bytes txId) public callDelegate payable {
         require(msg.value >= mappingFee, "trc721MappingFee not enough");
         address trc721Address = calcContractAddress(txId, msg.sender);
         require(trc721Address != sunTokenAddress, "mainChainAddress == sunTokenAddress");
@@ -199,7 +199,7 @@ contract MainChainGateway is  OracleManagerContract {
         emit TRC721Mapping(trc721Address, userMappingList.length - 1);
     }
 
-    function retryDeposit(uint256 nonce) public {
+    function retryDeposit(uint256 nonce) public callDelegate {
         // TODO: free attack ?
         require(nonce < userDepositList.length, "nonce >= userDepositList.length");
         DepositMsg storage depositMsg = userDepositList[nonce];
@@ -216,7 +216,7 @@ contract MainChainGateway is  OracleManagerContract {
         }
     }
 
-    function retryMapping(uint256 nonce) public {
+    function retryMapping(uint256 nonce) public callDelegate{
         // TODO: free attack ?
         require(nonce < userMappingList.length, "nonce >= userMappingList.length");
         MappingMsg storage mappingMsg = userMappingList[nonce];
@@ -228,13 +228,13 @@ contract MainChainGateway is  OracleManagerContract {
             emit TRC721Mapping( mappingMsg.mainChainAddress,  nonce);
         }
     }
-    function calcContractAddress(bytes txId, address _owner) public pure returns (address r) {
+    function calcContractAddress(bytes txId, address _owner) internal pure returns (address r) {
         bytes memory addressBytes = addressToBytes(_owner);
         bytes memory combinedBytes = concatBytes(txId, addressBytes);
         r = address(keccak256(combinedBytes));
     }
 
-    function addressToBytes(address a) public pure returns (bytes memory b) {
+    function addressToBytes(address a) internal pure returns (bytes memory b) {
         assembly {
             let m := mload(0x40)
             a := and(a, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
@@ -244,7 +244,7 @@ contract MainChainGateway is  OracleManagerContract {
         }
     }
 
-    function concatBytes(bytes memory b1, bytes memory b2) pure public returns (bytes memory r) {
+    function concatBytes(bytes memory b1, bytes memory b2) internal pure returns (bytes memory r) {
         r = abi.encodePacked(b1, 0x41, b2);
     }
 
@@ -268,11 +268,11 @@ contract MainChainGateway is  OracleManagerContract {
         return balances.trc721[contractAddress][uid];
     }
 
-    function setMappingFee(uint256 fee) public onlyOwner {
+    function setMappingFee(uint256 fee) public onlyOwner callDelegate {
         mappingFee = fee;
     }
 
-    function setSunTokenAddress(address _sunTokenAddress) public onlyOwner {
+    function setSunTokenAddress(address _sunTokenAddress) public onlyOwner callDelegate {
         require(_sunTokenAddress != address(0), "_sunTokenAddress == address(0)");
         sunTokenAddress = _sunTokenAddress;
     }
