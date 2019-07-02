@@ -14,12 +14,6 @@ public class SidechainApi extends Chain{
     return super.init(config, priKey, false);
   }
 
-  /**
-   * get balance
-   *
-   * @return the result of initialize
-   * @author
-   */
   public SunNetworkResponse<Long> getBalance() {
     return super.getBalance();
   }

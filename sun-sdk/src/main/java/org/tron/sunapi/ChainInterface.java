@@ -40,7 +40,7 @@ public interface ChainInterface {
 
   SunNetworkResponse<TransactionResponse> triggerContract(TriggerContractRequest request);
 
-  SunNetworkResponse<TransactionResponse> triggerConstantContract(TriggerContractRequest request);
+  //SunNetworkResponse<TransactionResponse> triggerConstantContract(TriggerContractRequest request);
 
   SunNetworkResponse<TransactionResponse> updateSetting(String address, long consumeUserResourcePercent);
 
