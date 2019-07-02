@@ -10,10 +10,21 @@ import org.tron.sunapi.response.TransactionResponse;
 
 public class MainchainApi extends Chain{
 
+  /**
+   * @param config the configuration path
+   * @param priKey the private key of user
+   * @return the result of init main chain
+   * @author sun-network
+   */
   public SunNetworkResponse<Integer> init(String config, String priKey) {
     return super.init(config, priKey, true);
   }
 
+  /**
+   * @param parametersMap the id and content of proposal
+   * @return the result of creating proposal
+   * @author sun-network
+   */
   public SunNetworkResponse<TransactionResponse> createProposal(HashMap<Long, Long> parametersMap) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
@@ -40,6 +51,10 @@ public class MainchainApi extends Chain{
     return resp;
   }
 
+  /**
+   * @return the proposal list
+   * @author sun-network
+   */
   public SunNetworkResponse<ProposalList> listProposals() {
     SunNetworkResponse<ProposalList> resp = new SunNetworkResponse<>();
 
