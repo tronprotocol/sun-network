@@ -429,7 +429,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         return false;
     }
 
-    function() goDelegateCall payable {
+    function() onlyNotPause onlyNotStop goDelegateCall payable {
         if (msg.value > 0) {
             bonus += msg.value;
         }
