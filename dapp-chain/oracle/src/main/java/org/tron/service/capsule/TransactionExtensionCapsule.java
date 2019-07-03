@@ -1,4 +1,4 @@
-package org.tron.service.check;
+package org.tron.service.capsule;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -12,16 +12,12 @@ public class TransactionExtensionCapsule {
 
   private TransactionExtension.Builder instance;
 
-  public TransactionExtensionCapsule(TaskEnum type, Transaction transaction) {
-    byte[] trxId = Sha256Hash.hash(transaction.getRawData().toByteArray());
+  public TransactionExtensionCapsule(TaskEnum type, String nonceKey,
+      Transaction transaction, long delay) {
+    byte[] txId = Sha256Hash.hash(transaction.getRawData().toByteArray());
     instance = TransactionExtension.newBuilder().setTaskEnum(type)
-        .setTxid(ByteString.copyFrom(trxId)).setTransaction(transaction);
-  }
-
-  public TransactionExtensionCapsule(Transaction transaction) {
-    byte[] trxId = Sha256Hash.hash(transaction.getRawData().toByteArray());
-    instance = TransactionExtension.newBuilder().setTxid(ByteString.copyFrom(trxId))
-        .setTransaction(transaction);
+        .setNonceKey(ByteString.copyFrom(ByteArray.fromString(nonceKey)))
+        .setTransactionId(ByteString.copyFrom(txId)).setTransaction(transaction).setDelay(delay);
   }
 
   public TransactionExtensionCapsule(byte[] data) throws InvalidProtocolBufferException {
@@ -37,11 +33,11 @@ public class TransactionExtensionCapsule {
   }
 
   public String getTransactionId() {
-    return ByteArray.toHexString(instance.getTxid().toByteArray());
+    return ByteArray.toHexString(instance.getTransactionId().toByteArray());
   }
 
-  public byte[] getTransactionIdBytes() {
-    return instance.getTxid().toByteArray();
+  public byte[] getNonceKeyBytes() {
+    return instance.getNonceKey().toByteArray();
   }
 
   public byte[] getData() {
@@ -50,5 +46,9 @@ public class TransactionExtensionCapsule {
 
   public Transaction getTransaction() {
     return instance.getTransaction();
+  }
+
+  public long getDelay() {
+    return instance.getDelay();
   }
 }

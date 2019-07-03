@@ -1,77 +1,111 @@
 pragma solidity ^0.4.24;
 
 import "./ownership/Ownable.sol";
-import "./ECVerify.sol";
+import "../common/ECVerify.sol";
 
 
 contract OracleManagerContract is Ownable {
     using ECVerify for bytes32;
 
-    mapping(address => address) public allowes;
-    mapping(address => uint256) public nonces;
-    mapping(address => bool) oracles;
 
     uint256 public numOracles;
+    uint256 public numCommonOracles;
+    mapping(address => bool) public isOracle;
+    mapping(address => SignMsg)  delegateSigns;
+    mapping(uint256 => mapping(bytes32 => SignMsg)) withdrawMultiSignList;
 
-    // address[]  _oracles;
+    address logicAddress;
+    bool pause;
+    bool stop;
+
+    struct SignMsg {
+        mapping(address => bool) signedOracle;
+        mapping(bytes => bool) signList;
+        uint256 countSign;
+        bool success;
+    }
+
     event NewOracles(address oracle);
+    event LogicAddressChanged(address oldAddress, address newAddress);
 
-    modifier onlyOracle() {require(checkOracle(msg.sender));
+    modifier onlyOracle() {require(isOracle[msg.sender], "not oracle");
+        _;}
+    modifier onlyNotPause() {require(!pause, "is pause");
+        _;}
+    modifier onlyNotStop() {require(!stop, "is stop");
         _;}
 
-    constructor(address _oracle) public {
-        // _oracles.push(_oracle);
-        // uint256 length = _oracles.length;
-        // require(length > 0);
-
-        // for (uint256 i = 0; i < length; i++) {
-        //     require(_oracles[i] != address(0));
-        //     oracles[_oracles[i]] = true;
-        //     emit NewOracles(_oracles[i]);
-        // }
-        // numOracles = _oracles.length;
-
-        numOracles = 1;
-        oracles[_oracle] = true;
-        emit NewOracles(_oracle);
-    }
-
-    modifier checkGainer(address _to,uint256 num, address contractAddress, bytes sig) {
-        require(checkOracle(msg.sender));
-        uint256[] memory nonum=new uint256[](2);
-        nonum[0]=nonces[_to];
-        nonum[1]=num;
-        bytes32 hash = keccak256(abi.encodePacked(contractAddress,nonum));
-        address sender = hash.recover(sig);
-        require(sender == _to, "Message not signed by a gainer");
+    modifier goDelegateCall() {
+        if (logicAddress != 0x00) {
+            logicAddress.delegatecall(msg.data);
+            return;
+        }
         _;
-        nonces[_to]++;
     }
 
-    modifier checkTrc10Gainer(address _to,uint256 num, trcToken tokenId, bytes sig) {
-        require(checkOracle(msg.sender));
-        uint256[] memory nonum=new uint256[](3);
-        nonum[0]=tokenId;
-        nonum[1]=nonces[_to];
-        nonum[2]=num;
-        bytes32 hash = keccak256(abi.encodePacked(nonum));
-        address sender = hash.recover(sig);
-        require(sender == _to, "Message not signed by a gainer");
-        _;
-        nonces[_to]++;
+    function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] sigList) internal returns (uint256) {
+        SignMsg storage msl = withdrawMultiSignList[nonce][dataHash];
+        if (msl.countSign > numCommonOracles) {
+            return msl.countSign;
+        }
+        for (uint256 i = 0; i < sigList.length; i++) {
+            if (msl.signList[sigList[i]]) {
+                continue;
+            }
+            address _oracle = dataHash.recover(sigList[i]);
+            if (isOracle[_oracle] && !msl.signedOracle[_oracle]) {
+                msl.signedOracle[_oracle] = true;
+                msl.signList[sigList[i]] = true;
+                msl.countSign++;
+                if (msl.countSign > numCommonOracles) {
+                    break;
+                }
+            }
+        }
+        return msl.countSign;
     }
-    function checkOracle(address _address) public view returns (bool) {
-        if (_address == owner) {
+
+    function addOracle(address _oracle) public onlyOwner {
+        require(!isOracle[_oracle], "oracle is oracle");
+        isOracle[_oracle] = true;
+        numOracles++;
+        numCommonOracles = numOracles * 2 / 3;
+    }
+
+    function delOracle(address _oracle) public onlyOwner {
+        require(isOracle[_oracle], "oracle is not oracle");
+        isOracle[_oracle] = false;
+        numOracles--;
+        numCommonOracles = numOracles * 2 / 3;
+    }
+
+    function setDelegateAddress(address newAddress) public onlyOracle {
+        bool needDelegate = multiSignForDelegate(newAddress);
+        if (needDelegate) {
+            emit LogicAddressChanged(logicAddress, newAddress);
+            logicAddress = newAddress;
+        }
+    }
+
+    function setPause(bool status) public onlyOwner {
+        pause = status;
+    }
+
+    function setStop(bool status) public onlyOwner {
+        stop = status;
+    }
+
+    function multiSignForDelegate(address newAddress) internal returns (bool) {
+        if (delegateSigns[newAddress].signedOracle[msg.sender]) {
+            return false;
+        }
+        delegateSigns[newAddress].signedOracle[msg.sender] = true;
+        delegateSigns[newAddress].countSign += 1;
+
+        if (delegateSigns[newAddress].countSign > numCommonOracles && !delegateSigns[newAddress].success) {
+            delegateSigns[newAddress].success = true;
             return true;
         }
-        return oracles[_address];
-    }
-
-    function migrationToken(address mainChainToken,address sideChainToken) public onlyOracle {
-        allowes[mainChainToken] = sideChainToken;
-    }
-
-    function modifyOracle(address _oracle, bool isOracle) public onlyOwner {
-        oracles[_oracle] = isOracle;
+        return false;
     }
 }

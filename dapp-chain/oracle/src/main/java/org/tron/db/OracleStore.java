@@ -2,6 +2,7 @@ package org.tron.db;
 
 import com.google.common.collect.Sets;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,29 +16,19 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBException;
 import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
+import org.spongycastle.util.encoders.Hex;
 
-@Slf4j
-public class TransactionExtentionStore {
+
+@Slf4j(topic = "db")
+public class OracleStore {
 
   private static final JniDBFactory factory = new JniDBFactory();
 
-  private String dataBaseName;
+  protected String dataBaseName;
   private DB database;
-  private String parentName;
+  protected String parentName;
   private boolean alive;
   private ReadWriteLock resetDbLock = new ReentrantReadWriteLock();
-
-  private static TransactionExtentionStore instance = new TransactionExtentionStore();
-
-  public static TransactionExtentionStore getInstance() {
-    return instance;
-  }
-
-  private TransactionExtentionStore() {
-    this.dataBaseName = "event";
-    this.parentName = "database";
-    initDB();
-  }
 
   public void initDB() {
     resetDbLock.writeLock().lock();
@@ -149,6 +140,21 @@ public class TransactionExtentionStore {
       Set<byte[]> result = Sets.newHashSet();
       for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
         result.add(iterator.peekNext().getValue());
+      }
+      return result;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } finally {
+      resetDbLock.readLock().unlock();
+    }
+  }
+
+  public Set<ByteBuffer> allKeys() {
+    resetDbLock.readLock().lock();
+    try (DBIterator iterator = database.iterator()) {
+      Set<ByteBuffer> result = Sets.newHashSet();
+      for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
+        result.add(ByteBuffer.wrap(iterator.peekNext().getKey()).asReadOnlyBuffer());
       }
       return result;
     } catch (IOException e) {

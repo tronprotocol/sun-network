@@ -37,7 +37,7 @@ contract DAppTRC721 is TRC721, IDApp {
          * @param to The address that will own the minted token
          * @param tokenId uint256 ID of the token to be minted
          */
-    function mint(address to, uint256 tokenId) public onlyGateway {
+    function mint(address to, uint256 tokenId) external onlyGateway {
         require(to != address(0));
         require(!_exists(tokenId));
 
@@ -47,19 +47,8 @@ contract DAppTRC721 is TRC721, IDApp {
         emit Transfer(address(0), to, tokenId);
     }
 
-    /**
-     * @dev Safely transfers the ownership of a given token ID to another address
-     * If the target address is a contract, it must implement `onERC721Received`,
-     * which is called upon a safe transfer, and return the magic value
-     * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`; otherwise,
-     * the transfer is reverted.
-     * Requires the msg.sender to be the owner, approved, or operator
-     * @param tokenId uint256 ID of the token to be transferred
-     * @param txData bytes data to send along with a safe transfer check
-     */
-    function withdrawal(uint256 tokenId, bytes txData) public {
+    function withdrawal(uint256 tokenId) external returns (uint256 r) {
         transfer(gateway, tokenId);
-        bytes4 retval = ITRC721Receiver(gateway).onTRC721Received(msg.sender, tokenId, txData);
-        require(retval == _TRC721_RECEIVED);
+        r = ITRC721Receiver(gateway).onTRC721Received(msg.sender, tokenId);
     }
 }

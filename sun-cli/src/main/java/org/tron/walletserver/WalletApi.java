@@ -479,7 +479,7 @@ public class WalletApi {
 //    }
 
     byte[] input = org.bouncycastle.util.encoders.Hex.decode(
-      AbiUtil.parseMethod("nonces(address)", "\"" + encode58Check(getAddress()) + "\"", false));
+      AbiUtil.parseMethod("nonce(address)", "\"" + encode58Check(getAddress()) + "\"", false));
     Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
       mainGatewayAddress,
       0, input, 0, "0");
@@ -514,7 +514,7 @@ public class WalletApi {
 //    }
 
     byte[] input = org.bouncycastle.util.encoders.Hex.decode(
-      AbiUtil.parseMethod("nonces(address)", "\"" + encode58Check(getAddress()) + "\"", false));
+      AbiUtil.parseMethod("nonce(address)", "\"" + encode58Check(getAddress()) + "\"", false));
     Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
       mainGatewayAddress,
       0, input, 0, "0");
@@ -553,7 +553,7 @@ public class WalletApi {
 //    }
 
     byte[] input = org.bouncycastle.util.encoders.Hex.decode(
-      AbiUtil.parseMethod("nonces(address)", "\"" + encode58Check(getAddress()) + "\"", false));
+      AbiUtil.parseMethod("nonce(address)", "\"" + encode58Check(getAddress()) + "\"", false));
     Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
       mainGatewayAddress,
       0, input, 0, "0");

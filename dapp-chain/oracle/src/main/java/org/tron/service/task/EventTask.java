@@ -1,81 +1,87 @@
 package org.tron.service.task;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.tron.common.MessageCode;
 import org.tron.common.config.Args;
-import org.tron.common.exception.RpcConnectException;
-import org.tron.common.utils.AlertUtil;
-import org.tron.db.TransactionExtentionStore;
-import org.tron.protos.Sidechain.TaskEnum;
-import org.tron.service.check.TransactionExtensionCapsule;
+import org.tron.common.utils.ByteArray;
+import org.tron.db.Manager;
+import org.tron.db.NonceStore;
+import org.tron.protos.Sidechain.NonceMsg;
+import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.EventActuatorFactory;
 import org.tron.service.kafka.KfkConsumer;
 
+@Slf4j(topic = "eventTask")
 public class EventTask {
-
-  private ExecutorService executor;
 
   private KfkConsumer kfkConsumer;
 
-  private TransactionExtentionStore store;
-  private String mainGateway;
-  private String sideGateway;
-
-  public EventTask(String mainGateway, String sideGateway, int fixedThreads) {
-    this.mainGateway = mainGateway;
-    this.sideGateway = sideGateway;
-    this.executor = Executors.newFixedThreadPool(fixedThreads);
-    this.kfkConsumer = new KfkConsumer(Args.getInstance().getMainchainKafka(), "Oracle",
-        Arrays.asList("contractevent"));
-    this.store = TransactionExtentionStore.getInstance();
+  public EventTask() {
+    Args args = Args.getInstance();
+    this.kfkConsumer = new KfkConsumer(args.getMainchainKafka(),
+        "Oracle_" + args.getOracleAddress(), Arrays.asList("contractevent"));
   }
 
   public void processEvent() {
-    for (; ; ) {
+    while (true) {
       ConsumerRecords<String, String> record = this.kfkConsumer.getRecord();
       for (ConsumerRecord<String, String> key : record) {
         JSONObject obj = (JSONObject) JSONValue.parse(key.value());
-        if (Objects.isNull(obj.get("contractAddress"))) {
-          this.kfkConsumer.commit();
-          continue;
-        }
-        Actuator eventActuator;
-        if (obj.get("contractAddress").equals(this.mainGateway)) {
-          eventActuator = EventActuatorFactory.CreateActuator(TaskEnum.MAIN_CHAIN, obj);
-        } else if (obj.get("contractAddress").equals(this.sideGateway)) {
-          eventActuator = EventActuatorFactory.CreateActuator(TaskEnum.SIDE_CHAIN, obj);
-        } else {
-          //Unrelated contract address
-          this.kfkConsumer.commit();
-          continue;
-        }
+
+        Actuator eventActuator = EventActuatorFactory.CreateActuator(obj);
         if (Objects.isNull(eventActuator)) {
-          //Unrelated contract event
+          //Unrelated contract or event
           this.kfkConsumer.commit();
           continue;
         }
-        TransactionExtensionCapsule txExtensionCapsule = null;
-        try {
-          txExtensionCapsule = eventActuator
-              .createTransactionExtensionCapsule();
-        } catch (RpcConnectException e) {
-          AlertUtil.sendAlert("createTransactionExtensionCapsule fail, system exit");
-          System.exit(1);
-        }
-        byte[] txIdBytes = txExtensionCapsule.getTransactionIdBytes();
-        if (!this.store.exist(txIdBytes)) {
-          this.store.putData(txIdBytes, txExtensionCapsule.getData());
+
+        byte[] nonceMsgBytes = NonceStore.getInstance().getData(eventActuator.getNonceKey());
+        if (nonceMsgBytes == null) {
+          // receive this nonce firstly
+          processAndSubmit(eventActuator);
+        } else {
+          try {
+            NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
+            if (nonceMsg.getStatus() == NonceStatus.SUCCESS) {
+              if (logger.isInfoEnabled()) {
+                String msg = MessageCode.NONCE_HAS_BE_SUCCEED
+                    .getMsg(ByteArray.toStr(eventActuator.getNonce()));
+                logger.info(msg);
+              }
+            } else if (nonceMsg.getStatus() == NonceStatus.FAIL) {
+              processAndSubmit(eventActuator);
+            } else {
+              // processing or broadcasted
+              if (System.currentTimeMillis() / 1000 >= nonceMsg.getNextProcessTimestamp()) {
+                processAndSubmit(eventActuator);
+              } else {
+                if (logger.isInfoEnabled()) {
+                  String msg = MessageCode.NONCE_IS_PROCESSING
+                      .getMsg(ByteArray.toStr(eventActuator.getNonce()));
+                  logger.info(msg);
+                }
+              }
+            }
+          } catch (InvalidProtocolBufferException e) {
+            logger.error("retry fail: {}", e.getMessage(), e);
+          }
         }
         this.kfkConsumer.commit();
-        executor.execute(new TxExtensionTask(txExtensionCapsule));
       }
     }
+  }
+
+  private void processAndSubmit(Actuator eventActuator) {
+    Manager.getInstance().setProcessProcessing(eventActuator.getNonceKey(),
+        eventActuator.getMessage().toByteArray());
+    CreateTransactionTask.getInstance().submitCreate(eventActuator);
   }
 }

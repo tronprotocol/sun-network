@@ -12,14 +12,14 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.tron.common.config.Args;
-import org.tron.common.exception.RpcConnectException;
 
 @Slf4j(topic = "alert")
 public class AlertUtil {
 
+
   public static void sendAlert(String msg) {
+    logger.error("sendAlert: {} ", msg);
     if (StringUtils.isEmpty(Args.getInstance().getAlertDingWebhookToken())) {
-      logger.error("sendAlert: {}", msg);
       return;
     }
     try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
@@ -46,11 +46,6 @@ public class AlertUtil {
   }
 
   public static void main(String[] args) {
-    try {
-      Args.getInstance().setParam(args);
-    } catch (RpcConnectException e) {
-      logger.error(e.getMessage(), e);
-    }
-    AlertUtil.sendAlert("oracle alert");
+    Args.getInstance().setParam(args);
   }
 }

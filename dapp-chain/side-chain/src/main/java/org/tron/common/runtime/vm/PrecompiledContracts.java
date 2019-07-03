@@ -242,6 +242,7 @@ public class PrecompiledContracts {
         }
       }
       if (!match) {
+        logger.error("[mineToken method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
         throw new PrecompiledContractException("[mineToken method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
       }
 
@@ -323,6 +324,7 @@ public class PrecompiledContracts {
         }
       }
       if (!match) {
+        logger.error("[mine method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
         throw new PrecompiledContractException("[mine method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
       }
 
