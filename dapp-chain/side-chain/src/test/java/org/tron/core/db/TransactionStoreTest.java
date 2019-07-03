@@ -270,7 +270,7 @@ public class TransactionStoreTest {
         new AccountCapsule(
             ByteString.copyFromUtf8(ACCOUNT_NAME),
             ByteString.copyFrom(ByteArray.fromHexString(OWNER_ADDRESS)),
-            AccountType.Normal,
+            AccountType.AssetIssue,
             1000000L
         );
     dbManager.getAccountStore().put(ownerCapsule.getAddress().toByteArray(), ownerCapsule);

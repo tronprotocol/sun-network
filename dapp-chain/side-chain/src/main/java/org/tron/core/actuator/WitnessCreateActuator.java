@@ -130,9 +130,7 @@ public class WitnessCreateActuator extends AbstractActuator {
     AccountCapsule accountCapsule = this.dbManager.getAccountStore()
         .get(witnessCapsule.createDbKey());
     accountCapsule.setIsWitness(true);
-    if (dbManager.getDynamicPropertiesStore().getAllowMultiSign() == 1) {
-      accountCapsule.setDefaultWitnessPermission(dbManager);
-    }
+    accountCapsule.setDefaultWitnessPermission(dbManager);
     this.dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);
 
     int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();

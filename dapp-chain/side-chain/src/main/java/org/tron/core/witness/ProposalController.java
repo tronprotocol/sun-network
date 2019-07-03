@@ -225,6 +225,19 @@ public class ProposalController {
               .saveMultiSignFee(Long.valueOf(entry.getValue()));
           break;
         }
+        case (24): {
+          manager.getDynamicPropertiesStore().saveAllowProtoFilterNum(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (25): {
+          manager.getDynamicPropertiesStore().saveAllowAccountStateRoot(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (26): {
+          //should not to do anything, we initiated this value in dynamic store
+//          manager.getDynamicPropertiesStore().addSystemContractAndSetPermission(48);
+          break;
+        }
         case (1_000_000): {
           manager.getDynamicPropertiesStore()
               .saveChargingSwitch(Long.valueOf(entry.getValue()));
@@ -244,6 +257,17 @@ public class ProposalController {
           List<byte[]> byteList = list.stream().map(element -> Wallet
               .decodeFromBase58Check(element)).collect(Collectors.toList());
           manager.getDynamicPropertiesStore().saveMainChainGateWayList(byteList);
+          break;
+        }
+        case (1_000_003): {
+          // replace all side chain proposal expire time
+          manager.getDynamicPropertiesStore()
+                  .saveProposalExpireTime(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (1_000_004): {
+          manager.getDynamicPropertiesStore()
+              .saveVoteWitnessSwitch(Long.valueOf(entry.getValue()));
           break;
         }
         default:

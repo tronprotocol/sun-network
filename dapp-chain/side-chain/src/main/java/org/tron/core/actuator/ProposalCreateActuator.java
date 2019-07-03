@@ -59,7 +59,7 @@ public class ProposalCreateActuator extends AbstractActuator {
           (Objects.isNull(getDeposit())) ? dbManager.getDynamicPropertiesStore()
               .getNextMaintenanceTime() :
               getDeposit().getNextMaintenanceTime();
-      long now3 = now + Args.getInstance().getProposalExpireTime();
+      long now3 = now + dbManager.getDynamicPropertiesStore().getProposalExpireTime();
       long round = (now3 - currentMaintenanceTime) / maintenanceTimeInterval;
       long expirationTime =
           currentMaintenanceTime + (round + 1) * maintenanceTimeInterval;
@@ -167,13 +167,6 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       }
-      case (9): {
-        if (Long.valueOf(entry.getValue()) != 1) {
-          throw new ContractValidateException(
-              "This value[ALLOW_CREATION_OF_CONTRACTS] is only allowed to be 1");
-        }
-        break;
-      }
       case (10): {
         if (dbManager.getDynamicPropertiesStore().getRemoveThePowerOfTheGr() == -1) {
           throw new ContractValidateException(
@@ -196,27 +189,6 @@ public class ProposalCreateActuator extends AbstractActuator {
               "Bad chain parameter value,valid range is [10,100]");
         }
         break;
-      case (14): {
-        if (Long.valueOf(entry.getValue()) != 1) {
-          throw new ContractValidateException(
-              "This value[ALLOW_UPDATE_ACCOUNT_NAME] is only allowed to be 1");
-        }
-        break;
-      }
-      case (15): {
-        if (Long.valueOf(entry.getValue()) != 1) {
-          throw new ContractValidateException(
-              "This value[ALLOW_SAME_TOKEN_NAME] is only allowed to be 1");
-        }
-        break;
-      }
-      case (16): {
-        if (Long.valueOf(entry.getValue()) != 1) {
-          throw new ContractValidateException(
-              "This value[ALLOW_DELEGATE_RESOURCE] is only allowed to be 1");
-        }
-        break;
-      }
       case (17): { // deprecated
         if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
           throw new ContractValidateException(
@@ -229,10 +201,6 @@ public class ProposalCreateActuator extends AbstractActuator {
           throw new ContractValidateException(
               "This value[ALLOW_TVM_TRANSFER_TRC10] is only allowed to be 1");
         }
-//        if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-//          throw new ContractValidateException("[ALLOW_SAME_TOKEN_NAME] proposal must be approved "
-//              + "before [ALLOW_TVM_TRANSFER_TRC10] can be proposed");
-//        }
         break;
       }
       case (19): {
@@ -297,6 +265,20 @@ public class ProposalCreateActuator extends AbstractActuator {
             throw new ContractValidateException(
                 "gateway address has to be 21 bytes");
           }
+        }
+        break;
+      }
+      case (1_000_003) :{
+        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 259_200_000L) {
+          throw new ContractValidateException(
+                  "Bad chain parameter value,valid range is [0,259_200_000L]");
+        }
+        break;
+      }
+      case (1_000_004) :{
+        if (Long.valueOf(entry.getValue()) != 1 || Long.valueOf(entry.getValue()) != 0) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid range is [0,1]");
         }
         break;
       }

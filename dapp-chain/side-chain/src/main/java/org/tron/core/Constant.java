@@ -45,10 +45,8 @@ public class Constant {
   public static final long TRANSACTION_MAX_BYTE_SIZE = 500 * 1_024L;
   public static final long MAXIMUM_TIME_UNTIL_EXPIRATION = 24 * 60 * 60 * 1_000L; //one day
   public static final long TRANSACTION_DEFAULT_EXPIRATION_TIME = 60 * 1_000L; //60 seconds
-
   // config for smart contract
   public static final long SUN_PER_ENERGY = 100; // 1 us = 100 DROP = 100 * 10^-6 TRX
-  public static final long MICRO_SUN_TOKEN_PER_ENERGY = 100;
   public static final long ENERGY_LIMIT_IN_CONSTANT_TX = 3_000_000L; // ref: 1 us = 1 energy
   public static final long MAX_RESULT_SIZE_IN_TX = 64; // max 8 * 8 items in result
   public static final long PB_DEFAULT_ENERGY_LIMIT = 0L;
@@ -59,7 +57,18 @@ public class Constant {
   public static final int ONE_HUNDRED = 100;
   public static final int ONE_THOUSAND = 1000;
 
+
+  /**
+   * normal transaction is 0 representing normal transaction
+   * unexecuted deferred transaction is 1 representing unexecuted deferred transaction
+   * executing deferred transaction is 2 representing executing deferred transaction
+   */
+  public static final int NORMALTRANSACTION = 0;
+  public static final int UNEXECUTEDDEFERREDTRANSACTION = 1;
+  public static final int EXECUTINGDEFERREDTRANSACTION = 2;
+
   // SideChain
   public static final String SUN_TOKEN_ID = "2000000";
+  public static final long MICRO_SUN_TOKEN_PER_ENERGY = 100;
 
 }

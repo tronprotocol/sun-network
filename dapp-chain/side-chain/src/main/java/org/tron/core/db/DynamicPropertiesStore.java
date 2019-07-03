@@ -167,8 +167,15 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   //This value is only allowed to be 0, 1, -1
   private static final byte[] ALLOW_TVM_TRANSFER_TRC10 = "ALLOW_TVM_TRANSFER_TRC10".getBytes();
 
+  //Used only for protobuf data filter , once，value is 0,1
+  private static final byte[] ALLOW_PROTO_FILTER_NUM = "ALLOW_PROTO_FILTER_NUM"
+      .getBytes();
+
   private static final byte[] AVAILABLE_CONTRACT_TYPE = "AVAILABLE_CONTRACT_TYPE".getBytes();
   private static final byte[] ACTIVE_DEFAULT_OPERATIONS = "ACTIVE_DEFAULT_OPERATIONS".getBytes();
+
+  //Used only for account state root, once，value is {0,1} allow is 1
+  private static final byte[] ALLOW_ACCOUNT_STATE_ROOT = "ALLOW_ACCOUNT_STATE_ROOT".getBytes();
 
   /*
    * Side-chain parameters.
@@ -218,6 +225,10 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   // ACCOUNT_UPGRADE_COST
   private static final byte[] ACCOUNT_UPGRADE_TOKEN_COST = "ACCOUNT_UPGRADE_TOKEN_COST".getBytes();
 
+  private static final byte[] PROPOSAL_EXPIRE_TIME = "PROPOSAL_EXPIRE_TIME".getBytes();
+
+  private static final byte[] VOTE_WITNESS_SWITCH = "VOTE_WITNESS_SWITCH".getBytes();
+
 
 
   /**
@@ -239,7 +250,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getAllowMultiSign();
     } catch (IllegalArgumentException e) {
-      this.saveAllowMultiSign(Args.getInstance().getAllowMultiSign());
+      // should always be 1
+      this.saveAllowMultiSign(1);
     }
 
     try {
@@ -357,6 +369,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getProposalExpireTime();
+    } catch (IllegalArgumentException e) {
+      this.saveProposalExpireTime(Args.getInstance().getProposalExpireTime());
+    }
+
+    try {
       this.getAccountUpgradeCost();
     } catch (IllegalArgumentException e) {
       this.saveAccountUpgradeCost(9_999_000_000L);
@@ -445,7 +463,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getMaxCpuTimeOfOneTx();
     } catch (IllegalArgumentException e) {
-      this.saveMaxCpuTimeOfOneTx(50L);
+      this.saveMaxCpuTimeOfOneTx(Args.getInstance().getMaxCpuTimeOfOneTx());
     }
 
     try {
@@ -612,19 +630,22 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getAllowDelegateResource();
     } catch (IllegalArgumentException e) {
-      this.saveAllowDelegateResource(Args.getInstance().getAllowDelegateResource());
+      // always allowed
+      this.saveAllowDelegateResource(1);
     }
 
     try {
       this.getAllowTvmTransferTrc10();
     } catch (IllegalArgumentException e) {
-      this.saveAllowTvmTransferTrc10(Args.getInstance().getAllowTvmTransferTrc10());
+      // should always allow
+      this.saveAllowTvmTransferTrc10(1);
     }
 
     try {
       this.getAvailableContractType();
     } catch (IllegalArgumentException e) {
-      String contractType = "7fff1fc0037e0000000000000000000000000000000000000000000000000000";
+      //7fff1fc0037e0000000000000000000000000000000000000000000000000000
+      String contractType = "3f3d1ec003600100000000000000000000000000000000000000000000000080";
       byte[] bytes = ByteArray.fromHexString(contractType);
       this.saveAvailableContractType(bytes);
     }
@@ -632,7 +653,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getActiveDefaultOperations();
     } catch (IllegalArgumentException e) {
-      String contractType = "7fff1fc0033e0000000000000000000000000000000000000000000000000000";
+      //7fff1fc0033e0000000000000000000000000000000000000000000000000000
+      String contractType = "3f3d1ec003200100000000000000000000000000000000000000000000000080";
       byte[] bytes = ByteArray.fromHexString(contractType);
       this.saveActiveDefaultOperations(bytes);
     }
@@ -683,6 +705,18 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getAllowAccountStateRoot();
+    } catch (IllegalArgumentException e) {
+      this.saveAllowAccountStateRoot(Args.getInstance().getAllowAccountStateRoot());
+    }
+
+    try {
+      this.getAllowProtoFilterNum();
+    } catch (IllegalArgumentException e) {
+      this.saveAllowProtoFilterNum(1);
+    }
+
+    try {
       this.getGateWayList();
     } catch (IllegalArgumentException e) {
       this.saveGateWayList(Args.getInstance().getGatewayList());
@@ -710,6 +744,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       this.getSideChainChargingBandwidth();
     } catch (IllegalArgumentException e) {
       this.saveSideChainChargingBandwidth(Args.getInstance().getSideChainChargingBandwidth());
+    }
+
+    // disable vote witness functionality by default
+    try {
+      this.getVoteWitnessSwitch();
+    } catch (IllegalArgumentException e) {
+      this.saveVoteWitnessSwitch(0);
     }
   }
 
@@ -847,6 +888,19 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   public void saveSideChainChargingBandwidth(long num) {
     this.put(SIDECHAIN_CHARGING_BANDWIDTH,
             new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public int getVoteWitnessSwitch(){
+    return Optional.ofNullable(getUnchecked(VOTE_WITNESS_SWITCH))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toInt)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found VOTE_WITNESS_SWITCH"));
+  }
+
+  public void saveVoteWitnessSwitch(long num) {
+    this.put(VOTE_WITNESS_SWITCH,
+        new BytesCapsule(ByteArray.fromLong(num)));
   }
 
 
@@ -993,6 +1047,20 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         .map(ByteArray::toLong)
         .orElseThrow(
             () -> new IllegalArgumentException("not found MAINTENANCE_TIME_INTERVAL"));
+  }
+
+  public void saveProposalExpireTime(long proposalExpireTime) {
+    logger.debug("PROPOSAL_EXPIRE_TIME:" + proposalExpireTime);
+    this.put(PROPOSAL_EXPIRE_TIME,
+            new BytesCapsule(ByteArray.fromLong(proposalExpireTime)));
+  }
+
+  public long getProposalExpireTime() {
+    return Optional.ofNullable(getUnchecked(PROPOSAL_EXPIRE_TIME))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found PROPOSAL_EXPIRE_TIME"));
   }
 
   public void saveAccountUpgradeCost(long accountUpgradeCost) {
@@ -1696,6 +1764,15 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found AVAILABLE_CONTRACT_TYPE"));
   }
 
+  public void addSystemContractAndSetPermission(int id){
+    byte[] availableContractType = getAvailableContractType();
+    availableContractType[id / 8] |= (1 << id % 8);
+    saveAvailableContractType(availableContractType);
+
+    byte[] activeDefaultOperations = getActiveDefaultOperations();
+    activeDefaultOperations[id / 8] |= (1 << id % 8);
+    saveActiveDefaultOperations(activeDefaultOperations);
+  }
 
   public void saveActiveDefaultOperations(byte[] value) {
     this.put(ACTIVE_DEFAULT_OPERATIONS,
@@ -1869,8 +1946,6 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   public void saveLatestBlockHeaderHash(ByteString h) {
     logger.info("update latest block header id = {}", ByteArray.toHexString(h.toByteArray()));
     this.put(LATEST_BLOCK_HEADER_HASH, new BytesCapsule(h.toByteArray()));
-    if (revokingDB.getUnchecked(LATEST_BLOCK_HEADER_HASH).length == 32) {
-    }
   }
 
   public void saveStateFlag(int n) {
@@ -1958,5 +2033,40 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   public boolean getForked() {
     byte[] value = revokingDB.getUnchecked(FORK_CONTROLLER);
     return value == null ? Boolean.FALSE : Boolean.valueOf(new String(value));
+  }
+
+  /**
+   * get allow protobuf number.
+   */
+  public long getAllowProtoFilterNum() {
+    return Optional.ofNullable(getUnchecked(ALLOW_PROTO_FILTER_NUM))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+        .orElseThrow(() -> new IllegalArgumentException("not found allow protobuf number"));
+  }
+
+  /**
+   * save allow protobuf  number.
+   */
+  public void saveAllowProtoFilterNum(long num) {
+    logger.info("update allow protobuf number = {}", num);
+    this.put(ALLOW_PROTO_FILTER_NUM, new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public void saveAllowAccountStateRoot(long allowAccountStateRoot) {
+    this.put(ALLOW_ACCOUNT_STATE_ROOT,
+        new BytesCapsule(ByteArray.fromLong(allowAccountStateRoot)));
+  }
+
+  public long getAllowAccountStateRoot() {
+    return Optional.ofNullable(getUnchecked(ALLOW_ACCOUNT_STATE_ROOT))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found ALLOW_ACCOUNT_STATE_ROOT"));
+  }
+
+  public boolean allowAccountStateRoot() {
+    return getAllowAccountStateRoot() == 1;
   }
 }

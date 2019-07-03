@@ -2,6 +2,7 @@ package org.tron.core.capsule;
 
 import static org.tron.core.Constant.SUN_TOKEN_ID;
 
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.tron.common.utils.Sha256Hash;
@@ -28,7 +29,7 @@ public class ReceiptCapsule {
   }
 
   public ReceiptCapsule(Sha256Hash receiptAddress) {
-    this.receipt = receipt.newBuilder().build();
+    this.receipt = ResourceReceipt.newBuilder().build();
     this.receiptAddress = receiptAddress;
   }
 
@@ -53,7 +54,7 @@ public class ReceiptCapsule {
   }
 
   public void addNetFee(long netFee) {
-    this.receipt = this.receipt.toBuilder().setEnergyFee(getNetFee() + netFee).build();
+    this.receipt = this.receipt.toBuilder().setNetFee(getNetFee() + netFee).build();
   }
 
   public long getEnergyUsage() {
@@ -106,6 +107,11 @@ public class ReceiptCapsule {
       return;
     }
 
+    if (Objects.isNull(origin)) {
+      payEnergyBill(manager, caller, receipt.getEnergyUsageTotal(), energyProcessor, now);
+      return;
+    }
+
     if (caller.getAddress().equals(origin.getAddress())) {
       payEnergyBill(manager, caller, receipt.getEnergyUsageTotal(), energyProcessor, now);
     } else {
@@ -127,7 +133,7 @@ public class ReceiptCapsule {
         Math.min(energyProcessor.getAccountLeftEnergyFromFreeze(origin), originEnergyLimit));
   }
 
-  public void payEnergyBill(
+  private void payEnergyBill(
       Manager manager,
       AccountCapsule account,
       long usage,

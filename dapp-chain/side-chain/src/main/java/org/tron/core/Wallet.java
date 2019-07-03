@@ -76,6 +76,7 @@ import org.tron.common.runtime.vm.program.invoke.ProgramInvokeFactoryImpl;
 import org.tron.common.storage.DepositImpl;
 import org.tron.common.utils.Base58;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.common.utils.Utils;
 import org.tron.core.actuator.Actuator;
@@ -283,6 +284,13 @@ public class Wallet {
 
   }
 
+  // for `CREATE2`
+  public static byte[] generateContractAddress2(byte[] address, byte[] salt, byte[] code) {
+    byte[] mergedData = ByteUtil.merge(address, salt, Hash.sha3(code));
+    return Hash.sha3omit12(mergedData);
+  }
+
+  // for `CREATE`
   public static byte[] generateContractAddress(byte[] transactionRootId, long nonce) {
     byte[] nonceBytes = Longs.toByteArray(nonce);
     byte[] combined = new byte[transactionRootId.length + nonceBytes.length];
@@ -416,9 +424,8 @@ public class Wallet {
   public GrpcAPI.Return broadcastTransaction(Transaction signaturedTransaction) {
     GrpcAPI.Return.Builder builder = GrpcAPI.Return.newBuilder();
     TransactionCapsule trx = new TransactionCapsule(signaturedTransaction);
-    Message message = new TransactionMessage(signaturedTransaction);
-
     try {
+      Message message = new TransactionMessage(signaturedTransaction.toByteArray());
       if (minEffectiveConnection != 0) {
         if (tronNetDelegate.getActivePeer().isEmpty()) {
           logger.warn("Broadcast transaction {} failed, no connection.", trx.getTransactionId());
@@ -842,11 +849,11 @@ public class Wallet {
 //            .setValue(dbManager.getDynamicPropertiesStore().getAllowSameTokenName())
 //            .build());
     //    ALLOW_DELEGATE_RESOURCE, // 0, 16
-    builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
-            .setKey("getAllowDelegateResource")
-            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowDelegateResource()))
-            .build());
+//    builder.addChainParameter(
+//        Protocol.ChainParameters.ChainParameter.newBuilder()
+//            .setKey("getAllowDelegateResource")
+//            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowDelegateResource()))
+//            .build());
     //    TOTAL_ENERGY_LIMIT, // 50,000,000,000, 17
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
@@ -854,11 +861,11 @@ public class Wallet {
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTotalEnergyLimit()))
             .build());
     //    ALLOW_TVM_TRANSFER_TRC10, // 1, 18
-    builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
-            .setKey("getAllowTvmTransferTrc10")
-            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowTvmTransferTrc10()))
-            .build());
+//    builder.addChainParameter(
+//        Protocol.ChainParameters.ChainParameter.newBuilder()
+//            .setKey("getAllowTvmTransferTrc10")
+//            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowTvmTransferTrc10()))
+//            .build());
     //    TOTAL_CURRENT_ENERGY_LIMIT, // 50,000,000,000, 19
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
@@ -869,9 +876,11 @@ public class Wallet {
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getAllowMultiSign")
-            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowMultiSign()))
+            //.setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowMultiSign()))
+            .setValue("1") // should always allowed now.
             .build());
     //    ALLOW_ADAPTIVE_ENERGY, // 1, 21
+    // should keep in side-chain since main-chain not approved yet.
     builder.addChainParameter(
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getAllowAdaptiveEnergy")
@@ -898,6 +907,27 @@ public class Wallet {
         .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getMultiSignFee()))
         .build());
 
+    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+        .setKey("getUpdateAccountPermissionFee")
+        .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee()))
+        .build());
+
+    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+        .setKey("getAllowAccountStateRoot")
+        .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowAccountStateRoot()))
+        .build());
+
+    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+        .setKey("getAllowProtoFilterNum")
+        .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowProtoFilterNum()))
+        .build());
+
+//    // ALLOW_TVM_CONSTANTINOPLE, // 1, 30
+//    builder.addChainParameter(
+//        Protocol.ChainParameters.ChainParameter.newBuilder()
+//            .setKey("getAllowTvmConstantinople")
+//            .setValue(dbManager.getDynamicPropertiesStore().getAllowTvmConstantinople())
+//            .build());
 
     builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
         .setKey("getMainChainGateWayList")
@@ -908,6 +938,20 @@ public class Wallet {
         .setKey("getSideChainGateWayList")
         .setValue(convertGateWayListToString(dbManager.getDynamicPropertiesStore().getGateWayList()))
         .build());
+
+    // PROPOSAL_EXPIRE_TIME, //ms  ,259_200_000L
+    builder.addChainParameter(
+            Protocol.ChainParameters.ChainParameter.newBuilder()
+                    .setKey("getProposalExpireTime")
+                    .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getProposalExpireTime()))
+                    .build());
+
+    // vote witness switch
+    builder.addChainParameter(
+        Protocol.ChainParameters.ChainParameter.newBuilder()
+            .setKey("getVoteWitnessSwitch")
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getVoteWitnessSwitch()))
+            .build());
 
     return builder.build();
   }
@@ -1123,13 +1167,13 @@ public class Wallet {
     return builder.build();
   }
 
-  public Block getBlockById(ByteString BlockId) {
-    if (Objects.isNull(BlockId)) {
+  public Block getBlockById(ByteString blockId) {
+    if (Objects.isNull(blockId)) {
       return null;
     }
     Block block = null;
     try {
-      block = dbManager.getBlockStore().get(BlockId.toByteArray()).getInstance();
+      block = dbManager.getBlockStore().get(blockId.toByteArray()).getInstance();
     } catch (StoreException e) {
     }
     return block;
@@ -1161,6 +1205,7 @@ public class Wallet {
       transactionCapsule = dbManager.getTransactionStore()
           .get(transactionId.toByteArray());
     } catch (StoreException e) {
+      return null;
     }
     if (transactionCapsule != null) {
       return transactionCapsule.getInstance();
@@ -1177,6 +1222,7 @@ public class Wallet {
       transactionInfoCapsule = dbManager.getTransactionHistoryStore()
           .get(transactionId.toByteArray());
     } catch (StoreException e) {
+      return null;
     }
     if (transactionInfoCapsule != null) {
       return transactionInfoCapsule.getInstance();
@@ -1193,6 +1239,7 @@ public class Wallet {
       proposalCapsule = dbManager.getProposalStore()
           .get(proposalId.toByteArray());
     } catch (StoreException e) {
+      return null;
     }
     if (proposalCapsule != null) {
       return proposalCapsule.getInstance();
@@ -1365,8 +1412,7 @@ public class Wallet {
 
   private static boolean isConstant(SmartContract.ABI abi, byte[] selector) {
 
-    if (abi == null ||selector == null || selector.length != 4
-        || abi.getEntrysList().size() == 0) {
+    if (selector == null || selector.length != 4 || abi.getEntrysList().size() == 0) {
       return false;
     }
 

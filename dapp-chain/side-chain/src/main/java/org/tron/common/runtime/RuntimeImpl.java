@@ -34,6 +34,7 @@ import org.tron.common.runtime.vm.program.InternalTransaction.TrxType;
 import org.tron.common.runtime.vm.program.Program;
 import org.tron.common.runtime.vm.program.Program.JVMStackOverFlowException;
 import org.tron.common.runtime.vm.program.Program.OutOfTimeException;
+import org.tron.common.runtime.vm.program.Program.TransferException;
 import org.tron.common.runtime.vm.program.ProgramPrecompile;
 import org.tron.common.runtime.vm.program.ProgramResult;
 import org.tron.common.runtime.vm.program.invoke.ProgramInvoke;
@@ -611,6 +612,7 @@ public class RuntimeImpl implements Runtime {
             }
           } else {
             result.spendEnergy(saveCodeEnergy);
+            deposit.saveCode(program.getContractAddress().getNoLeadZeroesData(), code);
           }
         }
 
@@ -621,7 +623,9 @@ public class RuntimeImpl implements Runtime {
           result.rejectInternalTransactions();
 
           if (result.getException() != null) {
-            program.spendAllEnergy();
+            if (!(result.getException() instanceof TransferException)) {
+              program.spendAllEnergy();
+            }
             runtimeError = result.getException().getMessage();
             throw result.getException();
           } else {
@@ -655,7 +659,9 @@ public class RuntimeImpl implements Runtime {
       runtimeError = result.getException().getMessage();
       logger.info("timeout: {}", result.getException().getMessage());
     } catch (Throwable e) {
-      program.spendAllEnergy();
+      if (!(e instanceof TransferException)) {
+        program.spendAllEnergy();
+      }
       result = program.getResult();
       result.rejectInternalTransactions();
       if (Objects.isNull(result.getException())) {

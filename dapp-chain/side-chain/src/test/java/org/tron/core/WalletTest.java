@@ -341,7 +341,6 @@ public class WalletTest {
     Assert.assertTrue("getBlockByLatestNum2", blockByLatestNum.getBlockList().contains(block4));
   }
 
-
   @Test
   public void getPaginatedProposalList() {
     buildProposal();
