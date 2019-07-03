@@ -36,7 +36,7 @@ contract OracleManagerContract is Ownable {
         _;}
 
     modifier goDelegateCall() {
-        if (logicAddress != 0x00) {
+        if (logicAddress != address(0)) {
             logicAddress.delegatecall(msg.data);
             return;
         }
