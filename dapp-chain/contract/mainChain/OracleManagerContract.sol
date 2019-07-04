@@ -36,10 +36,16 @@ contract OracleManagerContract is Ownable {
         _;}
 
     modifier goDelegateCall() {
-        if (logicAddress != 0x00) {
+        if (logicAddress != address(0)) {
             logicAddress.delegatecall(msg.data);
             return;
         }
+        _;
+    }
+
+    modifier validToken(trcToken tokenId, uint256 tokenValue) {
+        require(tokenId == msg.tokenid, "tokenId is err");
+        require(tokenValue == msg.tokenvalue, "tokenValue is err");
         _;
     }
 
