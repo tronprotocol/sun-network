@@ -101,12 +101,12 @@ public class ContractScenario015 {
     //Set SiringAuctionAddress to kitty core.
     String siringContractString = "\"" + Base58.encode58Check(fromAddress) + "\"";
     txid = PublicMethed
-        .triggerContract(contractAddress1, "balanceOf(address)", siringContractString,
+        .triggerContractSideChain(contractAddress1, "balanceOf(address)", siringContractString,
             false, 0, 10000000L, contract014Address, contract014Key, blockingStubFull);
     logger.info(txid);
 
     siringContractString = "\"" + Base58.encode58Check(fromAddress) + "\",\"" + 17 + "\"";
-    txid = PublicMethed.triggerContract(contractAddress1,"transfer(address,uint256)",
+    txid = PublicMethed.triggerContractSideChain(contractAddress1,"transfer(address,uint256)",
         siringContractString,false, 0, 10000000L, contract014Address,
         contract014Key, blockingStubFull);
 
@@ -118,7 +118,7 @@ public class ContractScenario015 {
 
     siringContractString = "\"" + Base58.encode58Check(fromAddress) + "\"";
     txid = PublicMethed
-        .triggerContract(contractAddress1, "balanceOf(address)",
+        .triggerContractSideChain(contractAddress1, "balanceOf(address)",
             siringContractString, false, 0, 10000000L, contract014Address,
             contract014Key, blockingStubFull);
     logger.info(txid);

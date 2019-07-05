@@ -120,7 +120,7 @@ public class ContractScenario013 {
 
     contractAddress = infoById.get().getContractAddress().toByteArray();
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "time()", "#", false,
         0, 100000000L, contract013Address, contract013Key, blockingStubFull);
     logger.info(txid);

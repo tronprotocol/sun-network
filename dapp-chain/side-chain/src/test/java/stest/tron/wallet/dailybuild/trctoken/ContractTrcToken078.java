@@ -147,7 +147,7 @@ public class ContractTrcToken078 {
         + "\",\"" + Base58.encode58Check(contractAddress2) + "\"";
 
     String txid2 = "";
-    txid2 = PublicMethed.triggerContract(contractAddress,
+    txid2 = PublicMethed.triggerContractSideChain(contractAddress,
         "sendToB2(address,address)", initParmes, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -226,7 +226,7 @@ public class ContractTrcToken078 {
         + "\",\"" + Base58.encode58Check(contractAddress2) + "\"";
 
     String txid2 = "";
-    txid2 = PublicMethed.triggerContract(contractAddress,
+    txid2 = PublicMethed.triggerContractSideChain(contractAddress,
         "sendToB(address,address)", initParmes, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

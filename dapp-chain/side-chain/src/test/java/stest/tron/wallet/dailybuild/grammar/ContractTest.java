@@ -102,7 +102,7 @@ public class ContractTest {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String txid = "";
     String num = "true" + "," + "10";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "select(bool,uint256)", num, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -114,7 +114,7 @@ public class ContractTest {
     Assert.assertTrue(returnnumber == 20);
 
     String num2 = "false" + "," + "10";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "select(bool,uint256)", num2, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

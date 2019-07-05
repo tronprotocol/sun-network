@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.newaddinterface2;
 
 import com.google.protobuf.ByteString;
@@ -40,11 +41,13 @@ public class UnfreezeAsset2Test {
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
 
-  /*  //testng001、testng002、testng003、testng004
+  */
+/*  //testng001、testng002、testng003、testng004
   private static final byte[] fromAddress = Base58
       .decodeFromBase58Check("THph9K2M2nLvkianrMGswRhz5hjSA9fuH7");
   private static final byte[] toAddress = Base58
-      .decodeFromBase58Check("TV75jZpdmP2juMe1dRwGrwpV6AMU6mr1EU");*/
+      .decodeFromBase58Check("TV75jZpdmP2juMe1dRwGrwpV6AMU6mr1EU");*//*
+
 
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
   private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
@@ -89,9 +92,11 @@ public class UnfreezeAsset2Test {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -333,9 +338,11 @@ public class UnfreezeAsset2Test {
 
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
@@ -344,9 +351,11 @@ public class UnfreezeAsset2Test {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
       Integer icoNum, Long startTime, Long endTime,
@@ -403,9 +412,11 @@ public class UnfreezeAsset2Test {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
@@ -431,9 +442,11 @@ public class UnfreezeAsset2Test {
     return ecKey.getAddress();
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
@@ -441,9 +454,11 @@ public class UnfreezeAsset2Test {
     return blockingStubFull.getAccount(request);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
@@ -461,9 +476,11 @@ public class UnfreezeAsset2Test {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
       String priKey) {
@@ -501,9 +518,11 @@ public class UnfreezeAsset2Test {
 
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public boolean unFreezeAsset(byte[] addRess, String priKey) {
     byte[] address = addRess;
@@ -542,9 +561,11 @@ public class UnfreezeAsset2Test {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public boolean unFreezeAsset2(byte[] addRess, String priKey) {
     byte[] address = addRess;
@@ -595,9 +616,11 @@ public class UnfreezeAsset2Test {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public boolean participateAssetIssue(byte[] to, byte[] assertName, long amount, byte[] from,
       String priKey) {
@@ -636,3 +659,4 @@ public class UnfreezeAsset2Test {
 }
 
 
+*/

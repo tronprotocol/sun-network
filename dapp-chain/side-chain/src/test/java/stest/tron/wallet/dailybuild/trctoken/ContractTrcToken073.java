@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.trctoken;
 
 import com.google.protobuf.ByteString;
@@ -59,9 +60,11 @@ public class ContractTrcToken073 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @BeforeClass(enabled = true)
   public void beforeClass() {
 
@@ -180,7 +183,7 @@ public class ContractTrcToken073 {
         + assetAccountId.toStringUtf8() + ", Count is " + devAssetBefore);
 
     tokenId = assetAccountId.toStringUtf8();
-    String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    String triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "getToken(trcToken)", tokenId, false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
@@ -219,7 +222,7 @@ public class ContractTrcToken073 {
     Assert.assertEquals(msgTokenBalance, devAssetBefore);
 
     tokenId = Long.toString(Long.valueOf(assetAccountId.toStringUtf8()) + 1000);
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "getToken(trcToken)", tokenId, false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
@@ -250,7 +253,7 @@ public class ContractTrcToken073 {
 
     tokenId = Long.toString(Long.MAX_VALUE);
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "getToken(trcToken)", tokenId, false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
@@ -286,9 +289,11 @@ public class ContractTrcToken073 {
 
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -298,3 +303,4 @@ public class ContractTrcToken073 {
 }
 
 
+*/

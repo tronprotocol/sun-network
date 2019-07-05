@@ -133,7 +133,7 @@ public class TestResourceReceiver {
 
     String txid = "";
     String num = "\"" + Base58.encode58Check(contractAddress) + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testSuicideNonexistentTarget(address)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -166,7 +166,7 @@ public class TestResourceReceiver {
     long contractBalance = contractafter.getBalance();
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     Assert.assertEquals(contractBalance, 0);
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testSuicideNonexistentTarget(address)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Assert.assertNull(txid);

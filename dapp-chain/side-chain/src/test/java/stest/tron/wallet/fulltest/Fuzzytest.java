@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.fulltest;
 
 import com.google.protobuf.ByteString;
@@ -86,9 +87,11 @@ public class Fuzzytest {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = false)
   public void beforeClass() {
@@ -150,23 +153,29 @@ public class Fuzzytest {
 
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass(enabled = false)
   public void shutdown() throws InterruptedException {
-    /*    if (channelFull != null) {
+    */
+/*    if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
     if (channelSolidity != null) {
       channelSolidity.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-    }*/
+    }*//*
+
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public static Boolean createAssetIssue(byte[] address, String name, Long totalSupply,
       Integer trxNum, Integer icoNum, Long startTime, Long endTime, Integer voteScore,
@@ -223,9 +232,11 @@ public class Fuzzytest {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public static Protocol.Transaction signTransaction(ECKey ecKey,
       Protocol.Transaction transaction) {
@@ -240,3 +251,4 @@ public class Fuzzytest {
 }
 
 
+*/

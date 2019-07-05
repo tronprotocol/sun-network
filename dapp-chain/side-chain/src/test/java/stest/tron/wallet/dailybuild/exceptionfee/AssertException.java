@@ -124,7 +124,7 @@ public class AssertException {
     String txid = "";
     String num = "4" + "," + "0";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "divideIHaveArgsReturn(int256,int256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -202,7 +202,7 @@ public class AssertException {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
     Integer triggerNum = -1;
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "findArgsByIndex1(uint256)", triggerNum.toString(), false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -264,7 +264,7 @@ public class AssertException {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
     Integer triggerNum = -1;
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testBytesGet(uint256)", triggerNum.toString(), false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -327,7 +327,7 @@ public class AssertException {
     String txid = "";
     Integer triggerNum = 22;
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "setGoStraight(uint8)", triggerNum.toString(), false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -393,7 +393,7 @@ public class AssertException {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
     Integer triggerNum = -1;
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "binaryMoveR(int256)", triggerNum.toString(), false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -458,7 +458,7 @@ public class AssertException {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "test2()", "#", false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -521,7 +521,7 @@ public class AssertException {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
 
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testAssert()", "#", false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

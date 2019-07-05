@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.account;
 
 import com.google.protobuf.ByteString;
@@ -60,9 +61,11 @@ public class WalletTestAccount013 {
   byte[] accountForAssetIssueAddress;
   String accountForAssetIssueKey;
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @BeforeSuite
   public void beforeSuite() {
     Wallet wallet = new Wallet();
@@ -70,9 +73,11 @@ public class WalletTestAccount013 {
 
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(testKey002);
@@ -436,7 +441,7 @@ public class WalletTestAccount013 {
 //        accountForDeployAddress, blockingStubFull).getEnergyUsed();
 //
 //    //Account013 trigger contract
-//    String txid = PublicMethed.triggerContract(contractAddress,
+//    String txid = PublicMethed.triggerContractSideChain(contractAddress,
 //        "add2(uint256)", "1", false,
 //        0, 1000000000L, "0", 0, account013Address, testKeyForAccount013, blockingStubFull);
 //    logger.info(txid);
@@ -470,13 +475,15 @@ public class WalletTestAccount013 {
 
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
-}
+}*/

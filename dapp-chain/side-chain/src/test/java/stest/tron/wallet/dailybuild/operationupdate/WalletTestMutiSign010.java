@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.operationupdate;
 
 import com.google.protobuf.ByteString;
@@ -92,9 +93,11 @@ public class WalletTestMutiSign010 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = false)
   public void beforeClass() {
@@ -409,9 +412,11 @@ public class WalletTestMutiSign010 {
     Assert.assertEquals(balanceBefore - balanceAfter, needCoin);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass
   public void shutdown() throws InterruptedException {
@@ -425,3 +430,4 @@ public class WalletTestMutiSign010 {
 }
 
 
+*/

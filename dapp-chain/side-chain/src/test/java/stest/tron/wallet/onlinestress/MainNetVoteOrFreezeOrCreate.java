@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.onlinestress;
 
 import com.google.protobuf.ByteString;
@@ -91,9 +92,11 @@ public class MainNetVoteOrFreezeOrCreate {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = false)
   public void beforeClass() {
@@ -162,13 +165,15 @@ public class MainNetVoteOrFreezeOrCreate {
             blockingStubFull);
         logger.info("freezeBalance");
       }
-      /*      ret = false;
+      */
+/*      ret = false;
       while (!ret) {
         ret = PublicMethed
             .transferAsset(toAddress, name.getBytes(), 10L, accountAddress, testKeyAccount,
                 blockingStubFull);
         logger.info("transferAsset");
-      }*/
+      }*//*
+
       ret = false;
       while (!ret) {
         String voteStr = Base58
@@ -181,9 +186,11 @@ public class MainNetVoteOrFreezeOrCreate {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass(enabled = false)
   public void shutdown() throws InterruptedException {
@@ -197,9 +204,11 @@ public class MainNetVoteOrFreezeOrCreate {
 
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Boolean voteWitness(HashMap<String, String> witness, byte[] addRess, String priKey) {
 
@@ -251,17 +260,21 @@ public class MainNetVoteOrFreezeOrCreate {
       //logger.info(response.getCode().toString());
       return false;
     }
-    /*    try {
+    */
+/*    try {
       Thread.sleep(5000);
     } catch (InterruptedException e) {
       e.printStackTrace();
-    }*/
+    }*//*
+
     return true;
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
@@ -287,9 +300,11 @@ public class MainNetVoteOrFreezeOrCreate {
     return ecKey.getAddress();
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
@@ -297,9 +312,11 @@ public class MainNetVoteOrFreezeOrCreate {
     return blockingStubFull.getAccount(request);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
@@ -317,9 +334,11 @@ public class MainNetVoteOrFreezeOrCreate {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public static Boolean freezeBalance(byte[] addRess, long freezeBalance, long freezeDuration,
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -364,3 +383,4 @@ public class MainNetVoteOrFreezeOrCreate {
   }
 }
 
+*/

@@ -176,7 +176,7 @@ public class ExtCodeHashTest003 {
     Long callValue = Long.valueOf(0);
 
     String param = "\"" + Base58.encode58Check(testAddress) + "\"";
-    final String triggerTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(extCodeHashContractAddress,
         "getCodeHashByAddr(address)", param, false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -262,7 +262,7 @@ public class ExtCodeHashTest003 {
     Long callValue = Long.valueOf(0);
 
     String param = "\"" + Base58.encode58Check(testAddress) + "\"";
-    final String triggerTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(extCodeHashContractAddress,
         "getCodeHashByAddr(address)", param, false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);

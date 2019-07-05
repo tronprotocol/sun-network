@@ -114,7 +114,7 @@ public class ContractGrammar002 {
     PublicMethed.waitProduceNextBlock(blockingStubFull1);
     String txid = "";
     String number = "1";
-    String txid1 = PublicMethed.triggerContract(contractAddress1,
+    String txid1 = PublicMethed.triggerContractSideChain(contractAddress1,
         "dougOfage(uint256)", number, false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -125,7 +125,7 @@ public class ContractGrammar002 {
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
 
     String number1 = "687777";
-    String txid2 = PublicMethed.triggerContract(contractAddress1,
+    String txid2 = PublicMethed.triggerContractSideChain(contractAddress1,
         "uintOfName(bytes32)", number1, false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     //    PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -149,7 +149,7 @@ public class ContractGrammar002 {
         grammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "getContractName()", "#", false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -160,7 +160,7 @@ public class ContractGrammar002 {
         "0000000000000000000000000000000000000000000000000000000000000020000000000000000000"
             + "000000000000000000000000000000000000000000000646656c696e650000000000000000000000000"
             + "000000000000000000000000000");
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethed.triggerContractSideChain(contractAddress,
         "utterance()", "#", false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -194,11 +194,11 @@ public class ContractGrammar002 {
             grammarAddress2, blockingStubFull);
     String txid = "";
     String initParmes = "\"" + Base58.encode58Check(contractAddress1) + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "setFeed(address)", initParmes, false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethed.triggerContractSideChain(contractAddress,
         "callFeed()", "#", false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -222,7 +222,7 @@ public class ContractGrammar002 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     String number = "1" + "," + "2";
-    String txid = PublicMethed.triggerContract(contractAddress,
+    String txid = PublicMethed.triggerContractSideChain(contractAddress,
         "f(uint256,uint256)", number, false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -234,7 +234,7 @@ public class ContractGrammar002 {
     Assert.assertTrue(returnnumber == 1);
 
     Optional<TransactionInfo> infoById1 = null;
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethed.triggerContractSideChain(contractAddress,
         "g()", "#", false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -256,7 +256,7 @@ public class ContractGrammar002 {
         grammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    String txid = PublicMethed.triggerContract(contractAddress,
+    String txid = PublicMethed.triggerContractSideChain(contractAddress,
         "info()", "#", false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -279,7 +279,7 @@ public class ContractGrammar002 {
         grammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    String txid = PublicMethed.triggerContract(contractAddress,
+    String txid = PublicMethed.triggerContractSideChain(contractAddress,
         "getCount()", "#", false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -291,7 +291,7 @@ public class ContractGrammar002 {
     Assert.assertTrue(returnnumber == 0);
 
     Optional<TransactionInfo> infoById1 = null;
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethed.triggerContractSideChain(contractAddress,
         "increment()", "#", false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -299,7 +299,7 @@ public class ContractGrammar002 {
 
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     Optional<TransactionInfo> infoById2 = null;
-    String txid2 = PublicMethed.triggerContract(contractAddress,
+    String txid2 = PublicMethed.triggerContractSideChain(contractAddress,
         "getCount()", "#", false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -313,7 +313,7 @@ public class ContractGrammar002 {
     Assert.assertTrue(returnnumber1 == 10);
 
     Optional<TransactionInfo> infoById3 = null;
-    String txid3 = PublicMethed.triggerContract(contractAddress,
+    String txid3 = PublicMethed.triggerContractSideChain(contractAddress,
         "kill()", "#", false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -321,7 +321,7 @@ public class ContractGrammar002 {
     Assert.assertTrue(infoById3.get().getResultValue() == 0);
 
     Optional<TransactionInfo> infoById4 = null;
-    String txid4 = PublicMethed.triggerContract(contractAddress,
+    String txid4 = PublicMethed.triggerContractSideChain(contractAddress,
         "getCount()", "#", false,
         0, maxFeeLimit, grammarAddress2, testKeyForGrammarAddress2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

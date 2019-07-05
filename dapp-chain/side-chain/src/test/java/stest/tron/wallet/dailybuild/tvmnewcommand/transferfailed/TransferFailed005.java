@@ -180,7 +180,7 @@ public class TransferFailed005 {
 
     // transfer trx to self`s account
     String param = "\"" + paramValue + "\",\"" + Base58.encode58Check(contractAddress) + "\"";
-    String triggerTxid = PublicMethed.triggerContract(contractAddress,
+    String triggerTxid = PublicMethed.triggerContractSideChain(contractAddress,
         "testCallTrxInsufficientBalance(uint256,address)", param, false, 0L,
         maxFeeLimit, accountExcAddress, accountExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -202,7 +202,7 @@ public class TransferFailed005 {
     ECKey ecKey2 = new ECKey(Utils.getRandom());
     byte[] accountExcAddress2 = ecKey2.getAddress();
     param = "\"" + paramValue + "\",\"" + Base58.encode58Check(accountExcAddress2) + "\"";
-    triggerTxid = PublicMethed.triggerContract(contractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(contractAddress,
         "testCallTrxInsufficientBalance(uint256,address)", param, false, 0L,
         maxFeeLimit, accountExcAddress, accountExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -224,7 +224,7 @@ public class TransferFailed005 {
 
     // transfer trx to caller, value enough , function success contractResult(call_value) failed
     param = "\"" + paramValue + "\",\"" + Base58.encode58Check(contractAddress1) + "\"";
-    triggerTxid = PublicMethed.triggerContract(contractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(contractAddress,
         "testCallTrxInsufficientBalance(uint256,address)", param, false, 0L,
         maxFeeLimit, accountExcAddress, accountExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -258,7 +258,7 @@ public class TransferFailed005 {
 
     // transfer trx to caller, value not enough, function success
     // but contractResult(call_value) failed
-    triggerTxid = PublicMethed.triggerContract(contractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(contractAddress,
         "testCallTrxInsufficientBalance(uint256,address)", param, false, 0L,
         maxFeeLimit, accountExcAddress, accountExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -323,7 +323,7 @@ public class TransferFailed005 {
     long paramValue = 1000000;
     String param = "\"" + paramValue + "\"";
 
-    String triggerTxid = PublicMethed.triggerContract(contractAddress,
+    String triggerTxid = PublicMethed.triggerContractSideChain(contractAddress,
         "testCreateTrxInsufficientBalance(uint256)", param, false, 0L,
         maxFeeLimit, accountExcAddress, accountExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -357,7 +357,7 @@ public class TransferFailed005 {
         PublicMethed.queryAccount(contractAddress, blockingStubFull).getBalance());
     Assert.assertTrue(infoById.get().getReceipt().getEnergyUsageTotal() < 10000000);
 
-    triggerTxid = PublicMethed.triggerContract(contractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(contractAddress,
         "testCreateTrxInsufficientBalance(uint256)", param, false, 0L,
         maxFeeLimit, accountExcAddress, accountExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -425,7 +425,7 @@ public class TransferFailed005 {
 
     String param = "\"" + testContractCode + "\"," + salt;
 
-    String triggerTxid = PublicMethed.triggerContract(contractAddress,
+    String triggerTxid = PublicMethed.triggerContractSideChain(contractAddress,
         "deploy(bytes,uint256)", param, false, 0L,
         maxFeeLimit, accountExcAddress, accountExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -457,7 +457,7 @@ public class TransferFailed005 {
     Assert.assertFalse(infoById.get().getInternalTransactions(0).getRejected());
     Assert.assertTrue(infoById.get().getReceipt().getEnergyUsageTotal() < 10000000);
 
-    triggerTxid = PublicMethed.triggerContract(contractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(contractAddress,
         "deploy2(bytes,uint256)", param, false, 0L,
         maxFeeLimit, accountExcAddress, accountExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

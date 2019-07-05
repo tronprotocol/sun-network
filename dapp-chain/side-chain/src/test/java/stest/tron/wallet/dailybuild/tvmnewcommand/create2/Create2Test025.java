@@ -175,7 +175,7 @@ public class Create2Test025 {
     String param = "\"" + testContractCode + "\"," + salt;
 
     String triggerTxid = null;
-    triggerTxid = PublicMethed.triggerContract(factoryContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(factoryContractAddress,
         "create2(bytes,uint256)", param, false, 0L,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -229,7 +229,7 @@ public class Create2Test025 {
     testContractAddress = WalletClient.decodeFromBase58Check(addressFinal);
 
 
-    String txid = PublicMethed.triggerContract(testContractAddress,
+    String txid = PublicMethed.triggerContractSideChain(testContractAddress,
         "getNum()", "#", false, 0L,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);

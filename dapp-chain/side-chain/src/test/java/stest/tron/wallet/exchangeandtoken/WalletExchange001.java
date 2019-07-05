@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.exchangeandtoken;
 
 import com.google.protobuf.ByteString;
@@ -77,9 +78,11 @@ public class WalletExchange001 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -351,9 +354,11 @@ public class WalletExchange001 {
     Assert.assertTrue(listExchange.get().getExchangesCount() > 0);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass
   public void shutdown() throws InterruptedException {
@@ -367,3 +372,4 @@ public class WalletExchange001 {
 }
 
 
+*/

@@ -118,7 +118,7 @@ public class ContractScenario012 {
     receiveAddressParam = "\"" + Base58.encode58Check(fromAddress)
         + "\"";
     //When the contract has no money,transaction coin failed.
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "sendToAddress2(address)", receiveAddressParam, false,
         0, 100000000L, contract012Address, contract012Key, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -147,7 +147,7 @@ public class ContractScenario012 {
     receiveAddressParam = "\"" + Base58.encode58Check(receiverAddress)
         + "\"";
     //In smart contract, you can't create account
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "sendToAddress2(address)", receiveAddressParam, false,
         0, 100000000L, contract012Address, contract012Key, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -173,7 +173,7 @@ public class ContractScenario012 {
     //This time, trigger the methed sendToAddress2 is OK.
     Assert.assertTrue(PublicMethed.sendcoin(receiverAddress, 10000000L, toAddress,
         testKey003, blockingStubFull));
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "sendToAddress2(address)", receiveAddressParam, false,
         0, 100000000L, contract012Address, contract012Key, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

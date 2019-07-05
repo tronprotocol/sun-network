@@ -124,7 +124,7 @@ public class ExtCodeHashTest011 {
     logger.info("after energyLimit is " + Long.toString(energyLimit));
     logger.info("after energyUsage is " + Long.toString(energyUsage));
     logger.info("after balanceAfter is " + Long.toString(balanceAfter));
-    transferTokenTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
+    transferTokenTxid = PublicMethed.triggerContractSideChain(extCodeHashContractAddress,
         "getCodeHashByAddr()", "#", false, 0,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -187,7 +187,7 @@ public class ExtCodeHashTest011 {
     logger.info("after energyLimit is " + Long.toString(energyLimit));
     logger.info("after energyUsage is " + Long.toString(energyUsage));
     logger.info("after balanceAfter is " + Long.toString(balanceAfter));
-    transferTokenTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
+    transferTokenTxid = PublicMethed.triggerContractSideChain(extCodeHashContractAddress,
         "getCodeHashByAddr()", "#", false, 0,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -265,7 +265,7 @@ public class ExtCodeHashTest011 {
 
     String num = "\"" + Base58.encode58Check(dev001Address) + "\"";
 
-    transferTokenTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
+    transferTokenTxid = PublicMethed.triggerContractSideChain(extCodeHashContractAddress,
         "getCodeHashByAddr(address)", num, false, 0,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -334,7 +334,7 @@ public class ExtCodeHashTest011 {
 
     String num = "\"" + Base58.encode58Check(dev001Address) + "\"";
 
-    transferTokenTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
+    transferTokenTxid = PublicMethed.triggerContractSideChain(extCodeHashContractAddress,
         "getCodeHashByAddr(address)", num, false, 0,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);

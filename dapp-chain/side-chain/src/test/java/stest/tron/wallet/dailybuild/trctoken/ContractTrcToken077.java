@@ -97,7 +97,7 @@ public class ContractTrcToken077 {
     logger.info("Deploy energy is " + deployInfo.get().getReceipt().getEnergyUsageTotal());
 
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "addressTest()", "#", false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -137,7 +137,7 @@ public class ContractTrcToken077 {
     logger.info("infoById:" + deployById);
 
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "addressTest()", "#", false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

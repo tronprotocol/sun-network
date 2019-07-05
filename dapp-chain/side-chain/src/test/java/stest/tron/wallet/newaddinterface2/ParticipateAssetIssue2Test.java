@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.newaddinterface2;
 
 import com.google.protobuf.ByteString;
@@ -70,9 +71,11 @@ public class ParticipateAssetIssue2Test {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -149,9 +152,11 @@ public class ParticipateAssetIssue2Test {
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
@@ -160,9 +165,11 @@ public class ParticipateAssetIssue2Test {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public boolean participateAssetIssue(byte[] to, byte[] assertName, long amount, byte[] from,
       String priKey) {
@@ -198,9 +205,11 @@ public class ParticipateAssetIssue2Test {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
       Integer icoNum, Long startTime, Long endTime,
@@ -253,9 +262,11 @@ public class ParticipateAssetIssue2Test {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Account queryAccount(String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
@@ -289,9 +300,11 @@ public class ParticipateAssetIssue2Test {
     return ecKey.getAddress();
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
@@ -299,9 +312,11 @@ public class ParticipateAssetIssue2Test {
     return blockingStubFull.getAccount(request);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
@@ -319,9 +334,11 @@ public class ParticipateAssetIssue2Test {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
       String priKey) {
@@ -363,3 +380,4 @@ public class ParticipateAssetIssue2Test {
 }
 
 
+*/

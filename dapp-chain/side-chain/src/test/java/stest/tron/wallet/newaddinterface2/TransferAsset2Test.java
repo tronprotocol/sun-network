@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.newaddinterface2;
 
 import com.google.protobuf.ByteString;
@@ -66,9 +67,11 @@ public class TransferAsset2Test {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -145,9 +148,11 @@ public class TransferAsset2Test {
     logger.info("Test not create asset issue, try to unfreeze asset, no exception. Test OK!!!");
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
@@ -156,9 +161,11 @@ public class TransferAsset2Test {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
       Integer icoNum, Long startTime, Long endTime,
@@ -206,9 +213,11 @@ public class TransferAsset2Test {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
@@ -234,9 +243,11 @@ public class TransferAsset2Test {
     return ecKey.getAddress();
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
@@ -244,9 +255,11 @@ public class TransferAsset2Test {
     return blockingStubFull.getAccount(request);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
@@ -264,9 +277,11 @@ public class TransferAsset2Test {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
       String priKey) {
@@ -306,9 +321,11 @@ public class TransferAsset2Test {
 
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Return transferAsset2(byte[] to, byte[] assertName, long amount, byte[] address,
       String priKey) {
@@ -364,9 +381,11 @@ public class TransferAsset2Test {
     return ret;
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public boolean unFreezeAsset(byte[] addRess, String priKey) {
     byte[] address = addRess;
@@ -407,3 +426,4 @@ public class TransferAsset2Test {
 }
 
 
+*/

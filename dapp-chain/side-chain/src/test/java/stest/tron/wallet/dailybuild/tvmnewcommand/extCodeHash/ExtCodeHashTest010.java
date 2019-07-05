@@ -163,7 +163,7 @@ public class ExtCodeHashTest010 {
     logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
 
 
-    final String triggerTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(extCodeHashContractAddress,
         "getCodeHashRevert()", "#", false, 0L,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -240,7 +240,7 @@ public class ExtCodeHashTest010 {
     logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
 
 
-    final String triggerTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(extCodeHashContractAddress,
         "getCodeHashCreate()", "#", false, 0L,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -317,7 +317,7 @@ public class ExtCodeHashTest010 {
 
 
     String param = "\"" + Base58.encode58Check(extCodeHashContractAddress) + "\"";
-    final String triggerTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(extCodeHashContractAddress,
         "getCodeHashSuicide(address)", param, false, 0L,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);

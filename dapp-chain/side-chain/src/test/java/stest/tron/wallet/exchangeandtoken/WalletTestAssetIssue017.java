@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.exchangeandtoken;
 
 import com.google.protobuf.ByteString;
@@ -77,9 +78,11 @@ public class WalletTestAssetIssue017 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -267,9 +270,11 @@ public class WalletTestAssetIssue017 {
     Assert.assertTrue(assetIssueListPaginated.get().getAssetIssueCount() == 0);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
@@ -281,9 +286,11 @@ public class WalletTestAssetIssue017 {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public static Boolean createAssetIssue(byte[] address, String name, Long totalSupply,
       Integer trxNum, Integer icoNum, Long startTime, Long endTime, Integer voteScore,
@@ -340,9 +347,11 @@ public class WalletTestAssetIssue017 {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public static Protocol.Transaction signTransaction(ECKey ecKey,
       Protocol.Transaction transaction) {
@@ -354,4 +363,4 @@ public class WalletTestAssetIssue017 {
     transaction = TransactionUtils.setTimestamp(transaction);
     return TransactionUtils.sign(transaction, ecKey);
   }
-}
+}*/

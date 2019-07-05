@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.trctoken;
 
 import com.google.protobuf.ByteString;
@@ -66,9 +67,10 @@ public class ContractTrcToken066 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+*
    * constructor.
-   */
+
+
   @BeforeClass(enabled = true)
   public void beforeClass() {
 
@@ -293,7 +295,7 @@ public class ContractTrcToken066 {
     String param = "\"" + Base58.encode58Check(resultContractAddress)
         + "\",\"" + tokenValue + "\"," + tokenId;
 
-    String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    String triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "transferTokenTest(address,uint256,trcToken)", param, false, callValue,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
@@ -390,7 +392,7 @@ public class ContractTrcToken066 {
     String param = "\"" + Base58.encode58Check(resultContractAddress) + "\",\""
         + assetAccountId.toStringUtf8() + "\"";
 
-    String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    String triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "getTokenBalnce(address,trcToken)",
         param, false, 0, 1000000000L, user001Address,
         user001Key, blockingStubFull);
@@ -444,9 +446,10 @@ public class ContractTrcToken066 {
 
   }
 
-  /**
+*
    * constructor.
-   */
+
+
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -456,3 +459,4 @@ public class ContractTrcToken066 {
 }
 
 
+*/

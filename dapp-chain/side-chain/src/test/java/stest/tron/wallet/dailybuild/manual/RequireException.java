@@ -126,7 +126,7 @@ public class RequireException {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
 
-    final String txid = PublicMethed.triggerContract(contractAddress,
+    final String txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testRequire()", "#", false,
         0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -192,7 +192,7 @@ public class RequireException {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
 
-    final String txid = PublicMethed.triggerContract(contractAddress,
+    final String txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testThrow()", "#", false,
         0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -258,7 +258,7 @@ public class RequireException {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
 
-    final String txid = PublicMethed.triggerContract(contractAddress,
+    final String txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testRevert()", "#", false,
         0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -325,7 +325,7 @@ public class RequireException {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
 
-    final String txid = PublicMethed.triggerContract(contractAddress,
+    final String txid = PublicMethed.triggerContractSideChain(contractAddress,
         "noPayable()", "#", false,
         22, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -452,7 +452,7 @@ public class RequireException {
 
     String newCxoAddress = "\"" + Base58.encode58Check(testNetAccountAddress)
         + "\"";
-    final String txid = PublicMethed.triggerContract(contractAddress,
+    final String txid = PublicMethed.triggerContractSideChain(contractAddress,
         "tranferTest(address) ", newCxoAddress, false,
         5, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -533,7 +533,7 @@ public class RequireException {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
 
     String saleContractString = "\"" + Base58.encode58Check(contractAddress) + "\"";
-    final String txid = PublicMethed.triggerContract(contractAddress1,
+    final String txid = PublicMethed.triggerContractSideChain(contractAddress1,
         "callTest(address)", saleContractString, false,
         5, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -610,7 +610,7 @@ public class RequireException {
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-    final String txid = PublicMethed.triggerContract(contractAddress1,
+    final String txid = PublicMethed.triggerContractSideChain(contractAddress1,
         "newAccount()", "#", false,
         0, 5226000, asset016Address, testKeyForAssetIssue016, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -688,7 +688,7 @@ public class RequireException {
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-    final String txid = PublicMethed.triggerContract(contractAddress1,
+    final String txid = PublicMethed.triggerContractSideChain(contractAddress1,
         "messageUse(address)", saleContractString, false,
         0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -765,7 +765,7 @@ public class RequireException {
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-    final String txid = PublicMethed.triggerContract(contractAddress1,
+    final String txid = PublicMethed.triggerContractSideChain(contractAddress1,
         "messageUse(address)", saleContractString, false,
         0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

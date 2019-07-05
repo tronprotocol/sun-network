@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.trctoken;
 
 import com.google.protobuf.ByteString;
@@ -65,9 +66,11 @@ public class ContractTrcToken036 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @BeforeClass(enabled = true)
   public void beforeClass() {
 
@@ -176,7 +179,7 @@ public class ContractTrcToken036 {
     String param =
         "\"" + Base58.encode58Check(user001Address) + "\",\"1\"";
 
-    final String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "transferTokenWithPure(address,uint256)",
         param, false, 10, 1000000000L, assetAccountId
             .toStringUtf8(),
@@ -282,7 +285,7 @@ public class ContractTrcToken036 {
     String param1 =
         "\"" + Base58.encode58Check(user001Address) + "\",\"1\"";
 
-    final String triggerTxid1 = PublicMethed.triggerContract(transferTokenWithPureTestAddress,
+    final String triggerTxid1 = PublicMethed.triggerContractSideChain(transferTokenWithPureTestAddress,
         "transferTokenWithConstant(address,uint256)",
         param1, false, 10, 1000000000L, assetAccountId
             .toStringUtf8(),
@@ -384,7 +387,7 @@ public class ContractTrcToken036 {
     String param2 =
         "\"" + Base58.encode58Check(user001Address) + "\",\"1\"";
 
-    String triggerTxid2 = PublicMethed.triggerContract(transferTokenWithViewAddress,
+    String triggerTxid2 = PublicMethed.triggerContractSideChain(transferTokenWithViewAddress,
         "transferTokenWithView(address,uint256)",
         param2, false, 10, 1000000000L, assetAccountId
             .toStringUtf8(),
@@ -483,7 +486,7 @@ public class ContractTrcToken036 {
     String param3 =
         "\"" + Base58.encode58Check(user001Address) + "\",\"1\"";
 
-    String triggerTxid3 = PublicMethed.triggerContract(transferTokenWithOutPayableTestAddress,
+    String triggerTxid3 = PublicMethed.triggerContractSideChain(transferTokenWithOutPayableTestAddress,
         "transferTokenWithOutPayable(address,uint256)",
         param3, false, 10, 1000000000L, assetAccountId
             .toStringUtf8(),
@@ -525,9 +528,11 @@ public class ContractTrcToken036 {
 
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass
   public void shutdown() throws InterruptedException {
@@ -540,3 +545,4 @@ public class ContractTrcToken036 {
 }
 
 
+*/

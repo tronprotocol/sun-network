@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.trctoken;
 
 import com.google.protobuf.ByteString;
@@ -65,9 +66,11 @@ public class ContractTrcToken028 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -190,7 +193,7 @@ public class ContractTrcToken028 {
             .toStringUtf8()
             + "\"";
 
-    final String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "tokenBalanceWithSameName(trcToken)",
         param, false, 0, 1000000000L, "0",
         0, dev001Address, dev001Key,
@@ -237,7 +240,7 @@ public class ContractTrcToken028 {
     Assert.assertEquals(afterBalanceContractAddress, beforeBalanceContractAddress);
     Assert.assertTrue(afterAssetIssueContractAddress == beforeAssetIssueContractAddress);
 
-    String triggerTxid1 = PublicMethed.triggerContract(transferTokenContractAddress,
+    String triggerTxid1 = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "getA()",
         "#", false, 0, 1000000000L, "0",
         0, dev001Address, dev001Key,
@@ -252,9 +255,11 @@ public class ContractTrcToken028 {
     Assert.assertTrue(returnnumber1 == 9);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass
   public void shutdown() throws InterruptedException {
@@ -267,3 +272,4 @@ public class ContractTrcToken028 {
 }
 
 
+*/

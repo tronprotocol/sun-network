@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.tvmnewcommand.transferfailed;
 
 import com.google.protobuf.ByteString;
@@ -75,9 +76,11 @@ public class TransferFailed003 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -151,7 +154,7 @@ public class TransferFailed003 {
     logger.info("contractAccountCountBefore:" + contractAccountCountBefore);
     String txid = "";
     String num = "1" + ",\"" + assetAccountId.toStringUtf8() + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTokenInsufficientBalance(uint256,trcToken)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -223,7 +226,7 @@ public class TransferFailed003 {
     logger.info("contractAccountCountBefore:" + contractAccountCountBefore);
     String txid = "";
     String num = "1000" + ",\"" + assetAccountId.toStringUtf8() + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTokenInsufficientBalance(uint256,trcToken)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -303,7 +306,7 @@ public class TransferFailed003 {
     String num =
         "\"1" + "\",\"" + Base58.encode58Check(nonexistentAddress) + "\",\"" + assetAccountId
             .toStringUtf8() + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTokenNonexistentTarget(uint256,address,trcToken)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -382,7 +385,7 @@ public class TransferFailed003 {
     logger.info("contractAccountCountBefore:" + contractAccountCountBefore);
     String txid = "";
     String num = "1" + ",\"" + assetAccountId.toStringUtf8() + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTokenSelf(uint256,trcToken)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -463,7 +466,7 @@ public class TransferFailed003 {
     String fakeassetAccountId = Long.toString(0L);
 
     String num = "1" + ",\"" + fakeassetAccountId + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTokenInsufficientBalance(uint256,trcToken)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -546,7 +549,7 @@ public class TransferFailed003 {
         "\"100000000000" + "\",\"" + Base58.encode58Check(nonexistentAddress) + "\",\""
             + assetAccountId
             .toStringUtf8() + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTokenNonexistentTarget(uint256,address,trcToken)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -625,7 +628,7 @@ public class TransferFailed003 {
     logger.info("contractAccountCountBefore:" + contractAccountCountBefore);
     String txid = "";
     String num = "1000000000000000" + ",\"" + assetAccountId.toStringUtf8() + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTokenSelf(uint256,trcToken)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -679,9 +682,11 @@ public class TransferFailed003 {
   }
 
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -697,3 +702,4 @@ public class TransferFailed003 {
 
 
 }
+*/

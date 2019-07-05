@@ -125,87 +125,87 @@ public class ContractEvent001 {
 
     Integer i = 0;
     for (i = 0; i < 1; i++) {
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "depositForEventCycle(uint256)", "100", false,
           1L, 100000000L, event002Address, event002Key, blockingStubFull);
       logger.info(txid);
 
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "depositForLogCycle(uint256)", "100", false,
           2L, 100000000L, event002Address, event002Key, blockingStubFull);
       logger.info(txid);
 
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "triggerUintEvent()", "#", false,
           0, maxFeeLimit, event001Address, event001Key, blockingStubFull);
       logger.info(txid);
 
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "triggerintEvent()", "#", false,
           0, maxFeeLimit, event001Address, event001Key, blockingStubFull);
       logger.info(txid);
 
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "depositForEventAndLog()", "#", false,
           1, maxFeeLimit, event001Address, event001Key, blockingStubFull);
       logger.info(txid);
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "depositForEventNoIndex()", "#", false,
           0L, 100000000L, event001Address, event001Key, blockingStubFull);
       logger.info(txid);
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "depositForLog()", "#", false,
           1L, 100000000L, event001Address, event001Key, blockingStubFull);
       logger.info(txid);
 
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "depositForEventNoIndex()", "#", false,
           1L, 100000000L, event001Address, event001Key, blockingStubFull);
       logger.info(txid);
 
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "depositForEventOneIndex()", "#", false,
           1L, 100000000L, event001Address, event001Key, blockingStubFull);
       logger.info(txid);
 
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "depositForEventTwoIndex()", "#", false,
           2L, 100000000L, event001Address, event001Key, blockingStubFull);
       logger.info(txid);
 
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "depositForEvent()", "#", false,
           3L, 100000000L, event001Address, event001Key, blockingStubFull);
       logger.info(txid);
 
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "depositForEventCycle(uint256)", "100", false,
           1L, 100000000L, event002Address, event002Key, blockingStubFull);
       logger.info(txid);
 
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "depositForLogCycle(uint256)", "100", false,
           2L, 100000000L, event002Address, event002Key, blockingStubFull);
       logger.info(txid);
 
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "depositForAnonymousHasLog()", "#", false,
           4L, 100000000L, event001Address, event001Key, blockingStubFull);
       logger.info(txid);
 
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "depositForAnonymousNoLog()", "#", false,
           5L, 100000000L, event001Address, event001Key, blockingStubFull);
       logger.info(txid);
 
       String param = "\"" + code + "\"" + "," + "\"" + code + "\"";
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "triggerStringEvent(string,string)", param, false,
           0L, 100000000L, event001Address, event001Key, blockingStubFull);
       logger.info(txid);
 
       param = "\"" + "true1" + "\"" + "," + "\"" + "false1" + "\"";
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "triggerBoolEvent(bool,bool)", param, false,
           0L, 100000000L, event001Address, event001Key, blockingStubFull);
       logger.info(txid);
@@ -217,12 +217,12 @@ public class ContractEvent001 {
         BufferedReader reader = new BufferedReader(read);
         String tooLongString = reader.readLine();
         param = "\"" + tooLongString + "\"" + "," + "\"" + tooLongString + "\"";
-        txid = PublicMethed.triggerContract(contractAddress,
+        txid = PublicMethed.triggerContractSideChain(contractAddress,
             "triggerStringEventAnonymous(string,string)", param, false,
             0L, 100000000L, event001Address, event001Key, blockingStubFull);
         logger.info(txid);
 
-        txid = PublicMethed.triggerContract(contractAddress,
+        txid = PublicMethed.triggerContractSideChain(contractAddress,
             "triggerStringEvent(string,string)", param, false,
             0L, 100000000L, event001Address, event001Key, blockingStubFull);
         logger.info(txid);
@@ -247,7 +247,7 @@ public class ContractEvent001 {
     smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getAbi() != null);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "triggerEventBytes()", "#", false,
         0, maxFeeLimit, event001Address, event001Key, blockingStubFull);
     logger.info(txid);

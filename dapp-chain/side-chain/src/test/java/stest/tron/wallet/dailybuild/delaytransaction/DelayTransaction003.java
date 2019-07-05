@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.delaytransaction;
 
 import com.google.protobuf.ByteString;
@@ -75,9 +76,11 @@ public class DelayTransaction003 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = false)
   public void beforeClass() {
@@ -201,9 +204,11 @@ public class DelayTransaction003 {
 
 
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass(enabled = false)
   public void shutdown() throws InterruptedException {
@@ -214,3 +219,4 @@ public class DelayTransaction003 {
 }
 
 
+*/

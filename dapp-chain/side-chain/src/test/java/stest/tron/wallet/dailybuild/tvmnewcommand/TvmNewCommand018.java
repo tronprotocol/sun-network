@@ -128,7 +128,7 @@ public class TvmNewCommand018 {
     logger.info("returnnumber:" + originNumber);
     logger.info("returnnumber1:" + valueNumber);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shrTest(uint256,uint256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

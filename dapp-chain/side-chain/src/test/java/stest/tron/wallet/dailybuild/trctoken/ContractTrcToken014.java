@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.trctoken;
 
 import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
@@ -68,9 +69,11 @@ public class ContractTrcToken014 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @BeforeClass(enabled = true)
   public void beforeClass() {
 
@@ -322,7 +325,7 @@ public class ContractTrcToken014 {
     String param = "\"" + Base58.encode58Check(resultContractAddress)
         + "\",\"" + tokenValue + "\"," + tokenId;
 
-    String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    String triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "transferTokenTest(address,uint256,trcToken)", param, false, callValue,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
@@ -350,7 +353,7 @@ public class ContractTrcToken014 {
     param = "\"" + Base58.encode58Check(dev001Address)
         + "\",\"" + tokenValue + "\"," + tokenId;
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "transferTokenTest(address,uint256,trcToken)", param, false, callValue,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
@@ -377,7 +380,7 @@ public class ContractTrcToken014 {
     param = "\"" + Base58.encode58Check(resultContractAddress)
         + "\",\"" + tokenValue + "\"," + tokenId;
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "transferTokenTest(address,uint256,trcToken)", param, false, callValue,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
@@ -403,7 +406,7 @@ public class ContractTrcToken014 {
     param = "\"" + Base58.encode58Check(dev001Address)
         + "\",\"" + tokenValue + "\"," + tokenId;
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "transferTokenTest(address,uint256,trcToken)", param, false, callValue,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
@@ -427,7 +430,7 @@ public class ContractTrcToken014 {
     param = "\"" + Base58.encode58Check(resultContractAddress)
         + "\"," + fakeValue + ",\"" + fackTokenId + "\"";
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "transferTokenTest(address,uint256,trcToken)", param, false, 0,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
@@ -452,7 +455,7 @@ public class ContractTrcToken014 {
     param = "\"" + Base58.encode58Check(resultContractAddress)
         + "\"," + fakeValue + ",\"" + fackTokenId + "\"";
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "transferTokenTest(address,uint256,trcToken)", param, false, 0,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
@@ -476,7 +479,7 @@ public class ContractTrcToken014 {
     param = "\"" + Base58.encode58Check(dev001Address)
         + "\"," + fakeValue + ",\"" + fackTokenId + "\"";
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "transferTokenTest(address,uint256,trcToken)", param, false, 0,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
@@ -500,7 +503,7 @@ public class ContractTrcToken014 {
     param = "\"" + Base58.encode58Check(dev001Address)
         + "\"," + fakeValue + ",\"" + fackTokenId + "\"";
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "transferTokenTest(address,uint256,trcToken)", param, false, 0,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
@@ -525,7 +528,7 @@ public class ContractTrcToken014 {
     param = "\"" + Base58.encode58Check(resultContractAddress)
         + "\",\"" + tokenValue + "\"," + tokenId;
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "transferTokenTest(address,uint256,trcToken)", param, false, callValue,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
@@ -547,7 +550,7 @@ public class ContractTrcToken014 {
     param = "\"" + Base58.encode58Check(dev001Address)
         + "\",\"" + tokenValue + "\"," + tokenId;
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "transferTokenTest(address,uint256,trcToken)", param, false, callValue,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
@@ -612,9 +615,11 @@ public class ContractTrcToken014 {
 
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -624,3 +629,4 @@ public class ContractTrcToken014 {
 }
 
 
+*/

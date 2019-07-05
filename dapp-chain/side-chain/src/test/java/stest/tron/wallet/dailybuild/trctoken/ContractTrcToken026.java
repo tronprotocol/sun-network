@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.trctoken;
 
 import com.google.protobuf.ByteString;
@@ -66,9 +67,10 @@ public class ContractTrcToken026 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+*
    * constructor.
-   */
+
+
   @BeforeClass(enabled = true)
   public void beforeClass() {
 
@@ -231,7 +233,7 @@ public class ContractTrcToken026 {
             .toStringUtf8()
             + "\"";
 
-    final String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "testInCall(address,address,address,uint256,trcToken)",
         param, false, 0, 1000000000L, "0",
         0, dev001Address, dev001Key,
@@ -342,7 +344,7 @@ public class ContractTrcToken026 {
             .toStringUtf8()
             + "\"";
 
-    final String triggerTxid1 = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid1 = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "testInCall(address,address,address,uint256,trcToken)",
         param1, false, 0, 1000000000L, "0",
         0, dev001Address, dev001Key,
@@ -438,7 +440,7 @@ public class ContractTrcToken026 {
             .toStringUtf8()
             + "\"";
 
-    final String triggerTxid2 = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid2 = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "testInCall(address,address,address,uint256,trcToken)",
         param2, false, 0, 1000000000L, "0",
         0, dev001Address, dev001Key,
@@ -536,7 +538,7 @@ public class ContractTrcToken026 {
     int i = randomInt(6666666, 9999999);
 
     ByteString tokenId1 = ByteString.copyFromUtf8(String.valueOf(i));
-    final String triggerTxid3 = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid3 = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "testInCall(address,address,address,uint256,trcToken)",
         param3, false, 0, 1000000000L, tokenId1
             .toStringUtf8(),
@@ -633,7 +635,7 @@ public class ContractTrcToken026 {
             .toStringUtf8()
             + "\"";
 
-    final String triggerTxid4 = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid4 = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "testInCall(address,address,address,uint256,trcToken)",
         param4, false, 0, 1000000000L, assetAccountId
             .toStringUtf8(),
@@ -731,7 +733,7 @@ public class ContractTrcToken026 {
             .toStringUtf8()
             + "\"";
 
-    final String triggerTxid5 = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid5 = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "testInCall(address,address,address,uint256,trcToken)",
         param5, false, 0, 1000000000L, assetAccountId
             .toStringUtf8(),
@@ -792,9 +794,10 @@ public class ContractTrcToken026 {
 
   }
 
-  /**
+*
    * constructor.
-   */
+
+
 
   @AfterClass
   public void shutdown() throws InterruptedException {
@@ -806,3 +809,4 @@ public class ContractTrcToken026 {
 }
 
 
+*/

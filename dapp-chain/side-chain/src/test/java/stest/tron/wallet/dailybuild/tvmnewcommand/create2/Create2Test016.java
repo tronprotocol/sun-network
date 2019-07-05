@@ -243,7 +243,7 @@ public class Create2Test016 {
     String param = "\"" + Base58.encode58Check(factoryContractAddress)
         + "\",\"" + testContractCode + "\"," + salt;
 
-    final String triggerTxid = PublicMethed.triggerContract(callerContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(callerContractAddress,
         "delegateCallCreate2(address,bytes,uint256)", param, false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -345,7 +345,7 @@ public class Create2Test016 {
 
     Long callValue = Long.valueOf(0);
 
-    final String triggerTxid = PublicMethed.triggerContract(testContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(testContractAddress,
         "plusOne()", "#", false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);

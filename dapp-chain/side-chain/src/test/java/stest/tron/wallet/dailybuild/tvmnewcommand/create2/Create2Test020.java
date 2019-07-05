@@ -126,7 +126,7 @@ public class Create2Test020 {
     String txid = "";
     String num = "\"" + code1 + "\"" + "," + 1000001;
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "deploy(bytes,trcToken)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -167,7 +167,7 @@ public class Create2Test020 {
     String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
     txid = PublicMethed
-        .triggerContract(returnAddressBytes,
+        .triggerContractSideChain(returnAddressBytes,
             "i()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -231,7 +231,7 @@ public class Create2Test020 {
     String txid = "";
     String num = "\"" + code1 + "\"" + "," + 1000001;
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "deploy1(bytes,uint8)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -272,7 +272,7 @@ public class Create2Test020 {
     String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
     txid = PublicMethed
-        .triggerContract(returnAddressBytes,
+        .triggerContractSideChain(returnAddressBytes,
             "i()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -337,7 +337,7 @@ public class Create2Test020 {
     String txid = "";
     String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractExcAddress) + "\"";
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "deploy2(bytes,address)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -378,7 +378,7 @@ public class Create2Test020 {
     String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
     txid = PublicMethed
-        .triggerContract(returnAddressBytes,
+        .triggerContractSideChain(returnAddressBytes,
             "i()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -443,7 +443,7 @@ public class Create2Test020 {
     String txid = "";
     String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractExcAddress) + "\"";
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "deploy3(bytes,string)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -484,7 +484,7 @@ public class Create2Test020 {
     String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
     txid = PublicMethed
-        .triggerContract(returnAddressBytes,
+        .triggerContractSideChain(returnAddressBytes,
             "i()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -551,7 +551,7 @@ public class Create2Test020 {
     String txid = "";
     String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractAddress) + "\"";
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "deploy3(bytes,string)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -592,7 +592,7 @@ public class Create2Test020 {
     String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
     txid = PublicMethed
-        .triggerContract(returnAddressBytes,
+        .triggerContractSideChain(returnAddressBytes,
             "i()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -630,7 +630,7 @@ public class Create2Test020 {
     Assert.assertTrue(2 == returnnumber);
 
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "deploy3(bytes,string)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -673,7 +673,7 @@ public class Create2Test020 {
     String txid = "";
     String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractAddress) + "\"";
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "deploy3(bytes,string)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -714,7 +714,7 @@ public class Create2Test020 {
     String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
     txid = PublicMethed
-        .triggerContract(returnAddressBytes,
+        .triggerContractSideChain(returnAddressBytes,
             "i()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -753,7 +753,7 @@ public class Create2Test020 {
     num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(testNetAccountAddress) + "\"";
 
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "deploy3(bytes,string)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -796,7 +796,7 @@ public class Create2Test020 {
     String txid = "";
     String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractAddress) + "\"";
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "deploy3(bytes,string)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -837,7 +837,7 @@ public class Create2Test020 {
     String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
     txid = PublicMethed
-        .triggerContract(returnAddressBytes,
+        .triggerContractSideChain(returnAddressBytes,
             "i()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -878,7 +878,7 @@ public class Create2Test020 {
     num = "\"" + code1 + "\"" + ",\"" + fakeAddress + "\"";
 
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "deploy3(bytes,string)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

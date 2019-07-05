@@ -184,7 +184,7 @@ public class ExtCodeHashTest004 {
 
     String param =
         "\"" + Base58.encode58Check(WalletClient.decodeFromBase58Check(testContractAddress)) + "\"";
-    final String triggerTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(extCodeHashContractAddress,
         "getCodeHashByAddr(address)", param, false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);

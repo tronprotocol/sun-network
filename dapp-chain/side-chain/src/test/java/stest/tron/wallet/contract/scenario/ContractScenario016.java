@@ -116,7 +116,7 @@ public class ContractScenario016 {
     org.testng.Assert.assertTrue(smartContract.getAbi().toString() != null);
     String txid = null;
     Optional<TransactionInfo> infoById = null;
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testBadJumpDestination()", "#", false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

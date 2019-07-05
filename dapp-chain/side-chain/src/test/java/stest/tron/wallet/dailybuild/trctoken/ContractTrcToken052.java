@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.trctoken;
 
 import com.google.protobuf.ByteString;
@@ -64,9 +65,11 @@ public class ContractTrcToken052 {
   }
 
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -169,7 +172,7 @@ public class ContractTrcToken052 {
         + "\"," + fakeassetAccountId + ",\"1\"";
     // user trigger A to transfer token to B
 
-    final String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "TransferTokenTo(address,trcToken,uint256)",
         param, false, 0, 100000000L, "0",
         0, user001Address, user001Key,
@@ -224,9 +227,11 @@ public class ContractTrcToken052 {
 
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
 
   @AfterClass
@@ -240,3 +245,4 @@ public class ContractTrcToken052 {
 }
 
 
+*/

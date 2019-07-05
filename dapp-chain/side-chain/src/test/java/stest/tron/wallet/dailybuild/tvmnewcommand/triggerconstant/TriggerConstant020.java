@@ -122,7 +122,7 @@ public class TriggerConstant020 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "testNoPayable()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 

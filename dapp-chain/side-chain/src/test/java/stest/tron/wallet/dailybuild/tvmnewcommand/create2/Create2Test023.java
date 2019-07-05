@@ -179,7 +179,7 @@ public class Create2Test023 {
 
     Long callValue = Long.valueOf(0);
 
-    String triggerTxid = PublicMethed.triggerContract(factoryContractAddress,
+    String triggerTxid = PublicMethed.triggerContractSideChain(factoryContractAddress,
         "testCreate()", "#", false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -237,7 +237,7 @@ public class Create2Test023 {
     logger.info("B Address : " + addressFinal);
 
     //B Address is created by A, Trigger contract B
-    triggerTxid = PublicMethed.triggerContract(ByteArray.fromHexString(exceptedResult),
+    triggerTxid = PublicMethed.triggerContractSideChain(ByteArray.fromHexString(exceptedResult),
         "test()", "#", false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -249,7 +249,7 @@ public class Create2Test023 {
     Assert.assertEquals("SUCESS",infoById.get().getResult().toString());
 
 
-    triggerTxid = PublicMethed.triggerContract(factoryContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(factoryContractAddress,
         "kill()", "#", false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -265,7 +265,7 @@ public class Create2Test023 {
 
 
 
-    triggerTxid = PublicMethed.triggerContract(ByteArray.fromHexString(exceptedResult),
+    triggerTxid = PublicMethed.triggerContractSideChain(ByteArray.fromHexString(exceptedResult),
         "test()", "#", false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);

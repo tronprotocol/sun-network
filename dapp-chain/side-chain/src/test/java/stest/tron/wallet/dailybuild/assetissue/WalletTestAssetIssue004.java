@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.assetissue;
 
 import com.google.protobuf.ByteString;
@@ -42,8 +43,10 @@ public class WalletTestAssetIssue004 {
 
 
   //testng001、testng002、testng003、testng004
-  /*  private static final byte[] fromAddress = Base58
-      .decodeFromBase58Check("THph9K2M2nLvkianrMGswRhz5hjSA9fuH7");*/
+  */
+/*  private static final byte[] fromAddress = Base58
+      .decodeFromBase58Check("THph9K2M2nLvkianrMGswRhz5hjSA9fuH7");*//*
+
   private static final byte[] NO_ASSET_ADDRESS = Base58
       .decodeFromBase58Check("27XeWZUtufGk8jdjF3m1tuPnnRqqKgzS3pT");
   private static final byte[] INVALID_ADDRESS = Base58
@@ -66,9 +69,11 @@ public class WalletTestAssetIssue004 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -136,9 +141,11 @@ public class WalletTestAssetIssue004 {
 
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
@@ -147,9 +154,11 @@ public class WalletTestAssetIssue004 {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
       Integer icoNum, Long startTime, Long endTime,
@@ -203,9 +212,11 @@ public class WalletTestAssetIssue004 {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
@@ -231,9 +242,11 @@ public class WalletTestAssetIssue004 {
     return ecKey.getAddress();
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
@@ -241,9 +254,11 @@ public class WalletTestAssetIssue004 {
     return blockingStubFull.getAccount(request);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
@@ -261,9 +276,11 @@ public class WalletTestAssetIssue004 {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
       String priKey) {
@@ -303,3 +320,4 @@ public class WalletTestAssetIssue004 {
 }
 
 
+*/

@@ -147,7 +147,7 @@ public class Create2Test019 {
     String txid = "";
     String num = "\"" + code1 + "\"" + "," + 1;
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "deploy(bytes,uint256)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -188,7 +188,7 @@ public class Create2Test019 {
     String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
     txid = PublicMethed
-        .triggerContract(returnAddressBytes,
+        .triggerContractSideChain(returnAddressBytes,
             "i()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -225,13 +225,13 @@ public class Create2Test019 {
         .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(1 == returnnumber);
     txid = PublicMethed
-        .triggerContract(returnAddressBytes,
+        .triggerContractSideChain(returnAddressBytes,
             "set()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     txid = PublicMethed
-        .triggerContract(returnAddressBytes,
+        .triggerContractSideChain(returnAddressBytes,
             "i()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -243,7 +243,7 @@ public class Create2Test019 {
     String param1 = "\"" + Base58.encode58Check(returnAddressBytes) + "\"";
 
     txid = PublicMethed
-        .triggerContract(returnAddressBytes,
+        .triggerContractSideChain(returnAddressBytes,
             "testSuicideNonexistentTarget(address)", param1, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -265,7 +265,7 @@ public class Create2Test019 {
             containsString("contract validate error : No contract or not a smart contract"));
 
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "deploy(bytes,uint256)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -277,7 +277,7 @@ public class Create2Test019 {
     String returnAddress1 = Base58.encode58Check(returnAddressBytes1);
     Assert.assertEquals(returnAddress1, returnAddress);
     txid = PublicMethed
-        .triggerContract(returnAddressBytes1,
+        .triggerContractSideChain(returnAddressBytes1,
             "i()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 

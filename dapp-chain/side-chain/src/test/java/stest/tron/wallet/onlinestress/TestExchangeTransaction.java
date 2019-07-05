@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.onlinestress;
 
 import io.grpc.ManagedChannel;
@@ -57,9 +58,10 @@ public class TestExchangeTransaction {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+*
    * constructor.
-   */
+
+
 
   @BeforeClass
   public void beforeClass() {
@@ -140,9 +142,10 @@ public class TestExchangeTransaction {
     }
   }
 
-  /**
+*
    * constructor.
-   */
+
+
 
   @AfterClass
   public void shutdown() throws InterruptedException {
@@ -153,3 +156,4 @@ public class TestExchangeTransaction {
 }
 
 
+*/

@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.trctoken;
 
 import com.google.protobuf.ByteString;
@@ -62,9 +63,11 @@ public class ContractTrcToken029 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -137,9 +140,11 @@ public class ContractTrcToken029 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @Test(enabled = true, description = "Trigger transferTokenwithSameName")
   public void deploy02TransferTokenContract() {
@@ -183,7 +188,7 @@ public class ContractTrcToken029 {
         .copyFromUtf8(Long.toString(Long.valueOf(assetAccountDev.toStringUtf8()) + 100));
     String param = "\"" + fakeTokenId.toStringUtf8() + "\",\"1\"";
 
-    final String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "transferTokenWithSameName(trcToken,uint256)",
         param, false, 0, 1000000000L, "0",
         0, dev001Address, dev001Key,
@@ -236,9 +241,11 @@ public class ContractTrcToken029 {
         null, blockingStubFull);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -250,3 +257,4 @@ public class ContractTrcToken029 {
 }
 
 
+*/

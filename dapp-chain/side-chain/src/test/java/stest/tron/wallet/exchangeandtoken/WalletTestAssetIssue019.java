@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.exchangeandtoken;
 
 import com.google.protobuf.ByteString;
@@ -51,9 +52,11 @@ public class WalletTestAssetIssue019 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -163,9 +166,11 @@ public class WalletTestAssetIssue019 {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
@@ -173,4 +178,4 @@ public class WalletTestAssetIssue019 {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
-}
+}*/

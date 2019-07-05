@@ -99,12 +99,12 @@ public class ContractTrcToken076 {
 
     contractAddress = infoById.get().getContractAddress().toByteArray();
 
-    PublicMethed.triggerContract(contractAddress,
+    PublicMethed.triggerContractSideChain(contractAddress,
         "test()", "#", false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "getResult1()", "#", false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -118,7 +118,7 @@ public class ContractTrcToken076 {
 
     Assert.assertTrue(returnnumber == 1);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "getResult2()", "#", false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

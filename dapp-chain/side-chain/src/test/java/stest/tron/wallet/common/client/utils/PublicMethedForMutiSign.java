@@ -65,6 +65,7 @@ public class PublicMethedForMutiSign {
    * constructor.
    */
 
+/*
   public static Boolean createAssetIssue(byte[] address, String name, Long totalSupply,
       Integer trxNum, Integer icoNum, Long startTime, Long endTime, Integer voteScore,
       String description, String url, Long freeAssetNetLimit, Long publicFreeAssetNetLimit,
@@ -112,12 +113,13 @@ public class PublicMethedForMutiSign {
       return false;
     }
   }
+*/
 
   /**
    * constructor.
    */
 
-  public static String createAssetIssueForTransactionId(byte[] address, String name,
+/*  public static String createAssetIssueForTransactionId(byte[] address, String name,
       Long totalSupply,
       Integer trxNum, Integer icoNum, Long startTime, Long endTime, Integer voteScore,
       String description, String url, Long freeAssetNetLimit, Long publicFreeAssetNetLimit,
@@ -169,7 +171,7 @@ public class PublicMethedForMutiSign {
       ex.printStackTrace();
       return null;
     }
-  }
+  }*/
 
   /**
    * constructor.
@@ -339,7 +341,7 @@ public class PublicMethedForMutiSign {
   /**
    * constructor.
    */
-  public static boolean participateAssetIssue(byte[] to, byte[] assertName, long amount,
+  /*public static boolean participateAssetIssue(byte[] to, byte[] assertName, long amount,
       byte[] from, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
       String[] permissionKeyString) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
@@ -367,11 +369,11 @@ public class PublicMethedForMutiSign {
 
     return broadcastTransaction(transaction, blockingStubFull);
   }
-
+*/
   /**
    * constructor.
    */
-  public static boolean participateAssetIssueWithPermissionId(byte[] to, byte[] assertName,
+/*  public static boolean participateAssetIssueWithPermissionId(byte[] to, byte[] assertName,
       long amount, byte[] from, String priKey, int permissionId,
       WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
@@ -403,11 +405,12 @@ public class PublicMethedForMutiSign {
     transaction = signTransaction(transaction, blockingStubFull, permissionKeyString);
 
     return broadcastTransaction(transaction, blockingStubFull);
-  }
+  }*/
 
   /**
    * constructor.
    */
+/*
   public static String participateAssetIssueForTransactionId(byte[] to, byte[] assertName,
       long amount, byte[] from, String priKey, int permissionId,
       WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
@@ -446,6 +449,7 @@ public class PublicMethedForMutiSign {
       return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
     }
   }
+*/
 
   /**
    * constructor.
@@ -668,7 +672,7 @@ public class PublicMethedForMutiSign {
   /**
    * constructor.
    */
-  public static boolean updateAsset(byte[] address, byte[] description, byte[] url, long newLimit,
+ /* public static boolean updateAsset(byte[] address, byte[] description, byte[] url, long newLimit,
       long newPublicLimit, String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
@@ -702,9 +706,9 @@ public class PublicMethedForMutiSign {
     return broadcastTransaction(transaction, blockingStubFull);
   }
 
-  /**
+  *//**
    * constructor.
-   */
+   *//*
   public static boolean updateAssetWithPermissionId(byte[] address, byte[] description, byte[] url,
       long newLimit, long newPublicLimit, String priKey, int permissionId,
       WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
@@ -745,9 +749,9 @@ public class PublicMethedForMutiSign {
     return broadcastTransaction(transaction, blockingStubFull);
   }
 
-  /**
+  *//**
    * constructor.
-   */
+   *//*
   public static String updateAssetForTransactionId(byte[] address, byte[] description, byte[] url,
       long newLimit, long newPublicLimit, String priKey, int permissionId,
       WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
@@ -792,7 +796,7 @@ public class PublicMethedForMutiSign {
       return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
     }
   }
-
+*/
   /**
    * constructor.
    */
@@ -987,7 +991,7 @@ public class PublicMethedForMutiSign {
    * constructor.
    */
 
-  public static boolean createProposal(byte[] ownerAddress, String priKey,
+/*  public static boolean createProposal(byte[] ownerAddress, String priKey,
       HashMap<Long, Long> parametersMap,
       WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
@@ -1027,12 +1031,13 @@ public class PublicMethedForMutiSign {
     transaction = signTransaction(transaction, blockingStubFull, permissionKeyString);
 
     return broadcastTransaction(transaction, blockingStubFull);
-  }
+  }*/
 
   /**
    * constructor.
    */
 
+/*
   public static boolean createProposalWithPermissionId(byte[] ownerAddress, String priKey,
       HashMap<Long, Long> parametersMap, int permissionId,
       WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
@@ -1079,6 +1084,7 @@ public class PublicMethedForMutiSign {
 
     return broadcastTransaction(transaction, blockingStubFull);
   }
+*/
 
   /**
    * constructor.
@@ -2079,7 +2085,7 @@ public class PublicMethedForMutiSign {
    * constructor.
    */
 
-  public static Boolean exchangeCreate(byte[] firstTokenId, long firstTokenBalance,
+/*  public static Boolean exchangeCreate(byte[] firstTokenId, long firstTokenBalance,
       byte[] secondTokenId, long secondTokenBalance, byte[] ownerAddress,
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
@@ -2123,13 +2129,13 @@ public class PublicMethedForMutiSign {
     transaction = signTransaction(transaction, blockingStubFull, permissionKeyString);
 
     return broadcastTransaction(transaction, blockingStubFull);
-  }
+  }*/
 
   /**
    * constructor.
    */
 
-  public static Boolean injectExchange(long exchangeId, byte[] tokenId, long quant,
+ /* public static Boolean injectExchange(long exchangeId, byte[] tokenId, long quant,
       byte[] ownerAddress, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
       String[] permissionKeyString) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
@@ -2178,13 +2184,13 @@ public class PublicMethedForMutiSign {
       blockingStubFull) {
     ExchangeList exchangeList = blockingStubFull.listExchanges(EmptyMessage.newBuilder().build());
     return Optional.ofNullable(exchangeList);
-  }
+  }*/
 
   /**
    * constructor.
    */
 
-  public static boolean exchangeWithdraw(long exchangeId, byte[] tokenId, long quant,
+  /*public static boolean exchangeWithdraw(long exchangeId, byte[] tokenId, long quant,
       byte[] ownerAddress, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
       String[] permissionKeyString) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
@@ -2227,12 +2233,12 @@ public class PublicMethedForMutiSign {
 
     return broadcastTransaction(transaction, blockingStubFull);
   }
-
+*/
   /**
    * constructor.
    */
 
-  public static boolean exchangeTransaction(long exchangeId, byte[] tokenId, long quant,
+  /*public static boolean exchangeTransaction(long exchangeId, byte[] tokenId, long quant,
       long expected, byte[] ownerAddress, String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
@@ -2276,7 +2282,7 @@ public class PublicMethedForMutiSign {
 
     return broadcastTransaction(transaction, blockingStubFull);
   }
-
+*/
   /**
    * constructor.
    */
@@ -4230,7 +4236,7 @@ public class PublicMethedForMutiSign {
    * constructor.
    */
 
-  public static String createAssetIssueForTransactionId1(byte[] address, String name,
+ /* public static String createAssetIssueForTransactionId1(byte[] address, String name,
       Long totalSupply,
       Integer trxNum, Integer icoNum, Long startTime, Long endTime, Integer voteScore,
       String description, String url, Long freeAssetNetLimit, Long publicFreeAssetNetLimit,
@@ -4290,12 +4296,12 @@ public class PublicMethedForMutiSign {
       return null;
     }
   }
-
+*/
   /**
    * constructor.
    */
 
-  public static Boolean injectExchange1(long exchangeId, byte[] tokenId, long quant,
+  /*public static Boolean injectExchange1(long exchangeId, byte[] tokenId, long quant,
       byte[] ownerAddress, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
       int permissionId, String[] permissionKeyString) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
@@ -4346,9 +4352,9 @@ public class PublicMethedForMutiSign {
   }
 
 
-  /**
+  *//**
    * constructor.
-   */
+   *//*
 
   public static boolean exchangeWithdraw1(long exchangeId, byte[] tokenId, long quant,
       byte[] ownerAddress, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
@@ -4400,9 +4406,9 @@ public class PublicMethedForMutiSign {
   }
 
 
-  /**
+  *//**
    * constructor.
-   */
+   *//*
 
   public static boolean exchangeTransaction1(long exchangeId, byte[] tokenId, long quant,
       long expected, byte[] ownerAddress, String priKey,
@@ -4455,9 +4461,9 @@ public class PublicMethedForMutiSign {
     return broadcastTransaction(transaction, blockingStubFull);
   }
 
-  /**
+  *//**
    * constructor.
-   */
+   *//*
 
   public static Boolean exchangeCreate1(byte[] firstTokenId, long firstTokenBalance,
       byte[] secondTokenId, long secondTokenBalance, byte[] ownerAddress,
@@ -4509,7 +4515,7 @@ public class PublicMethedForMutiSign {
     transaction = signTransaction(transaction, blockingStubFull, permissionKeyString);
 
     return broadcastTransaction(transaction, blockingStubFull);
-  }
+  }*/
 
 
   public static boolean clearContractAbi(byte[] contractAddress,

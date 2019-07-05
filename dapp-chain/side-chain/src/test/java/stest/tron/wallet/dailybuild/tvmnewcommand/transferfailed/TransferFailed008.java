@@ -125,7 +125,7 @@ public class TransferFailed008 {
       Assert.assertTrue(PublicMethed
           .sendcoin(contractExcAddress, 10000000L, testNetAccountAddress, testNetAccountKey,
               blockingStubFull));
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "testSuicideNonexistentTarget(address)", num, false,
           0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
       Optional<TransactionInfo> infoById = null;

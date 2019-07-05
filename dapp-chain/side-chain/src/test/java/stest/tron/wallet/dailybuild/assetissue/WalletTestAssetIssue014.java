@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.assetissue;
 
 import com.google.protobuf.ByteString;
@@ -64,9 +65,8 @@ public class WalletTestAssetIssue014 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
-   * constructor.
-   */
+
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -146,9 +146,8 @@ public class WalletTestAssetIssue014 {
     Assert.assertTrue(transferAfterFreeNetUsed - transferBeforeFreeNetUsed > netCostMeasure);
   }
 
-  /**
-   * constructor.
-   */
+
+
 
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
@@ -159,3 +158,4 @@ public class WalletTestAssetIssue014 {
 }
 
 
+*/

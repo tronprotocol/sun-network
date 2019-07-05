@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.trctoken;
 
 import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
@@ -61,9 +62,11 @@ public class ContractTrcToken075 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @BeforeClass(enabled = true)
   public void beforeClass() {
 
@@ -185,7 +188,7 @@ public class ContractTrcToken075 {
 
     tokenId = Long.toString(100_0000);
 
-    String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    String triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "getToken(trcToken)", tokenId, false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
@@ -201,7 +204,7 @@ public class ContractTrcToken075 {
 
 
     tokenId = Long.toString(0);
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "getToken(trcToken)", tokenId, false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
@@ -218,7 +221,7 @@ public class ContractTrcToken075 {
 
     tokenId = Long.toString(-1);
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "getToken(trcToken)", tokenId, false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
@@ -234,7 +237,7 @@ public class ContractTrcToken075 {
 
     tokenId = Long.toString(Long.MIN_VALUE);
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "getToken(trcToken)", tokenId, false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
@@ -250,7 +253,7 @@ public class ContractTrcToken075 {
         infoById.get().getResMessage().toStringUtf8());
 
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "getTokenLongMin()", "#", false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
@@ -266,7 +269,7 @@ public class ContractTrcToken075 {
         infoById.get().getResMessage().toStringUtf8());
 
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "getTokenLongMax()", "#", false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
@@ -288,9 +291,11 @@ public class ContractTrcToken075 {
         dev001Address, blockingStubFull);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -300,3 +305,4 @@ public class ContractTrcToken075 {
 }
 
 
+*/

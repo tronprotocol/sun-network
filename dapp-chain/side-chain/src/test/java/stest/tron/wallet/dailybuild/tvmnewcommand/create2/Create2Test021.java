@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.tvmnewcommand.create2;
 
 import com.google.protobuf.ByteString;
@@ -79,9 +80,11 @@ public class Create2Test021 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -148,7 +151,7 @@ public class Create2Test021 {
 
     String param2 = "\"" + Base58.encode58Check(contractExcAddress) + "\"";
     String txidn = PublicMethed
-        .triggerContract(bytes,
+        .triggerContractSideChain(bytes,
             "testSuicideNonexistentTarget(address)", param2, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -201,7 +204,7 @@ public class Create2Test021 {
     String txid = "";
     String num = "\"" + code1 + "\"" + "," + 1;
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "deploy(bytes,uint256)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -263,7 +266,7 @@ public class Create2Test021 {
     Assert.assertEquals(Base58.encode58Check(bytes), returnAddress);
     logger.info("returnAddress:" + returnAddress);
     txid = PublicMethed
-        .triggerContract(returnAddressBytes,
+        .triggerContractSideChain(returnAddressBytes,
             "i()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -319,7 +322,7 @@ public class Create2Test021 {
     String num = "1";
 
     String txid = PublicMethed
-        .triggerContract(bytes,
+        .triggerContractSideChain(bytes,
             "testTransfer(uint256)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -343,7 +346,7 @@ public class Create2Test021 {
     Long contractExcAddressAccountCountBefore = PublicMethed
         .getAssetIssueValue(contractExcAddress, assetAccountId, blockingStubFull);
     String txid1 = PublicMethed
-        .triggerContract(bytes,
+        .triggerContractSideChain(bytes,
             "testTransferToken(uint256,trcToken)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> transactionInfoById1 = PublicMethed
@@ -360,9 +363,11 @@ public class Create2Test021 {
         contractExcAddressAccountCountBefore + 1 == contractExcAddressAccountCountAfter);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @AfterClass
   public void shutdown() throws InterruptedException {
 
@@ -378,4 +383,4 @@ public class Create2Test021 {
   }
 
 
-}
+}*/

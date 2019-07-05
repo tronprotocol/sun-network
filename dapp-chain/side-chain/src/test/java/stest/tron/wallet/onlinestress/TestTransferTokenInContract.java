@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.onlinestress;
 
 import com.google.protobuf.ByteString;
@@ -61,9 +62,11 @@ public class TestTransferTokenInContract {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -83,9 +86,11 @@ public class TestTransferTokenInContract {
     return (int) Math.round(Math.random() * (maxInt - minInt) + minInt);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public ByteString createAssetissue(byte[] devAddress, String devKey, String tokenName) {
 
@@ -239,7 +244,7 @@ public class TestTransferTokenInContract {
               .toStringUtf8()
               + "\",\"5\"";
 
-      String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+      String triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
           "TransferTokenTo(address,trcToken,uint256)",
           param, false, 0, 100000000L, tokenId.toStringUtf8(),
           10, user001Address, user001Key,
@@ -257,7 +262,7 @@ public class TestTransferTokenInContract {
           "\"" + Base58.encode58Check(dev001Address) + "\",\"" + tokenId.toStringUtf8()
               + "\",\"5\"";
 
-      triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+      triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
           "TransferTokenTo(address,trcToken,uint256)",
           param, false, 0, 100000000L, user001Address,
           user001Key, blockingStubFull);
@@ -287,7 +292,7 @@ public class TestTransferTokenInContract {
         errorCount.incrementAndGet();
       }
 
-      PublicMethed.triggerContract(tokenBalanceContractAddress, "balance()",
+      PublicMethed.triggerContractSideChain(tokenBalanceContractAddress, "balance()",
           "#", false, 0, 1000000000L, user001Address,
           user001Key, blockingStubFull);
 
@@ -306,7 +311,7 @@ public class TestTransferTokenInContract {
         errorCount.incrementAndGet();
       }
 
-      PublicMethed.triggerContract(tokenBalanceContractAddress, "balance()",
+      PublicMethed.triggerContractSideChain(tokenBalanceContractAddress, "balance()",
           "#", false, 0, 1000000000L, user001Address,
           user001Key, blockingStubFull);
 
@@ -317,9 +322,11 @@ public class TestTransferTokenInContract {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass
   public void shutdown() throws InterruptedException {
@@ -330,3 +337,4 @@ public class TestTransferTokenInContract {
 }
 
 
+*/

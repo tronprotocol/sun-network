@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.trctoken;
 
 import com.google.protobuf.ByteString;
@@ -32,9 +33,11 @@ public class ContractTrcToken027 {
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   private ManagedChannel channelFull = null;
   byte[] btestAddress;
   byte[] ctestAddress;
@@ -68,9 +71,11 @@ public class ContractTrcToken027 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -237,7 +242,7 @@ public class ContractTrcToken027 {
             .toStringUtf8()
             + "\"";
 
-    final String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "testIndelegateCall(address,address,address,uint256,trcToken)",
         param, false, 0, 1000000000L, "0",
         0, dev001Address, dev001Key,
@@ -334,7 +339,7 @@ public class ContractTrcToken027 {
             .toStringUtf8()
             + "\"";
 
-    final String triggerTxid1 = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid1 = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "testIndelegateCall(address,address,address,uint256,trcToken)",
         param1, false, 0, 1000000000L, "0",
         0, dev001Address, dev001Key,
@@ -432,7 +437,7 @@ public class ContractTrcToken027 {
             .toStringUtf8()
             + "\"";
 
-    final String triggerTxid2 = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid2 = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "testIndelegateCall(address,address,address,uint256,trcToken)",
         param2, false, 0, 1000000000L, "0",
         0, dev001Address, dev001Key,
@@ -529,7 +534,7 @@ public class ContractTrcToken027 {
             .toStringUtf8()
             + "\"";
 
-    final String triggerTxid3 = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid3 = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "testIndelegateCall(address,address,address,uint256,trcToken)",
         param3, false, 0, 1000000000L, tokenId1
             .toStringUtf8(),
@@ -627,7 +632,7 @@ public class ContractTrcToken027 {
             .toStringUtf8()
             + "\"";
 
-    final String triggerTxid4 = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid4 = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "testIndelegateCall(address,address,address,uint256,trcToken)",
         param4, false, 0, 1000000000L, assetAccountId
             .toStringUtf8(),
@@ -725,7 +730,7 @@ public class ContractTrcToken027 {
             .toStringUtf8()
             + "\"";
 
-    final String triggerTxid5 = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid5 = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "testIndelegateCall(address,address,address,uint256,trcToken)",
         param5, false, 0, 1000000000L, assetAccountId
             .toStringUtf8(),
@@ -786,9 +791,11 @@ public class ContractTrcToken027 {
 
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass
   public void shutdown() throws InterruptedException {
@@ -802,3 +809,4 @@ public class ContractTrcToken027 {
 
 
 
+*/

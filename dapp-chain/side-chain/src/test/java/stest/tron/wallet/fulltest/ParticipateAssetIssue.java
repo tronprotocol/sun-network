@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.fulltest;
 
 import com.google.protobuf.ByteString;
@@ -83,9 +84,11 @@ public class ParticipateAssetIssue {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = false)
   public void beforeClass() {
@@ -155,9 +158,11 @@ public class ParticipateAssetIssue {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass(enabled = false)
   public void shutdown() throws InterruptedException {
@@ -254,9 +259,11 @@ public class ParticipateAssetIssue {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public static boolean participateAssetIssue(byte[] to, byte[] assertName, long amount,
       byte[] from, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -290,9 +297,11 @@ public class ParticipateAssetIssue {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public static Protocol.Transaction signTransaction(ECKey ecKey,
       Protocol.Transaction transaction) {
@@ -305,9 +314,11 @@ public class ParticipateAssetIssue {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public static boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -354,3 +365,4 @@ public class ParticipateAssetIssue {
 }
 
 
+*/

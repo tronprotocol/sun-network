@@ -172,7 +172,7 @@ public class Create2Test024 {
 
     String param = "\"" + testContractCode + "\"," + salt;
 
-    String triggerTxid = PublicMethed.triggerContract(factoryContractAddress,
+    String triggerTxid = PublicMethed.triggerContractSideChain(factoryContractAddress,
         "deploy(bytes,uint256)", param, false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -225,7 +225,7 @@ public class Create2Test024 {
     Assert.assertEquals(infoById.get().getResult().toString(), "SUCESS");
     Assert.assertEquals(infoById.get().getResultValue(), 0);
 
-    triggerTxid = PublicMethed.triggerContract(factoryContractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(factoryContractAddress,
         "deploy2(bytes,uint256)", param, false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);

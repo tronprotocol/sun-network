@@ -130,7 +130,7 @@ public class TriggerConstant014 {
     String txid = "";
     String num = "\"" + code1 + "\"" + "," + 1;
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "deploy(bytes,uint256)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -171,7 +171,7 @@ public class TriggerConstant014 {
     String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
     txid = PublicMethed
-        .triggerContract(returnAddressBytes,
+        .triggerContractSideChain(returnAddressBytes,
             "plusOne()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

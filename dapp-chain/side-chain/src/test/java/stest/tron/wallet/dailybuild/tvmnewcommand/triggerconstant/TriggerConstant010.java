@@ -123,7 +123,7 @@ public class TriggerConstant010 {
     String txid = "";
 
     txid = PublicMethed
-        .triggerContract(contractAddress,
+        .triggerContractSideChain(contractAddress,
             "testNoPayable()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 

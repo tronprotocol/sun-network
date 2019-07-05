@@ -283,7 +283,7 @@ public class ContractOriginEnergyLimit004 {
 
     String param = "\"" + 0 + "\"";
     final String triggerTxid = PublicMethed
-        .triggerContract(contractAddress, "findArgsByIndexTest(uint256)",
+        .triggerContractSideChain(contractAddress, "findArgsByIndexTest(uint256)",
             param, false, 0, triggerFeeLimit,
             user001Address, user001Key, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

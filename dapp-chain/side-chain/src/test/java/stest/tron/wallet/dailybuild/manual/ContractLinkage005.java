@@ -178,7 +178,7 @@ public class ContractLinkage005 {
     logger.info("beforeNetUsed1:" + beforeNetUsed1);
     logger.info("beforeFreeNetUsed1:" + beforeFreeNetUsed1);
     byte[] contractAddress = infoById.get().getContractAddress().toByteArray();
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testUseCpu(uint256)", firstForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -209,10 +209,10 @@ public class ContractLinkage005 {
     Assert.assertTrue(afterNetUsed1 > beforeNetUsed1);
     //use EnergyUsed and NetUsed.balance not change
 
-    String txid6 = PublicMethed.triggerContract(contractAddress,
+    String txid6 = PublicMethed.triggerContractSideChain(contractAddress,
         "testUseCpu(uint256)", secondForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
-    final String txid7 = PublicMethed.triggerContract(contractAddress,
+    final String txid7 = PublicMethed.triggerContractSideChain(contractAddress,
         "testUseCpu(uint256)", thirdForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
 
@@ -250,7 +250,7 @@ public class ContractLinkage005 {
     logger.info("beforeNetLimit4:" + beforeNetLimit4);
     logger.info("beforeNetUsed4:" + beforeNetUsed4);
     logger.info("beforeFreeNetUsed4:" + beforeFreeNetUsed4);
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testUseStorage(uint256)", zeroForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -282,23 +282,23 @@ public class ContractLinkage005 {
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     zeroForCycleCost = infoById.get().getReceipt().getEnergyUsageTotal();
 
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethed.triggerContractSideChain(contractAddress,
         "testUseStorage(uint256)", firstForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
 
-    final String txid2 = PublicMethed.triggerContract(contractAddress,
+    final String txid2 = PublicMethed.triggerContractSideChain(contractAddress,
         "testUseStorage(uint256)", secondForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
 
-    final String txid3 = PublicMethed.triggerContract(contractAddress,
+    final String txid3 = PublicMethed.triggerContractSideChain(contractAddress,
         "testUseStorage(uint256)", thirdForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
 
-    final String txid4 = PublicMethed.triggerContract(contractAddress,
+    final String txid4 = PublicMethed.triggerContractSideChain(contractAddress,
         "testUseStorage(uint256)", forthForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
 
-    final String txid5 = PublicMethed.triggerContract(contractAddress,
+    final String txid5 = PublicMethed.triggerContractSideChain(contractAddress,
         "testUseStorage(uint256)", fifthForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
 

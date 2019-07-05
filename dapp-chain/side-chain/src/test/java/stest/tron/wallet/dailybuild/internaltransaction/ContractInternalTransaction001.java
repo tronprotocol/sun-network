@@ -117,7 +117,7 @@ public class ContractInternalTransaction001 {
 
     String txid = "";
     String initParmes = "\"" + Base58.encode58Check(contractAddress1) + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "test1(address)", initParmes, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -132,7 +132,7 @@ public class ContractInternalTransaction001 {
       Assert.assertFalse(infoById.get().getInternalTransactions(i).getRejected());
     }
     String initParmes2 = "\"" + Base58.encode58Check(contractAddress1) + "\",\"1\"";
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethed.triggerContractSideChain(contractAddress,
         "test2(address,uint256)", initParmes2, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -178,7 +178,7 @@ public class ContractInternalTransaction001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     String initParmes2 = "\"" + Base58.encode58Check(contractAddress1) + "\",\"1\"";
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethed.triggerContractSideChain(contractAddress,
         "test2(address,uint256)", initParmes2, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -215,7 +215,7 @@ public class ContractInternalTransaction001 {
         internalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethed.triggerContractSideChain(contractAddress,
         "transfer()", "#", false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -267,7 +267,7 @@ public class ContractInternalTransaction001 {
     String txid = "";
     String initParmes = "\"" + Base58.encode58Check(contractAddress)
         + "\",\"" + Base58.encode58Check(contractAddress1) + "\"";
-    txid = PublicMethed.triggerContract(contractAddress1,
+    txid = PublicMethed.triggerContractSideChain(contractAddress1,
         "kill(address,address)", initParmes, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -292,7 +292,7 @@ public class ContractInternalTransaction001 {
     Assert.assertTrue(0 == vaule1);
     Assert.assertTrue(1000000L == vaule2);
 
-    String txid1 = PublicMethed.triggerContract(contractAddress1,
+    String txid1 = PublicMethed.triggerContractSideChain(contractAddress1,
         "kill2()", "#", false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -339,7 +339,7 @@ public class ContractInternalTransaction001 {
 
     String txid = "";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "test1()", "#", false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -364,7 +364,7 @@ public class ContractInternalTransaction001 {
     Assert.assertTrue(10 == vaule1);
     Assert.assertTrue(0 == vaule2);
 
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethed.triggerContractSideChain(contractAddress,
         "test2()", "#", false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -413,7 +413,7 @@ public class ContractInternalTransaction001 {
 
     String txid = "";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "test1()", "#", false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -444,7 +444,7 @@ public class ContractInternalTransaction001 {
     Assert.assertTrue(0 == vaule2);
     Assert.assertTrue(0 == vaule3);
 
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethed.triggerContractSideChain(contractAddress,
         "test2()", "#", false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

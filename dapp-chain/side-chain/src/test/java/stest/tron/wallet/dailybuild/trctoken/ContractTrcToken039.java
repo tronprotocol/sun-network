@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.trctoken;
 
 import com.google.protobuf.ByteString;
@@ -65,9 +66,11 @@ public class ContractTrcToken039 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -204,7 +207,7 @@ public class ContractTrcToken039 {
             .toStringUtf8()
             + "\"";
 
-    String triggerTxid = PublicMethed.triggerContract(proxyTestAddress,
+    String triggerTxid = PublicMethed.triggerContractSideChain(proxyTestAddress,
         "upgradeTo(address)",
         param, false, 0, 1000000000L, "0",
         0, dev001Address, dev001Key,
@@ -212,7 +215,7 @@ public class ContractTrcToken039 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    final String triggerTxid1 = PublicMethed.triggerContract(proxyTestAddress,
+    final String triggerTxid1 = PublicMethed.triggerContractSideChain(proxyTestAddress,
         "trans(uint256,address,trcToken)",
         param1, false, 0, 1000000000L, assetAccountId
             .toStringUtf8(),
@@ -313,13 +316,13 @@ public class ContractTrcToken039 {
             .toStringUtf8()
             + "\"";
 
-    String triggerTxid2 = PublicMethed.triggerContract(proxyTestAddress,
+    String triggerTxid2 = PublicMethed.triggerContractSideChain(proxyTestAddress,
         "upgradeTo(address)",
         param3, false, 0, 1000000000L, assetAccountId
             .toStringUtf8(),
         1, dev001Address, dev001Key,
         blockingStubFull);
-    String triggerTxid3 = PublicMethed.triggerContract(proxyTestAddress,
+    String triggerTxid3 = PublicMethed.triggerContractSideChain(proxyTestAddress,
         "trans(uint256,address,trcToken)",
         param2, false, 0, 1000000000L, assetAccountId
             .toStringUtf8(),
@@ -375,9 +378,11 @@ public class ContractTrcToken039 {
         user001Address, blockingStubFull);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass
   public void shutdown() throws InterruptedException {
@@ -390,3 +395,4 @@ public class ContractTrcToken039 {
 }
 
 
+*/

@@ -130,7 +130,7 @@ public class TransferFailed007 {
 
     String param = "\"" + testContractCode + "\"," + salt;
 
-    String triggerTxid = PublicMethed.triggerContract(contractAddress,
+    String triggerTxid = PublicMethed.triggerContractSideChain(contractAddress,
         "deploy(bytes,uint256)", param, false, 0L,
         maxFeeLimit, accountExcAddress, accountExcKey, blockingStubFull);
 
@@ -161,7 +161,7 @@ public class TransferFailed007 {
     Assert.assertFalse(infoById.get().getInternalTransactions(0).getRejected());
     Assert.assertTrue(infoById.get().getReceipt().getEnergyUsageTotal() < 10000000);
 
-    triggerTxid = PublicMethed.triggerContract(contractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(contractAddress,
         "deploy(bytes,uint256)", param, false, 0L,
         maxFeeLimit, accountExcAddress, accountExcKey, blockingStubFull);
 

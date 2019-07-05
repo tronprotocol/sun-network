@@ -131,7 +131,7 @@ public class ShiftCommand003 {
     String param = Hex.toHexString(paramBytes);
     logger.info("param:" + param);
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shlTest(uint256,uint256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -204,7 +204,7 @@ public class ShiftCommand003 {
     String param = Hex.toHexString(paramBytes);
     logger.info("param:" + param);
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shrTest(uint256,uint256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -278,7 +278,7 @@ public class ShiftCommand003 {
     String param = Hex.toHexString(paramBytes);
     logger.info("param:" + param);
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "sarTest(uint256,uint256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

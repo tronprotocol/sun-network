@@ -156,7 +156,7 @@ public class ContractScenario014 {
     logger.info("before contract1 balance is " + Long.toString(contract1BeforeBalance));
     logger.info("before receiver balance is " + Long.toString(receiverBeforeBalance));
     String receiveAddress = "\"" + Base58.encode58Check(receiverAddress) + "\"";
-    txid = PublicMethed.triggerContract(contractAddress2,
+    txid = PublicMethed.triggerContractSideChain(contractAddress2,
         "triggerContract1(address)", receiveAddress, false,
         0, maxFeeLimit, contract014Address, contract014Key, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -180,7 +180,7 @@ public class ContractScenario014 {
     receiverAccountInfo = PublicMethed.queryAccount(receiverAddress, blockingStubFull);
     receiverBeforeBalance = receiverAccountInfo.getBalance();
     receiveAddress = "\"" + Base58.encode58Check(receiverAddress) + "\"";
-    txid = PublicMethed.triggerContract(contractAddress2,
+    txid = PublicMethed.triggerContractSideChain(contractAddress2,
         "triggerContract1ButRevert(address)", receiveAddress, false,
         0, 10000000L, contract014Address, contract014Key, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -204,7 +204,7 @@ public class ContractScenario014 {
     logger.info("before receiver balance is " + Long.toString(receiverBeforeBalance));
     logger.info("before contract3 balance is " + Long.toString(contract3BeforeBalance));
     receiveAddress = "\"" + Base58.encode58Check(receiverAddress) + "\"";
-    txid = PublicMethed.triggerContract(contractAddress3,
+    txid = PublicMethed.triggerContractSideChain(contractAddress3,
         "triggerContract2(address)", receiveAddress, false,
         0, 10000000L, contract014Address, contract014Key, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

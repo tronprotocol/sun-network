@@ -143,7 +143,7 @@ public class TestMapBigLongAndNumbers {
 
       System.out.println("long string address:" + addresstest);
 
-      txid = PublicMethed.triggerContract(kittyCoreContractAddress, "update2(string,address)",
+      txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress, "update2(string,address)",
           saleContractString, false, 0, 1000000000L, fromAddress, testKey002, blockingStubFull);
       logger.info(txid);
 
@@ -152,13 +152,13 @@ public class TestMapBigLongAndNumbers {
 
       System.out.println("short string address:" + addresstest);
 
-      txid = PublicMethed.triggerContract(kittyCoreContractAddress, "update2(string,address)",
+      txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress, "update2(string,address)",
           saleContractString1, false, 0, 1000000000L, fromAddress, testKey002, blockingStubFull);
       logger.info(txid);
 
       System.out.println("time out");
 
-      txid = PublicMethed.triggerContract(kittyCoreContractAddress, "testUseCpu(uint256)",
+      txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress, "testUseCpu(uint256)",
           "1000000000", false, 0, 1000000000L, fromAddress, testKey002, blockingStubFull);
 
       infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);

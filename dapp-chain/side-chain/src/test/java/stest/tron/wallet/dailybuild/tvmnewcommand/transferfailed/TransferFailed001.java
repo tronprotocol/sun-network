@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.tvmnewcommand.transferfailed;
 
 import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
@@ -70,9 +71,11 @@ public class TransferFailed001 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -123,7 +126,7 @@ public class TransferFailed001 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
     String num = "1";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTrxInsufficientBalance(uint256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -189,7 +192,7 @@ public class TransferFailed001 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
     String num = "1";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTrxInsufficientBalance(uint256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -255,7 +258,7 @@ public class TransferFailed001 {
     String txid = "";
     String num = "1" + ",\"" + Base58.encode58Check(nonexistentAddress) + "\"";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTrxNonexistentTarget(uint256,address)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -323,7 +326,7 @@ public class TransferFailed001 {
     String txid = "";
     String num = "1";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTrxSelf(uint256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -391,7 +394,7 @@ public class TransferFailed001 {
     String txid = "";
     String num = "10000000" + ",\"" + Base58.encode58Check(nonexistentAddress) + "\"";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTrxNonexistentTarget(uint256,address)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -459,7 +462,7 @@ public class TransferFailed001 {
     String txid = "";
     String num = "1000000000";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTrxSelf(uint256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -524,7 +527,7 @@ public class TransferFailed001 {
     String txid = "";
     String num = "1";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTokenCompiledLongMax1()", "#", false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -560,7 +563,7 @@ public class TransferFailed001 {
     Assert.assertTrue(energyUsageTotal < maxFeeLimit / 10);
     Assert.assertEquals("REVERT opcode executed", infoById.get().getResMessage().toStringUtf8());
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTokenCompiledLongMin1()", "#", false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     infoById = null;
@@ -667,7 +670,7 @@ public class TransferFailed001 {
         "\"" + Base58.encode58Check(contractAddress) + "\"," + "\"" + assetAccountId.toStringUtf8()
             + "\"";
     //String num = "\""+Base58.encode58Check(contractAddress) +"\","+ "\"" + -1 + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTokenTest(address,uint256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -772,7 +775,7 @@ public class TransferFailed001 {
     // +"\","+ "\"" + assetAccountId.toStringUtf8() + "\"";
     String num = "\"" + assetAccountId.toStringUtf8() + "\"";
     //String num = "\""+Base58.encode58Check(contractAddress) +"\","+ "\"" + -1 + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testTransferTokenCompiledTokenId(uint256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -814,9 +817,11 @@ public class TransferFailed001 {
   }
 
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -832,3 +837,4 @@ public class TransferFailed001 {
 
 
 }
+*/

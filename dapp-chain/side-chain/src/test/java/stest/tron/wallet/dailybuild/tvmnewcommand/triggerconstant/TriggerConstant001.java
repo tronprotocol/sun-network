@@ -322,7 +322,7 @@ public class TriggerConstant001 {
     String txid = "";
 
     txid = PublicMethed
-        .triggerContract(contractAddressNoAbi,
+        .triggerContractSideChain(contractAddressNoAbi,
             "testPayable()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -383,7 +383,7 @@ public class TriggerConstant001 {
     String txid = "";
 
     txid = PublicMethed
-        .triggerContract(contractAddressNoAbi,
+        .triggerContractSideChain(contractAddressNoAbi,
             "testNoPayable()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -445,7 +445,7 @@ public class TriggerConstant001 {
     String txid = "";
 
     txid = PublicMethed
-        .triggerContract(contractAddressNoAbi,
+        .triggerContractSideChain(contractAddressNoAbi,
             "testView()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -507,7 +507,7 @@ public class TriggerConstant001 {
     String txid = "";
 
     txid = PublicMethed
-        .triggerContract(contractAddressNoAbi,
+        .triggerContractSideChain(contractAddressNoAbi,
             "testPure()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -590,7 +590,7 @@ public class TriggerConstant001 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
     txid = PublicMethed
-        .triggerContract(contractAddressWithAbi,
+        .triggerContractSideChain(contractAddressWithAbi,
             "testPayable()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -649,7 +649,7 @@ public class TriggerConstant001 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
     txid = PublicMethed
-        .triggerContract(contractAddressNoAbi,
+        .triggerContractSideChain(contractAddressNoAbi,
             "testNoPayable()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 

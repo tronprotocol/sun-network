@@ -182,7 +182,7 @@ public class Create2Test004 {
 
     String param = "\"" + testContractCode + "\"," + salt;
 
-    final String triggerTxid = PublicMethed.triggerContract(factoryContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(factoryContractAddress,
         "deploy(bytes,uint256)", param, false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -295,7 +295,7 @@ public class Create2Test004 {
 
     String param = "\"" + testContractCode + "\"," + salt;
 
-    final String triggerTxid = PublicMethed.triggerContract(factoryContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(factoryContractAddress,
         "deploy(bytes,uint256)", param, false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -410,7 +410,7 @@ public class Create2Test004 {
 
     String param = "\"" + testContractCode + "\"," + salt;
 
-    final String triggerTxid = PublicMethed.triggerContract(factoryContractAddress2,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(factoryContractAddress2,
         "deploy(bytes,uint256)", param, false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);

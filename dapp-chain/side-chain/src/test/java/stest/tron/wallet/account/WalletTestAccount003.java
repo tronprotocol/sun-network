@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.account;
 
 import com.google.protobuf.ByteString;
@@ -79,9 +80,11 @@ public class WalletTestAccount003 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass
   public void beforeClass() {
@@ -160,9 +163,11 @@ public class WalletTestAccount003 {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass
   public void shutdown() throws InterruptedException {
@@ -171,9 +176,11 @@ public class WalletTestAccount003 {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Boolean createWitness(byte[] owner, byte[] url, String priKey) {
     ECKey temKey = null;
@@ -202,9 +209,11 @@ public class WalletTestAccount003 {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Boolean sendCoin(byte[] to, long amount, byte[] owner, String priKey) {
     //String priKey = testKey002;
@@ -240,9 +249,11 @@ public class WalletTestAccount003 {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
       Integer icoNum, Long startTime, Long endTime,
@@ -305,9 +316,11 @@ public class WalletTestAccount003 {
     return ecKey.getAddress();
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
@@ -315,9 +328,11 @@ public class WalletTestAccount003 {
     return blockingStubFull.getAccount(request);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
@@ -335,9 +350,11 @@ public class WalletTestAccount003 {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public boolean unFreezeBalance(byte[] address, String priKey) {
     //byte[] address = address;
@@ -374,9 +391,11 @@ public class WalletTestAccount003 {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Boolean voteWitness(HashMap<String, String> witness, byte[] address, String priKey) {
 
@@ -421,9 +440,11 @@ public class WalletTestAccount003 {
     return true;
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public Boolean freezeBalance(byte[] addRess, long freezeBalance, long freezeDuration,
       String priKey) {
@@ -466,9 +487,11 @@ public class WalletTestAccount003 {
 
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   public static String getRandomStr(int length) {
     String base = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -489,3 +512,4 @@ public class WalletTestAccount003 {
 
 
 
+*/

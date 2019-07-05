@@ -255,7 +255,7 @@ public class TestExceptionCodeAndAbi {
       logger.info("before in 5 the balance is " + PublicMethed.queryAccount(asset016Address,
           blockingStubFull5).getBalance());
 
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "testUseCpu(uint256)", triggerNum.toString(), false,
           0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
       try {

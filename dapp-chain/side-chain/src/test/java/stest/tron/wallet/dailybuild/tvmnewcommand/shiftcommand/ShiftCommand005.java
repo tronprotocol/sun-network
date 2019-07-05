@@ -133,7 +133,7 @@ public class ShiftCommand005 {
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shrTest(uint256,uint256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -210,7 +210,7 @@ public class ShiftCommand005 {
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shrTest(uint256,uint256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -284,7 +284,7 @@ public class ShiftCommand005 {
     logger.info("returnnumber:" + originNumber);
     logger.info("returnnumber1:" + valueNumber);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shrTest(uint256,uint256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -360,7 +360,7 @@ public class ShiftCommand005 {
     System.arraycopy(valueNumber, 0, paramBytes, 0, valueNumber.length);
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shrTest(uint256,uint256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -439,7 +439,7 @@ public class ShiftCommand005 {
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shrTest(uint256,uint256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -515,7 +515,7 @@ public class ShiftCommand005 {
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shrTest(uint256,uint256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -591,7 +591,7 @@ public class ShiftCommand005 {
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shrTest(uint256,uint256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -667,7 +667,7 @@ public class ShiftCommand005 {
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shrTest(uint256,uint256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -745,7 +745,7 @@ public class ShiftCommand005 {
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shrTest(uint256,uint256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -823,7 +823,7 @@ public class ShiftCommand005 {
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shrTest(uint256,uint256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -908,7 +908,7 @@ public class ShiftCommand005 {
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shrTest(uint256,uint256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -995,7 +995,7 @@ public class ShiftCommand005 {
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "shrTest(int256,int256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

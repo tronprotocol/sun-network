@@ -139,12 +139,12 @@ public class WalletTestAccount012 {
       beforeEnergyLimit = accountResource.getEnergyLimit();
       beforeTotalEnergyLimit = accountResource.getTotalEnergyLimit();
       String initParmes = "\"" + "21" + "\"";
-      /*      txid = PublicMethed.triggerContract(contractAddress,
+      /*      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "storage8Char()", "", false,
           0, maxFeeLimit, asset011Address, testKeyForAssetIssue011, blockingStubFull);*/
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull1);
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "add2(uint256)", initParmes, false,
           0, maxFeeLimit, asset011Address, testKeyForAssetIssue011, blockingStubFull);
       accountResource = PublicMethed.getAccountResource(asset011Address,

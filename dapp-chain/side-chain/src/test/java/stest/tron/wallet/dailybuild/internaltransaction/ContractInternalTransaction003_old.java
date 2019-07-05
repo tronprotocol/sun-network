@@ -117,7 +117,7 @@ public class ContractInternalTransaction003_old {
 
     String initParmes = "\"" + Base58.encode58Check(contractAddress1) + "\"";
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "test1(address)", initParmes, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -195,7 +195,7 @@ public class ContractInternalTransaction003_old {
     String initParmes = "\"" + Base58.encode58Check(contractAddress1)
         + "\",\"" + Base58.encode58Check(contractAddress2) + "\"";
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "sendToB(address,address)", initParmes, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -221,7 +221,7 @@ public class ContractInternalTransaction003_old {
         ByteArray.toHexString(
             infoById.get().getInternalTransactions(1).getTransferToAddress().toByteArray()));
     String txid2 = "";
-    txid2 = PublicMethed.triggerContract(contractAddress,
+    txid2 = PublicMethed.triggerContractSideChain(contractAddress,
         "sendToB2(address,address)", initParmes, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -254,7 +254,7 @@ public class ContractInternalTransaction003_old {
             infoById2.get().getInternalTransactions(1).getTransferToAddress().toByteArray()));
 
     String txid3 = "";
-    txid3 = PublicMethed.triggerContract(contractAddress,
+    txid3 = PublicMethed.triggerContractSideChain(contractAddress,
         "sendToB3(address,address)", initParmes, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -324,7 +324,7 @@ public class ContractInternalTransaction003_old {
     String initParmes = "\"" + Base58.encode58Check(contractAddress1)
         + "\",\"" + Base58.encode58Check(contractAddress2) + "\"";
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "test1(address,address)", initParmes, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -357,7 +357,7 @@ public class ContractInternalTransaction003_old {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "transfer()", "#", false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -384,7 +384,7 @@ public class ContractInternalTransaction003_old {
           infoById.get().getInternalTransactions(i).getCallValueInfo(0).getCallValue());
     }
     String txid1 = "";
-    txid1 = PublicMethed.triggerContract(contractAddress,
+    txid1 = PublicMethed.triggerContractSideChain(contractAddress,
         "transfer2()", "#", false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -424,7 +424,7 @@ public class ContractInternalTransaction003_old {
     String initParmes = "\"" + Base58.encode58Check(contractAddress) + "\"";
 
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "transfer(address)", initParmes, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -500,7 +500,7 @@ public class ContractInternalTransaction003_old {
     String initParmes = "\"" + Base58.encode58Check(contractAddress1)
         + "\",\"" + Base58.encode58Check(contractAddress2) + "\"";
     String txid = "";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "test1(address,address)", initParmes, false,
         100000, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

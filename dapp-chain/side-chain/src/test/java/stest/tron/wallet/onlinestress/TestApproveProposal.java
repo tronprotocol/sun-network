@@ -13,7 +13,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.EmptyMessage;
-import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.core.Wallet;
@@ -95,9 +95,11 @@ public class TestApproveProposal {
 
   @Test(enabled = true)
   public void testApproveProposal() {
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(21L, 1L);
-    Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
+    final String mainGateWayAddress = Configuration.getByPath("testng.conf")
+            .getString("gateway_address.key1");
+    HashMap<Long, String> proposalMap = new HashMap<Long, String>();
+    proposalMap.put(21L, String.valueOf(1L));
+    Assert.assertTrue(PublicMethed.sideChainCreateProposal(witness001Address, witnessKey001,mainGateWayAddress,
         proposalMap, blockingStubFull));
     try {
       Thread.sleep(20000);
@@ -105,13 +107,13 @@ public class TestApproveProposal {
       e.printStackTrace();
     }
     //Get proposal list
-    ProposalList proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
-    Optional<ProposalList> listProposals = Optional.ofNullable(proposalList);
+    SideChainProposalList proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    Optional<SideChainProposalList> listProposals = Optional.ofNullable(proposalList);
     final Integer proposalId = listProposals.get().getProposalsCount();
     logger.info(Integer.toString(proposalId));
 
     //Get proposal list after approve
-    proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
+    proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
     listProposals = Optional.ofNullable(proposalList);
     logger.info(Integer.toString(listProposals.get().getProposals(0).getApprovalsCount()));
 
@@ -125,7 +127,7 @@ public class TestApproveProposal {
     byte[] witnessAddress;
     for (String key : witnessKey) {
       witnessAddress = PublicMethed.getFinalAddress(key);
-      PublicMethed.approveProposal(witnessAddress, key, proposalId,
+      PublicMethed.approveProposal(witnessAddress, key,PublicMethed.getMaingatewayAddr(), proposalId,
           true, blockingStubFull);
       try {
         Thread.sleep(1000);
@@ -214,7 +216,7 @@ public class TestApproveProposal {
     logger.info(Long.toString(getChainParameters.get().getChainParameterCount()));
     for (Integer i = 0; i < getChainParameters.get().getChainParameterCount(); i++) {
       logger.info(getChainParameters.get().getChainParameter(i).getKey());
-      logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+      logger.info(getChainParameters.get().getChainParameter(i).getValue());
     }
 
   }

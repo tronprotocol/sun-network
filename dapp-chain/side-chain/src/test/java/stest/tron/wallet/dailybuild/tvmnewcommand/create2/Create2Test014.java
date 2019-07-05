@@ -183,7 +183,7 @@ public class Create2Test014 {
 
     String param = "\"" + testContractCode + "\"," + salt;
 
-    final String triggerTxid = PublicMethed.triggerContract(factoryContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(factoryContractAddress,
         "deploy(bytes,uint256)", param, false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -294,7 +294,7 @@ public class Create2Test014 {
 
     String param = "\"" + testContractCode + "\"," + salt;
 
-    final String triggerTxid = PublicMethed.triggerContract(factoryContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(factoryContractAddress,
         "deploy(bytes,uint256)", param, false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -371,7 +371,7 @@ public class Create2Test014 {
 
     String param = "\"" + testContractCode + "\"," + salt;
 
-    final String triggerTxid = PublicMethed.triggerContract(factoryContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(factoryContractAddress,
         "deploy(bytes,uint256)", param, false, callValue,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
@@ -477,7 +477,7 @@ public class Create2Test014 {
 
     Long callValue = Long.valueOf(0);
 
-    final String triggerTxid = PublicMethed.triggerContract(testContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(testContractAddress,
         "plusOne()", "#", false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
@@ -561,7 +561,7 @@ public class Create2Test014 {
 
     Long callValue = Long.valueOf(0);
 
-    final String triggerTxid = PublicMethed.triggerContract(testContractAddress2,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(testContractAddress2,
         "plusOne()", "#", false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);

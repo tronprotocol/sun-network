@@ -150,7 +150,7 @@ public class TransferFailed006 {
     long paramValue = 1000000;
     String param = "\"" + paramValue + "\"";
 
-    String triggerTxid = PublicMethed.triggerContract(contractAddress,
+    String triggerTxid = PublicMethed.triggerContractSideChain(contractAddress,
         "testCreateTrxInsufficientBalance(uint256)", param, false, 0L,
         maxFeeLimit, accountExcAddress, accountExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -184,7 +184,7 @@ public class TransferFailed006 {
         PublicMethed.queryAccount(contractAddress, blockingStubFull).getBalance());
     Assert.assertTrue(infoById.get().getReceipt().getEnergyUsageTotal() < 10000000);
 
-    triggerTxid = PublicMethed.triggerContract(contractAddress,
+    triggerTxid = PublicMethed.triggerContractSideChain(contractAddress,
         "testCreateTrxInsufficientBalance(uint256)", param, false, 0L,
         maxFeeLimit, accountExcAddress, accountExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

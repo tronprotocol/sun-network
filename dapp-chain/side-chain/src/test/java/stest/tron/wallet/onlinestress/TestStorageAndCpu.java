@@ -116,14 +116,14 @@ public class TestStorageAndCpu {
     Integer i = 1;
     while (i++ < 8000) {
       String initParmes = "\"" + "930" + "\"";
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "testUseCpu(uint256)", "9100", false,
           0, maxFeeLimit, fromAddress, testKey002, blockingStubFull);
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "storage8Char()", "", false,
           0, maxFeeLimit, fromAddress, testKey002, blockingStubFull);
       //storage 9 EnergyUsageTotal is  211533, 10 is 236674, 5 is 110969,21 is 500000
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "testUseStorage(uint256)", "21", false,
           0, maxFeeLimit, fromAddress, testKey002, blockingStubFull);
       //logger.info("i is " +Integer.toString(i) + " " + txid);
@@ -138,9 +138,9 @@ public class TestStorageAndCpu {
             .getChainParameters(EmptyMessage.newBuilder().build());
         getChainParameters = Optional.ofNullable(chainParameters);
         logger.info(getChainParameters.get().getChainParameter(22).getKey());
-        logger.info(Long.toString(getChainParameters.get().getChainParameter(22).getValue()));
+        logger.info(getChainParameters.get().getChainParameter(22).getValue());
         logger.info(getChainParameters.get().getChainParameter(23).getKey());
-        logger.info(Long.toString(getChainParameters.get().getChainParameter(23).getValue()));
+        logger.info(getChainParameters.get().getChainParameter(23).getValue());
 
       }
     }

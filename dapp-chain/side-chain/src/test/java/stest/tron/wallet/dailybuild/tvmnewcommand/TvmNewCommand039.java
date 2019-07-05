@@ -133,7 +133,7 @@ public class TvmNewCommand039 {
     System.arraycopy(originNumber, 0, paramBytes, valueNumber.length, originNumber.length);
     String param = Hex.toHexString(paramBytes);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "sarTest(uint256,uint256)", param, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

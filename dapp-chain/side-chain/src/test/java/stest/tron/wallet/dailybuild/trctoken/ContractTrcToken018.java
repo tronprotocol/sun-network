@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.trctoken;
 
 import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
@@ -73,9 +74,11 @@ public class ContractTrcToken018 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @BeforeClass(enabled = true)
   public void beforeClass() {
 
@@ -225,7 +228,7 @@ public class ContractTrcToken018 {
     String param = "\"" + Base58.encode58Check(tmpAddress)
         + "\"," + assetAccountId.toStringUtf8() + ",\"1\"";
 
-    final String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid = PublicMethed.triggerContractSideChain(transferTokenContractAddress,
         "TransferTokenTo(address,trcToken,uint256)", param, false, 0,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
@@ -287,9 +290,11 @@ public class ContractTrcToken018 {
         user001Address, blockingStubFull);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -299,3 +304,4 @@ public class ContractTrcToken018 {
 }
 
 
+*/

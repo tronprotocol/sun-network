@@ -265,7 +265,7 @@ public class ContractLinkage007 {
     logger.info("beforeFreeNetUsed3:" + beforeFreeNetUsed3);
     //String initParmes = "\"" + Base58.encode58Check(fromAddress) + "\",\"63\"";
     String num = "4" + "," + "2";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "divideIHaveArgsReturn(int256,int256)", num, false,
         1000, maxFeeLimit + 1, linkage007Address, linkage007Key, blockingStubFull);
     Account infoafter3 = PublicMethed.queryAccount(linkage007Address, blockingStubFull1);
@@ -310,7 +310,7 @@ public class ContractLinkage007 {
     logger.info("beforeNetLimit4:" + beforeNetLimit4);
     logger.info("beforeNetUsed4:" + beforeNetUsed4);
     logger.info("beforeFreeNetUsed4:" + beforeFreeNetUsed4);
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "divideIHaveArgsReturn(int256,int256)", num, false,
         1000, maxFeeLimit + 1, linkage007Address, linkage007Key, blockingStubFull);
     Account infoafter4 = PublicMethed.queryAccount(linkage007Address, blockingStubFull1);

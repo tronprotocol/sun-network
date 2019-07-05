@@ -269,7 +269,7 @@ public class TestNetErc721Cat {
   public void triggerToSetThreeContractAddressToKittyCore() {
     //Set SaleAuctionAddress to kitty core.
     String saleContractString = "\"" + Base58.encode58Check(saleClockAuctionContractAddress) + "\"";
-    txid = PublicMethed.triggerContract(kittyCoreContractAddress, "setSaleAuctionAddress(address)",
+    txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress, "setSaleAuctionAddress(address)",
         saleContractString, false, 0, 10000000L, deployAddress, deployKey, blockingStubFull);
     logger.info(txid);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
@@ -289,7 +289,7 @@ public class TestNetErc721Cat {
     //Set gen contract to kitty core
     String genContractString = "\"" + Base58.encode58Check(geneScienceInterfaceContractAddress)
         + "\"";
-    txid = PublicMethed.triggerContract(kittyCoreContractAddress,
+    txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress,
         "setGeneScienceAddress(address)", genContractString,
         false, 0, 10000000L, deployAddress, deployKey, blockingStubFull);
     logger.info(txid);
@@ -297,31 +297,31 @@ public class TestNetErc721Cat {
     //Assert.assertTrue(infoById.get().getReceipt().getStorageDelta() > 50);
 
     //Start the game.
-    txid = PublicMethed.triggerContract(kittyCoreContractAddress, "unpause()", "", false, 0,
+    txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress, "unpause()", "", false, 0,
         10000000L, deployAddress, deployKey, blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     logger.info("start the game " + txid);
 
     //Create one gen0 cat.
-    txid = PublicMethed.triggerContract(kittyCoreContractAddress,
+    txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress,
         "createGen0Auction(uint256)", "-1000000000000000", false,
         0, 100000000L, deployAddress, deployKey, blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
 
-    txid = PublicMethed.triggerContract(kittyCoreContractAddress,
+    txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress,
         "gen0CreatedCount()", "#", false,
         0, 100000000L, deployAddress, deployKey, blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
 
-    /*      txid = PublicMethed.triggerContract(kittyCoreContractAddress,
+    /*      txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress,
           "name()","#",false,0,10000000,triggerAddress,
           triggerKey,blockingStubFull);
       logger.info("getname " + txid);*/
 
-    txid = PublicMethed.triggerContract(kittyCoreContractAddress,
+    txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress,
         "getKitty(uint256)", "1", false, 0, 10000000, triggerAddress,
         triggerKey, blockingStubFull);
     logger.info("getKitty " + txid);
@@ -331,21 +331,21 @@ public class TestNetErc721Cat {
     String newCxoAddress = "\"" + Base58.encode58Check(triggerAddress)
         + "\"";
 
-    txid = PublicMethed.triggerContract(kittyCoreContractAddress,
+    txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress,
         "setCOO(address)", newCxoAddress, false, 0, 10000000, deployAddress,
         deployKey, blockingStubFull);
     logger.info("COO " + txid);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
 
-    txid = PublicMethed.triggerContract(kittyCoreContractAddress,
+    txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress,
         "setCFO(address)", newCxoAddress, false, 0, 10000000, deployAddress,
         deployKey, blockingStubFull);
     logger.info("CFO " + txid);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
 
-    txid = PublicMethed.triggerContract(kittyCoreContractAddress,
+    txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress,
         "setCEO(address)", newCxoAddress, false, 0, 1000000, deployAddress,
         deployKey, blockingStubFull);
     logger.info("CEO " + txid);
@@ -359,7 +359,7 @@ public class TestNetErc721Cat {
     logger.info("In create kitty, kitty core address is " + ByteArray
         .toHexString(kittyCoreContractAddress));
     while (times++ < 20) {
-      txid = PublicMethed.triggerContract(kittyCoreContractAddress,
+      txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress,
           "createGen0Auction(uint256)", "0", false,
           0, 100000000L, triggerAddress, triggerKey, blockingStubFull);
       logger.info("createGen0 " + txid);
@@ -368,7 +368,7 @@ public class TestNetErc721Cat {
       /*      String promoKitty = "\"" + times.toString() + "\",\""
           +  Base58.encode58Check(kittyCoreContractAddress) + "\"";
       logger.info(promoKitty);
-      txid = PublicMethed.triggerContract(kittyCoreContractAddress,
+      txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress,
           "createPromoKitty(uint256,address)", promoKitty,false,
           0,10000000L,triggerAddress,triggerKey,blockingStubFull);
       logger.info("createPromoKitty " + txid);

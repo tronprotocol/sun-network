@@ -126,7 +126,7 @@ public class TransferFailed004 {
     String txid = "";
     String num = "\"" + Base58.encode58Check(nonexistentAddress) + "\"";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testSuicideNonexistentTarget(address)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -198,7 +198,7 @@ public class TransferFailed004 {
 
     String txid = "";
     String num = "\"" + Base58.encode58Check(nonexistentAddress) + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethed.triggerContractSideChain(contractAddress,
         "testSuicideNonexistentTarget(address)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;

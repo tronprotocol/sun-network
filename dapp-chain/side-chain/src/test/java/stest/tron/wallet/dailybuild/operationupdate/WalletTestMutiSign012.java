@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.dailybuild.operationupdate;
 
 import com.google.protobuf.ByteString;
@@ -77,9 +78,11 @@ public class WalletTestMutiSign012 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = false)
   public void beforeClass() {
@@ -185,9 +188,11 @@ public class WalletTestMutiSign012 {
     logger.info(" create asset end");
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @Test(enabled = false)
   public void testMutiSign2TransferAssetissue() {
@@ -223,9 +228,11 @@ public class WalletTestMutiSign012 {
     Assert.assertEquals(fee, energyFee + netFee + multiSignFee);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @Test(enabled = false)
   public void testMutiSign3ParticipateAssetissue() {
@@ -306,9 +313,11 @@ public class WalletTestMutiSign012 {
     Assert.assertEquals(fee, energyFee + netFee + multiSignFee);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @Test(enabled = false)
   public void testMutiSign4updateAssetissue() {
@@ -343,9 +352,11 @@ public class WalletTestMutiSign012 {
   }
 
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
   @AfterClass(enabled = false)
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -355,3 +366,4 @@ public class WalletTestMutiSign012 {
 }
 
 
+*/

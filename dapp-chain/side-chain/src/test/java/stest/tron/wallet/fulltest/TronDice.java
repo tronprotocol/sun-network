@@ -97,7 +97,7 @@ public class TronDice {
 
     for (Integer i = 0; i < 100; i++) {
       String initParmes = "\"" + "10" + "\"";
-      txid = PublicMethed.triggerContract(contractAddress,
+      txid = PublicMethed.triggerContractSideChain(contractAddress,
           "rollDice(uint256)", initParmes, false,
           1000000, maxFeeLimit, tronDiceAddress, tronDiceKey, blockingStubFull);
       logger.info(txid);

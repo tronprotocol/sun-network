@@ -1,3 +1,4 @@
+/*
 package stest.tron.wallet.fulltest;
 
 import io.grpc.ManagedChannel;
@@ -76,9 +77,11 @@ public class Creatasset {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @BeforeClass(enabled = false)
   public void beforeClass() {
@@ -189,16 +192,21 @@ public class Creatasset {
     }
   }
 
-  /**
+  */
+/**
    * constructor.
-   */
+   *//*
+
 
   @AfterClass(enabled = false)
   public void shutdown() throws InterruptedException {
-    /*    if (channelFull != null) {
+    */
+/*    if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-    }*/
+    }*//*
+
   }
 }
 
 
+*/

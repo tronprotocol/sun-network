@@ -159,13 +159,13 @@ public class TestNetFomo3D {
     /*    String name = readFromXieChang();*/
     String stringTimes = Integer.toString(7);
     byte[] contractAddress = infoById.get().getContractAddress().toByteArray();
-    txid = PublicMethed.triggerContract(contractAddress, "slice(uint256)", stringTimes, false,
+    txid = PublicMethed.triggerContractSideChain(contractAddress, "slice(uint256)", stringTimes, false,
         0, maxFeeLimit, testNetAccountAddress, testNetAccountKey, blockingStubFull);
     logger.info("slice  " + txid);
     logger.info(Integer.toString(infoById.get().getResultValue()));
     infoById = getTransactionInfoById(txid, blockingStubFull);
 
-    txid = PublicMethed.triggerContract(contractAddress, "s()", "#", false,
+    txid = PublicMethed.triggerContractSideChain(contractAddress, "s()", "#", false,
         0, maxFeeLimit, testNetAccountAddress, testNetAccountKey, blockingStubFull);
     logger.info(txid);
     logger.info(Integer.toString(infoById.get().getResultValue()));
