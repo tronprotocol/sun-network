@@ -293,10 +293,17 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
           "Signature count is " + (sigs.size()) + " more than key counts of permission : "
               + permission.getKeysCount());
     }
+    byte[] finalHash;
+    if (dbManager.getDynamicPropertiesStore().getSideChainId() != null) {
+      byte[] sideChainIdByteArray = ByteArray.fromHexString(dbManager.getDynamicPropertiesStore().getSideChainId());
+      byte[] hashWithSideChainId = Arrays.copyOf(hash, hash.length + sideChainIdByteArray.length);
+      System.arraycopy(sideChainIdByteArray, 0, hashWithSideChainId, hash.length, sideChainIdByteArray.length);
+      finalHash = Sha256Hash.hash(hashWithSideChainId);
+    }
+    else {
+      finalHash = hash;
+    }
 
-    byte[] sideChainIdByteArray = ByteArray.fromHexString(dbManager.getDynamicPropertiesStore().getSideChainId());
-    byte[] hashWithSideChainId = Arrays.copyOf(hash, hash.length + sideChainIdByteArray.length);
-    System.arraycopy(sideChainIdByteArray, 0, hashWithSideChainId, hash.length, sideChainIdByteArray.length);
 
     HashMap addMap = new HashMap();
     for (ByteString sig : sigs) {
@@ -305,7 +312,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
             "Signature size is " + sig.size());
       }
       String base64 = TransactionCapsule.getBase64FromByteString(sig);
-      byte[] address = ECKey.signatureToAddress(Sha256Hash.hash(hashWithSideChainId), base64);
+      byte[] address = ECKey.signatureToAddress(finalHash, base64);
       long weight = getWeight(permission, address);
       if (weight == 0) {
         throw new PermissionException(
