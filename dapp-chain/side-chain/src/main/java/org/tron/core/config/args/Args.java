@@ -982,8 +982,8 @@ public class Args {
 
     INSTANCE.sideChainGatewayList = getGateWayList(config,"sidechain.sideChainGateWayList");
     INSTANCE.mainChainGateWayList = getGateWayList(config, "sidechain.mainChainGateWayList");
-    INSTANCE.sideChainId = config.hasPath("sidechain.sideChainId") ? config.getString("sidechain.sideChainId") :
-       null;
+    // mandatory to have sideChainId
+    INSTANCE.sideChainId = config.getString("sidechain.sideChainId");
 
     INSTANCE.eventPluginConfig =
         config.hasPath("event.subscribe") ?
