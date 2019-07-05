@@ -30,6 +30,7 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import zmq.socket.pubsub.Pub;
 
 @Slf4j
 public class FreezeBalance2Test {
@@ -296,7 +297,7 @@ public class FreezeBalance2Test {
         "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtils.sign(transaction, ecKey,PublicMethed.getMaingatewayByteAddr(),false);
     Return response = blockingStubFull.broadcastTransaction(transaction);
 
     if (response.getResult() == false) {

@@ -46,8 +46,7 @@ public class ContractTest {
       .getStringList("fullnode.ip.list").get(1);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-  private String compilerVersion = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.solidityCompileVersion");
+  //private String compilerVersion = Configuration.getByPath("testng.conf").getString("defaultParameter.solidityCompileVersion");
 
 
   byte[] contractAddress = null;

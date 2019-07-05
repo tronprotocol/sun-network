@@ -300,7 +300,7 @@ public class PublicMethed {
         logger.info("transaction ==null");
         continue;
       }
-      transaction = signTransaction(ecKey, transaction);
+      transaction = signTransaction(ecKey, transaction,getMaingatewayByteAddr(),false);
       GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
       return response.getResult();
     }
@@ -517,7 +517,13 @@ public class PublicMethed {
     } catch (Exception ex) {
       ex.printStackTrace();
     }
+
     final ECKey ecKey = temKey;
+    if (argsStr.equalsIgnoreCase("#")) {
+      logger.info("argsstr is #");
+      argsStr = "";
+    }
+
     byte[] owner = ownerAddress;
     byte[] input = Hex.decode(AbiUtil.parseMethod(method, argsStr, isHex));
 
@@ -996,7 +1002,7 @@ public class PublicMethed {
       System.out.println("Transaction is empty");
       return null;
     }
-    transaction = signTransaction(ecKey, transaction);
+    transaction = signTransaction(ecKey, transaction,getMaingatewayByteAddr(),false);
     System.out.println(
         "txid = " + ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray())));
     byte[] contractAddress = generateContractAddress(transaction, owner);
@@ -2286,6 +2292,9 @@ public class PublicMethed {
   public static Boolean freezeBalanceGetEnergy(byte[] addRess, long freezeBalance,
                                                long freezeDuration,
                                                int resourceCode, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+
+
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
@@ -2306,14 +2315,23 @@ public class PublicMethed {
             .setFrozenDuration(frozenDuration).setResourceValue(resourceCode);
 
     Contract.FreezeBalanceContract contract = builder.build();
-    Protocol.Transaction transaction = blockingStubFull.freezeBalance(contract);
 
-    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      logger.info("transaction = null");
+    GrpcAPI.TransactionExtention transactionExtention = blockingStubFull.freezeBalance2(contract);
+    if (transactionExtention == null) {
       return false;
     }
+    Return ret = transactionExtention.getResult();
+    if (!ret.getResult()) {
+      System.out.println("Code = " + ret.getCode());
+      System.out.println("Message = " + ret.getMessage().toStringUtf8());
+      return false;
+    } else {
+      System.out.println("Code = " + ret.getCode());
+      System.out.println("Message = " + ret.getMessage().toStringUtf8());
+    }
+    Transaction transaction = transactionExtention.getTransaction();
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtils.sign(transaction, ecKey,getMaingatewayByteAddr(),false);
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }
@@ -2383,7 +2401,7 @@ public class PublicMethed {
     }
     System.out.println(
             "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
-    transaction = signTransaction(ecKey, transaction);
+    transaction = signTransaction(ecKey, transaction,getMaingatewayByteAddr(),false);
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }

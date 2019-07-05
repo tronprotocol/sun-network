@@ -306,7 +306,7 @@ public class WithdrawBalance2Test {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtils.sign(transaction, ecKey,PublicMethed.getMaingatewayByteAddr(),false);
   }
 }
 

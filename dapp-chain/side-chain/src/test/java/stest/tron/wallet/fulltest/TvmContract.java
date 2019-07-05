@@ -133,7 +133,7 @@ public class TvmContract {
     //Assert.assertTrue(storageUsage > 0);
     //Assert.assertTrue(storageLimit > 0);
     //Assert.assertTrue(energyLimit > 0);
-    //Assert.assertTrue(energyUsage > 0);
+    ////Assert.assertTrue(energyUsage > 0);
 
     logger.info("after energy limit is " + Long.toString(energyLimit));
     logger.info("after energy usage is " + Long.toString(energyUsage));
