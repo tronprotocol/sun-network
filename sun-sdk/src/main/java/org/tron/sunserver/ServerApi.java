@@ -8,7 +8,6 @@ import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.typesafe.config.Config;
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -66,9 +65,6 @@ import org.tron.core.config.Parameter.CommonConstant;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
 import org.tron.core.exception.EncodingException;
-import org.tron.keystore.Wallet;
-import org.tron.keystore.WalletFile;
-import org.tron.keystore.WalletUtils;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Contract.BuyStorageBytesContract;
@@ -98,12 +94,10 @@ import org.tron.protos.Protocol.Witness;
 import org.tron.sunapi.response.TransactionResponse;
 
 @Slf4j
-public class WalletApi {
+public class ServerApi {
 
-  private static final Logger logger = LoggerFactory.getLogger("WalletApi");
+  private static final Logger logger = LoggerFactory.getLogger("ServerApi");
   private static final String FilePath = "Wallet";
-  private List<WalletFile> walletFile = new ArrayList<>();
-  private boolean loginState = false;
   private byte[] address;
   private static byte addressPreFixByte = CommonConstant.ADD_PRE_FIX_BYTE_TESTNET;
   private static int rpcVersion = 0;
@@ -132,9 +126,9 @@ public class WalletApi {
     }
     if (config.hasPath("mainchain.net.type") && "mainnet"
       .equalsIgnoreCase(config.getString("mainchain.net.type"))) {
-      WalletApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+      ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     } else {
-      WalletApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_TESTNET);
+      ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_TESTNET);
     }
     if (config.hasPath("mainchain.RPC_version")) {
       rpcVersion = config.getInt("mainchain.RPC_version");
@@ -143,11 +137,11 @@ public class WalletApi {
     if (config.hasPath("mainchain.gateway_address")) {
       String temp = config.getString("mainchain.gateway_address");
 
-      if (!WalletApi.addressValid(decodeFromBase58Check(temp))) {
-        throw new RuntimeException("invalid main gateway address.");
+      if (!ServerApi.addressValid(decodeFromBase58Check(temp))) {
+        //TODO logger
       }
 
-      mainGatewayAddress = WalletApi.decodeFromBase58Check(temp);
+      mainGatewayAddress = ServerApi.decodeFromBase58Check(temp);
     }
 
     return new GrpcClient(fullNode, solidityNode);
@@ -160,7 +154,7 @@ public class WalletApi {
     List<byte[]> ret = new ArrayList<>();
     List<String> list = config.getStringList(path);
     for (String configString : list) {
-      ret.add(WalletApi.decodeFromBase58Check(configString));
+      ret.add(ServerApi.decodeFromBase58Check(configString));
     }
     return ret;
   }
@@ -178,9 +172,9 @@ public class WalletApi {
     }
     if (config.hasPath("sidechain.net.type") && "mainnet"
       .equalsIgnoreCase(config.getString("sidechain.net.type"))) {
-      WalletApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+      ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     } else {
-      WalletApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_TESTNET);
+      ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_TESTNET);
     }
     if (config.hasPath("sidechain.RPC_version")) {
       sideRpcVersion = config.getInt("sidechain.RPC_version");
@@ -189,11 +183,11 @@ public class WalletApi {
     if (config.hasPath("sidechain.gateway_address")) {
       String temp = config.getString("sidechain.gateway_address");
 
-      if (!WalletApi.addressValid(decodeFromBase58Check(temp))) {
-        throw new RuntimeException("invalid side gateway address.");
+      if (!ServerApi.addressValid(decodeFromBase58Check(temp))) {
+        //TODO logger
       }
 
-      sideGatewayAddress = WalletApi.decodeFromBase58Check(temp);
+      sideGatewayAddress = ServerApi.decodeFromBase58Check(temp);
     }
 
     mainChainGateWayList = getGateWayList(config, "sidechain.mainChainGateWayList");
@@ -215,21 +209,21 @@ public class WalletApi {
   }
 
   public static void setAddressPreFixByte(byte addressPreFixByte) {
-    WalletApi.addressPreFixByte = addressPreFixByte;
+    ServerApi.addressPreFixByte = addressPreFixByte;
   }
 
   public static int getRpcVersion() {
     return rpcVersion;
   }
 
-
   //  store private key
   public void initPrivateKey (byte[] priKey) {
-    priEcKey = ECKey.fromPrivate(priKey);
+    this.priEcKey = ECKey.fromPrivate(priKey);
+
+    this.address = priEcKey.getAddress();
   }
 
-
-  public WalletApi(String config, byte[] priKey, boolean isMainChain) {
+  public ServerApi(String config, byte[] priKey, boolean isMainChain) {
     this.isMainChain = isMainChain;
 
     if(isMainChain) {
@@ -242,70 +236,26 @@ public class WalletApi {
     this.address = priEcKey.getAddress();
   }
 
+  public ServerApi(String config, boolean isMainChain) {
+    this.isMainChain = isMainChain;
+
+    if (isMainChain) {
+      rpcCli = initMain(config);
+    } else {
+      rpcCli = initSide(config);
+    }
+  }
+
   public ECKey getEcKey() {
     return priEcKey;
   }
 
   public byte[] getPrivateBytes(byte[] password) throws CipherException, IOException {
-    WalletFile walletFile = loadWalletFile();
-    return Wallet.decrypt2PrivateBytes(password, walletFile);
+    return priEcKey.getPrivKeyBytes();
   }
 
   public byte[] getAddress() {
     return address;
-  }
-
-
-  public static File selcetWalletFile() {
-    File file = new File(FilePath);
-    if (!file.exists() || !file.isDirectory()) {
-      return null;
-    }
-
-    File[] wallets = file.listFiles();
-    if (ArrayUtils.isEmpty(wallets)) {
-      return null;
-    }
-
-    File wallet;
-    if (wallets.length > 1) {
-      for (int i = 0; i < wallets.length; i++) {
-        System.out.println("The " + (i + 1) + "th keystore file name is " + wallets[i].getName());
-      }
-      System.out.println("Please choose between 1 and " + wallets.length);
-      Scanner in = new Scanner(System.in);
-      while (true) {
-        String input = in.nextLine().trim();
-        String num = input.split("\\s+")[0];
-        int n;
-        try {
-          n = new Integer(num);
-        } catch (NumberFormatException e) {
-          System.out.println("Invaild number of " + num);
-          System.out.println("Please choose again between 1 and " + wallets.length);
-          continue;
-        }
-        if (n < 1 || n > wallets.length) {
-          System.out.println("Please choose again between 1 and " + wallets.length);
-          continue;
-        }
-        wallet = wallets[n - 1];
-        break;
-      }
-    } else {
-      wallet = wallets[0];
-    }
-
-    return wallet;
-  }
-
-  private static WalletFile loadWalletFile() throws IOException {
-    File wallet = selcetWalletFile();
-    if (wallet == null) {
-      throw new IOException(
-        "No keystore file found, please use registerwallet or importwallet first!");
-    }
-    return WalletUtils.loadWalletFile(wallet);
   }
 
   public byte[] getTrc10Address(String trc10) throws EncodingException {
@@ -328,19 +278,25 @@ public class WalletApi {
     return MUtil.convertToTronAddress(new DataWord(sideAddress).getLast20Bytes());
   }
 
-  public  void sideGetMappingAddress(String sideGateway, String mainContractAddress)
+
+  public  String sideGetMappingAddress(byte[] sideGateway, String mainContractAddress)
           throws EncodingException {
+    String contractAddress = null;
     byte[] input = org.bouncycastle.util.encoders.Hex.decode(
             AbiUtil.parseMethod("mainToSideContractMap(address)", "\"" + mainContractAddress + "\"", false));
 
     Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
-            decode58Check(sideGateway),
-            0, input, 0, "0");
+            sideGateway,0, input, 0, "0");
     TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract);
-    byte[] data = transactionExtention.getConstantResult(0).toByteArray();
-    byte[] address = Arrays.copyOfRange(data, 12, data.length);
+    if(transactionExtention != null && !transactionExtention.getConstantResultList().isEmpty()) {
+      byte[] data = transactionExtention.getConstantResult(0).toByteArray();
+      byte[] address = Arrays.copyOfRange(data, 12, data.length);
 
-    System.out.println("sideContractAddress is " + encode58Check(ByteArray.convertToTronAddress(address)));
+      contractAddress = encode58Check(ByteArray.convertToTronAddress(address));
+    }
+
+    return contractAddress;
+
   }
 
   public Account queryAccount() {
@@ -373,6 +329,7 @@ public class WalletApi {
     }
 
     return ByteArray.fromBytes21List(mainChainGateWayList);
+    // byte[] sideChainIdByteArray = ByteArray.fromHexString(dbManager.getDynamicPropertiesStore().getSideChainId());
   }
 
   private Transaction signTransaction(Transaction transaction) {
@@ -445,7 +402,7 @@ public class WalletApi {
 
   private TransactionResponse processTransactionExt2(TransactionExtention transactionExtention) {
     if (transactionExtention == null) {
-      return new TransactionResponse("Transaction extention is empty");
+      return new TransactionResponse("Transaction extension is null");
     }
     Return ret = transactionExtention.getResult();
     if (!ret.getResult()) {
@@ -652,15 +609,9 @@ public class WalletApi {
     return new TransactionResponse(response);
   }
 
-  public boolean createAssetIssue(Contract.AssetIssueContract contract)
-    throws CipherException, IOException, CancelException {
-    if (rpcVersion == 2) {
+  public TransactionResponse createAssetIssue(Contract.AssetIssueContract contract) {
       TransactionExtention transactionExtention = rpcCli.createAssetIssue2(contract);
-      return processTransactionExtention(transactionExtention);
-    } else {
-      Transaction transaction = rpcCli.createAssetIssue(contract);
-      return processTransaction(transaction);
-    }
+      return processTransactionExt2(transactionExtention);
   }
 
   public boolean createAccount(byte[] address)
@@ -852,7 +803,7 @@ public class WalletApi {
       long count = Long.parseLong(value);
       Contract.VoteWitnessContract.Vote.Builder voteBuilder = Contract.VoteWitnessContract.Vote
         .newBuilder();
-      byte[] address = WalletApi.decodeFromBase58Check(addressBase58);
+      byte[] address = ServerApi.decodeFromBase58Check(addressBase58);
       if (address == null) {
         continue;
       }
@@ -874,9 +825,9 @@ public class WalletApi {
       return false;
     }
     byte preFixbyte = address[0];
-    if (preFixbyte != WalletApi.getAddressPreFixByte()) {
+    if (preFixbyte != ServerApi.getAddressPreFixByte()) {
       logger
-        .warn("Warning: Address need prefix with " + WalletApi.getAddressPreFixByte() + " but "
+          .warn("Warning: Address need prefix with " + ServerApi.getAddressPreFixByte() + " but "
           + preFixbyte + " !!");
       return false;
     }
@@ -1091,7 +1042,7 @@ public class WalletApi {
 
     if (receiverAddress != null && !receiverAddress.equals("")) {
       ByteString receiverAddressBytes = ByteString.copyFrom(
-        Objects.requireNonNull(WalletApi.decodeFromBase58Check(receiverAddress)));
+          Objects.requireNonNull(ServerApi.decodeFromBase58Check(receiverAddress)));
       builder.setReceiverAddress(receiverAddressBytes);
     }
     return builder.build();
@@ -1145,7 +1096,7 @@ public class WalletApi {
 
     if (receiverAddress != null && !receiverAddress.equals("")) {
       ByteString receiverAddressBytes = ByteString.copyFrom(
-        Objects.requireNonNull(WalletApi.decodeFromBase58Check(receiverAddress)));
+          Objects.requireNonNull(ServerApi.decodeFromBase58Check(receiverAddress)));
       builder.setReceiverAddress(receiverAddressBytes);
     }
 
@@ -1610,7 +1561,7 @@ public class WalletApi {
       String addr = cur.substring(lastPosition + 1);
       String libraryAddressHex;
       try {
-        libraryAddressHex = (new String(Hex.encode(WalletApi.decodeFromBase58Check(addr)),
+        libraryAddressHex = (new String(Hex.encode(ServerApi.decodeFromBase58Check(addr)),
           "US-ASCII")).substring(2);
       } catch (UnsupportedEncodingException e) {
         throw new RuntimeException(e);  // now ignore
@@ -1714,24 +1665,21 @@ public class WalletApi {
 
   }
 
-  public String deployContract(String contractName, String ABI, String code,
+  public TransactionResponse deployContract(String contractName, String ABI, String code,
     long feeLimit, long value, long consumeUserResourcePercent, long originEnergyLimit,
-    long tokenValue, String tokenId, String libraryAddressPair, String compilerVersion)
-    throws IOException, CipherException, CancelException {
+    long tokenValue, String tokenId, String libraryAddressPair, String compilerVersion) {
     byte[] owner = getAddress();
     CreateSmartContract contractDeployContract = createContractDeployContract(contractName, owner,
       ABI, code, value, consumeUserResourcePercent, originEnergyLimit, tokenValue, tokenId,
       libraryAddressPair, compilerVersion);
 
     TransactionExtention transactionExtention = rpcCli.deployContract(contractDeployContract);
-    if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
-      System.out.println("RPC create trx failed!");
-      if (transactionExtention != null) {
-        System.out.println("Code = " + transactionExtention.getResult().getCode());
-        System.out
-          .println("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
-      }
-      return null;
+    if (transactionExtention == null ) {
+      return new TransactionResponse("RPC create trx failed!");
+    }
+
+    if( !transactionExtention.getResult().getResult() ) {
+      return new TransactionResponse(transactionExtention.getResult());
     }
 
     TransactionExtention.Builder texBuilder = TransactionExtention.newBuilder();
@@ -1753,10 +1701,7 @@ public class WalletApi {
     texBuilder.setTxid(transactionExtention.getTxid());
     transactionExtention = texBuilder.build();
 
-    byte[] contractAddress = generateContractAddress(transactionExtention.getTransaction());
-    System.out.println("Your smart contract address will be: " + WalletApi.encode58Check(contractAddress));
-    return WalletApi.encode58Check(contractAddress);
-
+    return processTransactionExt2(transactionExtention);
   }
 
   public TransactionResponse triggerContract(byte[] contractAddress, long callValue, byte[] data, long feeLimit,
@@ -1765,8 +1710,11 @@ public class WalletApi {
     Contract.TriggerSmartContract triggerContract = triggerCallContract(owner, contractAddress,
       callValue, data, tokenValue, tokenId);
     TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract);
-    if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
+    if (transactionExtention == null ) {
+      return new TransactionResponse("RPC create trx failed!");
+    }
 
+    if( !transactionExtention.getResult().getResult() ) {
       return new TransactionResponse(transactionExtention.getResult());
     }
 
@@ -1886,7 +1834,7 @@ public class WalletApi {
         JSONObject key = keys.getJSONObject(i);
         String address = key.getString("address");
         long weight = key.getLong("weight");
-        keyBuilder.setAddress(ByteString.copyFrom(WalletApi.decode58Check(address)));
+        keyBuilder.setAddress(ByteString.copyFrom(ServerApi.decode58Check(address)));
         keyBuilder.setWeight(weight);
         keyList.add(keyBuilder.build());
       }

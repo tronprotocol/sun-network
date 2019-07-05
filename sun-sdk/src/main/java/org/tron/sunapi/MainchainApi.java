@@ -21,6 +21,14 @@ public class MainchainApi extends Chain{
   }
 
   /**
+   * @return the result of init main chain
+   * @author sun-network
+   */
+  public SunNetworkResponse<Integer> init(String config) {
+    return super.init(config, true);
+  }
+
+  /**
    * @param parametersMap the id and content of proposal
    * @return the result of creating proposal
    * @author sun-network

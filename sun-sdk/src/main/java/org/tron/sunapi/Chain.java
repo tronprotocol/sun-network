@@ -48,14 +48,13 @@ import org.tron.sunapi.request.ExchangeTransactionRequest;
 import org.tron.sunapi.request.FreezeBalanceRequest;
 import org.tron.sunapi.request.TriggerContractRequest;
 import org.tron.sunapi.request.UpdateAssetRequest;
-import org.tron.sunapi.response.DeployContractResponse;
 import org.tron.sunapi.response.TransactionResponse;
-import org.tron.sunserver.WalletApi;
+import org.tron.sunserver.ServerApi;
 
 @Slf4j
 public class Chain implements ChainInterface {
   @Getter
-  private WalletApi serverApi;
+  private ServerApi serverApi;
 
   /**
    * @author sun-network
@@ -69,10 +68,31 @@ public class Chain implements ChainInterface {
     SunNetworkResponse<Integer> ret = new SunNetworkResponse<>();
     byte[] temp =  org.tron.keystore.StringUtils.hexs2Bytes(priKey.getBytes());
 
-    if (!WalletApi.priKeyValid(temp)) {
+    if (!ServerApi.priKeyValid(temp)) {
       ret.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
-    serverApi = new WalletApi(config, temp, isMainChain);
+    serverApi = new ServerApi(config, temp, isMainChain);
+
+    return ret.success(0);
+  }
+
+  public SunNetworkResponse<Integer> init(String config, boolean isMainChain) {
+    SunNetworkResponse<Integer> ret = new SunNetworkResponse<>();
+
+    serverApi = new ServerApi(config, isMainChain);
+
+    return ret.success(0);
+  }
+
+  public SunNetworkResponse<Integer> setPrivateKey(String priKey) {
+    SunNetworkResponse<Integer> ret = new SunNetworkResponse<>();
+    byte[] temp = org.tron.keystore.StringUtils.hexs2Bytes(priKey.getBytes());
+
+    if (!ServerApi.priKeyValid(temp)) {
+      ret.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
+    }
+
+    serverApi.initPrivateKey(temp);
 
     return ret.success(0);
   }
@@ -82,8 +102,8 @@ public class Chain implements ChainInterface {
    * @param request request of deploy contract
    * @return the response of deploy contract which contains the address of contract deployed
    */
-  public SunNetworkResponse<DeployContractResponse> deployContract(DeployContractRequest request) {
-    SunNetworkResponse<DeployContractResponse> resp = new SunNetworkResponse<DeployContractResponse>();
+  public SunNetworkResponse<TransactionResponse> deployContract(DeployContractRequest request) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
     String contractName = request.getContractName();
     String abiStr = request.getAbiStr();
@@ -118,21 +138,16 @@ public class Chain implements ChainInterface {
       String libraryAddressPair = request.getLibraryAddressPair();
       String compilerVersion = request.getCompilerVersion();
 
-      String contractAddress = serverApi.deployContract(contractName, abiStr, codeStr, feeLimit, trx,
+      TransactionResponse ret = serverApi.deployContract(contractName, abiStr, codeStr, feeLimit, trx,
           consumeUserResourcePercent, originEnergyLimit, tokenValue, tokenId, libraryAddressPair,
           compilerVersion);
-      if(StringUtils.isEmpty(contractAddress)) {
-        resp.failed(ErrorCodeEnum.ERROR_UNKNOWN);
+      resp.setData(ret);
+      if (ret.getResult()) {
+        resp.success(ret);
       } else {
-        resp.success(new DeployContractResponse(contractAddress));
+        resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
-    } catch(EncodingException e) {
+    } catch (EncodingException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_ENCODING);
     } catch (Exception e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
@@ -165,7 +180,7 @@ public class Chain implements ChainInterface {
     }
     try {
       byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, isHex));
-      byte[] contractAddress = WalletApi.decodeFromBase58Check(contractAddrStr);
+      byte[] contractAddress = ServerApi.decodeFromBase58Check(contractAddrStr);
 
       TransactionResponse result = serverApi
           .triggerContract(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
@@ -191,7 +206,7 @@ public class Chain implements ChainInterface {
   public SunNetworkResponse<String>  getAddress() {
     SunNetworkResponse<String> resp = new SunNetworkResponse<>();
 
-    String address = WalletApi.encode58Check(serverApi.getAddress());
+    String address = ServerApi.encode58Check(serverApi.getAddress());
     resp.success(address);
 
     return resp;
@@ -221,7 +236,7 @@ public class Chain implements ChainInterface {
    */
   public SunNetworkResponse<Account> getAccount(String address){
     SunNetworkResponse<Account> resp = new SunNetworkResponse<>();
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = ServerApi.decodeFromBase58Check(address);
     if (addressBytes == null) {
       resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
       return null;
@@ -360,7 +375,7 @@ public class Chain implements ChainInterface {
   public SunNetworkResponse<AssetIssueList> getAssetIssueByAccount(String address) {
     SunNetworkResponse<AssetIssueList> resp = new SunNetworkResponse<>();
 
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = ServerApi.decodeFromBase58Check(address);
     if (addressBytes == null) {
       resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
       return resp;
@@ -385,7 +400,7 @@ public class Chain implements ChainInterface {
   public SunNetworkResponse<AccountNetMessage> getAccountNet(String address) {
     SunNetworkResponse<AccountNetMessage> resp = new SunNetworkResponse<>();
 
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = ServerApi.decodeFromBase58Check(address);
     if (addressBytes == null) {
       resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
@@ -408,7 +423,7 @@ public class Chain implements ChainInterface {
   public SunNetworkResponse<AccountResourceMessage> getAccountResource(String address) {
     SunNetworkResponse<AccountResourceMessage> resp = new SunNetworkResponse<>();
 
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = ServerApi.decodeFromBase58Check(address);
     if (addressBytes == null) {
       resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
@@ -489,7 +504,7 @@ public class Chain implements ChainInterface {
   public SunNetworkResponse<Integer> sendCoin(String toAddress, long amount) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
-    byte[] to = WalletApi.decodeFromBase58Check(toAddress);
+    byte[] to = ServerApi.decodeFromBase58Check(toAddress);
     if (to == null) {
       resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
       return resp;
@@ -522,7 +537,7 @@ public class Chain implements ChainInterface {
   public SunNetworkResponse<Integer> transferAsset(String toAddress, String assertName, long amount) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
-    byte[] to = WalletApi.decodeFromBase58Check(toAddress);
+    byte[] to = ServerApi.decodeFromBase58Check(toAddress);
     if (to == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
@@ -556,7 +571,7 @@ public class Chain implements ChainInterface {
   public SunNetworkResponse<Integer> participateAssetIssue(String toAddress, String assertName, long amount) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
-    byte[] to = WalletApi.decodeFromBase58Check(toAddress);
+    byte[] to = ServerApi.decodeFromBase58Check(toAddress);
     if (to == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
@@ -580,49 +595,47 @@ public class Chain implements ChainInterface {
   }
 
 
-  private boolean assetIssueProc(String name, long totalSupply, int trxNum, int icoNum, int precision,
+  private TransactionResponse assetIssueProc(String name, long totalSupply, int trxNum, int icoNum, int precision,
       long startTime, long endTime, int voteScore, String description, String url,
-      long freeNetLimit, long publicFreeNetLimit, HashMap<String, String> frozenSupply)
-      throws CipherException, IOException, CancelException {
-
+      long freeNetLimit, long publicFreeNetLimit, HashMap<String, String> frozenSupply) {
 
     Contract.AssetIssueContract.Builder builder = Contract.AssetIssueContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(serverApi.getAddress()));
     builder.setName(ByteString.copyFrom(name.getBytes()));
 
     if (totalSupply <= 0) {
-      return false;
+      return null;
     }
     builder.setTotalSupply(totalSupply);
 
     if (trxNum <= 0) {
-      return false;
+      return null;
     }
     builder.setTrxNum(trxNum);
 
     if (icoNum <= 0) {
-      return false;
+      return null;
     }
     builder.setNum(icoNum);
 
     if (precision < 0) {
-      return false;
+      return null;
     }
     builder.setPrecision(precision);
 
     long now = System.currentTimeMillis();
     if (startTime <= now) {
-      return false;
+      return null;
     }
     if (endTime <= startTime) {
-      return false;
+      return null;
     }
 
     if (freeNetLimit < 0) {
-      return false;
+      return null;
     }
     if (publicFreeNetLimit < 0) {
-      return false;
+      return null;
     }
 
     builder.setStartTime(startTime);
@@ -653,8 +666,8 @@ public class Chain implements ChainInterface {
    * @return the result of creating assert issue
    */
   //TODO main
-  public SunNetworkResponse<Integer> assetIssue(AssertIssueRequest request) {
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
+  public SunNetworkResponse<TransactionResponse> assetIssue(AssertIssueRequest request) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
     String name = request.getName();
     String totalSupplyStr = request.getTotalSupplyStr();
@@ -680,22 +693,13 @@ public class Chain implements ChainInterface {
     long freeAssetNetLimit = new Long(freeNetLimitPerAccount);
     long publicFreeNetLimit = new Long(publicFreeNetLimitString);
 
-    try {
-
-      boolean result = assetIssueProc(name, totalSupply, trxNum, icoNum, precision, startTime,
-          endTime,
-          0, description, url, freeAssetNetLimit, publicFreeNetLimit, frozenSupply);
-      if (result) {
-        resp.success(0);
-      } else {
-        resp.failed(ErrorCodeEnum.FAILED);
-      }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    TransactionResponse result = assetIssueProc(name, totalSupply, trxNum, icoNum, precision, startTime,
+        endTime, 0, description, url, freeAssetNetLimit, publicFreeNetLimit, frozenSupply);
+    resp.setData(result);
+    if (result == null || result.getResult() != true) {
+      resp.failed(ErrorCodeEnum.FAILED);
+    } else {
+      resp.success(result);
     }
 
     return resp;
@@ -709,7 +713,7 @@ public class Chain implements ChainInterface {
   public SunNetworkResponse<Integer> createAccount(String address) {
     SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
 
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = ServerApi.decodeFromBase58Check(address);
     try {
       boolean result = serverApi.createAccount(addressBytes);
       if (result) {
@@ -1459,7 +1463,7 @@ public class Chain implements ChainInterface {
   public SunNetworkResponse<TransactionListExtention> getTransactionsFromThis(String address, int offset, int limit) {
     SunNetworkResponse<TransactionListExtention> resp = new SunNetworkResponse<>();
 
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = ServerApi.decodeFromBase58Check(address);
     if (addressBytes == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
@@ -1485,7 +1489,7 @@ public class Chain implements ChainInterface {
   public SunNetworkResponse<TransactionListExtention> getTransactionsToThis(String address, int offset, int limit) {
     SunNetworkResponse<TransactionListExtention> resp = new SunNetworkResponse<>();
 
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = ServerApi.decodeFromBase58Check(address);
     if (addressBytes == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
@@ -1568,7 +1572,7 @@ public class Chain implements ChainInterface {
   public SunNetworkResponse<TransactionResponse> updateSetting(String address, long consumeUserResourcePercent) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    byte[] contractAddress = WalletApi.decodeFromBase58Check(address);
+    byte[] contractAddress = ServerApi.decodeFromBase58Check(address);
     if(contractAddress == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
@@ -1605,7 +1609,7 @@ public class Chain implements ChainInterface {
   public SunNetworkResponse<TransactionResponse> updateEnergyLimit(String address, long originEnergyLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    byte[] contractAddress = WalletApi.decodeFromBase58Check(address);
+    byte[] contractAddress = ServerApi.decodeFromBase58Check(address);
     if(contractAddress == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
@@ -1641,7 +1645,7 @@ public class Chain implements ChainInterface {
   public SunNetworkResponse<SmartContract> getContract(String address) {
     SunNetworkResponse<SmartContract> resp = new SunNetworkResponse<>();
 
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = ServerApi.decodeFromBase58Check(address);
     if (addressBytes == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
@@ -1686,7 +1690,7 @@ public class Chain implements ChainInterface {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
-    byte[] ownerAddress = WalletApi.decodeFromBase58Check(address);
+    byte[] ownerAddress = ServerApi.decodeFromBase58Check(address);
     if (ownerAddress == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }

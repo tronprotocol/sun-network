@@ -6,13 +6,13 @@ import org.tron.common.utils.AbiUtil;
 import org.tron.core.exception.EncodingException;
 import org.tron.sunapi.response.TransactionResponse;
 import org.tron.sunapi.response.TransactionResponse.ResponseType;
-import org.tron.sunserver.WalletApi;
+import org.tron.sunserver.ServerApi;
 
 public class CrosschainApi {
   public MainchainApi mainchainApi;
   public SidechainApi sidechainApi;
-  public WalletApi mainchainServer;
-  public WalletApi sidechainServer;
+  public ServerApi mainchainServer;
+  public ServerApi sidechainServer;
 
   /**
    * @param mainchainApi the main chain
@@ -36,7 +36,7 @@ public class CrosschainApi {
   public SunNetworkResponse<TransactionResponse> withdrawTrx(long trxNum, long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
-    byte[] sideGatewayAddress = WalletApi.getSideGatewayAddress();
+    byte[] sideGatewayAddress = ServerApi.getSideGatewayAddress();
     if (sideGatewayAddress == null) {
       return resp.failed(ErrorCodeEnum.COMMON_SIDE_CHAIN_INVALID_GATEWAY);
     }
@@ -72,7 +72,7 @@ public class CrosschainApi {
   public SunNetworkResponse<TransactionResponse> withdrawTrc10(String tokenId, long tokenValue, long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
-    byte[] sideGatewayAddress = WalletApi.getSideGatewayAddress();
+    byte[] sideGatewayAddress = ServerApi.getSideGatewayAddress();
     if (sideGatewayAddress == null) {
       return resp.failed(ErrorCodeEnum.COMMON_SIDE_CHAIN_INVALID_GATEWAY);
     }
@@ -113,7 +113,7 @@ public class CrosschainApi {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
     //sidechain contract address
-    byte[] sideAddress = WalletApi.decodeFromBase58Check(contractAddrStr);
+    byte[] sideAddress = ServerApi.decodeFromBase58Check(contractAddrStr);
     if (sideAddress == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
@@ -158,7 +158,7 @@ public class CrosschainApi {
 //    String tokenId = "";
 //
 //    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, false));
-//    byte[] contractAddress = WalletApi.decodeFromBase58Check(contractAddrStr);
+//    byte[] contractAddress = ServerApi.decodeFromBase58Check(contractAddrStr);
 //
 //    boolean result = walletApiWrapper.callContractAndCheck(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
 //    if (result) {
@@ -230,7 +230,7 @@ public class CrosschainApi {
     String methodStr = "depositTRX()";
     try {
       byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
-      byte[] contractAddress = WalletApi.decodeFromBase58Check(mainChainGateway);
+      byte[] contractAddress = ServerApi.decodeFromBase58Check(mainChainGateway);
 
       TransactionResponse result = mainchainServer
           .triggerContract(contractAddress, trxNum, input, feeLimit, 0, "");
@@ -263,7 +263,7 @@ public class CrosschainApi {
     String methodStr = "depositTRC10()";
     try {
       byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
-      byte[] contractAddress = WalletApi.decodeFromBase58Check(mainChainGateway);
+      byte[] contractAddress = ServerApi.decodeFromBase58Check(mainChainGateway);
 
       TransactionResponse result = mainchainServer
           .triggerContract(contractAddress, 0, input, feeLimit, tokenValue, tokenId);
@@ -292,13 +292,13 @@ public class CrosschainApi {
 //    String argsStr = "\"" + mainGatewayAddr + "\",\"" + num + "\"";
 //
 //    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, false));
-//    byte[] contractAddress = WalletApi.decodeFromBase58Check(contractAddrStr);
+//    byte[] contractAddress = ServerApi.decodeFromBase58Check(contractAddrStr);
 //
 //    boolean result = walletApiWrapper.callContractAndCheck(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
 //    if (result) {
 //      System.out.println("approve successfully.\n");
 //
-//      byte[] depositContractAddr =  WalletApi.decodeFromBase58Check(mainGatewayAddr);
+//      byte[] depositContractAddr =  ServerApi.decodeFromBase58Check(mainGatewayAddr);
 //      String depositArgStr = num + ",\"" + contractAddrStr + "\"";
 //      byte[] depositInput = Hex.decode(AbiUtil.parseMethod(depositMethodStr, depositArgStr , false));
 //

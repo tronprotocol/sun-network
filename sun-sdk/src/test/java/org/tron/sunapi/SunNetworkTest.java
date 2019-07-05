@@ -12,7 +12,8 @@ public class SunNetworkTest {
 
   public static SunNetwork sdk = new SunNetwork();
   {
-    sdk.init("config.conf", priKey);
+    sdk.init("config.conf");
+    sdk.setPrivateKey(priKey);
   }
 
 

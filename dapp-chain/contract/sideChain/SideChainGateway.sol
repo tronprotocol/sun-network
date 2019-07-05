@@ -89,12 +89,12 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     modifier onlyOracle {
-        require(oracles[msg.sender]);
+        require(oracles[msg.sender], "oracles[msg.sender] is false");
         _;
     }
 
     modifier onlyOwner {
-        require(msg.sender == owner);
+        require(msg.sender == owner, "msg.sender != owner");
         _;
     }
 
@@ -120,14 +120,16 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         return withdrawSigns[nonce].signs;
     }
 
-    function modifyOracle(address _oracle, bool isOracle) public onlyOwner {
-        if (oracles[_oracle] && !isOracle) {
-            oracleCnt -= 1;
-        }
-        if (!oracles[_oracle] && isOracle) {
-            oracleCnt += 1;
-        }
-        oracles[_oracle] = isOracle;
+    function addOracle(address _oracle) public onlyOwner {
+        require(!oracles[_oracle], "_oracle is oracle");
+        oracles[_oracle] = true;
+        oracleCnt++;
+    }
+
+    function delOracle(address _oracle) public onlyOwner {
+        require(oracles[_oracle], "_oracle is not oracle");
+        oracles[_oracle] = false;
+        oracleCnt--;
     }
 
     function setSunTokenAddress(address _sunTokenAddress) public onlyOwner {

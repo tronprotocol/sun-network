@@ -299,7 +299,7 @@ message Transaction {
       AccountPermissionUpdateContract = 46;
 
 
-      SideChainProposalCreateContract = 1001;
+      SideChainProposalCreateContract = 255;
     }
     ContractType type = 1;
     google.protobuf.Any parameter = 2;
