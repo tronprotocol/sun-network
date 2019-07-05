@@ -318,7 +318,7 @@ public class WalletTestTransfer003 {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtils.sign(transaction, ecKey,PublicMethed.getMaingatewayByteAddr(),false);
   }
 
   /**
