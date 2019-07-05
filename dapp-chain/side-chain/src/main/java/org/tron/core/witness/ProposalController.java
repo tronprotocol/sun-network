@@ -248,7 +248,7 @@ public class ProposalController {
           List<String> list = Arrays.asList(entry.getValue().split(","));
           List<byte[]> byteList = list.stream().map(element -> Wallet
               .decodeFromBase58Check(element)).collect(Collectors.toList());
-          manager.getDynamicPropertiesStore().saveGateWayList(byteList);
+          manager.getDynamicPropertiesStore().saveSideChainGateWayList(byteList);
           break;
         }
         case (1_000_002): {

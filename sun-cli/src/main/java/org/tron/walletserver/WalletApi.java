@@ -116,7 +116,7 @@ public class WalletApi {
   private static byte[] sideGatewayAddress;
   private static byte[] mainGatewayAddress;
 
-  private static List<byte[]> mainChainGateWayList;
+  private static String sideChainId;
 
   private static GrpcClient rpcMain = initMain();
   private static GrpcClient rpcSide = initSide();
@@ -211,7 +211,7 @@ public class WalletApi {
       sideGatewayAddress = WalletApi.decodeFromBase58Check(temp);
     }
 
-    mainChainGateWayList = getGateWayList(config, "sidechain.mainChainGateWayList");
+    sideChainId = config.getString("sidechain.sideChainId");
 
     return new GrpcClient(fullNode, solidityNode);
   }
@@ -624,7 +624,7 @@ public class WalletApi {
       return new byte[0];
     }
 
-    return ByteArray.fromBytes21List(mainChainGateWayList);
+    return ByteArray.fromHexString(sideChainId);
   }
   private Transaction signTransaction(Transaction transaction)
     throws CipherException, IOException, CancelException {
