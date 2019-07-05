@@ -20,22 +20,60 @@ public class SunNetwork {
    * @return the result of initialize
    * @author sun-network
    */
-  public SunNetworkResponse<Integer> init(String config, String priKey) {
+//  public SunNetworkResponse<Integer> init(String config, String priKey) {
+//    SunNetworkResponse<Integer> ret;
+//
+//    this.mainChainService = new MainchainApi();
+//    ret = this.mainChainService.init(config, priKey);
+//    if(!ret.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
+//      return ret;
+//    }
+//
+//    this.sideChainService = new SidechainApi();
+//    ret = this.sideChainService.init(config, priKey);
+//    if(!ret.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
+//      return ret;
+//    }
+//
+//    crossChainService = new CrosschainApi(mainChainService, sideChainService);
+//
+//    return ret;
+//  }
+
+  /**
+   * @param config the configuration path
+   * @return the result of initialize
+   * @author sun-network
+   */
+  public SunNetworkResponse<Integer> init(String config) {
     SunNetworkResponse<Integer> ret;
 
     this.mainChainService = new MainchainApi();
-    ret = this.mainChainService.init(config, priKey);
-    if(!ret.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
+    ret = this.mainChainService.init(config);
+    if (!ret.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
       return ret;
     }
 
     this.sideChainService = new SidechainApi();
-    ret = this.sideChainService.init(config, priKey);
-    if(!ret.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
+    ret = this.sideChainService.init(config);
+    if (!ret.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
       return ret;
     }
 
     crossChainService = new CrosschainApi(mainChainService, sideChainService);
+
+    return ret;
+  }
+
+  public SunNetworkResponse<Integer> setPrivateKey(String priKey) {
+    SunNetworkResponse<Integer> ret;
+
+    ret = this.mainChainService.setPrivateKey(priKey);
+    if (!ret.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
+      return ret;
+    }
+
+    ret = this.sideChainService.setPrivateKey(priKey);
 
     return ret;
   }
@@ -45,7 +83,8 @@ public class SunNetwork {
     String priKey = "e901ef62b241b6f1577fd6ea34ef8b1c4b3ddee1e3c051b9e63f5ff729ad47a1";
 
     SunNetwork sdk = new SunNetwork();
-    sdk.init("config.conf", priKey);
+    sdk.init("config.conf");
+    sdk.setPrivateKey(priKey);
     long balanceMain1 = 0;
     long balanceMain2 = 0;
     long balanceMain3 = 0;

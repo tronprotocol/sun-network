@@ -21,6 +21,15 @@ public class SidechainApi extends Chain{
   }
 
   /**
+   * @param config the configuration path
+   * @return the result of init side chain
+   * @author sun-network
+   */
+  public SunNetworkResponse<Integer> init(String config) {
+    return super.init(config, false);
+  }
+
+  /**
    * @param parametersMap the id and content of proposal
    * @return the result of creating proposal
    * @author sun-network
