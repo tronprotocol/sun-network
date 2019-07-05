@@ -176,13 +176,13 @@ public class DepositImpl implements Deposit {
   }
 
   @Override
-  public List<byte[]> getGatewayList() {
-    return this.dbManager.getDynamicPropertiesStore().getGateWayList();
+  public List<byte[]> getSideChainGateWayList() {
+    return this.dbManager.getDynamicPropertiesStore().getSideChainGateWayList();
   }
 
   @Override
   public boolean isGatewayAddress(byte[] address) {
-    List<byte[]> gatewayList = this.dbManager.getDynamicPropertiesStore().getGateWayList();
+    List<byte[]> gatewayList = this.dbManager.getDynamicPropertiesStore().getSideChainGateWayList();
 
     for (byte[] gateway: gatewayList) {
       if (ByteUtil.equals(gateway, address)) {
