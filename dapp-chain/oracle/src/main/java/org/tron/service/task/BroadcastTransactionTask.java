@@ -46,12 +46,14 @@ public class BroadcastTransactionTask {
     } else if (broadcastRet == BroadcastRet.DONE) {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
       if (logger.isInfoEnabled()) {
-        String msg = MessageCode.BROADCAST_TRANSACTION_SUCCESS.getMsg(transactionId);
+        String msg = MessageCode.BROADCAST_TRANSACTION_SUCCESS
+            .getMsg(eventActuator.getType().name(), transactionId);
         logger.info(msg);
       }
     } else {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
-      String msg = MessageCode.BROADCAST_TRANSACTION_FAIL.getMsg(transactionId);
+      String msg = MessageCode.BROADCAST_TRANSACTION_FAIL
+          .getMsg(eventActuator.getType().name(), transactionId);
       AlertUtil.sendAlert(msg);
     }
   }

@@ -51,13 +51,13 @@ public class CreateTransactionTask {
           .submitBroadcast(eventActuator, txExtensionCapsule.getDelay());
       if (logger.isInfoEnabled()) {
         String msg = MessageCode.CREATE_TRANSACTION_SUCCESS
-            .getMsg(txExtensionCapsule.getTransactionId());
+            .getMsg(eventActuator.getType().name(), txExtensionCapsule.getTransactionId());
         logger.info(msg);
       }
     } else {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
       String msg = MessageCode.CREATE_TRANSACTION_FAIL
-          .getMsg(ByteArray.toStr(eventActuator.getNonceKey()));
+          .getMsg(eventActuator.getType().name(), ByteArray.toStr(eventActuator.getNonceKey()));
       AlertUtil.sendAlert(msg);
     }
   }
