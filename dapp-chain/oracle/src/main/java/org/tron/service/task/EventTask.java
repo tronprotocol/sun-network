@@ -26,8 +26,8 @@ public class EventTask {
 
   public EventTask() {
     Args args = Args.getInstance();
-    this.kfkConsumer = new KfkConsumer(args.getMainchainKafka(),
-        "Oracle_" + args.getOracleAddress(), Arrays.asList("contractevent"));
+    this.kfkConsumer = new KfkConsumer(args.getMainchainKafka(), args.getKafkaGroupId(),
+        Arrays.asList("contractevent"), args.getKafukaConfig());
   }
 
   public void processEvent() {
