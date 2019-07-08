@@ -534,10 +534,8 @@ public class Program {
     // 4. CREATE THE CONTRACT OUT OF RETURN
     byte[] code = createResult.getHReturn();
 
-    long saveCodeEnergy = 0;
-    if (VMConfig.isVmResourceChargingOn) {
-      saveCodeEnergy = (long) getLength(code) * EnergyCost.getInstance().getCREATE_DATA();
-    }
+    long saveCodeEnergy = (long) getLength(code) * EnergyCost.getInstance().getCREATE_DATA();
+
     long afterSpend =
         programInvoke.getEnergyLimit() - createResult.getEnergyUsed() - saveCodeEnergy;
     if (!createResult.isRevert()) {
@@ -794,14 +792,12 @@ public class Program {
   }
 
   public void spendEnergy(long energyValue, String opName) {
-    if (VMConfig.isVmResourceChargingOn) {
-      if (getEnergylimitLeftLong() < energyValue) {
-        throw new OutOfEnergyException(
-            "Not enough energy for '%s' operation executing: curInvokeEnergyLimit[%d], curOpEnergy[%d], usedEnergy[%d]",
-            opName, invoke.getEnergyLimit(), energyValue, getResult().getEnergyUsed());
-      }
-      getResult().spendEnergy(energyValue);
+    if (getEnergylimitLeftLong() < energyValue) {
+      throw new OutOfEnergyException(
+          "Not enough energy for '%s' operation executing: curInvokeEnergyLimit[%d], curOpEnergy[%d], usedEnergy[%d]",
+          opName, invoke.getEnergyLimit(), energyValue, getResult().getEnergyUsed());
     }
+    getResult().spendEnergy(energyValue);
   }
 
   public void checkCPUTimeLimit(String opName) {
@@ -1398,10 +1394,7 @@ public class Program {
       }
     }
 
-    long requiredEnergy = 0;
-    if (VMConfig.isVmResourceChargingOn) {
-      requiredEnergy = contract.getEnergyForData(data);
-    }
+    long requiredEnergy = contract.getEnergyForData(data);
     if (requiredEnergy > msg.getEnergy().longValue()) {
       // Not need to throw an exception, method caller needn't know that
       // regard as consumed the energy

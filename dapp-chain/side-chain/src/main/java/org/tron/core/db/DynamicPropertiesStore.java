@@ -1,6 +1,7 @@
 package org.tron.core.db;
 
 import com.google.protobuf.ByteString;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -722,7 +723,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getSideChainGateWayList();
     } catch (IllegalArgumentException e) {
-      this.saveSideChainGateWayList(Args.getInstance().getSideChainGatewayList());
+      this.saveSideChainGateWayList(new ArrayList<byte[]>());
     }
 
     try {
