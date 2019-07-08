@@ -480,11 +480,15 @@ public class Args {
   //side-chain
   @Getter
   @Setter
-  private List<byte[]> gatewayList;
+  private List<byte[]> sideChainGatewayList;
 
   @Getter
   @Setter
   private List<byte[]> mainChainGateWayList;
+
+  @Getter
+  @Setter
+  private String sideChainId;
 
   @Getter
   @Setter
@@ -976,8 +980,10 @@ public class Args {
     INSTANCE.saveInternalTx =
         config.hasPath("vm.saveInternalTx") && config.getBoolean("vm.saveInternalTx");
 
-    INSTANCE.gatewayList = getGateWayList(config,"gateWayList");
-    INSTANCE.mainChainGateWayList = getGateWayList(config, "mainChainGateWayList");
+    INSTANCE.sideChainGatewayList = getGateWayList(config,"sidechain.sideChainGateWayList");
+    INSTANCE.mainChainGateWayList = getGateWayList(config, "sidechain.mainChainGateWayList");
+    // mandatory to have sideChainId
+    INSTANCE.sideChainId = config.getString("sidechain.sideChainId");
 
     INSTANCE.eventPluginConfig =
         config.hasPath("event.subscribe") ?

@@ -51,6 +51,8 @@ public class Args {
   @Getter
   private String mainchainGatewayStr;
 
+  @Getter
+  private byte[] chainId;
 
   @Getter
   private byte[] sidechainGateway;
@@ -77,6 +79,10 @@ public class Args {
   @Getter
   private Map<String, Properties> mysqlWriteConfs = new HashMap<>();
 
+  @Getter
+  KafkaConfig kafkaConfig = null;
+  @Getter
+  String kafkaGroupId;
 
   /**
    * set parameters.
@@ -113,6 +119,8 @@ public class Args {
     this.mainchainGateway = WalletUtil
         .decodeFromBase58Check(this.mainchainGatewayStr);
 
+    this.chainId = WalletUtil.decodeFromBase58Check(config.getString("sidechain.chain.id"));
+
     this.sidechainGatewayStr = config.getString("gateway.sidechain.address");
     this.sidechainGateway = WalletUtil
         .decodeFromBase58Check(sidechainGatewayStr);
@@ -130,7 +138,17 @@ public class Args {
     if (config.hasPath("initTaskSwitch") && config.getBoolean("initTaskSwitch")) {
       this.initTask = true;
     }
-
+    if (config.hasPath("kafka.authorization.user") && config
+        .hasPath("kafka.authorization.passwd")) {
+      kafkaConfig = new KafkaConfig(
+          config.getString("kafka.authorization.user"),
+          config.getString("kafka.authorization.passwd"));
+    }
+    if (config.hasPath("kafka.group.id")) {
+      kafkaGroupId = config.getString("kafka.group.id");
+    } else {
+      kafkaGroupId = "Oracle_" + getOracleAddress();
+    }
   }
 
   public String getOracleAddress() {

@@ -3,6 +3,7 @@ package org.tron.service.eventactuator;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.tron.common.config.Args;
 import org.tron.service.eventactuator.mainchain.DepositTRC10Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC20Actuator;
@@ -24,17 +25,24 @@ import org.tron.service.eventenum.SideEventType;
 @Slf4j(topic = "task")
 public class EventActuatorFactory {
 
-  public static Actuator CreateActuator(JSONObject obj) {
-    Args args = Args.getInstance();
-    if (Objects.isNull(obj.get("contractAddress"))) {
+  public static Actuator CreateActuator(String eventStr) {
+    try {
+
+      JSONObject obj = (JSONObject) JSONValue.parse(eventStr);
+      Args args = Args.getInstance();
+      if (Objects.isNull(obj.get("contractAddress"))) {
+        return null;
+      }
+      if (obj.get("contractAddress").equals(args.getMainchainGatewayStr())) {
+        return createMainChainActuator(obj);
+      } else if (obj.get("contractAddress").equals(args.getSidechainGatewayStr())) {
+        return createSideChainActuator(obj);
+      }
+      logger.debug("unknown contract address:{}", obj.get("contractAddress"));
+    } catch (Exception e) {
+      logger.info("{} create actuator err", eventStr);
       return null;
     }
-    if (obj.get("contractAddress").equals(args.getMainchainGatewayStr())) {
-      return createMainChainActuator(obj);
-    } else if (obj.get("contractAddress").equals(args.getSidechainGatewayStr())) {
-      return createSideChainActuator(obj);
-    }
-    logger.debug("unknown contract address:{}", obj.get("contractAddress"));
     return null;
   }
 

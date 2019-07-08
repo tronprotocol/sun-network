@@ -233,7 +233,7 @@ public class PrecompiledContracts {
       if (data == null || data.length != 5 * DataWord.WORD_SIZE) {
         return Pair.of(false, new DataWord(0).getData());
       }
-      List<byte[]> gatewayList = this.getDeposit().getGatewayList();
+      List<byte[]> gatewayList = this.getDeposit().getSideChainGateWayList();
       boolean match = false;
       for (byte[] gateway: gatewayList) {
         if (ByteUtil.equals(gateway, this.getCallerAddress())) {
@@ -315,7 +315,7 @@ public class PrecompiledContracts {
 
     @Override
     public Pair<Boolean, byte[]> execute(byte[] data) {
-      List<byte[]> gatewayList = this.getDeposit().getGatewayList();
+      List<byte[]> gatewayList = this.getDeposit().getSideChainGateWayList();
       boolean match = false;
       for (byte[] gateway: gatewayList) {
         if (ByteUtil.equals(gateway, this.getCallerAddress())) {

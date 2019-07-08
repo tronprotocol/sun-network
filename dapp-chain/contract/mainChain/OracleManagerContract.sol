@@ -43,9 +43,9 @@ contract OracleManagerContract is Ownable {
         _;
     }
 
-    modifier validToken(trcToken tokenId, uint256 tokenValue) {
-        require(tokenId == msg.tokenid, "tokenId is err");
-        require(tokenValue == msg.tokenvalue, "tokenValue is err");
+    modifier checkForTrc10(uint256 tokenId, uint256 tokenValue) {
+        require(tokenId == msg.tokenid, "tokenId != msg.tokenid");
+        require(tokenValue == msg.tokenvalue, "tokenValue != msg.tokenvalue");
         _;
     }
 

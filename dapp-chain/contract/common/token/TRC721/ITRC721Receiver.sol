@@ -12,7 +12,6 @@ contract ITRC721Receiver {
      *  Equals to `bytes4(keccak256("onTRC721Received(address,uint256,bytes)"))`,
      *  which can be also obtained as `ITRC721Receiver(0).onTRC721Received.selector`
      */
-    bytes4 constant internal _TRC721_RECEIVED = 0xcb912b1e;  // FIXME, can be here ?
 
     function onTRC721Received(address from, uint256 tokenId) public returns (uint256);
 }

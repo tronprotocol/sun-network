@@ -116,6 +116,7 @@ public class WalletApi {
   private static byte[] sideGatewayAddress;
   private static byte[] mainGatewayAddress;
 
+  private static String sideChainId;
   private static List<byte[]> mainChainGateWayList;
 
   private static GrpcClient rpcMain = initMain();
@@ -211,6 +212,7 @@ public class WalletApi {
       sideGatewayAddress = WalletApi.decodeFromBase58Check(temp);
     }
 
+    sideChainId = config.getString("sidechain.sideChainId");
     mainChainGateWayList = getGateWayList(config, "sidechain.mainChainGateWayList");
 
     return new GrpcClient(fullNode, solidityNode);
@@ -468,6 +470,9 @@ public class WalletApi {
     Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
       sideGatewayAddress, 0, input, 0, "0");
     TransactionExtention transactionExtention = rpcSide.triggerContract(triggerContract);
+    if (transactionExtention == null || transactionExtention.getConstantResultList().isEmpty()) {
+      return null;
+    }
     byte[] sideAddress = transactionExtention.getConstantResult(0).toByteArray();
     return MUtil.convertToTronAddress(new DataWord(sideAddress).getLast20Bytes());
   }
@@ -580,19 +585,20 @@ public class WalletApi {
     return signature.toByteArray();
   }
 
-  public  void sideGetMappingAddress(String sideGateway, String mainContractAddress)
+  public void sideGetMappingAddress(byte[] sideGateway, String mainContractAddress)
           throws EncodingException {
     byte[] input = org.bouncycastle.util.encoders.Hex.decode(
-            AbiUtil.parseMethod("mainToSideContractMap(address)", "\"" + mainContractAddress + "\"", false));
+        AbiUtil.parseMethod("mainToSideContractMap(address)", "\"" + mainContractAddress + "\"", false));
 
     Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
-            decode58Check(sideGateway),
-            0, input, 0, "0");
-    TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract);
-    byte[] data = transactionExtention.getConstantResult(0).toByteArray();
-    byte[] address = Arrays.copyOfRange(data, 12, data.length);
+        sideGateway, 0, input, 0, "0");
+    TransactionExtention transactionExtention = rpcSide.triggerContract(triggerContract);
+    if (transactionExtention != null && !transactionExtention.getConstantResultList().isEmpty()) {
+      byte[] data = transactionExtention.getConstantResult(0).toByteArray();
+      byte[] address = Arrays.copyOfRange(data, 12, data.length);
 
-    System.out.println("sideContractAddress is " + encode58Check(ByteArray.convertToTronAddress(address)));
+      System.out.println("sideContractAddress is " + encode58Check(ByteArray.convertToTronAddress(address)));
+    }
   }
 
   public Account queryAccount() {
@@ -624,6 +630,7 @@ public class WalletApi {
       return new byte[0];
     }
 
+    //return ByteArray.fromHexString(sideChainId);
     return ByteArray.fromBytes21List(mainChainGateWayList);
   }
   private Transaction signTransaction(Transaction transaction)

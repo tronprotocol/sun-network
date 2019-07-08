@@ -313,8 +313,8 @@ public class ContractState implements Deposit, ProgramListenerAware {
   }
 
   @Override
-  public List<byte[]> getGatewayList() {
-    return deposit.getGatewayList();
+  public List<byte[]> getSideChainGateWayList() {
+    return deposit.getSideChainGateWayList();
   }
 
   @Override
