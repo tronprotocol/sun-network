@@ -11,10 +11,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.encoders.Hex;
-import org.tron.common.config.Args;
 import org.tron.common.crypto.Hash;
 import org.tron.common.exception.EncodingException;
-import org.tron.common.exception.RpcConnectException;
 
 
 public class AbiUtil {
@@ -528,8 +526,8 @@ public class AbiUtil {
     return !(new DataWord(data)).isZero();
   }
 
-  public static int unpackUint(byte[] data) {
-    return new DataWord(data).intValue();
+  public static long unpackUint(byte[] data) {
+    return new DataWord(data).longValue();
   }
 
   public static String unpackString(byte[] data) {
@@ -549,7 +547,7 @@ public class AbiUtil {
 
   public static void main(String[] args) throws EncodingException {
 
-    Object[] arr = {1,'a',"b", 3};
+    Object[] arr = {1, 'a', "b", 3};
     System.out.print(StringUtils.join(arr, ","));
     //test();
     //test2();

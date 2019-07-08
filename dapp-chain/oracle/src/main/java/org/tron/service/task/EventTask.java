@@ -6,8 +6,6 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.tron.common.MessageCode;
 import org.tron.common.config.Args;
 import org.tron.common.utils.ByteArray;
@@ -26,17 +24,16 @@ public class EventTask {
 
   public EventTask() {
     Args args = Args.getInstance();
-    this.kfkConsumer = new KfkConsumer(args.getMainchainKafka(),
-        "Oracle_" + args.getOracleAddress(), Arrays.asList("contractevent"));
+    this.kfkConsumer = new KfkConsumer(args.getMainchainKafka(), args.getKafkaGroupId(),
+        Arrays.asList("contractevent"), args.getKafkaConfig());
   }
 
   public void processEvent() {
     while (true) {
       ConsumerRecords<String, String> record = this.kfkConsumer.getRecord();
       for (ConsumerRecord<String, String> key : record) {
-        JSONObject obj = (JSONObject) JSONValue.parse(key.value());
 
-        Actuator eventActuator = EventActuatorFactory.CreateActuator(obj);
+        Actuator eventActuator = EventActuatorFactory.CreateActuator(key.value());
         if (Objects.isNull(eventActuator)) {
           //Unrelated contract or event
           this.kfkConsumer.commit();
