@@ -796,7 +796,7 @@ public class WalletApiWrapper {
     return WalletApi.encode58Check(Hash.sha3omit12(combined));
   }
 
-  public void sideGetMappingAddress(String sideGateway, String mainContractAddress)
+  public void sideGetMappingAddress(byte[] sideGateway, String mainContractAddress)
           throws  EncodingException {
 
     if (wallet == null || !wallet.isLoginState()) {
