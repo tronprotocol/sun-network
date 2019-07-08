@@ -78,7 +78,7 @@ public class Args {
   private Map<String, Properties> mysqlWriteConfs = new HashMap<>();
 
   @Getter
-  KafukaConfig kafukaConfig = null;
+  KafkaConfig kafkaConfig = null;
   @Getter
   String kafkaGroupId;
 
@@ -136,14 +136,14 @@ public class Args {
     }
     if (config.hasPath("kafka.authorization.user") && config
         .hasPath("kafka.authorization.passwd")) {
-      kafukaConfig = new KafukaConfig(
+      kafkaConfig = new KafkaConfig(
           config.getString("kafka.authorization.user"),
           config.getString("kafka.authorization.passwd"));
     }
     if (config.hasPath("kafka.group.id")) {
       kafkaGroupId = config.getString("kafka.group.id");
     } else {
-      kafkaGroupId = "Oracle" + getOracleAddress();
+      kafkaGroupId = "Oracle_" + getOracleAddress();
     }
   }
 

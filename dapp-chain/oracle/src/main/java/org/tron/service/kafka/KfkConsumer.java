@@ -5,14 +5,14 @@ import java.util.Objects;
 import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.tron.common.config.KafukaConfig;
+import org.tron.common.config.KafkaConfig;
 
 
 public class KfkConsumer {
 
   private KafkaConsumer<String, String> kafkaConsumer = null;
 
-  public KfkConsumer(String server, String groupId, List<String> topicList, KafukaConfig config) {
+  public KfkConsumer(String server, String groupId, List<String> topicList, KafkaConfig config) {
     Properties properties = new Properties();
     properties.put("bootstrap.servers", server);
     properties.put("group.id", groupId);
