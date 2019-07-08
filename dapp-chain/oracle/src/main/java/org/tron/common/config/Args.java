@@ -51,6 +51,8 @@ public class Args {
   @Getter
   private String mainchainGatewayStr;
 
+  @Getter
+  private byte[] chainId;
 
   @Getter
   private byte[] sidechainGateway;
@@ -116,6 +118,8 @@ public class Args {
     this.mainchainGatewayStr = config.getString("gateway.mainchain.address");
     this.mainchainGateway = WalletUtil
         .decodeFromBase58Check(this.mainchainGatewayStr);
+
+    this.chainId = WalletUtil.decodeFromBase58Check(config.getString("sidechain.chain.id"));
 
     this.sidechainGatewayStr = config.getString("gateway.sidechain.address");
     this.sidechainGateway = WalletUtil

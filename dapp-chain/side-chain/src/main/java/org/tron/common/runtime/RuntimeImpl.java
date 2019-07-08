@@ -197,8 +197,9 @@ public class RuntimeImpl implements Runtime {
     long energyFromBalance;
     long energyFromFeeLimit;
 
-    int chargingType = deposit.getDbManager().getDynamicPropertiesStore().getSideChainChargingType();
-    if(chargingType == 0) {
+    int chargingType = deposit.getDbManager().getDynamicPropertiesStore()
+        .getSideChainChargingType();
+    if (chargingType == 0) {
       // charging by trx
       long sunPerEnergy = Constant.SUN_PER_ENERGY;
       if (deposit.getDbManager().getDynamicPropertiesStore().getEnergyFee() > 0) {
@@ -215,7 +216,9 @@ public class RuntimeImpl implements Runtime {
       }
 
       energyFromFeeLimit = feeLimit / sunTokenPerEnergy;
-      energyFromBalance = max(account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) - sunTokenCallValue, 0) / sunTokenPerEnergy;
+      energyFromBalance =
+          max(account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) - sunTokenCallValue, 0)
+              / sunTokenPerEnergy;
     }
 
     long leftFrozenEnergy = energyProcessor.getAccountLeftEnergyFromFreeze(account);
@@ -268,8 +271,11 @@ public class RuntimeImpl implements Runtime {
       TriggerSmartContract contract, long feeLimit, long callValue, long sunTokenCallValue)
       throws ContractValidateException {
 
-    long callerEnergyLimit = getAccountEnergyLimitWithFixRatio(caller, feeLimit, callValue, sunTokenCallValue);
-    if (Arrays.equals(creator.getAddress().toByteArray(), caller.getAddress().toByteArray())) {
+    long callerEnergyLimit = getAccountEnergyLimitWithFixRatio(caller, feeLimit, callValue,
+        sunTokenCallValue);
+
+    if (Objects.isNull(creator) || Arrays
+        .equals(creator.getAddress().toByteArray(), caller.getAddress().toByteArray())) {
       // when the creator calls his own contract, this logic will be used.
       // so, the creator must use a BIG feeLimit to call his own contract,
       // which will cost the feeLimit TRX when the creator's frozen energy is 0.
@@ -398,15 +404,15 @@ public class RuntimeImpl implements Runtime {
         throw new ContractValidateException("The originEnergyLimit must be > 0");
       }
 
-
       checkTokenValueAndId(tokenValue, tokenId);
 
       long sunTokenCallTokenValue = 0;
-      if (tokenId == Long.parseLong(SUN_TOKEN_ID)){
+      if (tokenId == Long.parseLong(SUN_TOKEN_ID)) {
         sunTokenCallTokenValue = tokenValue;
       }
 
-      energyLimit = getAccountEnergyLimitWithFixRatio(creator, feeLimit, callValue, sunTokenCallTokenValue);
+      energyLimit = getAccountEnergyLimitWithFixRatio(creator, feeLimit, callValue,
+          sunTokenCallTokenValue);
       if (energyLimit < 0) {
         throw new ContractValidateException("not enough energy to initialize vm");
       }
@@ -493,13 +499,12 @@ public class RuntimeImpl implements Runtime {
       throw new ContractValidateException("tokenValue must >= 0");
     }
 
-
     byte[] callerAddress = contract.getOwnerAddress().toByteArray();
 
     checkTokenValueAndId(tokenValue, tokenId);
 
     long sunTokenCallTokenValue = 0;
-    if (tokenId == Long.parseLong(SUN_TOKEN_ID)){
+    if (tokenId == Long.parseLong(SUN_TOKEN_ID)) {
       sunTokenCallTokenValue = tokenValue;
     }
     byte[] code = this.deposit.getCode(contractAddress);
@@ -521,7 +526,8 @@ public class RuntimeImpl implements Runtime {
         AccountCapsule creator = this.deposit
             .getAccount(deployedContract.getInstance().getOriginAddress().toByteArray());
 
-        energyLimit = getTotalEnergyLimitWithFixRatio(creator, caller, contract, feeLimit, callValue, sunTokenCallTokenValue);
+        energyLimit = getTotalEnergyLimitWithFixRatio(creator, caller, contract, feeLimit,
+            callValue, sunTokenCallTokenValue);
         if (energyLimit < 0) {
           throw new ContractValidateException("not enough energy to initialize vm");
         }
@@ -677,7 +683,8 @@ public class RuntimeImpl implements Runtime {
   }
 
 
-  private ProgramInvoke generateProgramInvoke(long energyLimit, long tokenValue, long tokenId) throws ContractValidateException {
+  private ProgramInvoke generateProgramInvoke(long energyLimit, long tokenValue, long tokenId)
+      throws ContractValidateException {
     long maxCpuTimeOfOneTx = deposit.getDbManager().getDynamicPropertiesStore()
         .getMaxCpuTimeOfOneTx() * Constant.ONE_THOUSAND;
     long thisTxCPULimitInUs =

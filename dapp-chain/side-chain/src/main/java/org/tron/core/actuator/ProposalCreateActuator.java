@@ -12,16 +12,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.capsule.TransactionResultCapsule;
 import org.tron.core.config.Parameter.ChainParameters;
-import org.tron.core.config.Parameter.ForkBlockVersionConsts;
-import org.tron.core.config.Parameter.ForkBlockVersionEnum;
-import org.tron.core.config.args.Args;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
@@ -147,7 +143,8 @@ public class ProposalCreateActuator extends AbstractActuator {
 
     switch (entry.getKey().intValue()) {
       case (0): {
-        if (Long.valueOf(entry.getValue()) < 3 * 27 * 1000 || Long.valueOf(entry.getValue()) > 24 * 3600 * 1000) {
+        if (Long.valueOf(entry.getValue()) < 3 * 27 * 1000
+            || Long.valueOf(entry.getValue()) > 24 * 3600 * 1000) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [3 * 27 * 1000,24 * 3600 * 1000]");
         }
@@ -161,7 +158,8 @@ public class ProposalCreateActuator extends AbstractActuator {
       case (6):
       case (7):
       case (8): {
-        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0
+            || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000_000_000L]");
         }
@@ -180,6 +178,10 @@ public class ProposalCreateActuator extends AbstractActuator {
         break;
       }
       case (11):
+        if (Long.valueOf(entry.getValue()) <= 0) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid range is greater than 0");
+        }
         break;
       case (12):
         break;
@@ -190,7 +192,8 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       case (17): { // deprecated
-        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0
+            || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000_000_000L]");
         }
@@ -204,7 +207,8 @@ public class ProposalCreateActuator extends AbstractActuator {
         break;
       }
       case (19): {
-        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0
+            || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000_000_000L]");
         }
@@ -225,14 +229,16 @@ public class ProposalCreateActuator extends AbstractActuator {
         break;
       }
       case (22): {
-        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0
+            || Long.valueOf(entry.getValue()) > 100_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000L]");
         }
         break;
       }
       case (23): {
-        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0
+            || Long.valueOf(entry.getValue()) > 100_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000L]");
         }
@@ -248,8 +254,8 @@ public class ProposalCreateActuator extends AbstractActuator {
       case (1_000_001): {
         List<String> list = Arrays.asList(entry.getValue().split(","));
         Iterator<String> it = list.iterator();
-        while(it.hasNext()) {
-          if ( Wallet.decodeFromBase58Check(it.next()).length != 21) {
+        while (it.hasNext()) {
+          if (Wallet.decodeFromBase58Check(it.next()).length != 21) {
             throw new ContractValidateException(
                 "gateway address has to be 21 bytes");
           }
@@ -257,25 +263,25 @@ public class ProposalCreateActuator extends AbstractActuator {
 
         break;
       }
-      case (1_000_002) :{
+      case (1_000_002): {
         List<String> list = Arrays.asList(entry.getValue().split(","));
         Iterator<String> it = list.iterator();
-        while(it.hasNext()) {
-          if ( Wallet.decodeFromBase58Check(it.next()).length != 21) {
+        while (it.hasNext()) {
+          if (Wallet.decodeFromBase58Check(it.next()).length != 21) {
             throw new ContractValidateException(
                 "gateway address has to be 21 bytes");
           }
         }
         break;
       }
-      case (1_000_003) :{
+      case (1_000_003): {
         if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 259_200_000L) {
           throw new ContractValidateException(
-                  "Bad chain parameter value,valid range is [0,259_200_000L]");
+              "Bad chain parameter value,valid range is [0,259_200_000L]");
         }
         break;
       }
-      case (1_000_004) :{
+      case (1_000_004): {
         if (Long.valueOf(entry.getValue()) != 1 || Long.valueOf(entry.getValue()) != 0) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,1]");

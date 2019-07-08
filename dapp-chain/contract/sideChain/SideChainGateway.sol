@@ -106,6 +106,12 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         _;
     }
 
+    modifier checkForTrc10(uint256 tokenId, uint256 tokenValue) {
+        require(tokenId == msg.tokenid, "tokenId != msg.tokenid");
+        require(tokenValue == msg.tokenvalue, "tokenValue != msg.tokenvalue");
+        _;
+    }
+
     modifier onlyNotPause {
         require(!pause, "pause is true");
         _;
@@ -265,12 +271,12 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 7. withdrawTRC10
-    function withdrawTRC10() payable public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
+    function withdrawTRC10(uint256 tokenId, uint256 tokenValue) payable public onlyNotPause onlyNotStop checkForTrc10(tokenId, tokenValue) goDelegateCall returns (uint256 r) {
+        require(tokenIdMap[msg.tokenid], "tokenIdMap[msg.tokenid] == false");
+        require(msg.tokenvalue > withdrawMinTrc10, "tokenvalue must be > withdrawMinTrc10");
         if (msg.value > 0) {
             bonus += msg.value;
         }
-        require(tokenIdMap[msg.tokenid], "tokenIdMap[msg.tokenid] == false");
-        require(msg.tokenvalue > withdrawMinTrc10, "tokenvalue must be > withdrawMinTrc10");
 
         userWithdrawList.push(WithdrawMsg(msg.sender, address(0), msg.tokenid, msg.tokenvalue, DataModel.TokenKind.TRC10, DataModel.Status.SUCCESS));
         // burn
