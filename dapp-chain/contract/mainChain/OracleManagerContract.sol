@@ -43,6 +43,12 @@ contract OracleManagerContract is Ownable {
         _;
     }
 
+    modifier checkForTrc10(uint256 tokenId, uint256 tokenValue) {
+        require(tokenId == msg.tokenid, "tokenId != msg.tokenid");
+        require(tokenValue == msg.tokenvalue, "tokenValue != msg.tokenvalue");
+        _;
+    }
+
     function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] sigList) internal returns (uint256) {
         SignMsg storage msl = withdrawMultiSignList[nonce][dataHash];
         if (msl.countSign > numCommonOracles) {

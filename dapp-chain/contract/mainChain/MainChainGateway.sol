@@ -142,7 +142,7 @@ contract MainChainGateway is OracleManagerContract {
         return userDepositList.length - 1;
     }
 
-    function depositTRC10() payable public onlyNotStop onlyNotPause goDelegateCall returns (uint256) {
+    function depositTRC10(uint256 tokenId, uint256 tokenValue) payable public onlyNotStop onlyNotPause checkForTrc10(tokenId, tokenValue) goDelegateCall returns (uint256) {
         require(msg.tokenvalue > 0, "tokenvalue must > 0");
         userDepositList.push(DepositMsg(msg.sender, address(0), msg.tokenid, msg.tokenvalue, DataModel.TokenKind.TRC10, DataModel.Status.SUCCESS));
         emit TRC10Received(msg.sender, msg.tokenid, msg.tokenvalue, userDepositList.length - 1);

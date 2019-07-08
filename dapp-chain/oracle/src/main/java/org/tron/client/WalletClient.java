@@ -221,7 +221,7 @@ class WalletClient {
       return new byte[0];
     }
     List<byte[]> chainIdList = new ArrayList();
-    chainIdList.add(Args.getInstance().getMainchainGateway());
+    chainIdList.add(Args.getInstance().getChainId());
     return ByteArray.fromBytes21List(chainIdList);
   }
 
