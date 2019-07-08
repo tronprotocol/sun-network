@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Sha256Hash;
+import org.tron.core.Wallet;
 import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.config.Parameter;
 import org.tron.core.config.Parameter.ChainConstant;
@@ -182,10 +183,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
    */
 
   // gateway list
-  private static final byte[] GATEWAY_ADDRESS_LIST = "GATEWAY_ADDRESS_LIST".getBytes();
+  private static final byte[] SIDE_CHAIN_GATEWAY_ADDRESS_LIST = "SIDE_CHAIN_GATEWAY_ADDRESS_LIST".getBytes();
 
   // main chain gateway list
-  private static final byte[] MAINCHAIN_GATEWAY_ADDRESS_LIST = "MAINCHAIN_GATEWAY_ADDRESS_LIST".getBytes();
+  private static final byte[] MAIN_CHAIN_GATEWAY_ADDRESS_LIST = "MAIN_CHAIN_GATEWAY_ADDRESS_LIST".getBytes();
+
+  private static final byte[] SIDE_CHAIN_ID = "SIDE_CHAIN_ID".getBytes();
 
   // basic value for energy: byte, also means energy: bandwidth (10:1)
   private static final byte[] TRANSACTION_ENERGY_BYTE_RATE = "TRANSACTION_ENERGY_BYTE_RATE".getBytes();
@@ -717,15 +720,21 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
-      this.getGateWayList();
+      this.getSideChainGateWayList();
     } catch (IllegalArgumentException e) {
-      this.saveGateWayList(Args.getInstance().getGatewayList());
+      this.saveSideChainGateWayList(Args.getInstance().getSideChainGatewayList());
     }
 
     try {
       this.getMainChainGateWayList();
     } catch (IllegalArgumentException e) {
       this.saveMainChainGateWayList(Args.getInstance().getMainChainGateWayList());
+    }
+
+    try {
+      this.getSideChainId();
+    } catch (IllegalArgumentException e) {
+      this.saveSideChainId(Args.getInstance().getSideChainId());
     }
 
     try {
@@ -811,44 +820,61 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     return getTransactionSunTokenEnergyByteRate();
   }
 
-  public List<byte[]> getGateWayList() {
-    return Optional.ofNullable(getUnchecked(GATEWAY_ADDRESS_LIST))
+  public List<byte[]> getSideChainGateWayList() {
+    return Optional.ofNullable(getUnchecked(SIDE_CHAIN_GATEWAY_ADDRESS_LIST))
         .map(BytesCapsule::getData)
         .map(ByteArray::toByte21List)
         .orElseThrow(
-            () -> new IllegalArgumentException("not found GATEWAY_ADDRESS_LIST"));
+            () -> new IllegalArgumentException("not found SIDE_CHAIN_GATEWAY_ADDRESS_LIST"));
   }
 
-  public void saveGateWayList(List<byte[]> gateWayList) {
-    this.put(GATEWAY_ADDRESS_LIST,
+  public void saveSideChainGateWayList(List<byte[]> gateWayList) {
+    this.put(SIDE_CHAIN_GATEWAY_ADDRESS_LIST,
         new BytesCapsule(ByteArray.fromBytes21List(gateWayList)));
   }
 
   public List<byte[]> getMainChainGateWayList() {
-    return Optional.ofNullable(getUnchecked(MAINCHAIN_GATEWAY_ADDRESS_LIST))
+    return Optional.ofNullable(getUnchecked(MAIN_CHAIN_GATEWAY_ADDRESS_LIST))
         .map(BytesCapsule::getData)
         .map(ByteArray::toByte21List)
         .orElseThrow(
-            () -> new IllegalArgumentException("not found MAINCHAIN_GATEWAY_ADDRESS_LIST"));
+            () -> new IllegalArgumentException("not found MAIN_CHAIN_GATEWAY_ADDRESS_LIST"));
   }
 
   public void saveMainChainGateWayList(List<byte[]> gateWayList) {
-    this.put(MAINCHAIN_GATEWAY_ADDRESS_LIST,
+    this.put(MAIN_CHAIN_GATEWAY_ADDRESS_LIST,
         new BytesCapsule(ByteArray.fromBytes21List(gateWayList)));
   }
 
-  public void addToGateWayList(byte[] gateWayContractAddress) {
-    List<byte[]> list =  Optional.ofNullable(getUnchecked(GATEWAY_ADDRESS_LIST))
+  public void addToSideChainGateWayList(byte[] gateWayContractAddress) {
+    List<byte[]> list =  Optional.ofNullable(getUnchecked(SIDE_CHAIN_GATEWAY_ADDRESS_LIST))
         .map(BytesCapsule::getData)
         .map(ByteArray::toByte21List)
         .orElseThrow(
-            () -> new IllegalArgumentException("not found GATEWAY_ADDRESS_LIST"));
+            () -> new IllegalArgumentException("not found SIDE_CHAIN_GATEWAY_ADDRESS_LIST"));
     if(gateWayContractAddress.length != 21) {
       throw new IllegalArgumentException("new added gate way address should be 21 bytes");
     }
     list.add(gateWayContractAddress);
-    this.put(GATEWAY_ADDRESS_LIST,
+    this.put(SIDE_CHAIN_GATEWAY_ADDRESS_LIST,
         new BytesCapsule(ByteArray.fromBytes21List(list)));
+  }
+
+  public String getSideChainId() {
+    return Optional.ofNullable(getUnchecked(SIDE_CHAIN_ID))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toHexString)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found SIDE_CHAIN_ID"));
+  }
+
+  public void saveSideChainId(String chainId) {
+    byte[] address = ByteArray.fromHexString(chainId);
+    if( !Wallet.addressValid(address)) {
+      throw new IllegalArgumentException("given chainId is not valid");
+    }
+    this.put(SIDE_CHAIN_ID,
+        new BytesCapsule(address));
   }
 
   public int getChargingSwitch(){

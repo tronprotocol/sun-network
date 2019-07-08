@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.spongycastle.util.encoders.Hex;
 import org.tron.common.crypto.Hash;
 import org.tron.core.exception.EncodingException;
-import org.tron.sunserver.WalletApi;
+import org.tron.sunserver.ServerApi;
 
 public class AbiUtil {
 
@@ -221,7 +221,7 @@ public class AbiUtil {
 
     @Override
     byte[] encode(String value) throws EncodingException {
-      byte[] address = WalletApi.decodeFromBase58Check(value);
+      byte[] address = ServerApi.decodeFromBase58Check(value);
       if (address == null) {
         throw new EncodingException("invalid address input");
       }

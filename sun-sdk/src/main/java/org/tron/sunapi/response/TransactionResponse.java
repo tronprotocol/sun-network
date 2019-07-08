@@ -36,7 +36,7 @@ public class TransactionResponse {
   /**
    * the response code for constant transaction
    */
-  public code   constantCode;
+  public code constantCode;
 
   /**
    * the result for constant transaction
