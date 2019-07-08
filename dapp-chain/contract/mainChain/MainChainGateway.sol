@@ -150,10 +150,11 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function() external onlyNotStop onlyNotPause goDelegateCall payable {
+        if (msg.value > 0) {
+            depositTRX();
+        }
         if (msg.tokenid > 1000000) {
             depositTRC10();
-        } else {
-            depositTRX();
         }
     }
 
