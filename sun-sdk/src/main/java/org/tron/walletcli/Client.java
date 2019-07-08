@@ -1914,8 +1914,7 @@ public class Client {
     return;
   }
 
-  private void depositTrx(String[] parameters)
-          throws IOException, CipherException, CancelException, EncodingException {
+  private void depositTrx(String[] parameters) throws EncodingException {
     if (parameters == null || parameters.length != 4) {
       System.out.println("deposit trx needs 3 parameters like following: ");
       System.out.println("deposit trx mainGatewayAddress num feelmit");
@@ -1987,7 +1986,7 @@ public class Client {
       System.out.println("approve successfully.\n");
 
       byte[] depositContractAddr =  ServerApi.decodeFromBase58Check(mainGatewayAddr);
-      String depositArgStr = num + ",\"" + contractAddrStr + "\"";
+      String depositArgStr = "\"" + contractAddrStr + "\"," + num;
       byte[] depositInput = Hex.decode(AbiUtil.parseMethod(depositMethodStr, depositArgStr , false));
 
       boolean ret =  walletApiWrapper.callContract(depositContractAddr, callValue, depositInput, feeLimit, tokenCallValue, tokenId);
@@ -2014,7 +2013,7 @@ public class Client {
     String methodStr = "approve(address,uint256)";
     String mainGatewayAddr = parameters[2]; //main gateway contract address
     String num = parameters[3];
-    String depositMethodStr = "depositTRC20(uint256,address)";
+    String depositMethodStr = "depositTRC20(address,uint256)";
 
     long feeLimit = Long.valueOf(parameters[4]);
 
@@ -2022,10 +2021,10 @@ public class Client {
   }
 
   private void depositTrc721(String[] parameters)
-          throws IOException, CipherException, CancelException, EncodingException {
+      throws IOException, CipherException, CancelException, EncodingException {
     if (parameters == null || parameters.length != 5) {
       System.out.println("deposit trc721 needs 4 parameters like following: ");
-      System.out.println("deposit trc721 trc721ContractAddress mainGatewayAddress num feelmit");
+      System.out.println("deposit trc721 trc721ContractAddress mainGatewayAddress tokenId feelmit");
       return;
     }
 
@@ -2033,7 +2032,7 @@ public class Client {
     String methodStr = "approve(address,uint256)";
     String mainGatewayAddr = parameters[2]; //main gateway contract address
     String num = parameters[3];
-    String depositMethodStr = "depositTRC721(uint256,address)";
+    String depositMethodStr = "depositTRC721(address,uint256)";
 
     long feeLimit = Long.valueOf(parameters[4]);
 
@@ -2754,66 +2753,54 @@ public class Client {
     }
   }
 
-  private void withdrawTrc20(String[] parameters) throws EncodingException {
+  private void withdrawTrc20(String[] parameters)
+      throws EncodingException {
     if (parameters == null || parameters.length != 4) {
       System.out.println("withdraw Trc20 needs 3 parameters like following: ");
-      System.out.println("withdraw Trc20 mainTrc20Address value fee_limit ");
+      System.out.println("withdraw Trc20 sideTrc20Address value fee_limit ");
       return;
     }
 
-    String mainAddress = parameters[1]; //mainchain trc20 address
+    String sideTrc20Address = parameters[1]; //sidechain trc20 address
     String value = parameters[2];
     long feeLimit = Long.parseLong(parameters[3]);
-    byte[] txData = walletApiWrapper.sideSignTokenData(mainAddress, value);
-    if (txData == null || txData.length == 0) {
-      System.out.println("failed to withdraw due to invalid address: " + mainAddress);
-      return;
-    }
 
-    byte[] sideAddress = walletApiWrapper.getSideTokenAddress(mainAddress);
-
-    String methodStr = "withdrawal(uint256,bytes)";
-    byte[] input = Hex
-      .decode(AbiUtil.parseMethod(methodStr, value + ",\"" + Hex.toHexString(txData) + "\"", false));
+    byte[] sideAddress = ServerApi.decodeFromBase58Check(sideTrc20Address);
+    String methodStr = "withdrawal(uint256)";
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, value, false));
 
     boolean result = walletApiWrapper
-      .callContract(sideAddress, 0, input, feeLimit, 0, "0");
+        .callContract(sideAddress, 0, input, feeLimit, 0, "0");
     if (result) {
       System.out.println("Broadcast the withdrawTrc20 successfully.\n"
-        + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
+          + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
     } else {
       System.out.println("Broadcast the triggerContract failed");
     }
   }
 
   private void withdrawTrc721(String[] parameters)
-    throws IOException, CipherException, EncodingException {
+      throws EncodingException {
     if (parameters == null || parameters.length != 4) {
       System.out.println("withdraw Trc721 needs 3 parameters like following: ");
-      System.out.println("withdraw Trc721 mainAddress uid fee_limit ");
+      System.out.println("withdraw Trc721 sideTrc721Address uid fee_limit ");
       return;
     }
 
-    String mainAddress = parameters[1]; //mainchain trc721 address
+    String sideTrc721Address = parameters[1]; //sidechain trc721 address
     String uid = parameters[2];
     long feeLimit = Long.parseLong(parameters[3]);
-    byte[] txData = walletApiWrapper.sideSignTokenData(mainAddress, uid);
-    if (txData == null || txData.length == 0) {
-      System.out.println("failed to withdraw due to invalid address: " + mainAddress);
-      return;
-    }
 
-    byte[] sideAddress = walletApiWrapper.getSideTokenAddress(mainAddress);
-
-    String methodStr = "withdrawal(uint256,bytes)";
+    byte[] sideAddress = ServerApi.decodeFromBase58Check(sideTrc721Address);
+    String methodStr = "withdrawal(uint256)";
     byte[] input = Hex
-      .decode(AbiUtil.parseMethod(methodStr, uid + ",\"" + Hex.toHexString(txData) + "\"", false));
+        .decode(AbiUtil.parseMethod(methodStr, uid, false));
 
     boolean result = walletApiWrapper
-      .callContract(sideAddress, 0, input, feeLimit, 0, "0");
+        .callContract(sideAddress, 0, input, feeLimit, 0, "0");
     if (result) {
       System.out.println("Broadcast the withdrawTrc721 successfully.\n"
-        + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
+          + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
     } else {
       System.out.println("Broadcast the triggerContract failed");
     }
@@ -2931,23 +2918,21 @@ public class Client {
 
   private void mappingTrc721(String[] parameters) throws EncodingException {
     if (parameters == null || parameters.length != 6) {
-      System.out.println("mapping trc721 needs 5 parameters like following: ");
-      System.out.println("mapping trc721 contractAddress trxHash name symbol feelmit");
+      System.out.println("mapping trc721 needs 3 parameters like following: ");
+      System.out.println("mapping trc721 mainGatewayAddress trxHash  feelmit");
       return;
     }
 
-    String contractAddrStr = parameters[1];  //side gateway
-    String methodStr = "deployDAppTRC721AndMapping(bytes,string,string)";
+    String mainGateway = parameters[1];  //main chain gateway
+    String methodStr = "mappingTRC721(bytes)";
     String trxHash = parameters[2];
-    String name = parameters[3];
-    String symbol = parameters[4];
-    String argsStr = "\"" + trxHash + "\",\"" + name + "\",\"" + symbol + "\"";
-    long feeLimit = Long.valueOf(parameters[5]);
+    String argsStr = "\"" + trxHash + "\"";
+    long feeLimit = Long.valueOf(parameters[3]);
 
-    mappingTrc(contractAddrStr, methodStr, argsStr, trxHash, feeLimit);
+    mappingTrc(mainGateway, methodStr, argsStr, trxHash, feeLimit);
   }
 
-  private void mapping(String[] parameters) throws IOException, CipherException, CancelException, EncodingException {
+  private void mapping(String[] parameters) throws EncodingException {
     if (parameters == null || parameters.length < 1) {
       System.out.println("mapping needs parameters ");
       return;

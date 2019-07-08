@@ -36,6 +36,7 @@ import org.tron.sunapi.response.TransactionResponse;
 public interface ChainInterface {
 
   //SmartContract
+
   SunNetworkResponse<TransactionResponse> deployContract(DeployContractRequest request);
 
   SunNetworkResponse<TransactionResponse> triggerContract(TriggerContractRequest request);
@@ -45,6 +46,7 @@ public interface ChainInterface {
   SunNetworkResponse<TransactionResponse> updateEnergyLimit(String address, long originEnergyLimit);
 
   SunNetworkResponse<SmartContract> getContract(String address);
+
 
   //account
   SunNetworkResponse<String> getAddress();
@@ -61,11 +63,9 @@ public interface ChainInterface {
 
   SunNetworkResponse<Integer> createAccount(String address);
 
-  SunNetworkResponse<TransactionListExtention> getTransactionsFromThis(String address, int offset,
-      int limit);
+  SunNetworkResponse<TransactionListExtention> getTransactionsFromThis(String address, int offset, int limit);
 
-  SunNetworkResponse<TransactionListExtention> getTransactionsToThis(String address, int offset,
-      int limit);
+  SunNetworkResponse<TransactionListExtention> getTransactionsToThis(String address, int offset, int limit);
 
   SunNetworkResponse<AddressPrKeyPairMessage> generateAddress();
 
@@ -81,7 +81,6 @@ public interface ChainInterface {
   SunNetworkResponse<AssetIssueContract> getAssetIssueById(String assetId);
 
   SunNetworkResponse<Integer> transferAsset(String toAddress, String assertName, long amount);
-
 
   SunNetworkResponse<Integer> participateAssetIssue(String toAddress, String assertName, long amount);
 
