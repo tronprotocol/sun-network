@@ -154,7 +154,7 @@ contract MainChainGateway is OracleManagerContract {
             depositTRX();
         }
         if (msg.tokenid > 1000000) {
-            depositTRC10();
+            depositTRC10(msg.tokenid, msg.tokenvalue);
         }
     }
 
