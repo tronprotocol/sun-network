@@ -238,6 +238,13 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       }
+      case (25): {
+        if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
+          throw new ContractValidateException(
+              "This value[ALLOW_ACCOUNT_STATE_ROOT] is only allowed to be 1 or 0");
+        }
+        break;
+      }
       case (1_000_000): {
         if (Long.valueOf(entry.getValue()) != 1) {
           throw new ContractValidateException(
