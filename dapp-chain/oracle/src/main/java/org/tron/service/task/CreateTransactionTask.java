@@ -42,6 +42,7 @@ public class CreateTransactionTask {
 
   private void createTransaction(Actuator eventActuator) {
     CreateRet createRet = eventActuator.createTransactionExtensionCapsule();
+    String chain = eventActuator.getTransactionExtensionCapsule().getType().name();
     if (createRet == CreateRet.SUCCESS) {
       TransactionExtensionCapsule txExtensionCapsule = eventActuator
           .getTransactionExtensionCapsule();
@@ -51,13 +52,13 @@ public class CreateTransactionTask {
           .submitBroadcast(eventActuator, txExtensionCapsule.getDelay());
       if (logger.isInfoEnabled()) {
         String msg = MessageCode.CREATE_TRANSACTION_SUCCESS
-            .getMsg(txExtensionCapsule.getTransactionId());
+            .getMsg(chain, txExtensionCapsule.getTransactionId());
         logger.info(msg);
       }
     } else {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
       String msg = MessageCode.CREATE_TRANSACTION_FAIL
-          .getMsg(ByteArray.toStr(eventActuator.getNonceKey()));
+          .getMsg(chain, ByteArray.toStr(eventActuator.getNonceKey()));
       AlertUtil.sendAlert(msg);
     }
   }

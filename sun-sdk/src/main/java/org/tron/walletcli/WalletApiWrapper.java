@@ -526,6 +526,7 @@ public class WalletApiWrapper {
     }
 
     TransactionResponse resp =  serverApi.sellStorage(storageBytes);
+    printResponseInfo(resp);
     return resp.result;
   }
 
@@ -538,7 +539,7 @@ public class WalletApiWrapper {
     }
 
     TransactionResponse resp = serverApi.unfreezeBalance(resourceCode, receiverAddress);
-
+    printResponseInfo(resp);
     return resp.result;
   }
 
@@ -550,7 +551,7 @@ public class WalletApiWrapper {
     }
 
     TransactionResponse resp = serverApi.unfreezeAsset();
-
+    printResponseInfo(resp);
     return resp.result;
   }
 
@@ -561,7 +562,7 @@ public class WalletApiWrapper {
     }
 
     TransactionResponse resp = serverApi.withdrawBalance();
-
+    printResponseInfo(resp);
     return resp.result;
   }
 
@@ -573,7 +574,7 @@ public class WalletApiWrapper {
     }
 
     TransactionResponse resp = serverApi.createProposal(parametersMap);
-
+    printResponseInfo(resp);
     return resp.result;
   }
 
@@ -585,7 +586,7 @@ public class WalletApiWrapper {
     }
 
     TransactionResponse resp = serverApi.sideChainCreateProposal(parametersMap);
-
+    printResponseInfo(resp);
     return resp.result;
   }
 
@@ -653,6 +654,7 @@ public class WalletApiWrapper {
     }
 
     TransactionResponse resp = serverApi.approveProposal(id, is_add_approval);
+    printResponseInfo(resp);
     return resp.result;
   }
 
@@ -679,6 +681,7 @@ public class WalletApiWrapper {
     TransactionResponse resp = serverApi.exchangeCreate(firstTokenId, firstTokenBalance,
       secondTokenId, secondTokenBalance);
 
+    printResponseInfo(resp);
     return resp.result;
   }
 
@@ -701,6 +704,7 @@ public class WalletApiWrapper {
     }
 
     TransactionResponse resp = serverApi.exchangeWithdraw(exchangeId, tokenId, quant);
+    printResponseInfo(resp);
     return resp.result;
   }
 
@@ -712,7 +716,7 @@ public class WalletApiWrapper {
     }
 
     TransactionResponse resp = serverApi.exchangeTransaction(exchangeId, tokenId, quant, expected);
-
+    printResponseInfo(resp);
     return resp.result;
   }
 
@@ -724,6 +728,7 @@ public class WalletApiWrapper {
     }
 
     TransactionResponse resp = serverApi.updateSetting(contractAddress, consumeUserResourcePercent);
+    printResponseInfo(resp);
 
     return resp.result;
   }
@@ -735,6 +740,7 @@ public class WalletApiWrapper {
       return false;
     }
     TransactionResponse resp = serverApi.updateEnergyLimit(contractAddress, originEnergyLimit);
+    printResponseInfo(resp);
     return resp.result;
   }
 
@@ -789,7 +795,7 @@ public class WalletApiWrapper {
     TransactionResponse resp = serverApi.triggerContract(contractAddress, callValue, data, feeLimit, tokenValue, tokenId);
     printResponseInfo(resp);
 
-    return org.apache.commons.lang3.StringUtils.isEmpty(resp.getTrxId());
+    return !org.apache.commons.lang3.StringUtils.isEmpty(resp.getTrxId());
   }
 
   public boolean callContractAndCheck(byte[] contractAddress, long callValue, byte[] data, long feeLimit,
@@ -817,6 +823,7 @@ public class WalletApiWrapper {
       return false;
     }
     TransactionResponse resp = serverApi.accountPermissionUpdate(ownerAddress, permission);
+    printResponseInfo(resp);
     return resp.result;
   }
 

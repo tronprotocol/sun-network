@@ -47,10 +47,11 @@ public class EventTask {
         } else {
           try {
             NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
+            String chain = eventActuator.getTransactionExtensionCapsule().getType().name();
             if (nonceMsg.getStatus() == NonceStatus.SUCCESS) {
               if (logger.isInfoEnabled()) {
                 String msg = MessageCode.NONCE_HAS_BE_SUCCEED
-                    .getMsg(ByteArray.toStr(eventActuator.getNonce()));
+                    .getMsg(chain, ByteArray.toStr(eventActuator.getNonceKey()));
                 logger.info(msg);
               }
             } else if (nonceMsg.getStatus() == NonceStatus.FAIL) {
@@ -62,7 +63,7 @@ public class EventTask {
               } else {
                 if (logger.isInfoEnabled()) {
                   String msg = MessageCode.NONCE_IS_PROCESSING
-                      .getMsg(ByteArray.toStr(eventActuator.getNonce()));
+                      .getMsg(chain, ByteArray.toStr(eventActuator.getNonceKey()));
                   logger.info(msg);
                 }
               }

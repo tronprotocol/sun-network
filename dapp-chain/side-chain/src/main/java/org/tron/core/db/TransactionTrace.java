@@ -149,6 +149,9 @@ public class TransactionTrace {
     if (energyUsage < 0) {
       energyUsage = 0L;
     }
+    if (!VMConfig.isVmResourceChargingOn()) {
+      energyUsage = 0L;
+    }
     receipt.setEnergyUsageTotal(energyUsage);
   }
 

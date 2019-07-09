@@ -43,9 +43,7 @@ public class ProgramResult {
   private List<CallCreate> callCreateList;
 
   public void spendEnergy(long energy) {
-    if (VMConfig.isVmResourceChargingOn) {
-      energyUsed += energy;
-    }
+    energyUsed += energy;
   }
 
   public void setRevert() {

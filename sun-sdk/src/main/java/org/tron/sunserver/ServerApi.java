@@ -1773,7 +1773,7 @@ public class ServerApi {
       //retry
       int maxRetry = 3;
       for (int i = 0; i < maxRetry; i++) {
-        Thread.sleep(1_000);
+        Thread.sleep(2_000);
         System.out.println("will retry {} time(s): " + i+1);
         transactionInfo = rpcCli.getTransactionInfoById(txId);
         info = transactionInfo.get();

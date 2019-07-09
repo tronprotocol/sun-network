@@ -478,9 +478,9 @@ public class Args {
   private int validContractProtoThreadNum;
 
   //side-chain
-  @Getter
-  @Setter
-  private List<byte[]> sideChainGatewayList;
+//  @Getter
+//  @Setter
+//  private List<byte[]> sideChainGatewayList;
 
   @Getter
   @Setter
@@ -980,7 +980,7 @@ public class Args {
     INSTANCE.saveInternalTx =
         config.hasPath("vm.saveInternalTx") && config.getBoolean("vm.saveInternalTx");
 
-    INSTANCE.sideChainGatewayList = getGateWayList(config,"sidechain.sideChainGateWayList");
+//    INSTANCE.sideChainGatewayList = getGateWayList(config,"sidechain.sideChainGateWayList");
     INSTANCE.mainChainGateWayList = getGateWayList(config, "sidechain.mainChainGateWayList");
     // mandatory to have sideChainId
     INSTANCE.sideChainId = config.getString("sidechain.sideChainId");
