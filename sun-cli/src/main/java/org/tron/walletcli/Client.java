@@ -2903,7 +2903,7 @@ public class Client {
 //      walletApiWrapper.sideGetMappingAddress(sideGateway, mainContractAddress);
     }
 
-    System.out.println("please use getMappingAddress to confirm the result in side chain solidity node after 60s.");
+    System.out.println("please confirm the result in side chain solidity node after 60s.");
   }
 
   private void mappingTrc20(String[] parameters)
