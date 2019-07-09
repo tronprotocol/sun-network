@@ -2884,18 +2884,26 @@ public class Client {
     if (result) {
       System.out.println("mappingTrc successfully.\n");
 
-      String mainContractAddress = walletApiWrapper.calcMaincontractAddress(trxHash);
-
-      byte[] sideGateway = walletApiWrapper.getSideGatewayAddress();
-      if (sideGateway == null) {
-        System.out.println("side chain gateway is null.\n");
-        return;
-      }
-
-      walletApiWrapper.sideGetMappingAddress(sideGateway, mainContractAddress);
-    } else {
-      System.out.println("please confirm the result in side chain after 60s.");
+//      try {
+//        System.out.println("wait 6s, get side chain contract address. ");
+//        Thread.sleep(6_000);
+//      } catch (InterruptedException e) {
+//        System.out.println("sleep error" + (e.getMessage()));
+//        return;
+//      }
+//
+//      String mainContractAddress = walletApiWrapper.calcMaincontractAddress(trxHash);
+//
+//      byte[] sideGateway = walletApiWrapper.getSideGatewayAddress();
+//      if (sideGateway == null) {
+//        System.out.println("side chain gateway is null.\n");
+//        return;
+//      }
+//
+//      walletApiWrapper.sideGetMappingAddress(sideGateway, mainContractAddress);
     }
+
+    System.out.println("please use getMappingAddress to confirm the result in side chain solidity node after 60s.");
   }
 
   private void mappingTrc20(String[] parameters)
