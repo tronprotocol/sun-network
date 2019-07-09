@@ -228,45 +228,6 @@ public class RuntimeImpl implements Runtime {
 
   }
 
-  private long getAccountEnergyLimitWithFloatRatio(AccountCapsule account, long feeLimit,
-      long callValue) {
-
-    long sunPerEnergy = Constant.SUN_PER_ENERGY;
-    if (deposit.getDbManager().getDynamicPropertiesStore().getEnergyFee() > 0) {
-      sunPerEnergy = deposit.getDbManager().getDynamicPropertiesStore().getEnergyFee();
-    }
-    // can change the calc way
-    long leftEnergyFromFreeze = energyProcessor.getAccountLeftEnergyFromFreeze(account);
-    callValue = max(callValue, 0);
-    long energyFromBalance = Math
-        .floorDiv(max(account.getBalance() - callValue, 0), sunPerEnergy);
-
-    long energyFromFeeLimit;
-    long totalBalanceForEnergyFreeze = account.getAllFrozenBalanceForEnergy();
-    if (0 == totalBalanceForEnergyFreeze) {
-      energyFromFeeLimit =
-          feeLimit / sunPerEnergy;
-    } else {
-      long totalEnergyFromFreeze = energyProcessor
-          .calculateGlobalEnergyLimit(account);
-      long leftBalanceForEnergyFreeze = getEnergyFee(totalBalanceForEnergyFreeze,
-          leftEnergyFromFreeze,
-          totalEnergyFromFreeze);
-
-      if (leftBalanceForEnergyFreeze >= feeLimit) {
-        energyFromFeeLimit = BigInteger.valueOf(totalEnergyFromFreeze)
-            .multiply(BigInteger.valueOf(feeLimit))
-            .divide(BigInteger.valueOf(totalBalanceForEnergyFreeze)).longValueExact();
-      } else {
-        energyFromFeeLimit = Math
-            .addExact(leftEnergyFromFreeze,
-                (feeLimit - leftBalanceForEnergyFreeze) / sunPerEnergy);
-      }
-    }
-
-    return min(Math.addExact(leftEnergyFromFreeze, energyFromBalance), energyFromFeeLimit);
-  }
-
   public long getTotalEnergyLimitWithFixRatio(AccountCapsule creator, AccountCapsule caller,
       TriggerSmartContract contract, long feeLimit, long callValue, long sunTokenCallValue)
       throws ContractValidateException {

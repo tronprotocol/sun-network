@@ -1383,6 +1383,10 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public void saveMaxCpuTimeOfOneTx(long time) {
+    if (time < 10 || time > 100) {
+      throw new IllegalArgumentException(
+          "Bad MAX_CPU_TIME_OF_ONE_TX value,valid range is [10,100]");
+    }
     this.put(MAX_CPU_TIME_OF_ONE_TX,
         new BytesCapsule(ByteArray.fromLong(time)));
   }
