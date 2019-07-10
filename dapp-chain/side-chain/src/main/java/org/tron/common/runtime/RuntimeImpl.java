@@ -384,8 +384,6 @@ public class RuntimeImpl implements Runtime {
         throw new ContractValidateException("not enough energy to initialize vm");
       }
 
-
-
       byte[] ops = newSmartContract.getBytecode().toByteArray();
       rootInternalTransaction = new InternalTransaction(trx, trxType);
 
@@ -505,7 +503,6 @@ public class RuntimeImpl implements Runtime {
           throw new ContractValidateException("not enough energy to initialize vm");
         }
       }
-
       long maxCpuTimeOfOneTx = deposit.getDbManager().getDynamicPropertiesStore()
           .getMaxCpuTimeOfOneTx() * Constant.ONE_THOUSAND;
       long thisTxCPULimitInUs =
