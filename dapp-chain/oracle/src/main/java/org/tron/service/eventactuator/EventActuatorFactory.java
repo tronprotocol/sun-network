@@ -38,7 +38,7 @@ public class EventActuatorFactory {
       } else if (obj.get("contractAddress").equals(args.getSidechainGatewayStr())) {
         return createSideChainActuator(obj);
       }
-      logger.debug("unknown contract address:{}", obj.get("contractAddress"));
+      logger.info("unknown contract address:{}", obj.get("contractAddress"));
     } catch (Exception e) {
       logger.info("{} create actuator err", eventStr);
       return null;
