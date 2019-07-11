@@ -97,7 +97,7 @@ public class deploySideGateway {
     }
 
     int count = 0;
-    String mainChainGatewayAddress = null;
+    String sideChainGatewayAddress = null;
     while (count<3) {
       PublicMethed.printAddress(testKeyFordeposit);
 
@@ -113,23 +113,34 @@ public class deploySideGateway {
       String parame = "\"" + Base58.encode58Check(testDepositAddress) + "\"";
 
       String deployTxid = PublicMethed
-          .deploySideContractWithConstantParame(contractName, abi, code, "constructor(address)",
-              parame, "",
+          .deploySideContractWithConstantParame(contractName, abi, code, "#",
+              "#", "",
               maxFeeLimit,
               0L, 100, null, testDepositTrx, testDepositAddress,mainChainAddress
               , blockingStubFull);
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
 
       Optional<TransactionInfo> infoById = PublicMethed
           .getTransactionInfoById(deployTxid, blockingStubFull);
       logger.info("infoById: " + infoById);
-      byte[] mainChainGateway = infoById.get().getContractAddress().toByteArray();
-      mainChainGatewayAddress = WalletClient.encode58Check(mainChainGateway);
-      if(infoById.get().getResultValue() != 0 || mainChainGateway.equals("3QJmnh")){
+      byte[] sideChainGateway = infoById.get().getContractAddress().toByteArray();
+      sideChainGatewayAddress = WalletClient.encode58Check(sideChainGateway);
+      if(deployTxid == null || sideChainGateway.equals("3QJmnh")){
         count +=1;
         continue;
       }else {
-        break;
+        byte[] input = Hex.decode(AbiUtil.parseMethod("addOracle(address)", parame, false));
+        String triggerTxid1 = PublicMethed
+            .triggerContractSideChain(sideChainGateway,WalletClient.decodeFromBase58Check(mainChainAddress), 0,input, maxFeeLimit,0,"0",
+                depositAddress, testKeyFordeposit, blockingStubFull);
+        Optional<TransactionInfo> infoById1 = PublicMethed
+            .getTransactionInfoById(triggerTxid1, blockingStubFull);
+        if(triggerTxid1 == null || infoById1.get().getResultValue() == 0){
+          count +=1;
+          continue;
+        }else {
+          break;}
       }
     }
 
@@ -139,7 +150,7 @@ public class deploySideGateway {
       Boolean cun = mainChainFile.createNewFile();
       FileWriter writer = new FileWriter(mainChainFile);
       BufferedWriter out = new BufferedWriter(writer);
-      out.write(mainChainGatewayAddress);
+      out.write(sideChainGatewayAddress);
 
       out.close();
       writer.close();

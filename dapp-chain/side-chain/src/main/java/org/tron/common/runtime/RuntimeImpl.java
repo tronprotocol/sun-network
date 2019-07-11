@@ -372,8 +372,14 @@ public class RuntimeImpl implements Runtime {
         sunTokenCallTokenValue = tokenValue;
       }
 
-      energyLimit = getAccountEnergyLimitWithFixRatio(creator, feeLimit, callValue,
-          sunTokenCallTokenValue);
+      if (!VMConfig.isVmResourceChargingOn()) {
+        energyLimit = 10_000_000;
+      }
+      else {
+        energyLimit = getAccountEnergyLimitWithFixRatio(creator, feeLimit, callValue,
+            sunTokenCallTokenValue);
+      }
+
       if (energyLimit < 0) {
         throw new ContractValidateException("not enough energy to initialize vm");
       }
@@ -483,7 +489,11 @@ public class RuntimeImpl implements Runtime {
       long energyLimit;
       if (isStaticCall) {
         energyLimit = Constant.ENERGY_LIMIT_IN_CONSTANT_TX;
-      } else {
+      }
+      else if (!VMConfig.isVmResourceChargingOn()) {
+        energyLimit = 10_000_000;
+      }
+      else {
         AccountCapsule creator = this.deposit
             .getAccount(deployedContract.getInstance().getOriginAddress().toByteArray());
 
