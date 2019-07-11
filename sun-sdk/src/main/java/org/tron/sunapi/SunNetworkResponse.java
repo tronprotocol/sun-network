@@ -70,6 +70,12 @@ public class SunNetworkResponse<T> implements Serializable {
     return this;
   }
 
+  public void success(List<T> dataList) {
+    this.code = ErrorCodeEnum.SUCCESS.getCode();
+    this.desc = ErrorCodeEnum.SUCCESS.getDesc();
+    this.dataList = dataList;
+  }
+
 //  public SunNetworkResponse<T> success(List<T> dataList){
 //    return code(ErrorCodeEnum.SUCCESS.getCode()).desc(ErrorCodeEnum.SUCCESS.getDesc()).dataList(dataList);
 //  }

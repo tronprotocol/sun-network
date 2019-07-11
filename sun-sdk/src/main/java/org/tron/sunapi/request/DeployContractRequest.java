@@ -24,7 +24,7 @@ public class DeployContractRequest {
 
   public long originEnergyLimit;
 
-  public long trx;
+  public long value;
 
   public long tokenValue;
 
@@ -44,7 +44,7 @@ public class DeployContractRequest {
     this.feeLimit = 0;
     this.consumeUserResourcePercent = 0;
     this.originEnergyLimit = 0;
-    this.trx = 0;
+    this.value = 0;
     this.tokenValue = 0;
     this.tokenId = null;
     this.libraryAddressPair = null;
