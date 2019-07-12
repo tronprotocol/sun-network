@@ -4,8 +4,10 @@ import java.util.Properties;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class ProducerDemo {
 
   @Test
