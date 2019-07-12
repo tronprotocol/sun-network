@@ -879,7 +879,6 @@ public class WalletApiWrapper {
           SunNetworkResponse<byte[]> addressResp = getChainInterface().getAddress();
           byte[] ownerAddress = addressResp.getData();
 
-          // combine
           byte[] combined = new byte[txRawDataHash.length + ownerAddress.length];
           System.arraycopy(txRawDataHash, 0, combined, 0, txRawDataHash.length);
           System.arraycopy(ownerAddress, 0, combined, txRawDataHash.length, ownerAddress.length);
