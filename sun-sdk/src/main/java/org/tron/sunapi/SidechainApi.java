@@ -3,9 +3,11 @@ package org.tron.sunapi;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Optional;
+import org.apache.commons.lang.StringUtils;
 import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
+import org.tron.core.exception.EncodingException;
 import org.tron.sunapi.response.TransactionResponse;
 
 public class SidechainApi extends Chain{
@@ -78,6 +80,30 @@ public class SidechainApi extends Chain{
     return resp;
   }
 
+
+  public SunNetworkResponse<String> sideGetMappingAddress(byte[] sideGateway, String mainContractAddress) {
+    SunNetworkResponse<String> resp = new SunNetworkResponse<>();
+
+    if (sideGateway == null || StringUtils.isEmpty(mainContractAddress)) {
+      return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
+    }
+
+    try {
+      String result = super.getServerApi().sideGetMappingAddress(sideGateway, mainContractAddress);
+      resp.setData(result);
+
+    } catch (EncodingException e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_ENCODING);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
+    }
+
+    return resp;
+  }
+
+  public byte[] getSideGatewayAddress() {
+    return super.getServerApi().getSideGatewayAddress();
+  }
 
 
 }
