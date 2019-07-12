@@ -1,5 +1,7 @@
 package org.tron.walletcli;
 
+import static org.tron.common.utils.ByteArray.toHexString;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -61,8 +63,8 @@ public class WalletApiWrapper {
   private static final Logger logger = LoggerFactory.getLogger("WalletApiWrapper");
   @Getter
   //private ServerApi serverApi;
-  private ServerApi mainChainServerApi;
-  private ServerApi sideChainServerApi;
+//  private ServerApi mainChainServerApi;
+//  private ServerApi sideChainServerApi;
   private SunNetwork sdk;
   private static boolean isMainChain = true;
 
@@ -76,8 +78,8 @@ public class WalletApiWrapper {
       System.out.println("Failed to init sdk");
     }
 
-    mainChainServerApi = sdk.mainChainService.getServerApi();
-    sideChainServerApi = sdk.sideChainService.getServerApi();
+//    mainChainServerApi = sdk.mainChainService.getServerApi();
+//    sideChainServerApi = sdk.sideChainService.getServerApi();
     //serverApi = mainChainServerApi;
   }
 
@@ -159,8 +161,9 @@ public class WalletApiWrapper {
     WalletFile walletFile = wallet.getCurrentWalletFile();
     ECKey myKey = Wallet.decrypt(passwd, walletFile);
     byte[] priKey = myKey.getPrivKeyBytes();
-    mainChainServerApi.initPrivateKey(priKey);
-    sideChainServerApi.initPrivateKey(priKey);
+//    mainChainServerApi.initPrivateKey(priKey);
+//    sideChainServerApi.initPrivateKey(priKey);
+    sdk.setPrivateKey(toHexString(priKey));
 
     StringUtils.clear(passwd);
 
