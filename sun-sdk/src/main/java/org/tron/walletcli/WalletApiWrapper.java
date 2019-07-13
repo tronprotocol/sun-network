@@ -74,7 +74,7 @@ public class WalletApiWrapper {
   public WalletApiWrapper() {
     sdk = new SunNetwork();
     SunNetworkResponse<Integer> ret = sdk.init("config.conf");
-    if(ret.getData() != 0) {
+    if (ret.getData() != 0) {
       System.out.println("Failed to init sdk");
     }
 
@@ -126,7 +126,7 @@ public class WalletApiWrapper {
   }
 
   public boolean changePassword(char[] oldPassword, char[] newPassword)
-    throws IOException, CipherException {
+      throws IOException, CipherException {
     logout();
     if (!WalletApi.passwordValid(newPassword)) {
       logger.warn("Warning: ChangePassword failed, NewPassword is invalid !!");
@@ -267,7 +267,8 @@ public class WalletApiWrapper {
 
   }
 
-  public SunNetworkResponse<TransactionResponse> transferAsset(String toAddress, String assertName, long amount) {
+  public SunNetworkResponse<TransactionResponse> transferAsset(String toAddress, String assertName,
+      long amount) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: TransferAsset failed,  Please login first !!");
       return null;
@@ -276,7 +277,8 @@ public class WalletApiWrapper {
     return getChainInterface().transferAsset(toAddress, assertName, amount);
   }
 
-  public SunNetworkResponse<TransactionResponse> participateAssetIssue(String toAddress, String assertName,
+  public SunNetworkResponse<TransactionResponse> participateAssetIssue(String toAddress,
+      String assertName,
       long amount) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: TransferAsset failed,  Please login first !!");
@@ -286,8 +288,10 @@ public class WalletApiWrapper {
     return getChainInterface().participateAssetIssue(toAddress, assertName, amount);
   }
 
-  public boolean assetIssue(String name, String totalSupplyStr, String trxNumStr, String icoNumStr, String precisionStr,
-      String startYyyyMmDd, String endYyyyMmDd, String description, String url, String freeNetLimitPerAccount,
+  public boolean assetIssue(String name, String totalSupplyStr, String trxNumStr, String icoNumStr,
+      String precisionStr,
+      String startYyyyMmDd, String endYyyyMmDd, String description, String url,
+      String freeNetLimitPerAccount,
       String publicFreeNetLimitString, HashMap<String, String> frozenSupply) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: assetIssue failed,  Please login first !!");
@@ -416,7 +420,8 @@ public class WalletApiWrapper {
 
   public AssetIssueList getAssetIssueList(long offset, long limit) {
     try {
-      SunNetworkResponse<AssetIssueList> resp = getChainInterface().getAssetIssueList(offset, limit);
+      SunNetworkResponse<AssetIssueList> resp = getChainInterface()
+          .getAssetIssueList(offset, limit);
       if (resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
         return resp.getData();
       }
@@ -427,7 +432,8 @@ public class WalletApiWrapper {
   }
 
   public AssetIssueContract getAssetIssueByName(String assetName) {
-    SunNetworkResponse<AssetIssueContract> resp = getChainInterface().getAssetIssueByName(assetName);
+    SunNetworkResponse<AssetIssueContract> resp = getChainInterface()
+        .getAssetIssueByName(assetName);
     if (resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       return resp.getData();
     }
@@ -437,7 +443,8 @@ public class WalletApiWrapper {
 
   public AssetIssueList getAssetIssueListByName(String assetName) {
     try {
-      SunNetworkResponse<AssetIssueList> resp = getChainInterface().getAssetIssueListByName(assetName);
+      SunNetworkResponse<AssetIssueList> resp = getChainInterface()
+          .getAssetIssueListByName(assetName);
       if (resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
         return resp.getData();
       }
@@ -459,7 +466,8 @@ public class WalletApiWrapper {
 
   public Optional<ProposalList> getProposalListPaginated(long offset, long limit) {
     try {
-      SunNetworkResponse<ProposalList> resp = getChainInterface().getProposalsListPaginated(offset, limit);
+      SunNetworkResponse<ProposalList> resp = getChainInterface()
+          .getProposalsListPaginated(offset, limit);
       return Optional.ofNullable(resp.getData());
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -470,7 +478,8 @@ public class WalletApiWrapper {
 
   public Optional<ExchangeList> getExchangeListPaginated(long offset, long limit) {
     try {
-      SunNetworkResponse<ExchangeList> resp = getChainInterface().getExchangesListPaginated(offset, limit);
+      SunNetworkResponse<ExchangeList> resp = getChainInterface()
+          .getExchangesListPaginated(offset, limit);
       return Optional.ofNullable(resp.getData());
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -518,7 +527,8 @@ public class WalletApiWrapper {
   }
 
 
-  public SunNetworkResponse<TransactionResponse> updateAsset(String newLimitString, String newPublicLimitString,
+  public SunNetworkResponse<TransactionResponse> updateAsset(String newLimitString,
+      String newPublicLimitString,
       String description, String url) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: updateAsset failed, Please login first !!");
@@ -528,14 +538,16 @@ public class WalletApiWrapper {
     return getChainInterface().updateAsset(newLimitString, newPublicLimitString, description, url);
   }
 
-  public SunNetworkResponse<TransactionResponse> freezeBalance(long frozen_balance, long frozen_duration, int resourceCode,
+  public SunNetworkResponse<TransactionResponse> freezeBalance(long frozen_balance,
+      long frozen_duration, int resourceCode,
       String receiverAddress) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: freezeBalance failed, Please login first !!");
       return null;
     }
 
-    return getChainInterface().freezeBalance(frozen_balance, frozen_duration, resourceCode, receiverAddress);
+    return getChainInterface()
+        .freezeBalance(frozen_balance, frozen_duration, resourceCode, receiverAddress);
   }
 
   public boolean unfreezeBalance(int resourceCode, String receiverAddress) {
@@ -544,7 +556,8 @@ public class WalletApiWrapper {
       return false;
     }
 
-    SunNetworkResponse<TransactionResponse> resp = getChainInterface().unfreezeBalance(resourceCode, receiverAddress);
+    SunNetworkResponse<TransactionResponse> resp = getChainInterface()
+        .unfreezeBalance(resourceCode, receiverAddress);
     TransactionResponse txResp = resp.getData();
     if (txResp != null) {
       printResponseInfo(txResp);
@@ -591,7 +604,8 @@ public class WalletApiWrapper {
       return false;
     }
 
-    SunNetworkResponse<TransactionResponse> resp = sdk.getMainChainService().createProposal(parametersMap);
+    SunNetworkResponse<TransactionResponse> resp = sdk.getMainChainService()
+        .createProposal(parametersMap);
     TransactionResponse txResp = resp.getData();
     if (txResp != null) {
       printResponseInfo(txResp);
@@ -606,7 +620,8 @@ public class WalletApiWrapper {
       logger.warn("Warning: createProposal failed, Please login first !!");
       return false;
     }
-    SunNetworkResponse<TransactionResponse> resp = sdk.getSideChainService().createProposal(parametersMap);
+    SunNetworkResponse<TransactionResponse> resp = sdk.getSideChainService()
+        .createProposal(parametersMap);
     TransactionResponse txResp = resp.getData();
     if (txResp != null) {
       printResponseInfo(txResp);
@@ -677,13 +692,14 @@ public class WalletApiWrapper {
   }
 
   public boolean approveProposal(long id, boolean is_add_approval)
-    throws CipherException, IOException, CancelException {
+      throws CipherException, IOException, CancelException {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: approveProposal failed, Please login first !!");
       return false;
     }
 
-    SunNetworkResponse<TransactionResponse> resp = getChainInterface().approveProposal(id, is_add_approval);
+    SunNetworkResponse<TransactionResponse> resp = getChainInterface()
+        .approveProposal(id, is_add_approval);
     TransactionResponse txResp = resp.getData();
     printResponseInfo(txResp);
     if (txResp != null) {
@@ -694,7 +710,7 @@ public class WalletApiWrapper {
   }
 
   public boolean deleteProposal(long id)
-    throws CipherException, IOException, CancelException {
+      throws CipherException, IOException, CancelException {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: deleteProposal failed, Please login first !!");
       return false;
@@ -739,7 +755,8 @@ public class WalletApiWrapper {
       return false;
     }
 
-    SunNetworkResponse<TransactionResponse> resp = getChainInterface().exchangeInject(exchangeId, tokenId, quant);
+    SunNetworkResponse<TransactionResponse> resp = getChainInterface()
+        .exchangeInject(exchangeId, tokenId, quant);
     TransactionResponse txResp = resp.getData();
     printResponseInfo(txResp);
     if (txResp != null) {
@@ -750,13 +767,14 @@ public class WalletApiWrapper {
   }
 
   public boolean exchangeWithdraw(long exchangeId, String tokenId, long quant)
-    throws CipherException, IOException, CancelException {
+      throws CipherException, IOException, CancelException {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: exchangeWithdraw failed, Please login first !!");
       return false;
     }
 
-    SunNetworkResponse<TransactionResponse> resp = getChainInterface().exchangeWithdraw(exchangeId, tokenId, quant);
+    SunNetworkResponse<TransactionResponse> resp = getChainInterface()
+        .exchangeWithdraw(exchangeId, tokenId, quant);
     TransactionResponse txResp = resp.getData();
     printResponseInfo(txResp);
     if (txResp != null) {
@@ -767,7 +785,7 @@ public class WalletApiWrapper {
   }
 
   public boolean exchangeTransaction(long exchangeId, String tokenId, long quant, long expected)
-    throws CipherException, IOException, CancelException {
+      throws CipherException, IOException, CancelException {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: exchangeTransaction failed, Please login first !!");
       return false;
@@ -790,7 +808,7 @@ public class WalletApiWrapper {
   }
 
   public boolean updateSetting(String contractAddress, long consumeUserResourcePercent)
-    throws CipherException, IOException, CancelException {
+      throws CipherException, IOException, CancelException {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: updateSetting failed,  Please login first !!");
       return false;
@@ -808,7 +826,7 @@ public class WalletApiWrapper {
   }
 
   public boolean updateEnergyLimit(String contractAddress, long originEnergyLimit)
-    throws CipherException, IOException, CancelException {
+      throws CipherException, IOException, CancelException {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: updateSetting failed,  Please login first !!");
       return false;
@@ -826,18 +844,18 @@ public class WalletApiWrapper {
   }
 
   public void printResponseInfo(TransactionResponse resp) {
-    System.out.println("Transaction response information:" );
+    System.out.println("Transaction response information:");
     if (resp == null) {
       System.out.println("Transaction response is null.");
       return;
     }
 
-    if(resp.getResponseType() == ResponseType.TRANSACTION_NORMAL) {
+    if (resp.getResponseType() == ResponseType.TRANSACTION_NORMAL) {
       System.out.println("response code is: " + resp.getRespCode());
       System.out.println("response result is: " + resp.getResult());
       System.out.println("response message is: " + resp.getMessage());
       System.out.println("response transaction id is: " + resp.getTrxId());
-    } else if(resp.getResponseType() == ResponseType.TRANSACTION_CONSTANT) {
+    } else if (resp.getResponseType() == ResponseType.TRANSACTION_CONSTANT) {
       System.out.println("response constantCode is: " + resp.getConstantResult());
       System.out.println("response constantResult is: " + resp.getConstantResult());
       System.out.println("response transaction id is: " + resp.getTrxId());
@@ -848,8 +866,8 @@ public class WalletApiWrapper {
 
   public boolean deployContract(String name, String abiStr, String codeStr,
       String constructorStr, String argsStr, boolean isHex,
-    long feeLimit, long value, long consumeUserResourcePercent, long originEnergyLimit,
-    long tokenValue, String tokenId, String libraryAddressPair, String compilerVersion) {
+      long feeLimit, long value, long consumeUserResourcePercent, long originEnergyLimit,
+      long tokenValue, String tokenId, String libraryAddressPair, String compilerVersion) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: createContract failed,  Please login first !!");
       return false;
@@ -871,14 +889,16 @@ public class WalletApiWrapper {
     request.setLibraryAddressPair(libraryAddressPair);
     request.setCompilerVersion(compilerVersion);
 
-    SunNetworkResponse<TransactionResponse> sunNetworkresp = getChainInterface().deployContract(request);
+    SunNetworkResponse<TransactionResponse> sunNetworkresp = getChainInterface()
+        .deployContract(request);
     logger.info("sun network response code is: " + sunNetworkresp.getDesc());
 
     TransactionResponse resp = sunNetworkresp.getData();
     printResponseInfo(resp);
     if (resp != null) {
       if (resp.getResult()) {
-        SunNetworkResponse<Transaction> txResp = getChainInterface().getTransactionById(resp.getTrxId());
+        SunNetworkResponse<Transaction> txResp = getChainInterface()
+            .getTransactionById(resp.getTrxId());
         Transaction tx = txResp.getData();
         if (tx != null) {
 
@@ -891,7 +911,8 @@ public class WalletApiWrapper {
           System.arraycopy(ownerAddress, 0, combined, txRawDataHash.length, ownerAddress.length);
 
           byte[] contractAddress = Hash.sha3omit12(combined);
-          System.out.println("Your smart contract address will be: " + ServerApi.encode58Check(contractAddress));
+          System.out.println(
+              "Your smart contract address will be: " + ServerApi.encode58Check(contractAddress));
         } else {
           logger.info("getTransactionById " + resp.getTrxId() + " failed !!");
         }
@@ -918,7 +939,8 @@ public class WalletApiWrapper {
     request.setFeeLimit(feeLimit);
     request.setTokenCallValue(tokenValue);
     request.setTokenId(tokenId);
-    SunNetworkResponse<TransactionResponse> sunNetworkresp = getChainInterface().triggerContract(request);
+    SunNetworkResponse<TransactionResponse> sunNetworkresp = getChainInterface()
+        .triggerContract(request);
     logger.info("sun network response code is: " + sunNetworkresp.getDesc());
 
     TransactionResponse resp = sunNetworkresp.getData();
@@ -930,7 +952,8 @@ public class WalletApiWrapper {
     return false;
   }
 
-  public boolean callContractAndCheck(String contractAddress, long callValue, String methodStr, String argsStr,
+  public boolean callContractAndCheck(String contractAddress, long callValue, String methodStr,
+      String argsStr,
       boolean isHex, long feeLimit, long tokenValue, String tokenId) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: callContractAndCheck failed,  Please login first !!");
@@ -946,7 +969,8 @@ public class WalletApiWrapper {
     request.setFeeLimit(feeLimit);
     request.setTokenCallValue(tokenValue);
     request.setTokenId(tokenId);
-    SunNetworkResponse<TransactionResponse> sunNetworkResp = getChainInterface().triggerContract(request);
+    SunNetworkResponse<TransactionResponse> sunNetworkResp = getChainInterface()
+        .triggerContract(request);
     logger.info("sun network response code is: " + sunNetworkResp.getDesc());
     TransactionResponse resp = sunNetworkResp.getData();
 
@@ -963,13 +987,14 @@ public class WalletApiWrapper {
   }
 
   public boolean accountPermissionUpdate(String ownerAddress, String permission)
-    throws IOException, CipherException, CancelException {
+      throws IOException, CipherException, CancelException {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: accountPermissionUpdate failed,  Please login first !!");
       return false;
     }
 
-    SunNetworkResponse<TransactionResponse> resp = getChainInterface().updateAccountPermission(ownerAddress, permission);
+    SunNetworkResponse<TransactionResponse> resp = getChainInterface()
+        .updateAccountPermission(ownerAddress, permission);
     TransactionResponse txResp = resp.getData();
     printResponseInfo(txResp);
     if (txResp != null) {
@@ -994,7 +1019,7 @@ public class WalletApiWrapper {
 
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: sideGetMappingAddress failed,  Please login first !!");
-      return ;
+      return;
     }
     SunNetworkResponse<String> resp;
     resp = sdk.getSideChainService().sideGetMappingAddress(sideGateway, mainContractAddress);
@@ -1012,7 +1037,43 @@ public class WalletApiWrapper {
     return sdk.getSideChainService().getSideGatewayAddress();
   }
 
-  public SunNetworkResponse<TransactionResponse> depositTrc20(String contractAddrStr, String mainGatewayAddr, String num,
+  public SunNetworkResponse<TransactionResponse> depositTrx(String contractAddrStr, long num,
+      long feeLimit) {
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: depositTrc20 failed,  Please login first !!");
+      return null;
+    }
+
+    SunNetworkResponse<TransactionResponse> resp;
+    resp = sdk.getCrossChainService().depositTrx(contractAddrStr, num, feeLimit);
+    List<TransactionResponse> list = resp.getDataList();
+    for (TransactionResponse txResp : list) {
+      printResponseInfo(txResp);
+    }
+
+    return resp;
+  }
+
+  public SunNetworkResponse<TransactionResponse> depositTrc10(String contractAddrStr,
+      String tokenId, long tokenValue,
+      long feeLimit) {
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: depositTrc20 failed,  Please login first !!");
+      return null;
+    }
+
+    SunNetworkResponse<TransactionResponse> resp;
+    resp = sdk.getCrossChainService().depositTrc10(contractAddrStr, tokenId, tokenValue, feeLimit);
+    List<TransactionResponse> list = resp.getDataList();
+    for (TransactionResponse txResp : list) {
+      printResponseInfo(txResp);
+    }
+
+    return resp;
+  }
+
+  public SunNetworkResponse<TransactionResponse> depositTrc20(String contractAddrStr,
+      String mainGatewayAddr, String num,
       long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: depositTrc20 failed,  Please login first !!");
@@ -1029,7 +1090,8 @@ public class WalletApiWrapper {
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> depositTrc721(String contractAddrStr, String mainGatewayAddr, String num,
+  public SunNetworkResponse<TransactionResponse> depositTrc721(String contractAddrStr,
+      String mainGatewayAddr, String num,
       long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: depositTrc20 failed,  Please login first !!");
@@ -1037,7 +1099,8 @@ public class WalletApiWrapper {
     }
 
     SunNetworkResponse<TransactionResponse> resp;
-    resp = sdk.getCrossChainService().depositTrc721(contractAddrStr, mainGatewayAddr, num, feeLimit);
+    resp = sdk.getCrossChainService()
+        .depositTrc721(contractAddrStr, mainGatewayAddr, num, feeLimit);
     List<TransactionResponse> list = resp.getDataList();
     for (TransactionResponse txResp : list) {
       printResponseInfo(txResp);
@@ -1046,7 +1109,8 @@ public class WalletApiWrapper {
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> mappingTrc20(String mainGateway, String trxHash, long feeLimit) {
+  public SunNetworkResponse<TransactionResponse> mappingTrc20(String mainGateway, String trxHash,
+      long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: mappingTrc20 failed,  Please login first !!");
       return null;
@@ -1059,7 +1123,8 @@ public class WalletApiWrapper {
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> mappingTrc721(String mainGateway, String trxHash, long feeLimit) {
+  public SunNetworkResponse<TransactionResponse> mappingTrc721(String mainGateway, String trxHash,
+      long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: mappingTrc721 failed,  Please login first !!");
       return null;
@@ -1085,7 +1150,8 @@ public class WalletApiWrapper {
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> withdrawTrc10(String tokenId, long tokenValue, long feeLimit) {
+  public SunNetworkResponse<TransactionResponse> withdrawTrc10(String tokenId, long tokenValue,
+      long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: withdrawTrc10 failed,  Please login first !!");
       return null;
@@ -1141,7 +1207,8 @@ public class WalletApiWrapper {
   }
 
   public AccountResourceMessage getAccountResource(String address) {
-    SunNetworkResponse<AccountResourceMessage> resp = getChainInterface().getAccountResource(address);
+    SunNetworkResponse<AccountResourceMessage> resp = getChainInterface()
+        .getAccountResource(address);
     logger.info("sun network response code is: " + resp.getDesc());
 
     return resp.getData();
@@ -1154,8 +1221,10 @@ public class WalletApiWrapper {
     return Optional.ofNullable(resp.getData());
   }
 
-  public Optional<DelegatedResourceList> getDelegatedResource(String fromAddress, String toAddress) {
-    SunNetworkResponse<DelegatedResourceList> resp = getChainInterface().getDelegatedResource(fromAddress, toAddress);
+  public Optional<DelegatedResourceList> getDelegatedResource(String fromAddress,
+      String toAddress) {
+    SunNetworkResponse<DelegatedResourceList> resp = getChainInterface()
+        .getDelegatedResource(fromAddress, toAddress);
     logger.info("sun network response code is: " + resp.getDesc());
 
     return Optional.ofNullable(resp.getData());
@@ -1163,7 +1232,8 @@ public class WalletApiWrapper {
 
 
   public Optional<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndex(String address) {
-    SunNetworkResponse<DelegatedResourceAccountIndex> resp = getChainInterface().getDelegatedResourceAccountIndex(address);
+    SunNetworkResponse<DelegatedResourceAccountIndex> resp = getChainInterface()
+        .getDelegatedResourceAccountIndex(address);
     logger.info("sun network response code is: " + resp.getDesc());
 
     return Optional.ofNullable(resp.getData());
@@ -1184,15 +1254,19 @@ public class WalletApiWrapper {
     return Optional.ofNullable(resp.getData());
   }
 
-  public Optional<TransactionListExtention> getTransactionsFromThis(String address, int offset, int limit) {
-    SunNetworkResponse<TransactionListExtention> resp = getChainInterface().getTransactionsFromThis(address, offset, limit);
+  public Optional<TransactionListExtention> getTransactionsFromThis(String address, int offset,
+      int limit) {
+    SunNetworkResponse<TransactionListExtention> resp = getChainInterface()
+        .getTransactionsFromThis(address, offset, limit);
     logger.info("sun network response code is: " + resp.getDesc());
 
     return Optional.ofNullable(resp.getData());
   }
 
-  public Optional<TransactionListExtention> getTransactionsToThis(String address, int offset, int limit) {
-    SunNetworkResponse<TransactionListExtention> resp = getChainInterface().getTransactionsToThis(address, offset, limit);
+  public Optional<TransactionListExtention> getTransactionsToThis(String address, int offset,
+      int limit) {
+    SunNetworkResponse<TransactionListExtention> resp = getChainInterface()
+        .getTransactionsToThis(address, offset, limit);
     logger.info("sun network response code is: " + resp.getDesc());
 
     return Optional.ofNullable(resp.getData());
@@ -1206,7 +1280,8 @@ public class WalletApiWrapper {
   }
 
   public Optional<BlockListExtention> getBlockByLimitNext(long start, long end) {
-    SunNetworkResponse<BlockListExtention> resp = getChainInterface().getBlockByLimitNext(start, end);
+    SunNetworkResponse<BlockListExtention> resp = getChainInterface()
+        .getBlockByLimitNext(start, end);
     logger.info("sun network response code is: " + resp.getDesc());
 
     return Optional.ofNullable(resp.getData());
@@ -1227,21 +1302,24 @@ public class WalletApiWrapper {
   }
 
   public TransactionSignWeight getTransactionSignWeight(String transactionStr) {
-    SunNetworkResponse<TransactionSignWeight> resp = getChainInterface().getTransactionSignWeight(transactionStr);
+    SunNetworkResponse<TransactionSignWeight> resp = getChainInterface()
+        .getTransactionSignWeight(transactionStr);
     logger.info("sun network response code is: " + resp.getDesc());
 
     return resp.getData();
   }
 
   public TransactionApprovedList getTransactionApprovedList(String transactionStr) {
-    SunNetworkResponse<TransactionApprovedList> resp = getChainInterface().getTransactionApprovedList(transactionStr);
+    SunNetworkResponse<TransactionApprovedList> resp = getChainInterface()
+        .getTransactionApprovedList(transactionStr);
     logger.info("sun network response code is: " + resp.getDesc());
 
     return resp.getData();
   }
 
   public TransactionResponse broadcastTransaction(String transactionStr) {
-    SunNetworkResponse<TransactionResponse> resp = getChainInterface().broadcastTransaction(transactionStr);
+    SunNetworkResponse<TransactionResponse> resp = getChainInterface()
+        .broadcastTransaction(transactionStr);
     logger.info("sun network response code is: " + resp.getDesc());
 
     return resp.getData();

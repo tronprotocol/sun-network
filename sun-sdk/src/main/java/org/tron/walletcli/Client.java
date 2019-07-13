@@ -316,7 +316,7 @@ public class Client {
   }
 
   private void updateAsset(String[] parameters)
-    throws IOException, CipherException, CancelException {
+      throws IOException, CipherException, CancelException {
     if (parameters == null || parameters.length != 4) {
       System.out.println("UpdateAsset needs 4 parameters like the following: ");
       System.out.println("UpdateAsset newLimit newPublicLimit description url");
@@ -498,8 +498,8 @@ public class Client {
         result = walletApiWrapper.transferAsset(toAddress, assertName, amount);
         if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
           logger
-            .info(
-              "transferAsset " + amount + assertName + " to " + toAddress + " successful !!");
+              .info(
+                  "transferAsset " + amount + assertName + " to " + toAddress + " successful !!");
           if (intervalInt > 0) {
             try {
               Thread.sleep(intervalInt);
@@ -528,7 +528,8 @@ public class Client {
     String amountStr = parameters[2];
     long amount = new Long(amountStr);
 
-    SunNetworkResponse<TransactionResponse> result = walletApiWrapper.transferAsset(toAddress, assertName, amount);
+    SunNetworkResponse<TransactionResponse> result = walletApiWrapper
+        .transferAsset(toAddress, assertName, amount);
     if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       logger.info("TransferAsset " + amount + " to " + toAddress + " successful !!");
     } else {
@@ -537,7 +538,7 @@ public class Client {
   }
 
   private void participateAssetIssue(String[] parameters)
-    throws IOException, CipherException, CancelException {
+      throws IOException, CipherException, CancelException {
     if (parameters == null || parameters.length != 3) {
       System.out.println("ParticipateAssetIssue needs 3 parameters using the following syntax: ");
       System.out.println("ParticipateAssetIssue ToAddress AssetName Amount");
@@ -549,29 +550,30 @@ public class Client {
     String amountStr = parameters[2];
     long amount = Long.parseLong(amountStr);
 
-    SunNetworkResponse<TransactionResponse> result = walletApiWrapper.participateAssetIssue(toAddress, assertName, amount);
+    SunNetworkResponse<TransactionResponse> result = walletApiWrapper
+        .participateAssetIssue(toAddress, assertName, amount);
     if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       logger.info("ParticipateAssetIssue " + assertName + " " + amount + " from " + toAddress
-        + " successful !!");
+          + " successful !!");
     } else {
       logger.info("ParticipateAssetIssue " + assertName + " " + amount + " from " + toAddress
-        + " failed !!");
+          + " failed !!");
     }
   }
 
   private void assetIssue(String[] parameters) {
     if (parameters == null || parameters.length < 11 || (parameters.length & 1) == 0) {
       System.out
-        .println("Use the assetIssue command for features that you require with below syntax: ");
+          .println("Use the assetIssue command for features that you require with below syntax: ");
       System.out.println(
-        "AssetIssue AssetName TotalSupply TrxNum AssetNum Precision "
-          + "StartDate EndDate Description Url FreeNetLimitPerAccount PublicFreeNetLimit "
-          + "FrozenAmount0 FrozenDays0 ... FrozenAmountN FrozenDaysN");
+          "AssetIssue AssetName TotalSupply TrxNum AssetNum Precision "
+              + "StartDate EndDate Description Url FreeNetLimitPerAccount PublicFreeNetLimit "
+              + "FrozenAmount0 FrozenDays0 ... FrozenAmountN FrozenDaysN");
       System.out
-        .println(
-          "TrxNum and AssetNum represents the conversion ratio of the tron to the asset.");
+          .println(
+              "TrxNum and AssetNum represents the conversion ratio of the tron to the asset.");
       System.out
-        .println("The StartDate and EndDate format should look like 2018-3-1 2018-3-21 .");
+          .println("The StartDate and EndDate format should look like 2018-3-1 2018-3-21 .");
       return;
     }
 
@@ -676,7 +678,7 @@ public class Client {
   private void getAssetIssueList(String[] parameters) {
     if (parameters == null || parameters.length != 2) {
       System.out.println(
-        "The listassetissuepaginated command needs 2 parameters, use the following syntax:");
+          "The listassetissuepaginated command needs 2 parameters, use the following syntax:");
       System.out.println("listassetissuepaginated offset limit ");
       return;
     }
@@ -693,7 +695,7 @@ public class Client {
   private void getProposalsListPaginated(String[] parameters) {
     if (parameters == null || parameters.length != 2) {
       System.out.println(
-        "The listproposalspaginated command needs 2 parameters, use the following syntax:");
+          "The listproposalspaginated command needs 2 parameters, use the following syntax:");
       System.out.println("listproposalspaginated offset limit ");
       return;
     }
@@ -711,7 +713,7 @@ public class Client {
   private void getExchangesListPaginated(String[] parameters) {
     if (parameters == null || parameters.length != 2) {
       System.out.println(
-        "The listexchangespaginated command needs 2 parameters, use the following syntax:");
+          "The listexchangespaginated command needs 2 parameters, use the following syntax:");
       System.out.println("listexchangespaginated offset limit ");
       return;
     }
@@ -779,7 +781,7 @@ public class Client {
   }
 
   private void voteWitness(String[] parameters)
-    throws IOException, CipherException, CancelException {
+      throws IOException, CipherException, CancelException {
     if (parameters == null || parameters.length < 2 || (parameters.length & 1) != 0) {
       System.out.println("Use VoteWitness command with below syntax: ");
       System.out.println("VoteWitness Address0 Count0 ... AddressN CountN");
@@ -803,12 +805,12 @@ public class Client {
 
   private void freezeBalance(String[] parameters) {
     if (parameters == null || !(parameters.length == 2 || parameters.length == 3
-      || parameters.length == 4)) {
+        || parameters.length == 4)) {
       System.out.println("Use freezeBalance command with below syntax: ");
       System.out
-        .println(
-          "freezeBalance frozen_balance frozen_duration [ResourceCode:0 BANDWIDTH,1 ENERGY] "
-            + "[receiverAddress]");
+          .println(
+              "freezeBalance frozen_balance frozen_duration [ResourceCode:0 BANDWIDTH,1 ENERGY] "
+                  + "[receiverAddress]");
       return;
     }
 
@@ -837,7 +839,7 @@ public class Client {
   }
 
   private void unfreezeBalance(String[] parameters)
-    throws IOException, CipherException, CancelException {
+      throws IOException, CipherException, CancelException {
     if (parameters.length > 2) {
       System.out.println("Use unfreezeBalance command with below syntax: ");
       System.out.println("unfreezeBalance  [ResourceCode:0 BANDWIDTH,1 CPU]" + "[receiverAddress]");
@@ -922,7 +924,7 @@ public class Client {
   }
 
   private void approveProposal(String[] parameters)
-    throws IOException, CipherException, CancelException {
+      throws IOException, CipherException, CancelException {
     if (parameters == null || parameters.length != 2) {
       System.out.println("Use approveProposal command with below syntax: ");
       System.out.println("approveProposal id is_or_not_add_approval");
@@ -940,7 +942,7 @@ public class Client {
   }
 
   private void deleteProposal(String[] parameters)
-    throws IOException, CipherException, CancelException {
+      throws IOException, CipherException, CancelException {
     if (parameters == null || parameters.length != 1) {
       System.out.println("Use deleteProposal command with below syntax: ");
       System.out.println("deleteProposal proposalId");
@@ -1003,7 +1005,8 @@ public class Client {
     }
     String fromAddress = parameters[0];
     String toAddress = parameters[1];
-    Optional<DelegatedResourceList> result = walletApiWrapper.getDelegatedResource(fromAddress, toAddress);
+    Optional<DelegatedResourceList> result = walletApiWrapper
+        .getDelegatedResource(fromAddress, toAddress);
     if (result.isPresent()) {
       DelegatedResourceList delegatedResourceList = result.get();
       logger.info(Utils.printDelegatedResourceList(delegatedResourceList));
@@ -1019,7 +1022,8 @@ public class Client {
       return;
     }
     String address = parameters[0];
-    Optional<DelegatedResourceAccountIndex> result = walletApiWrapper.getDelegatedResourceAccountIndex(address);
+    Optional<DelegatedResourceAccountIndex> result = walletApiWrapper
+        .getDelegatedResourceAccountIndex(address);
     if (result.isPresent()) {
       DelegatedResourceAccountIndex delegatedResourceAccountIndex = result.get();
       logger.info(Utils.printDelegatedResourceAccountIndex(delegatedResourceAccountIndex));
@@ -1033,7 +1037,7 @@ public class Client {
     if (parameters == null || parameters.length != 4) {
       System.out.println("Use exchangeCreate command with below syntax: ");
       System.out.println("exchangeCreate first_token_id first_token_balance "
-        + "second_token_id second_token_balance");
+          + "second_token_id second_token_balance");
       return;
     }
 
@@ -1042,7 +1046,7 @@ public class Client {
     String secondTokenId = parameters[2];
     long secondTokenBalance = Long.parseLong(parameters[3]);
     boolean result = walletApiWrapper.exchangeCreate(firstTokenId, firstTokenBalance,
-      secondTokenId, secondTokenBalance);
+        secondTokenId, secondTokenBalance);
     if (result) {
       logger.info("exchange create " + " successful !!");
     } else {
@@ -1069,7 +1073,7 @@ public class Client {
   }
 
   private void exchangeWithdraw(String[] parameters)
-    throws IOException, CipherException, CancelException {
+      throws IOException, CipherException, CancelException {
     if (parameters == null || parameters.length != 3) {
       System.out.println("Use exchangeWithdraw command with below syntax: ");
       System.out.println("exchangeWithdraw exchange_id token_id quant");
@@ -1088,7 +1092,7 @@ public class Client {
   }
 
   private void exchangeTransaction(String[] parameters)
-    throws IOException, CipherException, CancelException {
+      throws IOException, CipherException, CancelException {
     if (parameters == null || parameters.length != 4) {
       System.out.println("Use exchangeTransaction command with below syntax: ");
       System.out.println("exchangeTransaction exchange_id token_id quant expected");
@@ -1198,7 +1202,8 @@ public class Client {
     int offset = Integer.parseInt(parameters[1]);
     int limit = Integer.parseInt(parameters[2]);
 
-    Optional<TransactionListExtention> result = walletApiWrapper.getTransactionsFromThis(address, offset, limit);
+    Optional<TransactionListExtention> result = walletApiWrapper
+        .getTransactionsFromThis(address, offset, limit);
     if (result.isPresent()) {
       TransactionListExtention transactionList = result.get();
       if (transactionList.getTransactionCount() == 0) {
@@ -1222,7 +1227,8 @@ public class Client {
     int offset = Integer.parseInt(parameters[1]);
     int limit = Integer.parseInt(parameters[2]);
 
-    Optional<TransactionListExtention> result = walletApiWrapper.getTransactionsToThis(address, offset, limit);
+    Optional<TransactionListExtention> result = walletApiWrapper
+        .getTransactionsToThis(address, offset, limit);
     if (result.isPresent()) {
       TransactionListExtention transactionList = result.get();
       if (transactionList.getTransactionCount() == 0) {
@@ -1258,7 +1264,7 @@ public class Client {
     long end = 0;
     if (parameters == null || parameters.length != 2) {
       System.out
-        .println("GetBlockByLimitNext needs 2 parameters, start block id and end block id");
+          .println("GetBlockByLimitNext needs 2 parameters, start block id and end block id");
       return;
     } else {
       start = Long.parseLong(parameters[0]);
@@ -1296,9 +1302,9 @@ public class Client {
   }
 
   private void updateSetting(String[] parameters)
-    throws IOException, CipherException, CancelException {
+      throws IOException, CipherException, CancelException {
     if (parameters == null ||
-      parameters.length < 2) {
+        parameters.length < 2) {
       System.out.println("updateSetting needs 2 parameters like following: ");
       System.out.println("updateSetting contract_address consume_user_resource_percent");
       return;
@@ -1319,9 +1325,9 @@ public class Client {
   }
 
   private void updateEnergyLimit(String[] parameters)
-    throws IOException, CipherException, CancelException {
+      throws IOException, CipherException, CancelException {
     if (parameters == null ||
-      parameters.length < 2) {
+        parameters.length < 2) {
       System.out.println("updateEnergyLimit needs 2 parameters like following: ");
       System.out.println("updateEnergyLimit contract_address energy_limit");
       return;
@@ -1371,12 +1377,12 @@ public class Client {
 
     String[] parameters = getParas(parameter);
     if (parameters == null ||
-      parameters.length < 11) {
+        parameters.length < 11) {
       System.out.println("DeployContract needs at least 8 parameters like following: ");
       System.out.println(
-        "DeployContract contractName ABI byteCode constructor params isHex fee_limit consume_user_resource_percent origin_energy_limit value token_value token_id(e.g: TRXTOKEN, use # if don't provided) <library:address,library:address,...> <lib_compiler_version(e.g:v5)>");
+          "DeployContract contractName ABI byteCode constructor params isHex fee_limit consume_user_resource_percent origin_energy_limit value token_value token_id(e.g: TRXTOKEN, use # if don't provided) <library:address,library:address,...> <lib_compiler_version(e.g:v5)>");
       System.out.println(
-        "Note: Please append the param for constructor tightly with byteCode without any space");
+          "Note: Please append the param for constructor tightly with byteCode without any space");
       return;
     }
     int idx = 0;
@@ -1426,12 +1432,13 @@ public class Client {
      * Or we can re-design it to give other developers better user experience. Set this value in protobuf as null for now.
      */
     boolean result = walletApiWrapper
-        .deployContract(contractName, abiStr, codeStr, constructorStr, argsStr, isHex, feeLimit, value,
-      consumeUserResourcePercent, originEnergyLimit, tokenValue, tokenId, libraryAddressPair,
-      compilerVersion);
+        .deployContract(contractName, abiStr, codeStr, constructorStr, argsStr, isHex, feeLimit,
+            value,
+            consumeUserResourcePercent, originEnergyLimit, tokenValue, tokenId, libraryAddressPair,
+            compilerVersion);
     if (result) {
       System.out.println("Broadcast the createSmartContract successfully.\n"
-        + "Please check the given transaction id to confirm deploy status on blockchain using getTransactionInfoById command.");
+          + "Please check the given transaction id to confirm deploy status on blockchain using getTransactionInfoById command.");
     } else {
       System.out.println("Broadcast the createSmartContract failed");
     }
@@ -1439,10 +1446,10 @@ public class Client {
 
   private void triggerContract(String[] parameters) {
     if (parameters == null ||
-      parameters.length < 8) {
+        parameters.length < 8) {
       System.out.println("TriggerContract needs 6 parameters like following: ");
       System.out.println(
-        "TriggerContract contractAddress method args isHex fee_limit value token_value token_id(e.g: TRXTOKEN, use # if don't provided)");
+          "TriggerContract contractAddress method args isHex fee_limit value token_value token_id(e.g: TRXTOKEN, use # if don't provided)");
       // System.out.println("example:\nTriggerContract password contractAddress method args value");
       return;
     }
@@ -1463,10 +1470,11 @@ public class Client {
     }
 
     boolean result = walletApiWrapper
-        .callContract(contractAddrStr, callValue, methodStr, argsStr, isHex, feeLimit, tokenCallValue, tokenId);
+        .callContract(contractAddrStr, callValue, methodStr, argsStr, isHex, feeLimit,
+            tokenCallValue, tokenId);
     if (result) {
       System.out.println("Broadcast the triggerContract successfully.\n"
-        + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
+          + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
     } else {
       System.out.println("Broadcast the triggerContract failed");
     }
@@ -1474,7 +1482,7 @@ public class Client {
 
   private void getContract(String[] parameters) {
     if (parameters == null ||
-      parameters.length != 1) {
+        parameters.length != 1) {
       System.out.println("GetContract needs 1 parameter like following: ");
       System.out.println("GetContract contractAddress");
       return;
@@ -1485,11 +1493,11 @@ public class Client {
     if (contractDeployContract != null) {
       System.out.println("contract :" + contractDeployContract.getAbi().toString());
       System.out.println("contract owner:" + ServerApi.encode58Check(contractDeployContract
-        .getOriginAddress().toByteArray()));
+          .getOriginAddress().toByteArray()));
       System.out.println("contract ConsumeUserResourcePercent:" + contractDeployContract
-        .getConsumeUserResourcePercent());
+          .getConsumeUserResourcePercent());
       System.out.println("contract energy limit:" + contractDeployContract
-        .getOriginEnergyLimit());
+          .getOriginEnergyLimit());
     } else {
       System.out.println("query contract failed!");
     }
@@ -1507,10 +1515,10 @@ public class Client {
   }
 
   private void updateAccountPermission(String[] parameters)
-    throws CipherException, IOException, CancelException {
+      throws CipherException, IOException, CancelException {
     if (parameters == null || parameters.length != 2) {
       System.out.println(
-        "UpdateAccountPermission needs 2 parameters, like UpdateAccountPermission ownerAddress permissions, permissions is json format");
+          "UpdateAccountPermission needs 2 parameters, like UpdateAccountPermission ownerAddress permissions, permissions is json format");
       return;
     }
 
@@ -1528,13 +1536,14 @@ public class Client {
   private void getTransactionSignWeight(String[] parameters) throws InvalidProtocolBufferException {
     if (parameters == null || parameters.length != 1) {
       System.out.println(
-        "getTransactionSignWeight needs 1 parameter, like getTransactionSignWeight transaction which is hex string");
+          "getTransactionSignWeight needs 1 parameter, like getTransactionSignWeight transaction which is hex string");
       return;
     }
 
     String transactionStr = parameters[0];
 
-    TransactionSignWeight transactionSignWeight = walletApiWrapper.getTransactionSignWeight(transactionStr);
+    TransactionSignWeight transactionSignWeight = walletApiWrapper
+        .getTransactionSignWeight(transactionStr);
     if (transactionSignWeight != null) {
       logger.info(Utils.printTransactionSignWeight(transactionSignWeight));
     } else {
@@ -1542,17 +1551,17 @@ public class Client {
     }
   }
 
-  private void getTransactionApprovedList(String[] parameters)
-    throws InvalidProtocolBufferException {
+  private void getTransactionApprovedList(String[] parameters) {
     if (parameters == null || parameters.length != 1) {
       System.out.println(
-        "getTransactionApprovedList needs 1 parameter, like getTransactionApprovedList transaction which is hex string");
+          "getTransactionApprovedList needs 1 parameter, like getTransactionApprovedList transaction which is hex string");
       return;
     }
 
     String transactionStr = parameters[0];
 
-    TransactionApprovedList transactionApprovedList = walletApiWrapper.getTransactionApprovedList(transactionStr);
+    TransactionApprovedList transactionApprovedList = walletApiWrapper
+        .getTransactionApprovedList(transactionStr);
     if (transactionApprovedList != null) {
       logger.info(Utils.printTransactionApprovedList(transactionApprovedList));
     } else {
@@ -1563,7 +1572,7 @@ public class Client {
   private void addTransactionSign(String[] parameters) {
     if (parameters == null || parameters.length != 1) {
       System.out.println(
-        "addTransactionSign needs 1 parameter, like addTransactionSign transaction which is hex string");
+          "addTransactionSign needs 1 parameter, like addTransactionSign transaction which is hex string");
       return;
     }
 
@@ -1573,8 +1582,8 @@ public class Client {
     transaction = walletApiWrapper.addTransactionSign(transactionStr);
     if (transaction != null) {
       System.out
-        .println("Transaction hex string is " + ByteArray
-          .toHexString(transaction.toByteArray()));
+          .println("Transaction hex string is " + ByteArray
+              .toHexString(transaction.toByteArray()));
       System.out.println(Utils.printTransaction(transaction));
     } else {
       logger.info("AddTransactionSign failed !!");
@@ -1585,7 +1594,7 @@ public class Client {
   private void broadcastTransaction(String[] parameters) {
     if (parameters == null || parameters.length != 1) {
       System.out.println(
-        "broadcastTransaction needs 1 parameter, like broadcastTransaction transaction which is hex string");
+          "broadcastTransaction needs 1 parameter, like broadcastTransaction transaction which is hex string");
       return;
     }
 
@@ -1638,19 +1647,15 @@ public class Client {
     }
 
     String contractAddrStr = parameters[1];  //main gateway contract address
-    String methodStr = "depositTRX()";
     long callValue = Long.valueOf(parameters[2]);
     long feeLimit = Long.valueOf(parameters[3]);
-    long tokenCallValue = 0;
-    String tokenId = "";
 
-    boolean result = walletApiWrapper
-        .callContract(contractAddrStr, callValue, methodStr, "", false, feeLimit, tokenCallValue, tokenId);
-    if (result) {
-        System.out.println("Broadcast the depositTrx successfully.\n"
-                + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+        .depositTrx(contractAddrStr, callValue, feeLimit);
+    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      System.out.println("deposit trc20 success");
     } else {
-        System.out.println("Broadcast the depositTrx failed");
+      System.out.println("deposit trc20 failed");
     }
   }
 
@@ -1662,23 +1667,18 @@ public class Client {
     }
 
     String contractAddrStr = parameters[1];  //main gateway contract address
-    String methodStr = "depositTRC10()";
     String tokenId = parameters[2];
 
-    long callValue = 0;
     long tokenCallValue = Long.valueOf(parameters[3]);
     long feeLimit = Long.valueOf(parameters[4]);
 
-    boolean result = walletApiWrapper
-        .callContract(contractAddrStr, callValue, methodStr, "", false, feeLimit, tokenCallValue, tokenId);
-    if (result) {
-      System.out.println("Broadcast the deposiTrc10 successfully.\n"
-              + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+        .depositTrc10(contractAddrStr, tokenId, tokenCallValue, feeLimit);
+    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      System.out.println("deposit trc20 success");
     } else {
-      System.out.println("Broadcast the deposiTrc10 failed");
+      System.out.println("deposit trc20 failed");
     }
-
-    return;
   }
 
   private void depositTrc20(String[] parameters) {
@@ -1759,11 +1759,11 @@ public class Client {
   private void help() {
     System.out.println("Help: List of Tron Wallet-cli commands");
     System.out.println(
-      "For more information on a specific command, type the command and it will display tips");
+        "For more information on a specific command, type the command and it will display tips");
     System.out.println("");
 
     List<String> allCmds = getAllMainCmds();
-    for(String cmd: allCmds) {
+    for (String cmd : allCmds) {
       System.out.println(cmd);
     }
 
@@ -1773,12 +1773,12 @@ public class Client {
   private void sideHelp() {
     System.out.println("Help: List of Tron Sum-cli sidechain commands");
     System.out.println(
-      "For more information on a specific command, type the command and it will display tips");
+        "For more information on a specific command, type the command and it will display tips");
     System.out.println("");
 
     List<String> allCmds = getAllSideCmds();
 
-    for(String cmd: allCmds) {
+    for (String cmd : allCmds) {
       System.out.println(cmd);
     }
 
@@ -1787,18 +1787,19 @@ public class Client {
 
   private void hintCmd(String input, List<String> allCmds) {
     List<String> ret = Similarity.getSimilarWordList(input, allCmds);
-    if(ret.size() == 0) {
+    if (ret.size() == 0) {
       System.out.println("there is no similar command, see help.");
       return;
     }
 
     System.out.println("the command " + input + " is not exist, similar cmd is: ");
-    for(String similarCmd : ret) {
+    for (String similarCmd : ret) {
       System.out.println("  " + similarCmd);
     }
 
     return;
   }
+
   private List<String> getAllMainCmds() {
     List<String> allCmds = new ArrayList<String>();
     allCmds.add("help");
@@ -1807,7 +1808,7 @@ public class Client {
     allCmds.add("registerwallet");
     allCmds.add("importwallet");
     allCmds.add("importwalletbybase64");
-    allCmds.add( "changepassword");
+    allCmds.add("changepassword");
     allCmds.add("login");
     allCmds.add("logout");
     allCmds.add("backupwallet");
@@ -1969,8 +1970,8 @@ public class Client {
 
   private String[] getCmd(String cmdLine) {
     if (cmdLine.indexOf("\"") < 0 || cmdLine.toLowerCase().startsWith("deploycontract")
-      || cmdLine.toLowerCase().startsWith("triggercontract")
-      || cmdLine.toLowerCase().startsWith("updateaccountpermission")) {
+        || cmdLine.toLowerCase().startsWith("triggercontract")
+        || cmdLine.toLowerCase().startsWith("updateaccountpermission")) {
       return cmdLine.split("\\s+");
     }
     String[] strArray = cmdLine.split("\"");
@@ -2410,7 +2411,8 @@ public class Client {
     long feeLimit = Long.parseLong(parameters[3]);
     long tokenValue = Long.parseLong(value);
 
-    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrc10(trc10, tokenValue, feeLimit);
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+        .withdrawTrc10(trc10, tokenValue, feeLimit);
     if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       System.out.println("withdraw trc10 success");
     } else {
@@ -2429,7 +2431,8 @@ public class Client {
     String value = parameters[2];
     long feeLimit = Long.parseLong(parameters[3]);
 
-    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrc20(sideTrc20Address, value, feeLimit);
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+        .withdrawTrc20(sideTrc20Address, value, feeLimit);
     if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       System.out.println("withdraw trc20 success");
     } else {
@@ -2450,7 +2453,8 @@ public class Client {
     String uid = parameters[2];
     long feeLimit = Long.parseLong(parameters[3]);
 
-    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrc721(sideTrc721Address, uid, feeLimit);
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+        .withdrawTrc721(sideTrc721Address, uid, feeLimit);
     if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       System.out.println("withdraw trc721 success");
     } else {
@@ -2500,13 +2504,13 @@ public class Client {
 
     byte[] sideGateway = ServerApi.getSideGatewayAddress();
 
-    String mainContractAddress  = parameters[0];
+    String mainContractAddress = parameters[0];
 
     walletApiWrapper.sideGetMappingAddress(sideGateway, mainContractAddress);
   }
 
   private void mappingTrc20(String[] parameters) {
-    if (parameters == null ||parameters.length != 4) {
+    if (parameters == null || parameters.length != 4) {
       System.out.println("mapping trc20 needs 3 parameters like following: ");
       System.out.println("mapping trc20 mainGatewayAddress trxHash  feelmit");
       return;
@@ -2516,12 +2520,14 @@ public class Client {
     String trxHash = parameters[2];
     long feeLimit = Long.valueOf(parameters[3]);
 
-    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.mappingTrc20(mainGateway, trxHash, feeLimit);
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+        .mappingTrc20(mainGateway, trxHash, feeLimit);
     if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       System.out.println("mapping trc20 success");
     }
 
-    System.out.println("please use getMappingAddress to confirm the result in side chain solidity node after 60s.");
+    System.out.println(
+        "please use getMappingAddress to confirm the result in side chain solidity node after 60s.");
   }
 
   private void mappingTrc721(String[] parameters) {
@@ -2535,12 +2541,14 @@ public class Client {
     String trxHash = parameters[2];
     long feeLimit = Long.valueOf(parameters[3]);
 
-    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.mappingTrc721(mainGateway, trxHash, feeLimit);
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+        .mappingTrc721(mainGateway, trxHash, feeLimit);
     if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       System.out.println("mapping trc721 success");
     }
 
-    System.out.println("please use getMappingAddress to confirm the result in side chain solidity node after 60s.");
+    System.out.println(
+        "please use getMappingAddress to confirm the result in side chain solidity node after 60s.");
   }
 
   private void mapping(String[] parameters) {
@@ -2734,7 +2742,7 @@ public class Client {
           withdraw(parameters);
           break;
         }
-        case "getmappingaddress" : {
+        case "getmappingaddress": {
           getMappingAddress(parameters);
           break;
         }
@@ -2778,7 +2786,7 @@ public class Client {
     System.out.println("Login, RegisterWallet or ImportWallet");
     System.out.println(" ");
     System.out.println(
-      "You may also use the Help command at anytime to display a full list of commands.");
+        "You may also use the Help command at anytime to display a full list of commands.");
     System.out.println(" ");
 
     System.out.print("[mainchain] ");
@@ -2832,9 +2840,9 @@ public class Client {
   public static void main(String[] args) {
     Client cli = new Client();
     JCommander.newBuilder()
-      .addObject(cli)
-      .build()
-      .parse(args);
+        .addObject(cli)
+        .build()
+        .parse(args);
 
     cli.run();
   }
