@@ -1028,16 +1028,7 @@ public class WalletApiWrapper {
     System.out.println("sideContractAddress is " + contractAddress);
   }
 
-  public byte[] getSideGatewayAddress() {
-    if (wallet == null || !wallet.isLoginState()) {
-      logger.warn("Warning: addTransactionSign failed,  Please login first !!");
-      return null;
-    }
-
-    return sdk.getSideChainService().getSideGatewayAddress();
-  }
-
-  public SunNetworkResponse<TransactionResponse> depositTrx(String contractAddrStr, long num,
+  public SunNetworkResponse<TransactionResponse> depositTrx(long num,
       long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: depositTrc20 failed,  Please login first !!");
@@ -1045,7 +1036,7 @@ public class WalletApiWrapper {
     }
 
     SunNetworkResponse<TransactionResponse> resp;
-    resp = sdk.getCrossChainService().depositTrx(contractAddrStr, num, feeLimit);
+    resp = sdk.getCrossChainService().depositTrx(num, feeLimit);
     List<TransactionResponse> list = resp.getDataList();
     for (TransactionResponse txResp : list) {
       printResponseInfo(txResp);
@@ -1054,7 +1045,7 @@ public class WalletApiWrapper {
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> depositTrc10(String contractAddrStr,
+  public SunNetworkResponse<TransactionResponse> depositTrc10(
       String tokenId, long tokenValue,
       long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
@@ -1063,7 +1054,7 @@ public class WalletApiWrapper {
     }
 
     SunNetworkResponse<TransactionResponse> resp;
-    resp = sdk.getCrossChainService().depositTrc10(contractAddrStr, tokenId, tokenValue, feeLimit);
+    resp = sdk.getCrossChainService().depositTrc10(tokenId, tokenValue, feeLimit);
     List<TransactionResponse> list = resp.getDataList();
     for (TransactionResponse txResp : list) {
       printResponseInfo(txResp);
@@ -1072,8 +1063,7 @@ public class WalletApiWrapper {
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> depositTrc20(String contractAddrStr,
-      String mainGatewayAddr, String num,
+  public SunNetworkResponse<TransactionResponse> depositTrc20(String contractAddrStr, String num,
       long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: depositTrc20 failed,  Please login first !!");
@@ -1081,7 +1071,7 @@ public class WalletApiWrapper {
     }
 
     SunNetworkResponse<TransactionResponse> resp;
-    resp = sdk.getCrossChainService().depositTrc20(contractAddrStr, mainGatewayAddr, num, feeLimit);
+    resp = sdk.getCrossChainService().depositTrc20(contractAddrStr, num, feeLimit);
     List<TransactionResponse> list = resp.getDataList();
     for (TransactionResponse txResp : list) {
       printResponseInfo(txResp);
@@ -1090,8 +1080,7 @@ public class WalletApiWrapper {
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> depositTrc721(String contractAddrStr,
-      String mainGatewayAddr, String num,
+  public SunNetworkResponse<TransactionResponse> depositTrc721(String contractAddrStr, String num,
       long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: depositTrc20 failed,  Please login first !!");
@@ -1100,7 +1089,7 @@ public class WalletApiWrapper {
 
     SunNetworkResponse<TransactionResponse> resp;
     resp = sdk.getCrossChainService()
-        .depositTrc721(contractAddrStr, mainGatewayAddr, num, feeLimit);
+        .depositTrc721(contractAddrStr, num, feeLimit);
     List<TransactionResponse> list = resp.getDataList();
     for (TransactionResponse txResp : list) {
       printResponseInfo(txResp);
@@ -1109,7 +1098,7 @@ public class WalletApiWrapper {
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> mappingTrc20(String mainGateway, String trxHash,
+  public SunNetworkResponse<TransactionResponse> mappingTrc20(String trxHash,
       long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: mappingTrc20 failed,  Please login first !!");
@@ -1117,13 +1106,13 @@ public class WalletApiWrapper {
     }
 
     SunNetworkResponse<TransactionResponse> resp;
-    resp = sdk.getCrossChainService().mappingTrc20(mainGateway, trxHash, feeLimit);
+    resp = sdk.getCrossChainService().mappingTrc20(trxHash, feeLimit);
     printResponseInfo(resp.getData());
 
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> mappingTrc721(String mainGateway, String trxHash,
+  public SunNetworkResponse<TransactionResponse> mappingTrc721(String trxHash,
       long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: mappingTrc721 failed,  Please login first !!");
@@ -1131,7 +1120,7 @@ public class WalletApiWrapper {
     }
 
     SunNetworkResponse<TransactionResponse> resp;
-    resp = sdk.getCrossChainService().mappingTrc721(mainGateway, trxHash, feeLimit);
+    resp = sdk.getCrossChainService().mappingTrc721(trxHash, feeLimit);
     printResponseInfo(resp.getData());
 
     return resp;
@@ -1187,6 +1176,45 @@ public class WalletApiWrapper {
 
     SunNetworkResponse<TransactionResponse> resp;
     resp = sdk.getCrossChainService().withdrawTrc721(contractAddrStr, value, feeLimit);
+    printResponseInfo(resp.getData());
+
+    return resp;
+  }
+
+  public SunNetworkResponse<TransactionResponse> retryDeposit(String nonce, long feeLimit) {
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: withdrawTrc721 failed,  Please login first !!");
+      return null;
+    }
+
+    SunNetworkResponse<TransactionResponse> resp;
+    resp = sdk.getCrossChainService().retryDeposit(nonce, feeLimit);
+    printResponseInfo(resp.getData());
+
+    return resp;
+  }
+
+  public SunNetworkResponse<TransactionResponse> retryWithdraw(String nonce, long feeLimit) {
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: withdrawTrc721 failed,  Please login first !!");
+      return null;
+    }
+
+    SunNetworkResponse<TransactionResponse> resp;
+    resp = sdk.getCrossChainService().retryWithdraw(nonce, feeLimit);
+    printResponseInfo(resp.getData());
+
+    return resp;
+  }
+
+  public SunNetworkResponse<TransactionResponse> retryMapping(String nonce, long feeLimit) {
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: withdrawTrc721 failed,  Please login first !!");
+      return null;
+    }
+
+    SunNetworkResponse<TransactionResponse> resp;
+    resp = sdk.getCrossChainService().retryMapping(nonce, feeLimit);
     printResponseInfo(resp.getData());
 
     return resp;
@@ -1324,6 +1352,5 @@ public class WalletApiWrapper {
 
     return resp.getData();
   }
-
 
 }

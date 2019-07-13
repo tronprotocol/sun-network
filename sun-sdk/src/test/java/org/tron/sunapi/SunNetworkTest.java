@@ -11,6 +11,7 @@ public class SunNetworkTest {
   public static String priKey = "e901ef62b241b6f1577fd6ea34ef8b1c4b3ddee1e3c051b9e63f5ff729ad47a1";
 
   public static SunNetwork sdk = new SunNetwork();
+
   {
     sdk.init("config.conf");
     sdk.setPrivateKey(priKey);
@@ -44,7 +45,7 @@ public class SunNetworkTest {
     System.out.println("\r\n===================== deposit 124 trx ===============================");
     {
       SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService()
-          .depositTrx(mainChainGateway, 124, 1000000);
+          .depositTrx(124, 1000000);
 
       System.out.println("Error code desc: " + resp.getDesc());
       System.out.println("transaction result: " + resp.getData().getResult());
@@ -80,7 +81,8 @@ public class SunNetworkTest {
   public void getAddressTest() {
     SunNetworkResponse<byte[]> resp = sdk.getMainChainService().getAddress();
 
-    Assert.assertEquals(ServerApi.encode58Check(resp.getData()), "TVdyt1s88BdiCjKt6K2YuoSmpWScZYK1QF");
+    Assert.assertEquals(ServerApi.encode58Check(resp.getData()),
+        "TVdyt1s88BdiCjKt6K2YuoSmpWScZYK1QF");
   }
 
   @Test
@@ -92,7 +94,8 @@ public class SunNetworkTest {
       balanceMain1 = resp.getData();
     }
 
-    SunNetworkResponse<Account> resp2 = sdk.getMainChainService().getAccount("TVdyt1s88BdiCjKt6K2YuoSmpWScZYK1QF");
+    SunNetworkResponse<Account> resp2 = sdk.getMainChainService()
+        .getAccount("TVdyt1s88BdiCjKt6K2YuoSmpWScZYK1QF");
     Assert.assertEquals(resp2.getData().getBalance(), balanceMain1);
   }
 
@@ -125,7 +128,6 @@ public class SunNetworkTest {
 //    Assert.assertEquals(account1.getBalance(), account2.getBalance());
 //    Assert.assertEquals(account1.getAccountId(), account2.getAccountId());
 //  }
-
 
 
 }

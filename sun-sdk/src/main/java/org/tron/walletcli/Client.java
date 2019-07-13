@@ -1640,18 +1640,17 @@ public class Client {
   }
 
   private void depositTrx(String[] parameters) {
-    if (parameters == null || parameters.length != 4) {
-      System.out.println("deposit trx needs 3 parameters like following: ");
-      System.out.println("deposit trx mainGatewayAddress num feelmit");
+    if (parameters == null || parameters.length != 3) {
+      System.out.println("deposit trx needs 2 parameters like following: ");
+      System.out.println("deposit trx num feelmit");
       return;
     }
 
-    String contractAddrStr = parameters[1];  //main gateway contract address
-    long callValue = Long.valueOf(parameters[2]);
-    long feeLimit = Long.valueOf(parameters[3]);
+    long callValue = Long.valueOf(parameters[1]);
+    long feeLimit = Long.valueOf(parameters[2]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .depositTrx(contractAddrStr, callValue, feeLimit);
+        .depositTrx(callValue, feeLimit);
     if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       System.out.println("deposit trc20 success");
     } else {
@@ -1660,20 +1659,19 @@ public class Client {
   }
 
   private void depositTrc10(String[] parameters) {
-    if (parameters == null || parameters.length != 5) {
-      System.out.println("deposit trc10 needs 4 parameters like following: ");
-      System.out.println("deposit trc10 mainGatewayAddress trc10id num feelmit");
+    if (parameters == null || parameters.length != 4) {
+      System.out.println("deposit trc10 needs 3 parameters like following: ");
+      System.out.println("deposit trc10 trc10id num feelmit");
       return;
     }
 
-    String contractAddrStr = parameters[1];  //main gateway contract address
-    String tokenId = parameters[2];
+    String tokenId = parameters[1];
 
-    long tokenCallValue = Long.valueOf(parameters[3]);
-    long feeLimit = Long.valueOf(parameters[4]);
+    long tokenCallValue = Long.valueOf(parameters[2]);
+    long feeLimit = Long.valueOf(parameters[3]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .depositTrc10(contractAddrStr, tokenId, tokenCallValue, feeLimit);
+        .depositTrc10(tokenId, tokenCallValue, feeLimit);
     if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       System.out.println("deposit trc20 success");
     } else {
@@ -1682,20 +1680,19 @@ public class Client {
   }
 
   private void depositTrc20(String[] parameters) {
-    if (parameters == null || parameters.length != 5) {
-      System.out.println("deposit trc20 needs 4 parameters like following: ");
-      System.out.println("deposit trc20 trc20ContractAddress mainGatewayAddress num feelmit");
+    if (parameters == null || parameters.length != 4) {
+      System.out.println("deposit trc20 needs 3 parameters like following: ");
+      System.out.println("deposit trc20 trc20ContractAddress num feelmit");
       return;
     }
 
     String contractAddrStr = parameters[1];  //main trc20 contract address
-    String mainGatewayAddr = parameters[2]; //main gateway contract address
-    String num = parameters[3];
+    String num = parameters[2];
 
-    long feeLimit = Long.valueOf(parameters[4]);
+    long feeLimit = Long.valueOf(parameters[3]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .depositTrc20(contractAddrStr, mainGatewayAddr, num, feeLimit);
+        .depositTrc20(contractAddrStr, num, feeLimit);
     if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       System.out.println("deposit trc20 success");
     } else {
@@ -1704,19 +1701,18 @@ public class Client {
   }
 
   private void depositTrc721(String[] parameters) {
-    if (parameters == null || parameters.length != 5) {
-      System.out.println("deposit trc721 needs 4 parameters like following: ");
-      System.out.println("deposit trc721 trc721ContractAddress mainGatewayAddress tokenId feelmit");
+    if (parameters == null || parameters.length != 4) {
+      System.out.println("deposit trc721 needs 3 parameters like following: ");
+      System.out.println("deposit trc721 trc721ContractAddress tokenId feelmit");
       return;
     }
 
     String contractAddrStr = parameters[1];  //main trc20 contract address
-    String mainGatewayAddr = parameters[2]; //main gateway contract address
-    String num = parameters[3];
+    String num = parameters[2];
 
-    long feeLimit = Long.valueOf(parameters[4]);
+    long feeLimit = Long.valueOf(parameters[3]);
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .depositTrc721(contractAddrStr, mainGatewayAddr, num, feeLimit);
+        .depositTrc721(contractAddrStr, num, feeLimit);
     if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       System.out.println("deposit trc20 success");
     } else {
@@ -1948,6 +1944,7 @@ public class Client {
     allCmds.add("approveproposal");
     allCmds.add("deleteproposal");
     allCmds.add("withdraw");
+    allCmds.add("retry");
     allCmds.add("createproposal");
     allCmds.add("getmappingaddress");
     allCmds.add("exit");
@@ -2495,6 +2492,95 @@ public class Client {
     }
   }
 
+  private void retryDeposit(String[] parameters) {
+    if (parameters == null || parameters.length != 3) {
+      System.out.println("retry deposit needs 2 parameters like following: ");
+      System.out.println("retry deposit nonce fee_limit ");
+      return;
+    }
+
+    String nonce = parameters[1];
+    long feeLimit = Long.parseLong(parameters[2]);
+
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+        .retryDeposit(nonce, feeLimit);
+    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      System.out.println("retry deposit success");
+    } else {
+      System.out.println("retry deposit failed");
+    }
+
+    return;
+  }
+
+  private void retryWithdraw(String[] parameters) {
+    if (parameters == null || parameters.length != 3) {
+      System.out.println("retry withdraw needs 2 parameters like following: ");
+      System.out.println("retry withdraw nonce fee_limit ");
+      return;
+    }
+
+    String nonce = parameters[1];
+    long feeLimit = Long.parseLong(parameters[2]);
+
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+        .retryWithdraw(nonce, feeLimit);
+    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      System.out.println("retry withdraw success");
+    } else {
+      System.out.println("retry withdraw failed");
+    }
+
+    return;
+  }
+
+  private void retryMapping(String[] parameters) {
+    if (parameters == null || parameters.length != 3) {
+      System.out.println("retry mapping needs 2 parameters like following: ");
+      System.out.println("retry mapping nonce fee_limit ");
+      return;
+    }
+
+    String nonce = parameters[1];
+    long feeLimit = Long.parseLong(parameters[2]);
+
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+        .retryMapping(nonce, feeLimit);
+    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      System.out.println("retry mapping success");
+    } else {
+      System.out.println("retry mapping failed");
+    }
+
+    return;
+  }
+
+  private void retry(String[] parameters) {
+    if (parameters == null || parameters.length < 1) {
+      System.out.println("retry needs parameters (deposit |withdraw |mapping )");
+      return;
+    }
+
+    String type = parameters[0];
+    switch (type.toLowerCase()) {
+      case "deposit": {
+        retryDeposit(parameters);
+        break;
+      }
+      case "withdraw": {
+        retryWithdraw(parameters);
+        break;
+      }
+      case "mapping": {
+        retryMapping(parameters);
+        break;
+      }
+      default: {
+        System.out.println("Invalid retry type: " + type + "!!");
+      }
+    }
+  }
+
   private void getMappingAddress(String[] parameters) {
     if (parameters == null || parameters.length != 1) {
       System.out.println("getmappingaddress needs 1 parameters like following: ");
@@ -2510,18 +2596,16 @@ public class Client {
   }
 
   private void mappingTrc20(String[] parameters) {
-    if (parameters == null || parameters.length != 4) {
-      System.out.println("mapping trc20 needs 3 parameters like following: ");
-      System.out.println("mapping trc20 mainGatewayAddress trxHash  feelmit");
+    if (parameters == null || parameters.length != 3) {
+      System.out.println("mapping trc20 needs 2 parameters like following: ");
+      System.out.println("mapping trc20  trxHash  feelmit");
       return;
     }
 
-    String mainGateway = parameters[1];  //main chain gateway
-    String trxHash = parameters[2];
-    long feeLimit = Long.valueOf(parameters[3]);
+    String trxHash = parameters[1];
+    long feeLimit = Long.valueOf(parameters[2]);
 
-    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .mappingTrc20(mainGateway, trxHash, feeLimit);
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.mappingTrc20(trxHash, feeLimit);
     if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       System.out.println("mapping trc20 success");
     }
@@ -2531,18 +2615,17 @@ public class Client {
   }
 
   private void mappingTrc721(String[] parameters) {
-    if (parameters == null || parameters.length != 4) {
-      System.out.println("mapping trc721 needs 3 parameters like following: ");
-      System.out.println("mapping trc721 mainGatewayAddress trxHash  feelmit");
+    if (parameters == null || parameters.length != 3) {
+      System.out.println("mapping trc721 needs 2 parameters like following: ");
+      System.out.println("mapping trc721  trxHash  feelmit");
       return;
     }
 
-    String mainGateway = parameters[1];  //main chain gateway
-    String trxHash = parameters[2];
-    long feeLimit = Long.valueOf(parameters[3]);
+    String trxHash = parameters[1];
+    long feeLimit = Long.valueOf(parameters[2]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .mappingTrc721(mainGateway, trxHash, feeLimit);
+        .mappingTrc721(trxHash, feeLimit);
     if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       System.out.println("mapping trc721 success");
     }
@@ -2740,6 +2823,10 @@ public class Client {
         }
         case "withdraw": {
           withdraw(parameters);
+          break;
+        }
+        case "retry": {
+          retry(parameters);
           break;
         }
         case "getmappingaddress": {
