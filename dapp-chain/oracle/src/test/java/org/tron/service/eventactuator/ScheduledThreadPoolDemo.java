@@ -3,8 +3,10 @@ package org.tron.service.eventactuator;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.junit.Ignore;
 
 
+@Ignore
 public class ScheduledThreadPoolDemo {
 
   static class WorkThread implements Runnable {
@@ -31,10 +33,10 @@ public class ScheduledThreadPoolDemo {
     }
   }
 
-  public static void main(String[] args) {
-    //submit();
-    schedule();
-  }
+//  public static void main(String[] args) {
+//    //submit();
+//    schedule();
+//  }
 
   private static void submit() {
     ScheduledExecutorService syncExecutor = Executors

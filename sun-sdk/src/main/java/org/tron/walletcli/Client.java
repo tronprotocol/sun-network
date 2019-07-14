@@ -4,7 +4,6 @@ import com.beust.jcommander.JCommander;
 import com.google.common.primitives.Longs;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -12,7 +11,6 @@ import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,7 +27,6 @@ import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
 import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.GrpcAPI.BlockExtention;
-import org.tron.api.GrpcAPI.BlockList;
 import org.tron.api.GrpcAPI.BlockListExtention;
 import org.tron.api.GrpcAPI.DelegatedResourceList;
 import org.tron.api.GrpcAPI.ExchangeList;
@@ -39,7 +36,6 @@ import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.GrpcAPI.ProposalList;
 import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.GrpcAPI.TransactionApprovedList;
-import org.tron.api.GrpcAPI.TransactionList;
 import org.tron.api.GrpcAPI.TransactionListExtention;
 import org.tron.api.GrpcAPI.TransactionSignWeight;
 import org.tron.api.GrpcAPI.WitnessList;
@@ -63,6 +59,8 @@ import org.tron.protos.Protocol.Proposal;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
+import org.tron.sunapi.ErrorCodeEnum;
+import org.tron.sunapi.SunNetworkResponse;
 import org.tron.sunapi.response.TransactionResponse;
 import org.tron.sunserver.ServerApi;
 
@@ -239,13 +237,12 @@ public class Client {
   }
 
   private void getBalance() {
-    Account account = walletApiWrapper.queryAccount();
-    if (account == null) {
-      logger.info("GetBalance failed !!!!");
-
-    } else {
-      long balance = account.getBalance();
+    SunNetworkResponse<Long> result = walletApiWrapper.getBalance();
+    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      long balance = result.getData();
       logger.info("Balance = " + balance);
+    } else {
+      logger.info("GetBalance failed !!!!");
     }
   }
 
@@ -261,11 +258,11 @@ public class Client {
       return;
     }
 
-    Account account = walletApiWrapper.getServerApi().queryAccount(addressBytes);
-    if (account == null) {
-      logger.info("GetAccount failed !!!!");
+    SunNetworkResponse<Account> result = walletApiWrapper.getAccount(address);
+    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      logger.info("\n" + Utils.printAccount(result.getData()));
     } else {
-      logger.info("\n" + Utils.printAccount(account));
+      logger.info("GetAccount failed !!!!");
     }
   }
 
@@ -277,7 +274,7 @@ public class Client {
     }
     String accountId = parameters[0];
 
-    Account account = walletApiWrapper.getServerApi().queryAccountById(accountId);
+    Account account = walletApiWrapper.queryAccountById(accountId);
     if (account == null) {
       logger.info("GetAccountById failed !!!!");
     } else {
@@ -286,8 +283,7 @@ public class Client {
   }
 
 
-  private void updateAccount(String[] parameters)
-    throws IOException, CipherException, CancelException {
+  private void updateAccount(String[] parameters) {
     if (parameters == null || parameters.length != 1) {
       System.out.println("UpdateAccount needs 1 parameter like the following: ");
       System.out.println("UpdateAccount AccountName ");
@@ -295,18 +291,15 @@ public class Client {
     }
 
     String accountName = parameters[0];
-    byte[] accountNameBytes = ByteArray.fromString(accountName);
-
-    boolean ret = walletApiWrapper.updateAccount(accountNameBytes);
-    if (ret) {
+    SunNetworkResponse<TransactionResponse> result = walletApiWrapper.updateAccount(accountName);
+    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       logger.info("Update Account successful !!!!");
     } else {
       logger.info("Update Account failed !!!!");
     }
   }
 
-  private void setAccountId(String[] parameters)
-    throws IOException, CipherException, CancelException {
+  private void setAccountId(String[] parameters) {
     if (parameters == null || parameters.length != 1) {
       System.out.println("SetAccountId needs 1 parameter like the following: ");
       System.out.println("SetAccountId AccountId ");
@@ -314,10 +307,8 @@ public class Client {
     }
 
     String accountId = parameters[0];
-    byte[] accountIdBytes = ByteArray.fromString(accountId);
-
-    boolean ret = walletApiWrapper.setAccountId(accountIdBytes);
-    if (ret) {
+    SunNetworkResponse<TransactionResponse> result = walletApiWrapper.setAccountId(accountId);
+    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       logger.info("Set AccountId successful !!!!");
     } else {
       logger.info("Set AccountId failed !!!!");
@@ -337,14 +328,9 @@ public class Client {
     String description = parameters[2];
     String url = parameters[3];
 
-    byte[] descriptionBytes = ByteArray.fromString(description);
-    byte[] urlBytes = ByteArray.fromString(url);
-    long newLimit = new Long(newLimitString);
-    long newPublicLimit = new Long(newPublicLimitString);
-
-    boolean ret = walletApiWrapper
-      .updateAsset(descriptionBytes, urlBytes, newLimit, newPublicLimit);
-    if (ret) {
+    SunNetworkResponse<TransactionResponse> result = walletApiWrapper
+        .updateAsset(newLimitString, newPublicLimitString, description, url);
+    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       logger.info("Update Asset successful !!!!");
     } else {
       logger.info("Update Asset failed !!!!");
@@ -358,12 +344,8 @@ public class Client {
       return;
     }
     String address = parameters[0];
-    byte[] addressBytes = ServerApi.decodeFromBase58Check(address);
-    if (addressBytes == null) {
-      return;
-    }
 
-    Optional<AssetIssueList> result = walletApiWrapper.getServerApi().getAssetIssueByAccount(addressBytes);
+    Optional<AssetIssueList> result = walletApiWrapper.getAssetIssueByAccount(address);
     if (result.isPresent()) {
       AssetIssueList assetIssueList = result.get();
       logger.info(Utils.printAssetIssueList(assetIssueList));
@@ -379,12 +361,8 @@ public class Client {
       return;
     }
     String address = parameters[0];
-    byte[] addressBytes = ServerApi.decodeFromBase58Check(address);
-    if (addressBytes == null) {
-      return;
-    }
 
-    AccountNetMessage result = walletApiWrapper.getServerApi().getAccountNet(addressBytes);
+    AccountNetMessage result = walletApiWrapper.getAccountNet(address);
     if (result == null) {
       logger.info("GetAccountNet " + " failed !!");
     } else {
@@ -399,12 +377,8 @@ public class Client {
       return;
     }
     String address = parameters[0];
-    byte[] addressBytes = ServerApi.decodeFromBase58Check(address);
-    if (addressBytes == null) {
-      return;
-    }
 
-    AccountResourceMessage result = walletApiWrapper.getServerApi().getAccountResource(addressBytes);
+    AccountResourceMessage result = walletApiWrapper.getAccountResource(address);
     if (result == null) {
       logger.info("getAccountResource " + " failed !!");
     } else {
@@ -423,7 +397,7 @@ public class Client {
     }
     String assetName = parameters[0];
 
-    AssetIssueContract assetIssueContract = walletApiWrapper.getServerApi().getAssetIssueByName(assetName);
+    AssetIssueContract assetIssueContract = walletApiWrapper.getAssetIssueByName(assetName);
     if (assetIssueContract != null) {
       logger.info("\n" + Utils.printAssetIssue(assetIssueContract));
     } else {
@@ -439,10 +413,9 @@ public class Client {
     }
     String assetName = parameters[0];
 
-    Optional<AssetIssueList> result = walletApiWrapper.getServerApi().getAssetIssueListByName(assetName);
-    if (result.isPresent()) {
-      AssetIssueList assetIssueList = result.get();
-      logger.info(Utils.printAssetIssueList(assetIssueList));
+    AssetIssueList result = walletApiWrapper.getAssetIssueListByName(assetName);
+    if (result != null) {
+      logger.info(Utils.printAssetIssueList(result));
     } else {
       logger.info("getAssetIssueListByName " + " failed !!");
     }
@@ -456,7 +429,7 @@ public class Client {
     }
     String assetId = parameters[0];
 
-    AssetIssueContract assetIssueContract = walletApiWrapper.getServerApi().getAssetIssueById(assetId);
+    AssetIssueContract assetIssueContract = walletApiWrapper.getAssetIssueById(assetId);
     if (assetIssueContract != null) {
       logger.info("\n" + Utils.printAssetIssue(assetIssueContract));
     } else {
@@ -464,7 +437,7 @@ public class Client {
     }
   }
 
-  private void sendCoin(String[] parameters) throws IOException, CipherException, CancelException {
+  private void sendCoin(String[] parameters) {
     if (parameters == null || parameters.length != 2) {
       System.out.println("SendCoin needs 2 parameters like following: ");
       System.out.println("SendCoin ToAddress Amount");
@@ -475,16 +448,15 @@ public class Client {
     String amountStr = parameters[1];
     long amount = new Long(amountStr);
 
-    boolean result = walletApiWrapper.sendCoin(toAddress, amount);
-    if (result) {
+    SunNetworkResponse<TransactionResponse> result = walletApiWrapper.sendCoin(toAddress, amount);
+    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       logger.info("Send " + amount + " drop to " + toAddress + " successful !!");
     } else {
       logger.info("Send " + amount + " drop to " + toAddress + " failed !!");
     }
   }
 
-  private void testTransaction(String[] parameters)
-    throws IOException, CipherException, CancelException {
+  private void testTransaction(String[] parameters) {
     if (parameters == null || (parameters.length != 3 && parameters.length != 4)) {
       System.out.println("testTransaction needs 3 or 4 parameters using the following syntax: ");
       System.out.println("testTransaction ToAddress assertName times");
@@ -506,8 +478,8 @@ public class Client {
 
     for (int i = 1; i <= times; i++) {
       long amount = i;
-      boolean result = walletApiWrapper.sendCoin(toAddress, amount);
-      if (result) {
+      SunNetworkResponse<TransactionResponse> result = walletApiWrapper.sendCoin(toAddress, amount);
+      if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
         logger.info("Send " + amount + " drop to " + toAddress + " successful !!");
         if (intervalInt > 0) {
           try {
@@ -524,7 +496,7 @@ public class Client {
 
       if (!"null".equalsIgnoreCase(assertName)) {
         result = walletApiWrapper.transferAsset(toAddress, assertName, amount);
-        if (result) {
+        if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
           logger
             .info(
               "transferAsset " + amount + assertName + " to " + toAddress + " successful !!");
@@ -542,11 +514,9 @@ public class Client {
         }
       }
     }
-
   }
 
-  private void transferAsset(String[] parameters)
-    throws IOException, CipherException, CancelException {
+  private void transferAsset(String[] parameters) {
     if (parameters == null || parameters.length != 3) {
       System.out.println("TransferAsset needs 3 parameters using the following syntax: ");
       System.out.println("TransferAsset ToAddress AssertName Amount");
@@ -558,8 +528,8 @@ public class Client {
     String amountStr = parameters[2];
     long amount = new Long(amountStr);
 
-    boolean result = walletApiWrapper.transferAsset(toAddress, assertName, amount);
-    if (result) {
+    SunNetworkResponse<TransactionResponse> result = walletApiWrapper.transferAsset(toAddress, assertName, amount);
+    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       logger.info("TransferAsset " + amount + " to " + toAddress + " successful !!");
     } else {
       logger.info("TransferAsset " + amount + " to " + toAddress + " failed !!");
@@ -579,8 +549,8 @@ public class Client {
     String amountStr = parameters[2];
     long amount = Long.parseLong(amountStr);
 
-    boolean result = walletApiWrapper.participateAssetIssue(toAddress, assertName, amount);
-    if (result) {
+    SunNetworkResponse<TransactionResponse> result = walletApiWrapper.participateAssetIssue(toAddress, assertName, amount);
+    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       logger.info("ParticipateAssetIssue " + assertName + " " + amount + " from " + toAddress
         + " successful !!");
     } else {
@@ -589,8 +559,7 @@ public class Client {
     }
   }
 
-  private void assetIssue(String[] parameters)
-    throws IOException, CipherException, CancelException {
+  private void assetIssue(String[] parameters) {
     if (parameters == null || parameters.length < 11 || (parameters.length & 1) == 0) {
       System.out
         .println("Use the assetIssue command for features that you require with below syntax: ");
@@ -624,20 +593,10 @@ public class Client {
       frozenSupply.put(days, amount);
     }
 
-    long totalSupply = new Long(totalSupplyStr);
-    int trxNum = new Integer(trxNumStr);
-    int icoNum = new Integer(icoNumStr);
-    int precision = new Integer(precisionStr);
-    Date startDate = Utils.strToDateLong(startYyyyMmDd);
-    Date endDate = Utils.strToDateLong(endYyyyMmDd);
-    long startTime = startDate.getTime();
-    long endTime = endDate.getTime();
-    long freeAssetNetLimit = new Long(freeNetLimitPerAccount);
-    long publicFreeNetLimit = new Long(publicFreeNetLimitString);
-
     boolean result = walletApiWrapper
-      .assetIssue(name, totalSupply, trxNum, icoNum, precision, startTime, endTime,
-        0, description, url, freeAssetNetLimit, publicFreeNetLimit, frozenSupply);
+        .assetIssue(name, totalSupplyStr, trxNumStr, icoNumStr, precisionStr,
+            startYyyyMmDd, endYyyyMmDd, description, url, freeNetLimitPerAccount,
+            publicFreeNetLimitString, frozenSupply);
     if (result) {
       logger.info("AssetIssue " + name + " successful !!");
     } else {
@@ -645,8 +604,7 @@ public class Client {
     }
   }
 
-  private void createAccount(String[] parameters)
-    throws CipherException, IOException, CancelException {
+  private void createAccount(String[] parameters) {
     if (parameters == null || parameters.length != 1) {
       System.out.println("CreateAccount needs 1 parameter using the following syntax: ");
       System.out.println("CreateAccount Address");
@@ -655,16 +613,15 @@ public class Client {
 
     String address = parameters[0];
 
-    boolean result = walletApiWrapper.createAccount(address);
-    if (result) {
+    SunNetworkResponse<TransactionResponse> result = walletApiWrapper.createAccount(address);
+    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       logger.info("CreateAccount " + " successful !!");
     } else {
       logger.info("CreateAccount " + " failed !!");
     }
   }
 
-  private void createWitness(String[] parameters)
-    throws IOException, CipherException, CancelException {
+  private void createWitness(String[] parameters) {
     if (parameters == null || parameters.length != 1) {
       System.out.println("CreateWitness needs 1 parameter using the following syntax: ");
       System.out.println("CreateWitness Url");
@@ -673,16 +630,15 @@ public class Client {
 
     String url = parameters[0];
 
-    boolean result = walletApiWrapper.createWitness(url);
-    if (result) {
+    SunNetworkResponse<TransactionResponse> result = walletApiWrapper.createWitness(url);
+    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       logger.info("CreateWitness " + " successful !!");
     } else {
       logger.info("CreateWitness " + " failed !!");
     }
   }
 
-  private void updateWitness(String[] parameters)
-    throws IOException, CipherException, CancelException {
+  private void updateWitness(String[] parameters) {
     if (parameters == null || parameters.length != 1) {
       System.out.println("updateWitness needs 1 parameter using the following syntax: ");
       System.out.println("updateWitness Url");
@@ -691,8 +647,8 @@ public class Client {
 
     String url = parameters[0];
 
-    boolean result = walletApiWrapper.updateWitness(url);
-    if (result) {
+    SunNetworkResponse<TransactionResponse> result = walletApiWrapper.updateWitness(url);
+    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       logger.info("updateWitness " + " successful !!");
     } else {
       logger.info("updateWitness " + " failed !!");
@@ -700,20 +656,18 @@ public class Client {
   }
 
   private void listWitnesses() {
-    Optional<WitnessList> result = walletApiWrapper.listWitnesses();
-    if (result.isPresent()) {
-      WitnessList witnessList = result.get();
-      logger.info(Utils.printWitnessList(witnessList));
+    WitnessList result = walletApiWrapper.listWitnesses();
+    if (result != null) {
+      logger.info(Utils.printWitnessList(result));
     } else {
       logger.info("List witnesses " + " failed !!");
     }
   }
 
   private void getAssetIssueList() {
-    Optional<AssetIssueList> result = walletApiWrapper.getAssetIssueList();
-    if (result.isPresent()) {
-      AssetIssueList assetIssueList = result.get();
-      logger.info(Utils.printAssetIssueList(assetIssueList));
+    AssetIssueList result = walletApiWrapper.getAssetIssueList();
+    if (result != null) {
+      logger.info(Utils.printAssetIssueList(result));
     } else {
       logger.info("GetAssetIssueList " + " failed !!");
     }
@@ -728,10 +682,9 @@ public class Client {
     }
     int offset = Integer.parseInt(parameters[0]);
     int limit = Integer.parseInt(parameters[1]);
-    Optional<AssetIssueList> result = walletApiWrapper.getAssetIssueList(offset, limit);
-    if (result.isPresent()) {
-      AssetIssueList assetIssueList = result.get();
-      logger.info(Utils.printAssetIssueList(assetIssueList));
+    AssetIssueList result = walletApiWrapper.getAssetIssueList(offset, limit);
+    if (result != null) {
+      logger.info(Utils.printAssetIssueList(result));
     } else {
       logger.info("GetAssetIssueListPaginated " + " failed !!");
     }
@@ -805,21 +758,13 @@ public class Client {
       blockNum = Long.parseLong(parameters[0]);
     }
 
-    if (ServerApi.getRpcVersion() == 2) {
-      BlockExtention blockExtention = walletApiWrapper.getBlock2(blockNum);
-      if (blockExtention == null) {
-        System.out.println("No block for num : " + blockNum);
-        return;
-      }
-      System.out.println(Utils.printBlockExtention(blockExtention));
-    } else {
-      Block block = walletApiWrapper.getBlock(blockNum);
-      if (block == null) {
-        System.out.println("No block for num : " + blockNum);
-        return;
-      }
-      System.out.println(Utils.printBlock(block));
+    BlockExtention blockExtention = walletApiWrapper.getBlock(blockNum);
+    if (blockExtention == null) {
+      System.out.println("No block for num : " + blockNum);
+      return;
     }
+    System.out.println(Utils.printBlockExtention(blockExtention));
+
   }
 
   private void getTransactionCountByBlockNum(String[] parameters) {
@@ -848,16 +793,15 @@ public class Client {
       witness.put(address, countStr);
     }
 
-    boolean result = walletApiWrapper.voteWitness(witness);
-    if (result) {
+    SunNetworkResponse<TransactionResponse> result = walletApiWrapper.voteWitness(witness);
+    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       logger.info("VoteWitness " + " successful !!");
     } else {
       logger.info("VoteWitness " + " failed !!");
     }
   }
 
-  private void freezeBalance(String[] parameters)
-    throws IOException, CipherException, CancelException {
+  private void freezeBalance(String[] parameters) {
     if (parameters == null || !(parameters.length == 2 || parameters.length == 3
       || parameters.length == 4)) {
       System.out.println("Use freezeBalance command with below syntax: ");
@@ -883,66 +827,14 @@ public class Client {
       resourceCode = Integer.parseInt(parameters[2]);
       receiverAddress = parameters[3];
     }
-    boolean result = walletApiWrapper.freezeBalance(frozen_balance, frozen_duration, resourceCode,
-      receiverAddress);
-    if (result) {
+    SunNetworkResponse<TransactionResponse> result = walletApiWrapper.freezeBalance(frozen_balance,
+        frozen_duration, resourceCode, receiverAddress);
+    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
       logger.info("freezeBalance " + " successful !!");
     } else {
       logger.info("freezeBalance " + " failed !!");
     }
   }
-
-  private void buyStorage(String[] parameters)
-    throws IOException, CipherException, CancelException {
-    if (parameters == null || parameters.length != 1) {
-      System.out.println("Use buyStorage command with below syntax: ");
-      System.out.println("buyStorage quantity ");
-      return;
-    }
-
-    long quantity = Long.parseLong(parameters[0]);
-    boolean result = walletApiWrapper.buyStorage(quantity);
-    if (result) {
-      logger.info("buyStorage " + " successful !!");
-    } else {
-      logger.info("buyStorage " + " failed !!");
-    }
-  }
-
-  private void buyStorageBytes(String[] parameters)
-    throws IOException, CipherException, CancelException {
-    if (parameters == null || parameters.length != 1) {
-      System.out.println("Use buyStorageBytes command with below syntax: ");
-      System.out.println("buyStorageBytes bytes ");
-      return;
-    }
-
-    long bytes = Long.parseLong(parameters[0]);
-    boolean result = walletApiWrapper.buyStorageBytes(bytes);
-    if (result) {
-      logger.info("buyStorageBytes " + " successful !!");
-    } else {
-      logger.info("buyStorageBytes " + " failed !!");
-    }
-  }
-
-  private void sellStorage(String[] parameters)
-    throws IOException, CipherException, CancelException {
-    if (parameters == null || parameters.length != 1) {
-      System.out.println("Use sellStorage command with below syntax: ");
-      System.out.println("sellStorage quantity ");
-      return;
-    }
-
-    long storageBytes = Long.parseLong(parameters[0]);
-    boolean result = walletApiWrapper.sellStorage(storageBytes);
-    if (result) {
-      logger.info("sellStorage " + " successful !!");
-    } else {
-      logger.info("sellStorage " + " failed !!");
-    }
-  }
-
 
   private void unfreezeBalance(String[] parameters)
     throws IOException, CipherException, CancelException {
@@ -977,7 +869,7 @@ public class Client {
   }
 
 
-  private void unfreezeAsset() throws IOException, CipherException, CancelException {
+  private void unfreezeAsset() {
     boolean result = walletApiWrapper.unfreezeAsset();
     if (result) {
       logger.info("unfreezeAsset " + " successful !!");
@@ -986,8 +878,7 @@ public class Client {
     }
   }
 
-  private void createProposal(String[] parameters)
-    throws IOException, CipherException, CancelException {
+  private void createProposal(String[] parameters) {
     if (parameters == null || parameters.length < 2 || (parameters.length & 1) != 0) {
       System.out.println("Use createProposal command with below syntax: ");
       System.out.println("createProposal id0 value0 ... idN valueN");
@@ -1009,8 +900,7 @@ public class Client {
   }
 
 
-  private void sideChainCreateProposal(String[] parameters)
-    throws IOException, CipherException, CancelException {
+  private void sideChainCreateProposal(String[] parameters) {
     if (parameters == null || parameters.length < 2 || (parameters.length & 1) != 0) {
       System.out.println("Use createProposal command with below syntax: ");
       System.out.println("createProposal id0 value0 ... idN valueN");
@@ -1095,7 +985,7 @@ public class Client {
     }
     String id = parameters[0];
 
-    Optional<Proposal> result = walletApiWrapper.getServerApi().getProposal(id);
+    Optional<Proposal> result = walletApiWrapper.getProposal(id);
     if (result.isPresent()) {
       Proposal proposal = result.get();
       logger.info(Utils.printProposal(proposal));
@@ -1105,8 +995,7 @@ public class Client {
   }
 
 
-  private void getDelegatedResource(String[] parameters)
-    throws IOException, CipherException, CancelException {
+  private void getDelegatedResource(String[] parameters) {
     if (parameters == null || parameters.length != 2) {
       System.out.println("Use getDelegatedResource command with below syntax: ");
       System.out.println("getDelegatedResource fromAddress toAddress");
@@ -1114,7 +1003,7 @@ public class Client {
     }
     String fromAddress = parameters[0];
     String toAddress = parameters[1];
-    Optional<DelegatedResourceList> result = walletApiWrapper.getServerApi().getDelegatedResource(fromAddress, toAddress);
+    Optional<DelegatedResourceList> result = walletApiWrapper.getDelegatedResource(fromAddress, toAddress);
     if (result.isPresent()) {
       DelegatedResourceList delegatedResourceList = result.get();
       logger.info(Utils.printDelegatedResourceList(delegatedResourceList));
@@ -1123,15 +1012,14 @@ public class Client {
     }
   }
 
-  private void getDelegatedResourceAccountIndex(String[] parameters)
-    throws IOException, CipherException, CancelException {
+  private void getDelegatedResourceAccountIndex(String[] parameters) {
     if (parameters == null || parameters.length != 1) {
       System.out.println("Use getDelegatedResourceAccountIndex command with below syntax: ");
       System.out.println("getDelegatedResourceAccountIndex address ");
       return;
     }
     String address = parameters[0];
-    Optional<DelegatedResourceAccountIndex> result = walletApiWrapper.getServerApi().getDelegatedResourceAccountIndex(address);
+    Optional<DelegatedResourceAccountIndex> result = walletApiWrapper.getDelegatedResourceAccountIndex(address);
     if (result.isPresent()) {
       DelegatedResourceAccountIndex delegatedResourceAccountIndex = result.get();
       logger.info(Utils.printDelegatedResourceAccountIndex(delegatedResourceAccountIndex));
@@ -1141,8 +1029,7 @@ public class Client {
   }
 
 
-  private void exchangeCreate(String[] parameters)
-    throws IOException, CipherException, CancelException {
+  private void exchangeCreate(String[] parameters) {
     if (parameters == null || parameters.length != 4) {
       System.out.println("Use exchangeCreate command with below syntax: ");
       System.out.println("exchangeCreate first_token_id first_token_balance "
@@ -1150,9 +1037,9 @@ public class Client {
       return;
     }
 
-    byte[] firstTokenId = parameters[0].getBytes();
+    String firstTokenId = parameters[0];
     long firstTokenBalance = Long.parseLong(parameters[1]);
-    byte[] secondTokenId = parameters[2].getBytes();
+    String secondTokenId = parameters[2];
     long secondTokenBalance = Long.parseLong(parameters[3]);
     boolean result = walletApiWrapper.exchangeCreate(firstTokenId, firstTokenBalance,
       secondTokenId, secondTokenBalance);
@@ -1163,8 +1050,7 @@ public class Client {
     }
   }
 
-  private void exchangeInject(String[] parameters)
-    throws IOException, CipherException, CancelException {
+  private void exchangeInject(String[] parameters) {
     if (parameters == null || parameters.length != 3) {
       System.out.println("Use exchangeInject command with below syntax: ");
       System.out.println("exchangeInject exchange_id token_id quant");
@@ -1172,7 +1058,7 @@ public class Client {
     }
 
     long exchangeId = Long.valueOf(parameters[0]);
-    byte[] tokenId = parameters[1].getBytes();
+    String tokenId = parameters[1];
     long quant = Long.valueOf(parameters[2]);
     boolean result = walletApiWrapper.exchangeInject(exchangeId, tokenId, quant);
     if (result) {
@@ -1191,7 +1077,7 @@ public class Client {
     }
 
     long exchangeId = Long.valueOf(parameters[0]);
-    byte[] tokenId = parameters[1].getBytes();
+    String tokenId = parameters[1];
     long quant = Long.valueOf(parameters[2]);
     boolean result = walletApiWrapper.exchangeWithdraw(exchangeId, tokenId, quant);
     if (result) {
@@ -1210,7 +1096,7 @@ public class Client {
     }
 
     long exchangeId = Long.valueOf(parameters[0]);
-    byte[] tokenId = parameters[1].getBytes();
+    String tokenId = parameters[1];
     long quant = Long.valueOf(parameters[2]);
     long expected = Long.valueOf(parameters[3]);
     boolean result = walletApiWrapper.exchangeTransaction(exchangeId, tokenId, quant, expected);
@@ -1248,7 +1134,7 @@ public class Client {
     }
   }
 
-  private void withdrawBalance() throws IOException, CipherException, CancelException {
+  private void withdrawBalance() {
     boolean result = walletApiWrapper.withdrawBalance();
     if (result) {
       logger.info("withdrawBalance " + " successful !!");
@@ -1263,77 +1149,10 @@ public class Client {
   }
 
   private void getNextMaintenanceTime() {
-    NumberMessage nextMaintenanceTime = walletApiWrapper.getNextMaintenanceTime();
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    String date = formatter.format(nextMaintenanceTime.getNum());
-    logger.info("Next maintenance time is : " + date);
+    String nextMaintenanceTime = walletApiWrapper.getNextMaintenanceTime();
+
+    logger.info("Next maintenance time is : " + nextMaintenanceTime);
   }
-
-//  private void getAssetIssueListByTimestamp(String[] parameters) {
-//    long timeStamp = -1;
-//    if (parameters == null || parameters.length == 0) {
-//      System.out.println("no time input, use current time");
-//      timeStamp = System.currentTimeMillis();
-//    } else {
-//      if (parameters.length != 2) {
-//        System.out.println("You can GetAssetIssueListByTimestamp like:");
-//        System.out.println("GetAssetIssueListByTimestamp yyyy-mm-dd hh:mm:ss");
-//        return;
-//      } else {
-//        timeStamp = Timestamp.valueOf(parameters[0] + " " + parameters[1]).getTime();
-//      }
-//    }
-//    Optional<AssetIssueList> result = ServerApi.getAssetIssueListByTimestamp(timeStamp);
-//    if (result.isPresent()) {
-//      AssetIssueList assetIssueList = result.get();
-//      logger.info(Utils.printAssetIssueList(assetIssueList));
-//    } else {
-//      logger.info("GetAssetIssueListByTimestamp " + " failed !!");
-//    }
-//  }
-
-//  private void getTransactionsByTimestamp(String[] parameters) {
-//    String start = "";
-//    String end = "";
-//    if (parameters == null || parameters.length != 6) {
-//      System.out.println(
-//          "getTransactionsByTimestamp needs 4 parameters, start_time and end_time, time format is yyyy-mm-dd hh:mm:ss, offset and limit");
-//      return;
-//    } else {
-//      start = parameters[0] + " " + parameters[1];
-//      end = parameters[2] + " " + parameters[3];
-//    }
-//    long startTime = Timestamp.valueOf(start).getTime();
-//    long endTime = Timestamp.valueOf(end).getTime();
-//    int offset = Integer.parseInt(parameters[4]);
-//    int limit = Integer.parseInt(parameters[5]);
-//    Optional<TransactionList> result = ServerApi
-//        .getTransactionsByTimestamp(startTime, endTime, offset, limit);
-//    if (result.isPresent()) {
-//      TransactionList transactionList = result.get();
-//      logger.info(Utils.printTransactionList(transactionList));
-//    } else {
-//      logger.info("getTransactionsByTimestamp " + " failed !!");
-//    }
-//  }
-
-//  private void getTransactionsByTimestampCount(String[] parameters) {
-//    String start = "";
-//    String end = "";
-//    if (parameters == null || parameters.length != 4) {
-//      System.out.println(
-//          "getTransactionsByTimestampCount needs 2 parameters, start_time and end_time, time format is yyyy-mm-dd hh:mm:ss");
-//      return;
-//    } else {
-//      start = parameters[0] + " " + parameters[1];
-//      end = parameters[2] + " " + parameters[3];
-//    }
-//    long startTime = Timestamp.valueOf(start).getTime();
-//    long endTime = Timestamp.valueOf(end).getTime();
-//
-//    NumberMessage result = ServerApi.getTransactionsByTimestampCount(startTime, endTime);
-//    logger.info("the number of Transactions from " + start + " to " + end + " is " + result);
-//  }
 
   private void getTransactionById(String[] parameters) {
     String txid = "";
@@ -1343,7 +1162,7 @@ public class Client {
     } else {
       txid = parameters[0];
     }
-    Optional<Transaction> result = walletApiWrapper.getServerApi().getTransactionById(txid);
+    Optional<Transaction> result = walletApiWrapper.getTransactionById(txid);
     if (result.isPresent()) {
       Transaction transaction = result.get();
       logger.info(Utils.printTransaction(transaction));
@@ -1360,7 +1179,7 @@ public class Client {
     } else {
       txid = parameters[0];
     }
-    Optional<TransactionInfo> result = walletApiWrapper.getServerApi().getTransactionInfoById(txid);
+    Optional<TransactionInfo> result = walletApiWrapper.getTransactionInfoById(txid);
     if (result.isPresent()) {
       TransactionInfo transactionInfo = result.get();
       logger.info(Utils.printTransactionInfo(transactionInfo));
@@ -1378,38 +1197,19 @@ public class Client {
     String address = parameters[0];
     int offset = Integer.parseInt(parameters[1]);
     int limit = Integer.parseInt(parameters[2]);
-    byte[] addressBytes = ServerApi.decodeFromBase58Check(address);
-    if (addressBytes == null) {
-      return;
+
+    Optional<TransactionListExtention> result = walletApiWrapper.getTransactionsFromThis(address, offset, limit);
+    if (result.isPresent()) {
+      TransactionListExtention transactionList = result.get();
+      if (transactionList.getTransactionCount() == 0) {
+        System.out.println("No transaction from " + address);
+        return;
+      }
+      System.out.println(Utils.printTransactionList(transactionList));
+    } else {
+      System.out.println("GetTransactionsFromThis " + " failed !!");
     }
 
-    if (ServerApi.getRpcVersion() == 2) {
-      Optional<TransactionListExtention> result = walletApiWrapper.getServerApi()
-        .getTransactionsFromThis2(addressBytes, offset, limit);
-      if (result.isPresent()) {
-        TransactionListExtention transactionList = result.get();
-        if (transactionList.getTransactionCount() == 0) {
-          System.out.println("No transaction from " + address);
-          return;
-        }
-        System.out.println(Utils.printTransactionList(transactionList));
-      } else {
-        System.out.println("GetTransactionsFromThis " + " failed !!");
-      }
-    } else {
-      Optional<TransactionList> result = walletApiWrapper.getServerApi()
-        .getTransactionsFromThis(addressBytes, offset, limit);
-      if (result.isPresent()) {
-        TransactionList transactionList = result.get();
-        if (transactionList.getTransactionCount() == 0) {
-          System.out.println("No transaction from " + address);
-          return;
-        }
-        System.out.println(Utils.printTransactionList(transactionList));
-      } else {
-        System.out.println("GetTransactionsFromThis " + " failed !!");
-      }
-    }
   }
 
   private void getTransactionsToThis(String[] parameters) {
@@ -1421,55 +1221,20 @@ public class Client {
     String address = parameters[0];
     int offset = Integer.parseInt(parameters[1]);
     int limit = Integer.parseInt(parameters[2]);
-    byte[] addressBytes = walletApiWrapper.getServerApi().decodeFromBase58Check(address);
-    if (addressBytes == null) {
-      return;
-    }
 
-    if (ServerApi.getRpcVersion() == 2) {
-      Optional<TransactionListExtention> result = walletApiWrapper.getServerApi()
-        .getTransactionsToThis2(addressBytes, offset, limit);
-      if (result.isPresent()) {
-        TransactionListExtention transactionList = result.get();
-        if (transactionList.getTransactionCount() == 0) {
-          System.out.println("No transaction to " + address);
-          return;
-        }
-        System.out.println(Utils.printTransactionList(transactionList));
-      } else {
-        System.out.println("getTransactionsToThis " + " failed !!");
+    Optional<TransactionListExtention> result = walletApiWrapper.getTransactionsToThis(address, offset, limit);
+    if (result.isPresent()) {
+      TransactionListExtention transactionList = result.get();
+      if (transactionList.getTransactionCount() == 0) {
+        System.out.println("No transaction to " + address);
+        return;
       }
+      System.out.println(Utils.printTransactionList(transactionList));
     } else {
-      Optional<TransactionList> result = walletApiWrapper.getServerApi()
-        .getTransactionsToThis(addressBytes, offset, limit);
-      if (result.isPresent()) {
-        TransactionList transactionList = result.get();
-        if (transactionList.getTransactionCount() == 0) {
-          System.out.println("No transaction to " + address);
-          return;
-        }
-        System.out.println(Utils.printTransactionList(transactionList));
-      } else {
-        System.out.println("getTransactionsToThis " + " failed !!");
-      }
+      System.out.println("getTransactionsToThis " + " failed !!");
     }
-  }
 
-//  private void getTransactionsToThisCount(String[] parameters) {
-//    if (parameters == null || parameters.length != 1) {
-//      System.out.println("getTransactionsToThisCount need 1 parameter like following: ");
-//      System.out.println("getTransactionsToThisCount Address");
-//      return;
-//    }
-//    String address = parameters[0];
-//    byte[] addressBytes = ServerApi.decodeFromBase58Check(address);
-//    if (addressBytes == null) {
-//      return;
-//    }
-//
-//    NumberMessage result = ServerApi.getTransactionsToThisCount(addressBytes);
-//    logger.info("the number of Transactions to account " + address + " is " + result);
-//  }
+  }
 
   private void getBlockById(String[] parameters) {
     String blockID = "";
@@ -1479,7 +1244,7 @@ public class Client {
     } else {
       blockID = parameters[0];
     }
-    Optional<Block> result = walletApiWrapper.getServerApi().getBlockById(blockID);
+    Optional<Block> result = walletApiWrapper.getBlockById(blockID);
     if (result.isPresent()) {
       Block block = result.get();
       logger.info(Utils.printBlock(block));
@@ -1500,22 +1265,12 @@ public class Client {
       end = Long.parseLong(parameters[1]);
     }
 
-    if (ServerApi.getRpcVersion() == 2) {
-      Optional<BlockListExtention> result = walletApiWrapper.getServerApi().getBlockByLimitNext2(start, end);
-      if (result.isPresent()) {
-        BlockListExtention blockList = result.get();
-        System.out.println(Utils.printBlockList(blockList));
-      } else {
-        System.out.println("GetBlockByLimitNext " + " failed !!");
-      }
+    Optional<BlockListExtention> result = walletApiWrapper.getBlockByLimitNext(start, end);
+    if (result.isPresent()) {
+      BlockListExtention blockList = result.get();
+      System.out.println(Utils.printBlockList(blockList));
     } else {
-      Optional<BlockList> result = walletApiWrapper.getServerApi().getBlockByLimitNext(start, end);
-      if (result.isPresent()) {
-        BlockList blockList = result.get();
-        System.out.println(Utils.printBlockList(blockList));
-      } else {
-        System.out.println("GetBlockByLimitNext " + " failed !!");
-      }
+      System.out.println("GetBlockByLimitNext " + " failed !!");
     }
   }
 
@@ -1527,30 +1282,16 @@ public class Client {
     } else {
       num = Long.parseLong(parameters[0]);
     }
-    if (ServerApi.getRpcVersion() == 2) {
-      Optional<BlockListExtention> result = walletApiWrapper.getServerApi().getBlockByLatestNum2(num);
-      if (result.isPresent()) {
-        BlockListExtention blockList = result.get();
-        if (blockList.getBlockCount() == 0) {
-          System.out.println("No block");
-          return;
-        }
-        System.out.println(Utils.printBlockList(blockList));
-      } else {
-        System.out.println("GetBlockByLimitNext " + " failed !!");
+    Optional<BlockListExtention> result = walletApiWrapper.getBlockByLatestNum(num);
+    if (result.isPresent()) {
+      BlockListExtention blockList = result.get();
+      if (blockList.getBlockCount() == 0) {
+        System.out.println("No block");
+        return;
       }
+      System.out.println(Utils.printBlockList(blockList));
     } else {
-      Optional<BlockList> result = walletApiWrapper.getServerApi().getBlockByLatestNum(num);
-      if (result.isPresent()) {
-        BlockList blockList = result.get();
-        if (blockList.getBlockCount() == 0) {
-          System.out.println("No block");
-          return;
-        }
-        System.out.println(Utils.printBlockList(blockList));
-      } else {
-        System.out.println("GetBlockByLimitNext " + " failed !!");
-      }
+      System.out.println("GetBlockByLimitNext " + " failed !!");
     }
   }
 
@@ -1563,7 +1304,7 @@ public class Client {
       return;
     }
 
-    byte[] contractAddress = ServerApi.decodeFromBase58Check(parameters[0]);
+    String contractAddress = parameters[0];
     long consumeUserResourcePercent = Long.valueOf(parameters[1]).longValue();
     if (consumeUserResourcePercent > 100 || consumeUserResourcePercent < 0) {
       System.out.println("consume_user_resource_percent must >= 0 and <= 100");
@@ -1586,7 +1327,7 @@ public class Client {
       return;
     }
 
-    byte[] contractAddress = ServerApi.decodeFromBase58Check(parameters[0]);
+    String contractAddress = parameters[0];
     long originEnergyLimit = Long.valueOf(parameters[1]).longValue();
     if (originEnergyLimit < 0) {
       System.out.println("origin_energy_limit need > 0 ");
@@ -1626,8 +1367,7 @@ public class Client {
 
   }
 
-  private void deployContract(String[] parameter)
-    throws IOException, CipherException, CancelException, EncodingException {
+  private void deployContract(String[] parameter) throws EncodingException {
 
     String[] parameters = getParas(parameter);
     if (parameters == null ||
@@ -1685,7 +1425,8 @@ public class Client {
     /* Consider to move below null value, since we append the constructor param just after bytecode without any space.
      * Or we can re-design it to give other developers better user experience. Set this value in protobuf as null for now.
      */
-    boolean result = walletApiWrapper.deployContract(contractName, abiStr, codeStr, feeLimit, value,
+    boolean result = walletApiWrapper
+        .deployContract(contractName, abiStr, codeStr, constructorStr, argsStr, isHex, feeLimit, value,
       consumeUserResourcePercent, originEnergyLimit, tokenValue, tokenId, libraryAddressPair,
       compilerVersion);
     if (result) {
@@ -1696,8 +1437,7 @@ public class Client {
     }
   }
 
-  private void triggerContract(String[] parameters)
-    throws IOException, CipherException, CancelException, EncodingException {
+  private void triggerContract(String[] parameters) {
     if (parameters == null ||
       parameters.length < 8) {
       System.out.println("TriggerContract needs 6 parameters like following: ");
@@ -1721,11 +1461,9 @@ public class Client {
     if (tokenId.equalsIgnoreCase("#")) {
       tokenId = "";
     }
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, isHex));
-    byte[] contractAddress = ServerApi.decodeFromBase58Check(contractAddrStr);
 
     boolean result = walletApiWrapper
-      .callContract(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
+        .callContract(contractAddrStr, callValue, methodStr, argsStr, isHex, feeLimit, tokenCallValue, tokenId);
     if (result) {
       System.out.println("Broadcast the triggerContract successfully.\n"
         + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
@@ -1742,13 +1480,8 @@ public class Client {
       return;
     }
 
-    byte[] addressBytes = ServerApi.decodeFromBase58Check(parameters[0]);
-    if (addressBytes == null) {
-      System.out.println("GetContract: invalid address!");
-      return;
-    }
-
-    SmartContract contractDeployContract = walletApiWrapper.getServerApi().getContract(addressBytes);
+    String address = parameters[0];
+    SmartContract contractDeployContract = walletApiWrapper.getContract(address);
     if (contractDeployContract != null) {
       System.out.println("contract :" + contractDeployContract.getAbi().toString());
       System.out.println("contract owner:" + ServerApi.encode58Check(contractDeployContract
@@ -1781,11 +1514,7 @@ public class Client {
       return;
     }
 
-    byte[] ownerAddress = ServerApi.decodeFromBase58Check(parameters[0]);
-    if (ownerAddress == null) {
-      System.out.println("GetContract: invalid address!");
-      return;
-    }
+    String ownerAddress = parameters[0];
 
     boolean ret = walletApiWrapper.accountPermissionUpdate(ownerAddress, parameters[1]);
     if (ret) {
@@ -1804,9 +1533,8 @@ public class Client {
     }
 
     String transactionStr = parameters[0];
-    Transaction transaction = Transaction.parseFrom(ByteArray.fromHexString(transactionStr));
 
-    TransactionSignWeight transactionSignWeight = walletApiWrapper.getServerApi().getTransactionSignWeight(transaction);
+    TransactionSignWeight transactionSignWeight = walletApiWrapper.getTransactionSignWeight(transactionStr);
     if (transactionSignWeight != null) {
       logger.info(Utils.printTransactionSignWeight(transactionSignWeight));
     } else {
@@ -1823,10 +1551,8 @@ public class Client {
     }
 
     String transactionStr = parameters[0];
-    Transaction transaction = Transaction.parseFrom(ByteArray.fromHexString(transactionStr));
 
-    TransactionApprovedList transactionApprovedList = walletApiWrapper.getServerApi()
-      .getTransactionApprovedList(transaction);
+    TransactionApprovedList transactionApprovedList = walletApiWrapper.getTransactionApprovedList(transactionStr);
     if (transactionApprovedList != null) {
       logger.info(Utils.printTransactionApprovedList(transactionApprovedList));
     } else {
@@ -1834,8 +1560,7 @@ public class Client {
     }
   }
 
-  private void addTransactionSign(String[] parameters)
-    throws CipherException, IOException, CancelException {
+  private void addTransactionSign(String[] parameters) {
     if (parameters == null || parameters.length != 1) {
       System.out.println(
         "addTransactionSign needs 1 parameter, like addTransactionSign transaction which is hex string");
@@ -1843,13 +1568,9 @@ public class Client {
     }
 
     String transactionStr = parameters[0];
-    Transaction transaction = Transaction.parseFrom(ByteArray.fromHexString(transactionStr));
-    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      System.out.println("invalid transaction");
-      return;
-    }
+    Transaction transaction;
 
-    transaction = walletApiWrapper.addTransactionSign(transaction);
+    transaction = walletApiWrapper.addTransactionSign(transactionStr);
     if (transaction != null) {
       System.out
         .println("Transaction hex string is " + ByteArray
@@ -1861,7 +1582,7 @@ public class Client {
 
   }
 
-  private void broadcastTransaction(String[] parameters) throws InvalidProtocolBufferException {
+  private void broadcastTransaction(String[] parameters) {
     if (parameters == null || parameters.length != 1) {
       System.out.println(
         "broadcastTransaction needs 1 parameter, like broadcastTransaction transaction which is hex string");
@@ -1869,13 +1590,8 @@ public class Client {
     }
 
     String transactionStr = parameters[0];
-    Transaction transaction = Transaction.parseFrom(ByteArray.fromHexString(transactionStr));
-    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      System.out.println("invalid transaction");
-      return;
-    }
 
-    TransactionResponse ret = walletApiWrapper.getServerApi().broadcastTransaction(transaction);
+    TransactionResponse ret = walletApiWrapper.broadcastTransaction(transactionStr);
     if (ret.result) {
       logger.info("BroadcastTransaction successful !!!!");
     } else {
@@ -1914,7 +1630,7 @@ public class Client {
     return;
   }
 
-  private void depositTrx(String[] parameters) throws EncodingException {
+  private void depositTrx(String[] parameters) {
     if (parameters == null || parameters.length != 4) {
       System.out.println("deposit trx needs 3 parameters like following: ");
       System.out.println("deposit trx mainGatewayAddress num feelmit");
@@ -1928,10 +1644,8 @@ public class Client {
     long tokenCallValue = 0;
     String tokenId = "";
 
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
-    byte[] contractAddress = ServerApi.decodeFromBase58Check(contractAddrStr);
-
-    boolean result = walletApiWrapper.callContract(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
+    boolean result = walletApiWrapper
+        .callContract(contractAddrStr, callValue, methodStr, "", false, feeLimit, tokenCallValue, tokenId);
     if (result) {
         System.out.println("Broadcast the depositTrx successfully.\n"
                 + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
@@ -1940,7 +1654,7 @@ public class Client {
     }
   }
 
-  private void depositTrc10(String[] parameters) throws  EncodingException {
+  private void depositTrc10(String[] parameters) {
     if (parameters == null || parameters.length != 5) {
       System.out.println("deposit trc10 needs 4 parameters like following: ");
       System.out.println("deposit trc10 mainGatewayAddress trc10id num feelmit");
@@ -1955,10 +1669,8 @@ public class Client {
     long tokenCallValue = Long.valueOf(parameters[3]);
     long feeLimit = Long.valueOf(parameters[4]);
 
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
-    byte[] contractAddress = ServerApi.decodeFromBase58Check(contractAddrStr);
-
-    boolean result = walletApiWrapper.callContract(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
+    boolean result = walletApiWrapper
+        .callContract(contractAddrStr, callValue, methodStr, "", false, feeLimit, tokenCallValue, tokenId);
     if (result) {
       System.out.println("Broadcast the deposiTrc10 successfully.\n"
               + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
@@ -1969,40 +1681,7 @@ public class Client {
     return;
   }
 
-  private void depositTrc(
-          String contractAddrStr, String mainGatewayAddr, String methodStr,
-          String depositMethodStr, String num, long feeLimit)
-          throws  CipherException, IOException, CancelException, EncodingException{
-    long callValue = 0;
-    long tokenCallValue = 0;
-    String tokenId = "";
-    String argsStr = "\"" + mainGatewayAddr + "\",\"" + num + "\"";
-
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, false));
-    byte[] contractAddress = ServerApi.decodeFromBase58Check(contractAddrStr);
-
-    boolean result = walletApiWrapper.callContractAndCheck(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
-    if (result) {
-      System.out.println("approve successfully.\n");
-
-      byte[] depositContractAddr =  ServerApi.decodeFromBase58Check(mainGatewayAddr);
-      String depositArgStr = "\"" + contractAddrStr + "\"," + num;
-      byte[] depositInput = Hex.decode(AbiUtil.parseMethod(depositMethodStr, depositArgStr , false));
-
-      boolean ret =  walletApiWrapper.callContract(depositContractAddr, callValue, depositInput, feeLimit, tokenCallValue, tokenId);
-      if (ret) {
-        System.out.println("Broadcast the depositTrc successfully.\n"
-                + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
-      } else {
-        System.out.println("Broadcast the depositTrc failed");
-      }
-    } else {
-      System.out.println("approve failed!!");
-    }
-  }
-
-  private void depositTrc20(String[] parameters)
-          throws IOException, CipherException, CancelException, EncodingException {
+  private void depositTrc20(String[] parameters) {
     if (parameters == null || parameters.length != 5) {
       System.out.println("deposit trc20 needs 4 parameters like following: ");
       System.out.println("deposit trc20 trc20ContractAddress mainGatewayAddress num feelmit");
@@ -2010,18 +1689,21 @@ public class Client {
     }
 
     String contractAddrStr = parameters[1];  //main trc20 contract address
-    String methodStr = "approve(address,uint256)";
     String mainGatewayAddr = parameters[2]; //main gateway contract address
     String num = parameters[3];
-    String depositMethodStr = "depositTRC20(address,uint256)";
 
     long feeLimit = Long.valueOf(parameters[4]);
 
-    depositTrc(contractAddrStr, mainGatewayAddr, methodStr, depositMethodStr, num, feeLimit);
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+        .depositTrc20(contractAddrStr, mainGatewayAddr, num, feeLimit);
+    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      System.out.println("deposit trc20 success");
+    } else {
+      System.out.println("deposit trc20 failed");
+    }
   }
 
-  private void depositTrc721(String[] parameters)
-      throws IOException, CipherException, CancelException, EncodingException {
+  private void depositTrc721(String[] parameters) {
     if (parameters == null || parameters.length != 5) {
       System.out.println("deposit trc721 needs 4 parameters like following: ");
       System.out.println("deposit trc721 trc721ContractAddress mainGatewayAddress tokenId feelmit");
@@ -2029,18 +1711,21 @@ public class Client {
     }
 
     String contractAddrStr = parameters[1];  //main trc20 contract address
-    String methodStr = "approve(address,uint256)";
     String mainGatewayAddr = parameters[2]; //main gateway contract address
     String num = parameters[3];
-    String depositMethodStr = "depositTRC721(address,uint256)";
 
     long feeLimit = Long.valueOf(parameters[4]);
-
-    depositTrc(contractAddrStr, mainGatewayAddr, methodStr, depositMethodStr, num, feeLimit);
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+        .depositTrc721(contractAddrStr, mainGatewayAddr, num, feeLimit);
+    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      System.out.println("deposit trc20 success");
+    } else {
+      System.out.println("deposit trc20 failed");
+    }
 
   }
 
-  private void deposit(String[] parameters)  throws IOException, CipherException, CancelException, EncodingException {
+  private void deposit(String[] parameters) {
     if (parameters == null || parameters.length < 1) {
       System.out.println("deposit needs parameters ");
       return;
@@ -2263,6 +1948,7 @@ public class Client {
     allCmds.add("deleteproposal");
     allCmds.add("withdraw");
     allCmds.add("createproposal");
+    allCmds.add("getmappingaddress");
     allCmds.add("exit");
     allCmds.add("quit");
 
@@ -2463,18 +2149,6 @@ public class Client {
           unfreezeBalance(parameters);
           break;
         }
-        case "buystorage": {
-          buyStorage(parameters);
-          break;
-        }
-        case "buystoragebytes": {
-          buyStorageBytes(parameters);
-          break;
-        }
-        case "sellstorage": {
-          sellStorage(parameters);
-          break;
-        }
         case "withdrawbalance": {
           withdrawBalance();
           break;
@@ -2579,34 +2253,14 @@ public class Client {
           getNextMaintenanceTime();
           break;
         }
-//          case "getassetissuelistbytimestamp": {
-//            getAssetIssueListByTimestamp(parameters);
-//            break;
-//          }
-//          case "gettransactionsbytimestampcount": {
-//            getTransactionsByTimestampCount(parameters);
-//            break;
-//          }
         case "gettransactionsfromthis": {
           getTransactionsFromThis(parameters);
           break;
         }
-//          case "gettransactionsfromthiscount": {
-//            getTransactionsFromThisCount(parameters);
-//            break;
-//          }
         case "gettransactionstothis": {
           getTransactionsToThis(parameters);
           break;
         }
-//          case "gettransactionstothiscount": {
-//            getTransactionsToThisCount(parameters);
-//            break;
-//          }
-//          case "gettransactionsbytimestamp": {
-//            getTransactionsByTimestamp(parameters);
-//            break;
-//          }
         case "gettransactionbyid": {
           getTransactionById(parameters);
           break;
@@ -2724,7 +2378,7 @@ public class Client {
     return;
   }
 
-  private void withdrawTrx(String[] parameters) throws EncodingException {
+  private void withdrawTrx(String[] parameters) {
     if (parameters == null || parameters.length != 3) {
       System.out.println("withdraw Trx needs 2 parameters like following: ");
       System.out.println("withdraw Trx trx_num fee_limit ");
@@ -2734,27 +2388,37 @@ public class Client {
     long trxNum = Long.parseLong(parameters[1]);
     long feeLimit = Long.parseLong(parameters[2]);
 
-    byte[] sideGatewayAddress = walletApiWrapper.getSideGatewayAddress();
-    if (sideGatewayAddress == null) {
-      throw new RuntimeException("invalid side gateway address.");
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrx(trxNum, feeLimit);
+    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      System.out.println("withdraw trx success");
+    } else {
+      System.out.println("withdraw trx failed");
     }
 
-    String methodStr = "withdrawTRX()";
-    byte[] input = Hex
-      .decode(AbiUtil.parseMethod(methodStr, "", false));
+    return;
+  }
 
-    boolean result = walletApiWrapper
-      .callContract(sideGatewayAddress, trxNum, input, feeLimit, 0, "0");
-    if (result) {
-      System.out.println("Broadcast the triggerContract successfully.\n"
-        + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
+  private void withdrawTrc10(String[] parameters) {
+    if (parameters == null || parameters.length != 4) {
+      System.out.println("withdraw trc10 needs 3 parameters like following: ");
+      System.out.println("withdraw trc10 trc10Id value fee_limit ");
+      return;
+    }
+
+    String trc10 = parameters[1];
+    String value = parameters[2];
+    long feeLimit = Long.parseLong(parameters[3]);
+    long tokenValue = Long.parseLong(value);
+
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrc10(trc10, tokenValue, feeLimit);
+    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      System.out.println("withdraw trc10 success");
     } else {
-      System.out.println("Broadcast the triggerContract failed");
+      System.out.println("withdraw trc10 failed");
     }
   }
 
-  private void withdrawTrc20(String[] parameters)
-      throws EncodingException {
+  private void withdrawTrc20(String[] parameters) {
     if (parameters == null || parameters.length != 4) {
       System.out.println("withdraw Trc20 needs 3 parameters like following: ");
       System.out.println("withdraw Trc20 sideTrc20Address value fee_limit ");
@@ -2765,22 +2429,17 @@ public class Client {
     String value = parameters[2];
     long feeLimit = Long.parseLong(parameters[3]);
 
-    byte[] sideAddress = ServerApi.decodeFromBase58Check(sideTrc20Address);
-    String methodStr = "withdrawal(uint256)";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, value, false));
-
-    boolean result = walletApiWrapper
-        .callContract(sideAddress, 0, input, feeLimit, 0, "0");
-    if (result) {
-      System.out.println("Broadcast the withdrawTrc20 successfully.\n"
-          + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrc20(sideTrc20Address, value, feeLimit);
+    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      System.out.println("withdraw trc20 success");
     } else {
-      System.out.println("Broadcast the triggerContract failed");
+      System.out.println("withdraw trc20 failed");
     }
+
+    return;
   }
 
-  private void withdrawTrc721(String[] parameters)
-      throws EncodingException {
+  private void withdrawTrc721(String[] parameters) {
     if (parameters == null || parameters.length != 4) {
       System.out.println("withdraw Trc721 needs 3 parameters like following: ");
       System.out.println("withdraw Trc721 sideTrc721Address uid fee_limit ");
@@ -2791,53 +2450,18 @@ public class Client {
     String uid = parameters[2];
     long feeLimit = Long.parseLong(parameters[3]);
 
-    byte[] sideAddress = ServerApi.decodeFromBase58Check(sideTrc721Address);
-    String methodStr = "withdrawal(uint256)";
-    byte[] input = Hex
-        .decode(AbiUtil.parseMethod(methodStr, uid, false));
-
-    boolean result = walletApiWrapper
-        .callContract(sideAddress, 0, input, feeLimit, 0, "0");
-    if (result) {
-      System.out.println("Broadcast the withdrawTrc721 successfully.\n"
-          + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrc721(sideTrc721Address, uid, feeLimit);
+    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      System.out.println("withdraw trc721 success");
     } else {
-      System.out.println("Broadcast the triggerContract failed");
+      System.out.println("withdraw trc721 failed");
     }
+
+    return;
   }
 
-  private void withdrawTrc10(String[] parameters) throws EncodingException {
-    if (parameters == null || parameters.length != 4) {
-      System.out.println("withdraw trc10 needs 3 parameters like following: ");
-      System.out.println("withdraw trc10 trc10Id value fee_limit ");
-      return;
-    }
 
-    String trc10 = parameters[1];
-    String value = parameters[2];
-    long feeLimit = Long.parseLong(parameters[3]);
-
-    byte[] sideGatewayAddress = walletApiWrapper.getSideGatewayAddress();
-    if (sideGatewayAddress == null) {
-      throw new RuntimeException("invalid side gateway address.");
-    }
-
-    String methodStr = "withdrawTRC10()";
-    byte[] input = Hex
-      .decode(AbiUtil.parseMethod(methodStr,  "", false));
-
-    long tokenValue = Long.parseLong(value);
-    boolean result = walletApiWrapper
-      .callContract(sideGatewayAddress, 0, input, feeLimit, tokenValue, trc10);
-    if (result) {
-      System.out.println("Broadcast the withdrawTrc10 successfully.\n"
-        + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
-    } else {
-      System.out.println("Broadcast the triggerContract failed");
-    }
-  }
-
-  private void withdraw(String[] parameters)  throws IOException, CipherException, EncodingException {
+  private void withdraw(String[] parameters) {
     if (parameters == null || parameters.length < 1) {
       System.out.println("withdraw needs parameters ");
       return;
@@ -2867,7 +2491,7 @@ public class Client {
     }
   }
 
-  private void getMappingAddress(String[] parameters)  throws  EncodingException{
+  private void getMappingAddress(String[] parameters) {
     if (parameters == null || parameters.length != 1) {
       System.out.println("getmappingaddress needs 1 parameters like following: ");
       System.out.println("getmappingaddress mainContractAddress");
@@ -2881,26 +2505,7 @@ public class Client {
     walletApiWrapper.sideGetMappingAddress(sideGateway, mainContractAddress);
   }
 
-  private void mappingTrc(String mainGateway, String methodStr, String argsStr, String trxHash, long feeLimit)
-          throws  EncodingException{
-    long callValue = 0;
-    long tokenCallValue = 0;
-    String tokenId = "";
-    String mainContractAddress2 = walletApiWrapper.calcMaincontractAddress(trxHash);
-    System.out.println("-----:" + mainContractAddress2 );
-
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, false));
-    byte[] contractAddress = ServerApi.decodeFromBase58Check(mainGateway);
-
-    boolean result = walletApiWrapper.callContractAndCheck(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
-    if (result) {
-      System.out.println("mappingTrc successfully.\n");
-    } else {
-      System.out.println("please confirm the result in side chain after 60s.");
-    }
-  }
-
-  private void mappingTrc20(String[] parameters) throws EncodingException {
+  private void mappingTrc20(String[] parameters) {
     if (parameters == null ||parameters.length != 4) {
       System.out.println("mapping trc20 needs 3 parameters like following: ");
       System.out.println("mapping trc20 mainGatewayAddress trxHash  feelmit");
@@ -2908,31 +2513,37 @@ public class Client {
     }
 
     String mainGateway = parameters[1];  //main chain gateway
-    String methodStr = "mappingTRC20(bytes)";
     String trxHash = parameters[2];
-    String argsStr = "\""+ trxHash + "\"" ;
     long feeLimit = Long.valueOf(parameters[3]);
 
-    mappingTrc(mainGateway, methodStr, argsStr, trxHash, feeLimit);
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.mappingTrc20(mainGateway, trxHash, feeLimit);
+    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      System.out.println("mapping trc20 success");
+    }
+
+    System.out.println("please use getMappingAddress to confirm the result in side chain solidity node after 60s.");
   }
 
-  private void mappingTrc721(String[] parameters) throws EncodingException {
-    if (parameters == null || parameters.length != 6) {
+  private void mappingTrc721(String[] parameters) {
+    if (parameters == null || parameters.length != 4) {
       System.out.println("mapping trc721 needs 3 parameters like following: ");
       System.out.println("mapping trc721 mainGatewayAddress trxHash  feelmit");
       return;
     }
 
     String mainGateway = parameters[1];  //main chain gateway
-    String methodStr = "mappingTRC721(bytes)";
     String trxHash = parameters[2];
-    String argsStr = "\"" + trxHash + "\"";
     long feeLimit = Long.valueOf(parameters[3]);
 
-    mappingTrc(mainGateway, methodStr, argsStr, trxHash, feeLimit);
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.mappingTrc721(mainGateway, trxHash, feeLimit);
+    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      System.out.println("mapping trc721 success");
+    }
+
+    System.out.println("please use getMappingAddress to confirm the result in side chain solidity node after 60s.");
   }
 
-  private void mapping(String[] parameters) throws EncodingException {
+  private void mapping(String[] parameters) {
     if (parameters == null || parameters.length < 1) {
       System.out.println("mapping needs parameters ");
       return;

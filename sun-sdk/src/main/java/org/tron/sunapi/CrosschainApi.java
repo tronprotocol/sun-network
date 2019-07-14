@@ -1,5 +1,7 @@
 package org.tron.sunapi;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.tron.common.utils.AbiUtil;
@@ -112,7 +114,7 @@ public class CrosschainApi {
       long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
-    //sidechain contract address
+    //side chain contract address
     byte[] sideAddress = ServerApi.decodeFromBase58Check(contractAddrStr);
     if (sideAddress == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
@@ -151,70 +153,53 @@ public class CrosschainApi {
     return withdrawTrc20(contractAddrStr, value, feeLimit);
   }
 
-  //  private void mapingTrc(String contractAddrStr, String methodStr, String argsStr, String trxHash, long feeLimit)
-//      throws  CipherException, IOException, CancelException, EncodingException{
-//    long callValue = 0;
-//    long tokenCallValue = 0;
-//    String tokenId = "";
-//
-//    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, false));
-//    byte[] contractAddress = ServerApi.decodeFromBase58Check(contractAddrStr);
-//
-//    boolean result = walletApiWrapper.callContractAndCheck(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
-//    if (result) {
-//      System.out.println("mappingTrc successfully.\n");
-//
-//      String mainContractAddress = walletApiWrapper.calcMaincontractAddress(trxHash);
-//
-//      walletApiWrapper.sideGetMappingAddress(contractAddrStr, mainContractAddress);
-//    } else {
-//      System.out.println("please confirm the result in side chain after 60s.");
-//    }
-//  }
-//
-//  private void mappingTrc20(String[] parameters)
-//      throws IOException, CipherException, CancelException, EncodingException {
-//    if (parameters == null ||
-//        parameters.length != 7) {
-//      System.out.println("mapping trc20 needs 6 parameters like following: ");
-//      System.out.println("mapping trc20 sideGatewayAddress trxHash name symbol decimal feelmit");
-//      return;
-//    }
-//
-//    String contractAddrStr = parameters[1];  //side gateway
-//    String methodStr = "deployDAppTRC20AndMapping(bytes,string,string,uint8)";
-//    String trxHash = parameters[2];
-//    String name = parameters[3];
-//    String symbol = parameters[4];
-//    String decimal = parameters[5];
-//    String argsStr =  "\""+ trxHash + "\",\"" + name + "\",\"" + symbol + "\",\"" + decimal +  "\"";
-//    long feeLimit = Long.valueOf(parameters[6]);
-//
-//    mapingTrc(contractAddrStr, methodStr, argsStr, trxHash, feeLimit);
-//  }
-//
-//
-//
-//  private void mappingTrc721(String[] parameters)
-//      throws IOException, CipherException, CancelException, EncodingException {
-//    if (parameters == null || parameters.length != 6) {
-//      System.out.println("mapping trc721 needs 5 parameters like following: ");
-//      System.out.println("mapping trc721 contractAddress trxHash name symbol feelmit");
-//      return;
-//    }
-//
-//    String contractAddrStr = parameters[1];  //side gateway
-//    String methodStr = "deployDAppTRC721AndMapping(bytes,string,string)";
-//    String trxHash = parameters[2];
-//    String name = parameters[3];
-//    String symbol = parameters[4];
-//    String argsStr = "\"" + trxHash + "\",\"" + name + "\",\"" + symbol + "\"";
-//    long feeLimit = Long.valueOf(parameters[5]);
-//
-//    mapingTrc(contractAddrStr, methodStr, argsStr, trxHash, feeLimit);
-//  }
-//
-//
+  private SunNetworkResponse<TransactionResponse> mappingTrc(String mainGateway, String methodStr,
+      String argsStr, long feeLimit) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
+
+    try {
+      byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, false));
+      byte[] contractAddress = ServerApi.decodeFromBase58Check(mainGateway);
+
+      TransactionResponse result = mainchainServer.triggerContract(contractAddress, 0, input, feeLimit, 0, "");
+      resp.setData(result);
+      if (result.getResult()) {
+        resp.success(result);
+      } else {
+        resp.failed(ErrorCodeEnum.FAILED);
+      }
+    } catch (EncodingException e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_ENCODING);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
+    }
+
+    return resp;
+  }
+
+  public SunNetworkResponse<TransactionResponse> mappingTrc20(String mainGateway, String trxHash, long feeLimit) {
+    if (StringUtils.isEmpty(mainGateway) || StringUtils.isEmpty(trxHash)) {
+      SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
+      return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
+    }
+
+    String methodStr = "mappingTRC20(bytes)";
+    String argsStr = "\"" + trxHash + "\"";
+
+    return mappingTrc(mainGateway, methodStr, argsStr, feeLimit);
+  }
+
+  public SunNetworkResponse<TransactionResponse> mappingTrc721(String mainGateway, String trxHash, long feeLimit) {
+    if (StringUtils.isEmpty(mainGateway) || StringUtils.isEmpty(trxHash)) {
+      SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
+      return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
+    }
+
+    String methodStr = "mappingTRC721(bytes)";
+    String argsStr = "\"" + trxHash + "\"";
+
+    return mappingTrc(mainGateway, methodStr, argsStr, feeLimit);
+  }
 
   /**
    * @param mainChainGateway the gateway address of main chain
@@ -282,76 +267,79 @@ public class CrosschainApi {
     return resp;
   }
 
-//  private void depositTrc(
-//      String contractAddrStr, String mainGatewayAddr, String methodStr,
-//      String depositMethodStr, String num, long feeLimit)
-//      throws  CipherException, IOException, CancelException, EncodingException{
-//    long callValue = 0;
-//    long tokenCallValue = 0;
-//    String tokenId = "";
-//    String argsStr = "\"" + mainGatewayAddr + "\",\"" + num + "\"";
-//
-//    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, false));
-//    byte[] contractAddress = ServerApi.decodeFromBase58Check(contractAddrStr);
-//
-//    boolean result = walletApiWrapper.callContractAndCheck(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
-//    if (result) {
-//      System.out.println("approve successfully.\n");
-//
-//      byte[] depositContractAddr =  ServerApi.decodeFromBase58Check(mainGatewayAddr);
-//      String depositArgStr = num + ",\"" + contractAddrStr + "\"";
-//      byte[] depositInput = Hex.decode(AbiUtil.parseMethod(depositMethodStr, depositArgStr , false));
-//
-//      boolean ret =  walletApiWrapper.callContract(depositContractAddr, callValue, depositInput, feeLimit, tokenCallValue, tokenId);
-//      if (ret) {
-//        System.out.println("Broadcast the depositTrc successfully.\n"
-//            + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
-//      } else {
-//        System.out.println("Broadcast the depositTrc failed");
-//      }
-//    } else {
-//      System.out.println("approve failed!!");
-//    }
-//  }
-//
-//  private void depositTrc20(String[] parameters)
-//      throws IOException, CipherException, CancelException, EncodingException {
-//    if (parameters == null || parameters.length != 5) {
-//      System.out.println("deposit trc20 needs 4 parameters like following: ");
-//      System.out.println("deposit trc20 trc20ContractAddress mainGatewayAddress num feelmit");
-//      return;
-//    }
-//
-//    String contractAddrStr = parameters[1];  //main trc20 contract address
-//    String methodStr = "approve(address,uint256)";
-//    String mainGatewayAddr = parameters[2]; //main gateway contract address
-//    String num = parameters[3];
-//    String depositMethodStr = "depositTRC20(uint256,address)";
-//
-//    long feeLimit = Long.valueOf(parameters[4]);
-//
-//    depositTrc(contractAddrStr, mainGatewayAddr, methodStr, depositMethodStr, num, feeLimit);
-//  }
-//
-//  private void depositTrc721(String[] parameters)
-//      throws IOException, CipherException, CancelException, EncodingException {
-//    if (parameters == null || parameters.length != 5) {
-//      System.out.println("deposit trc721 needs 4 parameters like following: ");
-//      System.out.println("deposit trc721 trc721ContractAddress mainGatewayAddress num feelmit");
-//      return;
-//    }
-//
-//    String contractAddrStr = parameters[1];  //main trc20 contract address
-//    String methodStr = "approve(address,uint256)";
-//    String mainGatewayAddr = parameters[2]; //main gateway contract address
-//    String num = parameters[3];
-//    String depositMethodStr = "depositTRC721(uint256,address)";
-//
-//    long feeLimit = Long.valueOf(parameters[4]);
-//
-//    depositTrc(contractAddrStr, mainGatewayAddr, methodStr, depositMethodStr, num, feeLimit);
-//
-//  }
+  private SunNetworkResponse<TransactionResponse> depositTrc(String contractAddrStr, String mainGatewayAddr,
+      String methodStr, String depositMethodStr, String num, long feeLimit) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
+    List<TransactionResponse> dataList = new ArrayList<TransactionResponse>();
+
+    String argsStr = "\"" + mainGatewayAddr + "\",\"" + num + "\"";
+    try {
+      byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, false));
+      byte[] contractAddress = ServerApi.decodeFromBase58Check(contractAddrStr);
+
+      TransactionResponse result = mainchainServer
+          .triggerContract(contractAddress, 0, input, feeLimit, 0, "");
+      dataList.add(result);
+      resp.setDataList(dataList);
+      String trxId = result.getTrxId();
+
+      if (org.apache.commons.lang3.StringUtils.isEmpty(trxId) || !result.getResult()) {
+        return resp.failed(ErrorCodeEnum.FAILED);
+      }
+
+      boolean check = mainchainServer.checkTxInfo(trxId);
+      if (check) {
+        byte[] depositContractAddr = ServerApi.decodeFromBase58Check(mainGatewayAddr);
+        String depositArgStr = "\"" + contractAddrStr + "\"," + num;
+        byte[] depositInput = Hex.decode(AbiUtil.parseMethod(depositMethodStr, depositArgStr, false));
+
+        result = mainchainServer.triggerContract(depositContractAddr, 0, depositInput, feeLimit, 0, "");
+        dataList.add(result);
+        resp.setDataList(dataList);
+        if (result.getResult()) {
+          resp.success(dataList);
+        } else {
+          resp.failed(ErrorCodeEnum.FAILED);
+        }
+      } else {
+        resp.failed(ErrorCodeEnum.FAILED);
+      }
+    } catch (EncodingException e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_ENCODING);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
+    }
+
+    return resp;
+  }
+
+  public SunNetworkResponse<TransactionResponse> depositTrc20(String contractAddrStr,
+      String mainGatewayAddr, String num, long feeLimit) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
+
+    if (StringUtils.isEmpty(contractAddrStr) || StringUtils.isEmpty(mainGatewayAddr)) {
+      return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
+    }
+
+    String methodStr = "approve(address,uint256)";
+    String depositMethodStr = "depositTRC20(address,uint256)";
+
+    return depositTrc(contractAddrStr, mainGatewayAddr, methodStr, depositMethodStr, num, feeLimit);
+  }
+
+  public SunNetworkResponse<TransactionResponse> depositTrc721(String contractAddrStr,
+      String mainGatewayAddr, String num, long feeLimit) {
+
+    if (StringUtils.isEmpty(contractAddrStr) || StringUtils.isEmpty(mainGatewayAddr)) {
+      SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
+      return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
+    }
+
+    String methodStr = "approve(address,uint256)";
+    String depositMethodStr = "depositTRC721(address,uint256)";
+
+    return depositTrc(contractAddrStr, mainGatewayAddr, methodStr, depositMethodStr, num, feeLimit);
+  }
 
 
 }

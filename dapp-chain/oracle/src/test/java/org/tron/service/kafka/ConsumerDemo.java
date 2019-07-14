@@ -5,11 +5,14 @@ import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.junit.Ignore;
+import org.junit.Test;
 
-
+@Ignore
 public class ConsumerDemo {
 
-  public static void main(String[] args) {
+  @Test
+  public void main(String[] args) {
     Properties properties = new Properties();
     properties.put("bootstrap.servers", "172.16.22.167:9092");
     properties.put("group.id", "Oracle_TRxgBU7HFTQvU6zPheLHphqpwhDKNxB6Rk");
