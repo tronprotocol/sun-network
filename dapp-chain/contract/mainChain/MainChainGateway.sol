@@ -15,9 +15,9 @@ contract MainChainGateway is OracleManagerContract {
 
     mapping(uint256 => bool) public withdrawDone;
 
-    event TRXReceived(address from, uint256 value, uint256 nonce);
-    event TRC10Received(address from, trcToken tokenId, uint256 value, uint256 nonce);
-    event TRC20Received(address from, address contractAddress, uint256 value, uint256 nonce);
+    event TRXReceived(address from, uint64 value, uint256 nonce);
+    event TRC10Received(address from, uint64 tokenId, uint64 tokenValue, uint256 nonce);
+    event TRC20Received(address from, address contractAddress, uint64 value, uint256 nonce);
     event TRC721Received(address from, address contractAddress, uint256 uid, uint256 nonce);
     event TRC20Mapping(address contractAddress, uint256 nonce);
     event TRC721Mapping(address contractAddress, uint256 nonce);
@@ -36,14 +36,29 @@ contract MainChainGateway is OracleManagerContract {
     mapping(address => uint256) public mainToSideContractMap;
     DepositMsg[] userDepositList;
     MappingMsg[] userMappingList;
+    uint256 uint64Max = 18446744073709551615;
+
+//    struct DepositMsg {
+//        uint64 tokenId;
+//        uint64 valueOrUid;
+//        uint64 _type;
+//        uint64 status;
+//        address user;
+//        address mainChainAddress;
+//        // trcToken tokenId;
+//        // uint256 valueOrUid;
+//        // DataModel.TokenKind _type;
+//        // DataModel.Status status;
+//    }
 
     struct DepositMsg {
         address user;
+        uint64 value;
+        uint32 _type;
         address mainChainAddress;
-        trcToken tokenId;
-        uint256 valueOrUid;
-        DataModel.TokenKind _type;
-        DataModel.Status status;
+        uint64 tokenId;
+        uint32 status;
+        uint256 uId;
     }
 
     struct MappingMsg {
@@ -116,36 +131,39 @@ contract MainChainGateway is OracleManagerContract {
 
     // Approve and Deposit function for 2-step deposits
     // Requires first to have called `approve` on the specified TRC20 contract
-    function depositTRC20(address contractAddress, uint256 value)
+    function depositTRC20(address contractAddress, uint64 value)
     public onlyNotStop onlyNotPause goDelegateCall returns (uint256){
-        require(mainToSideContractMap[contractAddress] == 1, "Not an allowe token");
+        require(mainToSideContractMap[contractAddress] == 1, "Not an allowed token");
         require(value > 0, "value must > 0");
         TRC20(contractAddress).transferFrom(msg.sender, address(this), value);
-        userDepositList.push(DepositMsg(msg.sender, contractAddress, 0, value, DataModel.TokenKind.TRC20, DataModel.Status.SUCCESS));
+        userDepositList.push(DepositMsg(msg.sender, value, 2, contractAddress, 0, 0, 0));
         emit TRC20Received(msg.sender, contractAddress, value, userDepositList.length - 1);
         return userDepositList.length - 1;
     }
 
     function depositTRC721(address contractAddress, uint256 uid)
     public onlyNotStop onlyNotPause goDelegateCall returns (uint256) {
-        require(mainToSideContractMap[contractAddress] == 1, "Not an allowe token");
+        require(mainToSideContractMap[contractAddress] == 1, "Not an allowed token");
         TRC721(contractAddress).transferFrom(msg.sender, address(this), uid);
-        userDepositList.push(DepositMsg(msg.sender, contractAddress, 0, uid, DataModel.TokenKind.TRC721, DataModel.Status.SUCCESS));
+        userDepositList.push(DepositMsg(msg.sender, 0, 3, contractAddress, 0, 0, uid));
         emit TRC721Received(msg.sender, contractAddress, uid, userDepositList.length - 1);
         return userDepositList.length - 1;
     }
 
     function depositTRX() payable public onlyNotStop onlyNotPause goDelegateCall returns (uint256) {
         require(msg.value > 0, "value must > 0");
-        userDepositList.push(DepositMsg(msg.sender, address(0), 0, msg.value, DataModel.TokenKind.TRX, DataModel.Status.SUCCESS));
-        emit TRXReceived(msg.sender, msg.value, userDepositList.length - 1);
+        require(msg.value <= uint64Max, "msg.value must <= uint64Max");
+        userDepositList.push(DepositMsg(msg.sender, uint64(msg.value), 0, address(0), 0, 0, 0));
+        emit TRXReceived(msg.sender, uint64(msg.value), userDepositList.length - 1);
         return userDepositList.length - 1;
     }
 
-    function depositTRC10(uint256 tokenId, uint256 tokenValue) payable public onlyNotStop onlyNotPause checkForTrc10(tokenId, tokenValue) goDelegateCall returns (uint256) {
+    function depositTRC10(uint64 tokenId, uint64 tokenValue) payable public onlyNotStop onlyNotPause checkForTrc10(tokenId, tokenValue) goDelegateCall returns (uint256) {
         require(msg.tokenvalue > 0, "tokenvalue must > 0");
-        userDepositList.push(DepositMsg(msg.sender, address(0), msg.tokenid, msg.tokenvalue, DataModel.TokenKind.TRC10, DataModel.Status.SUCCESS));
-        emit TRC10Received(msg.sender, msg.tokenid, msg.tokenvalue, userDepositList.length - 1);
+        require(msg.tokenid <= uint64Max, "msg.tokenid must <= uint64Max");
+        require(msg.tokenvalue <= uint64Max, "msg.tokenvalue must <= uint64Max");
+        userDepositList.push(DepositMsg(msg.sender, tokenValue, 1, address(0), tokenId, 0, 0));
+        emit TRC10Received(msg.sender, tokenId, tokenValue, userDepositList.length - 1);
         return userDepositList.length - 1;
     }
 
@@ -154,7 +172,7 @@ contract MainChainGateway is OracleManagerContract {
             depositTRX();
         }
         if (msg.tokenid > 1000000) {
-            depositTRC10(msg.tokenid, msg.tokenvalue);
+            depositTRC10(uint64(msg.tokenid), uint64(msg.tokenvalue));
         }
     }
 
@@ -189,16 +207,19 @@ contract MainChainGateway is OracleManagerContract {
         // TODO: free attack ?
         require(nonce < userDepositList.length, "nonce >= userDepositList.length");
         DepositMsg storage depositMsg = userDepositList[nonce];
-        require(depositMsg.status == DataModel.Status.SUCCESS, "depositMsg.status != SUCCESS ");
-
-        if (depositMsg._type == DataModel.TokenKind.TRX) {
-            emit TRXReceived(depositMsg.user, depositMsg.valueOrUid, nonce);
-        } else if (depositMsg._type == DataModel.TokenKind.TRC20) {
-            emit TRC20Received(depositMsg.user, depositMsg.mainChainAddress, depositMsg.valueOrUid, nonce);
-        } else if (depositMsg._type == DataModel.TokenKind.TRC721) {
-            emit TRC721Received(depositMsg.user, depositMsg.mainChainAddress, depositMsg.valueOrUid, nonce);
+        require(depositMsg.status == 0, "depositMsg.status != 0");  // TODO: ?
+        // TRX,    // 0
+        // TRC10,  // 1
+        // TRC20,  // 2
+        // TRC721, // 3
+        if (depositMsg._type == 0) {
+            emit TRXReceived(depositMsg.user, depositMsg.value, nonce);
+        } else if (depositMsg._type == 2) {
+            emit TRC20Received(depositMsg.user, depositMsg.mainChainAddress, depositMsg.value, nonce);
+        } else if (depositMsg._type == 3) {
+            emit TRC721Received(depositMsg.user, depositMsg.mainChainAddress, depositMsg.uId, nonce);
         } else {
-            emit TRC10Received(depositMsg.user, depositMsg.tokenId, depositMsg.valueOrUid, nonce);
+            emit TRC10Received(depositMsg.user, depositMsg.tokenId, depositMsg.value, nonce);
         }
     }
 
