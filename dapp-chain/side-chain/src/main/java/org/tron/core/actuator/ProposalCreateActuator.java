@@ -199,13 +199,13 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       }
-      case (18): {
-        if (Long.valueOf(entry.getValue()) != 1) {
-          throw new ContractValidateException(
-              "This value[ALLOW_TVM_TRANSFER_TRC10] is only allowed to be 1");
-        }
-        break;
-      }
+//      case (18): {
+//        if (Long.valueOf(entry.getValue()) != 1) {
+//          throw new ContractValidateException(
+//              "This value[ALLOW_TVM_TRANSFER_TRC10] is only allowed to be 1");
+//        }
+//        break;
+//      }
       case (19): {
         if (Long.valueOf(entry.getValue()) < 0
             || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
@@ -214,13 +214,13 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       }
-      case (20): {
-        if (Long.valueOf(entry.getValue()) != 1) {
-          throw new ContractValidateException(
-              "This value[ALLOW_MULTI_SIGN] is only allowed to be 1");
-        }
-        break;
-      }
+//      case (20): {
+//        if (Long.valueOf(entry.getValue()) != 1) {
+//          throw new ContractValidateException(
+//              "This value[ALLOW_MULTI_SIGN] is only allowed to be 1");
+//        }
+//        break;
+//      }
       case (21): {
         if (Long.valueOf(entry.getValue()) != 1) {
           throw new ContractValidateException(
