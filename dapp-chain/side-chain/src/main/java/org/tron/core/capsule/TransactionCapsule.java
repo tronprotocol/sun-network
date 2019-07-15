@@ -907,4 +907,26 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
     }
     return this.transaction.getRet(0).getContractRet();
   }
+
+  public boolean checkIfSideChainGateWayContractCall(Manager dbManager) {
+    try {
+      Transaction.Contract contract = this.transaction.getRawData().getContract(0);
+      if (contract.getType() == ContractType.TriggerSmartContract) {
+        Any contractParameter = contract.getParameter();
+        Contract.TriggerSmartContract smartContract =
+            contractParameter.unpack(TriggerSmartContract.class);
+        List<byte[]> gatewayList = dbManager.getDynamicPropertiesStore().getSideChainGateWayList();
+        for (byte[] gateway: gatewayList) {
+          if (ByteUtil.equals(gateway, smartContract.getContractAddress().toByteArray())) {
+            return true;
+          }
+        }
+        return false;
+
+      }
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
+    return false;
+  }
 }

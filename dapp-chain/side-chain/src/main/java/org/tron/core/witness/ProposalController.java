@@ -270,6 +270,11 @@ public class ProposalController {
               .saveVoteWitnessSwitch(Long.valueOf(entry.getValue()));
           break;
         }
+        case (1_000_005): {
+          manager.getDynamicPropertiesStore()
+              .saveMaxGateWayContractSize(Long.valueOf(entry.getValue()));
+          break;
+        }
         default:
           break;
       }

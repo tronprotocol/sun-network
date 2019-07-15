@@ -647,7 +647,13 @@ public class RuntimeImpl implements Runtime {
       }
       logger.info("runtime result is :{}", result.getException().getMessage());
     }
-    trace.setBill(result.getEnergyUsed());
+    if (!VMConfig.isVmResourceChargingOn()
+        || trace.isSideChainGateWayContractCall() && this.isResultSuccess()) {
+      trace.setBill(0);
+    }
+    else {
+      trace.setBill(result.getEnergyUsed());
+    }
   }
 
 
@@ -717,6 +723,10 @@ public class RuntimeImpl implements Runtime {
 
   public String getRuntimeError() {
     return runtimeError;
+  }
+
+  public boolean isResultSuccess() {
+    return !(result.getException() != null || result.isRevert());
   }
 
 }
