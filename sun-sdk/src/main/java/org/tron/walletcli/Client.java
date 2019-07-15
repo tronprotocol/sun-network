@@ -238,7 +238,7 @@ public class Client {
 
   private void getBalance() {
     SunNetworkResponse<Long> result = walletApiWrapper.getBalance();
-    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (result != null && result.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
       long balance = result.getData();
       logger.info("Balance = " + balance);
     } else {
@@ -259,7 +259,7 @@ public class Client {
     }
 
     SunNetworkResponse<Account> result = walletApiWrapper.getAccount(address);
-    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (result != null && result.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
       logger.info("\n" + Utils.printAccount(result.getData()));
     } else {
       logger.info("GetAccount failed !!!!");
@@ -292,7 +292,7 @@ public class Client {
 
     String accountName = parameters[0];
     SunNetworkResponse<TransactionResponse> result = walletApiWrapper.updateAccount(accountName);
-    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(result)) {
       logger.info("Update Account successful !!!!");
     } else {
       logger.info("Update Account failed !!!!");
@@ -308,7 +308,7 @@ public class Client {
 
     String accountId = parameters[0];
     SunNetworkResponse<TransactionResponse> result = walletApiWrapper.setAccountId(accountId);
-    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(result)) {
       logger.info("Set AccountId successful !!!!");
     } else {
       logger.info("Set AccountId failed !!!!");
@@ -330,7 +330,7 @@ public class Client {
 
     SunNetworkResponse<TransactionResponse> result = walletApiWrapper
         .updateAsset(newLimitString, newPublicLimitString, description, url);
-    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(result)) {
       logger.info("Update Asset successful !!!!");
     } else {
       logger.info("Update Asset failed !!!!");
@@ -449,7 +449,7 @@ public class Client {
     long amount = new Long(amountStr);
 
     SunNetworkResponse<TransactionResponse> result = walletApiWrapper.sendCoin(toAddress, amount);
-    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(result)) {
       logger.info("Send " + amount + " drop to " + toAddress + " successful !!");
     } else {
       logger.info("Send " + amount + " drop to " + toAddress + " failed !!");
@@ -469,8 +469,8 @@ public class Client {
     String assertName = parameters[1];
     String loopTime = parameters[2];
     int intervalInt = 0;//s
-    if (parameters.length == 5) {
-      String interval = parameters[4];
+    if (parameters.length == 4) {
+      String interval = parameters[3];
       intervalInt = Integer.parseInt(interval);//s
     }
     intervalInt *= 500; //ms
@@ -479,7 +479,7 @@ public class Client {
     for (int i = 1; i <= times; i++) {
       long amount = i;
       SunNetworkResponse<TransactionResponse> result = walletApiWrapper.sendCoin(toAddress, amount);
-      if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+      if (checkResult(result)) {
         logger.info("Send " + amount + " drop to " + toAddress + " successful !!");
         if (intervalInt > 0) {
           try {
@@ -496,7 +496,7 @@ public class Client {
 
       if (!"null".equalsIgnoreCase(assertName)) {
         result = walletApiWrapper.transferAsset(toAddress, assertName, amount);
-        if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+        if (checkResult(result)) {
           logger
               .info(
                   "transferAsset " + amount + assertName + " to " + toAddress + " successful !!");
@@ -530,15 +530,14 @@ public class Client {
 
     SunNetworkResponse<TransactionResponse> result = walletApiWrapper
         .transferAsset(toAddress, assertName, amount);
-    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(result)) {
       logger.info("TransferAsset " + amount + " to " + toAddress + " successful !!");
     } else {
       logger.info("TransferAsset " + amount + " to " + toAddress + " failed !!");
     }
   }
 
-  private void participateAssetIssue(String[] parameters)
-      throws IOException, CipherException, CancelException {
+  private void participateAssetIssue(String[] parameters) {
     if (parameters == null || parameters.length != 3) {
       System.out.println("ParticipateAssetIssue needs 3 parameters using the following syntax: ");
       System.out.println("ParticipateAssetIssue ToAddress AssetName Amount");
@@ -552,7 +551,7 @@ public class Client {
 
     SunNetworkResponse<TransactionResponse> result = walletApiWrapper
         .participateAssetIssue(toAddress, assertName, amount);
-    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(result)) {
       logger.info("ParticipateAssetIssue " + assertName + " " + amount + " from " + toAddress
           + " successful !!");
     } else {
@@ -616,7 +615,7 @@ public class Client {
     String address = parameters[0];
 
     SunNetworkResponse<TransactionResponse> result = walletApiWrapper.createAccount(address);
-    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(result)) {
       logger.info("CreateAccount " + " successful !!");
     } else {
       logger.info("CreateAccount " + " failed !!");
@@ -633,7 +632,7 @@ public class Client {
     String url = parameters[0];
 
     SunNetworkResponse<TransactionResponse> result = walletApiWrapper.createWitness(url);
-    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(result)) {
       logger.info("CreateWitness " + " successful !!");
     } else {
       logger.info("CreateWitness " + " failed !!");
@@ -650,11 +649,15 @@ public class Client {
     String url = parameters[0];
 
     SunNetworkResponse<TransactionResponse> result = walletApiWrapper.updateWitness(url);
-    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(result)) {
       logger.info("updateWitness " + " successful !!");
     } else {
       logger.info("updateWitness " + " failed !!");
     }
+  }
+
+  private boolean checkResult(SunNetworkResponse<TransactionResponse> result) {
+    return result != null && result.getCode().equals(ErrorCodeEnum.SUCCESS.getCode());
   }
 
   private void listWitnesses() {
@@ -796,7 +799,7 @@ public class Client {
     }
 
     SunNetworkResponse<TransactionResponse> result = walletApiWrapper.voteWitness(witness);
-    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(result)) {
       logger.info("VoteWitness " + " successful !!");
     } else {
       logger.info("VoteWitness " + " failed !!");
@@ -831,7 +834,7 @@ public class Client {
     }
     SunNetworkResponse<TransactionResponse> result = walletApiWrapper.freezeBalance(frozen_balance,
         frozen_duration, resourceCode, receiverAddress);
-    if (result != null && result.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(result)) {
       logger.info("freezeBalance " + " successful !!");
     } else {
       logger.info("freezeBalance " + " failed !!");
@@ -1642,7 +1645,7 @@ public class Client {
   private void depositTrx(String[] parameters) {
     if (parameters == null || parameters.length != 3) {
       System.out.println("deposit trx needs 2 parameters like following: ");
-      System.out.println("deposit trx num feelmit");
+      System.out.println("deposit trx num feeLimit");
       return;
     }
 
@@ -1651,17 +1654,17 @@ public class Client {
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
         .depositTrx(callValue, feeLimit);
-    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
-      System.out.println("deposit trc20 success");
+    if (checkResult(resp)) {
+      System.out.println("deposit trx success");
     } else {
-      System.out.println("deposit trc20 failed");
+      System.out.println("deposit trx failed");
     }
   }
 
   private void depositTrc10(String[] parameters) {
     if (parameters == null || parameters.length != 4) {
       System.out.println("deposit trc10 needs 3 parameters like following: ");
-      System.out.println("deposit trc10 trc10id num feelmit");
+      System.out.println("deposit trc10 trc10id num feeLimit");
       return;
     }
 
@@ -1672,17 +1675,17 @@ public class Client {
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
         .depositTrc10(tokenId, tokenCallValue, feeLimit);
-    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
-      System.out.println("deposit trc20 success");
+    if (checkResult(resp)) {
+      System.out.println("deposit trc10 success");
     } else {
-      System.out.println("deposit trc20 failed");
+      System.out.println("deposit trc10 failed");
     }
   }
 
   private void depositTrc20(String[] parameters) {
     if (parameters == null || parameters.length != 4) {
       System.out.println("deposit trc20 needs 3 parameters like following: ");
-      System.out.println("deposit trc20 trc20ContractAddress num feelmit");
+      System.out.println("deposit trc20 trc20ContractAddress num feeLimit");
       return;
     }
 
@@ -1693,7 +1696,7 @@ public class Client {
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
         .depositTrc20(contractAddrStr, num, feeLimit);
-    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(resp)) {
       System.out.println("deposit trc20 success");
     } else {
       System.out.println("deposit trc20 failed");
@@ -1703,7 +1706,7 @@ public class Client {
   private void depositTrc721(String[] parameters) {
     if (parameters == null || parameters.length != 4) {
       System.out.println("deposit trc721 needs 3 parameters like following: ");
-      System.out.println("deposit trc721 trc721ContractAddress tokenId feelmit");
+      System.out.println("deposit trc721 trc721ContractAddress tokenId feeLimit");
       return;
     }
 
@@ -1713,7 +1716,7 @@ public class Client {
     long feeLimit = Long.valueOf(parameters[3]);
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
         .depositTrc721(contractAddrStr, num, feeLimit);
-    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(resp)) {
       System.out.println("deposit trc20 success");
     } else {
       System.out.println("deposit trc20 failed");
@@ -2387,7 +2390,7 @@ public class Client {
     long feeLimit = Long.parseLong(parameters[2]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrx(trxNum, feeLimit);
-    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(resp)) {
       System.out.println("withdraw trx success");
     } else {
       System.out.println("withdraw trx failed");
@@ -2410,7 +2413,7 @@ public class Client {
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
         .withdrawTrc10(trc10, tokenValue, feeLimit);
-    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(resp)) {
       System.out.println("withdraw trc10 success");
     } else {
       System.out.println("withdraw trc10 failed");
@@ -2430,7 +2433,7 @@ public class Client {
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
         .withdrawTrc20(sideTrc20Address, value, feeLimit);
-    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(resp)) {
       System.out.println("withdraw trc20 success");
     } else {
       System.out.println("withdraw trc20 failed");
@@ -2452,7 +2455,7 @@ public class Client {
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
         .withdrawTrc721(sideTrc721Address, uid, feeLimit);
-    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(resp)) {
       System.out.println("withdraw trc721 success");
     } else {
       System.out.println("withdraw trc721 failed");
@@ -2504,7 +2507,7 @@ public class Client {
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
         .retryDeposit(nonce, feeLimit);
-    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(resp)) {
       System.out.println("retry deposit success");
     } else {
       System.out.println("retry deposit failed");
@@ -2525,7 +2528,7 @@ public class Client {
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
         .retryWithdraw(nonce, feeLimit);
-    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(resp)) {
       System.out.println("retry withdraw success");
     } else {
       System.out.println("retry withdraw failed");
@@ -2546,7 +2549,7 @@ public class Client {
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
         .retryMapping(nonce, feeLimit);
-    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(resp)) {
       System.out.println("retry mapping success");
     } else {
       System.out.println("retry mapping failed");
@@ -2598,7 +2601,7 @@ public class Client {
   private void mappingTrc20(String[] parameters) {
     if (parameters == null || parameters.length != 3) {
       System.out.println("mapping trc20 needs 2 parameters like following: ");
-      System.out.println("mapping trc20  trxHash  feelmit");
+      System.out.println("mapping trc20  trxHash  feeLimit");
       return;
     }
 
@@ -2606,7 +2609,7 @@ public class Client {
     long feeLimit = Long.valueOf(parameters[2]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.mappingTrc20(trxHash, feeLimit);
-    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(resp)) {
       System.out.println("mapping trc20 success");
     }
 
@@ -2617,7 +2620,7 @@ public class Client {
   private void mappingTrc721(String[] parameters) {
     if (parameters == null || parameters.length != 3) {
       System.out.println("mapping trc721 needs 2 parameters like following: ");
-      System.out.println("mapping trc721  trxHash  feelmit");
+      System.out.println("mapping trc721  trxHash  feeLimit");
       return;
     }
 
@@ -2626,7 +2629,7 @@ public class Client {
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
         .mappingTrc721(trxHash, feeLimit);
-    if (resp != null && resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+    if (checkResult(resp)) {
       System.out.println("mapping trc721 success");
     }
 

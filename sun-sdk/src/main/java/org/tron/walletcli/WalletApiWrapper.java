@@ -1031,16 +1031,14 @@ public class WalletApiWrapper {
   public SunNetworkResponse<TransactionResponse> depositTrx(long num,
       long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
-      logger.warn("Warning: depositTrc20 failed,  Please login first !!");
+      logger.warn("Warning: depositTrx failed,  Please login first !!");
       return null;
     }
 
     SunNetworkResponse<TransactionResponse> resp;
     resp = sdk.getCrossChainService().depositTrx(num, feeLimit);
-    List<TransactionResponse> list = resp.getDataList();
-    for (TransactionResponse txResp : list) {
-      printResponseInfo(txResp);
-    }
+    TransactionResponse txResp = resp.getData();
+    printResponseInfo(txResp);
 
     return resp;
   }
@@ -1049,16 +1047,14 @@ public class WalletApiWrapper {
       String tokenId, long tokenValue,
       long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
-      logger.warn("Warning: depositTrc20 failed,  Please login first !!");
+      logger.warn("Warning: depositTrc10 failed,  Please login first !!");
       return null;
     }
 
     SunNetworkResponse<TransactionResponse> resp;
     resp = sdk.getCrossChainService().depositTrc10(tokenId, tokenValue, feeLimit);
-    List<TransactionResponse> list = resp.getDataList();
-    for (TransactionResponse txResp : list) {
-      printResponseInfo(txResp);
-    }
+    TransactionResponse txResp = resp.getData();
+    printResponseInfo(txResp);
 
     return resp;
   }
