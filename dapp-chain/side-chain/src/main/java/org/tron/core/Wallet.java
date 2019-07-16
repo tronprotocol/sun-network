@@ -929,6 +929,12 @@ public class Wallet {
 //            .setValue(dbManager.getDynamicPropertiesStore().getAllowTvmConstantinople())
 //            .build());
 
+    builder.addChainParameter(
+        Protocol.ChainParameters.ChainParameter.newBuilder()
+            .setKey("getChargingSwitch")
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getChargingSwitch()))
+            .build());
+
     builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
         .setKey("getMainChainGateWayList")
         .setValue(convertGateWayListToString(dbManager.getDynamicPropertiesStore().getMainChainGateWayList()))
