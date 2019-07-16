@@ -195,25 +195,25 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   private static final byte[] TRANSACTION_ENERGY_BYTE_RATE = "TRANSACTION_ENERGY_BYTE_RATE".getBytes();
 
   // basic value for suntoken energy: byte, also means energy: bandwidth (10:1)
-  private static final byte[] TRANSACTION_SUNTOKEN_ENERGY_BYTE_RATE = "TRANSACTION_SUNTOKEN_ENERGY_BYTE_RATE".getBytes();
+  private static final byte[] TRANSACTION_SUN_TOKEN_ENERGY_BYTE_RATE = "TRANSACTION_SUN_TOKEN_ENERGY_BYTE_RATE".getBytes();
 
   // Define the energy/byte rate, when create an account using frozen energy.
   private static final byte[] CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE = "CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE".getBytes();
 
   // Define the energy/byte rate, when create an account using frozen energy.
-  private static final byte[] CREATE_NEW_ACCOUNT_SUNTOKEN_ENERGY_BYTE_RATE = "CREATE_NEW_ACCOUNT_SUNTOKEN_ENERGY_BYTE_RATE".getBytes();
+  private static final byte[] CREATE_NEW_ACCOUNT_SUN_TOKEN_ENERGY_BYTE_RATE = "CREATE_NEW_ACCOUNT_SUN_TOKEN_ENERGY_BYTE_RATE".getBytes();
 
   // switch on to kick off energy charging
   private static final byte[] CHARGING_SWITCH = "CHARGING_SWITCH".getBytes();
 
   // side chain charging type
-  private static final byte[] SIDECHAIN_CHARGING_TYPE = "SIDECHAIN_CHARGING_TYPE".getBytes();
+  private static final byte[] SIDE_CHAIN_CHARGING_TYPE = "SIDE_CHAIN_CHARGING_TYPE".getBytes();
 
   // side chain charging bandwidth
-  private static final byte[] SIDECHAIN_CHARGING_BANDWIDTH = "SIDECHAIN_CHARGING_BANDWIDTH".getBytes();
+  private static final byte[] SIDE_CHAIN_CHARGING_BANDWIDTH = "SIDE_CHAIN_CHARGING_BANDWIDTH".getBytes();
 
   // CREATE_ACCOUNT_FEE              0.1 SUN_TOKEN
-  private static final byte[] CREATE_ACCOUNT_SUNTOKEN_FEE = "CREATE_ACCOUNT_SUNTOKEN_FEE".getBytes();
+  private static final byte[] CREATE_ACCOUNT_SUN_TOKEN_FEE = "CREATE_ACCOUNT_SUN_TOKEN_FEE".getBytes();
 
   // CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT
   private static final byte[] CREATE_NEW_ACCOUNT_TOKEN_FEE_IN_SYSTEM_CONTRACT = "CREATE_NEW_ACCOUNT_TOKEN_FEE_IN_SYSTEM_CONTRACT".getBytes();
@@ -232,6 +232,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   private static final byte[] PROPOSAL_EXPIRE_TIME = "PROPOSAL_EXPIRE_TIME".getBytes();
 
   private static final byte[] VOTE_WITNESS_SWITCH = "VOTE_WITNESS_SWITCH".getBytes();
+
+  private static final byte[] MAX_GATE_WAY_CONTRACT_SIZE = "MAX_GATE_WAY_CONTRACT_SIZE".getBytes();
 
 
 
@@ -762,6 +764,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     } catch (IllegalArgumentException e) {
       this.saveVoteWitnessSwitch(0);
     }
+
+    try {
+      this.getMaxGateWayContractSize();
+    } catch (IllegalArgumentException e) {
+      this.saveMaxGateWayContractSize(10 * 1024);
+    }
   }
 
   public String intArrayToString(int[] a) {
@@ -801,15 +809,15 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public int getTransactionSunTokenEnergyByteRate() {
-    return Optional.ofNullable(getUnchecked(TRANSACTION_SUNTOKEN_ENERGY_BYTE_RATE))
+    return Optional.ofNullable(getUnchecked(TRANSACTION_SUN_TOKEN_ENERGY_BYTE_RATE))
             .map(BytesCapsule::getData)
             .map(ByteArray::toInt)
             .orElseThrow(
-                    () -> new IllegalArgumentException("not found TRANSACTION_SUNTOKEN_ENERGY_BYTE_RATE"));
+                    () -> new IllegalArgumentException("not found TRANSACTION_SUN_TOKEN_ENERGY_BYTE_RATE"));
   }
 
   public void saveTransactionSunTokenEnergyByteRate(int num) {
-    this.put(TRANSACTION_SUNTOKEN_ENERGY_BYTE_RATE,
+    this.put(TRANSACTION_SUN_TOKEN_ENERGY_BYTE_RATE,
             new BytesCapsule(ByteArray.fromInt(num)));
   }
 
@@ -892,28 +900,28 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public int getSideChainChargingType(){
-    return Optional.ofNullable(getUnchecked(SIDECHAIN_CHARGING_TYPE))
+    return Optional.ofNullable(getUnchecked(SIDE_CHAIN_CHARGING_TYPE))
             .map(BytesCapsule::getData)
             .map(ByteArray::toInt)
             .orElseThrow(
-                    () -> new IllegalArgumentException("not found SIDECHAIN_CHARGING_TYPE"));
+                    () -> new IllegalArgumentException("not found SIDE_CHAIN_CHARGING_TYPE"));
   }
 
   public void saveSideChainChargingType(long num) {
-    this.put(SIDECHAIN_CHARGING_TYPE,
+    this.put(SIDE_CHAIN_CHARGING_TYPE,
             new BytesCapsule(ByteArray.fromLong(num)));
   }
 
   public int getSideChainChargingBandwidth(){
-    return Optional.ofNullable(getUnchecked(SIDECHAIN_CHARGING_BANDWIDTH))
+    return Optional.ofNullable(getUnchecked(SIDE_CHAIN_CHARGING_BANDWIDTH))
             .map(BytesCapsule::getData)
             .map(ByteArray::toInt)
             .orElseThrow(
-                    () -> new IllegalArgumentException("not found SIDECHAIN_CHARGING_BANDWIDTH"));
+                    () -> new IllegalArgumentException("not found SIDE_CHAIN_CHARGING_BANDWIDTH"));
   }
 
   public void saveSideChainChargingBandwidth(long num) {
-    this.put(SIDECHAIN_CHARGING_BANDWIDTH,
+    this.put(SIDE_CHAIN_CHARGING_BANDWIDTH,
             new BytesCapsule(ByteArray.fromLong(num)));
   }
 
@@ -929,6 +937,20 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     this.put(VOTE_WITNESS_SWITCH,
         new BytesCapsule(ByteArray.fromLong(num)));
   }
+
+  public int getMaxGateWayContractSize(){
+    return Optional.ofNullable(getUnchecked(MAX_GATE_WAY_CONTRACT_SIZE))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toInt)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found MAX_GATE_WAY_CONTRACT_SIZE"));
+  }
+
+  public void saveMaxGateWayContractSize(long num) {
+    this.put(MAX_GATE_WAY_CONTRACT_SIZE,
+        new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
 
 
 
@@ -1413,16 +1435,16 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public void saveCreateAccountSunTokenFee(long fee) {
-    this.put(CREATE_ACCOUNT_SUNTOKEN_FEE,
+    this.put(CREATE_ACCOUNT_SUN_TOKEN_FEE,
             new BytesCapsule(ByteArray.fromLong(fee)));
   }
 
   public long getCreateAccountSunTokenFee() {
-    return Optional.ofNullable(getUnchecked(CREATE_ACCOUNT_SUNTOKEN_FEE))
+    return Optional.ofNullable(getUnchecked(CREATE_ACCOUNT_SUN_TOKEN_FEE))
             .map(BytesCapsule::getData)
             .map(ByteArray::toLong)
             .orElseThrow(
-                    () -> new IllegalArgumentException("not found CREATE_ACCOUNT_SUNTOKEN_FEE"));
+                    () -> new IllegalArgumentException("not found CREATE_ACCOUNT_SUN_TOKEN_FEE"));
   }
 
   public long getCreateAccountFee(int chargingType) {
@@ -1488,16 +1510,16 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public void saveCreateNewAccountSunTokenEnergyRate(long rate) {
-    this.put(CREATE_NEW_ACCOUNT_SUNTOKEN_ENERGY_BYTE_RATE,
+    this.put(CREATE_NEW_ACCOUNT_SUN_TOKEN_ENERGY_BYTE_RATE,
             new BytesCapsule(ByteArray.fromLong(rate)));
   }
 
   public long getCreateNewAccountSunTokenEnergyRate() {
-    return Optional.ofNullable(getUnchecked(CREATE_NEW_ACCOUNT_SUNTOKEN_ENERGY_BYTE_RATE))
+    return Optional.ofNullable(getUnchecked(CREATE_NEW_ACCOUNT_SUN_TOKEN_ENERGY_BYTE_RATE))
             .map(BytesCapsule::getData)
             .map(ByteArray::toLong)
             .orElseThrow(
-                    () -> new IllegalArgumentException("not found CREATE_NEW_ACCOUNT_SUNTOKEN_ENERGY_BYTE_RATE"));
+                    () -> new IllegalArgumentException("not found CREATE_NEW_ACCOUNT_SUN_TOKEN_ENERGY_BYTE_RATE"));
   }
 
   public long getCreateNewAccountEnergyRate(int chargingType) {

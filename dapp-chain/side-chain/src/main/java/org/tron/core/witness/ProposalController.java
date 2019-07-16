@@ -182,11 +182,11 @@ public class ProposalController {
 //          manager.getDynamicPropertiesStore().saveAllowSameTokenName(entry.getValue());
 //          break;
 //        }
-        case (16): {
-          manager.getDynamicPropertiesStore()
-              .saveAllowDelegateResource(Long.valueOf(entry.getValue()));
-          break;
-        }
+//        case (16): {
+//          manager.getDynamicPropertiesStore()
+//              .saveAllowDelegateResource(Long.valueOf(entry.getValue()));
+//          break;
+//        }
         case (17): {
           manager.getDynamicPropertiesStore()
               .saveTotalEnergyLimit(Long.valueOf(entry.getValue()));
@@ -202,12 +202,12 @@ public class ProposalController {
               .saveTotalEnergyLimit2(Long.valueOf(entry.getValue()));
           break;
         }
-        case (20): {
-          if (manager.getDynamicPropertiesStore().getAllowMultiSign() == 0) {
-            manager.getDynamicPropertiesStore().saveAllowMultiSign(Long.valueOf(entry.getValue()));
-          }
-          break;
-        }
+//        case (20): {
+//          if (manager.getDynamicPropertiesStore().getAllowMultiSign() == 0) {
+//            manager.getDynamicPropertiesStore().saveAllowMultiSign(Long.valueOf(entry.getValue()));
+//          }
+//          break;
+//        }
         case (21): {
           if (manager.getDynamicPropertiesStore().getAllowAdaptiveEnergy() == 0) {
             manager.getDynamicPropertiesStore()
@@ -268,6 +268,11 @@ public class ProposalController {
         case (1_000_004): {
           manager.getDynamicPropertiesStore()
               .saveVoteWitnessSwitch(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (1_000_005): {
+          manager.getDynamicPropertiesStore()
+              .saveMaxGateWayContractSize(Long.valueOf(entry.getValue()));
           break;
         }
         default:

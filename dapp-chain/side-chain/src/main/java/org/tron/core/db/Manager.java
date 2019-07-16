@@ -850,6 +850,26 @@ public class Manager {
     processor.bandwidthEnergyConsume(trx,trace);
   }
 
+  public void checkTransactionSize(TransactionCapsule trx)
+      throws TooBigTransactionResultException, TooBigTransactionException {
+    List<Contract> contracts = trx.getInstance().getRawData().getContractList();
+    if (trx.getResultSerializedSize() > Constant.MAX_RESULT_SIZE_IN_TX * contracts.size()) {
+      throw new TooBigTransactionResultException();
+    }
+
+    long bytesSize;
+
+    bytesSize = trx.getInstance().toBuilder().clearRet().build().getSerializedSize();
+
+    for (Contract contract : contracts) {
+      bytesSize += Constant.MAX_RESULT_SIZE_IN_TX;
+      if (bytesSize > this.getDynamicPropertiesStore().getMaxGateWayContractSize()) {
+        throw new TooBigTransactionException(
+            "too big transaction, the size is " + bytesSize + " bytes");
+      }
+    }
+  }
+
 
   /**
    * when switch fork need erase blocks on fork branch.
@@ -1271,7 +1291,9 @@ public class Manager {
     TransactionTrace trace = new TransactionTrace(trxCap, this);
     trxCap.setTrxTrace(trace);
 
-    if (dynamicPropertiesStore.getChargingSwitch() == 1) {
+
+    if (dynamicPropertiesStore.getChargingSwitch() == 1
+        && !trace.isSideChainGateWayContractCall()) {
       //
       if(dynamicPropertiesStore.getSideChainChargingBandwidth() == 1) {
         consumeBandwidth(trxCap, trace);
@@ -1279,6 +1301,9 @@ public class Manager {
         consumeBandwidthEnergy(trxCap, trace);
       }
       consumeMultiSignFee(trxCap, trace);
+    }
+    else if (trace.isSideChainGateWayContractCall()){
+      this.checkTransactionSize(trxCap);
     }
 
     VMConfig.handleProposalInVM(this);
