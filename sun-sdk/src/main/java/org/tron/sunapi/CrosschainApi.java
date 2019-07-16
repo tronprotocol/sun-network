@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.tron.common.utils.AbiUtil;
+import org.tron.common.utils.AddressUtil;
 import org.tron.core.exception.EncodingException;
 import org.tron.sunapi.response.TransactionResponse;
 import org.tron.sunapi.response.TransactionResponse.ResponseType;
@@ -114,7 +115,7 @@ public class CrosschainApi {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
     //side chain contract address
-    byte[] sideAddress = ServerApi.decodeFromBase58Check(contractAddrStr);
+    byte[] sideAddress = AddressUtil.decodeFromBase58Check(contractAddrStr);
     if (sideAddress == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
@@ -271,11 +272,11 @@ public class CrosschainApi {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
     List<TransactionResponse> dataList = new ArrayList<TransactionResponse>();
 
-    String mainGatewayAddr = ServerApi.encode58Check(ServerApi.getMainGatewayAddress());
+    String mainGatewayAddr = AddressUtil.encode58Check(ServerApi.getMainGatewayAddress());
     String argsStr = "\"" + mainGatewayAddr + "\",\"" + num + "\"";
     try {
       byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, false));
-      byte[] contractAddress = ServerApi.decodeFromBase58Check(contractAddrStr);
+      byte[] contractAddress = AddressUtil.decodeFromBase58Check(contractAddrStr);
 
       TransactionResponse result = mainchainServer
           .triggerContract(contractAddress, 0, input, feeLimit, 0, "");

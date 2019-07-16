@@ -9,16 +9,17 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tron.common.crypto.ECKey;
-import org.tron.common.utils.Utils;
+import org.tron.common.utils.AddressUtil;
 import org.tron.core.exception.CipherException;
-import org.tron.keystore.CheckStrength;
-import org.tron.keystore.Credentials;
-import org.tron.keystore.Wallet;
-import org.tron.keystore.WalletFile;
-import org.tron.keystore.WalletUtils;
-import org.tron.sunserver.ServerApi;
+import org.tron.walletcli.keystore.CheckStrength;
+import org.tron.walletcli.keystore.Credentials;
+import org.tron.walletcli.keystore.Wallet;
+import org.tron.walletcli.keystore.WalletFile;
+import org.tron.walletcli.keystore.WalletUtils;
+import org.tron.walletcli.utils.Utils;
 
 public class WalletApi {
+
   private static final Logger logger = LoggerFactory.getLogger("WalletApi");
   private List<WalletFile> walletFile = new ArrayList<>();
   private boolean loginState = false;
@@ -178,7 +179,7 @@ public class WalletApi {
     } else {
       this.walletFile.set(0, walletFile);
     }
-    this.address = ServerApi.decodeFromBase58Check(walletFile.getAddress());
+    this.address = AddressUtil.decodeFromBase58Check(walletFile.getAddress());
   }
 
   /**

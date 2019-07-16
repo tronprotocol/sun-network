@@ -21,10 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongycastle.util.Arrays;
 import org.spongycastle.util.encoders.Hex;
 import org.tron.api.GrpcAPI;
@@ -54,7 +51,7 @@ import org.tron.common.crypto.ECKey;
 import org.tron.common.crypto.Hash;
 import org.tron.common.crypto.Sha256Hash;
 import org.tron.common.utils.AbiUtil;
-import org.tron.common.utils.Base58;
+import org.tron.common.utils.AddressUtil;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.DataWord;
 import org.tron.common.utils.MUtil;
@@ -93,11 +90,9 @@ import org.tron.protos.Protocol.TransactionSign;
 import org.tron.protos.Protocol.Witness;
 import org.tron.sunapi.response.TransactionResponse;
 
-@Slf4j
+@Slf4j(topic = "ServerApi")
 public class ServerApi {
 
-  private static final Logger logger = LoggerFactory.getLogger("ServerApi");
-  private static final String FilePath = "Wallet";
   private byte[] address;
   private static byte addressPreFixByte = CommonConstant.ADD_PRE_FIX_BYTE_TESTNET;
   private static int rpcVersion = 0;
@@ -138,11 +133,11 @@ public class ServerApi {
     if (config.hasPath("mainchain.gateway_address")) {
       String temp = config.getString("mainchain.gateway_address");
 
-      if (!ServerApi.addressValid(decodeFromBase58Check(temp))) {
+      if (!AddressUtil.addressValid(AddressUtil.decodeFromBase58Check(temp))) {
         //TODO logger
       }
 
-      mainGatewayAddress = ServerApi.decodeFromBase58Check(temp);
+      mainGatewayAddress = AddressUtil.decodeFromBase58Check(temp);
     }
 
     return new GrpcClient(fullNode, solidityNode);
@@ -155,7 +150,7 @@ public class ServerApi {
     List<byte[]> ret = new ArrayList<>();
     List<String> list = config.getStringList(path);
     for (String configString : list) {
-      ret.add(ServerApi.decodeFromBase58Check(configString));
+      ret.add(AddressUtil.decodeFromBase58Check(configString));
     }
     return ret;
   }
@@ -184,11 +179,11 @@ public class ServerApi {
     if (config.hasPath("sidechain.gateway_address")) {
       String temp = config.getString("sidechain.gateway_address");
 
-      if (!ServerApi.addressValid(decodeFromBase58Check(temp))) {
+      if (!AddressUtil.addressValid(AddressUtil.decodeFromBase58Check(temp))) {
         //TODO logger
       }
 
-      sideGatewayAddress = ServerApi.decodeFromBase58Check(temp);
+      sideGatewayAddress = AddressUtil.decodeFromBase58Check(temp);
     }
 
     sideChainId = config.getString("sidechain.sideChainId");
@@ -289,7 +284,7 @@ public class ServerApi {
       byte[] data = transactionExtention.getConstantResult(0).toByteArray();
       byte[] address = Arrays.copyOfRange(data, 12, data.length);
 
-      contractAddress = encode58Check(ByteArray.convertToTronAddress(address));
+      contractAddress = AddressUtil.encode58Check(ByteArray.convertToTronAddress(address));
     }
 
     return contractAddress;
@@ -348,31 +343,29 @@ public class ServerApi {
   }
 
 
-  private boolean processTransactionExtention(TransactionExtention transactionExtention)
-      throws IOException, CipherException, CancelException {
+  private boolean processTransactionExtention(TransactionExtention transactionExtention) {
     return StringUtils.isNoneEmpty(processTransactionExt(transactionExtention));
   }
 
-  private String processTransactionExt(TransactionExtention transactionExtention)
-      throws CipherException, IOException, CancelException {
+  private String processTransactionExt(TransactionExtention transactionExtention) {
     if (transactionExtention == null) {
       return null;
     }
     Return ret = transactionExtention.getResult();
     if (!ret.getResult()) {
-      System.out.println("Code = " + ret.getCode());
-      System.out.println("Message = " + ret.getMessage().toStringUtf8());
+      logger.info("Code = " + ret.getCode());
+      logger.info("Message = " + ret.getMessage().toStringUtf8());
       return null;
     }
     Transaction transaction = transactionExtention.getTransaction();
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      System.out.println("Transaction is empty");
+      logger.info("Transaction is empty");
       return null;
     }
-    System.out.println(
+    logger.info(
         "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
-    System.out.println("transaction hex string is " + Utils.printTransaction(transaction));
-    System.out.println(Utils.printTransaction(transactionExtention));
+    logger.info("transaction hex string is " + Utils.printTransaction(transaction));
+    logger.info(Utils.printTransaction(transactionExtention));
     transaction = signTransaction(transaction);
 
     ByteString txid = ByteString.copyFrom(Sha256Hash.hash(transaction.getRawData().toByteArray()));
@@ -427,22 +420,9 @@ public class ServerApi {
   }
 
   //Warning: do not invoke this interface provided by others.
-  public Transaction signTransactionByApi(Transaction transaction, byte[] privateKey)
-      throws CancelException {
-    transaction = TransactionUtils.setExpirationTime(transaction);
-    System.out.println("Please input permission id.");
-    transaction = TransactionUtils.setPermissionId(transaction);
-    TransactionSign.Builder builder = TransactionSign.newBuilder();
-    builder.setPrivateKey(ByteString.copyFrom(privateKey));
-    builder.setTransaction(transaction);
-    return rpcCli.signTransaction(builder.build());
-  }
-
-  //Warning: do not invoke this interface provided by others.
   public TransactionExtention signTransactionByApi2(Transaction transaction,
       byte[] privateKey) throws CancelException {
     transaction = TransactionUtils.setExpirationTime(transaction);
-    System.out.println("Please input permission id.");
     transaction = TransactionUtils.setPermissionId(transaction);
     TransactionSign.Builder builder = TransactionSign.newBuilder();
     builder.setPrivateKey(ByteString.copyFrom(privateKey));
@@ -454,7 +434,6 @@ public class ServerApi {
   public TransactionExtention addSignByApi(Transaction transaction,
       byte[] privateKey) throws CancelException {
     transaction = TransactionUtils.setExpirationTime(transaction);
-    System.out.println("Please input permission id.");
     transaction = TransactionUtils.setPermissionId(transaction);
     TransactionSign.Builder builder = TransactionSign.newBuilder();
     builder.setPrivateKey(ByteString.copyFrom(privateKey));
@@ -753,7 +732,7 @@ public class ServerApi {
       long count = Long.parseLong(value);
       Contract.VoteWitnessContract.Vote.Builder voteBuilder = Contract.VoteWitnessContract.Vote
           .newBuilder();
-      byte[] address = ServerApi.decodeFromBase58Check(addressBase58);
+      byte[] address = AddressUtil.decodeFromBase58Check(addressBase58);
       if (address == null) {
         continue;
       }
@@ -763,80 +742,6 @@ public class ServerApi {
     }
 
     return builder.build();
-  }
-
-  public static boolean addressValid(byte[] address) {
-    if (ArrayUtils.isEmpty(address)) {
-      logger.warn("Warning: Address is empty !!");
-      return false;
-    }
-    if (address.length != CommonConstant.ADDRESS_SIZE) {
-      logger.warn(
-          "Warning: Address length need " + CommonConstant.ADDRESS_SIZE + " but " + address.length
-              + " !!");
-      return false;
-    }
-    byte preFixbyte = address[0];
-    if (preFixbyte != ServerApi.getAddressPreFixByte()) {
-      logger
-          .warn("Warning: Address need prefix with " + ServerApi.getAddressPreFixByte() + " but "
-              + preFixbyte + " !!");
-      return false;
-    }
-    //Other rule;
-    return true;
-  }
-
-  public static String encode58Check(byte[] input) {
-    byte[] hash0 = Sha256Hash.hash(input);
-    byte[] hash1 = Sha256Hash.hash(hash0);
-    byte[] inputCheck = new byte[input.length + 4];
-    System.arraycopy(input, 0, inputCheck, 0, input.length);
-    System.arraycopy(hash1, 0, inputCheck, input.length, 4);
-    return Base58.encode(inputCheck);
-  }
-
-  private static byte[] decode58Check(String input) {
-    byte[] decodeCheck = Base58.decode(input);
-    if (decodeCheck.length <= 4) {
-      return null;
-    }
-    byte[] decodeData = new byte[decodeCheck.length - 4];
-    System.arraycopy(decodeCheck, 0, decodeData, 0, decodeData.length);
-    byte[] hash0 = Sha256Hash.hash(decodeData);
-    byte[] hash1 = Sha256Hash.hash(hash0);
-    if (hash1[0] == decodeCheck[decodeData.length] &&
-        hash1[1] == decodeCheck[decodeData.length + 1] &&
-        hash1[2] == decodeCheck[decodeData.length + 2] &&
-        hash1[3] == decodeCheck[decodeData.length + 3]) {
-      return decodeData;
-    }
-    return null;
-  }
-
-  public static byte[] decodeFromBase58Check(String addressBase58) {
-    if (StringUtils.isEmpty(addressBase58)) {
-      logger.warn("Warning: Address is empty !!");
-      return null;
-    }
-    byte[] address = decode58Check(addressBase58);
-    if (!addressValid(address)) {
-      return null;
-    }
-    return address;
-  }
-
-  public static boolean priKeyValid(byte[] priKey) {
-    if (ArrayUtils.isEmpty(priKey)) {
-      logger.warn("Warning: PrivateKey is empty !!");
-      return false;
-    }
-    if (priKey.length != 32) {
-      logger.warn("Warning: PrivateKey length need 64 but " + priKey.length + " !!");
-      return false;
-    }
-    //Other rule;
-    return true;
   }
 
   public Optional<WitnessList> listWitnesses() {
@@ -958,22 +863,19 @@ public class ServerApi {
     return processTransactionExt2(transactionExtention);
   }
 
-  public boolean buyStorage(long quantity)
-      throws CipherException, IOException, CancelException {
+  public boolean buyStorage(long quantity) {
     Contract.BuyStorageContract contract = createBuyStorageContract(quantity);
     TransactionExtention transactionExtention = rpcCli.createTransaction(contract);
     return processTransactionExtention(transactionExtention);
   }
 
-  public boolean buyStorageBytes(long bytes)
-      throws CipherException, IOException, CancelException {
+  public boolean buyStorageBytes(long bytes) {
     Contract.BuyStorageBytesContract contract = createBuyStorageBytesContract(bytes);
     TransactionExtention transactionExtention = rpcCli.createTransaction(contract);
     return processTransactionExtention(transactionExtention);
   }
 
-  public TransactionResponse sellStorage(long storageBytes)
-      throws CipherException, IOException, CancelException {
+  public TransactionResponse sellStorage(long storageBytes) {
     Contract.SellStorageContract contract = createSellStorageContract(storageBytes);
     TransactionExtention transactionExtention = rpcCli.createTransaction(contract);
     return processTransactionExt2(transactionExtention);
@@ -990,7 +892,7 @@ public class ServerApi {
 
     if (receiverAddress != null && !receiverAddress.equals("")) {
       ByteString receiverAddressBytes = ByteString.copyFrom(
-          Objects.requireNonNull(ServerApi.decodeFromBase58Check(receiverAddress)));
+          Objects.requireNonNull(AddressUtil.decodeFromBase58Check(receiverAddress)));
       builder.setReceiverAddress(receiverAddressBytes);
     }
     return builder.build();
@@ -1043,7 +945,7 @@ public class ServerApi {
 
     if (receiverAddress != null && !receiverAddress.equals("")) {
       ByteString receiverAddressBytes = ByteString.copyFrom(
-          Objects.requireNonNull(ServerApi.decodeFromBase58Check(receiverAddress)));
+          Objects.requireNonNull(AddressUtil.decodeFromBase58Check(receiverAddress)));
       builder.setReceiverAddress(receiverAddressBytes);
     }
 
@@ -1509,7 +1411,7 @@ public class ServerApi {
       String addr = cur.substring(lastPosition + 1);
       String libraryAddressHex;
       try {
-        libraryAddressHex = (new String(Hex.encode(ServerApi.decodeFromBase58Check(addr)),
+        libraryAddressHex = (new String(Hex.encode(AddressUtil.decodeFromBase58Check(addr)),
             "US-ASCII")).substring(2);
       } catch (UnsupportedEncodingException e) {
         throw new RuntimeException(e);  // now ignore
@@ -1576,11 +1478,10 @@ public class ServerApi {
 
     TransactionExtention transactionExtention = rpcCli.updateSetting(updateSettingContract);
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
-      System.out.println("RPC create trx failed!");
+      logger.info("RPC create trx failed!");
       if (transactionExtention != null) {
-        System.out.println("Code = " + transactionExtention.getResult().getCode());
-        System.out
-            .println("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
+        logger.info("Code = " + transactionExtention.getResult().getCode());
+        logger.info("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
       }
       return new TransactionResponse("RPC create trx failed!");
     }
@@ -1599,11 +1500,10 @@ public class ServerApi {
     TransactionExtention transactionExtention = rpcCli
         .updateEnergyLimit(updateEnergyLimitContract);
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
-      System.out.println("RPC create trx failed!");
+      logger.info("RPC create trx failed!");
       if (transactionExtention != null) {
-        System.out.println("Code = " + transactionExtention.getResult().getCode());
-        System.out
-            .println("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
+        logger.info("Code = " + transactionExtention.getResult().getCode());
+        logger.info("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
       }
       return new TransactionResponse("RPC create trx failed!");
     }
@@ -1673,10 +1573,10 @@ public class ServerApi {
       byte[] result = transactionExtention.getConstantResult(0).toByteArray();
 
       //Return ret = transactionExtention.getResult();
-      System.out.println("message:" + transaction.getRet(0).getRet());
-      System.out.println(":" + ByteArray
+      logger.info("message:" + transaction.getRet(0).getRet());
+      logger.info(":" + ByteArray
           .toStr(transactionExtention.getResult().getMessage().toByteArray()));
-      System.out.println("Result:" + Hex.toHexString(result));
+      logger.info("Result:" + Hex.toHexString(result));
       String trxId = ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
 
       return new TransactionResponse(transaction.getRet(0).getRet(), trxId,
@@ -1708,9 +1608,9 @@ public class ServerApi {
 
   public boolean checkTxInfo(String txId) {
     try {
-      System.out.println("wait 3s for check result. ");
+      logger.info("wait 3s for check result. ");
       Thread.sleep(3_000);
-      System.out.println("trx id: " + txId);
+      logger.info("trx id: " + txId);
       Optional<TransactionInfo> transactionInfo = rpcCli.getTransactionInfoById(txId);
       TransactionInfo info = transactionInfo.get();
       if (info.getBlockTimeStamp() != 0L) {
@@ -1723,7 +1623,7 @@ public class ServerApi {
       int maxRetry = 3;
       for (int i = 0; i < maxRetry; i++) {
         Thread.sleep(2_000);
-        System.out.println("will retry {} time(s): " + i + 1);
+        logger.info("will retry {} time(s): " + i + 1);
         transactionInfo = rpcCli.getTransactionInfoById(txId);
         info = transactionInfo.get();
         if (info.getBlockTimeStamp() != 0L) {
@@ -1733,7 +1633,7 @@ public class ServerApi {
         }
       }
     } catch (InterruptedException e) {
-      System.out.println("sleep error" + (e.getMessage()));
+      logger.error("sleep error" + (e.getMessage()));
       return false;
     }
 
@@ -1783,7 +1683,7 @@ public class ServerApi {
         JSONObject key = keys.getJSONObject(i);
         String address = key.getString("address");
         long weight = key.getLong("weight");
-        keyBuilder.setAddress(ByteString.copyFrom(ServerApi.decode58Check(address)));
+        keyBuilder.setAddress(ByteString.copyFrom(AddressUtil.decodeFromBase58Check(address)));
         keyBuilder.setWeight(weight);
         keyList.add(keyBuilder.build());
       }

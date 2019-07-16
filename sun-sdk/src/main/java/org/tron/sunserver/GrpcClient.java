@@ -44,6 +44,7 @@ import org.tron.api.GrpcAPI.WitnessList;
 import org.tron.api.WalletExtensionGrpc;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
+import org.tron.common.utils.AddressUtil;
 import org.tron.common.utils.ByteArray;
 import org.tron.protos.Contract;
 import org.tron.protos.Protocol.Account;
@@ -307,7 +308,8 @@ public class GrpcClient {
     return blockingStubFull.proposalCreate(contract);
   }
 
-  public TransactionExtention SideProposalCreate(Contract.SideChainProposalCreateContract contract) {
+  public TransactionExtention SideProposalCreate(
+      Contract.SideChainProposalCreateContract contract) {
     return blockingStubFull.sideChainProposalCreate(contract);
   }
 
@@ -334,9 +336,9 @@ public class GrpcClient {
       String toAddress) {
 
     ByteString fromAddressBS = ByteString.copyFrom(
-        Objects.requireNonNull(ServerApi.decodeFromBase58Check(fromAddress)));
+        Objects.requireNonNull(AddressUtil.decodeFromBase58Check(fromAddress)));
     ByteString toAddressBS = ByteString.copyFrom(
-        Objects.requireNonNull(ServerApi.decodeFromBase58Check(toAddress)));
+        Objects.requireNonNull(AddressUtil.decodeFromBase58Check(toAddress)));
 
     DelegatedResourceMessage request = DelegatedResourceMessage.newBuilder()
         .setFromAddress(fromAddressBS)
@@ -350,7 +352,7 @@ public class GrpcClient {
   public Optional<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndex(String address) {
 
     ByteString addressBS = ByteString.copyFrom(
-        Objects.requireNonNull(ServerApi.decodeFromBase58Check(address)));
+        Objects.requireNonNull(AddressUtil.decodeFromBase58Check(address)));
 
     BytesMessage bytesMessage = BytesMessage.newBuilder().setValue(addressBS).build();
 

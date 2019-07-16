@@ -1,4 +1,4 @@
-package org.tron.keystore;
+package org.tron.walletcli.keystore;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
