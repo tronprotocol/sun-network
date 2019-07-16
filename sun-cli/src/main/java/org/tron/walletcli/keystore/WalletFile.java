@@ -1,4 +1,4 @@
-package org.tron.keystore;
+package org.tron.walletcli.keystore;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonSubTypes;

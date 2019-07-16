@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package org.tron.keystore;
+package org.tron.walletcli.keystore;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.spongycastle.util.encoders.Hex;
-import org.tron.common.utils.ByteArray;
 
 /**
  * @author venshine

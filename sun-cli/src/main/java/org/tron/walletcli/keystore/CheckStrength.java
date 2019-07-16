@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.tron.keystore;
+package org.tron.walletcli.keystore;
 
 import java.util.Arrays;
 import org.apache.commons.lang3.ArrayUtils;
