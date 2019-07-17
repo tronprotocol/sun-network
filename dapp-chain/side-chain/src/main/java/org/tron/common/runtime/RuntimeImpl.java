@@ -352,6 +352,10 @@ public class RuntimeImpl implements Runtime {
       AccountCapsule creator = this.deposit
           .getAccount(newSmartContract.getOriginAddress().toByteArray());
 
+      if (creator == null) {
+        throw new ContractValidateException("callerAddress account does not exist");
+      }
+
       long energyLimit;
       // according to version
 
@@ -485,6 +489,9 @@ public class RuntimeImpl implements Runtime {
       }
 
       AccountCapsule caller = this.deposit.getAccount(callerAddress);
+      if (caller == null) {
+        throw new ContractValidateException("callerAddress account does not exist");
+      }
       long energyLimit;
       if (isStaticCall) {
         energyLimit = Constant.ENERGY_LIMIT_IN_CONSTANT_TX;
