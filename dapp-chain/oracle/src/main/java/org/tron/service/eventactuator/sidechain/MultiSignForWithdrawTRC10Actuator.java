@@ -98,6 +98,6 @@ public class MultiSignForWithdrawTRC10Actuator extends MultiSignForWithdrawActua
     String valueStr = event.getValue().toStringUtf8();
     String nonceStr = event.getNonce().toStringUtf8();
     return ByteArray.toHexString(
-        SideChainGatewayApi.getWithdrawTRCTokenDataHash(fromStr, tokenIdStr, valueStr, nonceStr));
+        SideChainGatewayApi.getWithdrawTRC10DataHash(fromStr, tokenIdStr, valueStr, nonceStr));
   }
 }
