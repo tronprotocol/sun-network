@@ -1292,8 +1292,13 @@ public class Manager {
     trxCap.setTrxTrace(trace);
 
 
+    boolean isSideChainGateWayCall = trace.isSideChainGateWayContractCall();
+    if (isSideChainGateWayCall){
+      this.checkTransactionSize(trxCap);
+    }
+
     if (dynamicPropertiesStore.getChargingSwitch() == 1
-        && !trace.isSideChainGateWayContractCall()) {
+        && !isSideChainGateWayCall) {
       //
       if(dynamicPropertiesStore.getSideChainChargingBandwidth() == 1) {
         consumeBandwidth(trxCap, trace);
@@ -1302,9 +1307,7 @@ public class Manager {
       }
       consumeMultiSignFee(trxCap, trace);
     }
-    else if (trace.isSideChainGateWayContractCall()){
-      this.checkTransactionSize(trxCap);
-    }
+
 
     VMConfig.handleProposalInVM(this);
     trace.init(blockCap, eventPluginLoaded);
