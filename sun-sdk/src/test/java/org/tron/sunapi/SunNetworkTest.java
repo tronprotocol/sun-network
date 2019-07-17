@@ -100,7 +100,7 @@ public class SunNetworkTest {
   }
 
   @Test
-  public void main(String[] args) {
+  public void main() {
     String priKey = "e901ef62b241b6f1577fd6ea34ef8b1c4b3ddee1e3c051b9e63f5ff729ad47a1";
 
     SunNetwork sdk = new SunNetwork();
