@@ -2,15 +2,16 @@ package org.tron.sunapi;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.tron.common.utils.AddressUtil;
 import org.tron.protos.Protocol.Account;
 import org.tron.sunapi.response.TransactionResponse;
-import org.tron.sunserver.ServerApi;
 
 public class SunNetworkTest {
 
   public static String priKey = "e901ef62b241b6f1577fd6ea34ef8b1c4b3ddee1e3c051b9e63f5ff729ad47a1";
 
   public static SunNetwork sdk = new SunNetwork();
+
   {
     sdk.init("config.conf");
     sdk.setPrivateKey(priKey);
@@ -44,7 +45,7 @@ public class SunNetworkTest {
     System.out.println("\r\n===================== deposit 124 trx ===============================");
     {
       SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService()
-          .depositTrx(mainChainGateway, 124, 1000000);
+          .depositTrx(124, 1000000);
 
       System.out.println("Error code desc: " + resp.getDesc());
       System.out.println("transaction result: " + resp.getData().getResult());
@@ -80,7 +81,8 @@ public class SunNetworkTest {
   public void getAddressTest() {
     SunNetworkResponse<byte[]> resp = sdk.getMainChainService().getAddress();
 
-    Assert.assertEquals(ServerApi.encode58Check(resp.getData()), "TVdyt1s88BdiCjKt6K2YuoSmpWScZYK1QF");
+    Assert.assertEquals(AddressUtil.encode58Check(resp.getData()),
+        "TVdyt1s88BdiCjKt6K2YuoSmpWScZYK1QF");
   }
 
   @Test
@@ -92,40 +94,31 @@ public class SunNetworkTest {
       balanceMain1 = resp.getData();
     }
 
-    SunNetworkResponse<Account> resp2 = sdk.getMainChainService().getAccount("TVdyt1s88BdiCjKt6K2YuoSmpWScZYK1QF");
+    SunNetworkResponse<Account> resp2 = sdk.getMainChainService()
+        .getAccount("TVdyt1s88BdiCjKt6K2YuoSmpWScZYK1QF");
     Assert.assertEquals(resp2.getData().getBalance(), balanceMain1);
   }
 
-//  @Test
-//  public void accountIdTest() {
-//    Account account1;
-//    Account account2;
-//    String accountId = "accountId_test";
-//
-//    SunNetworkResponse<Account> resp1 = sdk.getMainChainService().getAccount("TVdyt1s88BdiCjKt6K2YuoSmpWScZYK1QF");
-//    Assert.assertEquals(resp1.getCode(), "0");
-//    account1 = resp1.getData();
-//    if(!account1.getAccountId().isEmpty()) {
-//      accountId = new String(account1.getAccountId().toByteArray(), Charset.forName("UTF-8"));
-//    } else {
-//      SunNetworkResponse<Integer> resp0 = sdk.getMainChainService().setAccountId(accountId);
-//      Assert.assertEquals(resp0.getCode(), "0");
-//
-//      resp1 = sdk.getMainChainService().getAccount("TVdyt1s88BdiCjKt6K2YuoSmpWScZYK1QF");
-//      Assert.assertEquals(resp1.getCode(), "0");
-//    }
-//
-//    String id = new String(account1.getAccountId().toByteArray(), Charset.forName("UTF-8"));
-//    Assert.assertEquals(accountId, id);
-//
-//    SunNetworkResponse<Account> resp2 = sdk.getMainChainService().getAccountById(accountId);
-//    Assert.assertEquals(resp1.getCode(), "0");
-//    account2 = resp2.getData();
-//
-//    Assert.assertEquals(account1.getBalance(), account2.getBalance());
-//    Assert.assertEquals(account1.getAccountId(), account2.getAccountId());
-//  }
+  @Test
+  public void main(String[] args) {
+    String priKey = "e901ef62b241b6f1577fd6ea34ef8b1c4b3ddee1e3c051b9e63f5ff729ad47a1";
 
+    SunNetwork sdk = new SunNetwork();
+    sdk.init("config.conf");
+    sdk.setPrivateKey(priKey);
 
+    System.out.println("\r\n===================== balance before deposit ========================");
+    {
+      SunNetworkResponse<Long> resp = sdk.getMainChainService().getBalance();
+      if (resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+        System.out.println("main chain balance is:" + resp.getData());
+      }
+
+      resp = sdk.getSideChainService().getBalance();
+      if (resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
+        System.out.println("side chain balance is:" + resp.getData());
+      }
+    }
+  }
 
 }

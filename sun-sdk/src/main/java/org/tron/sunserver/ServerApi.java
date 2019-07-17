@@ -19,11 +19,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongycastle.util.Arrays;
 import org.spongycastle.util.encoders.Hex;
 import org.tron.api.GrpcAPI;
@@ -53,7 +51,7 @@ import org.tron.common.crypto.ECKey;
 import org.tron.common.crypto.Hash;
 import org.tron.common.crypto.Sha256Hash;
 import org.tron.common.utils.AbiUtil;
-import org.tron.common.utils.Base58;
+import org.tron.common.utils.AddressUtil;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.DataWord;
 import org.tron.common.utils.MUtil;
@@ -92,21 +90,19 @@ import org.tron.protos.Protocol.TransactionSign;
 import org.tron.protos.Protocol.Witness;
 import org.tron.sunapi.response.TransactionResponse;
 
-@Slf4j
+@Slf4j(topic = "ServerApi")
 public class ServerApi {
 
-  private static final Logger logger = LoggerFactory.getLogger("ServerApi");
-  private static final String FilePath = "Wallet";
   private byte[] address;
   private static byte addressPreFixByte = CommonConstant.ADD_PRE_FIX_BYTE_TESTNET;
   private static int rpcVersion = 0;
   private static int sideRpcVersion = 0;
-
+  @Getter
   private static byte[] sideGatewayAddress;
+  @Getter
   private static byte[] mainGatewayAddress;
 
   private static String sideChainId;
-  private static List<byte[]> mainChainGateWayList;
   private static ECKey priEcKey;
 
   private boolean isMainChain;
@@ -125,7 +121,7 @@ public class ServerApi {
       fullNode = config.getStringList("mainchain.fullnode.ip.list").get(0);
     }
     if (config.hasPath("mainchain.net.type") && "mainnet"
-      .equalsIgnoreCase(config.getString("mainchain.net.type"))) {
+        .equalsIgnoreCase(config.getString("mainchain.net.type"))) {
       ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     } else {
       ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_TESTNET);
@@ -137,11 +133,11 @@ public class ServerApi {
     if (config.hasPath("mainchain.gateway_address")) {
       String temp = config.getString("mainchain.gateway_address");
 
-      if (!ServerApi.addressValid(decodeFromBase58Check(temp))) {
+      if (!AddressUtil.addressValid(AddressUtil.decodeFromBase58Check(temp))) {
         //TODO logger
       }
 
-      mainGatewayAddress = ServerApi.decodeFromBase58Check(temp);
+      mainGatewayAddress = AddressUtil.decodeFromBase58Check(temp);
     }
 
     return new GrpcClient(fullNode, solidityNode);
@@ -154,7 +150,7 @@ public class ServerApi {
     List<byte[]> ret = new ArrayList<>();
     List<String> list = config.getStringList(path);
     for (String configString : list) {
-      ret.add(ServerApi.decodeFromBase58Check(configString));
+      ret.add(AddressUtil.decodeFromBase58Check(configString));
     }
     return ret;
   }
@@ -171,7 +167,7 @@ public class ServerApi {
       fullNode = config.getStringList("sidechain.fullnode.ip.list").get(0);
     }
     if (config.hasPath("sidechain.net.type") && "mainnet"
-      .equalsIgnoreCase(config.getString("sidechain.net.type"))) {
+        .equalsIgnoreCase(config.getString("sidechain.net.type"))) {
       ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     } else {
       ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_TESTNET);
@@ -183,15 +179,14 @@ public class ServerApi {
     if (config.hasPath("sidechain.gateway_address")) {
       String temp = config.getString("sidechain.gateway_address");
 
-      if (!ServerApi.addressValid(decodeFromBase58Check(temp))) {
+      if (!AddressUtil.addressValid(AddressUtil.decodeFromBase58Check(temp))) {
         //TODO logger
       }
 
-      sideGatewayAddress = ServerApi.decodeFromBase58Check(temp);
+      sideGatewayAddress = AddressUtil.decodeFromBase58Check(temp);
     }
 
     sideChainId = config.getString("sidechain.sideChainId");
-    mainChainGateWayList = getGateWayList(config, "sidechain.mainChainGateWayList");
 
     return new GrpcClient(fullNode, solidityNode);
   }
@@ -199,11 +194,6 @@ public class ServerApi {
   public boolean isMainChain() {
     return isMainChain;
   }
-
-  public static byte[] getSideGatewayAddress() {
-    return sideGatewayAddress;
-  }
-
 
   public static byte getAddressPreFixByte() {
     return addressPreFixByte;
@@ -218,7 +208,7 @@ public class ServerApi {
   }
 
   //  store private key
-  public void initPrivateKey (byte[] priKey) {
+  public void initPrivateKey(byte[] priKey) {
     this.priEcKey = ECKey.fromPrivate(priKey);
 
     this.address = priEcKey.getAddress();
@@ -227,7 +217,7 @@ public class ServerApi {
   public ServerApi(String config, byte[] priKey, boolean isMainChain) {
     this.isMainChain = isMainChain;
 
-    if(isMainChain) {
+    if (isMainChain) {
       rpcCli = initMain(config);
     } else {
       rpcCli = initSide(config);
@@ -261,9 +251,9 @@ public class ServerApi {
 
   public byte[] getTrc10Address(String trc10) throws EncodingException {
     byte[] input = org.bouncycastle.util.encoders.Hex.decode(
-      AbiUtil.parseMethod("mainToSideTRC10Map(uint256)", trc10, false));
+        AbiUtil.parseMethod("mainToSideTRC10Map(uint256)", trc10, false));
     Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
-      sideGatewayAddress, 0, input, 0, "0");
+        sideGatewayAddress, 0, input, 0, "0");
     TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract);  //rpcside
     byte[] trc10Address = transactionExtention.getConstantResult(0).toByteArray();
     return MUtil.convertToTronAddress(new DataWord(trc10Address).getLast20Bytes());
@@ -271,29 +261,30 @@ public class ServerApi {
 
   public byte[] getSideTokenAddress(String mainAddress) throws EncodingException {
     byte[] input = org.bouncycastle.util.encoders.Hex.decode(
-      AbiUtil.parseMethod("mainToSideContractMap(address)", "\"" + mainAddress + "\"", false));
+        AbiUtil.parseMethod("mainToSideContractMap(address)", "\"" + mainAddress + "\"", false));
     Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
-      sideGatewayAddress, 0, input, 0, "0");
+        sideGatewayAddress, 0, input, 0, "0");
     TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract);  //side
     byte[] sideAddress = transactionExtention.getConstantResult(0).toByteArray();
     return MUtil.convertToTronAddress(new DataWord(sideAddress).getLast20Bytes());
   }
 
 
-  public  String sideGetMappingAddress(byte[] sideGateway, String mainContractAddress)
-          throws EncodingException {
+  public String sideGetMappingAddress(byte[] sideGateway, String mainContractAddress)
+      throws EncodingException {
     String contractAddress = null;
     byte[] input = org.bouncycastle.util.encoders.Hex.decode(
-            AbiUtil.parseMethod("mainToSideContractMap(address)", "\"" + mainContractAddress + "\"", false));
+        AbiUtil.parseMethod("mainToSideContractMap(address)", "\"" + mainContractAddress + "\"",
+            false));
 
     Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
-            sideGateway,0, input, 0, "0");
+        sideGateway, 0, input, 0, "0");
     TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract);
-    if(transactionExtention != null && !transactionExtention.getConstantResultList().isEmpty()) {
+    if (transactionExtention != null && !transactionExtention.getConstantResultList().isEmpty()) {
       byte[] data = transactionExtention.getConstantResult(0).toByteArray();
       byte[] address = Arrays.copyOfRange(data, 12, data.length);
 
-      contractAddress = encode58Check(ByteArray.convertToTronAddress(address));
+      contractAddress = AddressUtil.encode58Check(ByteArray.convertToTronAddress(address));
     }
 
     return contractAddress;
@@ -313,12 +304,11 @@ public class ServerApi {
   }
 
   private byte[] getCurrentChainId() {
-    if(isMainChain()) {
+    if (isMainChain()) {
       return new byte[0];
     }
 
-    //return ByteArray.fromHexString(sideChainId);
-    return ByteArray.fromBytes21List(mainChainGateWayList);
+    return ByteArray.fromHexString(sideChainId);
   }
 
   private Transaction signTransaction(Transaction transaction) {
@@ -329,7 +319,8 @@ public class ServerApi {
 
     transaction = TransactionUtils.setPermissionId(transaction);
     while (true) {
-      transaction = TransactionUtils.sign(transaction, this.getEcKey(), getCurrentChainId(), isMainChain());
+      transaction = TransactionUtils
+          .sign(transaction, this.getEcKey(), getCurrentChainId(), isMainChain());
 
       TransactionSignWeight weight = getTransactionSignWeight(transaction);
       if (weight.getResult().getCode() == response_code.ENOUGH_PERMISSION) {
@@ -352,37 +343,37 @@ public class ServerApi {
   }
 
 
-  private boolean processTransactionExtention(TransactionExtention transactionExtention)
-    throws IOException, CipherException, CancelException {
+  private boolean processTransactionExtention(TransactionExtention transactionExtention) {
     return StringUtils.isNoneEmpty(processTransactionExt(transactionExtention));
   }
 
-  private String processTransactionExt(TransactionExtention transactionExtention) throws CipherException, IOException, CancelException {
+  private String processTransactionExt(TransactionExtention transactionExtention) {
     if (transactionExtention == null) {
       return null;
     }
     Return ret = transactionExtention.getResult();
     if (!ret.getResult()) {
-      System.out.println("Code = " + ret.getCode());
-      System.out.println("Message = " + ret.getMessage().toStringUtf8());
+      logger.info("Code = " + ret.getCode());
+      logger.info("Message = " + ret.getMessage().toStringUtf8());
       return null;
     }
     Transaction transaction = transactionExtention.getTransaction();
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      System.out.println("Transaction is empty");
+      logger.info("Transaction is empty");
       return null;
     }
-    System.out.println(
-      "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
-    System.out.println("transaction hex string is " + Utils.printTransaction(transaction));
-    System.out.println(Utils.printTransaction(transactionExtention));
+    logger.info(
+        "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
+    logger.info("transaction hex string is " + Utils.printTransaction(transaction));
+    logger.info(Utils.printTransaction(transactionExtention));
     transaction = signTransaction(transaction);
 
     ByteString txid = ByteString.copyFrom(Sha256Hash.hash(transaction.getRawData().toByteArray()));
-    transactionExtention=transactionExtention.toBuilder().setTransaction(transaction).setTxid(txid).build();
+    transactionExtention = transactionExtention.toBuilder().setTransaction(transaction)
+        .setTxid(txid).build();
 
     Return response = rpcCli.broadcastTransaction(transaction);
-    if(response.getResult()){
+    if (response.getResult()) {
       return ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
     }
 
@@ -405,18 +396,20 @@ public class ServerApi {
     transaction = signTransaction(transaction);
 
     ByteString txid = ByteString.copyFrom(Sha256Hash.hash(transaction.getRawData().toByteArray()));
-    transactionExtention=transactionExtention.toBuilder().setTransaction(transaction).setTxid(txid).build();
+    transactionExtention = transactionExtention.toBuilder().setTransaction(transaction)
+        .setTxid(txid).build();
 
     Return response = rpcCli.broadcastTransaction(transaction);
-    if(response.getResult()){
-      return new TransactionResponse(response, ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
+    if (response.getResult()) {
+      return new TransactionResponse(response,
+          ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
     }
 
     return new TransactionResponse(response);
   }
 
   private boolean processTransaction(Transaction transaction)
-    throws IOException, CipherException, CancelException {
+      throws IOException, CipherException, CancelException {
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       return false;
     }
@@ -427,22 +420,9 @@ public class ServerApi {
   }
 
   //Warning: do not invoke this interface provided by others.
-  public Transaction signTransactionByApi(Transaction transaction, byte[] privateKey)
-    throws CancelException {
-    transaction = TransactionUtils.setExpirationTime(transaction);
-    System.out.println("Please input permission id.");
-    transaction = TransactionUtils.setPermissionId(transaction);
-    TransactionSign.Builder builder = TransactionSign.newBuilder();
-    builder.setPrivateKey(ByteString.copyFrom(privateKey));
-    builder.setTransaction(transaction);
-    return rpcCli.signTransaction(builder.build());
-  }
-
-  //Warning: do not invoke this interface provided by others.
   public TransactionExtention signTransactionByApi2(Transaction transaction,
-    byte[] privateKey) throws CancelException {
+      byte[] privateKey) throws CancelException {
     transaction = TransactionUtils.setExpirationTime(transaction);
-    System.out.println("Please input permission id.");
     transaction = TransactionUtils.setPermissionId(transaction);
     TransactionSign.Builder builder = TransactionSign.newBuilder();
     builder.setPrivateKey(ByteString.copyFrom(privateKey));
@@ -452,9 +432,8 @@ public class ServerApi {
 
   //Warning: do not invoke this interface provided by others.
   public TransactionExtention addSignByApi(Transaction transaction,
-    byte[] privateKey) throws CancelException {
+      byte[] privateKey) throws CancelException {
     transaction = TransactionUtils.setExpirationTime(transaction);
-    System.out.println("Please input permission id.");
     transaction = TransactionUtils.setPermissionId(transaction);
     TransactionSign.Builder builder = TransactionSign.newBuilder();
     builder.setPrivateKey(ByteString.copyFrom(privateKey));
@@ -477,25 +456,25 @@ public class ServerApi {
 
   //Warning: do not invoke this interface provided by others.
   public EasyTransferResponse easyTransfer(byte[] passPhrase, byte[] toAddress,
-    long amount) {
+      long amount) {
     return rpcCli.easyTransfer(passPhrase, toAddress, amount);
   }
 
   //Warning: do not invoke this interface provided by others.
   public EasyTransferResponse easyTransferByPrivate(byte[] privateKey, byte[] toAddress,
-    long amount) {
+      long amount) {
     return rpcCli.easyTransferByPrivate(privateKey, toAddress, amount);
   }
 
   //Warning: do not invoke this interface provided by others.
   public EasyTransferResponse easyTransferAsset(byte[] passPhrase, byte[] toAddress,
-    String assetId, long amount) {
+      String assetId, long amount) {
     return rpcCli.easyTransferAsset(passPhrase, toAddress, assetId, amount);
   }
 
   //Warning: do not invoke this interface provided by others.
   public EasyTransferResponse easyTransferAssetByPrivate(byte[] privateKey,
-    byte[] toAddress, String assetId, long amount) {
+      byte[] toAddress, String assetId, long amount) {
     return rpcCli.easyTransferAssetByPrivate(privateKey, toAddress, assetId, amount);
   }
 
@@ -536,7 +515,7 @@ public class ServerApi {
       long newPublicLimit) {
     byte[] owner = getAddress();
     Contract.UpdateAssetContract contract
-      = createUpdateAssetContract(owner, description, url, newLimit, newPublicLimit);
+        = createUpdateAssetContract(owner, description, url, newLimit, newPublicLimit);
 
     TransactionExtention transactionExtention = rpcCli.createTransaction2(contract);
     return processTransactionExt2(transactionExtention);
@@ -545,7 +524,7 @@ public class ServerApi {
   public TransactionResponse transferAsset(byte[] to, byte[] assertName, long amount) {
     byte[] owner = getAddress();
     Contract.TransferAssetContract contract = createTransferAssetContract(to, assertName, owner,
-      amount);
+        amount);
 
     TransactionExtention transactionExtention = rpcCli.createTransferAssetTransaction2(contract);
     return processTransactionExt2(transactionExtention);
@@ -555,7 +534,7 @@ public class ServerApi {
   public TransactionResponse participateAssetIssue(byte[] to, byte[] assertName, long amount) {
     byte[] owner = getAddress();
     Contract.ParticipateAssetIssueContract contract = participateAssetIssueContract(to, assertName,
-      owner, amount);
+        owner, amount);
 
     TransactionExtention transactionExtention = rpcCli
         .createParticipateAssetIssueTransaction2(contract);
@@ -564,7 +543,7 @@ public class ServerApi {
   }
 
   public boolean broadcastTransaction(byte[] transactionBytes)
-    throws InvalidProtocolBufferException {
+      throws InvalidProtocolBufferException {
     Transaction transaction = Transaction.parseFrom(transactionBytes);
     GrpcAPI.Return response = rpcCli.broadcastTransaction(transaction);
     return response.getResult();
@@ -577,8 +556,8 @@ public class ServerApi {
   }
 
   public TransactionResponse createAssetIssue(Contract.AssetIssueContract contract) {
-      TransactionExtention transactionExtention = rpcCli.createAssetIssue2(contract);
-      return processTransactionExt2(transactionExtention);
+    TransactionExtention transactionExtention = rpcCli.createAssetIssue2(contract);
+    return processTransactionExt2(transactionExtention);
   }
 
   public TransactionResponse createAccount(byte[] address) {
@@ -595,7 +574,8 @@ public class ServerApi {
     return rpcCli.generateAddress(builder.build());
   }
 
-  public TransactionResponse createWitness(byte[] url) throws CipherException, IOException, CancelException {
+  public TransactionResponse createWitness(byte[] url)
+      throws CipherException, IOException, CancelException {
     byte[] owner = getAddress();
     Contract.WitnessCreateContract contract = createWitnessCreateContract(owner, url);
 
@@ -603,7 +583,8 @@ public class ServerApi {
     return processTransactionExt2(transactionExtention);
   }
 
-  public TransactionResponse updateWitness(byte[] url) throws CipherException, IOException, CancelException {
+  public TransactionResponse updateWitness(byte[] url)
+      throws CipherException, IOException, CancelException {
     byte[] owner = getAddress();
     Contract.WitnessUpdateContract contract = createWitnessUpdateContract(owner, url);
     TransactionExtention transactionExtention = rpcCli.updateWitness2(contract);
@@ -631,7 +612,7 @@ public class ServerApi {
   }
 
   public static Contract.TransferContract createTransferContract(byte[] to, byte[] owner,
-    long amount) {
+      long amount) {
     Contract.TransferContract.Builder builder = Contract.TransferContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsOwner = ByteString.copyFrom(owner);
@@ -643,8 +624,8 @@ public class ServerApi {
   }
 
   public static Contract.TransferAssetContract createTransferAssetContract(byte[] to,
-    byte[] assertName, byte[] owner,
-    long amount) {
+      byte[] assertName, byte[] owner,
+      long amount) {
     Contract.TransferAssetContract.Builder builder = Contract.TransferAssetContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsName = ByteString.copyFrom(assertName);
@@ -658,10 +639,10 @@ public class ServerApi {
   }
 
   public static Contract.ParticipateAssetIssueContract participateAssetIssueContract(byte[] to,
-    byte[] assertName, byte[] owner,
-    long amount) {
+      byte[] assertName, byte[] owner,
+      long amount) {
     Contract.ParticipateAssetIssueContract.Builder builder = Contract.ParticipateAssetIssueContract
-      .newBuilder();
+        .newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsName = ByteString.copyFrom(assertName);
     ByteString bsOwner = ByteString.copyFrom(owner);
@@ -674,7 +655,7 @@ public class ServerApi {
   }
 
   public static Contract.AccountUpdateContract createAccountUpdateContract(byte[] accountName,
-    byte[] address) {
+      byte[] address) {
     Contract.AccountUpdateContract.Builder builder = Contract.AccountUpdateContract.newBuilder();
     ByteString basAddreess = ByteString.copyFrom(address);
     ByteString bsAccountName = ByteString.copyFrom(accountName);
@@ -685,7 +666,7 @@ public class ServerApi {
   }
 
   public static Contract.SetAccountIdContract createSetAccountIdContract(byte[] accountId,
-    byte[] address) {
+      byte[] address) {
     Contract.SetAccountIdContract.Builder builder = Contract.SetAccountIdContract.newBuilder();
     ByteString bsAddress = ByteString.copyFrom(address);
     ByteString bsAccountId = ByteString.copyFrom(accountId);
@@ -697,14 +678,14 @@ public class ServerApi {
 
 
   public static Contract.UpdateAssetContract createUpdateAssetContract(
-    byte[] address,
-    byte[] description,
-    byte[] url,
-    long newLimit,
-    long newPublicLimit
+      byte[] address,
+      byte[] description,
+      byte[] url,
+      long newLimit,
+      long newPublicLimit
   ) {
     Contract.UpdateAssetContract.Builder builder =
-      Contract.UpdateAssetContract.newBuilder();
+        Contract.UpdateAssetContract.newBuilder();
     ByteString basAddreess = ByteString.copyFrom(address);
     builder.setDescription(ByteString.copyFrom(description));
     builder.setUrl(ByteString.copyFrom(url));
@@ -716,7 +697,7 @@ public class ServerApi {
   }
 
   public static Contract.AccountCreateContract createAccountCreateContract(byte[] owner,
-    byte[] address) {
+      byte[] address) {
     Contract.AccountCreateContract.Builder builder = Contract.AccountCreateContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setAccountAddress(ByteString.copyFrom(address));
@@ -725,7 +706,7 @@ public class ServerApi {
   }
 
   public static Contract.WitnessCreateContract createWitnessCreateContract(byte[] owner,
-    byte[] url) {
+      byte[] url) {
     Contract.WitnessCreateContract.Builder builder = Contract.WitnessCreateContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setUrl(ByteString.copyFrom(url));
@@ -734,7 +715,7 @@ public class ServerApi {
   }
 
   public static Contract.WitnessUpdateContract createWitnessUpdateContract(byte[] owner,
-    byte[] url) {
+      byte[] url) {
     Contract.WitnessUpdateContract.Builder builder = Contract.WitnessUpdateContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setUpdateUrl(ByteString.copyFrom(url));
@@ -743,15 +724,15 @@ public class ServerApi {
   }
 
   public static Contract.VoteWitnessContract createVoteWitnessContract(byte[] owner,
-    HashMap<String, String> witness) {
+      HashMap<String, String> witness) {
     Contract.VoteWitnessContract.Builder builder = Contract.VoteWitnessContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     for (String addressBase58 : witness.keySet()) {
       String value = witness.get(addressBase58);
       long count = Long.parseLong(value);
       Contract.VoteWitnessContract.Vote.Builder voteBuilder = Contract.VoteWitnessContract.Vote
-        .newBuilder();
-      byte[] address = ServerApi.decodeFromBase58Check(addressBase58);
+          .newBuilder();
+      byte[] address = AddressUtil.decodeFromBase58Check(addressBase58);
       if (address == null) {
         continue;
       }
@@ -761,78 +742,6 @@ public class ServerApi {
     }
 
     return builder.build();
-  }
-
-  public static boolean addressValid(byte[] address) {
-    if (ArrayUtils.isEmpty(address)) {
-      logger.warn("Warning: Address is empty !!");
-      return false;
-    }
-    if (address.length != CommonConstant.ADDRESS_SIZE) {
-      logger.warn("Warning: Address length need " + CommonConstant.ADDRESS_SIZE + " but " + address.length + " !!");
-      return false;
-    }
-    byte preFixbyte = address[0];
-    if (preFixbyte != ServerApi.getAddressPreFixByte()) {
-      logger
-          .warn("Warning: Address need prefix with " + ServerApi.getAddressPreFixByte() + " but "
-          + preFixbyte + " !!");
-      return false;
-    }
-    //Other rule;
-    return true;
-  }
-
-  public static String encode58Check(byte[] input) {
-    byte[] hash0 = Sha256Hash.hash(input);
-    byte[] hash1 = Sha256Hash.hash(hash0);
-    byte[] inputCheck = new byte[input.length + 4];
-    System.arraycopy(input, 0, inputCheck, 0, input.length);
-    System.arraycopy(hash1, 0, inputCheck, input.length, 4);
-    return Base58.encode(inputCheck);
-  }
-
-  private static byte[] decode58Check(String input) {
-    byte[] decodeCheck = Base58.decode(input);
-    if (decodeCheck.length <= 4) {
-      return null;
-    }
-    byte[] decodeData = new byte[decodeCheck.length - 4];
-    System.arraycopy(decodeCheck, 0, decodeData, 0, decodeData.length);
-    byte[] hash0 = Sha256Hash.hash(decodeData);
-    byte[] hash1 = Sha256Hash.hash(hash0);
-    if (hash1[0] == decodeCheck[decodeData.length] &&
-      hash1[1] == decodeCheck[decodeData.length + 1] &&
-      hash1[2] == decodeCheck[decodeData.length + 2] &&
-      hash1[3] == decodeCheck[decodeData.length + 3]) {
-      return decodeData;
-    }
-    return null;
-  }
-
-  public static byte[] decodeFromBase58Check(String addressBase58) {
-    if (StringUtils.isEmpty(addressBase58)) {
-      logger.warn("Warning: Address is empty !!");
-      return null;
-    }
-    byte[] address = decode58Check(addressBase58);
-    if (!addressValid(address)) {
-      return null;
-    }
-    return address;
-  }
-
-  public static boolean priKeyValid(byte[] priKey) {
-    if (ArrayUtils.isEmpty(priKey)) {
-      logger.warn("Warning: PrivateKey is empty !!");
-      return false;
-    }
-    if (priKey.length != 32) {
-      logger.warn("Warning: PrivateKey length need 64 but " + priKey.length + " !!");
-      return false;
-    }
-    //Other rule;
-    return true;
   }
 
   public Optional<WitnessList> listWitnesses() {
@@ -909,13 +818,13 @@ public class ServerApi {
   }
 
   public Optional<TransactionList> getTransactionsFromThis(byte[] address, int offset,
-    int limit) {
+      int limit) {
     return rpcCli.getTransactionsFromThis(address, offset, limit);
   }
 
   public Optional<TransactionListExtention> getTransactionsFromThis2(byte[] address,
-    int offset,
-    int limit) {
+      int offset,
+      int limit) {
     return rpcCli.getTransactionsFromThis2(address, offset, limit);
   }
 //  public static GrpcAPI.NumberMessage getTransactionsFromThisCount(byte[] address) {
@@ -923,13 +832,13 @@ public class ServerApi {
 //  }
 
   public Optional<TransactionList> getTransactionsToThis(byte[] address, int offset,
-    int limit) {
+      int limit) {
     return rpcCli.getTransactionsToThis(address, offset, limit);
   }
 
   public Optional<TransactionListExtention> getTransactionsToThis2(byte[] address,
-    int offset,
-    int limit) {
+      int offset,
+      int limit) {
     return rpcCli.getTransactionsToThis2(address, offset, limit);
   }
 //  public static GrpcAPI.NumberMessage getTransactionsToThisCount(byte[] address) {
@@ -944,31 +853,29 @@ public class ServerApi {
     return rpcCli.getTransactionInfoById(txID);
   }
 
-  public TransactionResponse freezeBalance(long frozen_balance, long frozen_duration, int resourceCode,
+  public TransactionResponse freezeBalance(long frozen_balance, long frozen_duration,
+      int resourceCode,
       String receiverAddress) {
     Contract.FreezeBalanceContract contract = createFreezeBalanceContract(frozen_balance,
-      frozen_duration, resourceCode, receiverAddress);
+        frozen_duration, resourceCode, receiverAddress);
 
     TransactionExtention transactionExtention = rpcCli.createTransaction2(contract);
     return processTransactionExt2(transactionExtention);
   }
 
-  public boolean buyStorage(long quantity)
-    throws CipherException, IOException, CancelException {
+  public boolean buyStorage(long quantity) {
     Contract.BuyStorageContract contract = createBuyStorageContract(quantity);
     TransactionExtention transactionExtention = rpcCli.createTransaction(contract);
     return processTransactionExtention(transactionExtention);
   }
 
-  public boolean buyStorageBytes(long bytes)
-    throws CipherException, IOException, CancelException {
+  public boolean buyStorageBytes(long bytes) {
     Contract.BuyStorageBytesContract contract = createBuyStorageBytesContract(bytes);
     TransactionExtention transactionExtention = rpcCli.createTransaction(contract);
     return processTransactionExtention(transactionExtention);
   }
 
-  public TransactionResponse sellStorage(long storageBytes)
-    throws CipherException, IOException, CancelException {
+  public TransactionResponse sellStorage(long storageBytes) {
     Contract.SellStorageContract contract = createSellStorageContract(storageBytes);
     TransactionExtention transactionExtention = rpcCli.createTransaction(contract);
     return processTransactionExt2(transactionExtention);
@@ -976,16 +883,16 @@ public class ServerApi {
   }
 
   private FreezeBalanceContract createFreezeBalanceContract(long frozen_balance,
-    long frozen_duration, int resourceCode, String receiverAddress) {
+      long frozen_duration, int resourceCode, String receiverAddress) {
     byte[] address = getAddress();
     Contract.FreezeBalanceContract.Builder builder = Contract.FreezeBalanceContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(address);
     builder.setOwnerAddress(byteAddress).setFrozenBalance(frozen_balance)
-      .setFrozenDuration(frozen_duration).setResourceValue(resourceCode);
+        .setFrozenDuration(frozen_duration).setResourceValue(resourceCode);
 
     if (receiverAddress != null && !receiverAddress.equals("")) {
       ByteString receiverAddressBytes = ByteString.copyFrom(
-          Objects.requireNonNull(ServerApi.decodeFromBase58Check(receiverAddress)));
+          Objects.requireNonNull(AddressUtil.decodeFromBase58Check(receiverAddress)));
       builder.setReceiverAddress(receiverAddressBytes);
     }
     return builder.build();
@@ -1003,7 +910,7 @@ public class ServerApi {
   private BuyStorageBytesContract createBuyStorageBytesContract(long bytes) {
     byte[] address = getAddress();
     Contract.BuyStorageBytesContract.Builder builder = Contract.BuyStorageBytesContract
-      .newBuilder();
+        .newBuilder();
     ByteString byteAddress = ByteString.copyFrom(address);
     builder.setOwnerAddress(byteAddress).setBytes(bytes);
 
@@ -1029,16 +936,16 @@ public class ServerApi {
 
 
   private UnfreezeBalanceContract createUnfreezeBalanceContract(int resourceCode,
-    String receiverAddress) {
+      String receiverAddress) {
     byte[] address = getAddress();
     Contract.UnfreezeBalanceContract.Builder builder = Contract.UnfreezeBalanceContract
-      .newBuilder();
+        .newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
     builder.setOwnerAddress(byteAddreess).setResourceValue(resourceCode);
 
     if (receiverAddress != null && !receiverAddress.equals("")) {
       ByteString receiverAddressBytes = ByteString.copyFrom(
-          Objects.requireNonNull(ServerApi.decodeFromBase58Check(receiverAddress)));
+          Objects.requireNonNull(AddressUtil.decodeFromBase58Check(receiverAddress)));
       builder.setReceiverAddress(receiverAddressBytes);
     }
 
@@ -1055,7 +962,7 @@ public class ServerApi {
   private UnfreezeAssetContract createUnfreezeAssetContract() {
     byte[] address = getAddress();
     Contract.UnfreezeAssetContract.Builder builder = Contract.UnfreezeAssetContract
-      .newBuilder();
+        .newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
     builder.setOwnerAddress(byteAddreess);
     return builder.build();
@@ -1071,7 +978,7 @@ public class ServerApi {
   private WithdrawBalanceContract createWithdrawBalanceContract() {
     byte[] address = getAddress();
     Contract.WithdrawBalanceContract.Builder builder = Contract.WithdrawBalanceContract
-      .newBuilder();
+        .newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
     builder.setOwnerAddress(byteAddreess);
 
@@ -1099,7 +1006,7 @@ public class ServerApi {
   }
 
   public TransactionResponse createProposal(HashMap<Long, Long> parametersMap)
-    throws CipherException, IOException, CancelException {
+      throws CipherException, IOException, CancelException {
     byte[] owner = getAddress();
     Contract.ProposalCreateContract contract = createProposalCreateContract(owner, parametersMap);
     TransactionExtention transactionExtention = rpcCli.proposalCreate(contract);
@@ -1107,20 +1014,20 @@ public class ServerApi {
   }
 
   public static Contract.SideChainProposalCreateContract sideCreateProposalCreateContract(
-    byte[] owner,
-    HashMap<Long, String> parametersMap) {
+      byte[] owner,
+      HashMap<Long, String> parametersMap) {
     Contract.SideChainProposalCreateContract.Builder builder = Contract.SideChainProposalCreateContract
-      .newBuilder();
+        .newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.putAllParameters(parametersMap);
     return builder.build();
   }
 
   public TransactionResponse sideChainCreateProposal(HashMap<Long, String> parametersMap)
-    throws CipherException, IOException, CancelException {
+      throws CipherException, IOException, CancelException {
     byte[] owner = getAddress();
     Contract.SideChainProposalCreateContract contract = sideCreateProposalCreateContract(owner,
-      parametersMap);
+        parametersMap);
     TransactionExtention transactionExtention = rpcCli.SideProposalCreate(contract);
     return processTransactionExt2(transactionExtention);
   }
@@ -1138,12 +1045,12 @@ public class ServerApi {
   }
 
   public Optional<DelegatedResourceList> getDelegatedResource(String fromAddress,
-    String toAddress) {
+      String toAddress) {
     return rpcCli.getDelegatedResource(fromAddress, toAddress);
   }
 
   public Optional<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndex(
-    String address) {
+      String address) {
     return rpcCli.getDelegatedResourceAccountIndex(address);
   }
 
@@ -1161,7 +1068,7 @@ public class ServerApi {
 
 
   public static Contract.ProposalCreateContract createProposalCreateContract(byte[] owner,
-    HashMap<Long, Long> parametersMap) {
+      HashMap<Long, Long> parametersMap) {
     Contract.ProposalCreateContract.Builder builder = Contract.ProposalCreateContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.putAllParameters(parametersMap);
@@ -1169,18 +1076,18 @@ public class ServerApi {
   }
 
   public TransactionResponse approveProposal(long id, boolean is_add_approval)
-    throws CipherException, IOException, CancelException {
+      throws CipherException, IOException, CancelException {
     byte[] owner = getAddress();
     Contract.ProposalApproveContract contract = createProposalApproveContract(owner, id,
-      is_add_approval);
+        is_add_approval);
     TransactionExtention transactionExtention = rpcCli.proposalApprove(contract);
     return processTransactionExt2(transactionExtention);
   }
 
   public static Contract.ProposalApproveContract createProposalApproveContract(byte[] owner,
-    long id, boolean is_add_approval) {
+      long id, boolean is_add_approval) {
     Contract.ProposalApproveContract.Builder builder = Contract.ProposalApproveContract
-      .newBuilder();
+        .newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setProposalId(id);
     builder.setIsAddApproval(is_add_approval);
@@ -1188,7 +1095,7 @@ public class ServerApi {
   }
 
   public TransactionResponse deleteProposal(long id)
-    throws CipherException, IOException, CancelException {
+      throws CipherException, IOException, CancelException {
     byte[] owner = getAddress();
     Contract.ProposalDeleteContract contract = createProposalDeleteContract(owner, id);
     TransactionExtention transactionExtention = rpcCli.proposalDelete(contract);
@@ -1196,7 +1103,7 @@ public class ServerApi {
   }
 
   public static Contract.ProposalDeleteContract createProposalDeleteContract(byte[] owner,
-    long id) {
+      long id) {
     Contract.ProposalDeleteContract.Builder builder = Contract.ProposalDeleteContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setProposalId(id);
@@ -1204,88 +1111,89 @@ public class ServerApi {
   }
 
   public TransactionResponse exchangeCreate(byte[] firstTokenId, long firstTokenBalance,
-    byte[] secondTokenId, long secondTokenBalance)
-    throws CipherException, IOException, CancelException {
+      byte[] secondTokenId, long secondTokenBalance)
+      throws CipherException, IOException, CancelException {
     byte[] owner = getAddress();
     Contract.ExchangeCreateContract contract = createExchangeCreateContract(owner, firstTokenId,
-      firstTokenBalance, secondTokenId, secondTokenBalance);
+        firstTokenBalance, secondTokenId, secondTokenBalance);
     TransactionExtention transactionExtention = rpcCli.exchangeCreate(contract);
     return processTransactionExt2(transactionExtention);
   }
 
   public static Contract.ExchangeCreateContract createExchangeCreateContract(byte[] owner,
-    byte[] firstTokenId, long firstTokenBalance,
-    byte[] secondTokenId, long secondTokenBalance) {
+      byte[] firstTokenId, long firstTokenBalance,
+      byte[] secondTokenId, long secondTokenBalance) {
     Contract.ExchangeCreateContract.Builder builder = Contract.ExchangeCreateContract.newBuilder();
     builder
-      .setOwnerAddress(ByteString.copyFrom(owner))
-      .setFirstTokenId(ByteString.copyFrom(firstTokenId))
-      .setFirstTokenBalance(firstTokenBalance)
-      .setSecondTokenId(ByteString.copyFrom(secondTokenId))
-      .setSecondTokenBalance(secondTokenBalance);
+        .setOwnerAddress(ByteString.copyFrom(owner))
+        .setFirstTokenId(ByteString.copyFrom(firstTokenId))
+        .setFirstTokenBalance(firstTokenBalance)
+        .setSecondTokenId(ByteString.copyFrom(secondTokenId))
+        .setSecondTokenBalance(secondTokenBalance);
     return builder.build();
   }
 
   public TransactionResponse exchangeInject(long exchangeId, byte[] tokenId, long quant)
-    throws CipherException, IOException, CancelException {
+      throws CipherException, IOException, CancelException {
     byte[] owner = getAddress();
     Contract.ExchangeInjectContract contract = createExchangeInjectContract(owner, exchangeId,
-      tokenId, quant);
+        tokenId, quant);
     TransactionExtention transactionExtention = rpcCli.exchangeInject(contract);
     return processTransactionExt2(transactionExtention);
   }
 
   public static Contract.ExchangeInjectContract createExchangeInjectContract(byte[] owner,
-    long exchangeId, byte[] tokenId, long quant) {
+      long exchangeId, byte[] tokenId, long quant) {
     Contract.ExchangeInjectContract.Builder builder = Contract.ExchangeInjectContract.newBuilder();
     builder
-      .setOwnerAddress(ByteString.copyFrom(owner))
-      .setExchangeId(exchangeId)
-      .setTokenId(ByteString.copyFrom(tokenId))
-      .setQuant(quant);
+        .setOwnerAddress(ByteString.copyFrom(owner))
+        .setExchangeId(exchangeId)
+        .setTokenId(ByteString.copyFrom(tokenId))
+        .setQuant(quant);
     return builder.build();
   }
 
   public TransactionResponse exchangeWithdraw(long exchangeId, byte[] tokenId, long quant)
-    throws CipherException, IOException, CancelException {
+      throws CipherException, IOException, CancelException {
     byte[] owner = getAddress();
     Contract.ExchangeWithdrawContract contract = createExchangeWithdrawContract(owner, exchangeId,
-      tokenId, quant);
+        tokenId, quant);
     TransactionExtention transactionExtention = rpcCli.exchangeWithdraw(contract);
     return processTransactionExt2(transactionExtention);
   }
 
   public static Contract.ExchangeWithdrawContract createExchangeWithdrawContract(byte[] owner,
-    long exchangeId, byte[] tokenId, long quant) {
+      long exchangeId, byte[] tokenId, long quant) {
     Contract.ExchangeWithdrawContract.Builder builder = Contract.ExchangeWithdrawContract
-      .newBuilder();
+        .newBuilder();
     builder
-      .setOwnerAddress(ByteString.copyFrom(owner))
-      .setExchangeId(exchangeId)
-      .setTokenId(ByteString.copyFrom(tokenId))
-      .setQuant(quant);
+        .setOwnerAddress(ByteString.copyFrom(owner))
+        .setExchangeId(exchangeId)
+        .setTokenId(ByteString.copyFrom(tokenId))
+        .setQuant(quant);
     return builder.build();
   }
 
-  public TransactionResponse exchangeTransaction(long exchangeId, byte[] tokenId, long quant, long expected)
-    throws CipherException, IOException, CancelException {
+  public TransactionResponse exchangeTransaction(long exchangeId, byte[] tokenId, long quant,
+      long expected)
+      throws CipherException, IOException, CancelException {
     byte[] owner = getAddress();
     Contract.ExchangeTransactionContract contract = createExchangeTransactionContract(owner,
-      exchangeId, tokenId, quant, expected);
+        exchangeId, tokenId, quant, expected);
     TransactionExtention transactionExtention = rpcCli.exchangeTransaction(contract);
     return processTransactionExt2(transactionExtention);
   }
 
   public static Contract.ExchangeTransactionContract createExchangeTransactionContract(byte[] owner,
-    long exchangeId, byte[] tokenId, long quant, long expected) {
+      long exchangeId, byte[] tokenId, long quant, long expected) {
     Contract.ExchangeTransactionContract.Builder builder = Contract.ExchangeTransactionContract
-      .newBuilder();
+        .newBuilder();
     builder
-      .setOwnerAddress(ByteString.copyFrom(owner))
-      .setExchangeId(exchangeId)
-      .setTokenId(ByteString.copyFrom(tokenId))
-      .setQuant(quant)
-      .setExpected(expected);
+        .setOwnerAddress(ByteString.copyFrom(owner))
+        .setExchangeId(exchangeId)
+        .setTokenId(ByteString.copyFrom(tokenId))
+        .setQuant(quant)
+        .setExpected(expected);
     return builder.build();
   }
 
@@ -1306,7 +1214,7 @@ public class ServerApi {
   }
 
   public static SmartContract.ABI.Entry.StateMutabilityType getStateMutability(
-    String stateMutability) {
+      String stateMutability) {
     switch (stateMutability) {
       case "pure":
         return SmartContract.ABI.Entry.StateMutabilityType.Pure;
@@ -1333,21 +1241,21 @@ public class ServerApi {
     for (int index = 0; index < jsonRoot.size(); index++) {
       JsonElement abiItem = jsonRoot.get(index);
       boolean anonymous = abiItem.getAsJsonObject().get("anonymous") != null ?
-        abiItem.getAsJsonObject().get("anonymous").getAsBoolean() : false;
+          abiItem.getAsJsonObject().get("anonymous").getAsBoolean() : false;
       boolean constant = abiItem.getAsJsonObject().get("constant") != null ?
-        abiItem.getAsJsonObject().get("constant").getAsBoolean() : false;
+          abiItem.getAsJsonObject().get("constant").getAsBoolean() : false;
       String name = abiItem.getAsJsonObject().get("name") != null ?
-        abiItem.getAsJsonObject().get("name").getAsString() : null;
+          abiItem.getAsJsonObject().get("name").getAsString() : null;
       JsonArray inputs = abiItem.getAsJsonObject().get("inputs") != null ?
-        abiItem.getAsJsonObject().get("inputs").getAsJsonArray() : null;
+          abiItem.getAsJsonObject().get("inputs").getAsJsonArray() : null;
       JsonArray outputs = abiItem.getAsJsonObject().get("outputs") != null ?
-        abiItem.getAsJsonObject().get("outputs").getAsJsonArray() : null;
+          abiItem.getAsJsonObject().get("outputs").getAsJsonArray() : null;
       String type = abiItem.getAsJsonObject().get("type") != null ?
-        abiItem.getAsJsonObject().get("type").getAsString() : null;
+          abiItem.getAsJsonObject().get("type").getAsString() : null;
       boolean payable = abiItem.getAsJsonObject().get("payable") != null ?
-        abiItem.getAsJsonObject().get("payable").getAsBoolean() : false;
+          abiItem.getAsJsonObject().get("payable").getAsBoolean() : false;
       String stateMutability = abiItem.getAsJsonObject().get("stateMutability") != null ?
-        abiItem.getAsJsonObject().get("stateMutability").getAsString() : null;
+          abiItem.getAsJsonObject().get("stateMutability").getAsString() : null;
       if (type == null) {
         logger.error("No type!");
         return null;
@@ -1369,7 +1277,7 @@ public class ServerApi {
         for (int j = 0; j < inputs.size(); j++) {
           JsonElement inputItem = inputs.get(j);
           if (inputItem.getAsJsonObject().get("name") == null ||
-            inputItem.getAsJsonObject().get("type") == null) {
+              inputItem.getAsJsonObject().get("type") == null) {
             logger.error("Input argument invalid due to no name or no type!");
             return null;
           }
@@ -1378,10 +1286,10 @@ public class ServerApi {
           Boolean inputIndexed = false;
           if (inputItem.getAsJsonObject().get("indexed") != null) {
             inputIndexed = Boolean
-              .valueOf(inputItem.getAsJsonObject().get("indexed").getAsString());
+                .valueOf(inputItem.getAsJsonObject().get("indexed").getAsString());
           }
           SmartContract.ABI.Entry.Param.Builder paramBuilder = SmartContract.ABI.Entry.Param
-            .newBuilder();
+              .newBuilder();
           paramBuilder.setIndexed(inputIndexed);
           paramBuilder.setName(inputName);
           paramBuilder.setType(inputType);
@@ -1394,7 +1302,7 @@ public class ServerApi {
         for (int k = 0; k < outputs.size(); k++) {
           JsonElement outputItem = outputs.get(k);
           if (outputItem.getAsJsonObject().get("name") == null ||
-            outputItem.getAsJsonObject().get("type") == null) {
+              outputItem.getAsJsonObject().get("type") == null) {
             logger.error("Output argument invalid due to no name or no type!");
             return null;
           }
@@ -1403,10 +1311,10 @@ public class ServerApi {
           Boolean outputIndexed = false;
           if (outputItem.getAsJsonObject().get("indexed") != null) {
             outputIndexed = Boolean
-              .valueOf(outputItem.getAsJsonObject().get("indexed").getAsString());
+                .valueOf(outputItem.getAsJsonObject().get("indexed").getAsString());
           }
           SmartContract.ABI.Entry.Param.Builder paramBuilder = SmartContract.ABI.Entry.Param
-            .newBuilder();
+              .newBuilder();
           paramBuilder.setIndexed(outputIndexed);
           paramBuilder.setName(outputName);
           paramBuilder.setType(outputType);
@@ -1427,7 +1335,7 @@ public class ServerApi {
   }
 
   public static Contract.UpdateSettingContract createUpdateSettingContract(byte[] owner,
-    byte[] contractAddress, long consumeUserResourcePercent) {
+      byte[] contractAddress, long consumeUserResourcePercent) {
 
     Contract.UpdateSettingContract.Builder builder = Contract.UpdateSettingContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
@@ -1437,11 +1345,11 @@ public class ServerApi {
   }
 
   public static Contract.UpdateEnergyLimitContract createUpdateEnergyLimitContract(
-    byte[] owner,
-    byte[] contractAddress, long originEnergyLimit) {
+      byte[] owner,
+      byte[] contractAddress, long originEnergyLimit) {
 
     Contract.UpdateEnergyLimitContract.Builder builder = Contract.UpdateEnergyLimitContract
-      .newBuilder();
+        .newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
     builder.setOriginEnergyLimit(originEnergyLimit);
@@ -1449,10 +1357,10 @@ public class ServerApi {
   }
 
   public static CreateSmartContract createContractDeployContract(String contractName,
-    byte[] address,
-    String ABI, String code, long value, long consumeUserResourcePercent, long originEnergyLimit,
-    long tokenValue, String tokenId,
-    String libraryAddressPair, String compilerVersion) {
+      byte[] address,
+      String ABI, String code, long value, long consumeUserResourcePercent, long originEnergyLimit,
+      long tokenValue, String tokenId,
+      String libraryAddressPair, String compilerVersion) {
     SmartContract.ABI abi = jsonStr2ABI(ABI);
     if (abi == null) {
       logger.error("abi is null");
@@ -1464,7 +1372,7 @@ public class ServerApi {
     builder.setOriginAddress(ByteString.copyFrom(address));
     builder.setAbi(abi);
     builder.setConsumeUserResourcePercent(consumeUserResourcePercent)
-      .setOriginEnergyLimit(originEnergyLimit);
+        .setOriginEnergyLimit(originEnergyLimit);
 
     if (value != 0) {
 
@@ -1480,7 +1388,7 @@ public class ServerApi {
     builder.setBytecode(ByteString.copyFrom(byteCode));
     CreateSmartContract.Builder createSmartContractBuilder = CreateSmartContract.newBuilder();
     createSmartContractBuilder.setOwnerAddress(ByteString.copyFrom(address)).
-      setNewContract(builder.build());
+        setNewContract(builder.build());
     if (tokenId != null && !tokenId.equalsIgnoreCase("") && !tokenId.equalsIgnoreCase("#")) {
       createSmartContractBuilder.setCallTokenValue(tokenValue).setTokenId(Long.parseLong(tokenId));
     }
@@ -1488,7 +1396,7 @@ public class ServerApi {
   }
 
   private static byte[] replaceLibraryAddress(String code, String libraryAddressPair,
-    String compilerVersion) {
+      String compilerVersion) {
 
     String[] libraryAddressList = libraryAddressPair.split("[,]");
 
@@ -1503,8 +1411,8 @@ public class ServerApi {
       String addr = cur.substring(lastPosition + 1);
       String libraryAddressHex;
       try {
-        libraryAddressHex = (new String(Hex.encode(ServerApi.decodeFromBase58Check(addr)),
-          "US-ASCII")).substring(2);
+        libraryAddressHex = (new String(Hex.encode(AddressUtil.decodeFromBase58Check(addr)),
+            "US-ASCII")).substring(2);
       } catch (UnsupportedEncodingException e) {
         throw new RuntimeException(e);  // now ignore
       }
@@ -1517,7 +1425,7 @@ public class ServerApi {
       } else if (compilerVersion.equalsIgnoreCase("v5")) {
         //0.5.4 version
         String libraryNameKeccak256 = ByteArray
-          .toHexString(Hash.sha3(ByteArray.fromString(libraryName))).substring(0, 34);
+            .toHexString(Hash.sha3(ByteArray.fromString(libraryName))).substring(0, 34);
         beReplaced = "__\\$" + libraryNameKeccak256 + "\\$__";
       } else {
         throw new RuntimeException("unknown compiler version.");
@@ -1531,8 +1439,8 @@ public class ServerApi {
   }
 
   public static Contract.TriggerSmartContract triggerCallContract(byte[] address,
-    byte[] contractAddress,
-    long callValue, byte[] data, long tokenValue, String tokenId) {
+      byte[] contractAddress,
+      long callValue, byte[] data, long tokenValue, String tokenId) {
     Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(address));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
@@ -1563,18 +1471,17 @@ public class ServerApi {
   }
 
   public TransactionResponse updateSetting(byte[] contractAddress, long consumeUserResourcePercent)
-    throws IOException, CipherException, CancelException {
+      throws IOException, CipherException, CancelException {
     byte[] owner = getAddress();
     UpdateSettingContract updateSettingContract = createUpdateSettingContract(owner,
-      contractAddress, consumeUserResourcePercent);
+        contractAddress, consumeUserResourcePercent);
 
     TransactionExtention transactionExtention = rpcCli.updateSetting(updateSettingContract);
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
-      System.out.println("RPC create trx failed!");
+      logger.info("RPC create trx failed!");
       if (transactionExtention != null) {
-        System.out.println("Code = " + transactionExtention.getResult().getCode());
-        System.out
-          .println("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
+        logger.info("Code = " + transactionExtention.getResult().getCode());
+        logger.info("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
       }
       return new TransactionResponse("RPC create trx failed!");
     }
@@ -1584,20 +1491,19 @@ public class ServerApi {
   }
 
   public TransactionResponse updateEnergyLimit(byte[] contractAddress, long originEnergyLimit)
-    throws IOException, CipherException, CancelException {
+      throws IOException, CipherException, CancelException {
     byte[] owner = getAddress();
     UpdateEnergyLimitContract updateEnergyLimitContract = createUpdateEnergyLimitContract(
-      owner,
-      contractAddress, originEnergyLimit);
+        owner,
+        contractAddress, originEnergyLimit);
 
     TransactionExtention transactionExtention = rpcCli
-      .updateEnergyLimit(updateEnergyLimitContract);
+        .updateEnergyLimit(updateEnergyLimitContract);
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
-      System.out.println("RPC create trx failed!");
+      logger.info("RPC create trx failed!");
       if (transactionExtention != null) {
-        System.out.println("Code = " + transactionExtention.getResult().getCode());
-        System.out
-          .println("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
+        logger.info("Code = " + transactionExtention.getResult().getCode());
+        logger.info("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
       }
       return new TransactionResponse("RPC create trx failed!");
     }
@@ -1607,26 +1513,26 @@ public class ServerApi {
   }
 
   public TransactionResponse deployContract(String contractName, String ABI, String code,
-    long feeLimit, long value, long consumeUserResourcePercent, long originEnergyLimit,
-    long tokenValue, String tokenId, String libraryAddressPair, String compilerVersion) {
+      long feeLimit, long value, long consumeUserResourcePercent, long originEnergyLimit,
+      long tokenValue, String tokenId, String libraryAddressPair, String compilerVersion) {
     byte[] owner = getAddress();
     CreateSmartContract contractDeployContract = createContractDeployContract(contractName, owner,
-      ABI, code, value, consumeUserResourcePercent, originEnergyLimit, tokenValue, tokenId,
-      libraryAddressPair, compilerVersion);
+        ABI, code, value, consumeUserResourcePercent, originEnergyLimit, tokenValue, tokenId,
+        libraryAddressPair, compilerVersion);
 
     TransactionExtention transactionExtention = rpcCli.deployContract(contractDeployContract);
-    if (transactionExtention == null ) {
+    if (transactionExtention == null) {
       return new TransactionResponse("RPC create trx failed!");
     }
 
-    if( !transactionExtention.getResult().getResult() ) {
+    if (!transactionExtention.getResult().getResult()) {
       return new TransactionResponse(transactionExtention.getResult());
     }
 
     TransactionExtention.Builder texBuilder = TransactionExtention.newBuilder();
     Transaction.Builder transBuilder = Transaction.newBuilder();
     Transaction.raw.Builder rawBuilder = transactionExtention.getTransaction().getRawData()
-      .toBuilder();
+        .toBuilder();
     rawBuilder.setFeeLimit(feeLimit);
     transBuilder.setRawData(rawBuilder);
     for (int i = 0; i < transactionExtention.getTransaction().getSignatureCount(); i++) {
@@ -1645,41 +1551,43 @@ public class ServerApi {
     return processTransactionExt2(transactionExtention);
   }
 
-  public TransactionResponse triggerContract(byte[] contractAddress, long callValue, byte[] data, long feeLimit,
+  public TransactionResponse triggerContract(byte[] contractAddress, long callValue, byte[] data,
+      long feeLimit,
       long tokenValue, String tokenId) {
     byte[] owner = getAddress();
     Contract.TriggerSmartContract triggerContract = triggerCallContract(owner, contractAddress,
-      callValue, data, tokenValue, tokenId);
+        callValue, data, tokenValue, tokenId);
     TransactionExtention transactionExtention = rpcCli.triggerContract(triggerContract);
-    if (transactionExtention == null ) {
+    if (transactionExtention == null) {
       return new TransactionResponse("RPC create trx failed!");
     }
 
-    if( !transactionExtention.getResult().getResult() ) {
+    if (!transactionExtention.getResult().getResult()) {
       return new TransactionResponse(transactionExtention.getResult());
     }
 
     Transaction transaction = transactionExtention.getTransaction();
     if (transaction.getRetCount() != 0 &&
-      transactionExtention.getConstantResult(0) != null &&
-      transactionExtention.getResult() != null) {
+        transactionExtention.getConstantResult(0) != null &&
+        transactionExtention.getResult() != null) {
       byte[] result = transactionExtention.getConstantResult(0).toByteArray();
 
       //Return ret = transactionExtention.getResult();
-      System.out.println("message:" + transaction.getRet(0).getRet());
-      System.out.println(":" + ByteArray
-        .toStr(transactionExtention.getResult().getMessage().toByteArray()));
-      System.out.println("Result:" + Hex.toHexString(result));
+      logger.info("message:" + transaction.getRet(0).getRet());
+      logger.info(":" + ByteArray
+          .toStr(transactionExtention.getResult().getMessage().toByteArray()));
+      logger.info("Result:" + Hex.toHexString(result));
       String trxId = ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
 
-      return new TransactionResponse(transaction.getRet(0).getRet(), trxId, Hex.toHexString(result));
+      return new TransactionResponse(transaction.getRet(0).getRet(), trxId,
+          Hex.toHexString(result));
 
     }
 
     TransactionExtention.Builder texBuilder = TransactionExtention.newBuilder();
     Transaction.Builder transBuilder = Transaction.newBuilder();
     Transaction.raw.Builder rawBuilder = transactionExtention.getTransaction().getRawData()
-      .toBuilder();
+        .toBuilder();
     rawBuilder.setFeeLimit(feeLimit);
     transBuilder.setRawData(rawBuilder);
     for (int i = 0; i < transactionExtention.getTransaction().getSignatureCount(); i++) {
@@ -1695,14 +1603,14 @@ public class ServerApi {
     texBuilder.setTxid(transactionExtention.getTxid());
     transactionExtention = texBuilder.build();
 
-    return  processTransactionExt2(transactionExtention);
+    return processTransactionExt2(transactionExtention);
   }
 
-  public boolean checkTxInfo(String txId)  {
+  public boolean checkTxInfo(String txId) {
     try {
-      System.out.println("wait 3s for check result. ");
+      logger.info("wait 3s for check result. ");
       Thread.sleep(3_000);
-      System.out.println("trx id: " + txId);
+      logger.info("trx id: " + txId);
       Optional<TransactionInfo> transactionInfo = rpcCli.getTransactionInfoById(txId);
       TransactionInfo info = transactionInfo.get();
       if (info.getBlockTimeStamp() != 0L) {
@@ -1715,7 +1623,7 @@ public class ServerApi {
       int maxRetry = 3;
       for (int i = 0; i < maxRetry; i++) {
         Thread.sleep(2_000);
-        System.out.println("will retry {} time(s): " + i+1);
+        logger.info("will retry {} time(s): " + i + 1);
         transactionInfo = rpcCli.getTransactionInfoById(txId);
         info = transactionInfo.get();
         if (info.getBlockTimeStamp() != 0L) {
@@ -1725,7 +1633,7 @@ public class ServerApi {
         }
       }
     } catch (InterruptedException e) {
-      System.out.println("sleep error" + (e.getMessage()) );
+      logger.error("sleep error" + (e.getMessage()));
       return false;
     }
 
@@ -1738,9 +1646,9 @@ public class ServerApi {
 
 
   public TransactionResponse accountPermissionUpdate(byte[] owner, String permissionJson)
-    throws CipherException, IOException, CancelException {
+      throws CipherException, IOException, CancelException {
     Contract.AccountPermissionUpdateContract contract = createAccountPermissionContract(owner,
-      permissionJson);
+        permissionJson);
     TransactionExtention transactionExtention = rpcCli.accountPermissionUpdate(contract);
     return processTransactionExt2(transactionExtention);
   }
@@ -1775,7 +1683,7 @@ public class ServerApi {
         JSONObject key = keys.getJSONObject(i);
         String address = key.getString("address");
         long weight = key.getLong("weight");
-        keyBuilder.setAddress(ByteString.copyFrom(ServerApi.decode58Check(address)));
+        keyBuilder.setAddress(ByteString.copyFrom(AddressUtil.decodeFromBase58Check(address)));
         keyBuilder.setWeight(weight);
         keyList.add(keyBuilder.build());
       }
@@ -1785,9 +1693,9 @@ public class ServerApi {
   }
 
   public Contract.AccountPermissionUpdateContract createAccountPermissionContract(
-    byte[] owner, String permissionJson) {
+      byte[] owner, String permissionJson) {
     Contract.AccountPermissionUpdateContract.Builder builder =
-      Contract.AccountPermissionUpdateContract.newBuilder();
+        Contract.AccountPermissionUpdateContract.newBuilder();
 
     JSONObject permissions = JSONObject.parseObject(permissionJson);
     JSONObject owner_permission = permissions.getJSONObject("owner_permission");
@@ -1821,7 +1729,8 @@ public class ServerApi {
     transaction = TransactionUtils.setExpirationTime(transaction);
     transaction = TransactionUtils.setPermissionId(transaction);
 
-    transaction = TransactionUtils.sign(transaction, this.getEcKey(), getCurrentChainId(), isMainChain());
+    transaction = TransactionUtils
+        .sign(transaction, this.getEcKey(), getCurrentChainId(), isMainChain());
 
     return transaction;
   }

@@ -10,7 +10,7 @@ import org.tron.core.exception.CipherException;
 import org.tron.core.exception.EncodingException;
 import org.tron.sunapi.response.TransactionResponse;
 
-public class SidechainApi extends Chain{
+public class SidechainApi extends Chain {
 
   /**
    * @param config the configuration path
@@ -36,10 +36,11 @@ public class SidechainApi extends Chain{
    * @return the result of creating proposal
    * @author sun-network
    */
-  public SunNetworkResponse<TransactionResponse> createProposal(HashMap<Long, String> parametersMap) {
+  public SunNetworkResponse<TransactionResponse> createProposal(
+      HashMap<Long, String> parametersMap) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    if(parametersMap == null || parametersMap.isEmpty()) {
+    if (parametersMap == null || parametersMap.isEmpty()) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
@@ -51,9 +52,9 @@ public class SidechainApi extends Chain{
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
+    } catch (IOException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
+    } catch (CipherException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
     } catch (CancelException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
@@ -81,7 +82,8 @@ public class SidechainApi extends Chain{
   }
 
 
-  public SunNetworkResponse<String> sideGetMappingAddress(byte[] sideGateway, String mainContractAddress) {
+  public SunNetworkResponse<String> sideGetMappingAddress(byte[] sideGateway,
+      String mainContractAddress) {
     SunNetworkResponse<String> resp = new SunNetworkResponse<>();
 
     if (sideGateway == null || StringUtils.isEmpty(mainContractAddress)) {
@@ -99,10 +101,6 @@ public class SidechainApi extends Chain{
     }
 
     return resp;
-  }
-
-  public byte[] getSideGatewayAddress() {
-    return super.getServerApi().getSideGatewayAddress();
   }
 
 

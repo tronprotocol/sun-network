@@ -3,8 +3,6 @@ package org.tron.test;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -17,18 +15,14 @@ import org.tron.common.crypto.ECKey;
 import org.tron.common.crypto.ECKey.ECDSASignature;
 import org.tron.common.crypto.Hash;
 import org.tron.common.crypto.Sha256Hash;
+import org.tron.common.utils.AddressUtil;
 import org.tron.common.utils.Base58;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
-import org.tron.core.exception.CipherException;
-import org.tron.keystore.CheckStrength;
-import org.tron.keystore.Credentials;
-import org.tron.keystore.WalletUtils;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.TransferContract;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Transaction;
-import org.tron.sunserver.ServerApi;
 
 public class Test {
 
@@ -202,7 +196,7 @@ public class Test {
     System.arraycopy(address, 0, addchecksum, 0, address.length);
     System.arraycopy(checkSum, 0, addchecksum, address.length, 4);
     String base58 = Base58.encode(addchecksum);
-    String base58Address = ServerApi.encode58Check(address);
+    String base58Address = AddressUtil.encode58Check(address);
 
     String pubKeyString = ByteArray.toHexString(pubKey);
     System.out.println("priKeyHex:::" + priKeyHex);
@@ -293,10 +287,10 @@ public class Test {
 
     for (String hexString : hexAddresList) {
       byte[] address = ByteArray.fromHexString(hexString);
-      String base58 = ServerApi.encode58Check(address);
+      String base58 = AddressUtil.encode58Check(address);
       System.out.println("hexAddress = " + hexString);
       System.out.println("base58Check = " + base58);
-      byte[] decode58 = ServerApi.decodeFromBase58Check(base58);
+      byte[] decode58 = AddressUtil.decodeFromBase58Check(base58);
       System.out.println("decode58 = " + ByteArray.toHexString(decode58));
       if (!Arrays.equals(decode58, address)) {
         System.out.println("Error, address is not equals to  decode58 !!!!");
@@ -312,55 +306,55 @@ public class Test {
     System.out.println("hash::" + ByteArray.toHexString(hash));
   }
 
-  public static void testGenerateWalletFile() throws CipherException, IOException {
-    String PASSWORD = "Insecure Pa55w0rd";
-    String priKeyHex = "cba92a516ea09f620a16ff7ee95ce0df1d56550a8babe9964981a7144c8a784a";
-    ECKey eCkey = ECKey.fromPrivate(ByteArray.fromHexString(priKeyHex));
-    File file = new File("out");
-    String fileName = WalletUtils.generateWalletFile(PASSWORD.getBytes(), eCkey, file, true);
-    Credentials credentials = WalletUtils.loadCredentials(PASSWORD.getBytes(), new File(file, fileName));
-    String address = credentials.getAddress();
-    ECKey ecKeyPair = credentials.getEcKeyPair();
-    String prikey = ByteArray.toHexString(ecKeyPair.getPrivKeyBytes());
-    System.out.println("address = " + address);
-    System.out.println("prikey = " + prikey);
+//  public static void testGenerateWalletFile() throws CipherException, IOException {
+//    String PASSWORD = "Insecure Pa55w0rd";
+//    String priKeyHex = "cba92a516ea09f620a16ff7ee95ce0df1d56550a8babe9964981a7144c8a784a";
+//    ECKey eCkey = ECKey.fromPrivate(ByteArray.fromHexString(priKeyHex));
+//    File file = new File("out");
+//    String fileName = WalletUtils.generateWalletFile(PASSWORD.getBytes(), eCkey, file, true);
+//    Credentials credentials = WalletUtils.loadCredentials(PASSWORD.getBytes(), new File(file, fileName));
+//    String address = credentials.getAddress();
+//    ECKey ecKeyPair = credentials.getEcKeyPair();
+//    String prikey = ByteArray.toHexString(ecKeyPair.getPrivKeyBytes());
+//    System.out.println("address = " + address);
+//    System.out.println("prikey = " + prikey);
+//
+//  }
 
-  }
-
-  public static void testPasswordStrength(){
-    List<String> passwordList = new ArrayList<String>();
-    passwordList.add("ZAQ!xsw2");
-    passwordList.add("3EDC4rfv");
-    passwordList.add("6yhn7UJM");
-    passwordList.add("1q2w3e4r");
-    passwordList.add("1q2w#E$R");
-    passwordList.add("qwertyuiop");
-    passwordList.add("qwertyui");
-    passwordList.add("qwertz");
-    passwordList.add("qwertzuiop");
-    passwordList.add("abcdefghijkl");
-    passwordList.add("password");
-    passwordList.add("p@ssword");
-    passwordList.add("p@ssw0rd");
-    passwordList.add("1q2w#E$R1111111");
-    passwordList.add("1q2w#E$R1234567");
-    passwordList.add("abcdef");
-    passwordList.add("abcabc");
-    passwordList.add("ABCdef");
-    passwordList.add("Vipshop123");
-    passwordList.add("qwertyui");
-    passwordList.add("admin1111");
-    passwordList.add("admin1234");
-    passwordList.add("admin1235");
-    passwordList.add("1q2w3e$R%T^Y/:");
-
-    for (String password : passwordList) {
-      int level = CheckStrength.checkPasswordStrength(password.toCharArray());
-      System.out.println(password + " strength is " + level);
-    }
-  }
-  public static void main(String[] args) throws Exception {
-
-    testPasswordStrength();
-  }
+  //  public static void testPasswordStrength(){
+//    List<String> passwordList = new ArrayList<String>();
+//    passwordList.add("ZAQ!xsw2");
+//    passwordList.add("3EDC4rfv");
+//    passwordList.add("6yhn7UJM");
+//    passwordList.add("1q2w3e4r");
+//    passwordList.add("1q2w#E$R");
+//    passwordList.add("qwertyuiop");
+//    passwordList.add("qwertyui");
+//    passwordList.add("qwertz");
+//    passwordList.add("qwertzuiop");
+//    passwordList.add("abcdefghijkl");
+//    passwordList.add("password");
+//    passwordList.add("p@ssword");
+//    passwordList.add("p@ssw0rd");
+//    passwordList.add("1q2w#E$R1111111");
+//    passwordList.add("1q2w#E$R1234567");
+//    passwordList.add("abcdef");
+//    passwordList.add("abcabc");
+//    passwordList.add("ABCdef");
+//    passwordList.add("Vipshop123");
+//    passwordList.add("qwertyui");
+//    passwordList.add("admin1111");
+//    passwordList.add("admin1234");
+//    passwordList.add("admin1235");
+//    passwordList.add("1q2w3e$R%T^Y/:");
+//
+//    for (String password : passwordList) {
+//      int level = CheckStrength.checkPasswordStrength(password.toCharArray());
+//      System.out.println(password + " strength is " + level);
+//    }
+//  }
+//  public static void main(String[] args) throws Exception {
+//
+//    testPasswordStrength();
+//  }
 }
