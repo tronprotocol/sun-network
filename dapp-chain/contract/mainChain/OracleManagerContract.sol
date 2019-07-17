@@ -80,7 +80,7 @@ contract OracleManagerContract is Ownable {
                 break;
             }
         }
-        require(i <= 256, "i > 256");
+        require(i <= 256, "oracle num > 256");
         oracleIndex[_oracle] = i;
         indexOracle[i] = _oracle;
 
