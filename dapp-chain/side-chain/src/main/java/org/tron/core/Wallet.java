@@ -32,7 +32,6 @@ import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,9 +53,9 @@ import org.tron.api.GrpcAPI.ExchangeList;
 import org.tron.api.GrpcAPI.Node;
 import org.tron.api.GrpcAPI.NodeList;
 import org.tron.api.GrpcAPI.NumberMessage;
-import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.GrpcAPI.Return;
 import org.tron.api.GrpcAPI.Return.response_code;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.GrpcAPI.TransactionApprovedList;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.GrpcAPI.TransactionExtention.Builder;
@@ -960,6 +959,13 @@ public class Wallet {
         Protocol.ChainParameters.ChainParameter.newBuilder()
             .setKey("getVoteWitnessSwitch")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getVoteWitnessSwitch()))
+            .build());
+    // side chain charging bandwidth
+    builder.addChainParameter(
+        Protocol.ChainParameters.ChainParameter.newBuilder()
+            .setKey("getSideChainChargingBandwidth")
+            .setValue(String
+                .valueOf(dbManager.getDynamicPropertiesStore().getSideChainChargingBandwidth()))
             .build());
 
     return builder.build();

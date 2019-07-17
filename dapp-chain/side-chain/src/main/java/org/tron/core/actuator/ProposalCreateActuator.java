@@ -291,7 +291,7 @@ public class ProposalCreateActuator extends AbstractActuator {
       case (1_000_004): {
         if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
           throw new ContractValidateException(
-              "Bad chain parameter value,valid range is [0,1]");
+              "Bad chain parameter value,valid value is {0,1}");
         }
         break;
       }
@@ -299,6 +299,13 @@ public class ProposalCreateActuator extends AbstractActuator {
         if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 500 * 1024) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,512000]");
+        }
+        break;
+      }
+      case (1_000_006): {
+        if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid value is {0,1}");
         }
         break;
       }

@@ -275,6 +275,11 @@ public class ProposalController {
               .saveMaxGateWayContractSize(Long.valueOf(entry.getValue()));
           break;
         }
+        case (1_000_006): {
+          manager.getDynamicPropertiesStore()
+                  .saveSideChainChargingBandwidth(Long.valueOf(entry.getValue()));
+          break;
+        }
         default:
           break;
       }
