@@ -742,138 +742,138 @@ public class Wallet {
     return builder.build();
   }
 
-  public Protocol.ChainParameters getChainParameters() {
-    Protocol.ChainParameters.Builder builder = Protocol.ChainParameters.newBuilder();
+  public Protocol.SideChainParameters getSideChainParameters() {
+    Protocol.SideChainParameters.Builder builder = Protocol.SideChainParameters.newBuilder();
 
     // MAINTENANCE_TIME_INTERVAL, //ms  ,0
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getMaintenanceTimeInterval")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getMaintenanceTimeInterval()))
             .build());
     //    ACCOUNT_UPGRADE_COST, //drop ,1
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getAccountUpgradeCost")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAccountUpgradeCost()))
             .build());
     //    CREATE_ACCOUNT_FEE, //drop ,2
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getCreateAccountFee")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getCreateAccountFee()))
             .build());
     //    TRANSACTION_FEE, //drop ,3
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getTransactionFee")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTransactionFee()))
             .build());
     builder.addChainParameter(
-            Protocol.ChainParameters.ChainParameter.newBuilder()
+            Protocol.SideChainParameters.SideChainParameter.newBuilder()
                     .setKey("getTransactionSunTokenFee")
                     .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTransactionSunTokenFee()))
                     .build());
     //    ASSET_ISSUE_FEE, //drop ,4
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getAssetIssueFee")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAssetIssueFee()))
             .build());
     //    WITNESS_PAY_PER_BLOCK, //drop ,5
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getWitnessPayPerBlock")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getWitnessPayPerBlock()))
             .build());
     //    WITNESS_STANDBY_ALLOWANCE, //drop ,6
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getWitnessStandbyAllowance")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getWitnessStandbyAllowance()))
             .build());
     //    CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT, //drop ,7
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getCreateNewAccountFeeInSystemContract")
             .setValue(
                 String.valueOf(dbManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract()))
             .build());
     //    CREATE_NEW_ACCOUNT_BANDWIDTH_RATE, // 1 ~ ,8
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getCreateNewAccountBandwidthRate")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getCreateNewAccountBandwidthRate()))
             .build());
     //    ALLOW_CREATION_OF_CONTRACTS, // 0 / >0 ,9
 //    builder.addChainParameter(
-//        Protocol.ChainParameters.ChainParameter.newBuilder()
+//        Protocol.SideChainParameters.SideChainParameter.newBuilder()
 //            .setKey("getAllowCreationOfContracts")
 //            .setValue(dbManager.getDynamicPropertiesStore().getAllowCreationOfContracts())
 //            .build());
     //    REMOVE_THE_POWER_OF_THE_GR,  // 1 ,10
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getRemoveThePowerOfTheGr")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getRemoveThePowerOfTheGr()))
             .build());
     //    ENERGY_FEE, // drop, 11
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getEnergyFee")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getEnergyFee()))
             .build());
     //    EXCHANGE_CREATE_FEE, // drop, 12
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getExchangeCreateFee")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getExchangeCreateFee()))
             .build());
     //    MAX_CPU_TIME_OF_ONE_TX, // ms, 13
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getMaxCpuTimeOfOneTx")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getMaxCpuTimeOfOneTx()))
             .build());
     //    ALLOW_UPDATE_ACCOUNT_NAME, // 1, 14
 //    builder.addChainParameter(
-//        Protocol.ChainParameters.ChainParameter.newBuilder()
+//        Protocol.SideChainParameters.SideChainParameter.newBuilder()
 //            .setKey("getAllowUpdateAccountName")
 //            .setValue(dbManager.getDynamicPropertiesStore().getAllowUpdateAccountName())
 //            .build());
     //    ALLOW_SAME_TOKEN_NAME, // 1, 15
 //    builder.addChainParameter(
-//        Protocol.ChainParameters.ChainParameter.newBuilder()
+//        Protocol.SideChainParameters.SideChainParameter.newBuilder()
 //            .setKey("getAllowSameTokenName")
 //            .setValue(dbManager.getDynamicPropertiesStore().getAllowSameTokenName())
 //            .build());
     //    ALLOW_DELEGATE_RESOURCE, // 0, 16
 //    builder.addChainParameter(
-//        Protocol.ChainParameters.ChainParameter.newBuilder()
+//        Protocol.SideChainParameters.SideChainParameter.newBuilder()
 //            .setKey("getAllowDelegateResource")
 //            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowDelegateResource()))
 //            .build());
     //    TOTAL_ENERGY_LIMIT, // 50,000,000,000, 17
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getTotalEnergyLimit")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTotalEnergyLimit()))
             .build());
     //    ALLOW_TVM_TRANSFER_TRC10, // 1, 18
 //    builder.addChainParameter(
-//        Protocol.ChainParameters.ChainParameter.newBuilder()
+//        Protocol.SideChainParameters.SideChainParameter.newBuilder()
 //            .setKey("getAllowTvmTransferTrc10")
 //            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowTvmTransferTrc10()))
 //            .build());
     //    TOTAL_CURRENT_ENERGY_LIMIT, // 50,000,000,000, 19
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getTotalEnergyCurrentLimit")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTotalEnergyCurrentLimit()))
             .build());
     //    ALLOW_MULTI_SIGN, // 1, 20
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getAllowMultiSign")
             //.setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowMultiSign()))
             .setValue("1") // should always allowed now.
@@ -881,88 +881,88 @@ public class Wallet {
     //    ALLOW_ADAPTIVE_ENERGY, // 1, 21
     // should keep in side-chain since main-chain not approved yet.
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getAllowAdaptiveEnergy")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowAdaptiveEnergy()))
             .build());
     //other chainParameters
-    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getTotalEnergyTargetLimit")
         .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTotalEnergyTargetLimit()))
         .build());
 
-    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getTotalEnergyAverageUsage")
         .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTotalEnergyAverageUsage()))
         .build());
 
-    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getUpdateAccountPermissionFee")
         .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee()))
         .build());
 
-    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getMultiSignFee")
         .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getMultiSignFee()))
         .build());
 
-    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getUpdateAccountPermissionFee")
         .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee()))
         .build());
 
-    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getAllowAccountStateRoot")
         .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowAccountStateRoot()))
         .build());
 
-    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getAllowProtoFilterNum")
         .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowProtoFilterNum()))
         .build());
 
 //    // ALLOW_TVM_CONSTANTINOPLE, // 1, 30
 //    builder.addChainParameter(
-//        Protocol.ChainParameters.ChainParameter.newBuilder()
+//        Protocol.SideChainParameters.SideChainParameter.newBuilder()
 //            .setKey("getAllowTvmConstantinople")
 //            .setValue(dbManager.getDynamicPropertiesStore().getAllowTvmConstantinople())
 //            .build());
 
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getChargingSwitch")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getChargingSwitch()))
             .build());
 
-    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getMainChainGateWayList")
         .setValue(convertGateWayListToString(dbManager.getDynamicPropertiesStore().getMainChainGateWayList()))
         .build());
 
-    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getSideChainGateWayList")
         .setValue(convertGateWayListToString(dbManager.getDynamicPropertiesStore().getSideChainGateWayList()))
         .build());
-    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getSideChainId")
         .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getSideChainId()))
         .build());
     // PROPOSAL_EXPIRE_TIME, //ms  ,259_200_000L
     builder.addChainParameter(
-            Protocol.ChainParameters.ChainParameter.newBuilder()
+            Protocol.SideChainParameters.SideChainParameter.newBuilder()
                     .setKey("getProposalExpireTime")
                     .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getProposalExpireTime()))
                     .build());
 
     // vote witness switch
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getVoteWitnessSwitch")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getVoteWitnessSwitch()))
             .build());
     // side chain charging bandwidth
     builder.addChainParameter(
-        Protocol.ChainParameters.ChainParameter.newBuilder()
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getSideChainChargingBandwidth")
             .setValue(String
                 .valueOf(dbManager.getDynamicPropertiesStore().getSideChainChargingBandwidth()))
