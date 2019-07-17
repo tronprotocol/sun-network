@@ -20,7 +20,7 @@ import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.capsule.TransactionExtensionCapsule;
 
 @Slf4j(topic = "sideChainTask")
-public class MultiSignForWithdrawTRC721Actuator extends MultSignForWIthdrawActuator {
+public class MultiSignForWithdrawTRC721Actuator extends MultiSignForWithdrawActuator {
 
   private static final String PREFIX = "withdraw_2_";
   private MultiSignForWithdrawTRC721Event event;
@@ -94,4 +94,15 @@ public class MultiSignForWithdrawTRC721Actuator extends MultSignForWIthdrawActua
     return event.getNonce().toByteArray();
   }
 
+  @Override
+  public String getWithdrawDataHash() {
+    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+    String mainChainAddressStr = WalletUtil
+        .encode58Check(event.getMainchainAddress().toByteArray());
+    String uIdStr = event.getUId().toStringUtf8();
+    String nonceStr = event.getNonce().toStringUtf8();
+    return ByteArray
+        .toHexString(SideChainGatewayApi
+            .getWithdrawTRCTokenDataHash(fromStr, mainChainAddressStr, uIdStr, nonceStr));
+  }
 }

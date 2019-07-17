@@ -6,14 +6,14 @@ import org.tron.common.utils.ByteArray;
 import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "sideChainTask")
-public abstract class MultSignForWIthdrawActuator extends Actuator {
+public abstract class MultiSignForWithdrawActuator extends Actuator {
 
   @Override
   public BroadcastRet broadcastTransactionExtensionCapsule() {
 
     String nonceStr = ByteArray.toStr(getNonce());
     try {
-      boolean done = MainChainGatewayApi.getWithdrawStatus(nonceStr);
+      boolean done = MainChainGatewayApi.getWithdrawStatus(getWithdrawDataHash(), nonceStr);
       if (done) {
         return BroadcastRet.DONE;
       } else {
@@ -25,4 +25,6 @@ public abstract class MultSignForWIthdrawActuator extends Actuator {
       return BroadcastRet.FAIL;
     }
   }
+
+  public abstract String getWithdrawDataHash();
 }

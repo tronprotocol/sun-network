@@ -374,8 +374,7 @@ public class RuntimeImpl implements Runtime {
 
       if (!VMConfig.isVmResourceChargingOn()) {
         energyLimit = 10_000_000;
-      }
-      else {
+      } else {
         energyLimit = getAccountEnergyLimitWithFixRatio(creator, feeLimit, callValue,
             sunTokenCallTokenValue);
       }
@@ -489,11 +488,9 @@ public class RuntimeImpl implements Runtime {
       long energyLimit;
       if (isStaticCall) {
         energyLimit = Constant.ENERGY_LIMIT_IN_CONSTANT_TX;
-      }
-      else if (!VMConfig.isVmResourceChargingOn()) {
+      } else if (!VMConfig.isVmResourceChargingOn()) {
         energyLimit = 10_000_000;
-      }
-      else {
+      } else {
         AccountCapsule creator = this.deposit
             .getAccount(deployedContract.getInstance().getOriginAddress().toByteArray());
 

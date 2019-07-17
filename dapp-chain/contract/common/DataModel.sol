@@ -2,15 +2,15 @@ pragma solidity ^0.4.24;
 
 contract DataModel {
     enum TokenKind {
-        TRX,
-        TRC10,
-        TRC20,
-        TRC721
+        TRX,         // 0
+        TRC10,       // 1
+        TRC20,       // 2
+        TRC721       // 3
     }
     enum Status {
-        SUCCESS,
-        LOCKING,
-        FAIL,
-        REFUNDED
+        SUCCESS,        // 0
+        LOCKING,        // 1
+        FAIL,           // 2
+        REFUNDED        // 3
     }
 }

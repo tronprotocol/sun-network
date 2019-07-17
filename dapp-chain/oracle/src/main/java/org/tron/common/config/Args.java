@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.encoders.Hex;
 import org.springframework.stereotype.Component;
 import org.tron.common.crypto.ECKey;
+import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
 
 
@@ -119,7 +120,7 @@ public class Args {
     this.mainchainGateway = WalletUtil
         .decodeFromBase58Check(this.mainchainGatewayStr);
 
-    this.chainId = WalletUtil.decodeFromBase58Check(config.getString("sidechain.chain.id"));
+    this.chainId = ByteArray.fromHexString(config.getString("sidechain.chain.id"));
 
     this.sidechainGatewayStr = config.getString("gateway.sidechain.address");
     this.sidechainGateway = WalletUtil

@@ -20,7 +20,7 @@ import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.capsule.TransactionExtensionCapsule;
 
 @Slf4j(topic = "sideChainTask")
-public class MultiSignForWithdrawTRXActuator extends MultSignForWIthdrawActuator {
+public class MultiSignForWithdrawTRXActuator extends MultiSignForWithdrawActuator {
 
   private static final String PREFIX = "withdraw_2_";
   private MultiSignForWithdrawTRXEvent event;
@@ -88,4 +88,12 @@ public class MultiSignForWithdrawTRXActuator extends MultSignForWIthdrawActuator
     return event.getNonce().toByteArray();
   }
 
+  @Override
+  public String getWithdrawDataHash() {
+    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+    String valueStr = event.getValue().toStringUtf8();
+    String nonceStr = event.getNonce().toStringUtf8();
+    return ByteArray
+        .toHexString(SideChainGatewayApi.getWithdrawTRXDataHash(fromStr, valueStr, nonceStr));
+  }
 }
