@@ -1637,9 +1637,9 @@ public class RpcApiService implements Service {
 //    }
 
     @Override
-    public void getChainParameters(EmptyMessage request,
-        StreamObserver<Protocol.ChainParameters> responseObserver) {
-      responseObserver.onNext(wallet.getChainParameters());
+    public void getSideChainParameters(EmptyMessage request,
+        StreamObserver<Protocol.SideChainParameters> responseObserver) {
+      responseObserver.onNext(wallet.getSideChainParameters());
       responseObserver.onCompleted();
     }
 
