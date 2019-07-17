@@ -519,6 +519,15 @@ service Wallet {
          }
        };
   };
+  rpc GetSideChainParameters (EmptyMessage) returns (SideChainParameters) {
+    option (google.api.http) = {
+         post: "/wallet/getsidechainparameters"
+         body: "*"
+         additional_bindings {
+           get: "/wallet/getsidechainparameters"
+         }
+       };
+  };
 
   rpc GetAssetIssueList (EmptyMessage) returns (AssetIssueList) {
     option (google.api.http) = {
@@ -644,7 +653,7 @@ service Wallet {
 
   }
 
-  rpc GetTransactionApprovedList(Transaction) returns (TransactionApprovedList) {
+  rpc GetTransactionApprovedList (Transaction) returns (TransactionApprovedList) {
 
   }
 
@@ -1037,7 +1046,7 @@ message TransactionSignWeight {
       NOT_ENOUGH_PERMISSION = 1; // error in
       SIGNATURE_FORMAT_ERROR = 2;
       COMPUTE_ADDRESS_ERROR = 3;
-      PERMISSION_ERROR = 4;      //The key is not in permission
+      PERMISSION_ERROR = 4; //The key is not in permission
       OTHER_ERROR = 20;
     }
     response_code code = 1;
