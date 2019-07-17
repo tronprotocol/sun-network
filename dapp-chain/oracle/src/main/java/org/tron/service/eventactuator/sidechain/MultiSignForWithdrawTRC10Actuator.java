@@ -20,7 +20,7 @@ import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.capsule.TransactionExtensionCapsule;
 
 @Slf4j(topic = "sideChainTask")
-public class MultiSignForWithdrawTRC10Actuator extends MultSignForWIthdrawActuator {
+public class MultiSignForWithdrawTRC10Actuator extends MultiSignForWithdrawActuator {
 
   private static final String PREFIX = "withdraw_2_";
   private MultiSignForWithdrawTRC10Event event;
