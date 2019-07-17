@@ -244,7 +244,7 @@ public class CrosschainApi {
       long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
-    String methodStr = "depositTRC10(uint256,uint256)";
+    String methodStr = "depositTRC10(uint64,uint64)";
     try {
       String inputParam = tokenId + "," + tokenValue;
       byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, inputParam, false));
@@ -324,7 +324,7 @@ public class CrosschainApi {
     }
 
     String methodStr = "approve(address,uint256)";
-    String depositMethodStr = "depositTRC20(address,uint256)";
+    String depositMethodStr = "depositTRC20(address,uint64)";
 
     return depositTrc(contractAddrStr, methodStr, depositMethodStr, num, feeLimit);
   }
@@ -425,9 +425,6 @@ public class CrosschainApi {
     } catch (Exception e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
     }
-
     return resp;
   }
-
-
 }
