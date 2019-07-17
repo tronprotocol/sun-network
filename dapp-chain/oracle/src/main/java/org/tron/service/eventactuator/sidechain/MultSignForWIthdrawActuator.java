@@ -13,7 +13,7 @@ public abstract class MultSignForWIthdrawActuator extends Actuator {
 
     String nonceStr = ByteArray.toStr(getNonce());
     try {
-      boolean done = MainChainGatewayApi.getWithdrawStatus(nonceStr);
+      boolean done = MainChainGatewayApi.getWithdrawStatus(getWithdrawDataHash(), nonceStr);
       if (done) {
         return BroadcastRet.DONE;
       } else {
@@ -25,4 +25,6 @@ public abstract class MultSignForWIthdrawActuator extends Actuator {
       return BroadcastRet.FAIL;
     }
   }
+
+  public abstract String getWithdrawDataHash();
 }

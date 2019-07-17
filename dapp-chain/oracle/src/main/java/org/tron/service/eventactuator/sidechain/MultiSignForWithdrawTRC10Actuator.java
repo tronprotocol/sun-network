@@ -91,4 +91,13 @@ public class MultiSignForWithdrawTRC10Actuator extends MultSignForWIthdrawActuat
     return event.getNonce().toByteArray();
   }
 
+  @Override
+  public String getWithdrawDataHash() {
+    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+    String tokenIdStr = event.getTokenId().toStringUtf8();
+    String valueStr = event.getValue().toStringUtf8();
+    String nonceStr = event.getNonce().toStringUtf8();
+    return ByteArray.toHexString(
+        SideChainGatewayApi.getWithdrawTRCTokenDataHash(fromStr, tokenIdStr, valueStr, nonceStr));
+  }
 }
