@@ -53,6 +53,7 @@ import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.DelegatedResourceAccountIndex;
 import org.tron.protos.Protocol.Exchange;
 import org.tron.protos.Protocol.Proposal;
+import org.tron.protos.Protocol.SideChainParameters;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
@@ -392,6 +393,12 @@ public class GrpcClient {
     ChainParameters chainParameters = blockingStubFull
         .getChainParameters(EmptyMessage.newBuilder().build());
     return Optional.ofNullable(chainParameters);
+  }
+
+  public Optional<SideChainParameters> getSideChainParameters() {
+    SideChainParameters sideChainParameters = blockingStubFull
+        .getSideChainParameters(EmptyMessage.newBuilder().build());
+    return Optional.ofNullable(sideChainParameters);
   }
 
   public TransactionExtention proposalApprove(Contract.ProposalApproveContract contract) {

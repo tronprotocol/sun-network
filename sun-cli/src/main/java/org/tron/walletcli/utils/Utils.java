@@ -96,6 +96,8 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import org.tron.protos.Protocol.Proposal;
 import org.tron.protos.Protocol.ResourceReceipt;
+import org.tron.protos.Protocol.SideChainParameters;
+import org.tron.protos.Protocol.SideChainParameters.SideChainParameter;
 import org.tron.protos.Protocol.SideChainProposal;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
@@ -635,6 +637,16 @@ public class Utils {
     String result = "\n";
     result += "ChainParameters : \n";
     for (ChainParameter para : chainParameters.getChainParameterList()) {
+      result += para.getKey() + " : " + para.getValue();
+      result += "\n";
+    }
+    return result;
+  }
+
+  public static String printChainParameters(SideChainParameters sideChainParameters) {
+    String result = "\n";
+    result += "ChainParameters : \n";
+    for (SideChainParameter para : sideChainParameters.getChainParameterList()) {
       result += para.getKey() + " : " + para.getValue();
       result += "\n";
     }

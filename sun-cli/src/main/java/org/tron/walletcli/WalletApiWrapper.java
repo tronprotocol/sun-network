@@ -39,6 +39,7 @@ import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.DelegatedResourceAccountIndex;
 import org.tron.protos.Protocol.Exchange;
 import org.tron.protos.Protocol.Proposal;
+import org.tron.protos.Protocol.SideChainParameters;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
@@ -665,6 +666,16 @@ public class WalletApiWrapper {
   public Optional<ChainParameters> getChainParameters() {
     try {
       SunNetworkResponse<ChainParameters> resp = getChainInterface().getChainParameters();
+      return Optional.ofNullable(resp.getData());
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return Optional.empty();
+    }
+  }
+
+  public Optional<SideChainParameters> getSideChainParameters() {
+    try {
+      SunNetworkResponse<SideChainParameters> resp = getChainInterface().getSideChainParameters();
       return Optional.ofNullable(resp.getData());
     } catch (Exception ex) {
       ex.printStackTrace();
