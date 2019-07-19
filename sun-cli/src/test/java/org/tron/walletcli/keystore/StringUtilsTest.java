@@ -7,7 +7,6 @@ import org.junit.Test;
 
 public class StringUtilsTest {
 
-
   @Test
   public void isCharEqual() {
     char[] a = "aaaaaa".toCharArray();

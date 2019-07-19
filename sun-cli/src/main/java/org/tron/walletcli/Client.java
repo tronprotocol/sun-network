@@ -1708,7 +1708,6 @@ public class Client {
       System.out.println("deposit trc20 success");
       System.out.println(
           "Please check the given transaction id to confirm deposit status on blockchain using getTransactionInfoById command.");
-
     } else {
       System.out.println("deposit trc20 failed");
     }
