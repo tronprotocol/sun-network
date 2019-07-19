@@ -41,6 +41,7 @@ public class EventActuatorFactory {
       logger.debug("unknown contract address:{}", obj.get("contractAddress"));
     } catch (Exception e) {
       logger.info("{} create actuator err", eventStr);
+      logger.error("{}", e);
       return null;
     }
     return null;
@@ -60,7 +61,7 @@ public class EventActuatorFactory {
       }
       case TRC10_RECEIVED: {
         task = new DepositTRC10Actuator(dataMap.get("from").toString(),
-            dataMap.get("tokenId").toString(), dataMap.get("value").toString(),
+            dataMap.get("tokenId").toString(), dataMap.get("tokenValue").toString(),
             dataMap.get("nonce").toString());
         return task;
       }
