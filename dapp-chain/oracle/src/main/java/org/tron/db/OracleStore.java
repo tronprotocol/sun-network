@@ -16,7 +16,6 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBException;
 import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
-import org.spongycastle.util.encoders.Hex;
 
 
 @Slf4j(topic = "db")
@@ -154,7 +153,7 @@ public class OracleStore {
     try (DBIterator iterator = database.iterator()) {
       Set<ByteBuffer> result = Sets.newHashSet();
       for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
-        result.add(ByteBuffer.wrap(iterator.peekNext().getKey()).asReadOnlyBuffer());
+        result.add(ByteBuffer.wrap(iterator.peekNext().getKey()));
       }
       return result;
     } catch (IOException e) {

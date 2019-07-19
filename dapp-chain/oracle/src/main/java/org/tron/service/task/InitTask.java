@@ -65,7 +65,7 @@ public class InitTask {
       try {
         Actuator actuator = getActuatorByEventMsg(event);
         if (actuator == null || allTxKeys
-            .contains(ByteBuffer.wrap(actuator.getNonceKey()).asReadOnlyBuffer())) {
+            .contains(ByteBuffer.wrap(actuator.getNonceKey()))) {
           continue;
         }
         Manager.getInstance().setProcessProcessing(actuator.getNonceKey());
