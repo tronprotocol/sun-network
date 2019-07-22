@@ -1,5 +1,6 @@
 package org.tron.service.eventactuator;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
@@ -11,6 +12,7 @@ import org.tron.service.capsule.TransactionExtensionCapsule;
 @Slf4j(topic = "actuator")
 public abstract class Actuator {
 
+  @Setter
   protected TransactionExtensionCapsule transactionExtensionCapsule;
 
   public abstract EventMsg getMessage();
