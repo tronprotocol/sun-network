@@ -13,8 +13,8 @@ import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
+import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.protos.Sidechain.MappingTRC721Event;
-import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.capsule.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
 
@@ -26,6 +26,8 @@ public class MappingTRC721Actuator extends Actuator {
   private MappingTRC721Event event;
   @Getter
   private EventType type = EventType.MAPPING_TRC721;
+  @Getter
+  private TaskEnum taskEnum = TaskEnum.SIDE_CHAIN;
 
   public MappingTRC721Actuator(String contractAddress, String nonce) {
     ByteString contractAddressBS = ByteString
@@ -58,8 +60,8 @@ public class MappingTRC721Actuator extends Actuator {
       Transaction tx = SideChainGatewayApi
           .multiSignForMappingTRC721(contractAddressStr, trcName, trcSymbol,
               nonceStr);
-      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-          NONCE_TAG + nonceStr, tx, 0);
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(NONCE_TAG + nonceStr, tx,
+          0);
       return CreateRet.SUCCESS;
     } catch (Exception e) {
       logger.error("when create transaction extension capsule", e);
@@ -69,7 +71,8 @@ public class MappingTRC721Actuator extends Actuator {
 
   @Override
   public EventMsg getMessage() {
-    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType()).build();
+    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType())
+        .setTaskEnum(getTaskEnum()).build();
   }
 
   @Override

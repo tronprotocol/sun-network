@@ -38,7 +38,7 @@ public class CheckTransactionTask {
   private void checkTransaction(Actuator eventActuator) {
     CheckTxRet checkTxRet = eventActuator.checkTxInfo();
     String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
-    String chain = eventActuator.getTransactionExtensionCapsule().getType().name();
+    String chain = eventActuator.getTaskEnum().name();
     if (checkTxRet == CheckTxRet.SUCCESS) {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
       if (logger.isInfoEnabled()) {
