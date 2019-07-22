@@ -180,7 +180,7 @@ public class ReceiptCapsule {
       }
 
       manager.adjustBalance(account, -energyFee, chargingType);
-      manager.adjustBalance(manager.getAccountStore().getBlackhole().createDbKey(), energyFee, chargingType);
+      manager.adjustFund(energyFee);
     }
 
     manager.getAccountStore().put(account.getAddress().toByteArray(), account);

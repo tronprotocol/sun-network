@@ -518,6 +518,13 @@ public class Args {
   @Setter
   private int fundDistributeEnableSwitch;
 
+  @Getter
+  @Setter
+  private long dayToSustainByFund;
+
+  @Getter
+  @Setter
+  private int percentToPayWitness;
 
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
@@ -603,6 +610,8 @@ public class Args {
     INSTANCE.totalEnergyLimit = 100000000000L;
     INSTANCE.maxCpuTimeOfOneTx = 50L;
     INSTANCE.fundDistributeEnableSwitch = 0;
+    INSTANCE.dayToSustainByFund = 90L;
+    INSTANCE.percentToPayWitness = 50;
   }
 
   /**
@@ -1044,6 +1053,14 @@ public class Args {
     INSTANCE.fundDistributeEnableSwitch =
         config.hasPath("sidechain.fundDistributeEnableSwitch") ? config
             .getInt("sidechain.fundDistributeEnableSwitch") :0;
+
+    INSTANCE.dayToSustainByFund =
+        config.hasPath("sidechain.dayToSustainByFund") ? config
+            .getLong("sidechain.dayToSustainByFund") : 90L;
+
+    INSTANCE.percentToPayWitness =
+        config.hasPath("sidechain.percentToPayWitness") ? config
+            .getInt("sidechain.percentToPayWitness") : 80;
 
     logConfig();
   }

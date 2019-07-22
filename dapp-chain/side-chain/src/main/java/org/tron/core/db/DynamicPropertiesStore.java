@@ -1,7 +1,6 @@
 package org.tron.core.db;
 
 import com.google.protobuf.ByteString;
-import com.typesafe.config.ConfigException.Null;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -247,7 +246,11 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   // for 1_000_008 proposal
   private static final byte[] FUND_DISTRIBUTE_ENABLE_SWITCH = "FUND_DISTRIBUTE_ENABLE_SWITCH".getBytes();
 
+  // for 1_000_009 proposal
+  private static final byte[] DAY_TO_SUSTAIN_BY_FUND = "DAY_TO_SUSTAIN_BY_FUND".getBytes();
 
+  //for 1_000_010 proposal
+  private static final byte[] PERCENT_TO_PAY_WITNESS = "PERCENT_TO_PAY_WITNESS".getBytes();
 
   /**
    *   Used when calculating available energy limit. Similar to ENERGY_FEE in mainchain.
@@ -806,6 +809,18 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     } catch (IllegalArgumentException e) {
       this.saveFundDistributeEnableSwitch(Args.getInstance().getFundDistributeEnableSwitch());
     }
+
+    try {
+      this.getDayToSustainByFund();
+    } catch (IllegalArgumentException e) {
+      this.saveDayToSustainByFund(Args.getInstance().getDayToSustainByFund());
+    }
+
+    try {
+      this.getPercentToPayWitness();
+    } catch (IllegalArgumentException e) {
+      this.savePercentToPayWitness(Args.getInstance().getPercentToPayWitness());
+    }
   }
 
   public String intArrayToString(int[] a) {
@@ -1024,6 +1039,32 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   public void saveFundDistributeEnableSwitch(long num) {
     this.put(FUND_DISTRIBUTE_ENABLE_SWITCH,
         new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public long getDayToSustainByFund() {
+    return Optional.ofNullable(getUnchecked(DAY_TO_SUSTAIN_BY_FUND))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found DAY_TO_SUSTAIN_BY_FUND"));
+  }
+
+  public void saveDayToSustainByFund(long num) {
+    this.put(DAY_TO_SUSTAIN_BY_FUND,
+        new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public long getPercentToPayWitness() {
+    return Optional.ofNullable(getUnchecked(PERCENT_TO_PAY_WITNESS))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found PERCENT_TO_PAY_WITNESS"));
+  }
+
+  public void savePercentToPayWitness(long radio) {
+    this.put(PERCENT_TO_PAY_WITNESS,
+        new BytesCapsule(ByteArray.fromLong(radio)));
   }
 
 
