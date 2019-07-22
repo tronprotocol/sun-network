@@ -366,6 +366,12 @@ public class Util {
             contractJson = JSONObject
                 .parseObject(JsonFormat.printToString(clearABIContract, selfType));
             break;
+          case FundInjectContract:
+            Contract.FundInjectContract fundInjectContract = contractParameter
+                .unpack(Contract.FundInjectContract.class);
+            contractJson = JSONObject
+                .parseObject(JsonFormat.printToString(fundInjectContract, selfType));
+            break;
           // todo add other contract
           default:
         }
@@ -606,6 +612,13 @@ public class Util {
             JsonFormat.merge(parameter.getJSONObject(VALUE).toJSONString(), clearABIContract,
                 selfType);
             any = Any.pack(clearABIContract.build());
+            break;
+          case "FundInjectContract":
+            Contract.FundInjectContract.Builder fundInjectContract =
+                Contract.FundInjectContract.newBuilder();
+            JsonFormat.merge(parameter.getJSONObject(VALUE).toJSONString(), fundInjectContract,
+                selfType);
+            any = Any.pack(fundInjectContract.build());
             break;
           // todo add other contract
           default:
