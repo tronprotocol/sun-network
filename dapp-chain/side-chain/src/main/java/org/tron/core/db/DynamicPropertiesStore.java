@@ -1,7 +1,6 @@
 package org.tron.core.db;
 
 import com.google.protobuf.ByteString;
-import com.typesafe.config.ConfigException.Null;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -875,7 +874,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
 
   public void saveSideChainGateWayList(List<byte[]> gateWayList) {
     this.put(SIDE_CHAIN_GATEWAY_ADDRESS_LIST,
-        new BytesCapsule(ByteArray.fromBytes21List(gateWayList)));
+        new BytesCapsule(ByteArray.fromBytes21ListToAddressList(gateWayList)));
   }
 
   public List<byte[]> getMainChainGateWayList() {
@@ -888,7 +887,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
 
   public void saveMainChainGateWayList(List<byte[]> gateWayList) {
     this.put(MAIN_CHAIN_GATEWAY_ADDRESS_LIST,
-        new BytesCapsule(ByteArray.fromBytes21List(gateWayList)));
+        new BytesCapsule(ByteArray.fromBytes21ListToAddressList(gateWayList)));
   }
 
   public void addToSideChainGateWayList(byte[] gateWayContractAddress) {
@@ -902,7 +901,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
     list.add(gateWayContractAddress);
     this.put(SIDE_CHAIN_GATEWAY_ADDRESS_LIST,
-        new BytesCapsule(ByteArray.fromBytes21List(list)));
+        new BytesCapsule(ByteArray.fromBytes21ListToAddressList(list)));
   }
 
   public String getSideChainId() {

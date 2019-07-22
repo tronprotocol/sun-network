@@ -50,6 +50,7 @@ import org.tron.core.config.Parameter.NetConstants;
 import org.tron.core.config.Parameter.NodeConstant;
 import org.tron.core.db.AccountStore;
 import org.tron.core.db.backup.DbBackupConfig;
+import org.tron.core.exception.ContractValidateException;
 import org.tron.keystore.CipherException;
 import org.tron.keystore.Credentials;
 import org.tron.keystore.WalletUtils;
@@ -1125,9 +1126,19 @@ public class Args {
     }
     List<byte[]> ret = new ArrayList<>();
     List<String> list = config.getStringList(path);
-    for (String configString : list) {
-      ret.add(Wallet.decodeFromBase58Check(configString));
+    try {
+      for (String configString : list) {
+        byte[] address = Wallet.decodeFromBase58Check(configString);
+        if (!Wallet.addressValid(address)) {
+          throw new ContractValidateException("invalid gateway address");
+        }
+        ret.add(address);
+      }
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+      exit(-1);
     }
+
     return ret;
   }
 

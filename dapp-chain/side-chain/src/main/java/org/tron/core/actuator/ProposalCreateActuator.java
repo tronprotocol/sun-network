@@ -24,6 +24,7 @@ import org.tron.core.config.Parameter.ChainParameters;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
+import org.tron.protos.Contract;
 import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Protocol.Transaction.Result.code;
 
@@ -266,14 +267,14 @@ public class ProposalCreateActuator extends AbstractActuator {
         Iterator<String> it = list.iterator();
         try {
           while (it.hasNext()) {
-            if (Wallet.decodeFromBase58Check(it.next()).length != 21) {
+            if (!Wallet.addressValid(Wallet.decodeFromBase58Check(it.next()))) {
               throw new ContractValidateException(
-                  "gateway address should be 21 bytes");
+                  "Invalid gateway address");
             }
           }
         } catch (Exception e) {
           throw new ContractValidateException(
-              "Invalid gateway address args");
+              "Invalid gateway address");
         }
         break;
       }
@@ -282,14 +283,14 @@ public class ProposalCreateActuator extends AbstractActuator {
         Iterator<String> it = list.iterator();
         try {
           while (it.hasNext()) {
-            if (Wallet.decodeFromBase58Check(it.next()).length != 21) {
+            if (!Wallet.addressValid(Wallet.decodeFromBase58Check(it.next()))) {
               throw new ContractValidateException(
-                  "gateway address should be 21 bytes");
+                  "Invalid gateway address");
             }
           }
         } catch (Exception e) {
           throw new ContractValidateException(
-              "Invalid gateway address args");
+              "Invalid gateway address");
         }
         break;
       }
@@ -323,13 +324,17 @@ public class ProposalCreateActuator extends AbstractActuator {
       }
       case (1_000_007):{
         try {
-          if (Wallet.decodeFromBase58Check(entry.getValue()).length != 21) {
+          byte[] address = Wallet.decodeFromBase58Check(entry.getValue());
+          if (!Wallet.addressValid(address)) {
             throw new ContractValidateException(
-                "Fund Inject Address should be 21 bytes");
+                "Invalid Fund Inject Address");
+          }
+          if (this.dbManager.getAccountStore().get(address) != null) {
+            throw new ContractValidateException("target Fund Inject Address not exist");
           }
         } catch (Exception e){
           throw new ContractValidateException(
-              "Invalid Fund Inject Address args");
+              "Invalid Fund Inject Address");
         }
 
         break;
