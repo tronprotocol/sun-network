@@ -135,4 +135,8 @@ contract OracleManagerContract is Ownable {
     function withdrawDone(bytes32 dataHash, uint256 nonce) view public returns (bool r) {
         r = withdrawMultiSignList[nonce][dataHash].success;
     }
+
+    function isOracle(address _oracle) view public returns (bool) {
+        return oracleIndex[_oracle] > 0;
+    }
 }
