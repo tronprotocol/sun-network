@@ -235,6 +235,10 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
 
   private static final byte[] MAX_GATE_WAY_CONTRACT_SIZE = "MAX_GATE_WAY_CONTRACT_SIZE".getBytes();
 
+  private static final byte[] FUND = "FUND".getBytes();
+
+  private static final byte[] FUND_INJECT_ADDRESS = "FUND_INJECT_ADDRESS".getBytes();
+
 
 
   /**
@@ -776,6 +780,18 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     } catch (IllegalArgumentException e) {
       this.saveMaxGateWayContractSize(10 * 1024);
     }
+
+    try {
+      this.getFund();
+    } catch (IllegalArgumentException e) {
+      this.saveFund(0);
+    }
+
+    try {
+      this.getFundInjectAddress();
+    } catch (IllegalArgumentException e) {
+      this.saveFundInjectAddress(null);
+    }
   }
 
   public String intArrayToString(int[] a) {
@@ -955,6 +971,31 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   public void saveMaxGateWayContractSize(long num) {
     this.put(MAX_GATE_WAY_CONTRACT_SIZE,
         new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public int getFund(){
+    return Optional.ofNullable(getUnchecked(FUND))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toInt)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found FUND"));
+  }
+
+  public void saveFund(long num) {
+    this.put(FUND,
+        new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public byte[] getFundInjectAddress(){
+    return Optional.ofNullable(getUnchecked(FUND_INJECT_ADDRESS))
+        .map(BytesCapsule::getData)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found FUND_INJECT_ADDRESS"));
+  }
+
+  public void saveFundInjectAddress(byte[] address) {
+    this.put(FUND_INJECT_ADDRESS,
+        new BytesCapsule(address));
   }
 
 
