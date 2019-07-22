@@ -967,6 +967,31 @@ public class Wallet {
             .setValue(String
                 .valueOf(dbManager.getDynamicPropertiesStore().getSideChainChargingBandwidth()))
             .build());
+
+    // Fund
+    builder.addChainParameter(
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getFund")
+            .setValue(String
+                .valueOf(dbManager.getDynamicPropertiesStore().getFund()))
+            .build());
+
+    // Founder
+    builder.addChainParameter(
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getFundInjectAddress")
+            .setValue(String
+                .valueOf(dbManager.getDynamicPropertiesStore().getFundInjectAddress()))
+            .build());
+
+    // FundDistributeEnableSwitch 0,1
+    builder.addChainParameter(
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getFundDistributeEnableSwitch")
+            .setValue(String
+                .valueOf(dbManager.getDynamicPropertiesStore().getFundDistributeEnableSwitch()))
+            .build());
+
     builder.addChainParameter(
         Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getDayToSustainByFund")
