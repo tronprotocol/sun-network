@@ -158,7 +158,7 @@ contract MainChainGateway is OracleManagerContract {
         }
     }
 
-    function mappingTRC20(bytes txId) public onlyNotStop onlyNotPause goDelegateCall payable {
+    function mappingTRC20(bytes txId) public onlyNotStop onlyNotPause goDelegateCall payable returns (uint256) {
         require(msg.value >= mappingFee, "trc20MappingFee not enough");
         address trc20Address = calcContractAddress(txId, msg.sender);
         require(trc20Address != sunTokenAddress, "mainChainAddress == sunTokenAddress");
@@ -169,10 +169,11 @@ contract MainChainGateway is OracleManagerContract {
         userMappingList.push(MappingMsg(trc20Address, DataModel.TokenKind.TRC20, DataModel.Status.SUCCESS));
         mainToSideContractMap[trc20Address] = 1;
         emit TRC20Mapping(trc20Address, userMappingList.length - 1);
+        return userMappingList.length - 1;
     }
 
     // 2. deployDAppTRC721AndMapping
-    function mappingTRC721(bytes txId) public onlyNotStop onlyNotPause goDelegateCall payable {
+    function mappingTRC721(bytes txId) public onlyNotStop onlyNotPause goDelegateCall payable returns (uint256) {
         require(msg.value >= mappingFee, "trc721MappingFee not enough");
         address trc721Address = calcContractAddress(txId, msg.sender);
         require(trc721Address != sunTokenAddress, "mainChainAddress == sunTokenAddress");
@@ -183,6 +184,7 @@ contract MainChainGateway is OracleManagerContract {
         userMappingList.push(MappingMsg(trc721Address, DataModel.TokenKind.TRC721, DataModel.Status.SUCCESS));
         mainToSideContractMap[trc721Address] = 1;
         emit TRC721Mapping(trc721Address, userMappingList.length - 1);
+        return userMappingList.length - 1;
     }
 
     function retryDeposit(uint256 nonce) public onlyNotStop onlyNotPause goDelegateCall {
