@@ -55,6 +55,7 @@ import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.DelegatedResourceAccountIndex;
 import org.tron.protos.Protocol.Exchange;
 import org.tron.protos.Protocol.Proposal;
+import org.tron.protos.Protocol.SideChainParameters;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
@@ -1657,6 +1658,9 @@ public class Client {
         .depositTrx(callValue, feeLimit);
     if (checkResult(resp)) {
       System.out.println("deposit trx success");
+      System.out.println(
+          "Please check the given transaction id to confirm deposit status on blockchain using getTransactionInfoById command.");
+
     } else {
       System.out.println("deposit trx failed");
     }
@@ -1678,6 +1682,9 @@ public class Client {
         .depositTrc10(tokenId, tokenCallValue, feeLimit);
     if (checkResult(resp)) {
       System.out.println("deposit trc10 success");
+      System.out.println(
+          "Please check the given transaction id to confirm deposit status on blockchain using getTransactionInfoById command.");
+
     } else {
       System.out.println("deposit trc10 failed");
     }
@@ -1699,6 +1706,8 @@ public class Client {
         .depositTrc20(contractAddrStr, num, feeLimit);
     if (checkResult(resp)) {
       System.out.println("deposit trc20 success");
+      System.out.println(
+          "Please check the given transaction id to confirm deposit status on blockchain using getTransactionInfoById command.");
     } else {
       System.out.println("deposit trc20 failed");
     }
@@ -1719,6 +1728,9 @@ public class Client {
         .depositTrc721(contractAddrStr, num, feeLimit);
     if (checkResult(resp)) {
       System.out.println("deposit trc20 success");
+      System.out.println(
+          "Please check the given transaction id to confirm deposit status on blockchain using getTransactionInfoById command.");
+
     } else {
       System.out.println("deposit trc20 failed");
     }
@@ -2221,7 +2233,7 @@ public class Client {
           break;
         }
         case "getchainparameters": {
-          getChainParameters();
+          getMainChainParameters();
           break;
         }
         case "listwitnesses": {
@@ -2398,6 +2410,9 @@ public class Client {
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrx(trxNum, feeLimit);
     if (checkResult(resp)) {
       System.out.println("withdraw trx success");
+      System.out.println(
+          "Please check the given transaction id to confirm withdraw status on blockchain using getTransactionInfoById command.");
+
     } else {
       System.out.println("withdraw trx failed");
     }
@@ -2421,6 +2436,9 @@ public class Client {
         .withdrawTrc10(trc10, tokenValue, feeLimit);
     if (checkResult(resp)) {
       System.out.println("withdraw trc10 success");
+      System.out.println(
+          "Please check the given transaction id to confirm withdraw status on blockchain using getTransactionInfoById command.");
+
     } else {
       System.out.println("withdraw trc10 failed");
     }
@@ -2441,6 +2459,9 @@ public class Client {
         .withdrawTrc20(sideTrc20Address, value, feeLimit);
     if (checkResult(resp)) {
       System.out.println("withdraw trc20 success");
+      System.out.println(
+          "Please check the given transaction id to confirm withdraw status on blockchain using getTransactionInfoById command.");
+
     } else {
       System.out.println("withdraw trc20 failed");
     }
@@ -2463,6 +2484,9 @@ public class Client {
         .withdrawTrc721(sideTrc721Address, uid, feeLimit);
     if (checkResult(resp)) {
       System.out.println("withdraw trc721 success");
+      System.out.println(
+          "Please check the given transaction id to confirm withdraw status on blockchain using getTransactionInfoById command.");
+
     } else {
       System.out.println("withdraw trc721 failed");
     }
@@ -2515,6 +2539,9 @@ public class Client {
         .retryDeposit(nonce, feeLimit);
     if (checkResult(resp)) {
       System.out.println("retry deposit success");
+      System.out.println(
+          "Please check the given transaction id to confirm retry status on blockchain using getTransactionInfoById command.");
+
     } else {
       System.out.println("retry deposit failed");
     }
@@ -2536,6 +2563,9 @@ public class Client {
         .retryWithdraw(nonce, feeLimit);
     if (checkResult(resp)) {
       System.out.println("retry withdraw success");
+      System.out.println(
+          "Please check the given transaction id to confirm retry status on blockchain using getTransactionInfoById command.");
+
     } else {
       System.out.println("retry withdraw failed");
     }
@@ -2557,6 +2587,9 @@ public class Client {
         .retryMapping(nonce, feeLimit);
     if (checkResult(resp)) {
       System.out.println("retry mapping success");
+      System.out.println(
+          "Please check the given transaction id to confirm retry status on blockchain using getTransactionInfoById command.");
+
     } else {
       System.out.println("retry mapping failed");
     }
@@ -2631,6 +2664,9 @@ public class Client {
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.mappingTrc20(trxHash, feeLimit);
     if (checkResult(resp)) {
       System.out.println("mapping trc20 success");
+      System.out.println(
+          "Please check the given transaction id to confirm mapping status on blockchain using getTransactionInfoById command.");
+
     }
 
     System.out.println(
@@ -2651,6 +2687,9 @@ public class Client {
         .mappingTrc721(trxHash, feeLimit);
     if (checkResult(resp)) {
       System.out.println("mapping trc721 success");
+      System.out.println(
+          "Please check the given transaction id to confirm mapping status on blockchain using getTransactionInfoById command.");
+
     }
 
     System.out.println(
@@ -2783,7 +2822,7 @@ public class Client {
           break;
         }
         case "getchainparameters": {
-          getChainParameters();
+          getSideChainParameters();
           break;
         }
         case "listwitnesses": {
@@ -2899,7 +2938,7 @@ public class Client {
         "You may also use the Help command at anytime to display a full list of commands.");
     System.out.println(" ");
 
-    System.out.print("[mainchain] ");
+    System.out.println("[mainchain] ");
     while (in.hasNextLine()) {
       String cmd = "";
       String cmdLine = in.nextLine().trim();
@@ -2908,9 +2947,9 @@ public class Client {
       cmd = cmdArray[0];
       if ("".equals(cmd)) {
         if (walletApiWrapper.isMainChain()) {
-          System.out.print("[mainchain] ");
+          System.out.println("[mainchain] ");
         } else {
-          System.out.print("[sidechain] ");
+          System.out.println("[sidechain] ");
         }
         continue;
       }
@@ -2929,19 +2968,29 @@ public class Client {
 
       //System.out.println();
       if (walletApiWrapper.isMainChain()) {
-        System.out.print("[mainchain] ");
+        System.out.println("[mainchain] ");
       } else {
-        System.out.print("[sidechain] ");
+        System.out.println("[sidechain] ");
       }
       in = new Scanner(System.in);
     }
   }
 
-  private void getChainParameters() {
+  private void getMainChainParameters() {
     Optional<ChainParameters> result = walletApiWrapper.getChainParameters();
     if (result.isPresent()) {
       ChainParameters chainParameters = result.get();
       logger.info(Utils.printChainParameters(chainParameters));
+    } else {
+      logger.info("List Chain Parameters " + " failed !!");
+    }
+  }
+
+  private void getSideChainParameters() {
+    Optional<SideChainParameters> result = walletApiWrapper.getSideChainParameters();
+    if (result.isPresent()) {
+      SideChainParameters sideChainParameters = result.get();
+      logger.info(Utils.printChainParameters(sideChainParameters));
     } else {
       logger.info("List Chain Parameters " + " failed !!");
     }

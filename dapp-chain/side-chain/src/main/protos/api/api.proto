@@ -435,7 +435,7 @@ service Wallet {
       };
   };
 
-  rpc GetChainParameters (EmptyMessage) returns (ChainParameters) {
+  rpc GetSideChainParameters (EmptyMessage) returns (SideChainParameters) {
     option (google.api.http) = {
          post: "/wallet/getchainparameters"
          body: "*"

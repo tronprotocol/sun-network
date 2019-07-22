@@ -58,9 +58,9 @@ message Exchange {
   int64 second_token_balance = 9;
 }
 
-message ChainParameters {
-  repeated ChainParameter chainParameter = 1;
-  message ChainParameter {
+message SideChainParameters {
+  repeated SideChainParameter chainParameter = 1;
+  message SideChainParameter {
     string key = 1;
     string value = 2;
   }

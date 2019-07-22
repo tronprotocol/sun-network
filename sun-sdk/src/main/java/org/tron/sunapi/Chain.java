@@ -41,6 +41,7 @@ import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.DelegatedResourceAccountIndex;
 import org.tron.protos.Protocol.Exchange;
 import org.tron.protos.Protocol.Proposal;
+import org.tron.protos.Protocol.SideChainParameters;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
@@ -1810,6 +1811,24 @@ public class Chain implements ChainInterface {
     if (result.isPresent()) {
       ChainParameters chainParameters = result.get();
       resp.success(chainParameters);
+    } else {
+      resp.failed(ErrorCodeEnum.FAILED);
+    }
+
+    return resp;
+  }
+
+  /**
+   * @return the result of broadcast
+   * @author sun-network
+   */
+  public SunNetworkResponse<SideChainParameters> getSideChainParameters() {
+    SunNetworkResponse<SideChainParameters> resp = new SunNetworkResponse<>();
+
+    Optional<SideChainParameters> result = serverApi.getSideChainParameters();
+    if (result.isPresent()) {
+      SideChainParameters sideChainParameters = result.get();
+      resp.success(sideChainParameters);
     } else {
       resp.failed(ErrorCodeEnum.FAILED);
     }

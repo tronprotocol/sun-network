@@ -82,6 +82,7 @@ import org.tron.protos.Protocol.Exchange;
 import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import org.tron.protos.Protocol.Proposal;
+import org.tron.protos.Protocol.SideChainParameters;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Result;
@@ -1064,6 +1065,10 @@ public class ServerApi {
 
   public Optional<ChainParameters> getChainParameters() {
     return rpcCli.getChainParameters();
+  }
+
+  public Optional<SideChainParameters> getSideChainParameters() {
+    return rpcCli.getSideChainParameters();
   }
 
 
