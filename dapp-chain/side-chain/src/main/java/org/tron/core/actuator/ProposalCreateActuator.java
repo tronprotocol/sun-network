@@ -302,7 +302,8 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       }
-      case (1_000_006): {
+      case (1_000_006):
+      case (1_000_007):{
         if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid value is {0,1}");

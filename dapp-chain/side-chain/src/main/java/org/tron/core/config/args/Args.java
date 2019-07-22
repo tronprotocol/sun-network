@@ -514,6 +514,10 @@ public class Args {
   @Setter
   private long maxCpuTimeOfOneTx;
 
+  @Getter
+  @Setter
+  private int fundDistributeEnableSwitch;
+
 
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
@@ -598,6 +602,7 @@ public class Args {
     INSTANCE.energyFee = 1;
     INSTANCE.totalEnergyLimit = 100000000000L;
     INSTANCE.maxCpuTimeOfOneTx = 50L;
+    INSTANCE.fundDistributeEnableSwitch = 0;
   }
 
   /**
@@ -1035,6 +1040,10 @@ public class Args {
     INSTANCE.maxCpuTimeOfOneTx =
         config.hasPath("sidechain.maxCpuTimeOfOneTx") ? config
             .getLong("sidechain.maxCpuTimeOfOneTx") : 50L;
+
+    INSTANCE.fundDistributeEnableSwitch =
+        config.hasPath("sidechain.fundDistributeEnableSwitch") ? config
+            .getInt("sidechain.fundDistributeEnableSwitch") :0;
 
     logConfig();
   }

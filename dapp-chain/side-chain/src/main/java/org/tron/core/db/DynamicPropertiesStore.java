@@ -240,7 +240,11 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
 
   private static final byte[] FUND = "FUND".getBytes();
 
+  // Founder
   private static final byte[] FUND_INJECT_ADDRESS = "FUND_INJECT_ADDRESS".getBytes();
+
+  // for 1_000_007 proposal
+  private static final byte[] FUND_DISTRIBUTE_ENABLE_SWITCH = "FUND_DISTRIBUTE_ENABLE_SWITCH".getBytes();
 
 
 
@@ -795,6 +799,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     } catch (IllegalArgumentException e) {
       this.saveFundInjectAddress(Hex.decode(Constant.TRON_ZERO_ADDRESS_HEX));
     }
+
+    try {
+      this.getFundDistributeEnableSwitch();
+    } catch (IllegalArgumentException e) {
+      this.saveFundDistributeEnableSwitch(Args.getInstance().getFundDistributeEnableSwitch());
+    }
   }
 
   public String intArrayToString(int[] a) {
@@ -911,10 +921,10 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         new BytesCapsule(address));
   }
 
-  public int getChargingSwitch(){
+  public long getChargingSwitch(){
     return Optional.ofNullable(getUnchecked(CHARGING_SWITCH))
         .map(BytesCapsule::getData)
-        .map(ByteArray::toInt)
+        .map(ByteArray::toLong)
         .orElseThrow(
             () -> new IllegalArgumentException("not found ENERGY_CHARGING_SWITCH"));
   }
@@ -937,10 +947,10 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             new BytesCapsule(ByteArray.fromLong(num)));
   }
 
-  public int getSideChainChargingBandwidth(){
+  public long getSideChainChargingBandwidth(){
     return Optional.ofNullable(getUnchecked(SIDE_CHAIN_CHARGING_BANDWIDTH))
             .map(BytesCapsule::getData)
-            .map(ByteArray::toInt)
+            .map(ByteArray::toLong)
             .orElseThrow(
                     () -> new IllegalArgumentException("not found SIDE_CHAIN_CHARGING_BANDWIDTH"));
   }
@@ -963,10 +973,10 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         new BytesCapsule(ByteArray.fromLong(num)));
   }
 
-  public int getMaxGateWayContractSize(){
+  public long getMaxGateWayContractSize(){
     return Optional.ofNullable(getUnchecked(MAX_GATE_WAY_CONTRACT_SIZE))
         .map(BytesCapsule::getData)
-        .map(ByteArray::toInt)
+        .map(ByteArray::toLong)
         .orElseThrow(
             () -> new IllegalArgumentException("not found MAX_GATE_WAY_CONTRACT_SIZE"));
   }
@@ -976,10 +986,10 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         new BytesCapsule(ByteArray.fromLong(num)));
   }
 
-  public int getFund(){
+  public long getFund(){
     return Optional.ofNullable(getUnchecked(FUND))
         .map(BytesCapsule::getData)
-        .map(ByteArray::toInt)
+        .map(ByteArray::toLong)
         .orElseThrow(
             () -> new IllegalArgumentException("not found FUND"));
   }
@@ -1002,6 +1012,18 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
 
+  public long getFundDistributeEnableSwitch(){
+    return Optional.ofNullable(getUnchecked(FUND_DISTRIBUTE_ENABLE_SWITCH))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found FUND_DISTRIBUTE_ENABLE_SWITCH"));
+  }
+
+  public void saveFundDistributeEnableSwitch(long num) {
+    this.put(FUND_DISTRIBUTE_ENABLE_SWITCH,
+        new BytesCapsule(ByteArray.fromLong(num)));
+  }
 
 
   /**
