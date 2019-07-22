@@ -30,49 +30,53 @@ public class EventTask {
 
   public void processEvent() {
     while (true) {
-      ConsumerRecords<String, String> record = this.kfkConsumer.getRecord();
-      for (ConsumerRecord<String, String> key : record) {
+      try {
+        ConsumerRecords<String, String> record = this.kfkConsumer.getRecord();
+        for (ConsumerRecord<String, String> key : record) {
 
-        Actuator eventActuator = EventActuatorFactory.CreateActuator(key.value());
-        if (Objects.isNull(eventActuator)) {
-          //Unrelated contract or event
-          this.kfkConsumer.commit();
-          continue;
-        }
+          Actuator eventActuator = EventActuatorFactory.CreateActuator(key.value());
+          if (Objects.isNull(eventActuator)) {
+            //Unrelated contract or event
+            this.kfkConsumer.commit();
+            continue;
+          }
 
-        byte[] nonceMsgBytes = NonceStore.getInstance().getData(eventActuator.getNonceKey());
-        if (nonceMsgBytes == null) {
-          // receive this nonce firstly
-          processAndSubmit(eventActuator);
-        } else {
-          try {
-            NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
-            String chain = eventActuator.getTransactionExtensionCapsule().getType().name();
-            if (nonceMsg.getStatus() == NonceStatus.SUCCESS) {
-              if (logger.isInfoEnabled()) {
-                String msg = MessageCode.NONCE_HAS_BE_SUCCEED
-                    .getMsg(chain, ByteArray.toStr(eventActuator.getNonceKey()));
-                logger.info(msg);
-              }
-            } else if (nonceMsg.getStatus() == NonceStatus.FAIL) {
-              processAndSubmit(eventActuator);
-            } else {
-              // processing or broadcasted
-              if (System.currentTimeMillis() / 1000 >= nonceMsg.getNextProcessTimestamp()) {
-                processAndSubmit(eventActuator);
-              } else {
+          byte[] nonceMsgBytes = NonceStore.getInstance().getData(eventActuator.getNonceKey());
+          if (nonceMsgBytes == null) {
+            // receive this nonce firstly
+            processAndSubmit(eventActuator);
+          } else {
+            try {
+              NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
+              String chain = eventActuator.getTaskEnum().name();
+              if (nonceMsg.getStatus() == NonceStatus.SUCCESS) {
                 if (logger.isInfoEnabled()) {
-                  String msg = MessageCode.NONCE_IS_PROCESSING
+                  String msg = MessageCode.NONCE_HAS_BE_SUCCEED
                       .getMsg(chain, ByteArray.toStr(eventActuator.getNonceKey()));
                   logger.info(msg);
                 }
+              } else if (nonceMsg.getStatus() == NonceStatus.FAIL) {
+                processAndSubmit(eventActuator);
+              } else {
+                // processing or broadcasted
+                if (System.currentTimeMillis() / 1000 >= nonceMsg.getNextProcessTimestamp()) {
+                  processAndSubmit(eventActuator);
+                } else {
+                  if (logger.isInfoEnabled()) {
+                    String msg = MessageCode.NONCE_IS_PROCESSING
+                        .getMsg(chain, ByteArray.toStr(eventActuator.getNonceKey()));
+                    logger.info(msg);
+                  }
+                }
               }
+            } catch (InvalidProtocolBufferException e) {
+              logger.error("retry fail: {}", e.getMessage(), e);
             }
-          } catch (InvalidProtocolBufferException e) {
-            logger.error("retry fail: {}", e.getMessage(), e);
           }
+          this.kfkConsumer.commit();
         }
-        this.kfkConsumer.commit();
+      } catch (Exception e) {
+        logger.error("in main loop: {}", e.getMessage(), e);
       }
     }
   }

@@ -1708,7 +1708,6 @@ public class Client {
       System.out.println("deposit trc20 success");
       System.out.println(
           "Please check the given transaction id to confirm deposit status on blockchain using getTransactionInfoById command.");
-
     } else {
       System.out.println("deposit trc20 failed");
     }
@@ -1930,7 +1929,6 @@ public class Client {
     allCmds.add("getbalance");
     allCmds.add("getaccount");
     allCmds.add("updateaccount");
-    allCmds.add("updateasset");
     allCmds.add("getaccountresource");
     allCmds.add("getassetissuebyid");
     allCmds.add("sendcoin");
@@ -1943,7 +1941,6 @@ public class Client {
     allCmds.add("freezebalance");
     allCmds.add("unfreezebalance");
     allCmds.add("withdrawbalance");
-    allCmds.add("unfreezeasset");
     allCmds.add("listproposals");
     allCmds.add("getproposal");
     allCmds.add("getchainparameters");
@@ -1965,6 +1962,7 @@ public class Client {
     allCmds.add("retry");
     allCmds.add("createproposal");
     allCmds.add("getmappingaddress");
+    allCmds.add("getnextmaintenancetime");
     allCmds.add("exit");
     allCmds.add("quit");
 
@@ -2758,10 +2756,6 @@ public class Client {
           updateAccount(parameters);
           break;
         }
-        case "updateasset": {
-          updateAsset(parameters);
-          break;
-        }
         case "getaccountresource": {
           getAccountResource(parameters);
           break;
@@ -2808,10 +2802,6 @@ public class Client {
         }
         case "withdrawbalance": {
           withdrawBalance();
-          break;
-        }
-        case "unfreezeasset": {
-          unfreezeAsset();
           break;
         }
         case "listproposals": {
@@ -2898,6 +2888,10 @@ public class Client {
         }
         case "createproposal": {
           sideChainCreateProposal(parameters);
+          break;
+        }
+        case "getnextmaintenancetime": {
+          getNextMaintenanceTime();
           break;
         }
         case "exit":

@@ -42,7 +42,7 @@ public class CreateTransactionTask {
 
   private void createTransaction(Actuator eventActuator) {
     CreateRet createRet = eventActuator.createTransactionExtensionCapsule();
-    String chain = eventActuator.getTransactionExtensionCapsule().getType().name();
+    String chain = eventActuator.getTaskEnum().name();
     if (createRet == CreateRet.SUCCESS) {
       TransactionExtensionCapsule txExtensionCapsule = eventActuator
           .getTransactionExtensionCapsule();
