@@ -1,6 +1,7 @@
 package org.tron.core.db;
 
 import com.google.protobuf.ByteString;
+import com.typesafe.config.ConfigException.Null;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,11 +9,13 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
+import org.spongycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Sha256Hash;
+import org.tron.core.Constant;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.config.Parameter;
@@ -790,7 +793,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getFundInjectAddress();
     } catch (IllegalArgumentException e) {
-      this.saveFundInjectAddress(null);
+      this.saveFundInjectAddress(Hex.decode(Constant.TRON_ZERO_ADDRESS_HEX));
     }
   }
 
