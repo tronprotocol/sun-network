@@ -282,6 +282,12 @@ public class ProposalController {
         }
         case (1_000_007): {
           manager.getDynamicPropertiesStore()
+              .saveFundInjectAddress(Wallet
+                  .decodeFromBase58Check(entry.getValue()));
+          break;
+        }
+        case (1_000_008): {
+          manager.getDynamicPropertiesStore()
               .saveFundDistributeEnableSwitch(Long.valueOf(entry.getValue()));
           break;
         }

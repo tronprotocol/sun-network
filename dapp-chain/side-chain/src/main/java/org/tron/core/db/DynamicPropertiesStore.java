@@ -241,9 +241,10 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   private static final byte[] FUND = "FUND".getBytes();
 
   // Founder
+  // for 1_000_007 proposal
   private static final byte[] FUND_INJECT_ADDRESS = "FUND_INJECT_ADDRESS".getBytes();
 
-  // for 1_000_007 proposal
+  // for 1_000_008 proposal
   private static final byte[] FUND_DISTRIBUTE_ENABLE_SWITCH = "FUND_DISTRIBUTE_ENABLE_SWITCH".getBytes();
 
 
