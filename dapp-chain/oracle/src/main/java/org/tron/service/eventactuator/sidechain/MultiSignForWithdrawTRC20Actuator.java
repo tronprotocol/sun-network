@@ -15,8 +15,8 @@ import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
+import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.protos.Sidechain.MultiSignForWithdrawTRC20Event;
-import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.capsule.TransactionExtensionCapsule;
 
 @Slf4j(topic = "sideChainTask")
@@ -26,6 +26,8 @@ public class MultiSignForWithdrawTRC20Actuator extends MultiSignForWithdrawActua
   private MultiSignForWithdrawTRC20Event event;
   @Getter
   private EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TRC20_EVENT;
+  @Getter
+  private TaskEnum taskEnum = TaskEnum.MAIN_CHAIN;
 
   public MultiSignForWithdrawTRC20Actuator(String from, String mainChainAddress, String value,
       String nonce) {
@@ -62,8 +64,7 @@ public class MultiSignForWithdrawTRC20Actuator extends MultiSignForWithdrawActua
           .multiSignForWithdrawTRC20Transaction(fromStr, mainChainAddressStr, valueStr, nonceStr,
               oracleSigns);
 
-      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
-          PREFIX + nonceStr, tx,
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(PREFIX + nonceStr, tx,
           getDelay(fromStr, mainChainAddressStr, valueStr, nonceStr, oracleSigns));
       return CreateRet.SUCCESS;
     } catch (Exception e) {
@@ -81,7 +82,8 @@ public class MultiSignForWithdrawTRC20Actuator extends MultiSignForWithdrawActua
 
   @Override
   public EventMsg getMessage() {
-    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType()).build();
+    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType())
+        .setTaskEnum(getTaskEnum()).build();
   }
 
   @Override

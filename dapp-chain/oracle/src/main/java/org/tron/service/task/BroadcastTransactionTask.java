@@ -44,7 +44,7 @@ public class BroadcastTransactionTask {
       CheckTransactionTask.getInstance()
           .submitCheck(eventActuator, 60);
     } else {
-      String chain = eventActuator.getTransactionExtensionCapsule().getType().name();
+      String chain = eventActuator.getTaskEnum().name();
       if (broadcastRet == BroadcastRet.DONE) {
         Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
         if (logger.isInfoEnabled()) {
