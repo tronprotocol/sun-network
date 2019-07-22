@@ -291,6 +291,16 @@ public class ProposalController {
               .saveFundDistributeEnableSwitch(Long.valueOf(entry.getValue()));
           break;
         }
+        case (1_000_009): {
+          manager.getDynamicPropertiesStore()
+              .saveDayToSustainByFund(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (1_000_010): {
+          manager.getDynamicPropertiesStore()
+              .savePercentToPayWitness(Integer.valueOf(entry.getValue()));
+          break;
+        }
         default:
           break;
       }

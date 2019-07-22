@@ -826,7 +826,7 @@ public class Manager {
         AccountCapsule accountCapsule = getAccountStore().get(address);
         try {
           adjustBalance(accountCapsule, -fee, chargingType);
-          adjustBalance(this.getAccountStore().getBlackhole().createDbKey(), +fee, chargingType);
+          adjustFund(fee);
         } catch (BalanceInsufficientException e) {
           throw new AccountResourceInsufficientException(
               "Account Insufficient  balance[" + fee + "] to MultiSign");
@@ -1730,6 +1730,7 @@ public class Manager {
     proposalController.processProposals();
     witnessController.updateWitness();
     this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
+    modifyWitnessPayPerBlock();
     forkController.reset();
   }
 
@@ -1758,8 +1759,18 @@ public class Manager {
     this.getWitnessStore().put(witnessCapsule.getAddress().toByteArray(), witnessCapsule);
 
     try {
-      adjustAllowance(witnessCapsule.getAddress().toByteArray(),
-          getDynamicPropertiesStore().getWitnessPayPerBlock());
+      if (dynamicPropertiesStore.getFundDistributeEnableSwitch() == 1) {
+        boolean isAdjustSucceeded = adjustFund(
+            (-1) * getDynamicPropertiesStore().getWitnessPayPerBlock());
+        long payPerBlock = getDynamicPropertiesStore().getWitnessPayPerBlock();
+        long percent = getDynamicPropertiesStore().getPercentToPayWitness();
+        Double amountForWitness =
+            Double.valueOf(getDynamicPropertiesStore().getWitnessPayPerBlock()) * percent / 100;
+        adjustAllowance(witnessCapsule.getAddress().toByteArray(),
+            isAdjustSucceeded ? amountForWitness.longValue() : 0);
+        adjustBalance(getDynamicPropertiesStore().getFundInjectAddress(),
+            payPerBlock - amountForWitness.longValue());
+      }
     } catch (BalanceInsufficientException e) {
       logger.warn(e.getMessage(), e);
     }
@@ -2025,5 +2036,26 @@ public class Manager {
         }
       }
     }
+  }
+
+  public void modifyWitnessPayPerBlock() {
+    getDynamicPropertiesStore().saveWitnessPayPerBlock(
+        getDynamicPropertiesStore().getFund() / (86400 / 3 * getDynamicPropertiesStore()
+            .getDayToSustainByFund()));
+  }
+
+  public boolean adjustFund(long num) {
+
+    long fund = getDynamicPropertiesStore().getFund();
+    if (num == 0) {
+      return true;
+    }
+
+    if (num < 0 && fund < -num) {
+      return false;
+    }
+
+    getDynamicPropertiesStore().saveFund(fund + num);
+    return true;
   }
 }

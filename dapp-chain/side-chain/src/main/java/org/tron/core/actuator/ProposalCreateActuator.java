@@ -353,6 +353,20 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       }
+      case (1_000_009): {
+        if (Long.valueOf(entry.getValue()) < 1 || Long.valueOf(entry.getValue()) > 365) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid range is [1,365]");
+        }
+        break;
+      }
+      case (1_000_010): {
+        if (Integer.valueOf(entry.getValue()) < 0 || Integer.valueOf(entry.getValue()) > 100) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid range is [0,100]");//todo by qk
+        }
+        break;
+      }
       default:
         throw new ContractValidateException(
             "non-exist proposal number");

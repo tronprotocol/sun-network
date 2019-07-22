@@ -967,6 +967,18 @@ public class Wallet {
             .setValue(String
                 .valueOf(dbManager.getDynamicPropertiesStore().getSideChainChargingBandwidth()))
             .build());
+    builder.addChainParameter(
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getDayToSustainByFund")
+            .setValue(String
+                .valueOf(dbManager.getDynamicPropertiesStore().getDayToSustainByFund()))
+            .build());
+    builder.addChainParameter(
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getPercentToPayWitness")
+            .setValue(String
+                .valueOf(dbManager.getDynamicPropertiesStore().getPercentToPayWitness()))
+            .build());
 
     return builder.build();
   }

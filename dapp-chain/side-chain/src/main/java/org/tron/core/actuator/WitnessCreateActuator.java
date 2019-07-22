@@ -1,5 +1,7 @@
 package org.tron.core.actuator;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
+
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -16,8 +18,6 @@ import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.protos.Contract.WitnessCreateContract;
 import org.tron.protos.Protocol.Transaction.Result.code;
-
-import static org.tron.core.Constant.SUN_TOKEN_ID;
 
 @Slf4j(topic = "actuator")
 public class WitnessCreateActuator extends AbstractActuator {
@@ -138,7 +138,7 @@ public class WitnessCreateActuator extends AbstractActuator {
     long cost = dbManager.getDynamicPropertiesStore().getAccountUpgradeCost(chargingType);
     dbManager.adjustBalance(witnessCreateContract.getOwnerAddress().toByteArray(), -cost, chargingType);
 
-    dbManager.adjustBalance(this.dbManager.getAccountStore().getBlackhole().createDbKey(), +cost, chargingType);
+    dbManager.adjustFund(cost);
 
     dbManager.getDynamicPropertiesStore().addTotalCreateWitnessCost(cost);
   }

@@ -24,11 +24,15 @@ import static org.apache.commons.lang3.ArrayUtils.getLength;
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.apache.commons.lang3.ArrayUtils.nullToEmpty;
-import static org.tron.common.runtime.utils.MUtil.*;
+import static org.tron.common.runtime.utils.MUtil.convertToTronAddress;
+import static org.tron.common.runtime.utils.MUtil.transfer;
+import static org.tron.common.runtime.utils.MUtil.transferAllToken;
+import static org.tron.common.runtime.utils.MUtil.transferAssert;
 import static org.tron.common.utils.BIUtil.isPositive;
 import static org.tron.common.utils.BIUtil.toBI;
 import static org.tron.common.utils.ByteUtil.stripLeadingZeroes;
 
+import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
@@ -61,21 +65,22 @@ import org.tron.common.runtime.vm.program.listener.ProgramStorageChangeListener;
 import org.tron.common.runtime.vm.trace.ProgramTrace;
 import org.tron.common.runtime.vm.trace.ProgramTraceListener;
 import org.tron.common.storage.Deposit;
+import org.tron.common.storage.Key;
+import org.tron.common.storage.Value;
+import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.FastByteComparisons;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
 import org.tron.core.actuator.TransferActuator;
-import org.tron.core.actuator.TransferAssetActuator;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.BlockCapsule;
+import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.capsule.ContractCapsule;
 import org.tron.core.config.args.Args;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.TronException;
-import org.tron.protos.Contract;
-import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.SmartContract.Builder;
@@ -410,7 +415,10 @@ public class Program {
       // if owner == obtainer just zeroing account according to Yellow Paper
       getContractState().addBalance(owner, -balance);
       byte[] blackHoleAddress = getContractState().getBlackHoleAddress();
-      getContractState().addBalance(blackHoleAddress, balance);
+      Long fund = Longs.fromByteArray(getContractState().getDynamic("FUND".getBytes()).getData());
+      getContractState().putDynamicProperties(new Key("FUND".getBytes()),
+          Value.create(new BytesCapsule(ByteArray.fromLong(fund + balance)).getData()));
+
       transferAllToken(getContractState(), owner, blackHoleAddress);
     } else {
       try {
