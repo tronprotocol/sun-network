@@ -875,6 +875,22 @@ public class Client {
     }
   }
 
+  private void fundInject(String[] parameters) {
+    if (parameters.length > 1) {
+      System.out.println("Use fundInject command with below syntax: ");
+      System.out.println("fundInject  amount");
+      return;
+    }
+
+    long amount = Long.parseLong(parameters[0]);
+
+    boolean result = walletApiWrapper.fundInject(amount);
+    if (result) {
+      logger.info("fundInject " + " successful !!");
+    } else {
+      logger.info("fundInject " + " failed !!");
+    }
+  }
 
   private void unfreezeAsset() {
     boolean result = walletApiWrapper.unfreezeAsset();
@@ -1929,7 +1945,6 @@ public class Client {
     allCmds.add("getbalance");
     allCmds.add("getaccount");
     allCmds.add("updateaccount");
-    allCmds.add("updateasset");
     allCmds.add("getaccountresource");
     allCmds.add("getassetissuebyid");
     allCmds.add("sendcoin");
@@ -1941,8 +1956,8 @@ public class Client {
     allCmds.add("votewitness");
     allCmds.add("freezebalance");
     allCmds.add("unfreezebalance");
+    allCmds.add("fundinject");
     allCmds.add("withdrawbalance");
-    allCmds.add("unfreezeasset");
     allCmds.add("listproposals");
     allCmds.add("getproposal");
     allCmds.add("getchainparameters");
@@ -1964,6 +1979,7 @@ public class Client {
     allCmds.add("retry");
     allCmds.add("createproposal");
     allCmds.add("getmappingaddress");
+    allCmds.add("getnextmaintenancetime");
     allCmds.add("exit");
     allCmds.add("quit");
 
@@ -2757,10 +2773,6 @@ public class Client {
           updateAccount(parameters);
           break;
         }
-        case "updateasset": {
-          updateAsset(parameters);
-          break;
-        }
         case "getaccountresource": {
           getAccountResource(parameters);
           break;
@@ -2805,12 +2817,12 @@ public class Client {
           unfreezeBalance(parameters);
           break;
         }
-        case "withdrawbalance": {
-          withdrawBalance();
+        case "fundinject": {
+          fundInject(parameters);
           break;
         }
-        case "unfreezeasset": {
-          unfreezeAsset();
+        case "withdrawbalance": {
+          withdrawBalance();
           break;
         }
         case "listproposals": {
@@ -2897,6 +2909,10 @@ public class Client {
         }
         case "createproposal": {
           sideChainCreateProposal(parameters);
+          break;
+        }
+        case "getnextmaintenancetime": {
+          getNextMaintenanceTime();
           break;
         }
         case "exit":

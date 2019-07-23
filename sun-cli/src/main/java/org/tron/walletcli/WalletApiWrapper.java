@@ -557,6 +557,20 @@ public class WalletApiWrapper {
     return false;
   }
 
+  public boolean fundInject(long amount) {
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: unfreezeBalance failed, Please login first !!");
+      return false;
+    }
+    SunNetworkResponse<TransactionResponse> resp = getChainInterface()
+        .fundInject(amount);
+    TransactionResponse txResp = resp.getData();
+    if (txResp != null) {
+      printResponseInfo(txResp);
+      return txResp.getResult();
+    }
+    return false;
+  }
 
   public boolean unfreezeAsset() {
     if (wallet == null || !wallet.isLoginState()) {
