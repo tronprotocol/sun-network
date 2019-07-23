@@ -1,4 +1,3 @@
-/*
 package stest.tron.wallet.account;
 
 import com.google.protobuf.ByteString;
@@ -61,11 +60,9 @@ public class WalletTestAccount013 {
   byte[] accountForAssetIssueAddress;
   String accountForAssetIssueKey;
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
   @BeforeSuite
   public void beforeSuite() {
     Wallet wallet = new Wallet();
@@ -73,11 +70,9 @@ public class WalletTestAccount013 {
 
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(testKey002);
@@ -303,91 +298,91 @@ public class WalletTestAccount013 {
         account4DelegatedResourceKey, 0, account5DelegatedResourceAddress, blockingStubFull));
   }
 
-  @Test(enabled = true)
-  public void test3PrepareToken() {
-    //Create Account7
-    ECKey ecKey7 = new ECKey(Utils.getRandom());
-    accountForAssetIssueAddress = ecKey7.getAddress();
-    accountForAssetIssueKey = ByteArray.toHexString(ecKey7.getPrivKeyBytes());
-    //sendcoin to Account7
-    Assert.assertTrue(PublicMethed.sendcoin(accountForAssetIssueAddress,
-        10000000000L, toAddress, testKey003, blockingStubFull));
-    //account013 DelegateResource of bandwidth to accountForAssetIssue
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(
-        account013Address, 1000000000L, freezeDuration, 0,
-        ByteString.copyFrom(accountForAssetIssueAddress),
-        testKeyForAccount013, blockingStubFull));
-    //accountForAssetIssue AssetIssue
-    long now = System.currentTimeMillis();
-    String name = "testAccount013_" + Long.toString(now);
-    long totalSupply = 100000000000L;
-    String description = "zfbnb";
-    String url = "aaa.com";
-    Assert.assertTrue(PublicMethed.createAssetIssue(accountForAssetIssueAddress,
-        name, totalSupply, 1, 1, System.currentTimeMillis() + 2000,
-        System.currentTimeMillis() + 1000000000, 1, description, url,
-        2000L, 2000L, 500L, 1L,
-        accountForAssetIssueKey, blockingStubFull));
-
-  }
-
-  @Test(enabled = true)
-  public void test4DelegateResourceAboutTransferAsset() {
-    //Wait for 3s
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    //get AssetIssue Id
-    Protocol.Account getAssetIdFromThisAccount;
-    getAssetIdFromThisAccount = PublicMethed.queryAccount(
-        accountForAssetIssueAddress, blockingStubFull);
-    ByteString assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
-    //Account5 Participate AssetIssue
-    Assert.assertTrue(PublicMethed.participateAssetIssue(
-        accountForAssetIssueAddress, assetAccountId.toByteArray(), 1000000,
-        account5DelegatedResourceAddress, account5DelegatedResourceKey, blockingStubFull));
-    //get account013，accountForAssetIssue，Account5 account resources before transferAssets
-    final long account013CurrentBandwidth = PublicMethed.getAccountResource(
-        account013Address, blockingStubFull).getNetUsed();
-    long accountForAssetIssueCurrentBandwidth = PublicMethed.getAccountResource(
-        accountForAssetIssueAddress, blockingStubFull).getNetUsed();
-    final long account5CurrentBandwidth = PublicMethed.getAccountResource(
-        account5DelegatedResourceAddress, blockingStubFull).getNetUsed();
-    //Account5 transfer Assets receiver
-    Assert.assertTrue(PublicMethed.transferAsset(receiverDelegateAddress,
-        assetAccountId.toByteArray(), 100000, account5DelegatedResourceAddress,
-        account5DelegatedResourceKey, blockingStubFull));
-
-    PublicMethed.printAddress(accountForAssetIssueKey);
-    PublicMethed.printAddress(account5DelegatedResourceKey);
-
-    //get account013，accountForAssetIssue，Account5 resource after transferAsset
-    final long account013CurrentBandwidthAfterTrans = PublicMethed.getAccountResource(
-        account013Address, blockingStubFull).getNetUsed();
-    final long accountForAssetIssueCurrentBandwidthAfterTrans = PublicMethed.getAccountResource(
-        accountForAssetIssueAddress, blockingStubFull).getFreeNetUsed();
-    final long account5CurrentBandwidthAfterTrans = PublicMethed.getAccountResource(
-        account5DelegatedResourceAddress, blockingStubFull).getNetUsed();
-    AccountResourceMessage account5ResourceAfterTrans = PublicMethed.getAccountResource(
-        account5DelegatedResourceAddress, blockingStubFull);
-
-    String result = "";
-    if (account5ResourceAfterTrans.getAssetNetLimitCount() > 0) {
-      logger.info("getAssetNetLimitCount > 0 ");
-      for (String name1 : account5ResourceAfterTrans.getAssetNetLimitMap().keySet()) {
-        logger.info(name1);
-        result += account5ResourceAfterTrans.getAssetNetUsedMap().get(name1);
-
-      }
-    }
-    logger.info(result);
-    PublicMethed.printAddress(receiverDelegateKey);
-    PublicMethed.printAddress(account5DelegatedResourceKey);
-    long account5FreeAssetNetUsed = accountForAssetIssueCurrentBandwidthAfterTrans;
-
-    //check resource diff
-    Assert.assertTrue(Long.parseLong(result) > 0);
-    Assert.assertTrue(account013CurrentBandwidth == account013CurrentBandwidthAfterTrans);
-    Assert.assertTrue(account5CurrentBandwidth == account5CurrentBandwidthAfterTrans);
-  }
+//  @Test(enabled = true)
+//  public void test3PrepareToken() {
+//    //Create Account7
+//    ECKey ecKey7 = new ECKey(Utils.getRandom());
+//    accountForAssetIssueAddress = ecKey7.getAddress();
+//    accountForAssetIssueKey = ByteArray.toHexString(ecKey7.getPrivKeyBytes());
+//    //sendcoin to Account7
+//    Assert.assertTrue(PublicMethed.sendcoin(accountForAssetIssueAddress,
+//        10000000000L, toAddress, testKey003, blockingStubFull));
+//    //account013 DelegateResource of bandwidth to accountForAssetIssue
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(
+//        account013Address, 1000000000L, freezeDuration, 0,
+//        ByteString.copyFrom(accountForAssetIssueAddress),
+//        testKeyForAccount013, blockingStubFull));
+//    //accountForAssetIssue AssetIssue
+//    long now = System.currentTimeMillis();
+//    String name = "testAccount013_" + Long.toString(now);
+//    long totalSupply = 100000000000L;
+//    String description = "zfbnb";
+//    String url = "aaa.com";
+//    Assert.assertTrue(PublicMethed.createAssetIssue(accountForAssetIssueAddress,
+//        name, totalSupply, 1, 1, System.currentTimeMillis() + 2000,
+//        System.currentTimeMillis() + 1000000000, 1, description, url,
+//        2000L, 2000L, 500L, 1L,
+//        accountForAssetIssueKey, blockingStubFull));
+//
+//  }
+//
+//  @Test(enabled = true)
+//  public void test4DelegateResourceAboutTransferAsset() {
+//    //Wait for 3s
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    //get AssetIssue Id
+//    Protocol.Account getAssetIdFromThisAccount;
+//    getAssetIdFromThisAccount = PublicMethed.queryAccount(
+//        accountForAssetIssueAddress, blockingStubFull);
+//    ByteString assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
+//    //Account5 Participate AssetIssue
+//    Assert.assertTrue(PublicMethed.participateAssetIssue(
+//        accountForAssetIssueAddress, assetAccountId.toByteArray(), 1000000,
+//        account5DelegatedResourceAddress, account5DelegatedResourceKey, blockingStubFull));
+//    //get account013，accountForAssetIssue，Account5 account resources before transferAssets
+//    final long account013CurrentBandwidth = PublicMethed.getAccountResource(
+//        account013Address, blockingStubFull).getNetUsed();
+//    long accountForAssetIssueCurrentBandwidth = PublicMethed.getAccountResource(
+//        accountForAssetIssueAddress, blockingStubFull).getNetUsed();
+//    final long account5CurrentBandwidth = PublicMethed.getAccountResource(
+//        account5DelegatedResourceAddress, blockingStubFull).getNetUsed();
+//    //Account5 transfer Assets receiver
+//    Assert.assertTrue(PublicMethed.transferAsset(receiverDelegateAddress,
+//        assetAccountId.toByteArray(), 100000, account5DelegatedResourceAddress,
+//        account5DelegatedResourceKey, blockingStubFull));
+//
+//    PublicMethed.printAddress(accountForAssetIssueKey);
+//    PublicMethed.printAddress(account5DelegatedResourceKey);
+//
+//    //get account013，accountForAssetIssue，Account5 resource after transferAsset
+//    final long account013CurrentBandwidthAfterTrans = PublicMethed.getAccountResource(
+//        account013Address, blockingStubFull).getNetUsed();
+//    final long accountForAssetIssueCurrentBandwidthAfterTrans = PublicMethed.getAccountResource(
+//        accountForAssetIssueAddress, blockingStubFull).getFreeNetUsed();
+//    final long account5CurrentBandwidthAfterTrans = PublicMethed.getAccountResource(
+//        account5DelegatedResourceAddress, blockingStubFull).getNetUsed();
+//    AccountResourceMessage account5ResourceAfterTrans = PublicMethed.getAccountResource(
+//        account5DelegatedResourceAddress, blockingStubFull);
+//
+//    String result = "";
+//    if (account5ResourceAfterTrans.getAssetNetLimitCount() > 0) {
+//      logger.info("getAssetNetLimitCount > 0 ");
+//      for (String name1 : account5ResourceAfterTrans.getAssetNetLimitMap().keySet()) {
+//        logger.info(name1);
+//        result += account5ResourceAfterTrans.getAssetNetUsedMap().get(name1);
+//
+//      }
+//    }
+//    logger.info(result);
+//    PublicMethed.printAddress(receiverDelegateKey);
+//    PublicMethed.printAddress(account5DelegatedResourceKey);
+//    long account5FreeAssetNetUsed = accountForAssetIssueCurrentBandwidthAfterTrans;
+//
+//    //check resource diff
+//    Assert.assertTrue(Long.parseLong(result) > 0);
+//    Assert.assertTrue(account013CurrentBandwidth == account013CurrentBandwidthAfterTrans);
+//    Assert.assertTrue(account5CurrentBandwidth == account5CurrentBandwidthAfterTrans);
+//  }
 
   @Test(enabled = true)
   public void test5CanNotDelegateResourceToContract() {
@@ -441,7 +436,7 @@ public class WalletTestAccount013 {
 //        accountForDeployAddress, blockingStubFull).getEnergyUsed();
 //
 //    //Account013 trigger contract
-//    String txid = PublicMethed.triggerContractSideChain(contractAddress,
+//    String txid = PublicMethed.triggerContract(contractAddress,
 //        "add2(uint256)", "1", false,
 //        0, 1000000000L, "0", 0, account013Address, testKeyForAccount013, blockingStubFull);
 //    logger.info(txid);
@@ -475,15 +470,13 @@ public class WalletTestAccount013 {
 
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
-}*/
+}

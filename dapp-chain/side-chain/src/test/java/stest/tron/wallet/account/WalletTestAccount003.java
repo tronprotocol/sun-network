@@ -1,4 +1,3 @@
-/*
 package stest.tron.wallet.account;
 
 import com.google.protobuf.ByteString;
@@ -80,11 +79,9 @@ public class WalletTestAccount003 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
 
   @BeforeClass
   public void beforeClass() {
@@ -104,7 +101,9 @@ public class WalletTestAccount003 {
       lowBalTest = ByteArray.toHexString(ecKey.getPrivKeyBytes());
       noCreateAccount = PublicMethed.queryAccount(lowBalTest, blockingStubFull);
     }
-    Assert.assertTrue(sendCoin(lowBalAddress, 1L, fromAddress, testKey002));
+    logger.info("lowBalAddress  " + ByteArray.toHexString(lowBalAddress));
+    logger.info("lowBalTest  " + lowBalTest);
+    Assert.assertTrue(PublicMethed.sendcoin(lowBalAddress, 1L, fromAddress, testKey002,blockingStubFull));
     noCreateAccount = PublicMethed.queryAccount(lowBalTest, blockingStubFull);
     logger.info(Long.toString(noCreateAccount.getBalance()));
     Assert.assertTrue(noCreateAccount.getBalance() == 1);
@@ -112,8 +111,8 @@ public class WalletTestAccount003 {
 
   @Test(enabled = true)
   public void test2UpdateAccount() {
-    Assert.assertFalse(PublicMethed.updateAccount(lowBalAddress,
-        mostLongNamePlusOneChar.getBytes(), lowBalTest, blockingStubFull));
+//    Assert.assertFalse(PublicMethed.updateAccount(lowBalAddress,
+//        mostLongNamePlusOneChar.getBytes(), lowBalTest, blockingStubFull));
     Assert.assertFalse(PublicMethed.updateAccount(lowBalAddress, "".getBytes(), lowBalTest,
         blockingStubFull));
     String mostLongName = getRandomStr(33);
@@ -127,18 +126,18 @@ public class WalletTestAccount003 {
         lowBalTest, blockingStubFull));
   }
 
-  @Test(enabled = true)
-  public void test3NoBalanceCreateAssetIssue() {
-    Account lowaccount = PublicMethed.queryAccount(lowBalTest, blockingStubFull);
-    if (lowaccount.getBalance() > 0) {
-      Assert.assertTrue(sendCoin(toAddress, lowaccount.getBalance(), lowBalAddress, lowBalTest));
-    }
-    //Create AssetIssue failed when there is no enough balance.
-    Assert.assertFalse(PublicMethed.createAssetIssue(lowBalAddress, name, TotalSupply, 1, 1,
-        now + 100000000L, now + 10000000000L, 2, description, url, 10000L,
-        10000L, 1L, 1L, lowBalTest, blockingStubFull));
-    logger.info("nobalancecreateassetissue");
-  }
+//  @Test(enabled = true)
+//  public void test3NoBalanceCreateAssetIssue() {
+//    Account lowaccount = PublicMethed.queryAccount(lowBalTest, blockingStubFull);
+//    if (lowaccount.getBalance() > 0) {
+//      Assert.assertTrue(sendCoin(toAddress, lowaccount.getBalance(), lowBalAddress, lowBalTest));
+//    }
+//    //Create AssetIssue failed when there is no enough balance.
+//    Assert.assertFalse(PublicMethed.createAssetIssue(lowBalAddress, name, TotalSupply, 1, 1,
+//        now + 100000000L, now + 10000000000L, 2, description, url, 10000L,
+//        10000L, 1L, 1L, lowBalTest, blockingStubFull));
+//    logger.info("nobalancecreateassetissue");
+//  }
 
   @Test(enabled = true)
   public void test4NoBalanceTransferTrx() {
@@ -163,11 +162,9 @@ public class WalletTestAccount003 {
     }
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
 
   @AfterClass
   public void shutdown() throws InterruptedException {
@@ -176,11 +173,9 @@ public class WalletTestAccount003 {
     }
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
 
   public Boolean createWitness(byte[] owner, byte[] url, String priKey) {
     ECKey temKey = null;
@@ -209,11 +204,9 @@ public class WalletTestAccount003 {
     }
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
 
   public Boolean sendCoin(byte[] to, long amount, byte[] owner, String priKey) {
     //String priKey = testKey002;
@@ -249,56 +242,54 @@ public class WalletTestAccount003 {
     }
   }
 
-  */
-/**
-   * constructor.
-   *//*
-
-
-  public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
-      Integer icoNum, Long startTime, Long endTime,
-      Integer voteScore, String description, String url, String priKey) {
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    ECKey ecKey = temKey;
-
-    try {
-      Contract.AssetIssueContract.Builder builder = Contract.AssetIssueContract.newBuilder();
-      builder.setOwnerAddress(ByteString.copyFrom(address));
-      builder.setName(ByteString.copyFrom(name.getBytes()));
-      builder.setTotalSupply(TotalSupply);
-      builder.setTrxNum(trxNum);
-      builder.setNum(icoNum);
-      builder.setStartTime(startTime);
-      builder.setEndTime(endTime);
-      builder.setVoteScore(voteScore);
-      builder.setDescription(ByteString.copyFrom(description.getBytes()));
-      builder.setUrl(ByteString.copyFrom(url.getBytes()));
-
-      Protocol.Transaction transaction = blockingStubFull.createAssetIssue(builder.build());
-      if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-        logger.info("Please check!!! transaction == null");
-        return false;
-      }
-      transaction = signTransaction(ecKey, transaction);
-      GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
-      if (response.getResult() == false) {
-        logger.info("Please check!!! response.getresult==false");
-        return false;
-      } else {
-        logger.info(name);
-        return true;
-      }
-    } catch (Exception ex) {
-      ex.printStackTrace();
-      return false;
-    }
-  }
+//  /**
+//   * constructor.
+//   */
+//
+//  public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
+//      Integer icoNum, Long startTime, Long endTime,
+//      Integer voteScore, String description, String url, String priKey) {
+//    ECKey temKey = null;
+//    try {
+//      BigInteger priK = new BigInteger(priKey, 16);
+//      temKey = ECKey.fromPrivate(priK);
+//    } catch (Exception ex) {
+//      ex.printStackTrace();
+//    }
+//    ECKey ecKey = temKey;
+//
+//    try {
+//      Contract.AssetIssueContract.Builder builder = Contract.AssetIssueContract.newBuilder();
+//      builder.setOwnerAddress(ByteString.copyFrom(address));
+//      builder.setName(ByteString.copyFrom(name.getBytes()));
+//      builder.setTotalSupply(TotalSupply);
+//      builder.setTrxNum(trxNum);
+//      builder.setNum(icoNum);
+//      builder.setStartTime(startTime);
+//      builder.setEndTime(endTime);
+//      builder.setVoteScore(voteScore);
+//      builder.setDescription(ByteString.copyFrom(description.getBytes()));
+//      builder.setUrl(ByteString.copyFrom(url.getBytes()));
+//
+//      Protocol.Transaction transaction = blockingStubFull.createAssetIssue(builder.build());
+//      if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+//        logger.info("Please check!!! transaction == null");
+//        return false;
+//      }
+//      transaction = signTransaction(ecKey, transaction);
+//      GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
+//      if (response.getResult() == false) {
+//        logger.info("Please check!!! response.getresult==false");
+//        return false;
+//      } else {
+//        logger.info(name);
+//        return true;
+//      }
+//    } catch (Exception ex) {
+//      ex.printStackTrace();
+//      return false;
+//    }
+//  }
 
   class AccountComparator implements Comparator {
 
@@ -316,11 +307,9 @@ public class WalletTestAccount003 {
     return ecKey.getAddress();
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
 
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
@@ -328,11 +317,9 @@ public class WalletTestAccount003 {
     return blockingStubFull.getAccount(request);
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
 
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
@@ -350,11 +337,9 @@ public class WalletTestAccount003 {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
 
   public boolean unFreezeBalance(byte[] address, String priKey) {
     //byte[] address = address;
@@ -391,11 +376,9 @@ public class WalletTestAccount003 {
     }
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
 
   public Boolean voteWitness(HashMap<String, String> witness, byte[] address, String priKey) {
 
@@ -440,11 +423,9 @@ public class WalletTestAccount003 {
     return true;
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
 
   public Boolean freezeBalance(byte[] addRess, long freezeBalance, long freezeDuration,
       String priKey) {
@@ -487,11 +468,9 @@ public class WalletTestAccount003 {
 
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
 
   public static String getRandomStr(int length) {
     String base = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -512,4 +491,3 @@ public class WalletTestAccount003 {
 
 
 
-*/
