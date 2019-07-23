@@ -383,7 +383,7 @@ public class CrosschainApi {
     try {
       byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
 
-      TransactionResponse result = mainchainServer
+      TransactionResponse result = sidechainServer
           .triggerContract(ServerApi.getSideGatewayAddress(), 0, input, feeLimit, 0, null);
       resp.setData(result);
       if (result.getResponseType() == ResponseType.TRANSACTION_NORMAL && result.getResult()) {
