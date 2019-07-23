@@ -24,7 +24,6 @@ import org.tron.core.config.Parameter.ChainParameters;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
-import org.tron.protos.Contract;
 import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Protocol.Transaction.Result.code;
 
@@ -363,7 +362,7 @@ public class ProposalCreateActuator extends AbstractActuator {
       case (1_000_010): {
         if (Integer.valueOf(entry.getValue()) < 0 || Integer.valueOf(entry.getValue()) > 100) {
           throw new ContractValidateException(
-              "Bad chain parameter value,valid range is [0,100]");//todo by qk
+              "Bad chain parameter value,valid range is [0,100]");
         }
         break;
       }
