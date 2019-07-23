@@ -1766,10 +1766,11 @@ public class Manager {
         long percent = getDynamicPropertiesStore().getPercentToPayWitness();
         Double amountForWitness =
             Double.valueOf(getDynamicPropertiesStore().getWitnessPayPerBlock()) * percent / 100;
+        int chargingType = getDynamicPropertiesStore().getSideChainChargingType();
         adjustAllowance(witnessCapsule.getAddress().toByteArray(),
             isAdjustSucceeded ? amountForWitness.longValue() : 0);
         adjustBalance(getDynamicPropertiesStore().getFundInjectAddress(),
-            payPerBlock - amountForWitness.longValue());
+            isAdjustSucceeded ? payPerBlock - amountForWitness.longValue() : 0, chargingType);
       }
     } catch (BalanceInsufficientException e) {
       logger.warn(e.getMessage(), e);
