@@ -875,6 +875,22 @@ public class Client {
     }
   }
 
+  private void fundInject(String[] parameters) {
+    if (parameters.length > 1) {
+      System.out.println("Use fundInject command with below syntax: ");
+      System.out.println("fundInject  amount");
+      return;
+    }
+
+    long amount = Long.parseLong(parameters[0]);
+
+    boolean result = walletApiWrapper.fundInject(amount);
+    if (result) {
+      logger.info("fundInject " + " successful !!");
+    } else {
+      logger.info("fundInject " + " failed !!");
+    }
+  }
 
   private void unfreezeAsset() {
     boolean result = walletApiWrapper.unfreezeAsset();
@@ -1940,6 +1956,7 @@ public class Client {
     allCmds.add("votewitness");
     allCmds.add("freezebalance");
     allCmds.add("unfreezebalance");
+    allCmds.add("fundinject");
     allCmds.add("withdrawbalance");
     allCmds.add("listproposals");
     allCmds.add("getproposal");
@@ -2798,6 +2815,10 @@ public class Client {
         }
         case "unfreezebalance": {
           unfreezeBalance(parameters);
+          break;
+        }
+        case "fundinject": {
+          fundInject(parameters);
           break;
         }
         case "withdrawbalance": {

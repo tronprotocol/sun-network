@@ -42,7 +42,6 @@ import org.tron.api.GrpcAPI.Return;
 import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.GrpcAPI.TransactionApprovedList;
 import org.tron.api.GrpcAPI.TransactionExtention;
-import org.tron.api.GrpcAPI.TransactionList;
 import org.tron.api.GrpcAPI.TransactionListExtention;
 import org.tron.api.GrpcAPI.TransactionSignWeight;
 import org.tron.api.GrpcAPI.TransactionSignWeight.Result.response_code;
@@ -68,6 +67,7 @@ import org.tron.protos.Contract.BuyStorageBytesContract;
 import org.tron.protos.Contract.BuyStorageContract;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.FreezeBalanceContract;
+import org.tron.protos.Contract.FundInjectContract;
 import org.tron.protos.Contract.SellStorageContract;
 import org.tron.protos.Contract.UnfreezeAssetContract;
 import org.tron.protos.Contract.UnfreezeBalanceContract;
@@ -818,11 +818,6 @@ public class ServerApi {
     return rpcCli.getNextMaintenanceTime();
   }
 
-  public Optional<TransactionList> getTransactionsFromThis(byte[] address, int offset,
-      int limit) {
-    return rpcCli.getTransactionsFromThis(address, offset, limit);
-  }
-
   public Optional<TransactionListExtention> getTransactionsFromThis2(byte[] address,
       int offset,
       int limit) {
@@ -832,10 +827,6 @@ public class ServerApi {
 //    return rpcCli.getTransactionsFromThisCount(address);
 //  }
 
-  public Optional<TransactionList> getTransactionsToThis(byte[] address, int offset,
-      int limit) {
-    return rpcCli.getTransactionsToThis(address, offset, limit);
-  }
 
   public Optional<TransactionListExtention> getTransactionsToThis2(byte[] address,
       int offset,
@@ -861,6 +852,12 @@ public class ServerApi {
         frozen_duration, resourceCode, receiverAddress);
 
     TransactionExtention transactionExtention = rpcCli.createTransaction2(contract);
+    return processTransactionExt2(transactionExtention);
+  }
+
+  public TransactionResponse fundInject(long amount) {
+    Contract.FundInjectContract contract = createFundInjectContract(amount);
+    TransactionExtention transactionExtention = rpcCli.createTransaction(contract);
     return processTransactionExt2(transactionExtention);
   }
 
@@ -896,6 +893,14 @@ public class ServerApi {
           Objects.requireNonNull(AddressUtil.decodeFromBase58Check(receiverAddress)));
       builder.setReceiverAddress(receiverAddressBytes);
     }
+    return builder.build();
+  }
+
+  private FundInjectContract createFundInjectContract(long amount) {
+    byte[] address = getAddress();
+    Contract.FundInjectContract.Builder builder = Contract.FundInjectContract.newBuilder();
+    ByteString byteAddress = ByteString.copyFrom(address);
+    builder.setOwnerAddress(byteAddress).setAmount(amount);
     return builder.build();
   }
 

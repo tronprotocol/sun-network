@@ -958,6 +958,28 @@ public class Chain implements ChainInterface {
   }
 
   /**
+   * @return the result of inject fund
+   * @author sun-network
+   */
+  public SunNetworkResponse<TransactionResponse> fundInject(long amount) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
+
+    try {
+      TransactionResponse result = serverApi.fundInject(amount);
+      resp.setData(result);
+      if (result.getResult()) {
+        resp.success(result);
+      } else {
+        resp.failed(ErrorCodeEnum.FAILED);
+      }
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
+    }
+
+    return resp;
+  }
+
+  /**
    * @param resourceCode the resource code
    * @param receiverAddress the receive address
    * @return the result of unfreeze balance
