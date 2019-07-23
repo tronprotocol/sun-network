@@ -328,7 +328,7 @@ public class ProposalCreateActuator extends AbstractActuator {
             throw new ContractValidateException(
                 "Invalid Fund Inject Address");
           }
-          if (this.dbManager.getAccountStore().get(address) != null) {
+          if (this.dbManager.getAccountStore().get(address) == null) {
             throw new ContractValidateException("target Fund Inject Address not exist");
           }
         } catch (Exception e){
@@ -347,7 +347,7 @@ public class ProposalCreateActuator extends AbstractActuator {
             Hex.decode(Constant.TRON_ZERO_ADDRESS_HEX))) {
           throw new ContractValidateException(
               "Fund Inject Address should not be default T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
-                  + "to enable Fund distribution switch"
+                  + " to enable Fund distribution switch"
           );
         }
         break;

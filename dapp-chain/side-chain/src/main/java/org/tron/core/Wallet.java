@@ -39,6 +39,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.spongycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -980,8 +981,7 @@ public class Wallet {
     builder.addChainParameter(
         Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getFundInjectAddress")
-            .setValue(String
-                .valueOf(dbManager.getDynamicPropertiesStore().getFundInjectAddress()))
+            .setValue(encode58Check(dbManager.getDynamicPropertiesStore().getFundInjectAddress()))
             .build());
 
     // FundDistributeEnableSwitch 0,1
