@@ -96,7 +96,7 @@ public class FundInjectActuator extends AbstractActuator {
     }
 
     if (amount < 1_000_000L) {
-      throw new ContractValidateException("fund amount must be larger than 1TRX");
+      throw new ContractValidateException("fund amount must be larger than 1TRX/SunToken");
     }
 
     long balance = accountCapsule.getBalanceByChargeType(dbManager);
