@@ -405,9 +405,10 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
             }
         } else {
             if (withdrawSigns[nonce].success) {
-                emit WithdrawTRX(withdrawMsg.user, withdrawMsg.valueOrUid, nonce);
-            } else {
                 emit MultiSignForWithdrawTRX(withdrawMsg.user, withdrawMsg.valueOrUid, nonce);
+            } else {
+                emit WithdrawTRX(withdrawMsg.user, withdrawMsg.valueOrUid, nonce);
+
             }
         }
     }

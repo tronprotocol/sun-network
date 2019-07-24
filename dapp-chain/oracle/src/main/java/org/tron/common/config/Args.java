@@ -110,11 +110,15 @@ public class Args {
     Config config = Configuration.getByPath(confName);
     this.mainchainFullNodeList = config.getStringList("mainchain.fullnode.ip.list");
     this.mainchainFullNode = this.mainchainFullNodeList.get(0);
-    this.mainchainSolidity = config.getStringList("mainchain.solidity.ip.list").get(0);
+    if (config.hasPath("mainchain.solidity.ip.list")) {
+      this.mainchainSolidity = config.getStringList("mainchain.solidity.ip.list").get(0);
+    }
 
     this.sidechainFullNodeList = config.getStringList("sidechain.fullnode.ip.list");
     this.sidechainFullNode = this.sidechainFullNodeList.get(0);
-    this.sidechainSolidity = config.getStringList("sidechain.solidity.ip.list").get(0);
+    if (config.hasPath("sidechain.solidity.ip.list")) {
+      this.sidechainSolidity = config.getStringList("sidechain.solidity.ip.list").get(0);
+    }
 
     this.mainchainGatewayStr = config.getString("gateway.mainchain.address");
     this.mainchainGateway = WalletUtil
