@@ -13,7 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.spongycastle.util.encoders.Hex;
+import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.StringUtil;
+import org.tron.core.Constant;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.capsule.TransactionResultCapsule;
@@ -22,6 +25,7 @@ import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.protos.Contract.SideChainProposalCreateContract;
+import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.Transaction.Result.code;
 
 @Slf4j(topic = "actuator")
@@ -252,32 +256,41 @@ public class ProposalCreateActuator extends AbstractActuator {
         break;
       }
       case (1_000_000): {
-        if (Long.valueOf(entry.getValue()) != 1) {
+        if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
           throw new ContractValidateException(
-              "this value[ENERGY_CHARGING_SWITCH] is only allowed to be 1");
+              "this value[ENERGY_CHARGING_SWITCH] is only allowed to be 1 or 0");
         }
         break;
       }
       case (1_000_001): {
         List<String> list = Arrays.asList(entry.getValue().split(","));
         Iterator<String> it = list.iterator();
-        while (it.hasNext()) {
-          if (Wallet.decodeFromBase58Check(it.next()).length != 21) {
-            throw new ContractValidateException(
-                "gateway address has to be 21 bytes");
+        try {
+          while (it.hasNext()) {
+            if (!Wallet.addressValid(Wallet.decodeFromBase58Check(it.next()))) {
+              throw new ContractValidateException(
+                  "Invalid gateway address");
+            }
           }
+        } catch (Exception e) {
+          throw new ContractValidateException(
+              "Invalid gateway address");
         }
-
         break;
       }
       case (1_000_002): {
         List<String> list = Arrays.asList(entry.getValue().split(","));
         Iterator<String> it = list.iterator();
-        while (it.hasNext()) {
-          if (Wallet.decodeFromBase58Check(it.next()).length != 21) {
-            throw new ContractValidateException(
-                "gateway address has to be 21 bytes");
+        try {
+          while (it.hasNext()) {
+            if (!Wallet.addressValid(Wallet.decodeFromBase58Check(it.next()))) {
+              throw new ContractValidateException(
+                  "Invalid gateway address");
+            }
           }
+        } catch (Exception e) {
+          throw new ContractValidateException(
+              "Invalid gateway address");
         }
         break;
       }
@@ -302,10 +315,66 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       }
-      case (1_000_006): {
+      case (1_000_006):{
         if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid value is {0,1}");
+        }
+        break;
+      }
+      case (1_000_007):{
+        try {
+          byte[] address = Wallet.decodeFromBase58Check(entry.getValue());
+          if (!Wallet.addressValid(address)) {
+            throw new ContractValidateException(
+                "Invalid Fund Inject Address");
+          }
+          if (ByteUtil.equals(address,
+              Hex.decode(Constant.TRON_ZERO_ADDRESS_HEX))) {
+            throw new ContractValidateException("target Fund Inject Address should not be set to "
+                + "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb");
+          }
+
+          if (this.dbManager.getAccountStore().get(address) == null) {
+            throw new ContractValidateException("target Fund Inject Address not exist");
+          }
+          if (this.dbManager.getAccountStore().get(address).getType()
+              == AccountType.Contract) {
+            throw new ContractValidateException("target Fund Inject Address should not "
+                + "be a contract");
+          }
+        } catch (Exception e){
+          throw new ContractValidateException(
+              "Invalid Fund Inject Address");
+        }
+
+        break;
+      }
+      case (1_000_008):{
+        if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid value is {0,1}");
+        }
+        if (Long.valueOf(entry.getValue()) == 1 && ByteUtil.equals(this.dbManager.getDynamicPropertiesStore().getFundInjectAddress(),
+            Hex.decode(Constant.TRON_ZERO_ADDRESS_HEX))) {
+          throw new ContractValidateException(
+              "Fund Inject Address should not be default T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
+                  + " to enable Fund distribution switch"
+          );
+        }
+        break;
+      }
+      case (1_000_009): {
+        if (Long.valueOf(entry.getValue()) < 1 || Long.valueOf(entry.getValue()) > 365) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid range is [1,365]");
+        }
+        break;
+      }
+      case (1_000_010): {
+        if (Integer.valueOf(entry.getValue()) < 0 || Integer.valueOf(entry.getValue()) > 100) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid range is [0,100]");
         }
         break;
       }

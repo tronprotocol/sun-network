@@ -1,5 +1,6 @@
 package org.tron.core.actuator;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
 import static org.tron.core.actuator.ActuatorConstant.ACCOUNT_EXCEPTION_STR;
 
 import com.google.common.math.LongMath;
@@ -43,12 +44,19 @@ public class WithdrawBalanceActuator extends AbstractActuator {
     AccountCapsule accountCapsule = (Objects.isNull(getDeposit())) ? dbManager.getAccountStore().
         get(withdrawBalanceContract.getOwnerAddress().toByteArray())
         : getDeposit().getAccount(withdrawBalanceContract.getOwnerAddress().toByteArray());
-    long oldBalance = accountCapsule.getBalance();
+    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
+    long oldBalance = accountCapsule.getBalanceByChargeType(dbManager);
     long allowance = accountCapsule.getAllowance();
-
     long now = dbManager.getHeadBlockTimeStamp();
+
+    accountCapsule.getInstance().toBuilder();
+    if (chargingType == 0) {
+      accountCapsule.setBalance(oldBalance + allowance);
+    } else {
+      accountCapsule.addAssetAmountV2(SUN_TOKEN_ID.getBytes(), allowance);
+    }
+
     accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
-        .setBalance(oldBalance + allowance)
         .setAllowance(0L)
         .setLatestWithdrawTime(now)
         .build());
@@ -128,7 +136,8 @@ public class WithdrawBalanceActuator extends AbstractActuator {
       throw new ContractValidateException("witnessAccount does not have any allowance");
     }
     try {
-      LongMath.checkedAdd(accountCapsule.getBalance(), accountCapsule.getAllowance());
+      long balance = accountCapsule.getBalanceByChargeType(dbManager);
+      LongMath.checkedAdd(balance, accountCapsule.getAllowance());
     } catch (ArithmeticException e) {
       logger.debug(e.getMessage(), e);
       throw new ContractValidateException(e.getMessage());

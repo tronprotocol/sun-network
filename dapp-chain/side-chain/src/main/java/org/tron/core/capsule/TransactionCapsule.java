@@ -75,6 +75,7 @@ import org.tron.protos.Contract.AccountUpdateContract;
 import org.tron.protos.Contract.ClearABIContract;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.FreezeBalanceContract;
+import org.tron.protos.Contract.FundInjectContract;
 import org.tron.protos.Contract.ProposalApproveContract;
 import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Contract.ProposalDeleteContract;
@@ -446,6 +447,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
         case AccountPermissionUpdateContract:
           owner = contractParameter.unpack(AccountPermissionUpdateContract.class).getOwnerAddress();
           break;
+        case FundInjectContract:
+          owner = contractParameter.unpack(FundInjectContract.class).getOwnerAddress();
+          break;
         // todo add other contract
         default:
           return null;
@@ -582,6 +586,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
 //        break;
       case AccountPermissionUpdateContract:
         clazz = AccountPermissionUpdateContract.class;
+        break;
+      case FundInjectContract:
+        clazz = FundInjectContract.class;
         break;
       // todo add other contract
       default:

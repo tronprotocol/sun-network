@@ -290,6 +290,13 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     return this.account.getBalance();
   }
 
+  public long getBalanceByChargeType(Manager dbManager) {
+    if (dbManager.getDynamicPropertiesStore().getSideChainChargingType() == 1) {
+      return this.account.getAssetV2Map().getOrDefault(SUN_TOKEN_ID,0L);
+    }
+    return getBalance();
+  }
+
   public long getLatestOperationTime() {
     return this.account.getLatestOprationTime();
   }

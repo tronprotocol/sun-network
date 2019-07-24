@@ -6,7 +6,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.storage.Deposit;
-import org.tron.common.storage.DepositImpl;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.TransactionResultCapsule;
@@ -51,7 +50,7 @@ public class TransferActuator extends AbstractActuator {
         }
       }
       dbManager.adjustBalance(ownerAddress, -fee, chargingType);
-      dbManager.adjustBalance(dbManager.getAccountStore().getBlackhole().createDbKey(), fee, chargingType);
+      dbManager.adjustFund(fee);
       ret.setStatus(fee, code.SUCESS);
       dbManager.adjustBalance(ownerAddress, -amount);
       dbManager.adjustBalance(toAddress, amount);

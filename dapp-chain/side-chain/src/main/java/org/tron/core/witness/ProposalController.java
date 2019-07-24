@@ -280,6 +280,27 @@ public class ProposalController {
                   .saveSideChainChargingBandwidth(Long.valueOf(entry.getValue()));
           break;
         }
+        case (1_000_007): {
+          manager.getDynamicPropertiesStore()
+              .saveFundInjectAddress(Wallet
+                  .decodeFromBase58Check(entry.getValue()));
+          break;
+        }
+        case (1_000_008): {
+          manager.getDynamicPropertiesStore()
+              .saveFundDistributeEnableSwitch(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (1_000_009): {
+          manager.getDynamicPropertiesStore()
+              .saveDayToSustainByFund(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (1_000_010): {
+          manager.getDynamicPropertiesStore()
+              .savePercentToPayWitness(Long.valueOf(entry.getValue()));
+          break;
+        }
         default:
           break;
       }

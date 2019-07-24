@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -826,7 +827,7 @@ public class Manager {
         AccountCapsule accountCapsule = getAccountStore().get(address);
         try {
           adjustBalance(accountCapsule, -fee, chargingType);
-          adjustBalance(this.getAccountStore().getBlackhole().createDbKey(), +fee, chargingType);
+          adjustFund(fee);
         } catch (BalanceInsufficientException e) {
           throw new AccountResourceInsufficientException(
               "Account Insufficient  balance[" + fee + "] to MultiSign");
@@ -1628,6 +1629,7 @@ public class Manager {
 
     boolean needMaint = needMaintenance(block.getTimeStamp());
     if (needMaint) {
+      modifyPayPerBlock();
       if (block.getNum() == 1) {
         this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
       } else {
@@ -1758,8 +1760,18 @@ public class Manager {
     this.getWitnessStore().put(witnessCapsule.getAddress().toByteArray(), witnessCapsule);
 
     try {
-      adjustAllowance(witnessCapsule.getAddress().toByteArray(),
-          getDynamicPropertiesStore().getWitnessPayPerBlock());
+      if (dynamicPropertiesStore.getFundDistributeEnableSwitch() == 1) {
+        long payPerBlock = adjustFund(
+            (-1) * getDynamicPropertiesStore().getWitnessPayPerBlock());
+        long percent = getDynamicPropertiesStore().getPercentToPayWitness();
+        long amountForWitness = BigInteger.valueOf(payPerBlock)
+            .multiply(BigInteger.valueOf(percent))
+            .divide(BigInteger.valueOf(100)).longValue();
+        int chargingType = getDynamicPropertiesStore().getSideChainChargingType();
+        adjustAllowance(witnessCapsule.getAddress().toByteArray(), amountForWitness);
+        adjustBalance(getDynamicPropertiesStore().getFundInjectAddress(),
+            payPerBlock - amountForWitness, chargingType);
+      }
     } catch (BalanceInsufficientException e) {
       logger.warn(e.getMessage(), e);
     }
@@ -2025,5 +2037,27 @@ public class Manager {
         }
       }
     }
+  }
+
+  public void modifyPayPerBlock() {
+    getDynamicPropertiesStore().saveWitnessPayPerBlock(
+        getDynamicPropertiesStore().getFund() / (86400 / 3 * getDynamicPropertiesStore()
+            .getDayToSustainByFund()));
+  }
+
+  public long adjustFund(long num) {
+
+    long fund = getDynamicPropertiesStore().getFund();
+    if (num == 0) {
+      return 0;
+    }
+
+    if (num < 0 && fund < -num) {//if |num| > fund, return all of fund
+      getDynamicPropertiesStore().saveFund(0);
+      return fund;
+    }
+
+    getDynamicPropertiesStore().saveFund(fund + num);
+    return num;
   }
 }

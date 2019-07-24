@@ -230,6 +230,10 @@ public class GrpcClient {
     return blockingStubFull.freezeBalance(contract);
   }
 
+  public TransactionExtention createTransaction(Contract.FundInjectContract contract) {
+    return blockingStubFull.fundInject(contract);
+  }
+
   public TransactionExtention createTransaction(Contract.BuyStorageContract contract) {
     return blockingStubFull.buyStorage(contract);
   }

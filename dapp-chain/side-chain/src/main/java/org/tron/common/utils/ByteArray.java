@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.encoders.Hex;
+import org.tron.core.Wallet;
 
 @Slf4j(topic = "utils")
 public class ByteArray {
@@ -134,11 +135,11 @@ public class ByteArray {
     return list;
   }
 
-  public static byte[] fromBytes21List(List<byte[]> list) {
+  public static byte[] fromBytes21ListToAddressList(List<byte[]> list) {
     byte[] data = new byte[21*list.size()];
     for (int i=0; i< list.size();i++) {
-      if (list.get(i).length != 21) {
-        throw new IllegalArgumentException("should be 21 bytes for each element in the list");
+      if (!Wallet.addressValid(list.get(i))) {
+        throw new IllegalArgumentException("Invalid address");
       }
       System.arraycopy(list.get(i), 0, data, i*21, 21);
     }

@@ -581,6 +581,9 @@ service Wallet {
 
   rpc GetNodeInfo (EmptyMessage) returns (NodeInfo) {
   };
+
+  rpc FundInject (FundInjectContract) returns (TransactionExtention) {
+  }
 };
 
 

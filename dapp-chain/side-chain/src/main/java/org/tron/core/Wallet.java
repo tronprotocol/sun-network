@@ -39,6 +39,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.spongycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -966,6 +967,42 @@ public class Wallet {
             .setKey("getSideChainChargingBandwidth")
             .setValue(String
                 .valueOf(dbManager.getDynamicPropertiesStore().getSideChainChargingBandwidth()))
+            .build());
+
+    // Fund
+    builder.addChainParameter(
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getFund")
+            .setValue(String
+                .valueOf(dbManager.getDynamicPropertiesStore().getFund()))
+            .build());
+
+    // Founder
+    builder.addChainParameter(
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getFundInjectAddress")
+            .setValue(encode58Check(dbManager.getDynamicPropertiesStore().getFundInjectAddress()))
+            .build());
+
+    // FundDistributeEnableSwitch 0,1
+    builder.addChainParameter(
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getFundDistributeEnableSwitch")
+            .setValue(String
+                .valueOf(dbManager.getDynamicPropertiesStore().getFundDistributeEnableSwitch()))
+            .build());
+
+    builder.addChainParameter(
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getDayToSustainByFund")
+            .setValue(String
+                .valueOf(dbManager.getDynamicPropertiesStore().getDayToSustainByFund()))
+            .build());
+    builder.addChainParameter(
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getPercentToPayWitness")
+            .setValue(String
+                .valueOf(dbManager.getDynamicPropertiesStore().getPercentToPayWitness()))
             .build());
 
     return builder.build();

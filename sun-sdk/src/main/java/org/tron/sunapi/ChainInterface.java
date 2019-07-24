@@ -176,6 +176,8 @@ public interface ChainInterface {
   SunNetworkResponse<TransactionResponse> freezeBalance(long frozen_balance, long frozen_duration,
       int resourceCode, String receiverAddress);
 
+  SunNetworkResponse<TransactionResponse> fundInject(long amount);
+
   SunNetworkResponse<TransactionResponse> unfreezeBalance(int resourceCode, String receiverAddress);
 
   SunNetworkResponse<TransactionResponse> unfreezeAsset();

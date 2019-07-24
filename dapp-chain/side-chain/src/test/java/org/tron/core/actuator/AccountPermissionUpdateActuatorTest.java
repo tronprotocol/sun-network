@@ -1158,7 +1158,7 @@ public class AccountPermissionUpdateActuatorTest {
   @Test
   public void checkAvailableContractType() {
     //use side-chain value
-    String validContractType = "3f3d1ec003600100000000000000000000000000000000000000000000000080";
+    String validContractType = "3f3d1ec0036001000000000000000000000000000000000000000000000000c0";
     //String validContractType = "7fff1fc0037e0100000000000000000000000000000000000000000000000000";
 
     byte[] availableContractType = new byte[32];
@@ -1186,7 +1186,7 @@ public class AccountPermissionUpdateActuatorTest {
 
   @Test
   public void checkActiveDefaultOperations() {
-    String validContractType = "3f3d1ec003200100000000000000000000000000000000000000000000000080";
+    String validContractType = "3f3d1ec0032001000000000000000000000000000000000000000000000000c0";
 
     byte[] availableContractType = new byte[32];
     for (ContractType contractType : ContractType.values()) {

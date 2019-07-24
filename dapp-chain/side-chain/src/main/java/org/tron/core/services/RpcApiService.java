@@ -1192,6 +1192,12 @@ public class RpcApiService implements Service {
 //    }
 
     @Override
+    public void fundInject(Contract.FundInjectContract request,
+        StreamObserver<TransactionExtention> responseObserver) {
+      createTransactionExtention(request, ContractType.FundInjectContract, responseObserver);
+    }
+
+    @Override
     public void getNowBlock(EmptyMessage request, StreamObserver<Block> responseObserver) {
       responseObserver.onNext(wallet.getNowBlock());
       responseObserver.onCompleted();

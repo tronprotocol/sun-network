@@ -50,6 +50,7 @@ import org.tron.core.config.Parameter.NetConstants;
 import org.tron.core.config.Parameter.NodeConstant;
 import org.tron.core.db.AccountStore;
 import org.tron.core.db.backup.DbBackupConfig;
+import org.tron.core.exception.ContractValidateException;
 import org.tron.keystore.CipherException;
 import org.tron.keystore.Credentials;
 import org.tron.keystore.WalletUtils;
@@ -514,6 +515,13 @@ public class Args {
   @Setter
   private long maxCpuTimeOfOneTx;
 
+  @Getter
+  @Setter
+  private long dayToSustainByFund;
+
+  @Getter
+  @Setter
+  private int percentToPayWitness;
 
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
@@ -598,6 +606,8 @@ public class Args {
     INSTANCE.energyFee = 1;
     INSTANCE.totalEnergyLimit = 100000000000L;
     INSTANCE.maxCpuTimeOfOneTx = 50L;
+    INSTANCE.dayToSustainByFund = 90L;
+    INSTANCE.percentToPayWitness = 80;
   }
 
   /**
@@ -1036,6 +1046,14 @@ public class Args {
         config.hasPath("sidechain.maxCpuTimeOfOneTx") ? config
             .getLong("sidechain.maxCpuTimeOfOneTx") : 50L;
 
+    INSTANCE.dayToSustainByFund =
+        config.hasPath("sidechain.dayToSustainByFund") ? config
+            .getLong("sidechain.dayToSustainByFund") : 90L;
+
+    INSTANCE.percentToPayWitness =
+        config.hasPath("sidechain.percentToPayWitness") ? config
+            .getInt("sidechain.percentToPayWitness") : 80;
+
     logConfig();
   }
 
@@ -1116,9 +1134,19 @@ public class Args {
     }
     List<byte[]> ret = new ArrayList<>();
     List<String> list = config.getStringList(path);
-    for (String configString : list) {
-      ret.add(Wallet.decodeFromBase58Check(configString));
+    try {
+      for (String configString : list) {
+        byte[] address = Wallet.decodeFromBase58Check(configString);
+        if (!Wallet.addressValid(address)) {
+          throw new ContractValidateException("invalid gateway address");
+        }
+        ret.add(address);
+      }
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+      exit(-1);
     }
+
     return ret;
   }
 

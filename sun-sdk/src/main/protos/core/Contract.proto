@@ -245,12 +245,17 @@ message ExchangeTransactionContract {
 
 message AccountPermissionUpdateContract {
   bytes owner_address = 1;
-  Permission owner = 2;  //Empty is invalidate
-  Permission witness = 3;//Can be empty
-  repeated Permission actives = 4;//Empty is invalidate
+  Permission owner = 2; //Empty is invalidate
+  Permission witness = 3; //Can be empty
+  repeated Permission actives = 4; //Empty is invalidate
 }
 
 message SideChainProposalCreateContract {
   bytes owner_address = 1;
   map<int64, string> parameters = 2;
+}
+
+message FundInjectContract {
+  bytes owner_address = 1;
+  int64 amount = 2;
 }

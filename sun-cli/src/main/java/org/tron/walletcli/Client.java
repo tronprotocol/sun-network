@@ -775,7 +775,7 @@ public class Client {
   }
 
   private void getTransactionCountByBlockNum(String[] parameters) {
-    if (parameters.length != 1) {
+    if (parameters == null || parameters.length != 1) {
       System.out.println("Too many parameters !!!");
       System.out.println("You need input number with the following syntax:");
       System.out.println("GetTransactionCountByBlockNum number");
@@ -845,7 +845,7 @@ public class Client {
 
   private void unfreezeBalance(String[] parameters)
       throws IOException, CipherException, CancelException {
-    if (parameters.length > 2) {
+    if (parameters == null || parameters.length > 2) {
       System.out.println("Use unfreezeBalance command with below syntax: ");
       System.out.println("unfreezeBalance  [ResourceCode:0 BANDWIDTH,1 CPU]" + "[receiverAddress]");
       return;
@@ -875,6 +875,22 @@ public class Client {
     }
   }
 
+  private void fundInject(String[] parameters) {
+    if (parameters == null || parameters.length < 1) {
+      System.out.println("Use fundInject command with below syntax: ");
+      System.out.println("fundInject  amount");
+      return;
+    }
+
+    long amount = Long.parseLong(parameters[0]);
+
+    boolean result = walletApiWrapper.fundInject(amount);
+    if (result) {
+      logger.info("fundInject " + " successful !!");
+    } else {
+      logger.info("fundInject " + " failed !!");
+    }
+  }
 
   private void unfreezeAsset() {
     boolean result = walletApiWrapper.unfreezeAsset();
@@ -1940,6 +1956,7 @@ public class Client {
     allCmds.add("votewitness");
     allCmds.add("freezebalance");
     allCmds.add("unfreezebalance");
+    allCmds.add("fundinject");
     allCmds.add("withdrawbalance");
     allCmds.add("listproposals");
     allCmds.add("getproposal");
@@ -2798,6 +2815,10 @@ public class Client {
         }
         case "unfreezebalance": {
           unfreezeBalance(parameters);
+          break;
+        }
+        case "fundinject": {
+          fundInject(parameters);
           break;
         }
         case "withdrawbalance": {

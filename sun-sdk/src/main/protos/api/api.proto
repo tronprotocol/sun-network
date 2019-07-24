@@ -662,7 +662,8 @@ service Wallet {
 
   rpc SideChainProposalCreate (SideChainProposalCreateContract) returns (TransactionExtention) {
   }
-
+  rpc FundInject (FundInjectContract) returns (TransactionExtention) {
+  }
 };
 
 
