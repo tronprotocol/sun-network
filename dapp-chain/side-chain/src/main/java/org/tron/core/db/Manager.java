@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1628,6 +1629,7 @@ public class Manager {
 
     boolean needMaint = needMaintenance(block.getTimeStamp());
     if (needMaint) {
+      modifyPayPerBlock();
       if (block.getNum() == 1) {
         this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
       } else {
@@ -1730,7 +1732,6 @@ public class Manager {
     proposalController.processProposals();
     witnessController.updateWitness();
     this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
-    modifyWitnessPayPerBlock();
     forkController.reset();
   }
 
@@ -1760,17 +1761,16 @@ public class Manager {
 
     try {
       if (dynamicPropertiesStore.getFundDistributeEnableSwitch() == 1) {
-        boolean isAdjustSucceeded = adjustFund(
+        long payPerBlock = adjustFund(
             (-1) * getDynamicPropertiesStore().getWitnessPayPerBlock());
-        long payPerBlock = getDynamicPropertiesStore().getWitnessPayPerBlock();
         long percent = getDynamicPropertiesStore().getPercentToPayWitness();
-        Double amountForWitness =
-            Double.valueOf(getDynamicPropertiesStore().getWitnessPayPerBlock()) * percent / 100;
+        long amountForWitness = BigInteger.valueOf(payPerBlock)
+            .multiply(BigInteger.valueOf(percent))
+            .divide(BigInteger.valueOf(100)).longValue();
         int chargingType = getDynamicPropertiesStore().getSideChainChargingType();
-        adjustAllowance(witnessCapsule.getAddress().toByteArray(),
-            isAdjustSucceeded ? amountForWitness.longValue() : 0);
+        adjustAllowance(witnessCapsule.getAddress().toByteArray(), amountForWitness);
         adjustBalance(getDynamicPropertiesStore().getFundInjectAddress(),
-            isAdjustSucceeded ? payPerBlock - amountForWitness.longValue() : 0, chargingType);
+            payPerBlock - amountForWitness, chargingType);
       }
     } catch (BalanceInsufficientException e) {
       logger.warn(e.getMessage(), e);
@@ -2039,24 +2039,25 @@ public class Manager {
     }
   }
 
-  public void modifyWitnessPayPerBlock() {
+  public void modifyPayPerBlock() {
     getDynamicPropertiesStore().saveWitnessPayPerBlock(
         getDynamicPropertiesStore().getFund() / (86400 / 3 * getDynamicPropertiesStore()
             .getDayToSustainByFund()));
   }
 
-  public boolean adjustFund(long num) {
+  public long adjustFund(long num) {
 
     long fund = getDynamicPropertiesStore().getFund();
     if (num == 0) {
-      return true;
+      return 0;
     }
 
-    if (num < 0 && fund < -num) {
-      return false;
+    if (num < 0 && fund < -num) {//if |num| > fund, return all of fund
+      getDynamicPropertiesStore().saveFund(0);
+      return fund;
     }
 
     getDynamicPropertiesStore().saveFund(fund + num);
-    return true;
+    return num;
   }
 }
