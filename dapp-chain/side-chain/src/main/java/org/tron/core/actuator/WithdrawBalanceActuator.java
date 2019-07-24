@@ -45,10 +45,8 @@ public class WithdrawBalanceActuator extends AbstractActuator {
         get(withdrawBalanceContract.getOwnerAddress().toByteArray())
         : getDeposit().getAccount(withdrawBalanceContract.getOwnerAddress().toByteArray());
     int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
-    long oldBalance = chargingType == 0 ? accountCapsule.getBalance() :
-        accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L);
+    long oldBalance = accountCapsule.getBalanceByChargeType(dbManager);
     long allowance = accountCapsule.getAllowance();
-
     long now = dbManager.getHeadBlockTimeStamp();
 
     accountCapsule.getInstance().toBuilder();
@@ -138,9 +136,7 @@ public class WithdrawBalanceActuator extends AbstractActuator {
       throw new ContractValidateException("witnessAccount does not have any allowance");
     }
     try {
-      int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
-      long balance = chargingType == 0 ? accountCapsule.getBalance() :
-          accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L);
+      long balance = accountCapsule.getBalanceByChargeType(dbManager);
       LongMath.checkedAdd(balance, accountCapsule.getAllowance());
     } catch (ArithmeticException e) {
       logger.debug(e.getMessage(), e);
