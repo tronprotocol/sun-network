@@ -80,10 +80,10 @@ public class FundInjectActuator extends AbstractActuator {
     if (!Wallet.addressValid(ownerAddress)) {
       throw new ContractValidateException("Invalid address");
     }
-    if (!ByteUtil.equals(ownerAddress,
-        this.dbManager.getDynamicPropertiesStore().getFundInjectAddress())) {
-      throw new ContractValidateException("Only Founder is allowed to inject fund");
-    }
+//    if (!ByteUtil.equals(ownerAddress,
+//        this.dbManager.getDynamicPropertiesStore().getFundInjectAddress())) {
+//      throw new ContractValidateException("Only Founder is allowed to inject fund");
+//    }
     AccountCapsule accountCapsule = dbManager.getAccountStore().get(ownerAddress);
     if (accountCapsule == null) {
       String readableOwnerAddress = StringUtil.createReadableString(ownerAddress);
