@@ -517,10 +517,6 @@ public class Args {
 
   @Getter
   @Setter
-  private int fundDistributeEnableSwitch;
-
-  @Getter
-  @Setter
   private long dayToSustainByFund;
 
   @Getter
@@ -610,7 +606,6 @@ public class Args {
     INSTANCE.energyFee = 1;
     INSTANCE.totalEnergyLimit = 100000000000L;
     INSTANCE.maxCpuTimeOfOneTx = 50L;
-    INSTANCE.fundDistributeEnableSwitch = 0;
     INSTANCE.dayToSustainByFund = 90L;
     INSTANCE.percentToPayWitness = 50;
   }
@@ -1050,10 +1045,6 @@ public class Args {
     INSTANCE.maxCpuTimeOfOneTx =
         config.hasPath("sidechain.maxCpuTimeOfOneTx") ? config
             .getLong("sidechain.maxCpuTimeOfOneTx") : 50L;
-
-    INSTANCE.fundDistributeEnableSwitch =
-        config.hasPath("sidechain.fundDistributeEnableSwitch") ? config
-            .getInt("sidechain.fundDistributeEnableSwitch") :0;
 
     INSTANCE.dayToSustainByFund =
         config.hasPath("sidechain.dayToSustainByFund") ? config

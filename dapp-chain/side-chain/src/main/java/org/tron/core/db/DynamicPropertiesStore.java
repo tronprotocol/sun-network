@@ -807,7 +807,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getFundDistributeEnableSwitch();
     } catch (IllegalArgumentException e) {
-      this.saveFundDistributeEnableSwitch(Args.getInstance().getFundDistributeEnableSwitch());
+      this.saveFundDistributeEnableSwitch(0);
     }
 
     try {
