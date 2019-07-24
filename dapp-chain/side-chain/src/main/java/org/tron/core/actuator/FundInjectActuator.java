@@ -77,12 +77,12 @@ public class FundInjectActuator extends AbstractActuator {
       throw new ContractValidateException(e.getMessage());
     }
     byte[] ownerAddress = fundInjectContract.getOwnerAddress().toByteArray();
+    if (!Wallet.addressValid(ownerAddress)) {
+      throw new ContractValidateException("Invalid address");
+    }
     if (!ByteUtil.equals(ownerAddress,
         this.dbManager.getDynamicPropertiesStore().getFundInjectAddress())) {
       throw new ContractValidateException("Only Founder is allowed to inject fund");
-    }
-    if (!Wallet.addressValid(ownerAddress)) {
-      throw new ContractValidateException("Invalid address");
     }
     AccountCapsule accountCapsule = dbManager.getAccountStore().get(ownerAddress);
     if (accountCapsule == null) {
@@ -95,20 +95,14 @@ public class FundInjectActuator extends AbstractActuator {
       throw new ContractValidateException("fund amount must be positive");
     }
 
-    if (amount < 1000_000L) {
+    if (amount < 1_000_000L) {
       throw new ContractValidateException("fund amount must be larger than 1TRX");
     }
 
-    if (amount > accountCapsule.getBalance()) {
+    long balance = accountCapsule.getBalanceByChargeType(dbManager);
+    if (amount > balance) {
       throw new ContractValidateException("fund amount must be less than accountBalance");
     }
-
-    int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
-    long balance;
-    if (chargingType == 0)
-      balance = accountCapsule.getBalance();
-    else
-      balance = accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) ;
 
     try {
       if (balance < Math.addExact(amount, fee)) {
