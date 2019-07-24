@@ -25,6 +25,7 @@ import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.protos.Contract.SideChainProposalCreateContract;
+import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.Transaction.Result.code;
 
 @Slf4j(topic = "actuator")
@@ -255,9 +256,9 @@ public class ProposalCreateActuator extends AbstractActuator {
         break;
       }
       case (1_000_000): {
-        if (Long.valueOf(entry.getValue()) != 1) {
+        if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
           throw new ContractValidateException(
-              "this value[ENERGY_CHARGING_SWITCH] is only allowed to be 1");
+              "this value[ENERGY_CHARGING_SWITCH] is only allowed to be 1 or 0");
         }
         break;
       }
@@ -328,8 +329,19 @@ public class ProposalCreateActuator extends AbstractActuator {
             throw new ContractValidateException(
                 "Invalid Fund Inject Address");
           }
+          if (ByteUtil.equals(address,
+              Hex.decode(Constant.TRON_ZERO_ADDRESS_HEX))) {
+            throw new ContractValidateException("target Fund Inject Address should not be set to "
+                + "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb");
+          }
+
           if (this.dbManager.getAccountStore().get(address) == null) {
             throw new ContractValidateException("target Fund Inject Address not exist");
+          }
+          if (this.dbManager.getAccountStore().get(address).getType()
+              == AccountType.Contract) {
+            throw new ContractValidateException("target Fund Inject Address should not "
+                + "be a contract");
           }
         } catch (Exception e){
           throw new ContractValidateException(
@@ -343,7 +355,7 @@ public class ProposalCreateActuator extends AbstractActuator {
           throw new ContractValidateException(
               "Bad chain parameter value,valid value is {0,1}");
         }
-        if (ByteUtil.equals(this.dbManager.getDynamicPropertiesStore().getFundInjectAddress(),
+        if (Long.valueOf(entry.getValue()) == 1 && ByteUtil.equals(this.dbManager.getDynamicPropertiesStore().getFundInjectAddress(),
             Hex.decode(Constant.TRON_ZERO_ADDRESS_HEX))) {
           throw new ContractValidateException(
               "Fund Inject Address should not be default T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"

@@ -298,7 +298,7 @@ public class ProposalController {
         }
         case (1_000_010): {
           manager.getDynamicPropertiesStore()
-              .savePercentToPayWitness(Integer.valueOf(entry.getValue()));
+              .savePercentToPayWitness(Long.valueOf(entry.getValue()));
           break;
         }
         default:

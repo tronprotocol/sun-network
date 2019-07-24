@@ -607,7 +607,7 @@ public class Args {
     INSTANCE.totalEnergyLimit = 100000000000L;
     INSTANCE.maxCpuTimeOfOneTx = 50L;
     INSTANCE.dayToSustainByFund = 90L;
-    INSTANCE.percentToPayWitness = 50;
+    INSTANCE.percentToPayWitness = 80;
   }
 
   /**
