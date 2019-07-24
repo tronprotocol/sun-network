@@ -14,13 +14,7 @@ message TransactionExtension {
   Transaction transaction = 1;
   bytes transaction_id = 2;
   bytes nonce_key = 3;
-  TaskEnum task_enum = 4;
-  int64 delay = 5;
-}
-
-enum TaskEnum {
-  MAIN_CHAIN = 0;
-  SIDE_CHAIN = 1;
+  int64 delay = 4;
 }
 
 message NonceMsg {
@@ -51,8 +45,15 @@ message EventMsg {
     MULTISIGN_FOR_WITHDRAW_TRC721_EVENT = 12;
     MULTISIGN_FOR_WITHDRAW_TRX_EVENT = 13;
   }
+
+  enum TaskEnum {
+    MAIN_CHAIN = 0;
+    SIDE_CHAIN = 1;
+  }
+
   EventType type = 1;
-  google.protobuf.Any parameter = 2;
+  TaskEnum task_enum = 2;
+  google.protobuf.Any parameter = 3;
 }
 
 message DepositTRC10Event {

@@ -15,7 +15,7 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.DepositTRC10Event;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
-import org.tron.protos.Sidechain.TaskEnum;
+import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.service.capsule.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
 
@@ -26,6 +26,8 @@ public class DepositTRC10Actuator extends Actuator {
   private DepositTRC10Event event;
   @Getter
   private EventType type = EventType.DEPOSIT_TRC10_EVENT;
+  @Getter
+  private TaskEnum taskEnum = TaskEnum.SIDE_CHAIN;
 
   public DepositTRC10Actuator(String from, String tokenId, String value, String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
@@ -68,8 +70,8 @@ public class DepositTRC10Actuator extends Actuator {
           .mintToken10Transaction(fromStr, tokenIdStr, valueStr,
               assetIssue.getName().toStringUtf8(),
               assetIssue.getName().toStringUtf8(), assetIssue.getPrecision(), nonceStr);
-      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-          NONCE_TAG + nonceStr, tx, 0);
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(NONCE_TAG + nonceStr, tx,
+          0);
       return CreateRet.SUCCESS;
     } catch (Exception e) {
       logger.error("when create transaction extension capsule", e);
@@ -79,7 +81,8 @@ public class DepositTRC10Actuator extends Actuator {
 
   @Override
   public EventMsg getMessage() {
-    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType()).build();
+    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType())
+        .setTaskEnum(getTaskEnum()).build();
   }
 
   @Override
