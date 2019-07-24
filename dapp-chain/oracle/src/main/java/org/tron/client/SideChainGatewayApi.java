@@ -212,21 +212,15 @@ public class SideChainGatewayApi {
     GATEWAY_API;
 
     private WalletClient instance;
-    private WalletClient solidityInstance;
 
     GatewayApi() {
       instance = new WalletClient(Args.getInstance().getSidechainFullNode(),
-          Args.getInstance().getOraclePrivateKey(), false);
-      solidityInstance = new WalletClient(Args.getInstance().getSidechainSolidity(),
-          Args.getInstance().getOraclePrivateKey(), false);
+          Args.getInstance().getSidechainSolidity(), Args.getInstance().getOraclePrivateKey(),
+          false);
     }
 
     public WalletClient getInstance() {
       return instance;
-    }
-
-    public WalletClient getSolidityInstance() {
-      return solidityInstance;
     }
   }
 
@@ -261,7 +255,7 @@ public class SideChainGatewayApi {
 
   public static byte[] checkTxInfo(String txId)
       throws TxFailException, TxRollbackException {
-    return GATEWAY_API.getSolidityInstance().checkTxInfo(txId);
+    return GATEWAY_API.getInstance().checkTxInfo(txId);
   }
 
   public static boolean broadcast(Transaction transaction)
