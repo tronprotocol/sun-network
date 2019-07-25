@@ -30,7 +30,7 @@ public class EventActuatorFactory {
 
       JSONObject obj = (JSONObject) JSONValue.parse(eventStr);
       Args args = Args.getInstance();
-      if (Objects.isNull(obj.get("contractAddress"))) {
+      if (Objects.isNull(obj) || Objects.isNull(obj.get("contractAddress"))) {
         return null;
       }
       if (obj.get("contractAddress").equals(args.getMainchainGatewayStr())) {
