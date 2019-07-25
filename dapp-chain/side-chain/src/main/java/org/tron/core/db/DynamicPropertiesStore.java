@@ -783,7 +783,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getVoteWitnessSwitch();
     } catch (IllegalArgumentException e) {
-      this.saveVoteWitnessSwitch(0);
+      this.saveVoteWitnessSwitch(Args.getInstance().getVoteSwitch());
     }
 
     try {

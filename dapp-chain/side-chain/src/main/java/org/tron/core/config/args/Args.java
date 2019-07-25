@@ -523,6 +523,10 @@ public class Args {
   @Setter
   private int percentToPayWitness;
 
+  @Getter
+  @Setter
+  private int voteSwitch;
+
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
     INSTANCE.help = false;
@@ -608,6 +612,7 @@ public class Args {
     INSTANCE.maxCpuTimeOfOneTx = 50L;
     INSTANCE.dayToSustainByFund = 90L;
     INSTANCE.percentToPayWitness = 80;
+    INSTANCE.voteSwitch = 0;
   }
 
   /**
@@ -1053,6 +1058,10 @@ public class Args {
     INSTANCE.percentToPayWitness =
         config.hasPath("sidechain.percentToPayWitness") ? config
             .getInt("sidechain.percentToPayWitness") : 80;
+
+    INSTANCE.voteSwitch =
+        config.hasPath("committee.voteSwitch") ? config
+            .getInt("committee.voteSwitch") : 0;
 
     logConfig();
   }
