@@ -1761,8 +1761,8 @@ public class Manager {
 
     try {
       if (dynamicPropertiesStore.getFundDistributeEnableSwitch() == 1) {
-        long payPerBlock = adjustFund(
-            (-1) * getDynamicPropertiesStore().getWitnessPayPerBlock());
+        long payPerBlock = (-1) * (adjustFund(
+            (-1) * getDynamicPropertiesStore().getWitnessPayPerBlock()));
         long percent = getDynamicPropertiesStore().getPercentToPayWitness();
         long amountForWitness = BigInteger.valueOf(payPerBlock)
             .multiply(BigInteger.valueOf(percent))
@@ -2062,7 +2062,7 @@ public class Manager {
 
     if (num < 0 && fund < -num) {//if |num| > fund, return all of fund
       getDynamicPropertiesStore().saveFund(0);
-      return fund;
+      return fund * (-1);
     }
 
     getDynamicPropertiesStore().saveFund(fund + num);
