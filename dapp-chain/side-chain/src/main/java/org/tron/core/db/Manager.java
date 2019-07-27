@@ -2042,6 +2042,12 @@ public class Manager {
   }
 
   public void modifyPayPerBlock() {
+    long fund = getDynamicPropertiesStore().getFund();
+    long dayToSustain = getDynamicPropertiesStore().getDayToSustainByFund();
+    long pay = fund / (86400 / 3 * dayToSustain);
+    logger
+        .info("[Modify Pay Per Block], fund = {}, daytosustain = {}, pay = {}", fund, dayToSustain,
+            pay);
     getDynamicPropertiesStore().saveWitnessPayPerBlock(
         getDynamicPropertiesStore().getFund() / (86400 / 3 * getDynamicPropertiesStore()
             .getDayToSustainByFund()));
