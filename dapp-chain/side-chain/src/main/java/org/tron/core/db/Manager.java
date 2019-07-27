@@ -1768,6 +1768,8 @@ public class Manager {
             .multiply(BigInteger.valueOf(percent))
             .divide(BigInteger.valueOf(100)).longValue();
         int chargingType = getDynamicPropertiesStore().getSideChainChargingType();
+        logger.info("payPerBlock = {}, percent = {}, amountForWitness = {}", payPerBlock, percent,
+            amountForWitness);
         adjustAllowance(witnessCapsule.getAddress().toByteArray(), amountForWitness);
         adjustBalance(getDynamicPropertiesStore().getFundInjectAddress(),
             payPerBlock - amountForWitness, chargingType);
