@@ -1629,9 +1629,9 @@ public class Manager {
 
     boolean needMaint = needMaintenance(block.getTimeStamp());
     if (needMaint) {
-      modifyPayPerBlock();
       if (block.getNum() == 1) {
         this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
+        modifyPayPerBlock();
       } else {
         this.processMaintenance(block);
       }
@@ -1730,6 +1730,7 @@ public class Manager {
    */
   private void processMaintenance(BlockCapsule block) {
     proposalController.processProposals();
+    modifyPayPerBlock();
     witnessController.updateWitness();
     this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
     forkController.reset();
