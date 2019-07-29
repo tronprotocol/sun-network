@@ -1,12 +1,12 @@
-# SUNWEB
+# SunWeb
 
-SunWeb inherits from TronWeb and services for Sun-network. We  encapsulated two objects (mainchain and sidechain) based on TronWeb. The methods and attributes in mainchain or sidechain are exactly the same as the tronweb instance. For example, users can use sunweb.mainchain.trx.getBalance() to get balance from the mainchain. Futhermore, we add some new methods which are as follows in SunWeb class so that users can use them to contact between the main chain and the side chain. 
+SunWeb inherits from TronWeb and services for Sun-network. We encapsulated two objects (mainchain and sidechain) based on TronWeb. The methods and attributes in mainchain or sidechain are exactly the same as the tronweb instance. For example, users can use sunweb.mainchain.trx.getBalance() to get balance from the mainchain. Futhermore, we add some new methods which are as follows in SunWeb class so that users can use them to contact between the main chain and the side chain.
 
 ## SunWeb Object
 
 ###### SubWeb Instantiation
 
-To use the SunWeb library in your App, you need to instantiate Sunweb. 
+To use the SunWeb library in your App, you need to instantiate Sunweb.
 
 You can define two objects mainOptions and sideOptions which respectively contains the following key:
 
@@ -22,9 +22,9 @@ which works as a jolly. If you do so, though, the more precise specification has
 
 And besides, you may also need to set gateway address:
 
-- mainGatewayAddress 
--  sideGatewayAddress
--  sideChainId
+- mainGatewayAddress
+- sideGatewayAddress
+- sideChainId
 - privateKey (optional)
 
 Supposing you are using a server which provides everything, like TronGrid, you can instantiate SunWeb as:
@@ -55,7 +55,7 @@ const sunWeb = new SunWeb({
 },
   mainGatewayAddress: 'TTGhuSDKr561gzHFjkZ1V4ZtMgUEFLa7ct',
   sideGatewayAddress: 'TBAHKAbjZ6nn3B4cAfNd2ZXscRoskaxbk2',
-  sideChainId,  
+  sideChainId,
   privateKey: '...');
 ```
 
@@ -73,7 +73,7 @@ const sunWeb = new SunWeb({
 },
   mainGatewayAddress: 'TGHxhFu4jV4XqMGmk3tEQdSeihWVHE9kBP',
   sideGatewayAddress: 'TBHr5KpbA7oACUysTKxHiAD7c6X6nkZii1',
-  '410e7e8f7fbd5d5ffae4f2a7d2f97a83b93db7b5bc',  
+  '410e7e8f7fbd5d5ffae4f2a7d2f97a83b93db7b5bc',
   privateKey: '...');
 ```
 
@@ -85,7 +85,7 @@ deposit asset from mainchain to sidechain
 
 #### depositTrx
 
-###### deposit trx  from main chain to side chain
+###### deposit trx from main chain to side chain
 
 ```javascript
 // Format
@@ -128,7 +128,7 @@ sunWeb.depositTrc10(100059, 10000000, 100000);
 
 ###### deposit trc20 token from main chain to side chain
 
-Note: You have to mapping TRC20 contract to side chain with the mappingTrc20 function provided by SunWeb. Then you also have to use  the approveTrc20 function. Only done with the two steps before, you can depositTrc20 from main chain to side chain.
+Note: You have to mapping TRC20 contract to side chain with the mappingTrc20 function provided by SunWeb. Then you also have to use the approveTrc20 function. Only done with the two steps before, you can depositTrc20 from main chain to side chain.
 
 ```javascript
 // format
@@ -140,12 +140,12 @@ sunWeb.depositTrc10(1000000, 1000000, 'TD9Jrm546pGkzRu7K5nitMxk8nn75wXNkQ');
 
 ###### Arguments
 
-| Parameter       | Description                                | Type          | Options  |
-| --------------- | ------------------------------------------ | ------------- | -------- |
-| Num             | Amount of TRC20  (Units in SUN) to deposit | Integer       | Required |
-| feeLimit        | Cost limit                                 | Integer, long | Required |
-| contractAddress | Main Chain TRC20 Contract Address          | String        | Required |
-| options         | The permissions Id                         | Object        | Optional |
+| Parameter       | Description                               | Type          | Options  |
+| --------------- | ----------------------------------------- | ------------- | -------- |
+| Num             | Amount of TRC20 (Units in SUN) to deposit | Integer       | Required |
+| feeLimit        | Cost limit                                | Integer, long | Required |
+| contractAddress | Main Chain TRC20 Contract Address         | String        | Required |
+| options         | The permissions Id                        | Object        | Optional |
 
 #### depositTrc721
 
@@ -176,7 +176,7 @@ sunWeb.depositTrc10(1000000, 1000000, 'TCLRqK6aP2xsCZWhE2smkYzdRHf9uvyz5P');
 
 ### approveTrc20
 
-###### Approve trc20 token 
+###### Approve trc20 token
 
 ```javascript
 // format
@@ -197,7 +197,7 @@ sunWeb.approveTrc20(10000, 10000000, 'TGKuXDnvdHv9RNE6BPXUtNLK2FrVMBDAuA');
 
 ### approveTrc721
 
-###### Approve trc20 token 
+###### Approve trc20 token
 
 ```javascript
 // format
@@ -232,11 +232,11 @@ mappingTrc20('548442d9080605a60adf1d30cc126a2b9c6308cbe9ec224f8c67a6c2590fa299',
 
 ###### Arguments
 
-| Parameter | Description                                                  | Type          | Options  |
-| --------- | ------------------------------------------------------------ | ------------- | -------- |
+| Parameter | Description                                                                    | Type          | Options  |
+| --------- | ------------------------------------------------------------------------------ | ------------- | -------- |
 | trxHash   | The hash value of the transaction for the main chain deployment TRC20 contract | Hex string    | Required |
-| feeLimit  | cost limit                                                   | Integer, long | Required |
-| options   | The permissions Id                                           | Object        | Optional |
+| feeLimit  | cost limit                                                                     | Integer, long | Required |
+| options   | The permissions Id                                                             | Object        | Optional |
 
 ### mappingTrc721
 
@@ -252,17 +252,17 @@ mappingTrc721('548442d9080605a60adf1d30cc126a2b9c6308cbe9ec224f8c67a6c2590fa299'
 
 ###### Arguments
 
-| Parameter | Description                                                  | Type          | Options  |
-| --------- | ------------------------------------------------------------ | ------------- | -------- |
+| Parameter | Description                                                                     | Type          | Options  |
+| --------- | ------------------------------------------------------------------------------- | ------------- | -------- |
 | trxHash   | The hash value of the transaction for the main chain deployment TRC721 contract | Hex string    | Required |
-| feeLimit  | cost limit                                                   | Integer, long | Required |
-| options   | The permissions Id                                           | Object        | Optional |
+| feeLimit  | cost limit                                                                      | Integer, long | Required |
+| options   | The permissions Id                                                              | Object        | Optional |
 
 ## Asset Withdraw
 
 #### withdrawTrx
 
-###### Withdraw trx  from side chain to main chain
+###### Withdraw trx from side chain to main chain
 
 ```javascript
 // Format
@@ -342,4 +342,3 @@ sunWeb.withdrawTrc721(101, 10000000, 'TA2xrVESq2UcEtDtgPzxNJEiLgxmMVdtFR');
 | contractAddress | Side Chain TRC20 Contract Address after mapping | Integer       | Required |
 | feeLimit        | Cost limit                                      | Integer, long | Required |
 | options         | The permissions Id                              | Object        | Optional |
-

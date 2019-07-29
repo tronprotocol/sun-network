@@ -12,6 +12,7 @@ module.exports = {
   },
   themeConfig: {
     repo: 'tronprotocol/sun-network',
+    displayAllHeaders: true,
     locales: {
       '/': {
         selectText: 'Languages',
