@@ -16,7 +16,9 @@ module.exports = {
       '/': {
         selectText: 'Languages',
         label: 'English',
-        sidebar: ['/guide/', '/sunweb/'],
+        sidebar: {
+          '/guide/': ['', 'SUNWEB']
+        },
         nav: [{ text: 'Guide', link: '/guide/' }]
       },
       '/zh/': {
