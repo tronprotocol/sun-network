@@ -112,14 +112,14 @@ public class WithdrawBalanceActuator extends AbstractActuator {
       throw new ContractValidateException(
           ACCOUNT_EXCEPTION_STR + readableOwnerAddress + "] is not a witnessAccount");
     }
-
-    boolean isGP = Args.getInstance().getGenesisBlock().getWitnesses().stream().anyMatch(witness ->
-        Arrays.equals(ownerAddress, witness.getAddress()));
-    if (isGP) {
-      throw new ContractValidateException(
-          ACCOUNT_EXCEPTION_STR + readableOwnerAddress
-              + "] is a guard representative and is not allowed to withdraw Balance");
-    }
+//  allow withdraw allowance for GR on side-chain
+//    boolean isGP = Args.getInstance().getGenesisBlock().getWitnesses().stream().anyMatch(witness ->
+//        Arrays.equals(ownerAddress, witness.getAddress()));
+//    if (isGP) {
+//      throw new ContractValidateException(
+//          ACCOUNT_EXCEPTION_STR + readableOwnerAddress
+//              + "] is a guard representative and is not allowed to withdraw Balance");
+//    }
 
     long latestWithdrawTime = accountCapsule.getLatestWithdrawTime();
     long now = dbManager.getHeadBlockTimeStamp();
