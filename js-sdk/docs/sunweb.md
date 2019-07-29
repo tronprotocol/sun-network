@@ -55,7 +55,7 @@ const sunWeb = new SunWeb({
 },
   mainGatewayAddress: 'TTGhuSDKr561gzHFjkZ1V4ZtMgUEFLa7ct',
   sideGatewayAddress: 'TBAHKAbjZ6nn3B4cAfNd2ZXscRoskaxbk2',
-  
+  sideChainId,  
   privateKey: '...');
 ```
 
