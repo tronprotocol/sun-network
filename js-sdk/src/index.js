@@ -43,7 +43,6 @@ export default class SunWeb {
         if (typeof priKeyBytes === 'string') {
             priKeyBytes = this.utils.code.hexStr2byteArray(priKeyBytes);
         }
-        // let chainIdByteArr = this.utils.crypto.decodeBase58Address(this.chainId);
         let chainIdByteArr = this.utils.code.hexStr2byteArray(this.chainId);
 
         let byteArr = this.utils.code.hexStr2byteArray(transaction.txID).concat(chainIdByteArr);
@@ -358,7 +357,7 @@ export default class SunWeb {
     }
 
     async depositTrc721(
-        num,
+        id,
         feeLimit,
         contractAddress,
         options = {},
@@ -368,7 +367,7 @@ export default class SunWeb {
         const functionSelector = 'depositTRC721';
         return this.depositTrc(
             functionSelector,
-            num,
+            id,
             feeLimit,
             contractAddress,
             options,
