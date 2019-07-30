@@ -342,3 +342,7 @@ sunWeb.withdrawTrc721(101, 10000000, 'TA2xrVESq2UcEtDtgPzxNJEiLgxmMVdtFR');
 | contractAddress | Side Chain TRC20 Contract Address after mapping | Integer       | Required |
 | feeLimit        | Cost limit                                      | Integer, long | Required |
 | options         | The permissions Id                              | Object        | Optional |
+
+## Signature
+
+Signature of main chain is the same as TronWeb, you can use  tronWeb.trx.sign(…) as before. Such as in TronLink after overriding it, TronLink will pop up the signature confirmation dialog. While the signature of side chain is different as TronWeb, we've overridden the sign function in TronWeb for side chain. Please note that, when you develop a wallet like the TronLink, you may need to override sign function of main chain and side chain respectively. 
