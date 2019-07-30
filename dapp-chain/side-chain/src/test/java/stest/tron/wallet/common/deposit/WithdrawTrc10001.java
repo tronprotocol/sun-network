@@ -174,11 +174,11 @@ public class WithdrawTrc10001 {
 
     //withdrawTrc10
     String withdrawToken = Long.toString(inputTokenValue);
-//    String txid1 = PublicMethed
-//        .withdrawTrc10(inputTokenID, withdrawToken, mainGateWayAddress,
-//            sideGatewayAddress,
-//            0,
-//            maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
+    String txid1 = PublicMethed
+        .withdrawTrc10(inputTokenID, withdrawToken, mainGateWayAddress,
+            sideGatewayAddress,
+            0,
+            maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
