@@ -25,7 +25,9 @@ module.exports = {
       '/zh/': {
         selectText: '选择语言',
         label: '简体中文',
-        sidebar: 'auto',
+        sidebar: {
+          '/zh/guide/': ['', 'SUNWEB']
+        },
         nav: [{ text: '指南', link: '/zh/guide/' }]
       }
     }
