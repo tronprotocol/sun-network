@@ -7,10 +7,6 @@ const chai = require('chai');
 const assert = chai.assert;
 const assertThrow = require('./helpers/assertThrow');
 
-const TronWeb = require('tronweb');
-
-const HttpProvider = TronWeb.providers.HttpProvider;
-
 describe('SunWeb Instance', function() {
     describe('#constructor', function() {
         it('should create an instance using an options object with private key', function() {
