@@ -257,6 +257,30 @@ public class PublicMethed {
     return true;
   }
 
+  /**
+   * constructor.
+   */
+  public static List<String> getStrings(byte[] data) {
+    int index = 0;
+    List<String> ret = new ArrayList<>();
+    while (index < data.length) {
+      ret.add(byte2HexStr(data, index, 32));
+      index += 32;
+    }
+    return ret;
+  }
+
+  /**
+   * constructor.
+   */
+  public static String byte2HexStr(byte[] b, int offset, int length) {
+    StringBuilder ssBuilder = new StringBuilder();
+    for (int n = offset; n < offset + length && n < b.length; n++) {
+      String stmp = Integer.toHexString(b[n] & 0xFF);
+      ssBuilder.append((stmp.length() == 1) ? "0" + stmp : stmp);
+    }
+    return ssBuilder.toString().toUpperCase().trim();
+  }
 
   /**
    * constructor.
@@ -1017,19 +1041,17 @@ public class PublicMethed {
   /**
    * constructor.
    */
-  public static HashMap<String, String> mappingTrc20(byte[] sideGatewayAddress,
-      byte[] mainGatewayAddress,
-      String trxHash, String name, String symbol, String decimal, long feeLimit,
+  public static String mappingTrc20(byte[] mainGatewayAddress,
+      String trxHash, long feeLimit,
       byte[] ownerAddress,
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
 
-    byte[] contractAddrStr = sideGatewayAddress;  //side gateway
-    String methodStr = "deployDAppTRC20AndMapping(bytes,string,string,uint8)";
-    String argsStr = "\"" + trxHash + "\",\"" + name + "\",\"" + symbol + "\",\"" + decimal + "\"";
+    String methodStr = "mappingTRC20(bytes)";
+    String argsStr = "\"" + trxHash + "\"";
 
-    return mapingTrc(sideGatewayAddress, mainGatewayAddress, methodStr, argsStr, trxHash, feeLimit,
-        ownerAddress,
-        priKey, blockingStubFull);
+    String trxid = triggerContract(mainGatewayAddress, methodStr, argsStr, false, 0, feeLimit,
+        ownerAddress, priKey, blockingStubFull);
+    return trxid;
   }
 
   /**
@@ -1465,8 +1487,6 @@ public class PublicMethed {
 
     TransactionExtention transactionExtention = blockingStubFull.triggerContract(triggerContract);
     return transactionExtention;
-
-
   }
 
 
