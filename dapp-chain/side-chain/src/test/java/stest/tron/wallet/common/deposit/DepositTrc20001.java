@@ -192,21 +192,27 @@ public class DepositTrc20001 {
     Assert.assertNotNull(sideContractAddress);
 
     String deposittrx = PublicMethed
-        .depositTrc20(WalletClient.encode58Check(trc20Contract), mainChainAddress, 100, 1000000000,
+        .depositTrc20(WalletClient.encode58Check(trc20Contract), mainChainAddress, 1000, 1000000000,
             depositAddress, testKeyFordeposit, blockingStubFull);
     logger.info(deposittrx);
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     String arg = parame;
     byte[] input1 = Hex.decode(AbiUtil.parseMethod("balanceOf(address)", arg, false));
     String ownerTrx = PublicMethed
         .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0l, input1, 1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
-    Optional<TransactionInfo> infoById2 = PublicMethed
+    logger.info("ownerTrx : " + ownerTrx);
+    Optional<TransactionInfo>  infoById2 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Assert.assertEquals(0, infoById2.get().getResultValue());
 //    Assert.assertEquals(0, byId2.get().);
-    Assert.assertEquals(100, ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray()));
+    Assert.assertEquals(1000, ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray()));
   }
 
 
