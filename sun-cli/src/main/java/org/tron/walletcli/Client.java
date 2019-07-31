@@ -16,8 +16,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
@@ -877,6 +880,27 @@ public class Client {
     }
   }
 
+  private void fundInjectStress(String[] parameters) {
+    if (parameters == null || parameters.length < 2) {
+      System.out.println("Use fundInjectStress command with below syntax: ");
+      System.out.println("fundInject  everyAmount count");
+      return;
+    }
+
+    long amount = Long.parseLong(parameters[0]);
+    int count = Integer.parseInt(parameters[1]);
+
+    ExecutorService service = Executors.newFixedThreadPool(100);
+    IntStream.range(0, count).forEach(i -> service.submit(() -> {
+      boolean result = walletApiWrapper.fundInject(amount);
+      if (result) {
+        logger.info("fundInject {}" + " successful !!", i);
+      } else {
+        logger.info("fundInject {}" + " failed !!", i);
+      }
+    }));
+  }
+
   private void fundInject(String[] parameters) {
     if (parameters == null || parameters.length < 1) {
       System.out.println("Use fundInject command with below syntax: ");
@@ -1684,6 +1708,31 @@ public class Client {
     }
   }
 
+  private void depositTrxStress(String[] parameters) {
+    if (parameters == null || parameters.length != 3) {
+      System.out.println("depositTrxStress needs 3 parameters like following: ");
+      System.out.println("depositTrxStress trx_num fee_limit count");
+      return;
+    }
+
+    long trxNum = Long.parseLong(parameters[0]);
+    long feeLimit = Long.parseLong(parameters[1]);
+    int count = Integer.parseInt(parameters[2]);
+
+    ExecutorService service = Executors.newFixedThreadPool(100);
+    IntStream.range(0, count).forEach(i -> service.submit(() -> {
+
+      SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+          .depositTrx(trxNum, feeLimit);
+
+      if (checkResult(resp)) {
+        System.out.println(String.format("%d deposit trx success", i));
+      } else {
+        System.out.println(String.format("%d deposit trx failed", i));
+      }
+    }));
+  }
+
   private void depositTrc10(String[] parameters) {
     if (parameters == null || parameters.length != 4) {
       System.out.println("deposit trc10 needs 3 parameters like following: ");
@@ -1916,6 +1965,7 @@ public class Client {
     allCmds.add("broadcasttransaction");
     allCmds.add("create2");
     allCmds.add("deposit");
+    allCmds.add("deposittrxstress");
     allCmds.add("mapping");
     allCmds.add("retry");
     allCmds.add("exit");
@@ -1959,6 +2009,7 @@ public class Client {
     allCmds.add("freezebalance");
     allCmds.add("unfreezebalance");
     allCmds.add("fundinject");
+    allCmds.add("fundinjectstress");
     allCmds.add("withdrawbalance");
     allCmds.add("listproposals");
     allCmds.add("getproposal");
@@ -1978,6 +2029,7 @@ public class Client {
     allCmds.add("approveproposal");
     allCmds.add("deleteproposal");
     allCmds.add("withdraw");
+    allCmds.add("withdrawtrxstress");
     allCmds.add("retry");
     allCmds.add("createproposal");
     allCmds.add("getmappingaddress");
@@ -2371,6 +2423,10 @@ public class Client {
           deposit(parameters);
           break;
         }
+        case "deposittrxstress": {
+          depositTrxStress(parameters);
+          break;
+        }
         case "mapping": {
           mapping(parameters);
           break;
@@ -2441,6 +2497,29 @@ public class Client {
     }
 
     return;
+  }
+
+  private void withdrawTrxStress(String[] parameters) {
+
+    if (parameters == null || parameters.length != 3) {
+      System.out.println("withdrawTrxStress needs 3 parameters like following: ");
+      System.out.println("withdrawTrxStress trx_num fee_limit count");
+      return;
+    }
+
+    long trxNum = Long.parseLong(parameters[0]);
+    long feeLimit = Long.parseLong(parameters[1]);
+    int count = Integer.parseInt(parameters[2]);
+
+    ExecutorService service = Executors.newFixedThreadPool(100);
+    IntStream.range(0, count).forEach(i -> service.submit(() -> {
+      SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrx(trxNum, feeLimit);
+      if (checkResult(resp)) {
+        System.out.println(String.format("%d withdraw trx success", i));
+      } else {
+        System.out.println(String.format("%d withdraw trx failed", i));
+      }
+    }));
   }
 
   private void withdrawTrc10(String[] parameters) {
@@ -2828,6 +2907,10 @@ public class Client {
           fundInject(parameters);
           break;
         }
+        case "fundinjectstress": {
+          fundInjectStress(parameters);
+          break;
+        }
         case "withdrawbalance": {
           withdrawBalance();
           break;
@@ -2904,6 +2987,10 @@ public class Client {
         }
         case "withdraw": {
           withdraw(parameters);
+          break;
+        }
+        case "withdrawtrxstress": {
+          withdrawTrxStress(parameters);
           break;
         }
         case "retry": {
