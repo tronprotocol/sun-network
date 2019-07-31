@@ -37,7 +37,6 @@ dapp-chain/side-chain/src/test/java/org/tron/consensus2
 dapp-chain/side-chain/src/main/java/META-INF/
 dapp-chain/side-chain/src/main/resources/META-INF/
 dapp-chain/side-chain/bin/
-dapp-chain/contract/solc
 
 # Eclipse IDE specific files and folders
 /.project
