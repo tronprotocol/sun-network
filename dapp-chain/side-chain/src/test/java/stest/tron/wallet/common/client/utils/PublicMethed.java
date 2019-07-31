@@ -2116,5 +2116,21 @@ public class PublicMethed {
     return response.getResult();
   }
 
+  /**
+   * constructor.
+   */
+  public static TransactionExtention mappingTrc721ForExtention(byte[] mainGatewayAddress,
+      String trxHash, long feeLimit,
+      byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+    String methodStr = "mappingTRC721(bytes)";
+    String argsStr = "\"" + trxHash + "\"";
+
+    TransactionExtention transactionExtention = triggerContractForExtention(mainGatewayAddress,
+        methodStr, argsStr, false, 0, feeLimit, "0", 0,
+        ownerAddress, priKey, blockingStubFull);
+    return transactionExtention;
+  }
 
 }
