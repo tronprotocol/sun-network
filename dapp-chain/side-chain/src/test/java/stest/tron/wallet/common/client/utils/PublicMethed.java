@@ -988,7 +988,7 @@ public class PublicMethed {
       System.out.println("approve successfully.\n");
 
       byte[] depositContractAddr = WalletClient.decodeFromBase58Check(mainGatewayAddr);
-      String depositArgStr = num + ",\"" + contractAddrStr + "\"";
+      String depositArgStr = "\"" + contractAddrStr + "\"," + num;
       byte[] depositInput = Hex.decode(AbiUtil.parseMethod(depositMethodStr, depositArgStr, false));
 
       String Trxid = triggerContract(depositContractAddr, callValue, depositInput, feeLimit,
@@ -1013,7 +1013,7 @@ public class PublicMethed {
     String methodStr = "approve(address,uint256)";
     String mainGatewayAddr = mainGatewayAddress; //main gateway contract address
     String num = Long.toString(tokenValue);
-    String depositMethodStr = "depositTRC20(uint256,address)";
+    String depositMethodStr = "depositTRC20(address,uint256)";
 
     return depositTrc(contractAddrStr, mainGatewayAddr, methodStr, depositMethodStr, num, feeLimit,
         ownerAddress, priKey, blockingStubFull);
@@ -1022,7 +1022,7 @@ public class PublicMethed {
   /**
    * constructor.
    */
-  public static void depositTrc721(String trc20ContractAddress, String mainGatewayAddress,
+  public static String depositTrc721(String trc20ContractAddress, String mainGatewayAddress,
       long tokenValue,
       long feeLimit, byte[] ownerAddress, String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -1031,9 +1031,9 @@ public class PublicMethed {
     String methodStr = "approve(address,uint256)";
     String mainGatewayAddr = mainGatewayAddress; //main gateway contract address
     String num = Long.toString(tokenValue);
-    String depositMethodStr = "depositTRC721(uint256,address)";
+    String depositMethodStr = "depositTRC721(address,uint256)";
 
-    depositTrc(contractAddrStr, mainGatewayAddr, methodStr, depositMethodStr, num, feeLimit,
+    return depositTrc(contractAddrStr, mainGatewayAddr, methodStr, depositMethodStr, num, feeLimit,
         ownerAddress, priKey, blockingStubFull);
 
   }
@@ -1047,6 +1047,22 @@ public class PublicMethed {
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
 
     String methodStr = "mappingTRC20(bytes)";
+    String argsStr = "\"" + trxHash + "\"";
+
+    String trxid = triggerContract(mainGatewayAddress, methodStr, argsStr, false, 0, feeLimit,
+        ownerAddress, priKey, blockingStubFull);
+    return trxid;
+  }
+
+  /**
+   * constructor.
+   */
+  public static String mappingTrc721(byte[] mainGatewayAddress,
+      String trxHash, long feeLimit,
+      byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+    String methodStr = "mappingTRC721(bytes)";
     String argsStr = "\"" + trxHash + "\"";
 
     String trxid = triggerContract(mainGatewayAddress, methodStr, argsStr, false, 0, feeLimit,
