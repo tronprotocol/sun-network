@@ -452,7 +452,9 @@ public class Client {
 
     SunNetworkResponse<TransactionResponse> result = walletApiWrapper.sendCoin(toAddress, amount);
     if (checkResult(result)) {
-      logger.info("Send " + amount + " drop to " + toAddress + " successful !!");
+      logger.info("transaction id is " + result.getData().trxId);
+      logger.info("Send " + amount + " drop to " + toAddress + " successful !!\n "
+          + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command\"");
     } else {
       logger.info("Send " + amount + " drop to " + toAddress + " failed !!");
     }
@@ -1602,10 +1604,10 @@ public class Client {
 
     transaction = walletApiWrapper.addTransactionSign(transactionStr);
     if (transaction != null) {
+      System.out.println(Utils.printTransaction(transaction));
       System.out
           .println("Transaction hex string is " + ByteArray
               .toHexString(transaction.toByteArray()));
-      System.out.println(Utils.printTransaction(transaction));
     } else {
       logger.info("AddTransactionSign failed !!");
     }
@@ -1980,6 +1982,11 @@ public class Client {
     allCmds.add("createproposal");
     allCmds.add("getmappingaddress");
     allCmds.add("getnextmaintenancetime");
+    allCmds.add("updateaccountpermission");
+    allCmds.add("gettransactionsignweight");
+    allCmds.add("gettransactionapprovedlist");
+    allCmds.add("addtransactionsign");
+    allCmds.add("broadcasttransaction");
     allCmds.add("exit");
     allCmds.add("quit");
 
@@ -2913,6 +2920,26 @@ public class Client {
         }
         case "getnextmaintenancetime": {
           getNextMaintenanceTime();
+          break;
+        }
+        case "updateaccountpermission": {
+          updateAccountPermission(parameters);
+          break;
+        }
+        case "gettransactionsignweight": {
+          getTransactionSignWeight(parameters);
+          break;
+        }
+        case "gettransactionapprovedlist": {
+          getTransactionApprovedList(parameters);
+          break;
+        }
+        case "addtransactionsign": {
+          addTransactionSign(parameters);
+          break;
+        }
+        case "broadcasttransaction": {
+          broadcastTransaction(parameters);
           break;
         }
         case "exit":

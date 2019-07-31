@@ -108,7 +108,7 @@ public class ServerApi {
 
   private boolean isMainChain;
   private GrpcClient rpcCli;
-
+  private IMultiTransactionSign multiTransactionSign;
 
   public static GrpcClient initMain(String file) {
     Config config = Configuration.getByPath(file);
@@ -215,9 +215,10 @@ public class ServerApi {
     this.address = priEcKey.getAddress();
   }
 
-  public ServerApi(String config, byte[] priKey, boolean isMainChain) {
+  public ServerApi(String config, byte[] priKey, boolean isMainChain,
+      IMultiTransactionSign multiTransactionSign) {
     this.isMainChain = isMainChain;
-
+    this.multiTransactionSign = multiTransactionSign;
     if (isMainChain) {
       rpcCli = initMain(config);
     } else {
@@ -228,9 +229,10 @@ public class ServerApi {
     this.address = priEcKey.getAddress();
   }
 
-  public ServerApi(String config, boolean isMainChain) {
+  public ServerApi(String config, boolean isMainChain,
+      IMultiTransactionSign multiTransactionSign) {
     this.isMainChain = isMainChain;
-
+    this.multiTransactionSign = multiTransactionSign;
     if (isMainChain) {
       rpcCli = initMain(config);
     } else {
@@ -317,28 +319,27 @@ public class ServerApi {
       transaction = TransactionUtils.setTimestamp(transaction);
     }
     transaction = TransactionUtils.setExpirationTime(transaction);
-
     transaction = TransactionUtils.setPermissionId(transaction);
-    while (true) {
-      transaction = TransactionUtils
-          .sign(transaction, this.getEcKey(), getCurrentChainId(), isMainChain());
+    transaction = TransactionUtils
+        .sign(transaction, this.getEcKey(), getCurrentChainId(), isMainChain());
 
-      TransactionSignWeight weight = getTransactionSignWeight(transaction);
+    if (Objects.isNull(multiTransactionSign)) {
+      return transaction;
+    }
+    TransactionSignWeight weight;
+    while (true) {
+      weight = getTransactionSignWeight(transaction);
       if (weight.getResult().getCode() == response_code.ENOUGH_PERMISSION) {
         break;
       }
       if (weight.getResult().getCode() == response_code.NOT_ENOUGH_PERMISSION) {
-//        System.out.println("Current signWeight is:");
-//        System.out.println(Utils.printTransactionSignWeight(weight));
-//        System.out.println("Please confirm if continue add signature enter y or Y, else any other");
-//        if (!confirm()) {
-//          throw new CancelException("User cancelled");
-//        }
-//        continue;
+        Transaction transactionRet = this.multiTransactionSign
+            .addTransactionSign(transaction, weight, getCurrentChainId());
+        if (Objects.isNull(transactionRet)) {
+          return null;
+        }
+        transaction = transactionRet;
       }
-
-      break;
-      //throw new CancelException(weight.getResult().getMessage());
     }
     return transaction;
   }
@@ -368,7 +369,10 @@ public class ServerApi {
     logger.info("transaction hex string is " + Utils.printTransaction(transaction));
     logger.info(Utils.printTransaction(transactionExtention));
     transaction = signTransaction(transaction);
-
+    if (Objects.isNull(transaction)) {
+      logger.info("Sign transaction cancelled");
+      return null;
+    }
     ByteString txid = ByteString.copyFrom(Sha256Hash.hash(transaction.getRawData().toByteArray()));
     transactionExtention = transactionExtention.toBuilder().setTransaction(transaction)
         .setTxid(txid).build();

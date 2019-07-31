@@ -71,7 +71,7 @@ public class WalletApiWrapper {
 
   public WalletApiWrapper() {
     sdk = new SunNetwork();
-    SunNetworkResponse<Integer> ret = sdk.init("config.conf");
+    SunNetworkResponse<Integer> ret = sdk.init("config.conf", new MultiSignTransactionImpl());
     if (ret.getData() != 0) {
       System.out.println("Failed to init sdk");
     }
@@ -142,16 +142,16 @@ public class WalletApiWrapper {
     logout();
     wallet = WalletApi.loadWalletFromKeystore();
 
+    if (wallet == null) {
+      System.out.println("Warning: Login failed, Please registerWallet or importWallet first !!");
+      return false;
+    }
+
     System.out.println("Please input your password.");
     char[] password = Utils.inputPassword(false);
     byte[] passwd = StringUtils.char2Byte(password);
     StringUtils.clear(password);
     wallet.checkPassword(passwd);
-
-    if (wallet == null) {
-      System.out.println("Warning: Login failed, Please registerWallet or importWallet first !!");
-      return false;
-    }
 
     WalletFile walletFile = wallet.getCurrentWalletFile();
     ECKey myKey = Wallet.decrypt(passwd, walletFile);

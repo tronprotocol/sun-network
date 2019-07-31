@@ -2,6 +2,7 @@ package org.tron.sunapi;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.sunserver.IMultiTransactionSign;
 
 @Slf4j
 public class SunNetwork {
@@ -18,17 +19,18 @@ public class SunNetwork {
    * @return the result of initialize
    * @author sun-network
    */
-  public SunNetworkResponse<Integer> init(String config) {
+  public SunNetworkResponse<Integer> init(String config,
+      IMultiTransactionSign multiTransactionSign) {
     SunNetworkResponse<Integer> ret;
 
     this.mainChainService = new MainchainApi();
-    ret = this.mainChainService.init(config);
+    ret = this.mainChainService.init(config, multiTransactionSign);
     if (!ret.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
       return ret;
     }
 
     this.sideChainService = new SidechainApi();
-    ret = this.sideChainService.init(config);
+    ret = this.sideChainService.init(config, multiTransactionSign);
     if (!ret.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
       return ret;
     }

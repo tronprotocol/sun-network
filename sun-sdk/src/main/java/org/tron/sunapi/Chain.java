@@ -51,6 +51,7 @@ import org.tron.sunapi.request.ExchangeCreateRequest;
 import org.tron.sunapi.request.ExchangeTransactionRequest;
 import org.tron.sunapi.request.TriggerContractRequest;
 import org.tron.sunapi.response.TransactionResponse;
+import org.tron.sunserver.IMultiTransactionSign;
 import org.tron.sunserver.ServerApi;
 
 @Slf4j
@@ -67,22 +68,24 @@ public class Chain implements ChainInterface {
    * @author sun-network
    */
 
-  public SunNetworkResponse<Integer> init(String config, String priKey, boolean isMainChain) {
+  public SunNetworkResponse<Integer> init(String config, String priKey, boolean isMainChain,
+      IMultiTransactionSign multiTransactionSign) {
     SunNetworkResponse<Integer> ret = new SunNetworkResponse<>();
     byte[] temp = ByteArray.fromHexString(priKey);
 
     if (!Utils.priKeyValid(temp)) {
       ret.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
-    serverApi = new ServerApi(config, temp, isMainChain);
+    serverApi = new ServerApi(config, temp, isMainChain, multiTransactionSign);
 
     return ret.success(0);
   }
 
-  public SunNetworkResponse<Integer> init(String config, boolean isMainChain) {
+  public SunNetworkResponse<Integer> init(String config, boolean isMainChain,
+      IMultiTransactionSign multiTransactionSign) {
     SunNetworkResponse<Integer> ret = new SunNetworkResponse<>();
 
-    serverApi = new ServerApi(config, isMainChain);
+    serverApi = new ServerApi(config, isMainChain, multiTransactionSign);
 
     return ret.success(0);
   }

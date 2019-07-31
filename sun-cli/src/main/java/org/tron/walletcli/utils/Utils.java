@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.tron.api.GrpcAPI.AccountNetMessage;
@@ -1951,47 +1952,6 @@ public class Utils {
     return result.toString();
   }
 
-  public static String printTransactionSignWeight(TransactionSignWeight transactionSignWeight) {
-    StringBuffer result = new StringBuffer();
-    result.append("permission:");
-    result.append("\n");
-    result.append("{");
-    result.append("\n");
-    result.append(printPermission(transactionSignWeight.getPermission()));
-    result.append("}");
-    result.append("\n");
-    result.append("current_weight: ");
-    result.append(transactionSignWeight.getCurrentWeight());
-    result.append("\n");
-    result.append("result:");
-    result.append("\n");
-    result.append("{");
-    result.append("\n");
-    result.append(printResult(transactionSignWeight.getResult()));
-    result.append("}");
-    result.append("\n");
-    if (transactionSignWeight.getApprovedListCount() > 0) {
-      result.append("approved_list:");
-      result.append("\n");
-      result.append("[");
-      result.append("\n");
-      for (ByteString approved : transactionSignWeight.getApprovedListList()) {
-        result.append(AddressUtil.encode58Check(approved.toByteArray()));
-        result.append("\n");
-      }
-      result.append("]");
-      result.append("\n");
-    }
-    result.append("transaction:");
-    result.append("\n");
-    result.append("{");
-    result.append("\n");
-    result.append(printTransaction(transactionSignWeight.getTransaction()));
-    result.append("}");
-    result.append("\n");
-    return result.toString();
-  }
-
   public static String printTransactionApprovedList(
       TransactionApprovedList transactionApprovedList) {
     StringBuffer result = new StringBuffer();
@@ -2066,5 +2026,58 @@ public class Utils {
     return true;
   }
 
+  public static boolean confirm() {
+    Scanner in = new Scanner(System.in);
+    while (true) {
+      String input = in.nextLine().trim();
+      String str = input.split("\\s+")[0];
+      if ("y".equalsIgnoreCase(str)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
+  public static String printTransactionSignWeight(TransactionSignWeight transactionSignWeight) {
+    StringBuffer result = new StringBuffer();
+    result.append("permission:");
+    result.append("\n");
+    result.append("{");
+    result.append("\n");
+    result.append(printPermission(transactionSignWeight.getPermission()));
+    result.append("}");
+    result.append("\n");
+    result.append("current_weight: ");
+    result.append(transactionSignWeight.getCurrentWeight());
+    result.append("\n");
+    result.append("result:");
+    result.append("\n");
+    result.append("{");
+    result.append("\n");
+    result.append(printResult(transactionSignWeight.getResult()));
+    result.append("}");
+    result.append("\n");
+    if (transactionSignWeight.getApprovedListCount() > 0) {
+      result.append("approved_list:");
+      result.append("\n");
+      result.append("[");
+      result.append("\n");
+      for (ByteString approved : transactionSignWeight.getApprovedListList()) {
+        result.append(AddressUtil.encode58Check(approved.toByteArray()));
+        result.append("\n");
+      }
+      result.append("]");
+      result.append("\n");
+    }
+    result.append("transaction:");
+    result.append("\n");
+    result.append("{");
+    result.append("\n");
+    result.append(printTransaction(transactionSignWeight.getTransaction()));
+    result.append("}");
+    result.append("\n");
+    return result.toString();
+  }
 }
 
