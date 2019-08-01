@@ -1013,7 +1013,7 @@ public class PublicMethed {
     String methodStr = "approve(address,uint256)";
     String mainGatewayAddr = mainGatewayAddress; //main gateway contract address
     String num = Long.toString(tokenValue);
-    String depositMethodStr = "depositTRC20(address,uint256)";
+    String depositMethodStr = "depositTRC20(address,uint64)";
 
     return depositTrc(contractAddrStr, mainGatewayAddr, methodStr, depositMethodStr, num, feeLimit,
         ownerAddress, priKey, blockingStubFull);
@@ -2132,5 +2132,21 @@ public class PublicMethed {
     return response.getResult();
   }
 
+  /**
+   * constructor.
+   */
+  public static TransactionExtention mappingTrc721ForExtention(byte[] mainGatewayAddress,
+      String trxHash, long feeLimit,
+      byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+    String methodStr = "mappingTRC721(bytes)";
+    String argsStr = "\"" + trxHash + "\"";
+
+    TransactionExtention transactionExtention = triggerContractForExtention(mainGatewayAddress,
+        methodStr, argsStr, false, 0, feeLimit, "0", 0,
+        ownerAddress, priKey, blockingStubFull);
+    return transactionExtention;
+  }
 
 }
