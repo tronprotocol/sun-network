@@ -79,7 +79,7 @@ public class ProgramPrecompile {
         i += op.asInt() - OpCode.PUSH1.asInt() + 1;
       }
     }
-    return new DataWord(0).getData();
+    return new byte[0];
   }
 
   public boolean hasJumpDest(int pc) {

@@ -29,9 +29,9 @@ public class WalletUtil {
     byte[] hash0 = Sha256Hash.hash(decodeData);
     byte[] hash1 = Sha256Hash.hash(hash0);
     if (hash1[0] == decodeCheck[decodeData.length] &&
-      hash1[1] == decodeCheck[decodeData.length + 1] &&
-      hash1[2] == decodeCheck[decodeData.length + 2] &&
-      hash1[3] == decodeCheck[decodeData.length + 3]) {
+        hash1[1] == decodeCheck[decodeData.length + 1] &&
+        hash1[2] == decodeCheck[decodeData.length + 2] &&
+        hash1[3] == decodeCheck[decodeData.length + 3]) {
       return decodeData;
     }
     return null;
@@ -44,9 +44,9 @@ public class WalletUtil {
     }
     if (address.length != CommonConstant.ADDRESS_SIZE) {
       logger.warn(
-        "Warning: Address length need " + CommonConstant.ADDRESS_SIZE + " but "
-          + address.length
-          + " !!");
+          "Warning: Address length need " + CommonConstant.ADDRESS_SIZE + " but "
+              + address.length
+              + " !!");
       return false;
     }
     return true;
@@ -70,6 +70,14 @@ public class WalletUtil {
     newInput[0] = CommonConstant.ADD_PRE_FIX_BYTE_MAINNET;
     System.arraycopy(input, 0, newInput, 1, input.length);
     return encode58Check(newInput);
+  }
+
+  public static void sleep(long interval) {
+    try {
+      Thread.sleep(interval);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 
 

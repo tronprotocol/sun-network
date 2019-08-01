@@ -30,6 +30,7 @@ import org.tron.protos.Contract.AccountCreateContract;
 import org.tron.protos.Contract.AccountUpdateContract;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Account.AccountResource;
+import org.tron.protos.Protocol.Account.Builder;
 import org.tron.protos.Protocol.Account.Frozen;
 import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.Key;
@@ -70,20 +71,6 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
         .setAddress(address)
         .setBalance(balance)
         .build();
-  }
-
-  /**
-   * initial account capsule.
-   */
-  public AccountCapsule(ByteString accountName, ByteString address, AccountType accountType,
-      long balance, long sunTokenBalance) {
-    this.account = Account.newBuilder()
-        .setAccountName(accountName)
-        .setType(accountType)
-        .setAddress(address)
-        .setBalance(balance)
-        .build();
-    this.addAssetAmountV2(SUN_TOKEN_ID.getBytes(),sunTokenBalance);
   }
 
   /**
@@ -301,6 +288,13 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
 
   public long getBalance() {
     return this.account.getBalance();
+  }
+
+  public long getBalanceByChargeType(Manager dbManager) {
+    if (dbManager.getDynamicPropertiesStore().getSideChainChargingType() == 1) {
+      return this.account.getAssetV2Map().getOrDefault(SUN_TOKEN_ID,0L);
+    }
+    return getBalance();
   }
 
   public long getLatestOperationTime() {
@@ -934,6 +928,20 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
       Permission permission = actives.get(i).toBuilder().setId(i + 2).build();
       builder.addActivePermission(permission);
     }
+    this.account = builder.build();
+  }
+
+  public void updateAccountType(AccountType accountType) {
+    this.account = this.account.toBuilder().setType(accountType).build();
+  }
+
+  // just for vm create2 instruction
+  public void clearDelegatedResource() {
+    Builder builder = account.toBuilder();
+    AccountResource newAccountResource = getAccountResource().toBuilder()
+        .setAcquiredDelegatedFrozenBalanceForEnergy(0L).build();
+    builder.setAccountResource(newAccountResource);
+    builder.setAcquiredDelegatedFrozenBalanceForBandwidth(0L);
     this.account = builder.build();
   }
 

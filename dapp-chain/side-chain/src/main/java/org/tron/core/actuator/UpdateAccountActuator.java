@@ -83,7 +83,7 @@ public class UpdateAccountActuator extends AbstractActuator {
       throw new ContractValidateException("Account has not existed");
     }
 
-//  allow dup name in side chain
+//  allow update account name in side chain
 //    if (account.getAccountName() != null && !account.getAccountName().isEmpty()
 //        && dbManager.getDynamicPropertiesStore().getAllowUpdateAccountName() == 0) {
 //      throw new ContractValidateException("This account name already exist");

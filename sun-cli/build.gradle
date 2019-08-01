@@ -2,7 +2,6 @@ group 'Tron'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
-apply plugin: 'com.google.protobuf'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'application'
 
@@ -24,11 +23,7 @@ repositories {
 
 sourceSets {
     main {
-        proto {
-            srcDir 'src/main/protos'
-        }
         java {
-            srcDir 'src/main/gen'
             srcDir 'src/main/java'
         }
     }
@@ -52,7 +47,6 @@ buildscript {
 
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.3'
         classpath "gradle.plugin.com.liferay:gradle-plugins-node:4.3.0"
     }
 }
@@ -62,6 +56,8 @@ task wrapper(type: Wrapper) {
 }
 
 dependencies {
+    compile 'org.elasticsearch:elasticsearch:6.3.2'
+    compile project(':sun-sdk')
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile group: 'com.beust', name: 'jcommander', version: '1.72'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
@@ -85,33 +81,6 @@ dependencies {
     compile "org.apache.commons:commons-lang3:3.4"
     compile group: 'com.google.api.grpc', name: 'googleapis-common-protos', version: '0.0.3'
     compile 'com.alibaba:fastjson:1.2.47'
-}
-
-protobuf {
-    generatedFilesBaseDir = "$projectDir/src/"
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.5.1-1"
-
-    }
-    plugins {
-        grpc {
-            artifact = 'io.grpc:protoc-gen-grpc-java:1.9.0'
-        }
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    outputSubDir = "gen"
-                }
-            }
-        }
-        all()*.plugins {
-            grpc {
-                outputSubDir = "gen"
-            }
-        }
-    }
 }
 
 run {

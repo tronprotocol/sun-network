@@ -11,7 +11,6 @@ contract ITRC20Receiver {
      *  Equals to `bytes4(keccak256("onTRC20Received(address,uint256,bytes)"))`,
      *  which can be also obtained as `ITRC20Receiver(0).onTRC20Received.selector`
      */
-    bytes4 constant _TRC20_RECEIVED = 0xbcad917b;
 
-    function onTRC20Received(address from, uint256 value, bytes txData) public returns (bytes4);
+    function onTRC20Received(address from, uint256 value) public returns (uint256);
 }

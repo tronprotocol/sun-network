@@ -29,17 +29,15 @@ public class CreateAccountActuator extends AbstractActuator {
     long fee = calcFee();
     try {
       AccountCreateContract accountCreateContract = contract.unpack(AccountCreateContract.class);
-      boolean withDefaultPermission =
-          dbManager.getDynamicPropertiesStore().getAllowMultiSign() == 1;
       AccountCapsule accountCapsule = new AccountCapsule(accountCreateContract,
-          dbManager.getHeadBlockTimeStamp(), withDefaultPermission, dbManager);
+          dbManager.getHeadBlockTimeStamp(), true, dbManager);
 
       dbManager.getAccountStore()
           .put(accountCreateContract.getAccountAddress().toByteArray(), accountCapsule);
 
       dbManager.adjustBalance(accountCreateContract.getOwnerAddress().toByteArray(), -fee, chargingType);
       // Add to blackhole address
-      dbManager.adjustBalance(dbManager.getAccountStore().getBlackhole().createDbKey(), fee, chargingType);
+      dbManager.adjustFund(fee);
 
       ret.setStatus(fee, code.SUCESS);
     } catch (BalanceInsufficientException e) {

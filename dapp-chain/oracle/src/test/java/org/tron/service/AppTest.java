@@ -1,7 +1,9 @@
 package org.tron.service;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class AppTest {
 
   @Test

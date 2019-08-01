@@ -197,3 +197,8 @@ message AccountPermissionUpdateContract {
   Permission witness = 3;//Can be empty
   repeated Permission actives = 4;//Empty is invalidate
 }
+
+message FundInjectContract {
+  bytes owner_address = 1;
+  int64 amount = 2;
+}

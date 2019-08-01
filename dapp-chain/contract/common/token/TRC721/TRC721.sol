@@ -19,13 +19,6 @@ contract TRC721 is ITRC721 {
     // Mapping from owner to number of owned token
     mapping(address => uint256) internal _ownedTokensCount; // FIXME, should be private
 
-    /**
-     * @dev Magic value to be returned upon successful reception of an NFT
-     *  Equals to `bytes4(keccak256("onTRC721Received(address,uint256,bytes)"))`,
-     *  which can be also obtained as `ITRC721Receiver(0).onTRC721Received.selector`
-     */
-    bytes4 constant internal _TRC721_RECEIVED = 0xcb912b1e;  // FIXME, can be here ?
-
     // Mapping from owner to operator approvals
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 

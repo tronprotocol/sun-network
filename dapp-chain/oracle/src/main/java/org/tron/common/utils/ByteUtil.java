@@ -19,8 +19,6 @@ package org.tron.common.utils;
  */
 
 
-import org.spongycastle.util.encoders.Hex;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -30,6 +28,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import org.spongycastle.util.encoders.Hex;
 
 
 public class ByteUtil {
@@ -292,10 +291,10 @@ public class ByteUtil {
   public static byte[] calcPacketLength(byte[] msg) {
     int msgLen = msg.length;
     return new byte[]{
-      (byte) ((msgLen >> 24) & 0xFF),
-      (byte) ((msgLen >> 16) & 0xFF),
-      (byte) ((msgLen >> 8) & 0xFF),
-      (byte) ((msgLen) & 0xFF)};
+        (byte) ((msgLen >> 24) & 0xFF),
+        (byte) ((msgLen >> 16) & 0xFF),
+        (byte) ((msgLen >> 8) & 0xFF),
+        (byte) ((msgLen) & 0xFF)};
   }
 
   /**
@@ -342,11 +341,11 @@ public class ByteUtil {
 
     byte[] data;
 
-    // check if the string is numeric
+    // capsule if the string is numeric
     if (arg.toString().trim().matches("-?\\d+(\\.\\d+)?")) {
       data = new BigInteger(arg.toString().trim()).toByteArray();
     }
-    // check if it's hex number
+    // capsule if it's hex number
     else if (arg.toString().trim().matches("0[xX][0-9a-fA-F]+")) {
       data = new BigInteger(arg.toString().trim().substring(2), 16).toByteArray();
     } else {

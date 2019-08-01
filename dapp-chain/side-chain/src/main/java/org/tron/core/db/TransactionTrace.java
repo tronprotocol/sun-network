@@ -12,6 +12,7 @@ import org.spongycastle.util.encoders.Hex;
 import org.springframework.util.StringUtils;
 import org.tron.common.runtime.Runtime;
 import org.tron.common.runtime.RuntimeImpl;
+import org.tron.common.runtime.config.VMConfig;
 import org.tron.common.runtime.vm.program.InternalTransaction;
 import org.tron.common.runtime.vm.program.Program.BadJumpDestinationException;
 import org.tron.common.runtime.vm.program.Program.IllegalOperationException;
@@ -22,6 +23,7 @@ import org.tron.common.runtime.vm.program.Program.OutOfTimeException;
 import org.tron.common.runtime.vm.program.Program.PrecompiledContractException;
 import org.tron.common.runtime.vm.program.Program.StackTooLargeException;
 import org.tron.common.runtime.vm.program.Program.StackTooSmallException;
+import org.tron.common.runtime.vm.program.Program.TransferException;
 import org.tron.common.runtime.vm.program.ProgramResult;
 import org.tron.common.runtime.vm.program.invoke.ProgramInvokeFactoryImpl;
 import org.tron.common.storage.DepositImpl;
@@ -65,6 +67,9 @@ public class TransactionTrace {
     return trx;
   }
 
+  @Getter
+  private boolean isSideChainGateWayContractCall;
+
   public enum TimeResultType {
     NORMAL,
     LONG_RUNNING,
@@ -81,6 +86,9 @@ public class TransactionTrace {
         .getContract(0).getType();
     switch (contractType.getNumber()) {
       case ContractType.TriggerSmartContract_VALUE:
+        if (this.trx.checkIfSideChainGateWayContractCall(dbManager)) {
+          isSideChainGateWayContractCall = true;
+        }
         trxType = TRX_CONTRACT_CALL_TYPE;
         break;
       case ContractType.CreateSmartContract_VALUE:
@@ -111,6 +119,31 @@ public class TransactionTrace {
     runtime = new RuntimeImpl(this, blockCap, deposit, new ProgramInvokeFactoryImpl());
     runtime.setEnableEventLinstener(eventPluginLoaded);
   }
+
+//  public void checkIsConstant() throws ContractValidateException, VMIllegalException {
+//    if (VMConfig.allowTvmConstantinople()) {
+//      return;
+//    }
+//
+//    TriggerSmartContract triggerContractFromTransaction = ContractCapsule
+//        .getTriggerContractFromTransaction(this.getTrx().getInstance());
+//    if (TrxType.TRX_CONTRACT_CALL_TYPE == this.trxType) {
+//      DepositImpl deposit = DepositImpl.createRoot(dbManager);
+//      ContractCapsule contract = deposit
+//          .getContract(triggerContractFromTransaction.getContractAddress().toByteArray());
+//      if (contract == null) {
+//        logger.info("contract: {} is not in contract store", Wallet
+//            .encode58Check(triggerContractFromTransaction.getContractAddress().toByteArray()));
+//        throw new ContractValidateException("contract: " + Wallet
+//            .encode58Check(triggerContractFromTransaction.getContractAddress().toByteArray())
+//            + " is not in contract store");
+//      }
+//      ABI abi = contract.getInstance().getAbi();
+//      if (Wallet.isConstant(abi, triggerContractFromTransaction)) {
+//        throw new VMIllegalException("cannot call constant method");
+//      }
+//    }
+//  }
 
   //set bill
   public void setBill(long energyUsage) {
@@ -285,6 +318,12 @@ public class TransactionTrace {
       receipt.setResult(contractResult.JVM_STACK_OVER_FLOW);
       return;
     }
+    if (exception instanceof TransferException) {
+      receipt.setResult(contractResult.TRANSFER_FAILED);
+      return;
+    }
+
+    logger.info("uncaught exception", exception);
     receipt.setResult(contractResult.UNKNOWN);
   }
 
