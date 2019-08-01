@@ -937,7 +937,9 @@ public class PublicMethed {
       System.out.println("approve successfully.\n");
 
       byte[] depositContractAddr = WalletClient.decodeFromBase58Check(mainGatewayAddr);
-      String depositArgStr = num + ",\"" + contractAddrStr + "\"";
+//      String depositArgStr = num + ",\"" + contractAddrStr + "\"";
+      String depositArgStr = "\"" + contractAddrStr + "\",\"" + num + "\"";
+
       byte[] depositInput = Hex.decode(AbiUtil.parseMethod(depositMethodStr, depositArgStr, false));
 
       String Trxid = triggerContract(depositContractAddr, callValue, depositInput, feeLimit,
@@ -2110,5 +2112,68 @@ public class PublicMethed {
             feeLimit, tokenValue1, tokenId, ownerAddress, priKey, blockingsideStubFull);
     return aReturn;
   }
+
+
+  /**
+   * constructor.
+   */
+  public static String retryDeposit(
+      String mainGatewayAddr,
+      String nonce, long feeLimit, byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    String retryMethodStr = "retryDeposit(uint256)";
+    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
+
+    String txid = PublicMethed
+        .triggerContract(WalletClient.decodeFromBase58Check(mainGatewayAddr),
+            0,
+            input,
+            feeLimit, 0, null, ownerAddress, priKey, blockingStubFull);
+    return txid;
+
+  }
+
+  /**
+   * constructor.
+   */
+  public static String retryWithdraw(
+      String mainGatewayAddr, String sideGatewayAddress, String nonce, long feeLimit,
+      byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingsideStubFull) {
+    String retryMethodStr = "retryWithdraw(uint256)";
+    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
+
+    String txid1 = PublicMethed
+        .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideGatewayAddress),
+            WalletClient.decodeFromBase58Check(mainGatewayAddr),
+            0,
+            input,
+            feeLimit, 0, null, ownerAddress, priKey, blockingsideStubFull);
+    logger.info("txid1:" + txid1);
+    return txid1;
+
+  }
+
+
+  /**
+   * constructor.
+   */
+  public static String retryMapping(
+      String mainGatewayAddr, String nonce, long feeLimit,
+      byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    String retryMethodStr = "retryMapping(uint256)";
+
+    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
+
+    String txid = PublicMethed
+        .triggerContract(WalletClient.decodeFromBase58Check(mainGatewayAddr),
+            0,
+            input,
+            feeLimit, 0, null, ownerAddress, priKey, blockingStubFull);
+    return txid;
+
+  }
+
 
 }
