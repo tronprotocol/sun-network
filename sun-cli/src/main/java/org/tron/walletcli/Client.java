@@ -241,13 +241,15 @@ public class Client {
     }
   }
 
-  private void getBalance() {
+  private long getBalance() {
     SunNetworkResponse<Long> result = walletApiWrapper.getBalance();
     if (result != null && result.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
       long balance = result.getData();
       logger.info("Balance = " + balance);
+      return balance;
     } else {
       logger.info("GetBalance failed !!!!");
+      return 0;
     }
   }
 
@@ -1709,28 +1711,56 @@ public class Client {
   }
 
   private void depositTrxStress(String[] parameters) {
-    if (parameters == null || parameters.length != 3) {
-      System.out.println("depositTrxStress needs 3 parameters like following: ");
-      System.out.println("depositTrxStress trx_num fee_limit count");
+
+    if (parameters == null || parameters.length != 4) {
+      System.out.println("depositTrxStress needs 4 parameters like following: ");
+      System.out.println("depositTrxStress trx_num fee_limit tps duration(minutes)");
       return;
     }
 
+    switch2Side();
+    long initBalance = getBalance();
+    System.out.println("initBalance: " + initBalance);
+    switch2Main();
+
     long trxNum = Long.parseLong(parameters[0]);
     long feeLimit = Long.parseLong(parameters[1]);
-    int count = Integer.parseInt(parameters[2]);
+    int tps = Integer.parseInt(parameters[2]);
+    long durationInS = Long.parseLong(parameters[3]) * 60;
 
     ExecutorService service = Executors.newFixedThreadPool(100);
-    IntStream.range(0, count).forEach(i -> service.submit(() -> {
 
-      SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-          .depositTrx(trxNum, feeLimit);
+    for (long i = 0; i < durationInS; i++) {
+      for (int j = 0; j < 10; j++) {
+        long useFeeLimit = feeLimit + i % 50 + j;
+        long iBak = i;
+        int jBak = j;
+        IntStream.range(0, tps / 10).forEach(k -> service.submit(() -> {
 
-      if (checkResult(resp)) {
-        System.out.println(String.format("%d deposit trx success", i));
-      } else {
-        System.out.println(String.format("%d deposit trx failed", i));
+          SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+              .depositTrx(trxNum, useFeeLimit + k);
+
+          if (checkResult(resp)) {
+            System.out.println(String.format("%d:%d:%d deposit trx success", iBak, jBak, k));
+          } else {
+            System.out.println(String.format("%d:%d:%d deposit trx failed", iBak, jBak, k));
+          }
+        }));
+
+        try {
+          Thread.sleep(98);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
       }
-    }));
+    }
+
+    switch2Side();
+    long finalBalance = getBalance();
+    System.out.println("finalBalance: " + finalBalance);
+    System.out.println("gap: " + (finalBalance - initBalance));
+    System.out.println("ratio: " + ((finalBalance - initBalance) / durationInS * tps));
+    switch2Main();
   }
 
   private void depositTrc10(String[] parameters) {
@@ -2501,25 +2531,53 @@ public class Client {
 
   private void withdrawTrxStress(String[] parameters) {
 
-    if (parameters == null || parameters.length != 3) {
-      System.out.println("withdrawTrxStress needs 3 parameters like following: ");
-      System.out.println("withdrawTrxStress trx_num fee_limit count");
+    if (parameters == null || parameters.length != 4) {
+      System.out.println("withdrawTrxStress needs 4 parameters like following: ");
+      System.out.println("withdrawTrxStress trx_num fee_limit tps duration(minutes)");
       return;
     }
 
+    switch2Main();
+    long initBalance = getBalance();
+    System.out.println("initBalance: " + initBalance);
+    switch2Side();
+
     long trxNum = Long.parseLong(parameters[0]);
     long feeLimit = Long.parseLong(parameters[1]);
-    int count = Integer.parseInt(parameters[2]);
+    int tps = Integer.parseInt(parameters[2]);
+    long durationInS = Long.parseLong(parameters[3]) * 60;
 
     ExecutorService service = Executors.newFixedThreadPool(100);
-    IntStream.range(0, count).forEach(i -> service.submit(() -> {
-      SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrx(trxNum, feeLimit);
-      if (checkResult(resp)) {
-        System.out.println(String.format("%d withdraw trx success", i));
-      } else {
-        System.out.println(String.format("%d withdraw trx failed", i));
+
+    for (long i = 0; i < durationInS; i++) {
+      for (int j = 0; j < 10; j++) {
+        long useFeeLimit = feeLimit + i % 50 + j;
+        long iBak = i;
+        int jBak = j;
+        IntStream.range(0, tps / 10).forEach(k -> service.submit(() -> {
+
+          SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrx(trxNum, useFeeLimit + k);
+          if (checkResult(resp)) {
+            System.out.println(String.format("%d:%d:%d withdraw trx success", iBak, jBak, k));
+          } else {
+            System.out.println(String.format("%d:%d:%d withdraw trx failed", iBak, jBak, k));
+          }
+        }));
+
+        try {
+          Thread.sleep(98);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
       }
-    }));
+    }
+
+    switch2Main();
+    long finalBalance = getBalance();
+    System.out.println("finalBalance: " + finalBalance);
+    System.out.println("gap: " + (finalBalance - initBalance));
+    System.out.println("ratio: " + ((finalBalance - initBalance) / durationInS * tps));
+    switch2Side();
   }
 
   private void withdrawTrc10(String[] parameters) {
