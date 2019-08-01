@@ -17,7 +17,7 @@ public class MainchainApi extends Chain {
    * @return the result of init main chain
    * @author sun-network
    */
-  public SunNetworkResponse<Integer> init(String config, String priKey,
+  public SunNetworkResponse<Integer> init(IServerConfig config, String priKey,
       IMultiTransactionSign multiTransactionSign) {
     return super.init(config, priKey, true, multiTransactionSign);
   }
@@ -26,7 +26,7 @@ public class MainchainApi extends Chain {
    * @return the result of init main chain
    * @author sun-network
    */
-  public SunNetworkResponse<Integer> init(String config,
+  public SunNetworkResponse<Integer> init(IServerConfig config,
       IMultiTransactionSign multiTransactionSign) {
     return super.init(config, true, multiTransactionSign);
   }

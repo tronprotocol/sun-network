@@ -19,7 +19,7 @@ public class SidechainApi extends Chain {
    * @return the result of init side chain
    * @author sun-network
    */
-  public SunNetworkResponse<Integer> init(String config, String priKey,
+  public SunNetworkResponse<Integer> init(IServerConfig config, String priKey,
       IMultiTransactionSign multiTransactionSign) {
     return super.init(config, priKey, false, multiTransactionSign);
   }
@@ -29,7 +29,7 @@ public class SidechainApi extends Chain {
    * @return the result of init side chain
    * @author sun-network
    */
-  public SunNetworkResponse<Integer> init(String config,
+  public SunNetworkResponse<Integer> init(IServerConfig config,
       IMultiTransactionSign multiTransactionSign) {
     return super.init(config, false, multiTransactionSign);
   }

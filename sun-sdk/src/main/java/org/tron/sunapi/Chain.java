@@ -68,7 +68,7 @@ public class Chain implements ChainInterface {
    * @author sun-network
    */
 
-  public SunNetworkResponse<Integer> init(String config, String priKey, boolean isMainChain,
+  public SunNetworkResponse<Integer> init(IServerConfig config, String priKey, boolean isMainChain,
       IMultiTransactionSign multiTransactionSign) {
     SunNetworkResponse<Integer> ret = new SunNetworkResponse<>();
     byte[] temp = ByteArray.fromHexString(priKey);
@@ -81,7 +81,7 @@ public class Chain implements ChainInterface {
     return ret.success(0);
   }
 
-  public SunNetworkResponse<Integer> init(String config, boolean isMainChain,
+  public SunNetworkResponse<Integer> init(IServerConfig config, boolean isMainChain,
       IMultiTransactionSign multiTransactionSign) {
     SunNetworkResponse<Integer> ret = new SunNetworkResponse<>();
 
