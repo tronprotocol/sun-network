@@ -9,6 +9,7 @@ import org.tron.common.crypto.ECKey;
 import org.tron.common.crypto.ECKey.ECDSASignature;
 import org.tron.common.crypto.Sha256Hash;
 import org.tron.common.utils.ByteArray;
+import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.sunserver.IMultiTransactionSign;
@@ -52,9 +53,24 @@ public class MultiSignTransactionImpl implements IMultiTransactionSign {
     } catch (IOException e) {
       e.printStackTrace();
     } catch (CipherException e) {
-      e.printStackTrace();
+      System.out.println(e.getMessage());
     }
     return null;
+  }
+
+  @Override
+  public Transaction setPermissionId(Transaction transaction) {
+    try {
+      System.out.println(
+          "Transaction hex string is  " + ByteArray.toHexString(transaction.toByteArray()));
+      System.out.println(
+          "Please confirm and input your permission id, if input y or Y means default 0, other non-numeric characters will cancell transaction.");
+      transaction = Utils.setPermissionId(transaction);
+    } catch (CancelException e) {
+      System.out.println("User cancelled");
+      return null;
+    }
+    return transaction;
   }
 
   private Transaction signTransaction(Transaction transaction, ECKey myKey, byte[] chainId) {
@@ -62,7 +78,7 @@ public class MultiSignTransactionImpl implements IMultiTransactionSign {
     byte[] hash = Sha256Hash.hash(transaction.getRawData().toByteArray());
 
     byte[] newHash;
-    if (Objects.isNull(chainId)) {
+    if (Objects.isNull(chainId) || chainId.length <= 0) {
       newHash = hash;
     } else {
       byte[] hashWithChainId = Arrays.copyOf(hash, hash.length + chainId.length);

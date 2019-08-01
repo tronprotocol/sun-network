@@ -1,6 +1,6 @@
 # SunWeb
 
-SunWeb 是为Tron Sun-Network 开发的一款 js-sdk 工具，并且继承自 [TronWeb](https://developers.tron.network/docs/tron-web-intro)。 SunWeb 里面封装了mainchain和sidechain两个对象，他们本质上就是TronWeb的对象实例，因此里面包含了 TronWeb 实例的所有属性和方法。例如用户可以使用sunweb.mainchain.trx.getBalance()来获取主网上的 balance。除此之外，SunWeb 增加了一些新的方法来支持主链和侧链的交互，如 deposit, withdraw, mapping, approve 等操作，详细使用方法如下。
+SunWeb 是为Tron Sun-Network 开发的一款 js-sdk 工具，并且继承自 [TronWeb](https://developers.tron.network/docs/tron-web-intro)。 SunWeb 里面封装了mainchain 和 sidechain 两个对象，他们本质上就是 TronWeb 的对象实例，因此里面包含了 TronWeb 实例的所有属性和方法。例如用户可以使用 sunweb.mainchain.trx.getBalance() 来获取主网上的 balance。除此之外，SunWeb 增加了一些新的方法来支持主链和侧链的交互，如 deposit, withdraw, mapping, approve 等操作，可参考[源码](https://github.com/tronprotocol/sun-network/tree/develop/js-sdk)。SunWeb 详细使用方法如下。
 
 ## SunWeb 类
 

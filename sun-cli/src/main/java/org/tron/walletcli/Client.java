@@ -454,7 +454,7 @@ public class Client {
     if (checkResult(result)) {
       logger.info("transaction id is " + result.getData().trxId);
       logger.info("Send " + amount + " drop to " + toAddress + " successful !!\n "
-          + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command\"");
+          + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
     } else {
       logger.info("Send " + amount + " drop to " + toAddress + " failed !!");
     }
