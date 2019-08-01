@@ -1842,21 +1842,37 @@ public class PublicMethed {
   /**
    * constructor.
    */
+  public static String withdrawTrc(
+      String mainGatewayAddr, byte[] sideTokenAddress,
+      String value, long feeLimit, byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingsideStubFull) {
+
+    String methodStr = "withdrawal(uint256)";
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, value, false));
+    String withdrawTxid1 = PublicMethed
+        .triggerContractSideChain(sideTokenAddress,
+            WalletClient.decodeFromBase58Check(mainGatewayAddr), 0, input, feeLimit,
+            0, "0", ownerAddress, priKey, blockingsideStubFull);
+    return withdrawTxid1;
+  }
+
+  /**
+   * constructor.
+   */
   public static String withdrawTrc20(
       String mainGatewayAddr, String sideTokenAddress,
       String value, String tokenAddress, long feeLimit, byte[] ownerAddress,
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
       WalletGrpc.WalletBlockingStub blockingsideStubFull) {
 
-    byte[] txData1 = PublicMethed.sideSignTokenData(tokenAddress, ownerAddress, priKey,
-        WalletClient.decodeFromBase58Check(mainGatewayAddr), blockingStubFull, value, 0,
-        0, "0");
-    String methodStr1 = "withdrawal(uint256,bytes)";
+//    byte[] txData1 = PublicMethed.sideSignTokenData(tokenAddress, ownerAddress, priKey,
+//        WalletClient.decodeFromBase58Check(mainGatewayAddr), blockingStubFull, value, 0,
+//        0, "0");
+    String methodStr1 = "withdrawal(uint256)";
 
     byte[] input1 = Hex
         .decode(AbiUtil
-            .parseMethod(methodStr1, value + ",\"" + Hex.toHexString(txData1) + "\"", false));
-
+            .parseMethod(methodStr1, value, false));
     String txid1 = PublicMethed
         .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideTokenAddress),
             WalletClient.decodeFromBase58Check(mainGatewayAddr),
