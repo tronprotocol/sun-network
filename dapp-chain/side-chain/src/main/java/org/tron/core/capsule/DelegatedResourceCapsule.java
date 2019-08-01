@@ -81,11 +81,7 @@ public class DelegatedResourceCapsule implements ProtoCapsule<DelegatedResource>
   }
 
   public long getExpireTimeForEnergy(Manager manager) {
-    if (manager.getDynamicPropertiesStore().getAllowMultiSign() == 0) {
-      return this.delegatedResource.getExpireTimeForBandwidth();
-    } else {
-      return this.delegatedResource.getExpireTimeForEnergy();
-    }
+    return this.delegatedResource.getExpireTimeForEnergy();
   }
 
   public void setExpireTimeForBandwidth(long ExpireTime) {

@@ -6,8 +6,13 @@ import static org.tron.common.runtime.vm.OpCode.CALL;
 import static org.tron.common.runtime.vm.OpCode.CALLTOKEN;
 import static org.tron.common.runtime.vm.OpCode.CALLTOKENID;
 import static org.tron.common.runtime.vm.OpCode.CALLTOKENVALUE;
+import static org.tron.common.runtime.vm.OpCode.CREATE2;
+import static org.tron.common.runtime.vm.OpCode.EXTCODEHASH;
 import static org.tron.common.runtime.vm.OpCode.PUSH1;
 import static org.tron.common.runtime.vm.OpCode.REVERT;
+import static org.tron.common.runtime.vm.OpCode.SAR;
+import static org.tron.common.runtime.vm.OpCode.SHL;
+import static org.tron.common.runtime.vm.OpCode.SHR;
 import static org.tron.common.runtime.vm.OpCode.TOKENBALANCE;
 import static org.tron.common.utils.ByteUtil.EMPTY_BYTE_ARRAY;
 
@@ -22,13 +27,14 @@ import org.tron.common.runtime.vm.program.Program;
 import org.tron.common.runtime.vm.program.Program.JVMStackOverFlowException;
 import org.tron.common.runtime.vm.program.Program.OutOfEnergyException;
 import org.tron.common.runtime.vm.program.Program.OutOfTimeException;
+import org.tron.common.runtime.vm.program.Program.TransferException;
 import org.tron.common.runtime.vm.program.Stack;
 
 @Slf4j(topic = "VM")
 public class VM {
 
   private static final BigInteger _32_ = BigInteger.valueOf(32);
-  private static final String ENERGY_LOG_FORMATE = "{}    Op: [{}]  Energy: [{}] Deep: [{}]  Hint: [{}]";
+  private static final String ENERGY_LOG_FORMATE = "{} Op:[{}]  Energy:[{}] Deep:[{}] Hint:[{}]";
 
   // 3MB
   private static final BigInteger MEM_LIMIT = BigInteger.valueOf(3L * 1024 * 1024);
@@ -105,8 +111,8 @@ public class VM {
         case SUICIDE:
           energyCost = energyCosts.getSUICIDE();
           DataWord suicideAddressWord = stack.get(stack.size() - 1);
-          if (isDeadAccount(program, suicideAddressWord) &&
-              !program.getBalance(program.getContractAddress()).isZero()) {
+          if (isDeadAccount(program, suicideAddressWord)
+              && !program.getBalance(program.getContractAddress()).isZero()) {
             energyCost += energyCosts.getNEW_ACCT_SUICIDE();
           }
           break;
@@ -183,6 +189,9 @@ public class VM {
               memNeeded(stack.get(stack.size() - 2), stack.get(stack.size() - 4)),
               stack.get(stack.size() - 4).longValueSafe(), op);
           break;
+        case EXTCODEHASH:
+          energyCost = energyCosts.getEXT_CODE_HASH();
+          break;
         case CALL:
         case CALLCODE:
         case DELEGATECALL:
@@ -217,14 +226,13 @@ public class VM {
           energyCost += calcMemEnergy(energyCosts, oldMemSize, in.max(out), 0, op);
           checkMemorySize(op, in.max(out));
 
-          if (VMConfig.isVmResourceChargingOn) {
-            if (energyCost > program.getEnergyLimitLeft().longValueSafe()) {
-              throw new OutOfEnergyException(
-                  "Not enough energy for '%s' operation executing: opEnergy[%d], programEnergy[%d]",
-                  op.name(),
-                  energyCost, program.getEnergyLimitLeft().longValueSafe());
-            }
+          if (energyCost > program.getEnergyLimitLeft().longValueSafe()) {
+            throw new OutOfEnergyException(
+                "Not enough energy for '%s' operation executing: opEnergy[%d], programEnergy[%d]",
+                op.name(),
+                energyCost, program.getEnergyLimitLeft().longValueSafe());
           }
+
           DataWord getEnergyLimitLeft = program.getEnergyLimitLeft().clone();
           getEnergyLimitLeft.sub(new DataWord(energyCost));
 
@@ -235,6 +243,14 @@ public class VM {
           energyCost = energyCosts.getCREATE() + calcMemEnergy(energyCosts, oldMemSize,
               memNeeded(stack.get(stack.size() - 2), stack.get(stack.size() - 3)), 0, op);
           break;
+        case CREATE2:
+          DataWord codeSize = stack.get(stack.size() - 3);
+          energyCost = energyCosts.getCREATE();
+          energyCost += calcMemEnergy(energyCosts, oldMemSize,
+              memNeeded(stack.get(stack.size() - 2), stack.get(stack.size() - 3)), 0, op);
+          energyCost += DataWord.sizeInWords(codeSize.intValueSafe()) * energyCosts.getSHA3_WORD();
+
+          break;
         case LOG0:
         case LOG1:
         case LOG2:
@@ -244,13 +260,11 @@ public class VM {
           BigInteger dataSize = stack.get(stack.size() - 2).value();
           BigInteger dataCost = dataSize
               .multiply(BigInteger.valueOf(energyCosts.getLOG_DATA_ENERGY()));
-          if (VMConfig.isVmResourceChargingOn) {
-            if (program.getEnergyLimitLeft().value().compareTo(dataCost) < 0) {
-              throw new OutOfEnergyException(
-                  "Not enough energy for '%s' operation executing: opEnergy[%d], programEnergy[%d]",
-                  op.name(),
-                  dataCost.longValueExact(), program.getEnergyLimitLeft().longValueSafe());
-            }
+          if (program.getEnergyLimitLeft().value().compareTo(dataCost) < 0) {
+            throw new OutOfEnergyException(
+                "Not enough energy for '%s' operation executing: opEnergy[%d], programEnergy[%d]",
+                op.name(),
+                dataCost.longValueExact(), program.getEnergyLimitLeft().longValueSafe());
           }
           energyCost = energyCosts.getLOG_ENERGY()
               + energyCosts.getLOG_TOPIC_ENERGY() * nTopics
@@ -590,6 +604,45 @@ public class VM {
           program.step();
         }
         break;
+        case SHL: {
+          DataWord word1 = program.stackPop();
+          DataWord word2 = program.stackPop();
+          final DataWord result = word2.shiftLeft(word1);
+
+          if (logger.isInfoEnabled()) {
+            hint = "" + result.value();
+          }
+
+          program.stackPush(result);
+          program.step();
+        }
+        break;
+        case SHR: {
+          DataWord word1 = program.stackPop();
+          DataWord word2 = program.stackPop();
+          final DataWord result = word2.shiftRight(word1);
+
+          if (logger.isInfoEnabled()) {
+            hint = "" + result.value();
+          }
+
+          program.stackPush(result);
+          program.step();
+        }
+        break;
+        case SAR: {
+          DataWord word1 = program.stackPop();
+          DataWord word2 = program.stackPop();
+          final DataWord result = word2.shiftRightSigned(word1);
+
+          if (logger.isInfoEnabled()) {
+            hint = "" + result.value();
+          }
+
+          program.stackPush(result);
+          program.step();
+        }
+        break;
         case ADDMOD: {
           DataWord word1 = program.stackPop();
           DataWord word2 = program.stackPop();
@@ -718,7 +771,7 @@ public class VM {
 
           program.stackPush(_tokenId);
           program.step();
-        break;
+          break;
         case CALLDATALOAD: {
           DataWord dataOffs = program.stackPop();
           DataWord value = program.getDataValue(dataOffs);
@@ -806,8 +859,8 @@ public class VM {
 
           program.stackPush(codeLength);
           program.step();
+          break;
         }
-        break;
         case CODECOPY:
         case EXTCODECOPY: {
 
@@ -842,8 +895,15 @@ public class VM {
 
           program.memorySave(memOffset, codeCopy);
           program.step();
+          break;
         }
-        break;
+        case EXTCODEHASH: {
+          DataWord address = program.stackPop();
+          byte[] codeHash = program.getCodeHashAt(address);
+          program.stackPush(codeHash);
+          program.step();
+          break;
+        }
         case GASPRICE: {
           DataWord energyPrice = new DataWord(0);
 
@@ -955,9 +1015,8 @@ public class VM {
           DataWord word_1 = stack.get(stack.size() - n);
           program.stackPush(word_1.clone());
           program.step();
-
+          break;
         }
-        break;
         case SWAP1:
         case SWAP2:
         case SWAP3:
@@ -978,8 +1037,8 @@ public class VM {
           int n = op.val() - OpCode.SWAP1.val() + 2;
           stack.swap(stack.size() - 1, stack.size() - n);
           program.step();
+          break;
         }
-        break;
         case LOG0:
         case LOG1:
         case LOG2:
@@ -1013,8 +1072,8 @@ public class VM {
 
           program.getResult().addLogInfo(logInfo);
           program.step();
+          break;
         }
-        break;
         case MLOAD: {
           DataWord addr = program.stackPop();
           DataWord data = program.memoryLoad(addr);
@@ -1188,8 +1247,8 @@ public class VM {
           }
 
           program.stackPush(data);
+          break;
         }
-        break;
         case JUMPDEST: {
           program.step();
         }
@@ -1203,6 +1262,18 @@ public class VM {
           DataWord inSize = program.stackPop();
           program.createContract(value, inOffset, inSize);
 
+          program.step();
+        }
+        break;
+        case CREATE2: {
+          if (program.isStaticCall()) {
+            throw new Program.StaticCallModificationException();
+          }
+          DataWord value = program.stackPop();
+          DataWord inOffset = program.stackPop();
+          DataWord inSize = program.stackPop();
+          DataWord salt = program.stackPop();
+          program.createContract2(value, inOffset, inSize, salt);
           program.step();
         }
         break;
@@ -1282,8 +1353,8 @@ public class VM {
           }
 
           program.step();
+          break;
         }
-        break;
         case RETURN:
         case REVERT: {
           DataWord offset = program.stackPop();
@@ -1304,8 +1375,8 @@ public class VM {
           if (op == REVERT) {
             program.getResult().setRevert();
           }
+          break;
         }
-        break;
         case SUICIDE: {
           if (program.isStaticCall()) {
             throw new Program.StaticCallModificationException();
@@ -1329,7 +1400,9 @@ public class VM {
       program.setPreviouslyExecutedOp(op.val());
     } catch (RuntimeException e) {
       logger.info("VM halted: [{}]", e.getMessage());
-      program.spendAllEnergy();
+      if (!(e instanceof TransferException)) {
+        program.spendAllEnergy();
+      }
       program.resetFutureRefund();
       program.stop();
       throw e;

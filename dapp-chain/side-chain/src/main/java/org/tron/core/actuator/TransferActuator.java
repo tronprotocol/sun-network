@@ -6,7 +6,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.storage.Deposit;
-import org.tron.common.storage.DepositImpl;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.TransactionResultCapsule;
@@ -39,16 +38,19 @@ public class TransferActuator extends AbstractActuator {
       // if account with to_address does not exist, create it first.
       AccountCapsule toAccount = dbManager.getAccountStore().get(toAddress);
       if (toAccount == null) {
-        boolean withDefaultPermission =
-            dbManager.getDynamicPropertiesStore().getAllowMultiSign() == 1;
         toAccount = new AccountCapsule(ByteString.copyFrom(toAddress), AccountType.Normal,
-            dbManager.getHeadBlockTimeStamp(), withDefaultPermission, dbManager);
+            dbManager.getHeadBlockTimeStamp(), true, dbManager);
         dbManager.getAccountStore().put(toAddress, toAccount);
 
-        fee = fee + dbManager.getDynamicPropertiesStore().getCreateNewAccountTokenFeeInSystemContract();
+        if (chargingType == 0) {
+          fee = fee + dbManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract();
+        }
+        else {
+          fee = fee + dbManager.getDynamicPropertiesStore().getCreateNewAccountTokenFeeInSystemContract();
+        }
       }
       dbManager.adjustBalance(ownerAddress, -fee, chargingType);
-      dbManager.adjustBalance(dbManager.getAccountStore().getBlackhole().createDbKey(), fee, chargingType);
+      dbManager.adjustFund(fee);
       ret.setStatus(fee, code.SUCESS);
       dbManager.adjustBalance(ownerAddress, -amount);
       dbManager.adjustBalance(toAddress, amount);
@@ -218,13 +220,16 @@ public class TransferActuator extends AbstractActuator {
       byte[] toAddress, long amount) throws ContractExeException {
     long toBalance = 0;
     try {
-
       // if account with to_address does not exist, create it first.
       AccountCapsule toAccount = deposit.getAccount(toAddress);
       if (toAccount == null) {
-        toAccount = new AccountCapsule(ByteString.copyFrom(toAddress), AccountType.Normal,
-            deposit.getDbManager().getHeadBlockTimeStamp(), true, deposit.getDbManager());
-        deposit.putAccountValue(toAddress, toAccount);
+        if(deposit.isGatewayAddress(ownerAddress)) {
+          toAccount = new AccountCapsule(ByteString.copyFrom(toAddress), AccountType.Normal,
+              deposit.getDbManager().getHeadBlockTimeStamp(), true, deposit.getDbManager());
+          deposit.putAccountValue(toAddress, toAccount);
+        } else {
+          throw new ContractExeException("no ToAccount. And not allowed to create account in smart contract.");
+        }
       }
       toBalance = deposit.addBalance(toAddress, amount);
       deposit.addBalance(ownerAddress, -amount);

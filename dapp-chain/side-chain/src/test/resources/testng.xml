@@ -10,13 +10,6 @@
     <classes>
       <class name="stest.tron.wallet.common.deposit.DepositTrx001"></class>
       <class name="stest.tron.wallet.common.deposit.WithdrawTrx001"></class>
-      <class name="stest.tron.wallet.common.deposit.DepositTrx002"></class>
-      <class name="stest.tron.wallet.common.deposit.WithdrawTrx002"></class>
-      <class name="stest.tron.wallet.common.deposit.DepositTrc10001"></class>
-      <class name="stest.tron.wallet.common.deposit.DepositTrc10002"></class>
-      <class name="stest.tron.wallet.common.deposit.WithdrawTrx001"></class>
-      <class name="stest.tron.wallet.common.deposit.WithdrawTrx002"></class>
-      <class name="stest.tron.wallet.common.deposit.DepositTrc20001"></class>
     </classes>
   </test>
 

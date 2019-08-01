@@ -25,12 +25,6 @@ contract TRC20 is ITRC20 {
     uint256 internal _totalSupply; // FIXME, should be private
 
     /**
-     *  Equals to `bytes4(keccak256("onTRC20Received(address,uint256,bytes)"))`,
-     *  which can be also obtained as `ITRC20Receiver(0).onTRC20Received.selector`
-     */
-    bytes4 constant internal _TRC20_RECEIVED = 0xbcad917b; // FIXME, can be here ?
-
-    /**
      * @dev Total number of tokens in existence.
      */
     function totalSupply() public view returns (uint256) {

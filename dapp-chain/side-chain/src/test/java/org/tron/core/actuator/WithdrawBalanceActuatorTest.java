@@ -271,13 +271,14 @@ public class WithdrawBalanceActuatorTest {
     try {
       actuator.validate();
       actuator.execute(ret);
-      fail("cannot run here.");
+      //fail("cannot run here.");
 
     } catch (ContractValidateException e) {
-      String readableOwnerAddress = StringUtil.createReadableString(address);
-      Assert.assertTrue(e instanceof ContractValidateException);
-      Assert.assertEquals("Account[" + readableOwnerAddress
-          + "] is a guard representative and is not allowed to withdraw Balance", e.getMessage());
+//      String readableOwnerAddress = StringUtil.createReadableString(address);
+//      Assert.assertTrue(e instanceof ContractValidateException);
+//      Assert.assertEquals("Account[" + readableOwnerAddress
+//          + "] is a guard representative and is not allowed to withdraw Balance", e.getMessage());
+      fail("cannot run here.");
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     }

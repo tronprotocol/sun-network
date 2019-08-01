@@ -12,19 +12,6 @@ contract ITRC721Receiver {
      *  Equals to `bytes4(keccak256("onTRC721Received(address,uint256,bytes)"))`,
      *  which can be also obtained as `ITRC721Receiver(0).onTRC721Received.selector`
      */
-    bytes4 constant internal _TRC721_RECEIVED = 0xcb912b1e;  // FIXME, can be here ?
 
-    /**
-     * @notice Handle the receipt of an NFT
-     * @dev The TRC721 smart contract calls this function on the recipient
-     *  after a `safetransfer`. This function MAY throw to revert and reject the
-     *  transfer. This function MUST use 50,000 gas or less. Return of other
-     *  than the magic value MUST result in the transaction being reverted.
-     *  Note: the contract address is always the message sender.
-     * @param from The sending address
-     * @param tokenId The NFT identifier which is being transfered
-     * @param txData Additional data with no specified format
-     * @return `bytes4(keccak256("onTRC721Received(address,uint256,bytes)"))`
-     */
-    function onTRC721Received(address from, uint256 tokenId, bytes txData) public returns (bytes4);
+    function onTRC721Received(address from, uint256 tokenId) public returns (uint256);
 }

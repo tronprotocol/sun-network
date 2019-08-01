@@ -47,7 +47,7 @@ public class AccountPermissionUpdateActuator extends AbstractActuator {
       accountStore.put(ownerAddress, account);
 
       dbManager.adjustBalance(ownerAddress, -fee, chargingType);
-      dbManager.adjustBalance(dbManager.getAccountStore().getBlackhole().createDbKey(), fee, chargingType);
+      dbManager.adjustFund(fee);
 
       result.setStatus(fee, code.SUCESS);
     } catch (BalanceInsufficientException e) {
@@ -131,7 +131,7 @@ public class AccountPermissionUpdateActuator extends AbstractActuator {
     byte[] types1 = dbManager.getDynamicPropertiesStore().getAvailableContractType();
     for (int i = 0; i < 256; i++) {
       boolean b = (operations.byteAt(i / 8) & (1 << (i % 8))) != 0;
-      boolean t = (types1[(i / 8)] & (1 << (i % 8))) != 0;
+      boolean t = ((types1[(i / 8)] & 0xff) & (1 << (i % 8))) != 0;
       if (b && !t) {
         throw new ContractValidateException(i + " isn't a validate ContractType");
       }
@@ -147,10 +147,10 @@ public class AccountPermissionUpdateActuator extends AbstractActuator {
     if (this.dbManager == null) {
       throw new ContractValidateException("No dbManager!");
     }
-    if (this.dbManager.getDynamicPropertiesStore().getAllowMultiSign() != 1) {
-      throw new ContractValidateException("multi sign is not allowed, "
-          + "need to be opened by the committee");
-    }
+//    if (this.dbManager.getDynamicPropertiesStore().getAllowMultiSign() != 1) {
+//      throw new ContractValidateException("multi sign is not allowed, "
+//          + "need to be opened by the committee");
+//    }
     if (!this.contract.is(AccountPermissionUpdateContract.class)) {
       throw new ContractValidateException(
           "contract type error,expected type [AccountPermissionUpdateContract],real type["

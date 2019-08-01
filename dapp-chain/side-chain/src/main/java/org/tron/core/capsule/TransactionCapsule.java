@@ -15,19 +15,26 @@
 
 package org.tron.core.capsule;
 
+import static org.tron.core.exception.P2pException.TypeEnum.PROTOBUF_ERROR;
 import static org.tron.protos.Contract.VoteWitnessContract;
 import static org.tron.protos.Contract.WitnessCreateContract;
 import static org.tron.protos.Contract.WitnessUpdateContract;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.CodedInputStream;
+import com.google.protobuf.Internal;
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.io.IOException;
 import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +42,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.crypto.ECKey.ECDSASignature;
+import org.tron.common.overlay.message.Message;
 import org.tron.common.runtime.Runtime;
+import org.tron.common.runtime.vm.program.Program;
 import org.tron.common.runtime.vm.program.Program.BadJumpDestinationException;
 import org.tron.common.runtime.vm.program.Program.BytecodeExecutionException;
 import org.tron.common.runtime.vm.program.Program.IllegalOperationException;
@@ -50,10 +59,12 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.core.Wallet;
+import org.tron.core.config.args.Args;
 import org.tron.core.db.AccountStore;
 import org.tron.core.db.Manager;
 import org.tron.core.db.TransactionTrace;
 import org.tron.core.exception.BadItemException;
+import org.tron.core.exception.P2pException;
 import org.tron.core.exception.PermissionException;
 import org.tron.core.exception.SignatureFormatException;
 import org.tron.core.exception.ValidateSignatureException;
@@ -64,6 +75,7 @@ import org.tron.protos.Contract.AccountUpdateContract;
 import org.tron.protos.Contract.ClearABIContract;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.FreezeBalanceContract;
+import org.tron.protos.Contract.FundInjectContract;
 import org.tron.protos.Contract.ProposalApproveContract;
 import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Contract.ProposalDeleteContract;
@@ -99,6 +111,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
   @Setter
   private TransactionTrace trxTrace;
 
+  private static final ExecutorService executorService = Executors
+      .newFixedThreadPool(Args.getInstance().getValidContractProtoThreadNum());
+
   /**
    * constructor TransactionCapsule.
    */
@@ -111,12 +126,19 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
    */
   public TransactionCapsule(byte[] data) throws BadItemException {
     try {
-      this.transaction = Transaction.parseFrom(data);
-    } catch (InvalidProtocolBufferException e) {
+      this.transaction = Transaction.parseFrom(Message.getCodedInputStream(data));
+    } catch (Exception e) {
       throw new BadItemException("Transaction proto data parse exception");
     }
   }
 
+  public TransactionCapsule(CodedInputStream codedInputStream) throws BadItemException {
+    try {
+      this.transaction = Transaction.parseFrom(codedInputStream);
+    } catch (IOException e) {
+      throw new BadItemException("Transaction proto data parse exception");
+    }
+  }
   /*lll
   public TransactionCapsule(byte[] key, long value) throws IllegalArgumentException {
     if (!Wallet.addressValid(key)) {
@@ -273,9 +295,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
               + permission.getKeysCount());
     }
 
-    byte[] mainChainGateWayListByteArray = ByteArray.fromBytes21List(dbManager.getDynamicPropertiesStore().getMainChainGateWayList());
-    byte[] hashWithMainChainGateWay = Arrays.copyOf(hash, hash.length + mainChainGateWayListByteArray.length);
-    System.arraycopy(mainChainGateWayListByteArray, 0, hashWithMainChainGateWay, hash.length, mainChainGateWayListByteArray.length);
+    byte[] sideChainIdByteArray = ByteArray.fromHexString(dbManager.getDynamicPropertiesStore().getSideChainId());
+    byte[] hashWithSideChainId = Arrays.copyOf(hash, hash.length + sideChainIdByteArray.length);
+    System.arraycopy(sideChainIdByteArray, 0, hashWithSideChainId, hash.length, sideChainIdByteArray.length);
 
     HashMap addMap = new HashMap();
     for (ByteString sig : sigs) {
@@ -284,7 +306,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
             "Signature size is " + sig.size());
       }
       String base64 = TransactionCapsule.getBase64FromByteString(sig);
-      byte[] address = ECKey.signatureToAddress(Sha256Hash.hash(hashWithMainChainGateWay), base64);
+      byte[] address = ECKey.signatureToAddress(Sha256Hash.hash(hashWithSideChainId), base64);
       long weight = getWeight(permission, address);
       if (weight == 0) {
         throw new PermissionException(
@@ -425,6 +447,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
         case AccountPermissionUpdateContract:
           owner = contractParameter.unpack(AccountPermissionUpdateContract.class).getOwnerAddress();
           break;
+        case FundInjectContract:
+          owner = contractParameter.unpack(FundInjectContract.class).getOwnerAddress();
+          break;
         // todo add other contract
         default:
           return null;
@@ -434,6 +459,153 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
       logger.error(ex.getMessage());
       return null;
     }
+  }
+
+  public static <T extends com.google.protobuf.Message> T parse(Class<T> clazz,
+      CodedInputStream codedInputStream) throws InvalidProtocolBufferException {
+    T defaultInstance = Internal.getDefaultInstance(clazz);
+    return (T) defaultInstance.getParserForType().parseFrom(codedInputStream);
+  }
+
+  public static void validContractProto(List<Transaction> transactionList) throws P2pException {
+    List<Future<Boolean>> futureList = new ArrayList<>();
+    transactionList.forEach(transaction -> {
+      Future<Boolean> future = executorService.submit(() -> {
+        try {
+          validContractProto(transaction.getRawData().getContract(0));
+          return true;
+        } catch (Exception e) {
+          logger.error("{}", e.getMessage());
+        }
+        return false;
+      });
+      futureList.add(future);
+    });
+    for (Future<Boolean> future : futureList) {
+      try {
+        if (!future.get()) {
+          throw new P2pException(PROTOBUF_ERROR, PROTOBUF_ERROR.getDesc());
+        }
+      } catch (Exception e) {
+        throw new P2pException(PROTOBUF_ERROR, PROTOBUF_ERROR.getDesc());
+      }
+    }
+  }
+
+  public static void validContractProto(Transaction.Contract contract)
+      throws InvalidProtocolBufferException, P2pException {
+    Any contractParameter = contract.getParameter();
+    Class clazz = null;
+    switch (contract.getType()) {
+      case AccountCreateContract:
+        clazz = AccountCreateContract.class;
+        break;
+      case TransferContract:
+        clazz = TransferContract.class;
+        break;
+      case TransferAssetContract:
+        clazz = TransferAssetContract.class;
+        break;
+//      case VoteAssetContract:
+//        clazz = VoteAssetContract.class;
+//        break;
+      case VoteWitnessContract:
+        clazz = VoteWitnessContract.class;
+        break;
+      case WitnessCreateContract:
+        clazz = WitnessCreateContract.class;
+        break;
+//      case AssetIssueContract:
+//        clazz = AssetIssueContract.class;
+//        break;
+      case WitnessUpdateContract:
+        clazz = WitnessUpdateContract.class;
+        break;
+//      case ParticipateAssetIssueContract:
+//        clazz = ParticipateAssetIssueContract.class;
+//        break;
+      case AccountUpdateContract:
+        clazz = AccountUpdateContract.class;
+        break;
+      case FreezeBalanceContract:
+        clazz = FreezeBalanceContract.class;
+        break;
+      case UnfreezeBalanceContract:
+        clazz = UnfreezeBalanceContract.class;
+        break;
+//      case UnfreezeAssetContract:
+//        clazz = UnfreezeAssetContract.class;
+//        break;
+      case WithdrawBalanceContract:
+        clazz = WithdrawBalanceContract.class;
+        break;
+      case CreateSmartContract:
+        clazz = Contract.CreateSmartContract.class;
+        break;
+      case TriggerSmartContract:
+        clazz = Contract.TriggerSmartContract.class;
+        break;
+//      case UpdateAssetContract:
+//        clazz = UpdateAssetContract.class;
+//        break;
+//      case ProposalCreateContract:
+//        clazz = ProposalCreateContract.class;
+//        break;
+      case SideChainProposalCreateContract:
+        clazz = SideChainProposalCreateContract.class;
+        break;
+      case ProposalApproveContract:
+        clazz = ProposalApproveContract.class;
+        break;
+      case ProposalDeleteContract:
+        clazz = ProposalDeleteContract.class;
+        break;
+      case SetAccountIdContract:
+        clazz = SetAccountIdContract.class;
+        break;
+      case UpdateSettingContract:
+        clazz = UpdateSettingContract.class;
+        break;
+      case UpdateEnergyLimitContract:
+        clazz = UpdateEnergyLimitContract.class;
+        break;
+      case ClearABIContract:
+        clazz = ClearABIContract.class;
+        break;
+//      case ExchangeCreateContract:
+//        clazz = ExchangeCreateContract.class;
+//        break;
+//      case ExchangeInjectContract:
+//        clazz = ExchangeInjectContract.class;
+//        break;
+//      case ExchangeWithdrawContract:
+//        clazz = ExchangeWithdrawContract.class;
+//        break;
+//      case ExchangeTransactionContract:
+//        clazz = ExchangeTransactionContract.class;
+//        break;
+      case AccountPermissionUpdateContract:
+        clazz = AccountPermissionUpdateContract.class;
+        break;
+      case FundInjectContract:
+        clazz = FundInjectContract.class;
+        break;
+      // todo add other contract
+      default:
+        break;
+    }
+    if (clazz == null) {
+      throw new P2pException(PROTOBUF_ERROR, PROTOBUF_ERROR.getDesc());
+    }
+    com.google.protobuf.Message src = contractParameter.unpack(clazz);
+    com.google.protobuf.Message contractMessage = parse(clazz,
+        Message.getCodedInputStream(src.toByteArray()));
+
+    //    if (!src.equals(contractMessage)) {
+    //      throw new P2pException(PROTOBUF_ERROR, PROTOBUF_ERROR.getDesc());
+    //    }
+
+    Message.compareBytes(src.toByteArray(), contractMessage.toByteArray());
   }
 
   // todo mv this static function to capsule util
@@ -643,6 +815,18 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
           } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
           }
+        } else if (contract.getType().equals(ContractType.TransferAssetContract)) {
+          TransferAssetContract transferAssetContract;
+          try {
+            transferAssetContract = contract.getParameter()
+                .unpack(TransferAssetContract.class);
+            toStringBuff.append("transfer asset=").append(transferAssetContract.getAssetName())
+                .append("\n");
+            toStringBuff.append("transfer amount=").append(transferAssetContract.getAmount())
+                .append("\n");
+          } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+          }
         }
         if (this.transaction.getSignatureList().size() >= i.get() + 1) {
           toStringBuff.append("sign=").append(getBase64FromByteString(
@@ -705,6 +889,10 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
       this.setResultCode(contractResult.JVM_STACK_OVER_FLOW);
       return;
     }
+    if (exception instanceof Program.TransferException) {
+      this.setResultCode(contractResult.TRANSFER_FAILED);
+      return;
+    }
     this.setResultCode(contractResult.UNKNOWN);
     return;
   }
@@ -725,5 +913,27 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
       return null;
     }
     return this.transaction.getRet(0).getContractRet();
+  }
+
+  public boolean checkIfSideChainGateWayContractCall(Manager dbManager) {
+    try {
+      Transaction.Contract contract = this.transaction.getRawData().getContract(0);
+      if (contract.getType() == ContractType.TriggerSmartContract) {
+        Any contractParameter = contract.getParameter();
+        Contract.TriggerSmartContract smartContract =
+            contractParameter.unpack(TriggerSmartContract.class);
+        List<byte[]> gatewayList = dbManager.getDynamicPropertiesStore().getSideChainGateWayList();
+        for (byte[] gateway: gatewayList) {
+          if (ByteUtil.equals(gateway, smartContract.getContractAddress().toByteArray())) {
+            return true;
+          }
+        }
+        return false;
+
+      }
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
+    return false;
   }
 }

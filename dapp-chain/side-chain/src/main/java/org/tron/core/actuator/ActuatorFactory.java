@@ -85,6 +85,8 @@ public class ActuatorFactory {
         return new ClearABIContractActuator(contract.getParameter(), manager);
       case AccountPermissionUpdateContract:
         return new AccountPermissionUpdateActuator(contract.getParameter(), manager);
+      case FundInjectContract:
+        return new FundInjectActuator(contract.getParameter(), manager);
       default:
         break;
 

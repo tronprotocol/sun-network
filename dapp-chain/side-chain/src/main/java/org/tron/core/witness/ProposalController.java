@@ -182,11 +182,11 @@ public class ProposalController {
 //          manager.getDynamicPropertiesStore().saveAllowSameTokenName(entry.getValue());
 //          break;
 //        }
-        case (16): {
-          manager.getDynamicPropertiesStore()
-              .saveAllowDelegateResource(Long.valueOf(entry.getValue()));
-          break;
-        }
+//        case (16): {
+//          manager.getDynamicPropertiesStore()
+//              .saveAllowDelegateResource(Long.valueOf(entry.getValue()));
+//          break;
+//        }
         case (17): {
           manager.getDynamicPropertiesStore()
               .saveTotalEnergyLimit(Long.valueOf(entry.getValue()));
@@ -202,12 +202,12 @@ public class ProposalController {
               .saveTotalEnergyLimit2(Long.valueOf(entry.getValue()));
           break;
         }
-        case (20): {
-          if (manager.getDynamicPropertiesStore().getAllowMultiSign() == 0) {
-            manager.getDynamicPropertiesStore().saveAllowMultiSign(Long.valueOf(entry.getValue()));
-          }
-          break;
-        }
+//        case (20): {
+//          if (manager.getDynamicPropertiesStore().getAllowMultiSign() == 0) {
+//            manager.getDynamicPropertiesStore().saveAllowMultiSign(Long.valueOf(entry.getValue()));
+//          }
+//          break;
+//        }
         case (21): {
           if (manager.getDynamicPropertiesStore().getAllowAdaptiveEnergy() == 0) {
             manager.getDynamicPropertiesStore()
@@ -225,6 +225,19 @@ public class ProposalController {
               .saveMultiSignFee(Long.valueOf(entry.getValue()));
           break;
         }
+//        case (24): {
+//          manager.getDynamicPropertiesStore().saveAllowProtoFilterNum(Long.valueOf(entry.getValue()));
+//          break;
+//        }
+        case (25): {
+          manager.getDynamicPropertiesStore().saveAllowAccountStateRoot(Long.valueOf(entry.getValue()));
+          break;
+        }
+//        case (26): {
+//          //should not to do anything, we initiated this value in dynamic store
+////          manager.getDynamicPropertiesStore().addSystemContractAndSetPermission(48);
+//          break;
+//        }
         case (1_000_000): {
           manager.getDynamicPropertiesStore()
               .saveChargingSwitch(Long.valueOf(entry.getValue()));
@@ -235,7 +248,7 @@ public class ProposalController {
           List<String> list = Arrays.asList(entry.getValue().split(","));
           List<byte[]> byteList = list.stream().map(element -> Wallet
               .decodeFromBase58Check(element)).collect(Collectors.toList());
-          manager.getDynamicPropertiesStore().saveGateWayList(byteList);
+          manager.getDynamicPropertiesStore().saveSideChainGateWayList(byteList);
           break;
         }
         case (1_000_002): {
@@ -244,6 +257,48 @@ public class ProposalController {
           List<byte[]> byteList = list.stream().map(element -> Wallet
               .decodeFromBase58Check(element)).collect(Collectors.toList());
           manager.getDynamicPropertiesStore().saveMainChainGateWayList(byteList);
+          break;
+        }
+        case (1_000_003): {
+          // replace all side chain proposal expire time
+          manager.getDynamicPropertiesStore()
+                  .saveProposalExpireTime(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (1_000_004): {
+          manager.getDynamicPropertiesStore()
+              .saveVoteWitnessSwitch(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (1_000_005): {
+          manager.getDynamicPropertiesStore()
+              .saveMaxGateWayContractSize(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (1_000_006): {
+          manager.getDynamicPropertiesStore()
+                  .saveSideChainChargingBandwidth(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (1_000_007): {
+          manager.getDynamicPropertiesStore()
+              .saveFundInjectAddress(Wallet
+                  .decodeFromBase58Check(entry.getValue()));
+          break;
+        }
+        case (1_000_008): {
+          manager.getDynamicPropertiesStore()
+              .saveFundDistributeEnableSwitch(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (1_000_009): {
+          manager.getDynamicPropertiesStore()
+              .saveDayToSustainByFund(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (1_000_010): {
+          manager.getDynamicPropertiesStore()
+              .savePercentToPayWitness(Long.valueOf(entry.getValue()));
           break;
         }
         default:

@@ -10,11 +10,11 @@ import org.tron.common.utils.ByteArray;
 
 public class TransactionExtensionCapsuleStoreTest {
 
-  private static TransactionExtentionStore store;
+  private static TransactionExtensionStore store;
 
   @Before
   public void init() {
-    store = TransactionExtentionStore.getInstance();
+    store = TransactionExtensionStore.getInstance();
     store.initDB();
   }
 
@@ -31,7 +31,7 @@ public class TransactionExtensionCapsuleStoreTest {
   public void putData() {
     byte[] key = ByteArray.fromString("aa");
     byte[] value = ByteArray.fromString("mmmmm");
-    TransactionExtentionStore store = TransactionExtentionStore.getInstance();
+    TransactionExtensionStore store = TransactionExtensionStore.getInstance();
     store.closeDB();
     store.initDB();
     store.putData(key, value);
