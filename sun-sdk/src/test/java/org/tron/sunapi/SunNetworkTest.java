@@ -1,11 +1,13 @@
 package org.tron.sunapi;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.tron.common.utils.AddressUtil;
 import org.tron.protos.Protocol.Account;
 import org.tron.sunapi.response.TransactionResponse;
 
+@Ignore
 public class SunNetworkTest {
 
   public static String priKey = "e901ef62b241b6f1577fd6ea34ef8b1c4b3ddee1e3c051b9e63f5ff729ad47a1";
@@ -13,7 +15,7 @@ public class SunNetworkTest {
   public static SunNetwork sdk = new SunNetwork();
 
   {
-    sdk.init("config.conf", null);
+    sdk.init(null, null);
     sdk.setPrivateKey(priKey);
   }
 
@@ -104,7 +106,7 @@ public class SunNetworkTest {
     String priKey = "e901ef62b241b6f1577fd6ea34ef8b1c4b3ddee1e3c051b9e63f5ff729ad47a1";
 
     SunNetwork sdk = new SunNetwork();
-    sdk.init("config.conf", null);
+    sdk.init(null, null);
     sdk.setPrivateKey(priKey);
 
     System.out.println("\r\n===================== balance before deposit ========================");

@@ -71,7 +71,7 @@ public class WalletApiWrapper {
 
   public WalletApiWrapper() {
     sdk = new SunNetwork();
-    SunNetworkResponse<Integer> ret = sdk.init("config.conf", new MultiSignTransactionImpl());
+    SunNetworkResponse<Integer> ret = sdk.init(null, new MultiSignTransactionImpl());
     if (ret.getData() != 0) {
       System.out.println("Failed to init sdk");
     }

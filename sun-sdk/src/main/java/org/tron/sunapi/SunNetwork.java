@@ -19,7 +19,7 @@ public class SunNetwork {
    * @return the result of initialize
    * @author sun-network
    */
-  public SunNetworkResponse<Integer> init(String config,
+  public SunNetworkResponse<Integer> init(IServerConfig config,
       IMultiTransactionSign multiTransactionSign) {
     SunNetworkResponse<Integer> ret;
 
@@ -52,6 +52,4 @@ public class SunNetwork {
 
     return ret;
   }
-
-
 }

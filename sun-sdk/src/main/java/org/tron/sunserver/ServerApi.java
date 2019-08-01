@@ -7,11 +7,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.typesafe.config.Config;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +54,6 @@ import org.tron.common.utils.DataWord;
 import org.tron.common.utils.MUtil;
 import org.tron.common.utils.TransactionUtils;
 import org.tron.common.utils.Utils;
-import org.tron.core.config.Configuration;
 import org.tron.core.config.Parameter.CommonConstant;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
@@ -89,6 +86,7 @@ import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.Protocol.TransactionSign;
 import org.tron.protos.Protocol.Witness;
+import org.tron.sunapi.IServerConfig;
 import org.tron.sunapi.response.TransactionResponse;
 
 @Slf4j(topic = "ServerApi")
@@ -103,93 +101,47 @@ public class ServerApi {
   @Getter
   private static byte[] mainGatewayAddress;
 
-  private static String sideChainId;
+  private static byte[] sideChainId;
   private static ECKey priEcKey;
 
   private boolean isMainChain;
   private GrpcClient rpcCli;
   private IMultiTransactionSign multiTransactionSign;
 
-  public static GrpcClient initMain(String file) {
-    Config config = Configuration.getByPath(file);
+  public static GrpcClient initMain(IServerConfig config) {
 
-    String fullNode = "";
-    String solidityNode = "";
-    if (config.hasPath("mainchain.soliditynode.ip.list")) {
-      solidityNode = config.getStringList("mainchain.soliditynode.ip.list").get(0);
-    }
-    if (config.hasPath("mainchain.fullnode.ip.list")) {
-      fullNode = config.getStringList("mainchain.fullnode.ip.list").get(0);
-    }
-    if (config.hasPath("mainchain.net.type") && "mainnet"
-        .equalsIgnoreCase(config.getString("mainchain.net.type"))) {
+    if ("mainnet".equalsIgnoreCase(config.getMainNetType())) {
       ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     } else {
       ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_TESTNET);
     }
-    if (config.hasPath("mainchain.RPC_version")) {
-      rpcVersion = config.getInt("mainchain.RPC_version");
+
+    rpcVersion = config.getMainRPCVersion();
+
+    if (!AddressUtil.addressValid(config.getMainGatewayAddress())) {
+      //TODO logger
     }
+    mainGatewayAddress = config.getMainGatewayAddress();
 
-    if (config.hasPath("mainchain.gateway_address")) {
-      String temp = config.getString("mainchain.gateway_address");
-
-      if (!AddressUtil.addressValid(AddressUtil.decodeFromBase58Check(temp))) {
-        //TODO logger
-      }
-
-      mainGatewayAddress = AddressUtil.decodeFromBase58Check(temp);
-    }
-
-    return new GrpcClient(fullNode, solidityNode);
+    return new GrpcClient(config.getMainFullNode(), config.getMainSolidityNode());
   }
 
-  private static List<byte[]> getGateWayList(final Config config, String path) {
-    if (!config.hasPath(path)) {
-      return Collections.emptyList();
-    }
-    List<byte[]> ret = new ArrayList<>();
-    List<String> list = config.getStringList(path);
-    for (String configString : list) {
-      ret.add(AddressUtil.decodeFromBase58Check(configString));
-    }
-    return ret;
-  }
-
-  public static GrpcClient initSide(String file) {
-    Config config = Configuration.getByPath(file);
-
-    String fullNode = "";
-    String solidityNode = "";
-    if (config.hasPath("sidechain.soliditynode.ip.list")) {
-      solidityNode = config.getStringList("sidechain.soliditynode.ip.list").get(0);
-    }
-    if (config.hasPath("sidechain.fullnode.ip.list")) {
-      fullNode = config.getStringList("sidechain.fullnode.ip.list").get(0);
-    }
-    if (config.hasPath("sidechain.net.type") && "mainnet"
-        .equalsIgnoreCase(config.getString("sidechain.net.type"))) {
+  public static GrpcClient initSide(IServerConfig config) {
+    if ("mainnet".equalsIgnoreCase(config.getSideNetType())) {
       ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     } else {
       ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_TESTNET);
     }
-    if (config.hasPath("sidechain.RPC_version")) {
-      sideRpcVersion = config.getInt("sidechain.RPC_version");
+
+    sideRpcVersion = config.getSideRPCVersion();
+
+    if (!AddressUtil.addressValid(config.getSideGatewayAddress())) {
+      //TODO logger
     }
+    sideGatewayAddress = config.getSideGatewayAddress();
+    sideChainId = config.getSideChainId();
 
-    if (config.hasPath("sidechain.gateway_address")) {
-      String temp = config.getString("sidechain.gateway_address");
-
-      if (!AddressUtil.addressValid(AddressUtil.decodeFromBase58Check(temp))) {
-        //TODO logger
-      }
-
-      sideGatewayAddress = AddressUtil.decodeFromBase58Check(temp);
-    }
-
-    sideChainId = config.getString("sidechain.sideChainId");
-
-    return new GrpcClient(fullNode, solidityNode);
+    return new GrpcClient(config.getSideFullNode(), config.getSideSolidityNode());
   }
 
   public boolean isMainChain() {
@@ -215,7 +167,7 @@ public class ServerApi {
     this.address = priEcKey.getAddress();
   }
 
-  public ServerApi(String config, byte[] priKey, boolean isMainChain,
+  public ServerApi(IServerConfig config, byte[] priKey, boolean isMainChain,
       IMultiTransactionSign multiTransactionSign) {
     this.isMainChain = isMainChain;
     this.multiTransactionSign = multiTransactionSign;
@@ -229,7 +181,7 @@ public class ServerApi {
     this.address = priEcKey.getAddress();
   }
 
-  public ServerApi(String config, boolean isMainChain,
+  public ServerApi(IServerConfig config, boolean isMainChain,
       IMultiTransactionSign multiTransactionSign) {
     this.isMainChain = isMainChain;
     this.multiTransactionSign = multiTransactionSign;
@@ -311,7 +263,7 @@ public class ServerApi {
       return new byte[0];
     }
 
-    return ByteArray.fromHexString(sideChainId);
+    return sideChainId;
   }
 
   private Transaction signTransaction(Transaction transaction) {
