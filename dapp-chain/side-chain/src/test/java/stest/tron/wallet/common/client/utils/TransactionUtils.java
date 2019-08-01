@@ -195,4 +195,5 @@ public class TransactionUtils {
     builder.setRawData(rowBuilder.build());
     return builder.build();
   }
+
 }

@@ -1,6 +1,6 @@
 # SunWeb
 
-SunWeb 是为Tron Sun-Network 开发的一款 js-sdk 工具，并且继承自 [TronWeb](https://developers.tron.network/docs/tron-web-intro)。 SunWeb 里面封装了mainchain 和 sidechain 两个对象，他们本质上就是 TronWeb 的对象实例，因此里面包含了 TronWeb 实例的所有属性和方法。例如用户可以使用 sunweb.mainchain.trx.getBalance() 来获取主网上的 balance。除此之外，SunWeb 增加了一些新的方法来支持主链和侧链的交互，如 deposit, withdraw, mapping, approve 等操作，可参考[源码](https://github.com/tronprotocol/sun-network/tree/develop/js-sdk)。SunWeb 详细使用方法如下。
+SunWeb 是为Tron Sun-Network 开发的一款 js-sdk 工具，并且继承自 [TronWeb](https://developers.tron.network/docs/tron-web-intro)。 SunWeb 里面封装了mainchain 和 sidechain 两个对象，他们本质上就是 TronWeb 的对象实例，因此里面包含了 TronWeb 实例的所有属性和方法。例如用户可以使用 sunweb.mainchain.trx.getBalance() 来获取主网上的 balance。除此之外，SunWeb 增加了一些新的方法来支持主链和侧链的交互，如 deposit, withdraw, mapping, approve, injectFund 等操作，可参考[源码](https://github.com/tronprotocol/sun-network/tree/develop/js-sdk)。SunWeb 详细使用方法如下。
 
 ## SunWeb 类
 
@@ -38,8 +38,8 @@ const sunWeb = new SunWeb({
   }, {
   fullHost: 'https://sideapi.trongrid.io'
   },
-  mainGatewayAddress: 'TEEXEWrkMFKapSMJ6mErg39ELFKDqEs6w3' ,
-  sideGatewayAddress: 'TXPHCzmAmjyERtWES6EXTYqUPfJfQSzp2m',
+  mainGatewayAddress,
+  sideGatewayAddress,
   sideChainId,
   privateKey: '...');
 ```
@@ -56,8 +56,8 @@ const sunWeb = new SunWeb({
   solidityNode: 'http://solidity.sun.network',
   eventServer: 'http://sideapi.trongrid.io'
   },
-  mainGatewayAddress: 'TTGhuSDKr561gzHFjkZ1V4ZtMgUEFLa7ct',
-  sideGatewayAddress: 'TBAHKAbjZ6nn3B4cAfNd2ZXscRoskaxbk2',
+  mainGatewayAddress,
+  sideGatewayAddress,
   sideChainId,
   privateKey: '...');
 ```
@@ -66,7 +66,7 @@ const sunWeb = new SunWeb({
 
 ```javascript
 const sunWeb = new SunWeb({
-  fullNode: 'http://39.107.123.182:8090',
+  fullNode: 'http://47.252.84.158:8090',
   solidityNode: 'http://47.252.84.158:8090',
   eventServer: 'http://47.252.84.141:8080'
   }, {
@@ -74,10 +74,10 @@ const sunWeb = new SunWeb({
   solidityNode: 'http://47.252.85.90:8091',
   eventServer: 'http://47.252.85.90:8090'
   },
-  mainGatewayAddress: 'TGHxhFu4jV4XqMGmk3tEQdSeihWVHE9kBP',
-  sideGatewayAddress: 'TBHr5KpbA7oACUysTKxHiAD7c6X6nkZii1',
-  '410e7e8f7fbd5d5ffae4f2a7d2f97a83b93db7b5bc',
-  privateKey: '...');
+  'TGHxhFu4jV4XqMGmk3tEQdSeihWVHE9kBP',
+  'TBHr5KpbA7oACUysTKxHiAD7c6X6nkZii1',
+  '41455CB714D762DC46D490EAB37BBA67B0BA910A59',
+  privateKey);
 ```
 
 ## SunWeb新增函数
@@ -353,6 +353,28 @@ sunWeb.withdrawTrc721(101, 10000000, 'TA2xrVESq2UcEtDtgPzxNJEiLgxmMVdtFR');
 | contractAddress | Side Chain TRC20 Contract Address after mapping | Integer       | Required |
 | feeLimit        | Cost limit                                      | Integer, long | Required |
 | options         | The permissions Id                              | Object        | Optional |
+
+## 注资
+注资的主要作用是为侧链的基金池注入资金。
+
+###### injectFund
+
+```javascript
+// format
+sunWeb.injectFund(num, feeLimit, options);
+
+// example
+sunWeb.injectFund(1000, 10000000);
+
+```
+
+###### Arguments
+
+| Parameter | Description        | Type          | Options  |
+| --------- | ------------------ | ------------- | -------- |
+| num       | num of injecting   | Integer       | Required |
+| feeLimit  | Cost limit         | Integer, long | Required |
+| options   | The permissions Id | Object        | Optional |
 
 ## 签名
 

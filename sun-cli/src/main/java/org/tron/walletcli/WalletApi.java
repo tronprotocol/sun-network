@@ -22,9 +22,10 @@ import org.tron.walletcli.utils.Utils;
 public class WalletApi {
 
   private static final Logger logger = LoggerFactory.getLogger("WalletApi");
+  private static final String FilePath = "Wallet";
+
   private List<WalletFile> walletFile = new ArrayList<>();
   private boolean loginState = false;
-  private static final String FilePath = "Wallet";
   private byte[] address;
 
   public static boolean passwordValid(char[] password) {

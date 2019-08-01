@@ -71,7 +71,8 @@ public class WalletApiWrapper {
 
   public WalletApiWrapper() {
     sdk = new SunNetwork();
-    SunNetworkResponse<Integer> ret = sdk.init("config.conf", new MultiSignTransactionImpl());
+    SunNetworkResponse<Integer> ret = sdk
+        .init(new ServerConfigImpl("config.conf"), new MultiSignTransactionImpl());
     if (ret.getData() != 0) {
       System.out.println("Failed to init sdk");
     }
@@ -155,6 +156,7 @@ public class WalletApiWrapper {
 
     WalletFile walletFile = wallet.getCurrentWalletFile();
     ECKey myKey = Wallet.decrypt(passwd, walletFile);
+
     byte[] priKey = myKey.getPrivKeyBytes();
     SunNetworkResponse<Integer> resp = sdk.setPrivateKey(toHexString(priKey));
     if (resp.getCode() != ErrorCodeEnum.SUCCESS.getCode()) {
