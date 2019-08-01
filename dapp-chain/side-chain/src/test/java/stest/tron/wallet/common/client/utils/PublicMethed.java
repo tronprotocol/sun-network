@@ -1836,17 +1836,20 @@ public class PublicMethed {
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
       WalletGrpc.WalletBlockingStub blockingsideStubFull) {
 
-    byte[] txData1 = PublicMethed.sideSignTokenData(tokenAddress, ownerAddress, priKey,
-        WalletClient.decodeFromBase58Check(mainGatewayAddr), blockingStubFull, value, 0,
-        0, "0");
-    String methodStr1 = "withdrawal(uint256,bytes)";
+//    byte[] txData1 = PublicMethed.sideSignTokenData(tokenAddress, ownerAddress, priKey,
+//        WalletClient.decodeFromBase58Check(mainGatewayAddr), blockingStubFull, value, 0,
+//        0, "0");
+    String methodStr1 = "withdrawal(uint256)";
 
-    byte[] input1 = Hex
-        .decode(AbiUtil
-            .parseMethod(methodStr1, value + ",\"" + Hex.toHexString(txData1) + "\"", false));
+//    String methodStr1 = "withdrawal(address,uint256)";
+    byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, value, false));
+//
+//    byte[] input1 = Hex
+//        .decode(AbiUtil
+//            .parseMethod(methodStr1, value + ",\"" + Hex.toHexString(txData1) + "\"", false));
 
     String txid1 = PublicMethed
-        .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideTokenAddress),
+        .triggerContractSideChain(WalletClient.decodeFromBase58Check(tokenAddress),
             WalletClient.decodeFromBase58Check(mainGatewayAddr),
             0,
             input1,

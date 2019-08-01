@@ -35,236 +35,227 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 public class WithdrawTrc20001 {
 
 
-  private final String testDepositTrx = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
-  private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
-  private ManagedChannel channelSolidity = null;
-  private static final long now = System.currentTimeMillis();
-  private static String tokenName = "testAssetIssue_" + Long.toString(now);
-  private static ByteString assetAccountId = null;
-  private static final long TotalSupply = 1000L;
-  private String description = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetDescription");
-  private String url = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetUrl");
-  private ManagedChannel channelFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+    private final String testDepositTrx = Configuration.getByPath("testng.conf")
+            .getString("foundationAccount.key2");
+    private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
+    private Long maxFeeLimit = Configuration.getByPath("testng.conf")
+            .getLong("defaultParameter.maxFeeLimit");
+    private ManagedChannel channelSolidity = null;
+    private static final long now = System.currentTimeMillis();
+    private static String tokenName = "testAssetIssue_" + Long.toString(now);
+    private static ByteString assetAccountId = null;
+    private static final long TotalSupply = 1000L;
+    private String description = Configuration.getByPath("testng.conf")
+            .getString("defaultParameter.assetDescription");
+    private String url = Configuration.getByPath("testng.conf")
+            .getString("defaultParameter.assetUrl");
+    private ManagedChannel channelFull = null;
+    private WalletGrpc.WalletBlockingStub blockingStubFull = null;
 
-  private ManagedChannel channelFull1 = null;
-  private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
+    private ManagedChannel channelFull1 = null;
+    private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
 
 
-  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+    private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
 
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+    private String fullnode = Configuration.getByPath("testng.conf")
+            .getStringList("fullnode.ip.list").get(0);
+    private String fullnode1 = Configuration.getByPath("testng.conf")
+            .getStringList("fullnode.ip.list").get(1);
 
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] depositAddress = ecKey1.getAddress();
-  String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    ECKey ecKey1 = new ECKey(Utils.getRandom());
+    byte[] depositAddress = ecKey1.getAddress();
+    String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-  String mainChainAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key1");
-  final byte[] mainChainAddressKey = WalletClient.decodeFromBase58Check(mainChainAddress);
+    String mainChainAddress = Configuration.getByPath("testng.conf")
+            .getString("gateway_address.key1");
+    final byte[] mainChainAddressKey = WalletClient.decodeFromBase58Check(mainChainAddress);
 
-  String sideChainAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key2");
-  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
+    String sideChainAddress = Configuration.getByPath("testng.conf")
+            .getString("gateway_address.key2");
+    final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
 
-  @BeforeSuite
-  public void beforeSuite() {
-    Wallet wallet = new Wallet();
-    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
-  }
+    @BeforeSuite
+    public void beforeSuite() {
+        Wallet wallet = new Wallet();
+        Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    }
 
-  /**
-   * constructor.
-   */
+    /**
+     * constructor.
+     */
 
-  @BeforeClass(enabled = true)
-  public void beforeClass() {
+    @BeforeClass(enabled = true)
+    public void beforeClass() {
 //    PublicMethed.printAddress(testKeyFordeposit);
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
-        .build();
-    blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext(true)
-        .build();
-    blockingSideStubFull = WalletGrpc.newBlockingStub(channelFull1);
-  }
+        channelFull = ManagedChannelBuilder.forTarget(fullnode)
+                .usePlaintext(true)
+                .build();
+        blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+        channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
+                .usePlaintext(true)
+                .build();
+        blockingSideStubFull = WalletGrpc.newBlockingStub(channelFull1);
+    }
 
-  @Test(enabled = true, description = "Deposit Trc20")
-  public void test1DepositTrc20001() {
+    @Test(enabled = true, description = "Deposit Trc20")
+    public void test1DepositTrc20001() {
 
-    PublicMethed.printAddress(testKeyFordeposit);
+        PublicMethed.printAddress(testKeyFordeposit);
 
-    Assert.assertTrue(PublicMethed
-        .sendcoin(depositAddress, 11000_000_000L, testDepositAddress, testDepositTrx,
-            blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+        Assert.assertTrue(PublicMethed
+                .sendcoin(depositAddress, 11000_000_000L, testDepositAddress, testDepositTrx,
+                        blockingStubFull));
+        PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    String methodStr = "depositTRX()";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
+        String methodStr = "depositTRX()";
+        byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
 
-    long callValue = 1000_000_000L;
-    String txid = PublicMethed.triggerContract(mainChainAddressKey, callValue, input,
-        maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+        Account accountAfter = PublicMethed.queryAccount(depositAddress, blockingStubFull);
+        long accountAfterBalance = accountAfter.getBalance();
+        logger.info("accountAfterBalance:" + accountAfterBalance);
+        Account accountSideAfter = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
+        long accountSideAfterBalance = accountSideAfter.getBalance();
+        logger.info("accountSideAfterBalance:" + accountSideAfterBalance);
 
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(txid, blockingStubFull);
-    Assert.assertEquals(0, infoById.get().getResultValue());
-    long fee = infoById.get().getFee();
+        long callValue = 1000_000_000L;
+        String txid = PublicMethed.triggerContract(mainChainAddressKey, callValue, input,
+                maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
+        PublicMethed.waitProduceNextBlock(blockingStubFull);
+        PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
-    Account accountBefore = PublicMethed.queryAccount(depositAddress, blockingStubFull);
-    long accountBeforeBalance = accountBefore.getBalance();
-    Account accountSideBefore = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
-    long accountSideBeforeBalance = accountSideBefore.getBalance();
+        Optional<TransactionInfo> infoById = PublicMethed
+                .getTransactionInfoById(txid, blockingStubFull);
+        Assert.assertEquals(0, infoById.get().getResultValue());
+        long fee = infoById.get().getFee();
 
-    Assert.assertEquals(10000_000_000L - fee, accountBeforeBalance);
-    Assert.assertEquals(callValue, accountSideBeforeBalance);
+        Account accountBefore = PublicMethed.queryAccount(depositAddress, blockingStubFull);
+        long accountBeforeBalance = accountBefore.getBalance();
+        Account accountSideBefore = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
+        long accountSideBeforeBalance = accountSideBefore.getBalance();
 
-    String contractName = "trc20Contract";
-    String code = Configuration.getByPath("testng.conf")
-        .getString("code.code_ContractTRC20");
-    String abi = Configuration.getByPath("testng.conf")
-        .getString("abi.abi_ContractTRC20");
+        Assert.assertEquals(0, infoById.get().getResultValue());
+        Assert.assertEquals(10000_000_000L - fee, accountBeforeBalance);
+        Assert.assertEquals(callValue, accountSideBeforeBalance);
 
-    String param = "\"" + Base58.encode58Check(depositAddress) + "\"";
+        String contractName = "trc20Contract";
+        String code = Configuration.getByPath("testng.conf")
+                .getString("code.code_ContractTRC20");
+        String abi = Configuration.getByPath("testng.conf")
+                .getString("abi.abi_ContractTRC20");
+        String parame = "\"" + Base58.encode58Check(depositAddress) + "\"";
 
-    String deployTxid = PublicMethed
-        .deployContractWithConstantParame(contractName, abi, code, "TronToken(address)",
-            param, "",
-            maxFeeLimit,
-            0L, 100, null, testKeyFordeposit, depositAddress
-            , blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+        String deployTxid = PublicMethed
+                .deployContractWithConstantParame(contractName, abi, code, "TronToken(address)",
+                        parame, "",
+                        maxFeeLimit,
+                        0L, 100, null, testKeyFordeposit, depositAddress
+                        , blockingStubFull);
+        PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    infoById = PublicMethed
-        .getTransactionInfoById(deployTxid, blockingStubFull);
-    byte[] trc20Contract = infoById.get().getContractAddress().toByteArray();
-    logger.info("trc20MainContract:" + Base58.encode58Check(trc20Contract));
-    Assert.assertEquals(0, infoById.get().getResultValue());
-    Assert.assertNotNull(trc20Contract);
-    Assert.assertTrue(infoById.get().getResultValue() == 0);
-    Optional<Transaction> byId = PublicMethed.getTransactionById(deployTxid, blockingStubFull);
-    Assert.assertEquals(byId.get().getRet(0).getContractRet().getNumber(),
-        contractResult.SUCCESS_VALUE);
-    Assert.assertEquals(byId.get().getRet(0).getContractRetValue(), contractResult.SUCCESS_VALUE);
-    Assert.assertEquals(byId.get().getRet(0).getContractRet(), contractResult.SUCCESS);
-    Assert.assertEquals(contractResult.SUCCESS, infoById.get().getReceipt().getResult());
+        infoById = PublicMethed
+                .getTransactionInfoById(deployTxid, blockingStubFull);
+        byte[] trc20Contract = infoById.get().getContractAddress().toByteArray();
+        Assert.assertEquals(0, infoById.get().getResultValue());
+        Assert.assertNotNull(trc20Contract);
 
-    TransactionExtention transactionExtention = PublicMethed
-        .triggerContractForExtention(trc20Contract,
-            "balanceOf(address)", param, false,
-            0, maxFeeLimit, "0", 0, depositAddress, testKeyFordeposit, blockingStubFull);
-    Transaction transaction = transactionExtention.getTransaction();
-    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
-    System.out.println("message:" + transaction.getRet(0).getRet());
-    System.out.println(":" + ByteArray
-        .toStr(transactionExtention.getResult().getMessage().toByteArray()));
-    System.out.println("Result:" + Hex.toHexString(result));
+        String mapTxid = PublicMethed
+                .mappingTrc20(mainChainAddressKey, deployTxid, 1000000000,
+                        depositAddress, testKeyFordeposit, blockingStubFull);
+        PublicMethed.waitProduceNextBlock(blockingStubFull);
+        PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
-    Assert.assertEquals(100000000000000000L, ByteArray.toLong(ByteArray
-        .fromHexString(Hex
-            .toHexString(result))));
+        Optional<TransactionInfo> infoById1 = PublicMethed
+                .getTransactionInfoById(mapTxid, blockingSideStubFull);
+        Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
+        Assert.assertEquals(0, infoById1.get().getResultValue());
 
-    HashMap map = PublicMethed
-        .mappingTrc20(sideChainAddressKey, mainChainAddressKey, deployTxid, "stest1", "stest1",
-            "100", 1000000000,
-            depositAddress, testKeyFordeposit, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    logger.info("map:" + map);
+        String parame1 = "\"" + Base58.encode58Check(trc20Contract) + "\"";
+        byte[] input2 = Hex
+                .decode(AbiUtil.parseMethod("mainToSideContractMap(address)", parame1, false));
+        TransactionExtention return1 = PublicMethed
+                .triggerContractForTransactionExtention(sideChainAddressKey, 0, input2,
+                        maxFeeLimit,
+                        0, "0",
+                        depositAddress, testKeyFordeposit, blockingSideStubFull);
+        infoById = PublicMethed
+                .getTransactionInfoById(txid, blockingSideStubFull);
+        logger.info(Hex.toHexString(return1.getConstantResult(0).toByteArray()));
+        String ContractRestule = Hex.toHexString(return1.getConstantResult(0).toByteArray());
 
-    byte[] sideContractAddress = WalletClient
-        .decodeFromBase58Check(map.get("SideContract").toString());
+        String tmpAddress = ContractRestule.substring(24);
+        logger.info(tmpAddress);
+        String addressHex = "41" + tmpAddress;
+        logger.info("address_hex: " + addressHex);
+        String addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
+        logger.info("address_final: " + addressFinal);
 
-    String deposittrx = PublicMethed
-        .depositTrc20(WalletClient.encode58Check(trc20Contract), mainChainAddress,
-            100000000000000000L, 1000000000,
-            depositAddress, testKeyFordeposit, blockingStubFull);
-    logger.info(deposittrx);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    TransactionExtention transactionExtention1 = PublicMethed
-        .triggerContractForExtention(trc20Contract,
-            "balanceOf(address)", param, false,
-            0, maxFeeLimit, "0", 0, depositAddress, testKeyFordeposit, blockingStubFull);
-    Transaction transaction1 = transactionExtention1.getTransaction();
-    byte[] result1 = transactionExtention1.getConstantResult(0).toByteArray();
-    System.out.println("message:" + transaction1.getRet(0).getRet());
-    System.out.println(":" + ByteArray
-        .toStr(transactionExtention1.getResult().getMessage().toByteArray()));
-    System.out.println("Result:" + Hex.toHexString(result1));
+        byte[] sideContractAddress = WalletClient.decodeFromBase58Check(addressFinal);
+        Assert.assertEquals(0, infoById.get().getResultValue());
+        Assert.assertNotNull(sideContractAddress);
 
-    Assert.assertEquals(0, ByteArray.toLong(ByteArray
-        .fromHexString(Hex
-            .toHexString(result1))));
-    String methodStr1 = "balanceOf(address)";
+        String deposittrx = PublicMethed
+                .depositTrc20(WalletClient.encode58Check(trc20Contract), mainChainAddress, 1000, 1000000000,
+                        depositAddress, testKeyFordeposit, blockingStubFull);
+        logger.info(deposittrx);
 
-    byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, param, false));
+        PublicMethed.waitProduceNextBlock(blockingStubFull);
+        PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
-    String txid1 = PublicMethed
-        .triggerContractSideChain(sideContractAddress,
-            mainChainAddressKey, 0, input1, maxFeeLimit, 0, "0", depositAddress, testKeyFordeposit,
-            blockingSideStubFull);
-    Optional<TransactionInfo> infoById1;
-    infoById1 = PublicMethed
-        .getTransactionInfoById(txid1, blockingSideStubFull);
-    Long returnnumber = ByteArray.toLong(ByteArray.fromHexString(ByteArray.toHexString(
-        infoById1.get().getContractResult(0).toByteArray())));
-    logger.info("returnnumber:" + returnnumber);
-    Assert.assertTrue(100000000000000000L == returnnumber);
+        String arg = parame;
+        byte[] input1 = Hex.decode(AbiUtil.parseMethod("balanceOf(address)", arg, false));
+        String ownerTrx = PublicMethed
+                .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0l, input1, 1000000000,
+                        0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
+        logger.info("ownerTrx : " + ownerTrx);
+        Optional<TransactionInfo> infoById2 = PublicMethed
+                .getTransactionInfoById(ownerTrx, blockingSideStubFull);
+        PublicMethed.waitProduceNextBlock(blockingStubFull);
+        PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
-    String param2 = "\"" + Base58.encode58Check(trc20Contract) + "\"";
+        Assert.assertEquals(0, infoById2.get().getResultValue());
+//    Assert.assertEquals(0, byId2.get().);
+        Assert.assertEquals(1000, ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray()));
 
-    TransactionExtention transactionExtention2 = PublicMethed
-        .triggerContractForExtention(sideChainAddressKey, "mainToSideContractMap(address)",
-            param2, false, 0,
-            maxFeeLimit, "0", 0, depositAddress, testKeyFordeposit, blockingSideStubFull);
-    Transaction transaction2 = transactionExtention2.getTransaction();
-    byte[] result2 = transactionExtention2.getConstantResult(0).toByteArray();
-    System.out.println("message:" + transaction2.getRet(0).getRet());
-    System.out.println(":" + ByteArray
-        .toStr(transactionExtention2.getResult().getMessage().toByteArray()));
-    System.out.println("Result:" + Hex.toHexString(result2));
-    byte[] tmpAddress = new byte[20];
-    System.arraycopy(ByteArray.fromHexString(Hex.toHexString(result2)), 12, tmpAddress, 0, 20);
-    String addressHex = "41" + ByteArray.toHexString(tmpAddress);
-    logger.info("address_hex: " + addressHex);
-    String addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
-    Assert.assertEquals(Base58.encode58Check(sideContractAddress),
-        addressFinal);
 
-    String txid2 = PublicMethed.withdrawTrc20(Base58.encode58Check(mainChainAddressKey),
-        WalletClient.encode58Check(sideContractAddress), "10",
-        WalletClient.encode58Check(trc20Contract),
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
-    logger.info("txid2:" + txid2);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    TransactionExtention transactionExtention3 = PublicMethed
-        .triggerContractForExtention(trc20Contract,
-            "balanceOf(address)", param, false,
-            0, maxFeeLimit, "0", 0, depositAddress, testKeyFordeposit, blockingStubFull);
-    Transaction transaction3 = transactionExtention3.getTransaction();
-    byte[] result3 = transactionExtention3.getConstantResult(0).toByteArray();
-    System.out.println("message:" + transaction3.getRet(0).getRet());
-    System.out.println(":" + ByteArray
-        .toStr(transactionExtention3.getResult().getMessage().toByteArray()));
-    System.out.println("Result:" + Hex.toHexString(result3));
+        String txid2 = PublicMethed.withdrawTrc20(mainChainAddress,
+                sideChainAddress, "100",
+                WalletClient.encode58Check(sideContractAddress),
+                maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
+        logger.info("txid2:" + txid2);
+        PublicMethed.waitProduceNextBlock(blockingStubFull);
+        PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+        PublicMethed.waitProduceNextBlock(blockingStubFull);
+        PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
-    Assert.assertEquals(10, ByteArray.toLong(ByteArray
-        .fromHexString(Hex
-            .toHexString(result3))));
-  }
+        String arg1 = WalletClient.encode58Check(sideContractAddress);
+        byte[] input3 = Hex.decode(AbiUtil.parseMethod("balanceOf(address)", arg, false));
+        String ownerTrx1 = PublicMethed
+                .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0l, input3, 1000000000,
+                        0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
+        logger.info("ownerTrx : " + ownerTrx1);
+        Optional<TransactionInfo> infoById3 = PublicMethed
+                .getTransactionInfoById(ownerTrx1, blockingSideStubFull);
+        PublicMethed.waitProduceNextBlock(blockingStubFull);
+        PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+
+//        TransactionExtention transactionExtention3 = PublicMethed
+//                .triggerContractForExtention(trc20Contract,
+//                        "balanceOf(address)", WalletClient.encode58Check(sideContractAddress), false,
+//                        0, maxFeeLimit, "0", 0, depositAddress, testKeyFordeposit, blockingSideStubFull);
+//        Transaction transaction3 = transactionExtention3.getTransaction();
+//        byte[] result3 = transactionExtention3.getConstantResult(0).toByteArray();
+//        System.out.println("message:" + transaction3.getRet(0).getRet());
+//        System.out.println(":" + ByteArray
+//                .toStr(transactionExtention3.getResult().getMessage().toByteArray()));
+//        System.out.println("Result:" + Hex.toHexString(result3));
+//
+        Assert.assertEquals(0, infoById3.get().getResultValue());
+//    Assert.assertEquals(0, byId2.get().);
+        Assert.assertEquals(900, ByteArray.toInt(infoById3.get().getContractResult(0).toByteArray()));
+    }
+
+
 
 
   /**
