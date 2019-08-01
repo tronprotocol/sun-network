@@ -155,6 +155,7 @@ public class WalletApiWrapper {
 
     WalletFile walletFile = wallet.getCurrentWalletFile();
     ECKey myKey = Wallet.decrypt(passwd, walletFile);
+
     byte[] priKey = myKey.getPrivKeyBytes();
     SunNetworkResponse<Integer> resp = sdk.setPrivateKey(toHexString(priKey));
     if (resp.getCode() != ErrorCodeEnum.SUCCESS.getCode()) {

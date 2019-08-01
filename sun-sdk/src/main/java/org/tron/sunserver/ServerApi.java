@@ -108,6 +108,7 @@ public class ServerApi {
 
   private boolean isMainChain;
   private GrpcClient rpcCli;
+  @Getter
   private IMultiTransactionSign multiTransactionSign;
 
   public static GrpcClient initMain(String file) {
@@ -319,26 +320,27 @@ public class ServerApi {
       transaction = TransactionUtils.setTimestamp(transaction);
     }
     transaction = TransactionUtils.setExpirationTime(transaction);
-    transaction = TransactionUtils.setPermissionId(transaction);
-    transaction = TransactionUtils
-        .sign(transaction, this.getEcKey(), getCurrentChainId(), isMainChain());
 
     if (Objects.isNull(multiTransactionSign)) {
+      transaction = TransactionUtils
+          .sign(transaction, this.getEcKey(), getCurrentChainId(), isMainChain());
       return transaction;
     }
+    transaction = multiTransactionSign.setPermissionId(transaction);
     TransactionSignWeight weight;
     while (true) {
       weight = getTransactionSignWeight(transaction);
       if (weight.getResult().getCode() == response_code.ENOUGH_PERMISSION) {
         break;
-      }
-      if (weight.getResult().getCode() == response_code.NOT_ENOUGH_PERMISSION) {
-        Transaction transactionRet = this.multiTransactionSign
+      } else if (weight.getResult().getCode() == response_code.NOT_ENOUGH_PERMISSION) {
+        Transaction transactionRet = getMultiTransactionSign()
             .addTransactionSign(transaction, weight, getCurrentChainId());
         if (Objects.isNull(transactionRet)) {
           return null;
         }
         transaction = transactionRet;
+      } else {
+        return null;
       }
     }
     return transaction;
@@ -399,7 +401,10 @@ public class ServerApi {
     }
 
     transaction = signTransaction(transaction);
-
+    if (Objects.isNull(transaction)) {
+      logger.info("Sign transaction cancelled");
+      return new TransactionResponse("Sign transaction cancelled");
+    }
     ByteString txid = ByteString.copyFrom(Sha256Hash.hash(transaction.getRawData().toByteArray()));
     transactionExtention = transactionExtention.toBuilder().setTransaction(transaction)
         .setTxid(txid).build();
@@ -413,22 +418,25 @@ public class ServerApi {
     return new TransactionResponse(response);
   }
 
-  private boolean processTransaction(Transaction transaction)
-      throws IOException, CipherException, CancelException {
+  private TransactionResponse processTransaction(Transaction transaction) {
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      return false;
+      return new TransactionResponse("Transaction is empty");
     }
     transaction = signTransaction(transaction);
+    if (Objects.isNull(transaction)) {
+      logger.info("Sign transaction cancelled");
+      return new TransactionResponse("Sign transaction cancelled");
+    }
     GrpcAPI.Return response = rpcCli.broadcastTransaction(transaction);
 
-    return response.getResult();
+    return new TransactionResponse(response);
   }
 
   //Warning: do not invoke this interface provided by others.
   public TransactionExtention signTransactionByApi2(Transaction transaction,
       byte[] privateKey) throws CancelException {
     transaction = TransactionUtils.setExpirationTime(transaction);
-    transaction = TransactionUtils.setPermissionId(transaction);
+    transaction = getMultiTransactionSign().setPermissionId(transaction);
     TransactionSign.Builder builder = TransactionSign.newBuilder();
     builder.setPrivateKey(ByteString.copyFrom(privateKey));
     builder.setTransaction(transaction);
@@ -439,7 +447,7 @@ public class ServerApi {
   public TransactionExtention addSignByApi(Transaction transaction,
       byte[] privateKey) throws CancelException {
     transaction = TransactionUtils.setExpirationTime(transaction);
-    transaction = TransactionUtils.setPermissionId(transaction);
+    transaction = getMultiTransactionSign().setPermissionId(transaction);
     TransactionSign.Builder builder = TransactionSign.newBuilder();
     builder.setPrivateKey(ByteString.copyFrom(privateKey));
     builder.setTransaction(transaction);
@@ -505,14 +513,7 @@ public class ServerApi {
     byte[] owner = getAddress();
     Contract.SetAccountIdContract contract = createSetAccountIdContract(accountIdBytes, owner);
     Transaction transaction = rpcCli.createTransaction(contract);
-
-    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      return new TransactionResponse("Transaction is empty");
-    }
-
-    transaction = signTransaction(transaction);
-    GrpcAPI.Return response = rpcCli.broadcastTransaction(transaction);
-    return new TransactionResponse(response);
+    return processTransaction(transaction);
   }
 
 
@@ -1741,7 +1742,7 @@ public class ServerApi {
       transaction = TransactionUtils.setTimestamp(transaction);
     }
     transaction = TransactionUtils.setExpirationTime(transaction);
-    transaction = TransactionUtils.setPermissionId(transaction);
+    transaction = getMultiTransactionSign().setPermissionId(transaction);
 
     transaction = TransactionUtils
         .sign(transaction, this.getEcKey(), getCurrentChainId(), isMainChain());
