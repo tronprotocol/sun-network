@@ -1714,19 +1714,19 @@ public class Client {
 
     if (parameters == null || parameters.length != 4) {
       System.out.println("depositTrxStress needs 4 parameters like following: ");
-      System.out.println("depositTrxStress trx_num fee_limit tps duration(minutes)");
+      System.out.println("depositTrxStress trx_num fee_limit tps duration(seconds)");
       return;
     }
 
     switch2Side();
     long initBalance = getBalance();
-    System.out.println("initBalance: " + initBalance);
+    logger.info("initBalance: {}", initBalance);
     switch2Main();
 
     long trxNum = Long.parseLong(parameters[0]);
     long feeLimit = Long.parseLong(parameters[1]);
     int tps = Integer.parseInt(parameters[2]);
-    long durationInS = Long.parseLong(parameters[3]) * 60;
+    long durationInS = Long.parseLong(parameters[3]);
 
     ExecutorService service = Executors.newFixedThreadPool(100);
 
@@ -1740,11 +1740,14 @@ public class Client {
           SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
               .depositTrx(trxNum, useFeeLimit + k);
 
+          logger.info("{}:{}:{} deposit tx id: {}", iBak, jBak, k, resp.getData().trxId);
           if (checkResult(resp)) {
-            System.out.println(String.format("%d:%d:%d deposit trx success", iBak, jBak, k));
+            logger.info("{}:{}:{} deposit trx success", iBak, jBak, k);
           } else {
-            System.out.println(String.format("%d:%d:%d deposit trx failed", iBak, jBak, k));
+            logger.info("{}:{}:{} deposit trx failed", iBak, jBak, k);
           }
+          logger.info("{}:{}:{} main balance: {}", iBak, jBak, k, getBalance());
+
         }));
 
         try {
@@ -1755,11 +1758,16 @@ public class Client {
       }
     }
 
+    try {
+      Thread.sleep(3000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     switch2Side();
     long finalBalance = getBalance();
-    System.out.println("finalBalance: " + finalBalance);
-    System.out.println("gap: " + (finalBalance - initBalance));
-    System.out.println("ratio: " + ((finalBalance - initBalance) / durationInS * tps));
+    logger.info("finalBalance: {}", finalBalance);
+    logger.info("gap: {}", finalBalance - initBalance);
+    logger.info("ratio: {}", (finalBalance - initBalance) * 1.0 / (durationInS * tps));
     switch2Main();
   }
 
@@ -2533,19 +2541,19 @@ public class Client {
 
     if (parameters == null || parameters.length != 4) {
       System.out.println("withdrawTrxStress needs 4 parameters like following: ");
-      System.out.println("withdrawTrxStress trx_num fee_limit tps duration(minutes)");
+      System.out.println("withdrawTrxStress trx_num fee_limit tps duration(seconds)");
       return;
     }
 
     switch2Main();
     long initBalance = getBalance();
-    System.out.println("initBalance: " + initBalance);
+    logger.info("initBalance: {}", initBalance);
     switch2Side();
 
     long trxNum = Long.parseLong(parameters[0]);
     long feeLimit = Long.parseLong(parameters[1]);
     int tps = Integer.parseInt(parameters[2]);
-    long durationInS = Long.parseLong(parameters[3]) * 60;
+    long durationInS = Long.parseLong(parameters[3]);
 
     ExecutorService service = Executors.newFixedThreadPool(100);
 
@@ -2557,11 +2565,14 @@ public class Client {
         IntStream.range(0, tps / 10).forEach(k -> service.submit(() -> {
 
           SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrx(trxNum, useFeeLimit + k);
+          logger.info("{}:{}:{} withdraw tx id: {}", iBak, jBak, k, resp.getData().trxId);
           if (checkResult(resp)) {
-            System.out.println(String.format("%d:%d:%d withdraw trx success", iBak, jBak, k));
+            logger.info("{}:{}:{} withdraw trx success", iBak, jBak, k);
           } else {
-            System.out.println(String.format("%d:%d:%d withdraw trx failed", iBak, jBak, k));
+            logger.info("{}:{}:{} withdraw trx failed", iBak, jBak, k);
           }
+          logger.info("{}:{}:{} side balance: {}", iBak, jBak, k, getBalance());
+
         }));
 
         try {
@@ -2574,9 +2585,9 @@ public class Client {
 
     switch2Main();
     long finalBalance = getBalance();
-    System.out.println("finalBalance: " + finalBalance);
-    System.out.println("gap: " + (finalBalance - initBalance));
-    System.out.println("ratio: " + ((finalBalance - initBalance) / durationInS * tps));
+    logger.info("finalBalance: {}", finalBalance);
+    logger.info("gap: {}", finalBalance - initBalance);
+    logger.info("ratio: {}", (finalBalance - initBalance) * 1.0 / (durationInS * tps));
     switch2Side();
   }
 
