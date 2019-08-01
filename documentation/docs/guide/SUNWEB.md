@@ -30,13 +30,13 @@ And besides, you may also need to set gateway address:
 Supposing you are using a server which provides everything, like TronGrid, you can instantiate SunWeb as:
 
 ```javascript
-const sunWeb = new SunWeb({
+cconst sunWeb = new SunWeb({
   fullHost: 'https://mainapi.trongrid.io'
-}, {
+  }, {
   fullHost: 'https://sideapi.trongrid.io'
-},
-  mainGatewayAddress: 'TEEXEWrkMFKapSMJ6mErg39ELFKDqEs6w3' ,
-  sideGatewayAddress: 'TXPHCzmAmjyERtWES6EXTYqUPfJfQSzp2m',
+  },
+  mainGatewayAddress,
+  sideGatewayAddress,
   sideChainId,
   privateKey: '...');
 ```
@@ -48,13 +48,13 @@ const sunWeb = new SunWeb({
   fullNode: 'http://fullnode.tron.network',
   solidityNode: 'http://solidity.tron.network',
   eventServer: 'http://mainapi.trongrid.io'
-}, {
+  }, {
   fullNode: 'http://fullnode.sun.network',
   solidityNode: 'http://solidity.sun.network',
   eventServer: 'http://sideapi.trongrid.io'
-},
-  mainGatewayAddress: 'TTGhuSDKr561gzHFjkZ1V4ZtMgUEFLa7ct',
-  sideGatewayAddress: 'TBAHKAbjZ6nn3B4cAfNd2ZXscRoskaxbk2',
+  },
+  mainGatewayAddress,
+  sideGatewayAddress,
   sideChainId,
   privateKey: '...');
 ```
@@ -63,18 +63,18 @@ For example, you can create a sunWeb instance connected to out sun network test-
 
 ```javascript
 const sunWeb = new SunWeb({
-  fullNode: 'http://39.107.123.182:8090',
+  fullNode: 'http://47.252.84.158:8090',
   solidityNode: 'http://47.252.84.158:8090',
   eventServer: 'http://47.252.84.141:8080'
-}, {
+  }, {
   fullNode: 'http://47.252.85.90:8090',
   solidityNode: 'http://47.252.85.90:8091',
   eventServer: 'http://47.252.85.90:8090'
-},
-  mainGatewayAddress: 'TGHxhFu4jV4XqMGmk3tEQdSeihWVHE9kBP',
-  sideGatewayAddress: 'TBHr5KpbA7oACUysTKxHiAD7c6X6nkZii1',
-  '410e7e8f7fbd5d5ffae4f2a7d2f97a83b93db7b5bc',
-  privateKey: '...');
+  },
+  'TGHxhFu4jV4XqMGmk3tEQdSeihWVHE9kBP',
+  'TBHr5KpbA7oACUysTKxHiAD7c6X6nkZii1',
+  '41455CB714D762DC46D490EAB37BBA67B0BA910A59',
+  privateKey);
 ```
 
 ## New functions in SunWeb
@@ -342,6 +342,28 @@ sunWeb.withdrawTrc721(101, 10000000, 'TA2xrVESq2UcEtDtgPzxNJEiLgxmMVdtFR');
 | contractAddress | Side Chain TRC20 Contract Address after mapping | Integer       | Required |
 | feeLimit        | Cost limit                                      | Integer, long | Required |
 | options         | The permissions Id                              | Object        | Optional |
+
+## Inject Fund
+Inject asset into the fundation of the sidechain.
+
+###### injectFund
+
+```javascript
+// format
+sunWeb.injectFund(num, feeLimit, options);
+
+// example
+sunWeb.injectFund(1000, 10000000);
+
+```
+
+###### Arguments
+
+| Parameter | Description        | Type          | Options  |
+| --------- | ------------------ | ------------- | -------- |
+| num       | num of injecting   | Integer       | Required |
+| feeLimit  | Cost limit         | Integer, long | Required |
+| options   | The permissions Id | Object        | Optional |
 
 ## Signature
 

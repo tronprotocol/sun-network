@@ -3,7 +3,7 @@ import {sha256} from './helper/ethersUtils';
 
 export default class SunWeb {
     static TronWeb = TronWeb;
-    constructor(mainOptions = false, sideOptions = false, mainGatewayAddress = false, sideGatewayAddress = false, sideChainId=false, privateKey = false) {
+    constructor(mainOptions = false, sideOptions = false, mainGatewayAddress = false, sideGatewayAddress = false, sideChainId = false, privateKey = false) {
         mainOptions = {...mainOptions, privateKey};
         sideOptions = {...sideOptions, privateKey};
         this.mainchain = new TronWeb(mainOptions);
