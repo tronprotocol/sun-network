@@ -359,10 +359,7 @@ public class RetryTrc20001 {
     logger.info("retryMaptxid3:" + retryMaptxid3);
     Optional<TransactionInfo> infoByIdretryMaptxid3 = PublicMethed
         .getTransactionInfoById(retryMaptxid3, blockingStubFull);
-    Assert.assertTrue(infoByIdretryMaptxid3.get().getResultValue() != 0);
-    Assert.assertEquals(FAILED, infoByIdretryMaptxid3.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryMaptxid3.get().getResMessage().toStringUtf8());
+    Assert.assertTrue(infoByIdretryMaptxid3.get().getResultValue() == 0);
 
     //Deposit noce value is Long.max_value+1
     String maxNonce = Long.toString(Long.MAX_VALUE + 1);
