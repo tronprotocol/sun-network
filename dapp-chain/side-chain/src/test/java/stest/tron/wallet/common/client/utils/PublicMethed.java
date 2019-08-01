@@ -1763,5 +1763,55 @@ public class PublicMethed {
     return response.getResult();
   }
 
+  /**
+   * constructor.
+   */
+  public static String withdrawTrc10(
+      String tokenId, String tokenValue, String mainGatewayAddr, String sideGatewayAddress,
+      long callValue, long feeLimit, byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
+      WalletGrpc.WalletBlockingStub blockingsideStubFull) {
+
+//    byte[] txData1 = PublicMethed.sideSignTrc10Data(trc10, tokenValue, ownerAddress, priKey,
+//        WalletClient.decodeFromBase58Check(mainGatewayAddr), blockingStubFull, 0);
+    String methodStr = "withdrawTRC10(uint256,uint256)";
+
+    long tokenValue1 = Long.parseLong(tokenValue);
+    String inputParam = tokenId + "," + tokenValue;
+    byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr, inputParam, false));
+    String txid1 = PublicMethed
+        .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideGatewayAddress),
+            WalletClient.decodeFromBase58Check(mainGatewayAddr),
+            callValue,
+            input1,
+            feeLimit, tokenValue1, tokenId, ownerAddress, priKey, blockingsideStubFull);
+    logger.info("txid1:" + txid1);
+    return txid1;
+  }
+
+
+  /**
+   * constructor.
+   */
+  public static GrpcAPI.Return withdrawTrcForReturn(String tokenId, String tokenValue,
+      String mainGatewayAddr, String sideGatewayAddress,
+      long callValue, long feeLimit, byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
+      WalletGrpc.WalletBlockingStub blockingsideStubFull) {
+
+    String methodStr = "withdrawTRC10(uint256,uint256)";
+
+    long tokenValue1 = Long.parseLong(tokenValue);
+    String inputParam = tokenId + "," + tokenValue;
+    byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr, inputParam, false));
+
+    Return aReturn = PublicMethed
+        .triggerContractSideChainForReturn(WalletClient.decodeFromBase58Check(sideGatewayAddress),
+            WalletClient.decodeFromBase58Check(mainGatewayAddr),
+            callValue,
+            input1,
+            feeLimit, tokenValue1, tokenId, ownerAddress, priKey, blockingsideStubFull);
+    return aReturn;
+  }
 
 }
