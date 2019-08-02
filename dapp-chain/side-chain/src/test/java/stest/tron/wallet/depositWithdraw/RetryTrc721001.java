@@ -330,7 +330,7 @@ public class RetryTrc721001 {
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById.get().getResMessage().toByteArray()));
 
-    //retry  Withdraw trx
+    //retry  Withdraw 721
 
     String retryWithdrawTxid = PublicMethed.retryWithdraw(mainGateWayAddress, sideGatewayAddress,
         nonceWithdraw,
