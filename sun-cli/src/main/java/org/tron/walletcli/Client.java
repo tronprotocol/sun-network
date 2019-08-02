@@ -1718,9 +1718,12 @@ public class Client {
       return;
     }
 
+    long mainInitBalance = getBalance();
+    logger.info("mainInitBalance: {}", mainInitBalance);
+
     switch2Side();
-    long initBalance = getBalance();
-    logger.info("initBalance: {}", initBalance);
+    long sideInitBalance = getBalance();
+    logger.info("sideInitBalance: {}", sideInitBalance);
     switch2Main();
 
     long trxNum = Long.parseLong(parameters[0]);
@@ -1728,7 +1731,11 @@ public class Client {
     int tps = Integer.parseInt(parameters[2]);
     long durationInS = Long.parseLong(parameters[3]);
 
+    long startInS = System.currentTimeMillis() / 1000;
+
     ExecutorService service = Executors.newFixedThreadPool(100);
+
+    List<String> txIds = new ArrayList<>();
 
     for (long i = 0; i < durationInS; i++) {
       for (int j = 0; j < 10; j++) {
@@ -1741,6 +1748,8 @@ public class Client {
               .depositTrx(trxNum, useFeeLimit + k);
 
           logger.info("{}:{}:{} deposit tx id: {}", iBak, jBak, k, resp.getData().trxId);
+          txIds.add(resp.getData().trxId);
+
           if (checkResult(resp)) {
             logger.info("{}:{}:{} deposit trx success", iBak, jBak, k);
           } else {
@@ -1758,17 +1767,50 @@ public class Client {
       }
     }
 
+    long endInS = System.currentTimeMillis() / 1000;
+
     try {
-      Thread.sleep(3000);
+      Thread.sleep(12000);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
+
+    long fee = 0;
+    long energyFee = 0;
+    long energyTotal = 0;
+    for (String txId : txIds) {
+      Optional<TransactionInfo> result = walletApiWrapper.getTransactionInfoById(txId);
+      if (result.isPresent()) {
+        TransactionInfo transactionInfo = result.get();
+        fee += transactionInfo.getFee();
+        energyFee += transactionInfo.getReceipt().getEnergyFee();
+        energyTotal += transactionInfo.getReceipt().getEnergyUsageTotal();
+      } else {
+        logger.info("getTransactionInfoById " + " failed !!");
+      }
+    }
+
+    logger.info("fee: {}, energyFee: {}, energyTotal: {}", fee, energyFee, energyTotal);
+
+    long mainFinalBalance = getBalance();
+    logger.info("mainFinalBalance: {}", mainFinalBalance);
+
     switch2Side();
-    long finalBalance = getBalance();
-    logger.info("finalBalance: {}", finalBalance);
-    logger.info("gap: {}", finalBalance - initBalance);
-    logger.info("ratio: {}", (finalBalance - initBalance) * 1.0 / (durationInS * tps));
+    long sideFinalBalance = getBalance();
+    logger.info("sideFinalBalance: {}", sideFinalBalance);
     switch2Main();
+
+    logger.info("param tps: {}", tps);
+    logger.info("send tps: {}", tps * durationInS * 1.0 / (endInS - startInS));
+
+    logger.info("main success tps: {}",
+        (mainInitBalance - mainFinalBalance) * 1.0 / (endInS - startInS));
+    logger.info("main success ratio: {}",
+        (mainInitBalance - mainFinalBalance) * 1.0 / (tps * durationInS));
+    logger.info("side success tps: {}",
+        (sideFinalBalance - sideInitBalance) * 1.0 / (endInS - startInS));
+    logger.info("side success ratio: {}",
+        (sideFinalBalance - sideInitBalance) * 1.0 / (mainInitBalance - mainFinalBalance));
   }
 
   private void depositTrc10(String[] parameters) {
@@ -2545,15 +2587,20 @@ public class Client {
       return;
     }
 
+    long sideInitBalance = getBalance();
+    logger.info("sideInitBalance: {}", sideInitBalance);
+
     switch2Main();
-    long initBalance = getBalance();
-    logger.info("initBalance: {}", initBalance);
+    long mainInitBalance = getBalance();
+    logger.info("mainInitBalance: {}", mainInitBalance);
     switch2Side();
 
     long trxNum = Long.parseLong(parameters[0]);
     long feeLimit = Long.parseLong(parameters[1]);
     int tps = Integer.parseInt(parameters[2]);
     long durationInS = Long.parseLong(parameters[3]);
+
+    long startInS = System.currentTimeMillis() / 1000;
 
     ExecutorService service = Executors.newFixedThreadPool(100);
 
@@ -2564,8 +2611,19 @@ public class Client {
         int jBak = j;
         IntStream.range(0, tps / 10).forEach(k -> service.submit(() -> {
 
-          SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrx(trxNum, useFeeLimit + k);
+          SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+              .withdrawTrx(trxNum, useFeeLimit + k);
           logger.info("{}:{}:{} withdraw tx id: {}", iBak, jBak, k, resp.getData().trxId);
+
+          Optional<TransactionInfo> result = walletApiWrapper
+              .getTransactionInfoById(resp.getData().trxId);
+          if (result.isPresent()) {
+            TransactionInfo transactionInfo = result.get();
+            logger.info(Utils.printTransactionInfo(transactionInfo));
+          } else {
+            logger.info("getTransactionInfoById " + " failed !!");
+          }
+
           if (checkResult(resp)) {
             logger.info("{}:{}:{} withdraw trx success", iBak, jBak, k);
           } else {
@@ -2583,12 +2641,33 @@ public class Client {
       }
     }
 
+    long endInS = System.currentTimeMillis() / 1000;
+
+    try {
+      Thread.sleep(12000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    long sideFinalBalance = getBalance();
+    logger.info("sideFinalBalance: {}", sideFinalBalance);
+
     switch2Main();
-    long finalBalance = getBalance();
-    logger.info("finalBalance: {}", finalBalance);
-    logger.info("gap: {}", finalBalance - initBalance);
-    logger.info("ratio: {}", (finalBalance - initBalance) * 1.0 / (durationInS * tps));
+    long mainFinalBalance = getBalance();
+    logger.info("mainFinalBalance: {}", mainFinalBalance);
     switch2Side();
+
+    logger.info("param tps: {}", tps);
+    logger.info("send tps: {}", tps * durationInS * 1.0 / (endInS - startInS));
+
+    logger.info("side success tps: {}",
+        (sideInitBalance - sideFinalBalance) * 1.0 / (endInS - startInS));
+    logger.info("side success ratio: {}",
+        (sideInitBalance - sideFinalBalance) * 1.0 / (tps * durationInS));
+    logger.info("main success tps: {}",
+        (mainFinalBalance - mainInitBalance) * 1.0 / (endInS - startInS));
+    logger.info("main success ratio: {}",
+        (mainFinalBalance - mainInitBalance) * 1.0 / (sideInitBalance - sideFinalBalance));
   }
 
   private void withdrawTrc10(String[] parameters) {
