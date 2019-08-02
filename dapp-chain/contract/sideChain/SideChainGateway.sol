@@ -455,4 +455,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     function setStop(bool isStop) public onlyOwner {
         stop = isStop;
     }
+
+    function depositDone(uint256 nonce) view public returns (bool r) {
+        r = depositSigns[nonce].success;
+    }
 }
