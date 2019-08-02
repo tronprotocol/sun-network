@@ -268,9 +268,11 @@ public class WithdrawTrc721001 {
     ownerTrx = PublicMethed
         .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
     infoById = PublicMethed
-        .getTransactionInfoById(ownerTrx, blockingStubFull);
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     Assert.assertEquals(1, infoById.get().getResultValue());
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById.get().getResMessage().toByteArray()));
