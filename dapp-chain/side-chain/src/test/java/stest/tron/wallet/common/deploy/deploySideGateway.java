@@ -2,10 +2,8 @@ package stest.tron.wallet.common.deploy;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -68,8 +66,8 @@ public class deploySideGateway {
 
   @Test(enabled = true, description = "deploy Side Chain Gateway")
   public void test1DepositTrc20001() {
-    String mainChainAddress = "";
-    try {
+    String mainChainAddress = "TYYrjz9W9ii98zMEF7KoL24KhGRXqWpjEJ";
+    /*try {
       File mainChainFile = new File("/home/mainChainGatewayAddress");
       FileReader reader = new FileReader(mainChainFile);
       BufferedReader breader = new BufferedReader(reader);
@@ -78,7 +76,7 @@ public class deploySideGateway {
     } catch (Exception e) {
       logger.info("Read main Gateway ContractAddress Failed");
       return;
-    }
+    }*/
 
     int count = 0;
     String sideChainGatewayAddress = null;
