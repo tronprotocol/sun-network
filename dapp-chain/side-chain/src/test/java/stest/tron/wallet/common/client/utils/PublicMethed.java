@@ -1790,7 +1790,7 @@ public class PublicMethed {
         .decode(AbiUtil
             .parseMethod(methodStr1, value, false));
     String txid1 = PublicMethed
-        .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideTokenAddress),
+        .triggerContractSideChain(WalletClient.decodeFromBase58Check(tokenAddress),
             WalletClient.decodeFromBase58Check(mainGatewayAddr),
             0,
             input1,
