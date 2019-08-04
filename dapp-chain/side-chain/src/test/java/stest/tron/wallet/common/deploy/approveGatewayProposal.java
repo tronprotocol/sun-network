@@ -1,21 +1,14 @@
 package stest.tron.wallet.common.deploy;
 
-import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.spongycastle.util.encoders.Hex;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
@@ -28,17 +21,8 @@ import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
-import org.tron.protos.Protocol.Account;
-import org.tron.protos.Protocol.SideChainProposal;
-import org.tron.protos.Protocol.SmartContract;
-import org.tron.protos.Protocol.Transaction;
-import org.tron.protos.Protocol.Transaction.Result.contractResult;
-import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.WalletClient;
-import stest.tron.wallet.common.client.utils.AbiUtil;
-import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 
 @Slf4j
@@ -89,40 +73,35 @@ public class approveGatewayProposal {
 
   @Test(enabled = true)
   public void testApproveProposal() {
-    String mainChainAddress = "";
+    String mainChainAddress = Configuration.getByPath("testng.conf")
+        .getString("gateway_address.sideChainIdAddress");
     String sideChainAddress = "";
     try {
-      File mainChainFile = new File("/home/mainChainGatewayAddress");
-      FileReader reader = new FileReader(mainChainFile);
-      BufferedReader breader = new BufferedReader(reader);
-      mainChainAddress = breader.readLine();
-      breader.close();
       File sideChainFile = new File("/home/sideChainGatewayAddress");
       FileReader reader2 = new FileReader(sideChainFile);
       BufferedReader breader2 = new BufferedReader(reader2);
       sideChainAddress = breader2.readLine();
       breader2.close();
-    }catch (Exception e){
+    } catch (Exception e) {
       logger.info("Read main/side Gateway ContractAddress Failed");
       return;
     }
 
-
-
     HashMap<Long, String> proposalMap = new HashMap<Long, String>();
-    logger.info("mainChainAddress: "+ mainChainAddress);
-    logger.info("sideChainAddress: "+ sideChainAddress);
+    logger.info("mainChainAddress: " + mainChainAddress);
+    logger.info("sideChainAddress: " + sideChainAddress);
     logger.info("testDepositTrx: " + testDepositTrx);
     proposalMap.put(1000001L, sideChainAddress);
     org.testng.Assert.assertTrue(PublicMethed.sideChainCreateProposal(testDepositAddress,
-        testDepositTrx,mainChainAddress, proposalMap, blockingStubFull));
+        testDepositTrx, mainChainAddress, proposalMap, blockingStubFull));
     try {
       Thread.sleep(10000);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
     //Get proposal list
-    SideChainProposalList proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    SideChainProposalList proposalList = blockingStubFull
+        .listSideChainProposals(EmptyMessage.newBuilder().build());
     Optional<SideChainProposalList> listProposals = Optional.ofNullable(proposalList);
     final Integer proposalId = listProposals.get().getProposalsCount();
     logger.info(Integer.toString(proposalId));
@@ -133,13 +112,15 @@ public class approveGatewayProposal {
     logger.info(Integer.toString(listProposals.get().getProposals(0).getApprovalsCount()));
 
     String[] witnessKey = {
-        "369F095838EB6EED45D4F6312AF962D5B9DE52927DA9F04174EE49F9AF54BC77",
-        "9FD8E129DE181EA44C6129F727A6871440169568ADE002943EAD0E7A16D8EDAC",
+        Configuration.getByPath("testng.conf")
+            .getString("witness.key1"),
+        Configuration.getByPath("testng.conf")
+            .getString("witness.key2"),
     };
     byte[] witnessAddress;
     for (String key : witnessKey) {
       witnessAddress = PublicMethed.getFinalAddress(key);
-      PublicMethed.approveProposal(witnessAddress, key, mainChainAddress,proposalId,
+      PublicMethed.approveProposal(witnessAddress, key, mainChainAddress, proposalId,
           true, blockingStubFull);
       try {
         Thread.sleep(1000);
@@ -150,15 +131,15 @@ public class approveGatewayProposal {
   }
 
   @Test(enabled = true)
-  public void testListProposal(){
+  public void testListProposal() {
     SideChainProposalList sideChainProposalList = blockingStubFull
         .listSideChainProposals(EmptyMessage.newBuilder().build());
     Optional<SideChainProposalList> result = Optional.ofNullable(sideChainProposalList);
     if (result.isPresent()) {
       SideChainProposalList proposalList = result.get();
 
-      for(int i=0;i<proposalList.getProposalsCount();i++){
-        logger.info(""+proposalList.getProposals(i).toString());
+      for (int i = 0; i < proposalList.getProposalsCount(); i++) {
+        logger.info("" + proposalList.getProposals(i).toString());
       }
     } else {
       logger.info("List witnesses " + " failed !!");
