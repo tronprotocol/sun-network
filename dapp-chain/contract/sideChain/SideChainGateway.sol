@@ -48,7 +48,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     address public sunTokenAddress;
     address mintTRXContract = 0x10000;
     address mintTRC10Contract = 0x10001;
-    uint256 mappingFee;
     uint256 withdrawMinTrx = 0;
     uint256 withdrawMinTrc10 = 0;
     uint256 withdrawMinTrc20 = 0;
@@ -274,6 +273,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     function withdrawTRC10(uint256 tokenId, uint256 tokenValue) payable public onlyNotPause onlyNotStop checkForTrc10(tokenId, tokenValue) goDelegateCall returns (uint256 r) {
         require(tokenIdMap[msg.tokenid], "tokenIdMap[msg.tokenid] == false");
         require(msg.tokenvalue > withdrawMinTrc10, "tokenvalue must be > withdrawMinTrc10");
+        require(msg.value > wutg¥¥¥, "tokenvalue must be > withdrawMinTrc10");
         if (msg.value > 0) {
             bonus += msg.value;
         }
@@ -296,7 +296,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 8. withdrawTRC20
-    function onTRC20Received(address from, uint256 value) public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
+    function onTRC20Received(address from, uint256 value) payable public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "mainChainAddress == address(0)");
@@ -321,7 +321,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 9. withdrawTRC721
-    function onTRC721Received(address from, uint256 uId) public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
+    function onTRC721Received(address from, uint256 uId) payable public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "mainChainAddress == address(0)");
@@ -442,10 +442,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         if (msg.value > 0) {
             bonus += msg.value;
         }
-    }
-
-    function setMappingFee(uint256 fee) public onlyOwner {
-        mappingFee = fee;
     }
 
     function setPause(bool isPause) public onlyOwner {

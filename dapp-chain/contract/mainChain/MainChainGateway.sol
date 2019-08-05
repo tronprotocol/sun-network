@@ -39,19 +39,6 @@ contract MainChainGateway is OracleManagerContract {
     MappingMsg[] userMappingList;
     uint256 uint64Max = 18446744073709551615;
 
-    //    struct DepositMsg {
-    //        uint64 tokenId;
-    //        uint64 valueOrUid;
-    //        uint64 _type;
-    //        uint64 status;
-    //        address user;
-    //        address mainChainAddress;
-    //        // trcToken tokenId;
-    //        // uint256 valueOrUid;
-    //        // DataModel.TokenKind _type;
-    //        // DataModel.Status status;
-    //    }
-
     struct DepositMsg {
         address user;
         uint64 value;
