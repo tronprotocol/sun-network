@@ -527,6 +527,10 @@ public class Args {
   @Setter
   private int voteSwitch;
 
+  @Getter
+  @Setter
+  private int witnessMaxActiveNum;
+
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
     INSTANCE.help = false;
@@ -613,6 +617,7 @@ public class Args {
     INSTANCE.dayToSustainByFund = 90L;
     INSTANCE.percentToPayWitness = 80;
     INSTANCE.voteSwitch = 0;
+    INSTANCE.witnessMaxActiveNum = 27;
   }
 
   /**
@@ -1063,6 +1068,9 @@ public class Args {
         config.hasPath("committee.voteSwitch") ? config
             .getInt("committee.voteSwitch") : 0;
 
+    INSTANCE.witnessMaxActiveNum =
+        config.hasPath("sidechain.witnessMaxActiveNum") ? config.
+            getInt("sidechain.witnessMaxActiveNum") : 27;
     logConfig();
   }
 
