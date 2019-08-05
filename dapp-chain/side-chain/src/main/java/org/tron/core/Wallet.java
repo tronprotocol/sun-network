@@ -523,7 +523,7 @@ public class Wallet {
   public TransactionCapsule getTransactionSign(TransactionSign transactionSign) {
     byte[] privateKey = transactionSign.getPrivateKey().toByteArray();
     TransactionCapsule trx = new TransactionCapsule(transactionSign.getTransaction());
-    trx.signWithSideChainId(privateKey, dbManager);
+    trx.signWithSideChainId(privateKey);
     return trx;
   }
 
@@ -635,7 +635,7 @@ public class Wallet {
                 "Signature size is " + sig.size());
           }
           String base64 = TransactionCapsule.getBase64FromByteString(sig);
-          byte[] address = ECKey.signatureToAddress(TransactionCapsule.getHashWithSideChainId(hash, dbManager), base64);
+          byte[] address = ECKey.signatureToAddress(TransactionCapsule.getHashWithSideChainId(hash), base64);
           approveList.add(ByteString.copyFrom(address)); //out put approve list.
         }
         tswBuilder.addAllApprovedList(approveList);

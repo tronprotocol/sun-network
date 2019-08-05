@@ -747,7 +747,7 @@ public class RpcApiService implements Service {
         builder.setAmount(amount);
         transactionCapsule = createTransactionCapsule(builder.build(),
             ContractType.TransferContract);
-        transactionCapsule.signWithSideChainId(privateKey, dbManager);
+        transactionCapsule.signWithSideChainId(privateKey);
         GrpcAPI.Return retur = wallet.broadcastTransaction(transactionCapsule.getInstance());
         responseBuild.setTransaction(transactionCapsule.getInstance());
         responseBuild.setTxid(transactionCapsule.getTransactionId().getByteString());
@@ -780,7 +780,7 @@ public class RpcApiService implements Service {
         builder.setAmount(amount);
         transactionCapsule = createTransactionCapsule(builder.build(),
             ContractType.TransferAssetContract);
-        transactionCapsule.signWithSideChainId(privateKey, dbManager);
+        transactionCapsule.signWithSideChainId(privateKey);
         GrpcAPI.Return retur = wallet.broadcastTransaction(transactionCapsule.getInstance());
         responseBuild.setTransaction(transactionCapsule.getInstance());
         responseBuild.setTxid(transactionCapsule.getTransactionId().getByteString());

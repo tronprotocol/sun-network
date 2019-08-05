@@ -32,9 +32,6 @@ public class EasyTransferAssetServlet extends HttpServlet {
   @Autowired
   private Wallet wallet;
 
-  @Autowired
-  private Manager dbManager;
-
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {
 
   }
@@ -61,7 +58,7 @@ public class EasyTransferAssetServlet extends HttpServlet {
       TransactionCapsule transactionCapsule;
       transactionCapsule = wallet
           .createTransactionCapsule(builder.build(), ContractType.TransferAssetContract);
-      transactionCapsule.signWithSideChainId(privateKey, dbManager);
+      transactionCapsule.signWithSideChainId(privateKey);
       GrpcAPI.Return retur = wallet.broadcastTransaction(transactionCapsule.getInstance());
       responseBuild.setTransaction(transactionCapsule.getInstance());
       responseBuild.setResult(retur);
