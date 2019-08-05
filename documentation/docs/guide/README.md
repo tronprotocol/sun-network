@@ -61,10 +61,6 @@ Sun Client is a command-line tool that Sun Network officially provides to users 
 
 <token/>
 
-## Sun Client Introduction
-
-Sun Client is a command-line tool that Sun Network officially provides to users to interact with DAppChain. This tool can be used to complete asset deposit, withdraw, contract deployment and other operations.
-
 ## Deposit Assets
 
 Users can deposit the assets of the main chain to the side chain by the Sun Client deposit command . The Dappchain support TRX, TRC10 assets, TRC20 contract assets, and TRC721 contract assets of main chain to deposit. For example, to deposit TRX can use the "deposit trx" command.
