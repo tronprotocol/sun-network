@@ -18,6 +18,7 @@ import org.tron.api.GrpcAPI.Return.response_code;
 import org.tron.common.crypto.ECKey;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.TransactionCapsule;
+import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.services.http.JsonFormat.ParseException;
 import org.tron.protos.Contract.TransferContract;
@@ -30,6 +31,9 @@ public class EasyTransferServlet extends HttpServlet {
 
   @Autowired
   private Wallet wallet;
+
+  @Autowired
+  private Manager dbManager;
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {
 
@@ -57,7 +61,7 @@ public class EasyTransferServlet extends HttpServlet {
       TransactionCapsule transactionCapsule;
       transactionCapsule = wallet
           .createTransactionCapsule(builder.build(), ContractType.TransferContract);
-      transactionCapsule.sign(privateKey);
+      transactionCapsule.signWithSideChainId(privateKey, dbManager);
       GrpcAPI.Return retur = wallet.broadcastTransaction(transactionCapsule.getInstance());
       responseBuild.setTransaction(transactionCapsule.getInstance());
       responseBuild.setResult(retur);

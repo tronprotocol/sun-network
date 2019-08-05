@@ -272,6 +272,13 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
     this.transaction = this.transaction.toBuilder().addSignature(sig).build();
   }
 
+  public void signWithSideChainId(byte[] privateKey, Manager dbManger) {
+    ECKey ecKey = ECKey.fromPrivate(privateKey);
+    ECDSASignature signature = ecKey.sign(getHashWithSideChainId(getRawHash().getBytes(),dbManger));
+    ByteString sig = ByteString.copyFrom(signature.toByteArray());
+    this.transaction = this.transaction.toBuilder().addSignature(sig).build();
+  }
+
   public static long getWeight(Permission permission, byte[] address) {
     List<Key> list = permission.getKeysList();
     for (Key key : list) {
@@ -295,10 +302,6 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
               + permission.getKeysCount());
     }
 
-    byte[] sideChainIdByteArray = ByteArray.fromHexString(dbManager.getDynamicPropertiesStore().getSideChainId());
-    byte[] hashWithSideChainId = Arrays.copyOf(hash, hash.length + sideChainIdByteArray.length);
-    System.arraycopy(sideChainIdByteArray, 0, hashWithSideChainId, hash.length, sideChainIdByteArray.length);
-
     HashMap addMap = new HashMap();
     for (ByteString sig : sigs) {
       if (sig.size() < 65) {
@@ -306,7 +309,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
             "Signature size is " + sig.size());
       }
       String base64 = TransactionCapsule.getBase64FromByteString(sig);
-      byte[] address = ECKey.signatureToAddress(Sha256Hash.hash(hashWithSideChainId), base64);
+      byte[] address = ECKey.signatureToAddress(getHashWithSideChainId(hash, dbManager), base64);
       long weight = getWeight(permission, address);
       if (weight == 0) {
         throw new PermissionException(
@@ -935,5 +938,12 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
       logger.error(e.getMessage());
     }
     return false;
+  }
+
+  public static byte[] getHashWithSideChainId(byte[] hash, Manager dbManager){
+    byte[] sideChainIdByteArray = ByteArray.fromHexString(dbManager.getDynamicPropertiesStore().getSideChainId());
+    byte[] hashWithSideChainId = Arrays.copyOf(hash, hash.length + sideChainIdByteArray.length);
+    System.arraycopy(sideChainIdByteArray, 0, hashWithSideChainId, hash.length, sideChainIdByteArray.length);
+    return Sha256Hash.hash(hashWithSideChainId);
   }
 }

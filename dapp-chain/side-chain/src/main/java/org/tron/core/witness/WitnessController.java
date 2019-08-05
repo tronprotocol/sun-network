@@ -348,8 +348,8 @@ public class WitnessController {
       });
 
       sortWitness(newWitnessAddressList);
-      if (newWitnessAddressList.size() > ChainConstant.MAX_ACTIVE_WITNESS_NUM) {
-        setActiveWitnesses(newWitnessAddressList.subList(0, ChainConstant.MAX_ACTIVE_WITNESS_NUM));
+      if (newWitnessAddressList.size() > Args.getInstance().getWitnessMaxActiveNum()) {
+        setActiveWitnesses(newWitnessAddressList.subList(0, Args.getInstance().getWitnessMaxActiveNum()));
       } else {
         setActiveWitnesses(newWitnessAddressList);
       }

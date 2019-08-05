@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.config.Parameter.ChainConstant;
+import org.tron.core.config.args.Args;
 import org.tron.protos.Protocol.SideChainProposal;
 import org.tron.protos.Protocol.SideChainProposal.State;
 
@@ -161,7 +162,7 @@ public class ProposalCapsule implements ProtoCapsule<SideChainProposal> {
           .filter(witness -> !activeWitnesses.contains(witness)).collect(Collectors.toList());
       logger.info("InvalidApprovalList:" + StringUtil.getAddressStringList(InvalidApprovalList));
     }
-    if (activeWitnesses.size() != ChainConstant.MAX_ACTIVE_WITNESS_NUM) {
+    if (activeWitnesses.size() != Args.getInstance().getWitnessMaxActiveNum()) {
       logger.info("activeWitnesses size = {}", activeWitnesses.size());
     }
     return count >= activeWitnesses.size() * 7 / 10;

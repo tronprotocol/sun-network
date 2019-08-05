@@ -21,6 +21,7 @@ import org.tron.core.Wallet;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.capsule.TransactionResultCapsule;
 import org.tron.core.config.Parameter.ChainParameters;
+import org.tron.core.config.args.Args;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
@@ -147,7 +148,7 @@ public class ProposalCreateActuator extends AbstractActuator {
 
     switch (entry.getKey().intValue()) {
       case (0): {
-        if (Long.valueOf(entry.getValue()) < 3 * 27 * 1000
+        if (Long.valueOf(entry.getValue()) < 3 * Args.getInstance().getWitnessMaxActiveNum() * 1000
             || Long.valueOf(entry.getValue()) > 24 * 3600 * 1000) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [3 * 27 * 1000,24 * 3600 * 1000]");
