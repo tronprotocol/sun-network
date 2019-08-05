@@ -130,7 +130,7 @@ SunNetworkResponse<TransactionResponse> resp = getMainChainService().getChainPar
 //Parameter: None
 ```
 
-## Public interfaces introduction
+## Public Interface Introduction
 
 ```java
 //Get the address of the current user of sdk
