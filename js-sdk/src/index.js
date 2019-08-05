@@ -798,7 +798,6 @@ export default class SunWeb {
                 owner_address: hexAddress,
                 amount: num
             }, 'post');
-            console.log(transaction)
 
             const signedTransaction = await this.sidechain.trx.sign(transaction, privateKey);
 
@@ -816,7 +815,7 @@ export default class SunWeb {
                     message: broadcast.code
                 };
                 if (broadcast.message)
-                    err.message = this.sunWeb.mainchain.toUtf8(broadcast.message);
+                    err.message = this.mainchain.toUtf8(broadcast.message);
                 return callback(err)
             }
             return callback(null, signedTransaction.txID);
