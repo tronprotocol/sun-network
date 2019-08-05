@@ -816,7 +816,7 @@ export default class SunWeb {
                     message: broadcast.code
                 };
                 if (broadcast.message)
-                    err.message = this.tronWeb.toUtf8(broadcast.message);
+                    err.message = this.sunWeb.mainchain.toUtf8(broadcast.message);
                 return callback(err)
             }
             return callback(null, signedTransaction.txID);
