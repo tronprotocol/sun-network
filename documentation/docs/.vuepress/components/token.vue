@@ -2,10 +2,10 @@
   <div class="token">
     <div class="row">
       <h3 class="tokenLabel">{{i18n.title}}</h3>
-      <VueInput v-model="addr" :placeholder="i18n.placeholder" class="big addr"/>
-      <VueButton class="primary big" :label="i18n.submit" @click="token"/>
+      <VueInput v-model="addr" :placeholder="i18n.placeholder" class="big addr" />
+      <VueButton class="primary big" :label="i18n.submit" @click="token" />
       <div class="tokenRet" v-if="showRes">
-        <VueIcon :icon="tokenRet ? 'done' : 'error'"/>
+        <VueIcon :icon="tokenRet ? 'done' : 'error'" />
         {{tokenRet ? i18n.submitDone : i18n.submitError}}
       </div>
     </div>
