@@ -18,7 +18,7 @@ module.exports = {
         selectText: 'Languages',
         label: 'English',
         sidebar: {
-          '/guide/': ['', 'SUNWEB']
+          '/guide/': ['', 'JAVASDK', 'SUNWEB']
         },
         nav: [{ text: 'Guide', link: '/guide/' }]
       },
@@ -26,7 +26,7 @@ module.exports = {
         selectText: '选择语言',
         label: '简体中文',
         sidebar: {
-          '/zh/guide/': ['', 'SUNWEB']
+          '/zh/guide/': ['', 'JAVASDK', 'SUNWEB']
         },
         nav: [{ text: '指南', link: '/zh/guide/' }]
       }
