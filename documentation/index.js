@@ -41,6 +41,7 @@ app.post('/sunnetwork/token', async (req, res) => {
         giveMap[to_address].time = curTime;
       } else {
         if (giveMap[to_address].amount + amount > maxAmountDaily) {
+          result.msg = 'maxAmountDaily';
           return res.send(result);
         } else {
           giveMap[to_address].amount += amount;
@@ -64,9 +65,12 @@ app.post('/sunnetwork/token', async (req, res) => {
 
     if (broadcast.data.result) {
       result.ok = true;
+    } else {
+      result.msg = broadcast.data;
     }
   } catch (error) {
     console.error(`${new Date().toLocaleString()} -- e: `, error);
+    result.msg = error.message;
   }
   res.send(result);
 });
@@ -75,4 +79,4 @@ app.use(function(req, res, next) {
   res.status(404).sendFile('docs/.vuepress/dist/404.html', { root: __dirname });
 });
 
-app.listen(port, () => console.log(`App listening on port ${port}!`));
+app.listen(port, () => console.log(`${new Date().toLocaleString()} App listening on port ${port}!`));
