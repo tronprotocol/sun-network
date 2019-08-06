@@ -61,12 +61,12 @@ export default class SunWeb {
     }
 
     async multiSign(transaction = false, privateKey = this.sidechain.defaultPrivateKey, permissionId = false, callback = false) {
-        if (utils.isFunction(permissionId)) {
+        if (this.utils.isFunction(permissionId)) {
             callback = permissionId;
             permissionId = 0;
         }
 
-        if (utils.isFunction(privateKey)) {
+        if (this.utils.isFunction(privateKey)) {
             callback = privateKey;
             privateKey = this.mainchain.defaultPrivateKey;
             permissionId = 0;
@@ -74,7 +74,7 @@ export default class SunWeb {
 
         if (!callback) return this.injectPromise(this.multiSign, transaction, privateKey, permissionId);
 
-        if (!utils.isObject(transaction) || !transaction.raw_data || !transaction.raw_data.contract) return callback('Invalid transaction provided');
+        if (!this.utils.isObject(transaction) || !transaction.raw_data || !transaction.raw_data.contract) return callback('Invalid transaction provided');
 
         // set permission id
         transaction.raw_data.contract[0].Permission_id = permissionId;
