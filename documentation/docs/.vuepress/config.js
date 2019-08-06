@@ -12,17 +12,22 @@ module.exports = {
   },
   themeConfig: {
     repo: 'tronprotocol/sun-network',
+    displayAllHeaders: true,
     locales: {
       '/': {
         selectText: 'Languages',
         label: 'English',
-        sidebar: 'auto',
+        sidebar: {
+          '/guide/': ['', 'JAVASDK', 'SUNWEB']
+        },
         nav: [{ text: 'Guide', link: '/guide/' }]
       },
       '/zh/': {
         selectText: '选择语言',
         label: '简体中文',
-        sidebar: 'auto',
+        sidebar: {
+          '/zh/guide/': ['', 'JAVASDK', 'SUNWEB']
+        },
         nav: [{ text: '指南', link: '/zh/guide/' }]
       }
     }

@@ -7,11 +7,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.typesafe.config.Config;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +19,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.Arrays;
 import org.spongycastle.util.encoders.Hex;
 import org.tron.api.GrpcAPI;
@@ -55,8 +52,6 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.DataWord;
 import org.tron.common.utils.MUtil;
 import org.tron.common.utils.TransactionUtils;
-import org.tron.common.utils.Utils;
-import org.tron.core.config.Configuration;
 import org.tron.core.config.Parameter.CommonConstant;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
@@ -89,6 +84,7 @@ import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.Protocol.TransactionSign;
 import org.tron.protos.Protocol.Witness;
+import org.tron.sunapi.IServerConfig;
 import org.tron.sunapi.response.TransactionResponse;
 
 @Slf4j(topic = "ServerApi")
@@ -103,93 +99,48 @@ public class ServerApi {
   @Getter
   private static byte[] mainGatewayAddress;
 
-  private static String sideChainId;
+  private static byte[] sideChainId;
   private static ECKey priEcKey;
 
   private boolean isMainChain;
   private GrpcClient rpcCli;
+  @Getter
+  private IMultiTransactionSign multiTransactionSign;
 
+  public static GrpcClient initMain(IServerConfig config) {
 
-  public static GrpcClient initMain(String file) {
-    Config config = Configuration.getByPath(file);
-
-    String fullNode = "";
-    String solidityNode = "";
-    if (config.hasPath("mainchain.soliditynode.ip.list")) {
-      solidityNode = config.getStringList("mainchain.soliditynode.ip.list").get(0);
-    }
-    if (config.hasPath("mainchain.fullnode.ip.list")) {
-      fullNode = config.getStringList("mainchain.fullnode.ip.list").get(0);
-    }
-    if (config.hasPath("mainchain.net.type") && "mainnet"
-        .equalsIgnoreCase(config.getString("mainchain.net.type"))) {
+    if ("mainnet".equalsIgnoreCase(config.getMainNetType())) {
       ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     } else {
       ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_TESTNET);
     }
-    if (config.hasPath("mainchain.RPC_version")) {
-      rpcVersion = config.getInt("mainchain.RPC_version");
+
+    rpcVersion = config.getMainRPCVersion();
+
+    if (!AddressUtil.addressValid(config.getMainGatewayAddress())) {
+      //TODO logger
     }
+    mainGatewayAddress = config.getMainGatewayAddress();
 
-    if (config.hasPath("mainchain.gateway_address")) {
-      String temp = config.getString("mainchain.gateway_address");
-
-      if (!AddressUtil.addressValid(AddressUtil.decodeFromBase58Check(temp))) {
-        //TODO logger
-      }
-
-      mainGatewayAddress = AddressUtil.decodeFromBase58Check(temp);
-    }
-
-    return new GrpcClient(fullNode, solidityNode);
+    return new GrpcClient(config.getMainFullNode(), config.getMainSolidityNode());
   }
 
-  private static List<byte[]> getGateWayList(final Config config, String path) {
-    if (!config.hasPath(path)) {
-      return Collections.emptyList();
-    }
-    List<byte[]> ret = new ArrayList<>();
-    List<String> list = config.getStringList(path);
-    for (String configString : list) {
-      ret.add(AddressUtil.decodeFromBase58Check(configString));
-    }
-    return ret;
-  }
-
-  public static GrpcClient initSide(String file) {
-    Config config = Configuration.getByPath(file);
-
-    String fullNode = "";
-    String solidityNode = "";
-    if (config.hasPath("sidechain.soliditynode.ip.list")) {
-      solidityNode = config.getStringList("sidechain.soliditynode.ip.list").get(0);
-    }
-    if (config.hasPath("sidechain.fullnode.ip.list")) {
-      fullNode = config.getStringList("sidechain.fullnode.ip.list").get(0);
-    }
-    if (config.hasPath("sidechain.net.type") && "mainnet"
-        .equalsIgnoreCase(config.getString("sidechain.net.type"))) {
+  public static GrpcClient initSide(IServerConfig config) {
+    if ("mainnet".equalsIgnoreCase(config.getSideNetType())) {
       ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     } else {
       ServerApi.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_TESTNET);
     }
-    if (config.hasPath("sidechain.RPC_version")) {
-      sideRpcVersion = config.getInt("sidechain.RPC_version");
+
+    sideRpcVersion = config.getSideRPCVersion();
+
+    if (!AddressUtil.addressValid(config.getSideGatewayAddress())) {
+      //TODO logger
     }
+    sideGatewayAddress = config.getSideGatewayAddress();
+    sideChainId = config.getSideChainId();
 
-    if (config.hasPath("sidechain.gateway_address")) {
-      String temp = config.getString("sidechain.gateway_address");
-
-      if (!AddressUtil.addressValid(AddressUtil.decodeFromBase58Check(temp))) {
-        //TODO logger
-      }
-
-      sideGatewayAddress = AddressUtil.decodeFromBase58Check(temp);
-    }
-
-    sideChainId = config.getString("sidechain.sideChainId");
-
-    return new GrpcClient(fullNode, solidityNode);
+    return new GrpcClient(config.getSideFullNode(), config.getSideSolidityNode());
   }
 
   public boolean isMainChain() {
@@ -215,9 +166,10 @@ public class ServerApi {
     this.address = priEcKey.getAddress();
   }
 
-  public ServerApi(String config, byte[] priKey, boolean isMainChain) {
+  public ServerApi(IServerConfig config, byte[] priKey, boolean isMainChain,
+      IMultiTransactionSign multiTransactionSign) {
     this.isMainChain = isMainChain;
-
+    this.multiTransactionSign = multiTransactionSign;
     if (isMainChain) {
       rpcCli = initMain(config);
     } else {
@@ -228,9 +180,10 @@ public class ServerApi {
     this.address = priEcKey.getAddress();
   }
 
-  public ServerApi(String config, boolean isMainChain) {
+  public ServerApi(IServerConfig config, boolean isMainChain,
+      IMultiTransactionSign multiTransactionSign) {
     this.isMainChain = isMainChain;
-
+    this.multiTransactionSign = multiTransactionSign;
     if (isMainChain) {
       rpcCli = initMain(config);
     } else {
@@ -309,7 +262,7 @@ public class ServerApi {
       return new byte[0];
     }
 
-    return ByteArray.fromHexString(sideChainId);
+    return sideChainId;
   }
 
   private Transaction signTransaction(Transaction transaction) {
@@ -318,67 +271,29 @@ public class ServerApi {
     }
     transaction = TransactionUtils.setExpirationTime(transaction);
 
-    transaction = TransactionUtils.setPermissionId(transaction);
-    while (true) {
+    if (Objects.isNull(multiTransactionSign)) {
       transaction = TransactionUtils
           .sign(transaction, this.getEcKey(), getCurrentChainId(), isMainChain());
-
-      TransactionSignWeight weight = getTransactionSignWeight(transaction);
+      return transaction;
+    }
+    transaction = multiTransactionSign.setPermissionId(transaction);
+    TransactionSignWeight weight;
+    while (true) {
+      weight = getTransactionSignWeight(transaction);
       if (weight.getResult().getCode() == response_code.ENOUGH_PERMISSION) {
         break;
+      } else if (weight.getResult().getCode() == response_code.NOT_ENOUGH_PERMISSION) {
+        Transaction transactionRet = getMultiTransactionSign()
+            .addTransactionSign(transaction, weight, getCurrentChainId());
+        if (Objects.isNull(transactionRet)) {
+          return null;
+        }
+        transaction = transactionRet;
+      } else {
+        return null;
       }
-      if (weight.getResult().getCode() == response_code.NOT_ENOUGH_PERMISSION) {
-//        System.out.println("Current signWeight is:");
-//        System.out.println(Utils.printTransactionSignWeight(weight));
-//        System.out.println("Please confirm if continue add signature enter y or Y, else any other");
-//        if (!confirm()) {
-//          throw new CancelException("User cancelled");
-//        }
-//        continue;
-      }
-
-      break;
-      //throw new CancelException(weight.getResult().getMessage());
     }
     return transaction;
-  }
-
-
-  private boolean processTransactionExtention(TransactionExtention transactionExtention) {
-    return StringUtils.isNoneEmpty(processTransactionExt(transactionExtention));
-  }
-
-  private String processTransactionExt(TransactionExtention transactionExtention) {
-    if (transactionExtention == null) {
-      return null;
-    }
-    Return ret = transactionExtention.getResult();
-    if (!ret.getResult()) {
-      logger.info("Code = " + ret.getCode());
-      logger.info("Message = " + ret.getMessage().toStringUtf8());
-      return null;
-    }
-    Transaction transaction = transactionExtention.getTransaction();
-    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      logger.info("Transaction is empty");
-      return null;
-    }
-    logger.info(
-        "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
-    logger.info("transaction hex string is " + Utils.printTransaction(transaction));
-    logger.info(Utils.printTransaction(transactionExtention));
-    transaction = signTransaction(transaction);
-
-    ByteString txid = ByteString.copyFrom(Sha256Hash.hash(transaction.getRawData().toByteArray()));
-    transactionExtention = transactionExtention.toBuilder().setTransaction(transaction)
-        .setTxid(txid).build();
-
-    Return response = rpcCli.broadcastTransaction(transaction);
-    if (response.getResult()) {
-      return ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
-    }
-
-    return null;
   }
 
   private TransactionResponse processTransactionExt2(TransactionExtention transactionExtention) {
@@ -395,7 +310,10 @@ public class ServerApi {
     }
 
     transaction = signTransaction(transaction);
-
+    if (Objects.isNull(transaction)) {
+      logger.info("Sign transaction cancelled");
+      return new TransactionResponse("Sign transaction cancelled");
+    }
     ByteString txid = ByteString.copyFrom(Sha256Hash.hash(transaction.getRawData().toByteArray()));
     transactionExtention = transactionExtention.toBuilder().setTransaction(transaction)
         .setTxid(txid).build();
@@ -409,22 +327,25 @@ public class ServerApi {
     return new TransactionResponse(response);
   }
 
-  private boolean processTransaction(Transaction transaction)
-      throws IOException, CipherException, CancelException {
+  private TransactionResponse processTransaction(Transaction transaction) {
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      return false;
+      return new TransactionResponse("Transaction is empty");
     }
     transaction = signTransaction(transaction);
+    if (Objects.isNull(transaction)) {
+      logger.info("Sign transaction cancelled");
+      return new TransactionResponse("Sign transaction cancelled");
+    }
     GrpcAPI.Return response = rpcCli.broadcastTransaction(transaction);
 
-    return response.getResult();
+    return new TransactionResponse(response);
   }
 
   //Warning: do not invoke this interface provided by others.
   public TransactionExtention signTransactionByApi2(Transaction transaction,
       byte[] privateKey) throws CancelException {
     transaction = TransactionUtils.setExpirationTime(transaction);
-    transaction = TransactionUtils.setPermissionId(transaction);
+    transaction = getMultiTransactionSign().setPermissionId(transaction);
     TransactionSign.Builder builder = TransactionSign.newBuilder();
     builder.setPrivateKey(ByteString.copyFrom(privateKey));
     builder.setTransaction(transaction);
@@ -435,7 +356,7 @@ public class ServerApi {
   public TransactionExtention addSignByApi(Transaction transaction,
       byte[] privateKey) throws CancelException {
     transaction = TransactionUtils.setExpirationTime(transaction);
-    transaction = TransactionUtils.setPermissionId(transaction);
+    transaction = getMultiTransactionSign().setPermissionId(transaction);
     TransactionSign.Builder builder = TransactionSign.newBuilder();
     builder.setPrivateKey(ByteString.copyFrom(privateKey));
     builder.setTransaction(transaction);
@@ -501,14 +422,7 @@ public class ServerApi {
     byte[] owner = getAddress();
     Contract.SetAccountIdContract contract = createSetAccountIdContract(accountIdBytes, owner);
     Transaction transaction = rpcCli.createTransaction(contract);
-
-    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      return new TransactionResponse("Transaction is empty");
-    }
-
-    transaction = signTransaction(transaction);
-    GrpcAPI.Return response = rpcCli.broadcastTransaction(transaction);
-    return new TransactionResponse(response);
+    return processTransaction(transaction);
   }
 
 
@@ -861,16 +775,16 @@ public class ServerApi {
     return processTransactionExt2(transactionExtention);
   }
 
-  public boolean buyStorage(long quantity) {
+  public TransactionResponse buyStorage(long quantity) {
     Contract.BuyStorageContract contract = createBuyStorageContract(quantity);
     TransactionExtention transactionExtention = rpcCli.createTransaction(contract);
-    return processTransactionExtention(transactionExtention);
+    return processTransactionExt2(transactionExtention);
   }
 
-  public boolean buyStorageBytes(long bytes) {
+  public TransactionResponse buyStorageBytes(long bytes) {
     Contract.BuyStorageBytesContract contract = createBuyStorageBytesContract(bytes);
     TransactionExtention transactionExtention = rpcCli.createTransaction(contract);
-    return processTransactionExtention(transactionExtention);
+    return processTransactionExt2(transactionExtention);
   }
 
   public TransactionResponse sellStorage(long storageBytes) {
@@ -1737,7 +1651,7 @@ public class ServerApi {
       transaction = TransactionUtils.setTimestamp(transaction);
     }
     transaction = TransactionUtils.setExpirationTime(transaction);
-    transaction = TransactionUtils.setPermissionId(transaction);
+    transaction = getMultiTransactionSign().setPermissionId(transaction);
 
     transaction = TransactionUtils
         .sign(transaction, this.getEcKey(), getCurrentChainId(), isMainChain());

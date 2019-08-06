@@ -1,4 +1,4 @@
-package stest.tron.wallet.common.deposit;
+package stest.tron.wallet.depositWithdraw;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;

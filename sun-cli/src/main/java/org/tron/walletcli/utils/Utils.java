@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.tron.api.GrpcAPI.AccountNetMessage;
@@ -52,6 +53,7 @@ import org.tron.api.GrpcAPI.WitnessList;
 import org.tron.common.crypto.Sha256Hash;
 import org.tron.common.utils.AddressUtil;
 import org.tron.common.utils.ByteArray;
+import org.tron.core.exception.CancelException;
 import org.tron.protos.Contract.AccountCreateContract;
 import org.tron.protos.Contract.AccountPermissionUpdateContract;
 import org.tron.protos.Contract.AccountUpdateContract;
@@ -1951,47 +1953,6 @@ public class Utils {
     return result.toString();
   }
 
-  public static String printTransactionSignWeight(TransactionSignWeight transactionSignWeight) {
-    StringBuffer result = new StringBuffer();
-    result.append("permission:");
-    result.append("\n");
-    result.append("{");
-    result.append("\n");
-    result.append(printPermission(transactionSignWeight.getPermission()));
-    result.append("}");
-    result.append("\n");
-    result.append("current_weight: ");
-    result.append(transactionSignWeight.getCurrentWeight());
-    result.append("\n");
-    result.append("result:");
-    result.append("\n");
-    result.append("{");
-    result.append("\n");
-    result.append(printResult(transactionSignWeight.getResult()));
-    result.append("}");
-    result.append("\n");
-    if (transactionSignWeight.getApprovedListCount() > 0) {
-      result.append("approved_list:");
-      result.append("\n");
-      result.append("[");
-      result.append("\n");
-      for (ByteString approved : transactionSignWeight.getApprovedListList()) {
-        result.append(AddressUtil.encode58Check(approved.toByteArray()));
-        result.append("\n");
-      }
-      result.append("]");
-      result.append("\n");
-    }
-    result.append("transaction:");
-    result.append("\n");
-    result.append("{");
-    result.append("\n");
-    result.append(printTransaction(transactionSignWeight.getTransaction()));
-    result.append("}");
-    result.append("\n");
-    return result.toString();
-  }
-
   public static String printTransactionApprovedList(
       TransactionApprovedList transactionApprovedList) {
     StringBuffer result = new StringBuffer();
@@ -2066,5 +2027,93 @@ public class Utils {
     return true;
   }
 
-}
+  public static boolean confirm() {
+    Scanner in = new Scanner(System.in);
+    while (true) {
+      String input = in.nextLine().trim();
+      String str = input.split("\\s+")[0];
+      if ("y".equalsIgnoreCase(str)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
 
+  public static String printTransactionSignWeight(TransactionSignWeight transactionSignWeight) {
+    StringBuffer result = new StringBuffer();
+    result.append("permission:");
+    result.append("\n");
+    result.append("{");
+    result.append("\n");
+    result.append(printPermission(transactionSignWeight.getPermission()));
+    result.append("}");
+    result.append("\n");
+    result.append("current_weight: ");
+    result.append(transactionSignWeight.getCurrentWeight());
+    result.append("\n");
+    result.append("result:");
+    result.append("\n");
+    result.append("{");
+    result.append("\n");
+    result.append(printResult(transactionSignWeight.getResult()));
+    result.append("}");
+    result.append("\n");
+    if (transactionSignWeight.getApprovedListCount() > 0) {
+      result.append("approved_list:");
+      result.append("\n");
+      result.append("[");
+      result.append("\n");
+      for (ByteString approved : transactionSignWeight.getApprovedListList()) {
+        result.append(AddressUtil.encode58Check(approved.toByteArray()));
+        result.append("\n");
+      }
+      result.append("]");
+      result.append("\n");
+    }
+    result.append("transaction:");
+    result.append("\n");
+    result.append("{");
+    result.append("\n");
+    result.append(printTransaction(transactionSignWeight.getTransaction()));
+    result.append("}");
+    result.append("\n");
+    return result.toString();
+  }
+
+  public static Transaction setPermissionId(Transaction transaction) throws CancelException {
+    if (transaction.getSignatureCount() != 0
+        || transaction.getRawData().getContract(0).getPermissionId() != 0) {
+      return transaction;
+    }
+    int permission_id = inputPermissionId();
+    if (permission_id < 0) {
+      throw new CancelException("User cancelled");
+    }
+    if (permission_id != 0) {
+      Transaction.raw.Builder raw = transaction.getRawData().toBuilder();
+      Transaction.Contract.Builder contract = raw.getContract(0).toBuilder()
+          .setPermissionId(permission_id);
+      raw.clearContract();
+      raw.addContract(contract);
+      transaction = transaction.toBuilder().setRawData(raw).build();
+    }
+    return transaction;
+  }
+
+  private static int inputPermissionId() {
+    Scanner in = new Scanner(System.in);
+    while (true) {
+      String input = in.nextLine().trim();
+      String str = input.split("\\s+")[0];
+      if ("y".equalsIgnoreCase(str)) {
+        return 0;
+      }
+      try {
+        return Integer.parseInt(str);
+      } catch (Exception e) {
+        return -1;
+      }
+    }
+  }
+}

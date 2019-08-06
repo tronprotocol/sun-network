@@ -3,7 +3,7 @@ import {sha256} from './helper/ethersUtils';
 
 export default class SunWeb {
     static TronWeb = TronWeb;
-    constructor(mainOptions = false, sideOptions = false, mainGatewayAddress = false, sideGatewayAddress = false, sideChainId=false, privateKey = false) {
+    constructor(mainOptions = false, sideOptions = false, mainGatewayAddress = false, sideGatewayAddress = false, sideChainId = false, privateKey = false) {
         mainOptions = {...mainOptions, privateKey};
         sideOptions = {...sideOptions, privateKey};
         this.mainchain = new TronWeb(mainOptions);
@@ -43,7 +43,6 @@ export default class SunWeb {
         if (typeof priKeyBytes === 'string') {
             priKeyBytes = this.utils.code.hexStr2byteArray(priKeyBytes);
         }
-        // let chainIdByteArr = this.utils.crypto.decodeBase58Address(this.chainId);
         let chainIdByteArr = this.utils.code.hexStr2byteArray(this.chainId);
 
         let byteArr = this.utils.code.hexStr2byteArray(transaction.txID).concat(chainIdByteArr);
@@ -358,7 +357,7 @@ export default class SunWeb {
     }
 
     async depositTrc721(
-        num,
+        id,
         feeLimit,
         contractAddress,
         options = {},
@@ -368,7 +367,7 @@ export default class SunWeb {
         const functionSelector = 'depositTRC721';
         return this.depositTrc(
             functionSelector,
-            num,
+            id,
             feeLimit,
             contractAddress,
             options,
@@ -752,6 +751,77 @@ export default class SunWeb {
             options,
             privateKey,
             callback);
+    }
+
+
+    async injectFund(
+        num,
+        feeLimit,
+        options,
+        privateKey = this.mainchain.defaultPrivateKey,
+        callback = false
+    ) {
+        if (this.utils.isFunction(privateKey)) {
+            callback = privateKey;
+            privateKey = this.mainchain.defaultPrivateKey;
+        }
+
+        if (this.utils.isFunction(options)) {
+            callback = options;
+            options = {};
+        }
+        if (!callback) {
+            return this.injectPromise(this.injectFund, num, feeLimit, options, privateKey);
+        }
+        if (this.validator.notValid([
+            {
+                name: 'num',
+                type: 'integer',
+                value: num,
+                gte: 0
+            },
+            {
+                name: 'feeLimit',
+                type: 'integer',
+                value: feeLimit,
+                gt: 0,
+                lte: 1_000_000_000
+            }
+        ], callback)) {
+            return;
+        }
+
+        try {
+            const address = this.sidechain.address.fromPrivateKey(privateKey);
+            const hexAddress = this.sidechain.address.toHex(address);
+            const transaction = await this.sidechain.fullNode.request('/wallet/fundinject', {
+                owner_address: hexAddress,
+                amount: num
+            }, 'post');
+
+            const signedTransaction = await this.sidechain.trx.sign(transaction, privateKey);
+
+            if (!signedTransaction.signature) {
+                if (!privateKey)
+                    return callback('Transaction was not signed properly');
+
+                return callback('Invalid private key provided');
+            }
+
+            const broadcast = await this.sidechain.trx.sendRawTransaction(signedTransaction);
+            if (broadcast.code) {
+                const err = {
+                    error: broadcast.code,
+                    message: broadcast.code
+                };
+                if (broadcast.message)
+                    err.message = this.mainchain.toUtf8(broadcast.message);
+                return callback(err)
+            }
+            return callback(null, signedTransaction.txID);
+        } catch (ex) {
+            return callback(ex);
+        }
     }
 }
 

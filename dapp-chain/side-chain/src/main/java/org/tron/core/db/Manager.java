@@ -1629,9 +1629,9 @@ public class Manager {
 
     boolean needMaint = needMaintenance(block.getTimeStamp());
     if (needMaint) {
-      modifyPayPerBlock();
       if (block.getNum() == 1) {
         this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
+        modifyPayPerBlock();
       } else {
         this.processMaintenance(block);
       }
@@ -1730,6 +1730,7 @@ public class Manager {
    */
   private void processMaintenance(BlockCapsule block) {
     proposalController.processProposals();
+    modifyPayPerBlock();
     witnessController.updateWitness();
     this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
     forkController.reset();
@@ -1761,13 +1762,15 @@ public class Manager {
 
     try {
       if (dynamicPropertiesStore.getFundDistributeEnableSwitch() == 1) {
-        long payPerBlock = adjustFund(
-            (-1) * getDynamicPropertiesStore().getWitnessPayPerBlock());
+        long payPerBlock = (-1) * (adjustFund(
+            (-1) * getDynamicPropertiesStore().getWitnessPayPerBlock()));
         long percent = getDynamicPropertiesStore().getPercentToPayWitness();
         long amountForWitness = BigInteger.valueOf(payPerBlock)
             .multiply(BigInteger.valueOf(percent))
             .divide(BigInteger.valueOf(100)).longValue();
         int chargingType = getDynamicPropertiesStore().getSideChainChargingType();
+        logger.info("payPerBlock = {}, percent = {}, amountForWitness = {}", payPerBlock, percent,
+            amountForWitness);
         adjustAllowance(witnessCapsule.getAddress().toByteArray(), amountForWitness);
         adjustBalance(getDynamicPropertiesStore().getFundInjectAddress(),
             payPerBlock - amountForWitness, chargingType);
@@ -2040,6 +2043,12 @@ public class Manager {
   }
 
   public void modifyPayPerBlock() {
+    long fund = getDynamicPropertiesStore().getFund();
+    long dayToSustain = getDynamicPropertiesStore().getDayToSustainByFund();
+    long pay = fund / (86400 / 3 * dayToSustain);
+    logger
+        .info("[Modify Pay Per Block], fund = {}, daytosustain = {}, pay = {}", fund, dayToSustain,
+            pay);
     getDynamicPropertiesStore().saveWitnessPayPerBlock(
         getDynamicPropertiesStore().getFund() / (86400 / 3 * getDynamicPropertiesStore()
             .getDayToSustainByFund()));
@@ -2054,7 +2063,7 @@ public class Manager {
 
     if (num < 0 && fund < -num) {//if |num| > fund, return all of fund
       getDynamicPropertiesStore().saveFund(0);
-      return fund;
+      return fund * (-1);
     }
 
     getDynamicPropertiesStore().saveFund(fund + num);

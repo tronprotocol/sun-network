@@ -9,6 +9,7 @@ import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
 import org.tron.core.exception.EncodingException;
 import org.tron.sunapi.response.TransactionResponse;
+import org.tron.sunserver.IMultiTransactionSign;
 
 public class SidechainApi extends Chain {
 
@@ -18,8 +19,9 @@ public class SidechainApi extends Chain {
    * @return the result of init side chain
    * @author sun-network
    */
-  public SunNetworkResponse<Integer> init(String config, String priKey) {
-    return super.init(config, priKey, false);
+  public SunNetworkResponse<Integer> init(IServerConfig config, String priKey,
+      IMultiTransactionSign multiTransactionSign) {
+    return super.init(config, priKey, false, multiTransactionSign);
   }
 
   /**
@@ -27,8 +29,9 @@ public class SidechainApi extends Chain {
    * @return the result of init side chain
    * @author sun-network
    */
-  public SunNetworkResponse<Integer> init(String config) {
-    return super.init(config, false);
+  public SunNetworkResponse<Integer> init(IServerConfig config,
+      IMultiTransactionSign multiTransactionSign) {
+    return super.init(config, false, multiTransactionSign);
   }
 
   /**
