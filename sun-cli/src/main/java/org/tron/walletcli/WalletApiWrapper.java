@@ -159,7 +159,7 @@ public class WalletApiWrapper {
 
     byte[] priKey = myKey.getPrivKeyBytes();
     SunNetworkResponse<Integer> resp = sdk.setPrivateKey(toHexString(priKey));
-    if (resp.getCode() != ErrorCodeEnum.SUCCESS.getCode()) {
+    if (!resp.equals(ErrorCodeEnum.SUCCESS)) {
       System.out.println("set private key failed, key: " + toHexString(priKey));
       return false;
     }
@@ -236,10 +236,6 @@ public class WalletApiWrapper {
   }
 
   public SunNetworkResponse<Account> getAccount(String address) {
-    if (wallet == null || !wallet.isLoginState()) {
-      logger.warn("Warning: QueryAccount failed,  Please login first !!");
-      return null;
-    }
 
     SunNetworkResponse<Account> result = getChainInterface().getAccount(address);
 
@@ -1025,10 +1021,6 @@ public class WalletApiWrapper {
 
   public void sideGetMappingAddress(byte[] sideGateway, String mainContractAddress) {
 
-    if (wallet == null || !wallet.isLoginState()) {
-      logger.warn("Warning: sideGetMappingAddress failed,  Please login first !!");
-      return;
-    }
     SunNetworkResponse<String> resp;
     resp = sdk.getSideChainService().sideGetMappingAddress(sideGateway, mainContractAddress);
 
