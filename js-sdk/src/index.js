@@ -60,7 +60,7 @@ export default class SunWeb {
         return transaction;
     }
 
-    async multiSign(transaction = false, privateKey = this.mainchain.defaultPrivateKey, permissionId = false, callback = false) {
+    async multiSign(transaction = false, privateKey = this.sidechain.defaultPrivateKey, permissionId = false, callback = false) {
         if (utils.isFunction(permissionId)) {
             callback = permissionId;
             permissionId = 0;
@@ -80,8 +80,8 @@ export default class SunWeb {
         transaction.raw_data.contract[0].Permission_id = permissionId;
 
         // check if private key insides permission list
-        const address = this.mainchain.address.toHex(this.mainchain.address.fromPrivateKey(privateKey)).toLowerCase();
-        const signWeight = await this.getSignWeight(transaction, permissionId);
+        const address = this.sidechain.address.toHex(this.sidechain.address.fromPrivateKey(privateKey)).toLowerCase();
+        const signWeight = await this.sidechain.trx.getSignWeight(transaction, permissionId);
 
         if (signWeight.result.code === 'PERMISSION_ERROR') {
            return callback(signWeight.result.message);
