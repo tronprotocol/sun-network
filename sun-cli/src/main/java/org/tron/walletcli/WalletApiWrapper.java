@@ -159,7 +159,7 @@ public class WalletApiWrapper {
 
     byte[] priKey = myKey.getPrivKeyBytes();
     SunNetworkResponse<Integer> resp = sdk.setPrivateKey(toHexString(priKey));
-    if (!resp.equals(ErrorCodeEnum.SUCCESS)) {
+    if (!resp.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
       System.out.println("set private key failed, key: " + toHexString(priKey));
       return false;
     }
