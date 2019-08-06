@@ -15,10 +15,13 @@ export default class SunWeb {
         this.setChainId(sideChainId);
         this.injectPromise = this.utils.promiseInjector(this);
         this.validator = this.mainchain.trx.validator;
-        
+
         const self = this;
         this.sidechain.trx.sign = (...args) => {
             return self.sign(...args);
+        };
+        this.sidechain.trx.multiSign = (...args) => {
+            return self.multiSign(...args);
         };
     }
     setMainGatewayAddress(mainGatewayAddress) {
@@ -55,6 +58,60 @@ export default class SunWeb {
         } else
             transaction.signature = [signature];
         return transaction;
+    }
+
+    async multiSign(transaction = false, privateKey = this.sidechain.defaultPrivateKey, permissionId = false, callback = false) {
+        if (utils.isFunction(permissionId)) {
+            callback = permissionId;
+            permissionId = 0;
+        }
+
+        if (utils.isFunction(privateKey)) {
+            callback = privateKey;
+            privateKey = this.mainchain.defaultPrivateKey;
+            permissionId = 0;
+        }
+
+        if (!callback) return this.injectPromise(this.multiSign, transaction, privateKey, permissionId);
+
+        if (!utils.isObject(transaction) || !transaction.raw_data || !transaction.raw_data.contract) return callback('Invalid transaction provided');
+
+        // set permission id
+        transaction.raw_data.contract[0].Permission_id = permissionId;
+
+        // check if private key insides permission list
+        const address = this.sidechain.address.toHex(this.sidechain.address.fromPrivateKey(privateKey)).toLowerCase();
+        const signWeight = await this.sidechain.trx.getSignWeight(transaction, permissionId);
+
+        if (signWeight.result.code === 'PERMISSION_ERROR') {
+           return callback(signWeight.result.message);
+        }
+
+        let foundKey = false;
+        signWeight.permission.keys.map(key => {
+           if (key.address === address) foundKey = true;
+        });
+
+        if (!foundKey) return callback(privateKey + ' has no permission to sign');
+
+        if (signWeight.approved_list && signWeight.approved_list.indexOf(address) != -1) {
+           return callback(privateKey + ' already sign transaction');
+        }
+
+        // reset transaction
+        if (signWeight.transaction && signWeight.transaction.transaction) {
+            transaction = signWeight.transaction.transaction;
+            transaction.raw_data.contract[0].Permission_id = permissionId;
+        } else {
+             return callback('Invalid transaction provided');
+        }
+
+        // sign
+        try {
+           return callback(null, this.signTransaction(privateKey, transaction));
+        } catch (ex) {
+           callback(ex);
+        }
     }
 
     async sign(transaction = false, privateKey = this.sidechain.defaultPrivateKey, useTronHeader = true, multisig = false, callback = false) {

@@ -1271,7 +1271,9 @@ public class PublicMethed {
       return null;
     }
 
-    code += Hex.toHexString(AbiUtil.encodeInput(constructorStr, argsStr));
+    if (!constructorStr.equals("#")) {
+      code += Hex.toHexString(AbiUtil.encodeInput(constructorStr, argsStr));
+    }
     byte[] owner = ownerAddress;
     SmartContract.Builder builder = SmartContract.newBuilder();
     builder.setName(contractName);
