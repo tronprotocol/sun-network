@@ -4,6 +4,7 @@ import com.beust.jcommander.JCommander;
 import com.google.common.primitives.Longs;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -14,10 +15,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -1735,7 +1739,8 @@ public class Client {
 
     ExecutorService service = Executors.newFixedThreadPool(100);
 
-    List<String> txIds = new ArrayList<>();
+    Map<String, String> txIds = new ConcurrentHashMap<>();
+    Map<String, Integer> txIdNonces = new ConcurrentHashMap<>();
 
     for (long i = 0; i < durationInS; i++) {
       for (int j = 0; j < 10; j++) {
@@ -1746,17 +1751,7 @@ public class Client {
 
           SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
               .depositTrx(trxNum, useFeeLimit + k);
-
-          logger.info("{}:{}:{} deposit tx id: {}", iBak, jBak, k, resp.getData().trxId);
-          txIds.add(resp.getData().trxId);
-
-          if (checkResult(resp)) {
-            logger.info("{}:{}:{} deposit trx success", iBak, jBak, k);
-          } else {
-            logger.info("{}:{}:{} deposit trx failed", iBak, jBak, k);
-          }
-          logger.info("{}:{}:{} main balance: {}", iBak, jBak, k, getBalance());
-
+          txIds.put(String.format("%d|%d|%d", iBak, jBak, k), resp.getData().trxId);
         }));
 
         try {
@@ -1767,10 +1762,17 @@ public class Client {
       }
     }
 
+    service.shutdown();
+    try {
+      service.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      logger.error("not termination");
+    }
+
     long endInS = System.currentTimeMillis() / 1000;
 
     try {
-      Thread.sleep(12000);
+      Thread.sleep(10 * 60 * 1000); // 10 minutes
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
@@ -1778,15 +1780,25 @@ public class Client {
     long fee = 0;
     long energyFee = 0;
     long energyTotal = 0;
-    for (String txId : txIds) {
+
+    for(Map.Entry<String, String> entry: txIds.entrySet()) {
+      String txId = entry.getValue();
+      if (txId == null) {
+        continue;
+      }
+      // TODO: revert get success, error! fix ?
       Optional<TransactionInfo> result = walletApiWrapper.getTransactionInfoById(txId);
       if (result.isPresent()) {
+        logger.info("statistics, index: {}, txId: {}, get success", entry.getKey(), txId);
         TransactionInfo transactionInfo = result.get();
+        Integer nonce = Integer.parseInt(Hex.toHexString(transactionInfo.getContractResult(0).toByteArray()), 16);
+        logger.info("statistics, txId: {}, nonce: {}", txId, nonce);
+        txIdNonces.put(txId, nonce);
         fee += transactionInfo.getFee();
         energyFee += transactionInfo.getReceipt().getEnergyFee();
         energyTotal += transactionInfo.getReceipt().getEnergyUsageTotal();
       } else {
-        logger.info("getTransactionInfoById " + " failed !!");
+        logger.info("statistics, index: {}, txId: {}, get fail", entry.getKey(), txId);
       }
     }
 
@@ -3283,4 +3295,58 @@ public class Client {
 
     cli.run();
   }
+
+//  public static void useList() {
+//    ExecutorService service = Executors.newFixedThreadPool(100);
+//
+//    List<Integer> txIds = new ArrayList<>();
+//
+//    IntStream.range(0, 100).forEach(k -> service.submit(() -> {
+//      for (int i = 0; i < 500; i++) {
+//        logger.info("k: {}", k);
+//        txIds.add(k);
+//      }
+//    }));
+//
+//    try {
+//      Thread.sleep(3000);
+//    } catch (InterruptedException e) {
+//      e.printStackTrace();
+//    }
+//
+//    System.out.println("size of tx: " + txIds.size());
+//  }
+//
+//  public static void useMap() {
+//    Map<Integer, String> txIds = new ConcurrentHashMap<>();
+//    ExecutorService service = Executors.newFixedThreadPool(100);
+//    IntStream.range(0, 100).forEach(k -> service.submit(() -> {
+//      for (int i = 0; i < 500; i++) {
+//        logger.info("k: {}", k);
+//        txIds.put(k * 500 + i, "");
+//      }
+//    }));
+//
+//    service.shutdown();
+//    try {
+//      service.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+//    } catch (InterruptedException e) {
+//      logger.error("not termination");
+//    }
+//
+//
+//
+//    try {
+//      Thread.sleep(3000);
+//    } catch (InterruptedException e) {
+//      e.printStackTrace();
+//    }
+//
+//    System.out.println("size of tx: " + txIds.size());
+//  }
+//
+//  public static void main(String[] args) {
+////    useList();
+////    useMap();
+//  }
 }
