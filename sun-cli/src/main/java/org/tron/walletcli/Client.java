@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -1533,6 +1534,37 @@ public class Client {
     }
   }
 
+
+  private TransactionResponse triggerContractReturn(String[] parameters) {
+    if (parameters == null ||
+        parameters.length < 8) {
+      System.out.println("TriggerContract needs 6 parameters like following: ");
+      System.out.println(
+          "TriggerContract contractAddress method args isHex fee_limit value token_value token_id(e.g: TRXTOKEN, use # if don't provided)");
+      // System.out.println("example:\nTriggerContract password contractAddress method args value");
+      return null;
+    }
+
+    String contractAddrStr = parameters[0];
+    String methodStr = parameters[1];
+    String argsStr = parameters[2];
+    boolean isHex = Boolean.valueOf(parameters[3]);
+    long feeLimit = Long.valueOf(parameters[4]);
+    long callValue = Long.valueOf(parameters[5]);
+    long tokenCallValue = Long.valueOf(parameters[6]);
+    String tokenId = parameters[7];
+    if (argsStr.equalsIgnoreCase("#")) {
+      argsStr = "";
+    }
+    if (tokenId.equalsIgnoreCase("#")) {
+      tokenId = "";
+    }
+
+    return walletApiWrapper
+        .callContractReturn(contractAddrStr, callValue, methodStr, argsStr, isHex, feeLimit,
+            tokenCallValue, tokenId);
+  }
+
   private void getContract(String[] parameters) {
     if (parameters == null ||
         parameters.length != 1) {
@@ -1742,6 +1774,9 @@ public class Client {
     Map<String, String> txIds = new ConcurrentHashMap<>();
     Map<String, Integer> txIdNonces = new ConcurrentHashMap<>();
 
+    long count = durationInS * tps;
+    CountDownLatch latch = new CountDownLatch((int)count);
+
     for (long i = 0; i < durationInS; i++) {
       for (int j = 0; j < 10; j++) {
         long useFeeLimit = feeLimit + i % 50 + j;
@@ -1749,9 +1784,14 @@ public class Client {
         int jBak = j;
         IntStream.range(0, tps / 10).forEach(k -> service.submit(() -> {
 
-          SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-              .depositTrx(trxNum, useFeeLimit + k);
-          txIds.put(String.format("%d|%d|%d", iBak, jBak, k), resp.getData().trxId);
+          try {
+            SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+                .depositTrx(trxNum, useFeeLimit + k);
+            txIds.put(String.format("%d|%d|%d", iBak, jBak, k), resp.getData().trxId);
+          } finally {
+            latch.countDown();
+          }
+
         }));
 
         try {
@@ -1762,9 +1802,8 @@ public class Client {
       }
     }
 
-    service.shutdown();
     try {
-      service.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+      latch.await(Long.MAX_VALUE, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       logger.error("not termination");
     }
@@ -1823,6 +1862,41 @@ public class Client {
         (sideFinalBalance - sideInitBalance) * 1.0 / (endInS - startInS));
     logger.info("side success ratio: {}",
         (sideFinalBalance - sideInitBalance) * 1.0 / (mainInitBalance - mainFinalBalance));
+
+
+    switch2Side();
+    Map<String, Integer> retryMap = recordRetryResult(txIdNonces, "", "depositDone(uint256)");
+    for (String key : retryMap.keySet()) {
+      SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+          .retryDeposit(String.valueOf(retryMap.get(key)), feeLimit);
+    }
+
+    Map<String, Integer> retryResultMap = recordRetryResult(retryMap, "", "depositDone(uint256)");
+    for(String key : retryResultMap.keySet()) {
+      logger.info("side chain failed: txid: {}, nouce: {}", key, retryResultMap.get(key));
+    }//todo
+
+  }
+
+  private Map<String, Integer> recordRetryResult (Map<String, Integer> txIdNonces, String address, String method) {
+    String[] p = new String[8];
+    p[0] = address;
+    p[1] = method;
+    p[3] = "false";
+    p[4] = "100000000";
+    p[5] = "0";
+    p[6] = "0";
+    p[7] = "0";
+    Map<String, Integer> retryMap = new ConcurrentHashMap<>();
+    for (String key : txIdNonces.keySet()) {
+      Integer nouce = txIdNonces.get(key);
+      p[2] = "" + nouce;
+      TransactionResponse r = triggerContractReturn(p);
+      if (!Boolean.valueOf(r.constantResult)) {
+        retryMap.put(key, nouce);
+      }
+    }
+    return retryMap;
   }
 
   private void depositTrc10(String[] parameters) {
@@ -2616,6 +2690,12 @@ public class Client {
 
     ExecutorService service = Executors.newFixedThreadPool(100);
 
+    long count = durationInS * tps;
+    CountDownLatch latch = new CountDownLatch((int)count);
+
+    Map<String, String> txIds = new ConcurrentHashMap<>();
+    Map<String, Integer> txIdNonces = new ConcurrentHashMap<>();
+
     for (long i = 0; i < durationInS; i++) {
       for (int j = 0; j < 10; j++) {
         long useFeeLimit = feeLimit + i % 50 + j;
@@ -2623,26 +2703,30 @@ public class Client {
         int jBak = j;
         IntStream.range(0, tps / 10).forEach(k -> service.submit(() -> {
 
-          SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-              .withdrawTrx(trxNum, useFeeLimit + k);
-          logger.info("{}:{}:{} withdraw tx id: {}", iBak, jBak, k, resp.getData().trxId);
+          try {
+            SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+                .withdrawTrx(trxNum, useFeeLimit + k);
+            txIds.put(String.format("%d|%d|%d", iBak, jBak, k), resp.getData().trxId);
+            logger.info("{}:{}:{} withdraw tx id: {}", iBak, jBak, k, resp.getData().trxId);
 
-          Optional<TransactionInfo> result = walletApiWrapper
-              .getTransactionInfoById(resp.getData().trxId);
-          if (result.isPresent()) {
-            TransactionInfo transactionInfo = result.get();
-            logger.info(Utils.printTransactionInfo(transactionInfo));
-          } else {
-            logger.info("getTransactionInfoById " + " failed !!");
+            Optional<TransactionInfo> result = walletApiWrapper
+                .getTransactionInfoById(resp.getData().trxId);
+            if (result.isPresent()) {
+              TransactionInfo transactionInfo = result.get();
+              logger.info(Utils.printTransactionInfo(transactionInfo));
+            } else {
+              logger.info("getTransactionInfoById " + " failed !!");
+            }
+
+            if (checkResult(resp)) {
+              logger.info("{}:{}:{} withdraw trx success", iBak, jBak, k);
+            } else {
+              logger.info("{}:{}:{} withdraw trx failed", iBak, jBak, k);
+            }
+            logger.info("{}:{}:{} side balance: {}", iBak, jBak, k, getBalance());
+          } finally {
+            latch.countDown();
           }
-
-          if (checkResult(resp)) {
-            logger.info("{}:{}:{} withdraw trx success", iBak, jBak, k);
-          } else {
-            logger.info("{}:{}:{} withdraw trx failed", iBak, jBak, k);
-          }
-          logger.info("{}:{}:{} side balance: {}", iBak, jBak, k, getBalance());
-
         }));
 
         try {
@@ -2656,10 +2740,37 @@ public class Client {
     long endInS = System.currentTimeMillis() / 1000;
 
     try {
-      Thread.sleep(12000);
+      latch.await(Long.MAX_VALUE, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
+
+    long fee = 0;
+    long energyFee = 0;
+    long energyTotal = 0;
+
+    for(Map.Entry<String, String> entry: txIds.entrySet()) {
+      String txId = entry.getValue();
+      if (txId == null) {
+        continue;
+      }
+      // TODO: revert get success, error! fix ?
+      Optional<TransactionInfo> result = walletApiWrapper.getTransactionInfoById(txId);
+      if (result.isPresent()) {
+        logger.info("statistics, index: {}, txId: {}, get success", entry.getKey(), txId);
+        TransactionInfo transactionInfo = result.get();
+        Integer nonce = Integer.parseInt(Hex.toHexString(transactionInfo.getContractResult(0).toByteArray()), 16);
+        logger.info("statistics, txId: {}, nonce: {}", txId, nonce);
+        txIdNonces.put(txId, nonce);
+        fee += transactionInfo.getFee();
+        energyFee += transactionInfo.getReceipt().getEnergyFee();
+        energyTotal += transactionInfo.getReceipt().getEnergyUsageTotal();
+      } else {
+        logger.info("statistics, index: {}, txId: {}, get fail", entry.getKey(), txId);
+      }
+    }
+
+    logger.info("fee: {}, energyFee: {}, energyTotal: {}", fee, energyFee, energyTotal);
 
     long sideFinalBalance = getBalance();
     logger.info("sideFinalBalance: {}", sideFinalBalance);
@@ -2680,6 +2791,19 @@ public class Client {
         (mainFinalBalance - mainInitBalance) * 1.0 / (endInS - startInS));
     logger.info("main success ratio: {}",
         (mainFinalBalance - mainInitBalance) * 1.0 / (sideInitBalance - sideFinalBalance));
+
+    switch2Main();
+    Map<String, Integer> retryMap = recordRetryResult(txIdNonces, "", "//");//todo
+    for (String key : retryMap.keySet()) {
+      SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+          .retryWithdraw(String.valueOf(retryMap.get(key)), feeLimit);
+    }
+
+    Map<String, Integer> retryResultMap = recordRetryResult(retryMap, "" , "");//todo
+    for(String key : retryResultMap.keySet()) {
+      logger.info("main chain failed: txid: {}, nouce: {}", key, retryResultMap.get(key));
+    }//todo
+
   }
 
   private void withdrawTrc10(String[] parameters) {

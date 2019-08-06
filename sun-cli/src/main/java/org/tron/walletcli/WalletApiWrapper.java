@@ -958,6 +958,31 @@ public class WalletApiWrapper {
     return false;
   }
 
+  public TransactionResponse callContractReturn(String contractAddress, long callValue, String methodStr,
+      String argsStr, boolean isHex, long feeLimit, long tokenValue, String tokenId) {
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: callContract failed,  Please login first !!");
+      return null;
+    }
+
+    TriggerContractRequest request = new TriggerContractRequest();
+    request.setContractAddrStr(contractAddress);
+    request.setCallValue(callValue);
+    request.setMethodStr(methodStr);
+    request.setArgsStr(argsStr);
+    request.setHex(isHex);
+    request.setFeeLimit(feeLimit);
+    request.setTokenCallValue(tokenValue);
+    request.setTokenId(tokenId);
+    SunNetworkResponse<TransactionResponse> sunNetworkresp = getChainInterface()
+        .triggerContract(request);
+    logger.info("sun network response code is: " + sunNetworkresp.getDesc());
+
+    TransactionResponse resp = sunNetworkresp.getData();
+    printResponseInfo(resp);
+    return resp;
+  }
+
   public boolean callContractAndCheck(String contractAddress, long callValue, String methodStr,
       String argsStr,
       boolean isHex, long feeLimit, long tokenValue, String tokenId) {
