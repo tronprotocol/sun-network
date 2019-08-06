@@ -880,5 +880,56 @@ export default class SunWeb {
             return callback(ex);
         }
     }
+
+    async retryWithdraw(
+        nounce,
+        feeLimit,
+        options = {},
+        privateKey = this.sidechain.defaultPrivateKey,
+        callback = false
+    ) {
+        return this.withdrawTrc(
+            nounce,
+            feeLimit,
+            this.sideGatewayAddress,
+            options,
+            privateKey,
+            callback
+        );
+    }
+
+    async retryDeposit(
+        nounce,
+        feeLimit,
+        options = {},
+        privateKey = this.mainchain.defaultPrivateKey,
+        callback = false
+    ) {
+        return this.withdrawTrc(
+            nounce,
+            feeLimit,
+            this.mainGatewayAddress,
+            options,
+            privateKey,
+            callback
+        );
+    }
+
+    async retryMapping(
+        nounce,
+        feeLimit,
+        options = {},
+        privateKey = this.mainchain.defaultPrivateKey,
+        callback = false
+    ) {
+        return this.withdrawTrc(
+            nounce,
+            feeLimit,
+            this.mainGatewayAddress,
+            options,
+            privateKey,
+            callback
+        );
+    }
 }
 
