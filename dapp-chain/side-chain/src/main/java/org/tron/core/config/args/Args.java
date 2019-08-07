@@ -1034,9 +1034,10 @@ public class Args {
     }
 
     // side chain
-    INSTANCE.sideChainChargingBandwidth =
-        config.hasPath("sidechain.chargingBandwidth") ? config
-            .getInt("sidechain.chargingBandwidth") : 1;
+//    INSTANCE.sideChainChargingBandwidth =
+//        config.hasPath("sidechain.chargingBandwidth") ? config
+//            .getInt("sidechain.chargingBandwidth") : 1;
+    INSTANCE.sideChainChargingBandwidth = 1;
 
     INSTANCE.chargingSwitchOn =
         config.hasPath("committee.chargingSwitchOn") ? config
