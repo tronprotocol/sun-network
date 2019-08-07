@@ -365,6 +365,65 @@ sunWeb.injectFund(1000, 10000000);
 | feeLimit  | Cost limit         | Integer, long | Required |
 | options   | The permissions Id | Object        | Optional |
 
+## Retry
+
+#### retryDeposit
+
+```javascript
+// format
+sunWeb.retryDeposit(nonce, feeLimit, options);
+
+// example
+sunWeb.retryDeposit(1000, 10000000);
+
+```
+
+###### Arguments
+
+| Parameter | Description                  | Type          | Options  |
+| --------- | ---------------------------- | ------------- | -------- |
+| nonce     | Nonce value of asset deposit | Integer       | Required |
+| feeLimit  | Cost limit                   | Integer, long | Required |
+| options   | The permissions Id           | Object        | Optional |
+
+#### retryMapping
+
+```javascript
+// format
+sunWeb.retryMapping(nonce, feeLimit, options);
+
+// example
+sunWeb.retryMapping(1000, 10000000);
+
+```
+
+###### Arguments
+
+| Parameter | Description                  | Type          | Options  |
+| --------- | ---------------------------- | ------------- | -------- |
+| nonce     | Nonce value of asset deposit | Integer       | Required |
+| feeLimit  | Cost limit                   | Integer, long | Required |
+| options   | The permissions Id           | Object        | Optional |
+
+#### retryWithdraw
+
+```javascript
+// format
+sunWeb.retryWithdraw(nonce, feeLimit, options);
+
+// example
+sunWeb.retryWithdraw(1000, 10000000);
+
+```
+
+###### Arguments
+
+| Parameter | Description                  | Type          | Options  |
+| --------- | ---------------------------- | ------------- | -------- |
+| nonce     | Nonce value of asset deposit | Integer       | Required |
+| feeLimit  | Cost limit                   | Integer, long | Required |
+| options   | The permissions Id           | Object        | Optional |
+
 ## Signature
 
 Signature of main chain is the same as TronWeb, you can use  tronWeb.trx.sign(…) as before. Such as in TronLink after overriding it, TronLink will pop up the signature confirmation dialog. While the signature of side chain is different as TronWeb, we've overridden the sign function in TronWeb for side chain. Please note that, when you develop a wallet like the TronLink, you may need to override sign function of main chain and side chain respectively. 
