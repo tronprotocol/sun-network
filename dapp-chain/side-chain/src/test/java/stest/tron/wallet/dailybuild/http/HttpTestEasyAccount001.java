@@ -12,14 +12,19 @@ import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.HttpMethed;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class HttpTestEasyAccount001 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.slideTokenOwnerKey");
+  private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
+  private final static String tokenId = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.slideTokenId");
   private JSONObject responseContent;
   private HttpResponse response;
   private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
@@ -187,7 +192,7 @@ public class HttpTestEasyAccount001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Create asset issue by http")
+  @Test(enabled = false, description = "Create asset issue by http")
   public void test06CreateAssetIssue() {
     Long amount = 2048000000L;
     response = HttpMethed.sendCoin(httpnode, fromAddress, assetAddress, amount, testKey002);
@@ -208,10 +213,16 @@ public class HttpTestEasyAccount001 {
     assetIssueId = responseContent.getString("asset_issued_ID");
     logger.info(assetIssueId);
     Assert.assertTrue(Integer.parseInt(assetIssueId) > 1000000);
+  }
 
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Easy transfer asset by http")
+  public void test07EasyTransferAsset() {
     response = HttpMethed
-        .transferAsset(httpnode, assetAddress,
-            Wallet.decodeFromBase58Check(easyAddress), assetIssueId, 100L, assetKey);
+        .transferAsset(httpnode, tokenOnwerAddress,
+            Wallet.decodeFromBase58Check(easyAddress), tokenId, 100L, tokenOwnerKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
 
@@ -221,16 +232,10 @@ public class HttpTestEasyAccount001 {
     beforeEasyAsset = responseContent.getJSONArray("assetV2").getJSONObject(0)
         .getLongValue("value");
     logger.info("beforeEasyAsset:" + beforeEasyAsset);
-  }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "Easy transfer asset by http")
-  public void test07EasyTransferAsset() {
     response = HttpMethed
         .easyTransferAsset(httpnode, userPassword, Wallet.decodeFromBase58Check(generateAddress),
-            10L, assetIssueId);
+            10L, tokenId);
     logger.info("code is " + response.getStatusLine().getStatusCode());
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     HttpMethed.waitToProduceOneBlock(httpnode);
@@ -260,7 +265,7 @@ public class HttpTestEasyAccount001 {
     response = HttpMethed
         .easyTransferAssetByPrivate(httpnode, generatePriKey,
             Wallet.decodeFromBase58Check(easyAddress),
-            5L, assetIssueId);
+            5L, tokenId);
     logger.info("code is " + response.getStatusLine().getStatusCode());
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     HttpMethed.waitToProduceOneBlock(httpnode);

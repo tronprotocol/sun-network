@@ -12,14 +12,14 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.HttpMethed;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class HttpTestExchange001 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private JSONObject responseContent;
   private HttpResponse response;
   private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
@@ -57,7 +57,7 @@ public class HttpTestExchange001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Create asset issue by http")
+  @Test(enabled = false, description = "Create asset issue by http")
   public void test01CreateExchange() {
     response = HttpMethed.sendCoin(httpnode, fromAddress, exchangeOwnerAddress, amount, testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
@@ -105,7 +105,7 @@ public class HttpTestExchange001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "List exchanges by http")
+  @Test(enabled = false, description = "List exchanges by http")
   public void test02ListExchange() {
     response = HttpMethed.listExchanges(httpnode);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -118,7 +118,7 @@ public class HttpTestExchange001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "List exchanges from solidity by http")
+  @Test(enabled = false, description = "List exchanges from solidity by http")
   public void test03ListExchangeFromSolidity() {
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     response = HttpMethed.listExchangesFromSolidity(httpSoliditynode);
@@ -132,7 +132,7 @@ public class HttpTestExchange001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "GetExchangeById by http")
+  @Test(enabled = false, description = "GetExchangeById by http")
   public void test04GetExchangeById() {
     response = HttpMethed.getExchangeById(httpnode, exchangeId);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -148,7 +148,7 @@ public class HttpTestExchange001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "GetExchangeById from solidity by http")
+  @Test(enabled = false, description = "GetExchangeById from solidity by http")
   public void test05GetExchangeByIdFromSolidity() {
     response = HttpMethed.getExchangeByIdFromSolidity(httpSoliditynode, exchangeId);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -164,7 +164,7 @@ public class HttpTestExchange001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Inject exchange by http")
+  @Test(enabled = false, description = "Inject exchange by http")
   public void test06InjectExchange() {
     //Inject exchange.
     response = HttpMethed.exchangeInject(httpnode, exchangeOwnerAddress, exchangeId, assetIssueId1,
@@ -185,7 +185,7 @@ public class HttpTestExchange001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Withdraw exchange by http")
+  @Test(enabled = false, description = "Withdraw exchange by http")
   public void test07WithdrawExchange() {
     //Withdraw exchange.
     response = HttpMethed
@@ -206,7 +206,7 @@ public class HttpTestExchange001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Transaction exchange by http")
+  @Test(enabled = false, description = "Transaction exchange by http")
   public void test08TransactionExchange() {
     //Transaction exchange.
     response = HttpMethed.exchangeTransaction(httpnode, exchangeOwnerAddress, exchangeId,
@@ -226,7 +226,7 @@ public class HttpTestExchange001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Get asset issue list by name by http")
+  @Test(enabled = false, description = "Get asset issue list by name by http")
   public void test09GetAssetIssueListByName() {
     response = HttpMethed.getAssetIssueListByName(httpnode, name);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -238,7 +238,7 @@ public class HttpTestExchange001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Get asset issue list by name from solidity by http")
+  @Test(enabled = false, description = "Get asset issue list by name from solidity by http")
   public void test10GetAssetIssueListByNameFromSolidity() {
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     response = HttpMethed.getAssetIssueListByNameFromSolidity(httpSoliditynode, name);
@@ -251,7 +251,7 @@ public class HttpTestExchange001 {
   /**
    * * constructor. *
    */
-  @Test(enabled = true, description = "Get paginated exchange list by http")
+  @Test(enabled = false, description = "Get paginated exchange list by http")
   public void test11GetPaginatedExchangeList() {
 
     response = HttpMethed.getPaginatedExchangeList(httpnode, 0, 1);

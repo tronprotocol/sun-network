@@ -18,17 +18,17 @@ import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class WalletTestAccount010 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
   private static final long now = System.currentTimeMillis();
 
@@ -62,8 +62,8 @@ public class WalletTestAccount010 {
 
   @BeforeClass(enabled = false)
   public void beforeClass() {
-    PublicMethed.printAddress(account010Key);
-    PublicMethed.printAddress(account010SecondKey);
+    PublicMethedForDailybuild.printAddress(account010Key);
+    PublicMethedForDailybuild.printAddress(account010SecondKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -74,49 +74,49 @@ public class WalletTestAccount010 {
 
   @Test(enabled = false)
   public void testGetStorage() {
-    Assert.assertTrue(PublicMethed.sendcoin(account010Address, 100000000,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(account010Address, 100000000,
         fromAddress, testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(account010SecondAddress, 100000000,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(account010SecondAddress, 100000000,
         fromAddress, testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(account010InvalidAddress, 100000000,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(account010InvalidAddress, 100000000,
         fromAddress, testKey002, blockingStubFull));
-    Account account010Info = PublicMethed.queryAccount(account010Key, blockingStubFull);
+    Account account010Info = PublicMethedForDailybuild.queryAccount(account010Key, blockingStubFull);
     Assert.assertTrue(account010Info.getAccountResource().getStorageLimit() == 0);
     Assert.assertTrue(account010Info.getAccountResource().getLatestExchangeStorageTime() == 0);
 
-    Assert.assertTrue(PublicMethed.buyStorage(100000000L, account010Address, account010Key,
+    Assert.assertTrue(PublicMethedForDailybuild.buyStorage(100000000L, account010Address, account010Key,
         blockingStubFull));
 
-    account010Info = PublicMethed.queryAccount(account010Key, blockingStubFull);
+    account010Info = PublicMethedForDailybuild.queryAccount(account010Key, blockingStubFull);
     Assert.assertTrue(account010Info.getAccountResource().getStorageLimit() > 0);
     Assert.assertTrue(account010Info.getAccountResource().getLatestExchangeStorageTime() > 0);
 
-    AccountResourceMessage account010Resource = PublicMethed.getAccountResource(account010Address,
+    AccountResourceMessage account010Resource = PublicMethedForDailybuild.getAccountResource(account010Address,
         blockingStubFull);
     Assert.assertTrue(account010Resource.getStorageLimit() > 0);
   }
 
   @Test(enabled = false)
   public void testSellStorage() {
-    AccountResourceMessage account010Resource = PublicMethed.getAccountResource(account010Address,
+    AccountResourceMessage account010Resource = PublicMethedForDailybuild.getAccountResource(account010Address,
         blockingStubFull);
     Long storageLimit = account010Resource.getStorageLimit();
-    Account account001Info = PublicMethed.queryAccount(account010Key, blockingStubFull);
+    Account account001Info = PublicMethedForDailybuild.queryAccount(account010Key, blockingStubFull);
     Assert.assertTrue(account001Info.getBalance() == 0);
     //When there is no enough storage,sell failed.
-    Assert.assertFalse(PublicMethed.sellStorage(storageLimit + 1, account010Address, account010Key,
+    Assert.assertFalse(PublicMethedForDailybuild.sellStorage(storageLimit + 1, account010Address, account010Key,
         blockingStubFull));
     //Can not sell 0 storage
-    Assert.assertFalse(PublicMethed.sellStorage(0, account010Address, account010Key,
+    Assert.assertFalse(PublicMethedForDailybuild.sellStorage(0, account010Address, account010Key,
         blockingStubFull));
     //Sell all storage.
-    Assert.assertTrue(PublicMethed.sellStorage(storageLimit, account010Address, account010Key,
+    Assert.assertTrue(PublicMethedForDailybuild.sellStorage(storageLimit, account010Address, account010Key,
         blockingStubFull));
-    account010Resource = PublicMethed.getAccountResource(account010Address,
+    account010Resource = PublicMethedForDailybuild.getAccountResource(account010Address,
         blockingStubFull);
     storageLimit = account010Resource.getStorageLimit();
     Assert.assertTrue(storageLimit == 0);
-    account001Info = PublicMethed.queryAccount(account010Key, blockingStubFull);
+    account001Info = PublicMethedForDailybuild.queryAccount(account010Key, blockingStubFull);
     Assert.assertTrue(account001Info.getBalance() > 0);
 
 

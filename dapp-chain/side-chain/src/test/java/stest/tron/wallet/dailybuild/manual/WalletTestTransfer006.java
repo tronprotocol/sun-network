@@ -15,7 +15,6 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AccountPaginated;
-
 import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.WalletExtensionGrpc;
 import org.tron.api.WalletGrpc;
@@ -28,7 +27,7 @@ import org.tron.protos.Protocol.Transaction;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
 
 
@@ -37,10 +36,10 @@ public class WalletTestTransfer006 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   private static final byte[] INVAILD_ADDRESS =
       Base58.decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
 
@@ -82,10 +81,10 @@ public class WalletTestTransfer006 {
 
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void testgetTransactionsToThis() {
     //Create a transfer.
-    Assert.assertTrue(PublicMethed.sendcoin(toAddress, 1000000, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(toAddress, 1000000, fromAddress,
         testKey002, blockingStubFull));
 
     ByteString addressBs = ByteString.copyFrom(toAddress);
@@ -100,9 +99,9 @@ public class WalletTestTransfer006 {
         .ofNullable(transactionList);
 
     if (gettransactionstothis.get().getTransactionCount() == 0) {
-      Assert.assertTrue(PublicMethed.sendcoin(toAddress, 1000000L, fromAddress, testKey002,
+      Assert.assertTrue(PublicMethedForDailybuild.sendcoin(toAddress, 1000000L, fromAddress, testKey002,
           blockingStubFull));
-      Assert.assertTrue(PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,
+      Assert.assertTrue(PublicMethedForDailybuild.waitSolidityNodeSynFullNodeData(blockingStubFull,
           blockingStubSolidity));
       //logger.info("This account didn't transfation any coin to other");
     }
@@ -116,7 +115,7 @@ public class WalletTestTransfer006 {
     }
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void testgetTransactionsToThisByInvaildAddress() {
     //Invaild address.
     ByteString addressBs = ByteString.copyFrom(INVAILD_ADDRESS);

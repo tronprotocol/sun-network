@@ -1,4 +1,3 @@
-/*
 package stest.tron.wallet.dailybuild.grammar;
 
 import io.grpc.ManagedChannel;
@@ -24,7 +23,7 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractGrammar001 {
@@ -32,7 +31,7 @@ public class ContractGrammar001 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
@@ -67,15 +66,13 @@ public class ContractGrammar001 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(testKeyForGrammarAddress);
+    PublicMethedForDailybuild.printAddress(testKeyForGrammarAddress);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -91,43 +88,43 @@ public class ContractGrammar001 {
     ecKey1 = new ECKey(Utils.getRandom());
     grammarAddress = ecKey1.getAddress();
     testKeyForGrammarAddress = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(grammarAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/contractGrammar001test1Grammar001.sol";
     String contractName = "FunctionSelector";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, testKeyForGrammarAddress,
         grammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String txid = "";
     String num = "true" + "," + "10";
-    txid = PublicMethed.triggerContractSideChain(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "select(bool,uint256)", num, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long returnnumber = ByteArray.toLong(ByteArray.fromHexString(ByteArray.toHexString(
         infoById.get().getContractResult(0).toByteArray())));
 
     Assert.assertTrue(returnnumber == 20);
 
     String num2 = "false" + "," + "10";
-    txid = PublicMethed.triggerContractSideChain(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "select(bool,uint256)", num2, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infoById：" + infoById);
-    Optional<Transaction> ById = PublicMethed.getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> ById = PublicMethedForDailybuild.getTransactionById(txid, blockingStubFull);
     logger.info("getRet：" + ById.get().getRet(0));
     logger.info("getNumber：" + ById.get().getRet(0).getContractRet().getNumber());
     logger.info("getContractRetValue：" + ById.get().getRet(0).getContractRetValue());
@@ -157,36 +154,36 @@ public class ContractGrammar001 {
   public void test2Grammar002() {
     String filePath = "src/test/resources/soliditycode/contractGrammar001test2Grammar002.sol";
     String contractName = "Set";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, testKeyForGrammarAddress,
         grammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String txid = "";
     String num = "1";
     byte[] contractAddress1 = null;
     String filePath1 = "src/test/resources/soliditycode/contractGrammar001test2Grammar002.sol";
     String contractName1 = "C";
-    HashMap retMap1 = PublicMethed.getBycodeAbiForLibrary(filePath1, contractName1);
+    HashMap retMap1 = PublicMethedForDailybuild.getBycodeAbiForLibrary(filePath1, contractName1);
     String code1 = retMap1.get("byteCode").toString();
     String abi1 = retMap1.get("abI").toString();
     String library = retMap1.get("library").toString();
     String libraryAddress = library + Base58.encode58Check(contractAddress);
-    contractAddress1 = PublicMethed
+    contractAddress1 = PublicMethedForDailybuild
         .deployContractForLibrary(contractName1, abi1, code1, "", maxFeeLimit,
             0L, 100, libraryAddress, testKeyForGrammarAddress,
             grammarAddress, compilerVersion, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    txid = PublicMethed.triggerContractSideChain(contractAddress1,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress1,
         "register(uint256)", num, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull1);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull1);
 
     Assert.assertTrue(infoById.get().getResultValue() == 0);
   }
@@ -195,35 +192,35 @@ public class ContractGrammar001 {
   public void test3Grammar003() {
     String filePath = "src/test/resources/soliditycode/contractGrammar001test3Grammar003.sol";
     String contractName = "Set";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, testKeyForGrammarAddress,
         grammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String txid = "";
     String num = "1";
     byte[] contractAddress1 = null;
     String contractName1 = "C";
-    HashMap retMap1 = PublicMethed.getBycodeAbiForLibrary(filePath, contractName1);
+    HashMap retMap1 = PublicMethedForDailybuild.getBycodeAbiForLibrary(filePath, contractName1);
     String code1 = retMap1.get("byteCode").toString();
     String abi1 = retMap1.get("abI").toString();
     String library = retMap1.get("library").toString();
     String libraryAddress = library
         + Base58.encode58Check(contractAddress);
-    contractAddress1 = PublicMethed
+    contractAddress1 = PublicMethedForDailybuild
         .deployContractForLibrary(contractName1, abi1, code1, "", maxFeeLimit,
             0L, 100, libraryAddress, testKeyForGrammarAddress,
             grammarAddress, compilerVersion, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    txid = PublicMethed.triggerContractSideChain(contractAddress1,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress1,
         "register(uint256)", num, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull1);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull1);
 
     Assert.assertTrue(infoById.get().getResultValue() == 0);
   }
@@ -234,67 +231,67 @@ public class ContractGrammar001 {
     ecKey1 = new ECKey(Utils.getRandom());
     grammarAddress = ecKey1.getAddress();
     testKeyForGrammarAddress = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(grammarAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/contractGrammar001test4Grammar004.sol";
     String contractName = "Search";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, testKeyForGrammarAddress,
         grammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     byte[] contractAddress1 = null;
     String contractName1 = "C";
-    HashMap retMap1 = PublicMethed.getBycodeAbiForLibrary(filePath, contractName1);
+    HashMap retMap1 = PublicMethedForDailybuild.getBycodeAbiForLibrary(filePath, contractName1);
     String code1 = retMap1.get("byteCode").toString();
     String abi1 = retMap1.get("abI").toString();
     String library = retMap1.get("library").toString();
     String libraryAddress = null;
     libraryAddress = library
         + Base58.encode58Check(contractAddress);
-    contractAddress1 = PublicMethed
+    contractAddress1 = PublicMethedForDailybuild
         .deployContractForLibrary(contractName1, abi1, code1, "", maxFeeLimit,
             0L, 100, libraryAddress, testKeyForGrammarAddress,
             grammarAddress, compilerVersion, blockingStubFull);
     String txid = "";
     String num = "1";
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    txid = PublicMethed.triggerContractSideChain(contractAddress1,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress1,
         "append(uint256)", num, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String num1 = "0";
-    String txid1 = PublicMethed.triggerContractSideChain(contractAddress1,
+    String txid1 = PublicMethedForDailybuild.triggerContract(contractAddress1,
         "getData(uint256)", num1, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid1, blockingStubFull);
     Long returnnumber = ByteArray.toLong(ByteArray
         .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
 
     Assert.assertTrue(returnnumber == 1);
 
     String num2 = "1" + "," + "2";
-    String txid2 = PublicMethed.triggerContractSideChain(contractAddress1,
+    String txid2 = PublicMethedForDailybuild.triggerContract(contractAddress1,
         "replace(uint256,uint256)", num2, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById2 = null;
-    infoById2 = PublicMethed.getTransactionInfoById(txid2, blockingStubFull);
+    infoById2 = PublicMethedForDailybuild.getTransactionInfoById(txid2, blockingStubFull);
     Assert.assertTrue(infoById2.get().getResultValue() == 0);
-    String txid3 = PublicMethed.triggerContractSideChain(contractAddress1,
+    String txid3 = PublicMethedForDailybuild.triggerContract(contractAddress1,
         "getData(uint256)", num1, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById1 = null;
-    infoById1 = PublicMethed.getTransactionInfoById(txid3, blockingStubFull);
+    infoById1 = PublicMethedForDailybuild.getTransactionInfoById(txid3, blockingStubFull);
     Long returnnumber1 = ByteArray.toLong(ByteArray
         .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
 
@@ -306,81 +303,79 @@ public class ContractGrammar001 {
   public void test5Grammar006() {
     String filePath = "src/test/resources/soliditycode/contractGrammar001test5Grammar006.sol";
     String contractName = "InfoFeed";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, testKeyForGrammarAddress,
         grammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String txid = "";
     String number = "1";
-    final String txid1 = PublicMethed.triggerContractSideChain(contractAddress,
+    final String txid1 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "f(uint256)", number, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    final String txid2 = PublicMethed.triggerContractSideChain(contractAddress,
+    final String txid2 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "d(uint256)", number, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    final String txid3 = PublicMethed.triggerContractSideChain(contractAddress,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    final String txid3 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "d1(uint256)", number, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    final String txid4 = PublicMethed.triggerContractSideChain(contractAddress,
+    final String txid4 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "d2(uint256)", number, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    final String txid5 = PublicMethed.triggerContractSideChain(contractAddress,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    final String txid5 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "d5(uint256)", number, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    final String txid6 = PublicMethed.triggerContractSideChain(contractAddress,
+    final String txid6 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "d4(uint256)", number, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    final String txid8 = PublicMethed.triggerContractSideChain(contractAddress,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    final String txid8 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "d6(uint256)", number, false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
 
-    Optional<TransactionInfo> infoById1 = PublicMethed
+    Optional<TransactionInfo> infoById1 = PublicMethedForDailybuild
         .getTransactionInfoById(txid1, blockingStubFull1);
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
 
-    Optional<TransactionInfo> infoById2 = PublicMethed
+    Optional<TransactionInfo> infoById2 = PublicMethedForDailybuild
         .getTransactionInfoById(txid2, blockingStubFull1);
     Assert.assertTrue(infoById2.get().getResultValue() == 0);
 
-    Optional<TransactionInfo> infoById3 = PublicMethed
+    Optional<TransactionInfo> infoById3 = PublicMethedForDailybuild
         .getTransactionInfoById(txid3, blockingStubFull1);
     Assert.assertTrue(infoById3.get().getResultValue() == 0);
 
-    Optional<TransactionInfo> infoById4 = PublicMethed
+    Optional<TransactionInfo> infoById4 = PublicMethedForDailybuild
         .getTransactionInfoById(txid4, blockingStubFull1);
     Assert.assertTrue(infoById4.get().getResultValue() == 0);
 
-    Optional<TransactionInfo> infoById5 = PublicMethed
+    Optional<TransactionInfo> infoById5 = PublicMethedForDailybuild
         .getTransactionInfoById(txid5, blockingStubFull1);
     Assert.assertTrue(infoById5.get().getResultValue() == 0);
 
-    Optional<TransactionInfo> infoById6 = PublicMethed
+    Optional<TransactionInfo> infoById6 = PublicMethedForDailybuild
         .getTransactionInfoById(txid6, blockingStubFull1);
     Assert.assertTrue(infoById6.get().getResultValue() == 0);
 
-    Optional<TransactionInfo> infoById8 = PublicMethed
+    Optional<TransactionInfo> infoById8 = PublicMethedForDailybuild
         .getTransactionInfoById(txid8, blockingStubFull1);
     Assert.assertTrue(infoById8.get().getResultValue() == 0);
 
 
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -392,4 +387,3 @@ public class ContractGrammar001 {
   }
 
 }
-*/

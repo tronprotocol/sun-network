@@ -9,6 +9,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.HttpMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class HttpTestBlock001 {
@@ -187,9 +188,9 @@ public class HttpTestBlock001 {
     Assert.assertTrue(jsonArray.size() >= 26);
     Boolean exsistDelegated = false;
     for (int i = 0; i < jsonArray.size(); i++) {
-      if (jsonArray.getJSONObject(i).getString("key").equals("getAllowDelegateResource")) {
+      if (jsonArray.getJSONObject(i).getString("key").equals("getCreateAccountFee")) {
         exsistDelegated = true;
-        Assert.assertTrue(jsonArray.getJSONObject(i).getString("value").equals("1"));
+        Assert.assertTrue(jsonArray.getJSONObject(i).getString("value").equals("100000"));
       }
     }
     Assert.assertTrue(exsistDelegated);
@@ -249,6 +250,24 @@ public class HttpTestBlock001 {
     JSONArray jsonArray = JSONArray.parseArray(responseContent.get("block").toString());
     Assert.assertEquals(jsonArray.size(), 8);
   }
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = false, description = "Get block by num by http")
+  public void get16TestResponse() {
+    Integer times = 1000;
+    String testKey002 = "7400E3D0727F8A61041A8E8BF86599FE5597CE19DE451E59AED07D60967A5E25";
+    byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+    Long duration = HttpMethed.getBlockByNumForResponse(httpnode, 4942435, times);
+    /*    Long duration = HttpMethed.getAccountForResponse(httpnode, fromAddress, times);*/
+  /*    Long duration = HttpMethed.getTransactionByIdForResponse(httpnode,
+      "a265fc457551fd9cfa55daec0550268b1a2da54018cc700f1559454836de411c", times);*/
+    logger.info("Total duration  : " + duration);
+    logger.info("Average duration: " + duration / times);
+  }
+
+
 
 
 

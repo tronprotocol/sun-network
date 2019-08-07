@@ -21,7 +21,7 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.Sha256Hash;
 
 @Slf4j
@@ -31,7 +31,7 @@ public class DelayTransaction010 {
       .getString("foundationAccount.key1");
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -84,47 +84,47 @@ public class DelayTransaction010 {
     delayAccount2Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
 
-    PublicMethed.printAddress(delayFeeAccountKey);
-    Assert.assertTrue(PublicMethed.sendcoin(delayFeeAccountAddress, 100000000L,fromAddress,
+    PublicMethedForDailybuild.printAddress(delayFeeAccountKey);
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(delayFeeAccountAddress, 100000000L,fromAddress,
         testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    final String txidZeroDay = PublicMethed.sendcoinDelayedGetTxid(delayAccount2Address, 1L,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    final String txidZeroDay = PublicMethedForDailybuild.sendcoinDelayedGetTxid(delayAccount2Address, 1L,
         0,delayFeeAccountAddress, delayFeeAccountKey, blockingStubFull);
-    PublicMethed.cancelDeferredTransactionByIdGetTxid(txidZeroDay,
+    PublicMethedForDailybuild.cancelDeferredTransactionByIdGetTxid(txidZeroDay,
         delayFeeAccountAddress,delayFeeAccountKey,blockingStubFull);
-    final String txidOneDay = PublicMethed.sendcoinDelayedGetTxid(delayAccount2Address, 1L,
+    final String txidOneDay = PublicMethedForDailybuild.sendcoinDelayedGetTxid(delayAccount2Address, 1L,
         ONE_DELAY_SECONDS - 1,delayFeeAccountAddress, delayFeeAccountKey, blockingStubFull);
-    final String txidTwoDay = PublicMethed.sendcoinDelayedGetTxid(delayAccount2Address, 1L,
+    final String txidTwoDay = PublicMethedForDailybuild.sendcoinDelayedGetTxid(delayAccount2Address, 1L,
         ONE_DELAY_SECONDS * 2 - 1,delayFeeAccountAddress, delayFeeAccountKey, blockingStubFull);
-    final String txidFiveDay = PublicMethed.sendcoinDelayedGetTxid(delayAccount2Address, 1L,
+    final String txidFiveDay = PublicMethedForDailybuild.sendcoinDelayedGetTxid(delayAccount2Address, 1L,
         ONE_DELAY_SECONDS * 6 - 1,delayFeeAccountAddress, delayFeeAccountKey, blockingStubFull);
-    final String txidTenDay = PublicMethed.sendcoinDelayedGetTxid(delayAccount2Address, 1L,
+    final String txidTenDay = PublicMethedForDailybuild.sendcoinDelayedGetTxid(delayAccount2Address, 1L,
         ONE_DELAY_SECONDS * 9,delayFeeAccountAddress, delayFeeAccountKey, blockingStubFull);
-    final String txid45Day = PublicMethed.sendcoinDelayedGetTxid(delayAccount2Address, 1L,
+    final String txid45Day = PublicMethedForDailybuild.sendcoinDelayedGetTxid(delayAccount2Address, 1L,
         ONE_DELAY_SECONDS * 45,delayFeeAccountAddress, delayFeeAccountKey, blockingStubFull);
-    final String txid28Day = PublicMethed.sendcoinDelayedGetTxid(delayAccount2Address, 1L,
+    final String txid28Day = PublicMethedForDailybuild.sendcoinDelayedGetTxid(delayAccount2Address, 1L,
         ONE_DELAY_SECONDS * 28 - 1000,delayFeeAccountAddress, delayFeeAccountKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(txidZeroDay,blockingStubFull)
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild.getTransactionInfoById(txidZeroDay,blockingStubFull)
         .get().getFee() == delayTransactionFee);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(txidOneDay,blockingStubFull)
+    Assert.assertTrue(PublicMethedForDailybuild.getTransactionInfoById(txidOneDay,blockingStubFull)
         .get().getFee() == delayTransactionFee);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(txidTwoDay,blockingStubFull)
+    Assert.assertTrue(PublicMethedForDailybuild.getTransactionInfoById(txidTwoDay,blockingStubFull)
         .get().getFee() == delayTransactionFee * 2);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(txidFiveDay,blockingStubFull)
+    Assert.assertTrue(PublicMethedForDailybuild.getTransactionInfoById(txidFiveDay,blockingStubFull)
         .get().getFee() == delayTransactionFee * 6);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(txidTenDay,blockingStubFull)
+    Assert.assertTrue(PublicMethedForDailybuild.getTransactionInfoById(txidTenDay,blockingStubFull)
         .get().getFee() == delayTransactionFee * 10);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(txid45Day,blockingStubFull)
+    Assert.assertTrue(PublicMethedForDailybuild.getTransactionInfoById(txid45Day,blockingStubFull)
         .get().getFee() == delayTransactionFee * 46);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(txid28Day,blockingStubFull)
+    Assert.assertTrue(PublicMethedForDailybuild.getTransactionInfoById(txid28Day,blockingStubFull)
         .get().getFee() == delayTransactionFee * 28);
 
-    String cancelTxid = PublicMethed.cancelDeferredTransactionByIdGetTxid(txid28Day,
+    String cancelTxid = PublicMethedForDailybuild.cancelDeferredTransactionByIdGetTxid(txid28Day,
         delayFeeAccountAddress,delayFeeAccountKey,blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(cancelTxid,blockingStubFull)
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild.getTransactionInfoById(cancelTxid,blockingStubFull)
         .get().getFee() == cancleDelayTransactionFee);
   }
 
@@ -134,34 +134,34 @@ public class DelayTransaction010 {
   @Test(enabled = false, description = "Delayed transaction finally fialed.")
   public void test2DelaydTransactionFinallyFailed() {
     Long sendAmount = 12345L;
-    Long beforeBalance = PublicMethed.queryAccount(delayFeeAccountAddress,blockingStubFull)
+    Long beforeBalance = PublicMethedForDailybuild.queryAccount(delayFeeAccountAddress,blockingStubFull)
         .getBalance();
-    final String preTxid = PublicMethed.sendcoinDelayedGetTxid(delayAccount2Address, sendAmount,
+    final String preTxid = PublicMethedForDailybuild.sendcoinDelayedGetTxid(delayAccount2Address, sendAmount,
         6L,delayFeeAccountAddress, delayFeeAccountKey, blockingStubFull);
     try {
       Thread.sleep(3000);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    //deferredTransactionById = PublicMethed.getDeferredTransactionById(preTxid,blockingStubFull);
+    //deferredTransactionById = PublicMethedForDailybuild.getDeferredTransactionById(preTxid,blockingStubFull);
     //DeferredTransaction transaction = deferredTransactionById.get();
     //String finalTxid = ByteArray.toHexString(Sha256Hash.hash(transaction.getTransaction()
     // .getRawData().toByteArray()));
 
-    Assert.assertTrue(PublicMethed.sendcoin(fromAddress,PublicMethed.queryAccount(
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(fromAddress,PublicMethedForDailybuild.queryAccount(
         delayFeeAccountAddress, blockingStubFull).getBalance(),delayFeeAccountAddress,
         delayFeeAccountKey,blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    //Assert.assertTrue(PublicMethed.getTransactionById(finalTxid,blockingStubFull)
+    //Assert.assertTrue(PublicMethedForDailybuild.getTransactionById(finalTxid,blockingStubFull)
     // .get().getRawData().getContractCount() == 0);
 
-    Long afterBalance = PublicMethed.queryAccount(delayFeeAccountAddress,blockingStubFull)
+    Long afterBalance = PublicMethedForDailybuild.queryAccount(delayFeeAccountAddress,blockingStubFull)
         .getBalance();
-    Long afterSendCoinAccount2Balance = PublicMethed.queryAccount(delayAccount2Address,
+    Long afterSendCoinAccount2Balance = PublicMethedForDailybuild.queryAccount(delayAccount2Address,
         blockingStubFull).getBalance();
-    Long beforeSendCoinAccount2Balance = PublicMethed.queryAccount(delayAccount2Address,
+    Long beforeSendCoinAccount2Balance = PublicMethedForDailybuild.queryAccount(delayAccount2Address,
         blockingStubFull).getBalance();
     //Assert.assertTrue(beforeBalance - afterBalance == delayTransactionFee);
     Assert.assertTrue(beforeSendCoinAccount2Balance == afterSendCoinAccount2Balance);
@@ -173,25 +173,25 @@ public class DelayTransaction010 {
   @Test(enabled = false, description = "Delayed transaction finally successfully even during "
       + "delaying time the account has no money has no money.")
   public void test3DelaydTransactionFinallySuccessfully() {
-    Assert.assertTrue(PublicMethed.sendcoin(delayFeeAccountAddress,10000000L,fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(delayFeeAccountAddress,10000000L,fromAddress,
         testKey002,blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Long sendAmount = 5432L;
-    Long beforeBalance = PublicMethed.queryAccount(delayFeeAccountAddress,blockingStubFull)
+    Long beforeBalance = PublicMethedForDailybuild.queryAccount(delayFeeAccountAddress,blockingStubFull)
         .getBalance();
-    final String preTxid = PublicMethed.sendcoinDelayedGetTxid(delayAccount2Address, sendAmount,
+    final String preTxid = PublicMethedForDailybuild.sendcoinDelayedGetTxid(delayAccount2Address, sendAmount,
         9L,delayFeeAccountAddress, delayFeeAccountKey, blockingStubFull);
     try {
       Thread.sleep(2000);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    //deferredTransactionById = PublicMethed.getDeferredTransactionById(preTxid,blockingStubFull);
+    //deferredTransactionById = PublicMethedForDailybuild.getDeferredTransactionById(preTxid,blockingStubFull);
     //DeferredTransaction transaction = deferredTransactionById.get();
     //String finalTxid = ByteArray.toHexString(Sha256Hash.hash(transaction.getTransaction()
     // .getRawData().toByteArray()));
-    Assert.assertTrue(PublicMethed.sendcoin(fromAddress,PublicMethed.queryAccount(
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(fromAddress,PublicMethedForDailybuild.queryAccount(
         delayFeeAccountAddress, blockingStubFull).getBalance(),delayFeeAccountAddress,
         delayFeeAccountKey,blockingStubFull));
     try {
@@ -199,20 +199,20 @@ public class DelayTransaction010 {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    Assert.assertTrue(PublicMethed.sendcoin(delayFeeAccountAddress,10000000L,fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(delayFeeAccountAddress,10000000L,fromAddress,
         testKey002,blockingStubFull));
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    //Assert.assertTrue(PublicMethed.getTransactionById(finalTxid,blockingStubFull)
+    //Assert.assertTrue(PublicMethedForDailybuild.getTransactionById(finalTxid,blockingStubFull)
     // .get().getRawData().getContractCount() == 1);
 
-    Long afterBalance = PublicMethed.queryAccount(delayFeeAccountAddress,blockingStubFull)
+    Long afterBalance = PublicMethedForDailybuild.queryAccount(delayFeeAccountAddress,blockingStubFull)
         .getBalance();
-    Long afterSendCoinAccount2Balance = PublicMethed.queryAccount(delayAccount2Address,
+    Long afterSendCoinAccount2Balance = PublicMethedForDailybuild.queryAccount(delayAccount2Address,
         blockingStubFull).getBalance();
-    Long beforeSendCoinAccount2Balance = PublicMethed.queryAccount(delayAccount2Address,
+    Long beforeSendCoinAccount2Balance = PublicMethedForDailybuild.queryAccount(delayAccount2Address,
         blockingStubFull).getBalance();
     Assert.assertTrue(beforeSendCoinAccount2Balance + sendAmount == afterSendCoinAccount2Balance);
 

@@ -19,7 +19,7 @@ import org.tron.core.Wallet;
 import org.tron.protos.Protocol.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractOriginEnergyLimit001 {
@@ -27,7 +27,7 @@ public class ContractOriginEnergyLimit001 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
@@ -63,7 +63,7 @@ public class ContractOriginEnergyLimit001 {
    */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(testKeyForGrammarAddress3);
+    PublicMethedForDailybuild.printAddress(testKeyForGrammarAddress3);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -78,26 +78,26 @@ public class ContractOriginEnergyLimit001 {
   //Origin_energy_limit001,028,029
   @Test(enabled = true, description = "Boundary value and update test")
   public void testOrigin_energy_limit001() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(grammarAddress3, 100000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String filePath = "src/test/resources/soliditycode/contractOriginEnergyLimit001.sol";
     String contractName = "findArgsContractTest";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    String contractAddress = PublicMethed
+    String contractAddress = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
             0L, 100, -1, "0", 0,
             null, testKeyForGrammarAddress3,
             grammarAddress3, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Assert.assertTrue(contractAddress == null);
 
-    String contractAddress1 = PublicMethed
+    String contractAddress1 = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
             0L, 100, 0, "0", 0,
             null, testKeyForGrammarAddress3,
@@ -105,38 +105,38 @@ public class ContractOriginEnergyLimit001 {
 
     Assert.assertTrue(contractAddress1 == null);
 
-    byte[] contractAddress2 = PublicMethed
+    byte[] contractAddress2 = PublicMethedForDailybuild
         .deployContract(contractName, abi, code, "", maxFeeLimit,
             0L, 100, 9223372036854775807L, "0",
             0, null, testKeyForGrammarAddress3,
             grammarAddress3, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Assert.assertFalse(PublicMethed.updateEnergyLimit(contractAddress2, -1L,
+    Assert.assertFalse(PublicMethedForDailybuild.updateEnergyLimit(contractAddress2, -1L,
         testKeyForGrammarAddress3, grammarAddress3, blockingStubFull));
-    SmartContract smartContract = PublicMethed.getContract(contractAddress2, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress2, blockingStubFull);
     Assert.assertTrue(smartContract.getOriginEnergyLimit() == 9223372036854775807L);
 
-    Assert.assertFalse(PublicMethed.updateEnergyLimit(contractAddress2, 0L,
+    Assert.assertFalse(PublicMethedForDailybuild.updateEnergyLimit(contractAddress2, 0L,
         testKeyForGrammarAddress3, grammarAddress3, blockingStubFull));
-    SmartContract smartContract1 = PublicMethed.getContract(contractAddress2, blockingStubFull);
+    SmartContract smartContract1 = PublicMethedForDailybuild.getContract(contractAddress2, blockingStubFull);
     Assert.assertTrue(smartContract1.getOriginEnergyLimit() == 9223372036854775807L);
 
-    Assert.assertTrue(PublicMethed.updateEnergyLimit(contractAddress2,
+    Assert.assertTrue(PublicMethedForDailybuild.updateEnergyLimit(contractAddress2,
         9223372036854775807L, testKeyForGrammarAddress3,
         grammarAddress3, blockingStubFull));
-    SmartContract smartContract2 = PublicMethed.getContract(contractAddress2, blockingStubFull);
+    SmartContract smartContract2 = PublicMethedForDailybuild.getContract(contractAddress2, blockingStubFull);
     Assert.assertTrue(smartContract2.getOriginEnergyLimit() == 9223372036854775807L);
 
-    Assert.assertTrue(PublicMethed.updateEnergyLimit(contractAddress2, 'c',
+    Assert.assertTrue(PublicMethedForDailybuild.updateEnergyLimit(contractAddress2, 'c',
         testKeyForGrammarAddress3, grammarAddress3, blockingStubFull));
-    SmartContract smartContract3 = PublicMethed.getContract(contractAddress2, blockingStubFull);
+    SmartContract smartContract3 = PublicMethedForDailybuild.getContract(contractAddress2, blockingStubFull);
     Assert.assertEquals(smartContract3.getOriginEnergyLimit(), 99);
 
-    Assert.assertFalse(PublicMethed.updateEnergyLimit(contractAddress2, 1L,
+    Assert.assertFalse(PublicMethedForDailybuild.updateEnergyLimit(contractAddress2, 1L,
         testNetAccountKey, testNetAccountAddress, blockingStubFull));
-    SmartContract smartContract4 = PublicMethed.getContract(contractAddress2, blockingStubFull);
+    SmartContract smartContract4 = PublicMethedForDailybuild.getContract(contractAddress2, blockingStubFull);
     Assert.assertEquals(smartContract4.getOriginEnergyLimit(), 99);
   }
 

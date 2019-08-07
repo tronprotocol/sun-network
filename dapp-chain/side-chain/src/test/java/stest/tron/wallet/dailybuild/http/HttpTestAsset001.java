@@ -12,14 +12,14 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.HttpMethed;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class HttpTestAsset001 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private JSONObject responseContent;
   private JSONObject getAssetIssueByIdContent;
   private JSONObject getAssetIssueByNameContent;
@@ -48,13 +48,18 @@ public class HttpTestAsset001 {
   private static String name = "testAssetIssue002_" + Long.toString(now);
   private static final long totalSupply = now;
   private static String assetIssueId;
+  private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.slideTokenOwnerKey");
+  private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
+  private final static String tokenId = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.slideTokenId");
   private static String updateDescription = "Description_update_" + Long.toString(now);
   private static String updateUrl = "Url_update_" + Long.toString(now);
 
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Create asset issue by http")
+  @Test(enabled = false, description = "Create asset issue by http")
   public void test01CreateAssetIssue() {
     response = HttpMethed.sendCoin(httpnode, fromAddress, assetAddress, amount, testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
@@ -81,10 +86,10 @@ public class HttpTestAsset001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "GetAssetIssueById by http")
+  @Test(enabled = false, description = "GetAssetIssueById by http")
   public void test02GetAssetIssueById() {
     HttpMethed.waitToProduceOneBlock(httpnode);
-    response = HttpMethed.getAssetIssueById(httpnode, assetIssueId);
+    response = HttpMethed.getAssetIssueById(httpnode, tokenId);
     getAssetIssueByIdContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(getAssetIssueByIdContent);
     Assert.assertTrue(totalSupply == getAssetIssueByIdContent.getLong("total_supply"));
@@ -93,10 +98,10 @@ public class HttpTestAsset001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "GetAssetIssueById from solidity by http")
+  @Test(enabled = false, description = "GetAssetIssueById from solidity by http")
   public void test03GetAssetIssueByIdFromSolidity() {
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
-    response = HttpMethed.getAssetIssueByIdFromSolidity(httpSoliditynode, assetIssueId);
+    response = HttpMethed.getAssetIssueByIdFromSolidity(httpSoliditynode, tokenId);
     getAssetIssueByIdContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(getAssetIssueByIdContent);
     Assert.assertTrue(totalSupply == getAssetIssueByIdContent.getLong("total_supply"));
@@ -105,7 +110,7 @@ public class HttpTestAsset001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "GetAssetIssueByName by http")
+  @Test(enabled = false, description = "GetAssetIssueByName by http")
   public void test04GetAssetIssueByName() {
     response = HttpMethed.getAssetIssueByName(httpnode, name);
     getAssetIssueByNameContent = HttpMethed.parseResponseContent(response);
@@ -116,7 +121,7 @@ public class HttpTestAsset001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "GetAssetIssueByName from solidity by http")
+  @Test(enabled = false, description = "GetAssetIssueByName from solidity by http")
   public void test05GetAssetIssueByNameFromSolidity() {
     response = HttpMethed.getAssetIssueByNameFromSolidity(httpSoliditynode, name);
     getAssetIssueByNameContent = HttpMethed.parseResponseContent(response);
@@ -130,8 +135,8 @@ public class HttpTestAsset001 {
   @Test(enabled = true, description = "TransferAsset by http")
   public void test06TransferAsset() {
     logger.info("Transfer asset.");
-    response = HttpMethed.transferAsset(httpnode, assetAddress, participateAddress, assetIssueId,
-        100L, assetKey);
+    response = HttpMethed.transferAsset(httpnode, tokenOnwerAddress, participateAddress, tokenId,
+        100L, tokenOwnerKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.getAccount(httpnode, participateAddress);
@@ -145,11 +150,11 @@ public class HttpTestAsset001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Participate asset issue by http")
+  @Test(enabled = false, description = "Participate asset issue by http")
   public void test07ParticipateAssetIssue() {
     HttpMethed.waitToProduceOneBlock(httpnode);
-    response = HttpMethed.participateAssetIssue(httpnode, assetAddress, participateAddress,
-        assetIssueId, 1000L, participateKey);
+    response = HttpMethed.participateAssetIssue(httpnode, tokenOnwerAddress, participateAddress,
+        tokenId, 1000L, participateKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.getAccount(httpnode, participateAddress);
@@ -161,13 +166,13 @@ public class HttpTestAsset001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Update asset issue by http")
+  @Test(enabled = false, description = "Update asset issue by http")
   public void test08UpdateAssetIssue() {
-    response = HttpMethed.updateAssetIssue(httpnode, assetAddress, updateDescription, updateUrl,
+    response = HttpMethed.updateAssetIssue(httpnode, tokenOnwerAddress, updateDescription, updateUrl,
         290L, 390L, assetKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
-    response = HttpMethed.getAssetIssueById(httpnode, assetIssueId);
+    response = HttpMethed.getAssetIssueById(httpnode, tokenId);
     getAssetIssueByIdContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(getAssetIssueByIdContent);
 
@@ -185,7 +190,7 @@ public class HttpTestAsset001 {
   /**
    * * constructor. *
    */
-  @Test(enabled = true, description = "Get asset issue list by http")
+  @Test(enabled = false, description = "Get asset issue list by http")
   public void test09GetAssetissueList() {
 
     response = HttpMethed.getAssetissueList(httpnode);
@@ -201,7 +206,7 @@ public class HttpTestAsset001 {
   /**
    * * constructor. *
    */
-  @Test(enabled = true, description = "Get asset issue list from solidity by http")
+  @Test(enabled = false, description = "Get asset issue list from solidity by http")
   public void test10GetAssetissueListFromSolidity() {
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     response = HttpMethed.getAssetIssueListFromSolidity(httpSoliditynode);
@@ -217,7 +222,7 @@ public class HttpTestAsset001 {
   /**
    * * constructor. *
    */
-  @Test(enabled = true, description = "Get paginated asset issue list by http")
+  @Test(enabled = false, description = "Get paginated asset issue list by http")
   public void test11GetPaginatedAssetissueList() {
     response = HttpMethed.getPaginatedAssetissueList(httpnode, 0, 1);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -232,7 +237,7 @@ public class HttpTestAsset001 {
   /**
    * * constructor. *
    */
-  @Test(enabled = true, description = "Get paginated asset issue list from solidity by http")
+  @Test(enabled = false, description = "Get paginated asset issue list from solidity by http")
   public void test12GetPaginatedAssetissueListFromSolidity() {
     response = HttpMethed.getPaginatedAssetissueListFromSolidity(httpSoliditynode, 0, 1);
     responseContent = HttpMethed.parseResponseContent(response);

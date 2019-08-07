@@ -21,7 +21,7 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class WalletTestAssetIssue006 {
@@ -30,8 +30,8 @@ public class WalletTestAssetIssue006 {
       .getString("foundationAccount.key1");
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
   private ManagedChannel channelFull = null;
   private ManagedChannel channelSolidity = null;
@@ -80,14 +80,14 @@ public class WalletTestAssetIssue006 {
 
   /*  @Test(enabled = true)
   public void testGetAssetIssueListByTimestamp() {
-      Assert.assertTrue(PublicMethed.freezeBalance(fromAddress,10000000,3,testKey002,
+      Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(fromAddress,10000000,3,testKey002,
         blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(queryAssetIssueFromSoliAddress,2048000000,fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(queryAssetIssueFromSoliAddress,2048000000,fromAddress,
         testKey002,blockingStubFull));
     Long start = System.currentTimeMillis() + 2000;
     Long end = System.currentTimeMillis() + 1000000000;
     //Create a new AssetIssue success.
-    Assert.assertTrue(PublicMethed.createAssetIssue(queryAssetIssueFromSoliAddress, name,
+    Assert.assertTrue(PublicMethedForDailybuild.createAssetIssue(queryAssetIssueFromSoliAddress, name,
         totalSupply, 1, 100, start, end, 1, description, url, 1000L,
         1000L,1L,1L,queryAssetIssueKey,blockingStubFull));
     Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());

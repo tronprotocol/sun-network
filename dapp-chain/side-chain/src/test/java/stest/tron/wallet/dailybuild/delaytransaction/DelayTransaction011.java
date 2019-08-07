@@ -18,7 +18,7 @@ import org.tron.core.Wallet;
 //import org.tron.protos.Protocol.DeferredTransaction;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.Sha256Hash;
 
 @Slf4j
@@ -28,7 +28,7 @@ public class DelayTransaction011 {
       .getString("foundationAccount.key1");
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -75,46 +75,46 @@ public class DelayTransaction011 {
     ecKey = new ECKey(Utils.getRandom());
     noBandwidthAddress = ecKey.getAddress();
     noBandwidthKey = ByteArray.toHexString(ecKey.getPrivKeyBytes());
-    PublicMethed.printAddress(noBandwidthKey);
+    PublicMethedForDailybuild.printAddress(noBandwidthKey);
     ecKey2 = new ECKey(Utils.getRandom());
     delayAccount2Address = ecKey2.getAddress();
     delayAccount2Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-    PublicMethed.printAddress(delayAccount2Key);
+    PublicMethedForDailybuild.printAddress(delayAccount2Key);
 
 
-    Assert.assertTrue(PublicMethed.sendcoin(noBandwidthAddress, 10000000000L,fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(noBandwidthAddress, 10000000000L,fromAddress,
         testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    while (PublicMethed.queryAccount(noBandwidthAddress,blockingStubFull).getFreeNetUsage()
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    while (PublicMethedForDailybuild.queryAccount(noBandwidthAddress,blockingStubFull).getFreeNetUsage()
         < 4700L) {
-      PublicMethed.sendcoin(delayAccount2Address,1L,noBandwidthAddress,noBandwidthKey,
+      PublicMethedForDailybuild.sendcoin(delayAccount2Address,1L,noBandwidthAddress,noBandwidthKey,
           blockingStubFull);
     }
-    PublicMethed.sendcoin(delayAccount2Address,1L,noBandwidthAddress,noBandwidthKey,
+    PublicMethedForDailybuild.sendcoin(delayAccount2Address,1L,noBandwidthAddress,noBandwidthKey,
         blockingStubFull);
-    PublicMethed.sendcoin(delayAccount2Address,1L,noBandwidthAddress,noBandwidthKey,
+    PublicMethedForDailybuild.sendcoin(delayAccount2Address,1L,noBandwidthAddress,noBandwidthKey,
         blockingStubFull);
-    Assert.assertTrue(PublicMethed.sendcoin(fromAddress,PublicMethed.queryAccount(
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(fromAddress,PublicMethedForDailybuild.queryAccount(
         noBandwidthAddress,blockingStubFull).getBalance() - 3000L,noBandwidthAddress,
         noBandwidthKey,blockingStubFull));
-    logger.info("balance is: " +  PublicMethed.queryAccount(noBandwidthAddress,
+    logger.info("balance is: " +  PublicMethedForDailybuild.queryAccount(noBandwidthAddress,
         blockingStubFull).getBalance());
-    logger.info("Free net usage is " + PublicMethed.queryAccount(noBandwidthAddress,
+    logger.info("Free net usage is " + PublicMethedForDailybuild.queryAccount(noBandwidthAddress,
         blockingStubFull).getFreeNetUsage());
 
     String updateAccountName = "account_" + Long.toString(System.currentTimeMillis());
     byte[] accountNameBytes = ByteArray.fromString(updateAccountName);
-    String txid = PublicMethed.updateAccountDelayGetTxid(noBandwidthAddress,accountNameBytes,
+    String txid = PublicMethedForDailybuild.updateAccountDelayGetTxid(noBandwidthAddress,accountNameBytes,
         10L,noBandwidthKey,blockingStubFull);
     logger.info(txid);
-    Assert.assertTrue(PublicMethed.getTransactionById(txid,blockingStubFull)
+    Assert.assertTrue(PublicMethedForDailybuild.getTransactionById(txid,blockingStubFull)
         .get().getRawData().getContractCount() == 0);
 
-    Assert.assertTrue(PublicMethed.sendcoin(noBandwidthAddress, 103332L - 550L,fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(noBandwidthAddress, 103332L - 550L,fromAddress,
         testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    txid = PublicMethed.updateAccountDelayGetTxid(noBandwidthAddress,accountNameBytes,
+    txid = PublicMethedForDailybuild.updateAccountDelayGetTxid(noBandwidthAddress,accountNameBytes,
         10L,noBandwidthKey,blockingStubFull);
 
   }

@@ -20,15 +20,21 @@ import org.tron.core.Wallet;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractTrcToken077 {
+  private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.slideTokenOwnerKey");
+  private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
+  private final String tokenId = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.slideTokenId");
+
 
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
@@ -65,43 +71,44 @@ public class ContractTrcToken077 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(testKeyForGrammarAddress);
+    PublicMethedForDailybuild.printAddress(testKeyForGrammarAddress);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-    logger.info(Long.toString(PublicMethed.queryAccount(testNetAccountKey, blockingStubFull)
+    logger.info(Long.toString(PublicMethedForDailybuild.queryAccount(testNetAccountKey, blockingStubFull)
         .getBalance()));
+
   }
 
   @Test(enabled = false)
   public void testAddress001() {
-    PublicMethed
+    PublicMethedForDailybuild
         .sendcoin(grammarAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull);
 
     String filePath = "./src/test/resources/soliditycode/contractTrcToken077.sol";
     String contractName = "trcToken077";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    String deployTxid = PublicMethed
+    String deployTxid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
             0L, 100, null, testKeyForGrammarAddress,
             grammarAddress, blockingStubFull);
-    Optional<TransactionInfo> deployInfo = PublicMethed
+    Optional<TransactionInfo> deployInfo = PublicMethedForDailybuild
         .getTransactionInfoById(deployTxid, blockingStubFull);
     contractAddress = deployInfo.get().getContractAddress().toByteArray();
     logger.info("Deploy energy is " + deployInfo.get().getReceipt().getEnergyUsageTotal());
 
     String txid = "";
-    txid = PublicMethed.triggerContractSideChain(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "addressTest()", "#", false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infoById:" + infoById);
     logger.info("Trigger energy is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
@@ -109,10 +116,10 @@ public class ContractTrcToken077 {
 
   @Test(enabled = true, description = "The value of address is not at the beginning of 41")
   public void testAddress002() {
-    PublicMethed
+    PublicMethedForDailybuild
         .sendcoin(grammarAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String contractName = "trcToken077";
 
@@ -126,24 +133,24 @@ public class ContractTrcToken077 {
         + "\":\"addressValue\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"nonp"
         + "ayable\",\"type\":\"function\"}]";
 
-    String deploytxid = PublicMethed
+    String deploytxid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
             0L, 100, null, testKeyForGrammarAddress,
             grammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> deployById = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Optional<TransactionInfo> deployById = PublicMethedForDailybuild
         .getTransactionInfoById(deploytxid, blockingStubFull);
     contractAddress = deployById.get().getContractAddress().toByteArray();
     logger.info("infoById:" + deployById);
 
     String txid = "";
-    txid = PublicMethed.triggerContractSideChain(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "addressTest()", "#", false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infoById:" + infoById);
 
     Assert.assertNotNull(infoById);

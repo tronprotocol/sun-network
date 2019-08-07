@@ -12,14 +12,14 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.HttpMethed;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class HttpTestAccount002 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private JSONObject responseContent;
   private HttpResponse response;
   private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
@@ -45,7 +45,7 @@ public class HttpTestAccount002 {
    */
   @Test(enabled = true, description = "FreezeBalance for bandwidth by http")
   public void test01FreezebalanceForBandwidth() {
-    PublicMethed.printAddress(freezeBalanceKey);
+    PublicMethedForDailybuild.printAddress(freezeBalanceKey);
     //Send trx to test account
     response = HttpMethed.sendCoin(httpnode, fromAddress, freezeBalanceAddress, amount, testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));

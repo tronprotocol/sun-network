@@ -14,14 +14,14 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.HttpMethed;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class HttpTestClearAbiContract001 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private JSONObject responseContent;
   private HttpResponse response;
   private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
@@ -50,7 +50,7 @@ public class HttpTestClearAbiContract001 {
    */
   @Test(enabled = true, description = "Deploy smart contract by http")
   public void test1DeployContract() {
-    PublicMethed.printAddress(assetOwnerKey);
+    PublicMethedForDailybuild.printAddress(assetOwnerKey);
     HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.sendCoin(httpnode, fromAddress, assetOwnerAddress, amount, testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
@@ -62,7 +62,7 @@ public class HttpTestClearAbiContract001 {
 
     String filePath = "src/test/resources/soliditycode/TriggerConstant003.sol";
     contractName = "testConstantContract";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     abi = retMap.get("abI").toString();
     logger.info("abi:" + abi);

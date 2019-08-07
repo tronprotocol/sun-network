@@ -23,7 +23,7 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class DelayTransaction004 {
@@ -32,8 +32,8 @@ public class DelayTransaction004 {
       .getString("foundationAccount.key1");
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -81,52 +81,52 @@ public class DelayTransaction004 {
     ecKey = new ECKey(Utils.getRandom());
     smartContractOwnerAddress = ecKey.getAddress();
     smartContractOwnerKey = ByteArray.toHexString(ecKey.getPrivKeyBytes());
-    PublicMethed.printAddress(smartContractOwnerKey);
+    PublicMethedForDailybuild.printAddress(smartContractOwnerKey);
 
 
-    Assert.assertTrue(PublicMethed.sendcoin(smartContractOwnerAddress, 2048000000, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(smartContractOwnerAddress, 2048000000, fromAddress,
         testKey002, blockingStubFull));
-    //PublicMethed.freezeBalance(smartContractOwnerAddress,10000000L,3,
+    //PublicMethedForDailybuild.freezeBalance(smartContractOwnerAddress,10000000L,3,
     //    smartContractOwnerKey,blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String contractName = "TRONTOKEN";
     String code = Configuration.getByPath("testng.conf")
         .getString("code.code_ContractScenario004_deployErc20TronToken");
     String abi = Configuration.getByPath("testng.conf")
         .getString("abi.abi_ContractScenario004_deployErc20TronToken");
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, 999L,"0",0,null,
         smartContractOwnerKey, smartContractOwnerAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     Long oldContractPercent = smartContract.getConsumeUserResourcePercent();
-    Assert.assertTrue(PublicMethed.updateSetting(contractAddress,oldContractPercent,
+    Assert.assertTrue(PublicMethedForDailybuild.updateSetting(contractAddress,oldContractPercent,
         smartContractOwnerKey,smartContractOwnerAddress,blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getConsumeUserResourcePercent() == oldContractPercent);
 
     Long newContractPercent = 39L;
-    final String txid = PublicMethed.updateSettingDelayGetTxid(contractAddress,newContractPercent,
+    final String txid = PublicMethedForDailybuild.updateSettingDelayGetTxid(contractAddress,newContractPercent,
         delaySecond,smartContractOwnerKey,smartContractOwnerAddress,blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getConsumeUserResourcePercent() == oldContractPercent);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     logger.info("newContractPercent: " + smartContract.getConsumeUserResourcePercent());
     Assert.assertTrue(smartContract.getConsumeUserResourcePercent() == newContractPercent);
 
-    Long netFee = PublicMethed.getTransactionInfoById(txid,blockingStubFull).get().getReceipt()
+    Long netFee = PublicMethedForDailybuild.getTransactionInfoById(txid,blockingStubFull).get().getReceipt()
         .getNetFee();
-    Long fee = PublicMethed.getTransactionInfoById(txid,blockingStubFull).get().getFee();
+    Long fee = PublicMethedForDailybuild.getTransactionInfoById(txid,blockingStubFull).get().getFee();
     Assert.assertTrue(fee - netFee == delayTransactionFee);
-    Long afterFreeNetUsaged = PublicMethed.queryAccount(smartContractOwnerKey,
+    Long afterFreeNetUsaged = PublicMethedForDailybuild.queryAccount(smartContractOwnerKey,
         blockingStubFull).getFreeNetUsage();
-    Long beforeFreeNetUsaged = PublicMethed.queryAccount(smartContractOwnerKey,
+    Long beforeFreeNetUsaged = PublicMethedForDailybuild.queryAccount(smartContractOwnerKey,
         blockingStubFull).getFreeNetUsage();
-    Long inDelayFreeNetUsaged = PublicMethed.queryAccount(smartContractOwnerKey,
+    Long inDelayFreeNetUsaged = PublicMethedForDailybuild.queryAccount(smartContractOwnerKey,
         blockingStubFull).getFreeNetUsage();
     logger.info("beforeFreeNetUsaged: " + beforeFreeNetUsaged);
     logger.info("inDelayFreeNetUsaged: " + inDelayFreeNetUsaged);
@@ -142,36 +142,36 @@ public class DelayTransaction004 {
     final Long oldContractPercent = smartContract.getConsumeUserResourcePercent();
     final Long newContractPercent = 46L;
 
-    String txid = PublicMethed.updateSettingDelayGetTxid(contractAddress,newContractPercent,
+    String txid = PublicMethedForDailybuild.updateSettingDelayGetTxid(contractAddress,newContractPercent,
         delaySecond,smartContractOwnerKey,smartContractOwnerAddress,blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Account ownerAccount = PublicMethed.queryAccount(smartContractOwnerKey,blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Account ownerAccount = PublicMethedForDailybuild.queryAccount(smartContractOwnerKey,blockingStubFull);
     final Long beforeCancelBalance = ownerAccount.getBalance();
 
 
-    Assert.assertFalse(PublicMethed.cancelDeferredTransactionById(txid,fromAddress,testKey002,
+    Assert.assertFalse(PublicMethedForDailybuild.cancelDeferredTransactionById(txid,fromAddress,testKey002,
         blockingStubFull));
-    final String cancelTxid = PublicMethed.cancelDeferredTransactionByIdGetTxid(txid,
+    final String cancelTxid = PublicMethedForDailybuild.cancelDeferredTransactionByIdGetTxid(txid,
         smartContractOwnerAddress,smartContractOwnerKey,blockingStubFull);
-    Assert.assertFalse(PublicMethed.cancelDeferredTransactionById(txid,smartContractOwnerAddress,
+    Assert.assertFalse(PublicMethedForDailybuild.cancelDeferredTransactionById(txid,smartContractOwnerAddress,
         smartContractOwnerKey,blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     logger.info("newContractPercent: " + smartContract.getConsumeUserResourcePercent());
     Assert.assertTrue(smartContract.getConsumeUserResourcePercent() == oldContractPercent);
 
-    final Long netFee = PublicMethed.getTransactionInfoById(cancelTxid,blockingStubFull).get()
+    final Long netFee = PublicMethedForDailybuild.getTransactionInfoById(cancelTxid,blockingStubFull).get()
         .getReceipt().getNetFee();
-    final Long fee = PublicMethed.getTransactionInfoById(cancelTxid,blockingStubFull).get()
+    final Long fee = PublicMethedForDailybuild.getTransactionInfoById(cancelTxid,blockingStubFull).get()
         .getFee();
-    logger.info("net fee : " + PublicMethed.getTransactionInfoById(cancelTxid,blockingStubFull)
+    logger.info("net fee : " + PublicMethedForDailybuild.getTransactionInfoById(cancelTxid,blockingStubFull)
         .get().getReceipt().getNetFee());
-    logger.info("Fee : " + PublicMethed.getTransactionInfoById(cancelTxid,blockingStubFull)
+    logger.info("Fee : " + PublicMethedForDailybuild.getTransactionInfoById(cancelTxid,blockingStubFull)
         .get().getFee());
 
-    ownerAccount = PublicMethed.queryAccount(smartContractOwnerKey,blockingStubFull);
+    ownerAccount = PublicMethedForDailybuild.queryAccount(smartContractOwnerKey,blockingStubFull);
     Long afterCancelBalance = ownerAccount.getBalance();
     Assert.assertTrue(fee - netFee == cancleDelayTransactionFee);
     Assert.assertTrue(fee == beforeCancelBalance - afterCancelBalance);

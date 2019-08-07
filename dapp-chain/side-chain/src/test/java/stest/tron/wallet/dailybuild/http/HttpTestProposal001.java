@@ -10,14 +10,14 @@ import org.testng.annotations.Test;
 import org.tron.common.utils.ByteArray;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.HttpMethed;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class HttpTestProposal001 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private String httpnode = Configuration.getByPath("testng.conf")
       .getStringList("httpnode.ip.list").get(0);
   private JSONObject responseContent;
@@ -25,17 +25,17 @@ public class HttpTestProposal001 {
 
   private final String witnessKey001 = Configuration.getByPath("testng.conf")
       .getString("witness.key1");
-  private final byte[] witness1Address = PublicMethed.getFinalAddress(witnessKey001);
+  private final byte[] witness1Address = PublicMethedForDailybuild.getFinalAddress(witnessKey001);
   private final String witnessKey002 = Configuration.getByPath("testng.conf")
       .getString("witness.key2");
-  private final byte[] witness2Address = PublicMethed.getFinalAddress(witnessKey002);
+  private final byte[] witness2Address = PublicMethedForDailybuild.getFinalAddress(witnessKey002);
   private static Integer proposalId;
 
 
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Create proposal by http")
+  @Test(enabled = false, description = "Create proposal by http")
   public void test1CreateProposal() {
     HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.createProposal(httpnode, witness1Address, 21L, 1L, witnessKey001);
@@ -46,7 +46,7 @@ public class HttpTestProposal001 {
   /**
    * * constructor. *
    */
-  @Test(enabled = true, description = "List proposals by http")
+  @Test(enabled = false, description = "List proposals by http")
   public void test2ListProposals() {
     response = HttpMethed.listProposals(httpnode);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -59,7 +59,7 @@ public class HttpTestProposal001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "GetProposalById by http")
+  @Test(enabled = false, description = "GetProposalById by http")
   public void test3GetExchangeById() {
     response = HttpMethed.getProposalById(httpnode, proposalId);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -72,7 +72,7 @@ public class HttpTestProposal001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Approval proposal by http")
+  @Test(enabled = false, description = "Approval proposal by http")
   public void test4ApprovalProposal() {
     response = HttpMethed.approvalProposal(httpnode, witness1Address, proposalId,
         true, witnessKey001);
@@ -93,7 +93,7 @@ public class HttpTestProposal001 {
   /**
    * * constructor. *
    */
-  @Test(enabled = true, description = "Get paginated proposal list by http")
+  @Test(enabled = false, description = "Get paginated proposal list by http")
   public void test5GetPaginatedProposalList() {
 
     response = HttpMethed.getPaginatedProposalList(httpnode, 0, 1);
@@ -108,7 +108,7 @@ public class HttpTestProposal001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Delete proposal by http")
+  @Test(enabled = false, description = "Delete proposal by http")
   public void test6DeleteProposal() {
     response = HttpMethed.deleteProposal(httpnode, witness1Address, proposalId, witnessKey001);
     Assert.assertTrue(HttpMethed.verificationResult(response));
@@ -117,6 +117,28 @@ public class HttpTestProposal001 {
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     Assert.assertEquals(responseContent.getString("state"), "CANCELED");
+  }
+
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = false, description = "Get chain parameters by http")
+  public void test7GetChainParameters() {
+    response = HttpMethed.getChainParameters(httpnode);
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
+    Assert.assertEquals("getMaintenanceTimeInterval",
+        responseContent.getJSONArray("chainParameter").getJSONObject(0)
+            .get("key"));
+    Assert.assertEquals(300000, responseContent.getJSONArray("chainParameter").getJSONObject(0)
+        .get("value"));
+    Assert.assertEquals("getCreateAccountFee",
+        responseContent.getJSONArray("chainParameter").getJSONObject(2)
+            .get("key"));
+    Assert.assertEquals(100000, responseContent.getJSONArray("chainParameter").getJSONObject(2)
+        .get("value"));
   }
 
   /**

@@ -24,13 +24,23 @@ import org.slf4j.LoggerFactory;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.crypto.ECKey.ECDSASignature;
 import org.tron.common.utils.Sha256Hash;
+import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
+import stest.tron.wallet.common.client.Configuration;
+
+//import org.tron.protos.Protocol.DeferredStage;
+
 
 public class TransactionUtils {
 
   private static final Logger logger = LoggerFactory.getLogger("Transaction");
   private static final int RESERVE_BALANCE = 10;
+  public static final int NORMALTRANSACTION = 0;
+  public static final int UNEXECUTEDDEFERREDTRANSACTION = 1;
+  public static final int EXECUTINGDEFERREDTRANSACTION = 2;
+  public static final String mainGateWay = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.gateway_address");
 
   /**
    * constructor.
@@ -71,7 +81,6 @@ public class TransactionUtils {
           owner = contract.getParameter()
               .unpack(org.tron.protos.Contract.WitnessCreateContract.class).getOwnerAddress();
           break;
-
         case CreateSmartContract:
           owner = contract.getParameter().unpack(org.tron.protos.Contract.CreateSmartContract.class)
               .getOwnerAddress();
@@ -115,7 +124,7 @@ public class TransactionUtils {
   public static boolean validTransaction(Transaction signedTransaction) {
     assert (signedTransaction.getSignatureCount()
         == signedTransaction.getRawData().getContractCount());
-    List<Contract> listContract = signedTransaction.getRawData().getContractList();
+    List<Transaction.Contract> listContract = signedTransaction.getRawData().getContractList();
     byte[] hash = Sha256Hash.hash(signedTransaction.getRawData().toByteArray());
     int count = signedTransaction.getSignatureCount();
     if (count == 0) {
@@ -136,26 +145,6 @@ public class TransactionUtils {
       }
     }
     return true;
-  }
-
-  /**
-   * constructor.
-   */
-  public static Transaction sign(Transaction transaction, ECKey myKey) {
-    ByteString lockSript = ByteString.copyFrom(myKey.getAddress());
-    Transaction.Builder transactionBuilderSigned = transaction.toBuilder();
-
-    byte[] hash = Sha256Hash.hash(transaction.getRawData().toByteArray());
-    List<Contract> listContract = transaction.getRawData().getContractList();
-    for (int i = 0; i < listContract.size(); i++) {
-      ECDSASignature signature = myKey.sign(hash);
-      ByteString bsSign = ByteString.copyFrom(signature.toByteArray());
-      transactionBuilderSigned.addSignature(
-          bsSign);//Each contract may be signed with a different private key in the future.
-    }
-
-    transaction = transactionBuilderSigned.build();
-    return transaction;
   }
 
   /**
@@ -182,6 +171,34 @@ public class TransactionUtils {
     return transaction;
   }
 
+
+  /*
+   */
+
+  /**
+   * constructor.
+   */
+
+
+  public static Transaction sign(Transaction transaction, ECKey myKey) {
+    ByteString lockSript = ByteString.copyFrom(myKey.getAddress());
+    Transaction.Builder transactionBuilderSigned = transaction.toBuilder();
+
+    byte[] hash = Sha256Hash.hash(transaction.getRawData().toByteArray());
+    List<Contract> listContract = transaction.getRawData().getContractList();
+    for (int i = 0; i < listContract.size(); i++) {
+      ECDSASignature signature = myKey.sign(hash);
+      ByteString bsSign = ByteString.copyFrom(signature.toByteArray());
+      transactionBuilderSigned.addSignature(
+          bsSign);//Each contract may be signed with a different private key in the future.
+    }
+
+    transaction = transactionBuilderSigned.build();
+    boolean isSideChain = false;
+    return TransactionUtils
+        .sign(transaction, myKey, Wallet.decodeFromBase58Check(mainGateWay), isSideChain);
+  }
+
   /**
    * constructor.
    */
@@ -195,4 +212,32 @@ public class TransactionUtils {
     builder.setRawData(rowBuilder.build());
     return builder.build();
   }
+
+  /**
+   * constructor.
+   */
+  /*  public static Transaction setDelaySeconds(Transaction transaction, long delaySeconds) {
+    DeferredStage deferredStage = transaction.getRawData().toBuilder()
+        .getDeferredStage().toBuilder().setDelaySeconds(delaySeconds)
+        .setStage(UNEXECUTEDDEFERREDTRANSACTION).build();
+    Transaction.raw rawData = transaction.toBuilder().getRawData()
+        .toBuilder().setDeferredStage(deferredStage).build();
+    return transaction.toBuilder().setRawData(rawData).build();
+  }*/
+
+  /*  *//**
+   * constructor.
+   *//*
+  public static GrpcAPI.TransactionExtention setDelaySecondsToExtension(GrpcAPI
+      .TransactionExtention transactionExtention, long delaySeconds) {
+    if (delaySeconds == 0) {
+      return transactionExtention;
+    }
+    GrpcAPI.TransactionExtention.Builder builder = transactionExtention.toBuilder();
+
+    Transaction transaction = setDelaySeconds(transactionExtention.getTransaction(), delaySeconds);
+    builder.setTransaction(transaction);
+
+    return builder.build();
+  }*/
 }

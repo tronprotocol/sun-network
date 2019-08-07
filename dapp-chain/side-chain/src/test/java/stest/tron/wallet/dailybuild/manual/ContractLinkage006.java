@@ -22,14 +22,14 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractLinkage006 {
 
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -69,7 +69,7 @@ public class ContractLinkage006 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(linkage006Key);
+    PublicMethedForDailybuild.printAddress(linkage006Key);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -83,19 +83,19 @@ public class ContractLinkage006 {
   @Test(enabled = true, description = "Deploy contract with stack function")
   public void teststackOutByContract() {
 
-    Assert.assertTrue(PublicMethed.sendcoin(linkage006Address, 20000000000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(linkage006Address, 20000000000L, fromAddress,
         testKey003, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalance(linkage006Address, 1000000L,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(linkage006Address, 1000000L,
         0, linkage006Key, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(linkage006Address, 1000000L,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(linkage006Address, 1000000L,
         0, 1, linkage006Key, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(linkage006Address,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(linkage006Address,
         blockingStubFull);
     Account info;
-    info = PublicMethed.queryAccount(linkage006Address, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(linkage006Address, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyLimit = resourceInfo.getEnergyLimit();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -113,17 +113,17 @@ public class ContractLinkage006 {
 
     String filePath = "./src/test/resources/soliditycode/contractLinkage006.sol";
     String contractName = "AA";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
     //success ,balnace change.use EnergyUsed and NetUsed
-    txid = PublicMethed.deployContractAndGetTransactionInfoById(contractName, abi, code,
+    txid = PublicMethedForDailybuild.deployContractAndGetTransactionInfoById(contractName, abi, code,
         "", maxFeeLimit, 1000L, 100, null, linkage006Key,
         linkage006Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
     logger.info("txid is " + txid);
     contractAddress = infoById.get().getContractAddress().toByteArray();
@@ -139,8 +139,8 @@ public class ContractLinkage006 {
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
     logger.info("netFee:" + netFee);
-    Account infoafter = PublicMethed.queryAccount(linkage006Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(linkage006Address,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(linkage006Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(linkage006Address,
         blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyLimit = resourceInfoafter.getEnergyLimit();
@@ -161,24 +161,24 @@ public class ContractLinkage006 {
     Assert.assertTrue((beforeBalance - fee - 1000L) == afterBalance);
     Assert.assertTrue((beforeNetUsed + netUsed) >= afterNetUsed);
     Assert.assertTrue((beforeEnergyUsed + energyUsed) >= afterEnergyUsed);
-    PublicMethed.unFreezeBalance(linkage006Address, linkage006Key, 1,
+    PublicMethedForDailybuild.unFreezeBalance(linkage006Address, linkage006Key, 1,
         null, blockingStubFull);
   }
 
   @Test(enabled = true, description = "Boundary value for contract stack(63 is the largest level)")
   public void teststackOutByContract1() {
-    Assert.assertTrue(PublicMethed.sendcoin(linkage006Address2, 20000000000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(linkage006Address2, 20000000000L, fromAddress,
         testKey003, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalance(linkage006Address2, 1000000L,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(linkage006Address2, 1000000L,
         0, linkage006Key2, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(linkage006Address2, 1000000L,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(linkage006Address2, 1000000L,
         0, 1, linkage006Key2, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    AccountResourceMessage resourceInfo1 = PublicMethed.getAccountResource(linkage006Address2,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    AccountResourceMessage resourceInfo1 = PublicMethedForDailybuild.getAccountResource(linkage006Address2,
         blockingStubFull);
-    Account info1 = PublicMethed.queryAccount(linkage006Address2, blockingStubFull);
+    Account info1 = PublicMethedForDailybuild.queryAccount(linkage006Address2, blockingStubFull);
     Long beforeBalance1 = info1.getBalance();
     Long beforeEnergyLimit1 = resourceInfo1.getEnergyLimit();
     Long beforeEnergyUsed1 = resourceInfo1.getEnergyUsed();
@@ -196,13 +196,13 @@ public class ContractLinkage006 {
 
     //success ,balance change.use EnergyUsed and NetUsed
     initParmes = "\"" + Base58.encode58Check(fromAddress) + "\",\"63\"";
-    txid = PublicMethed.triggerContractSideChain(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "init(address,uint256)", initParmes, false,
         0, 100000000L, linkage006Address2, linkage006Key2, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> infoById1 = PublicMethed
+    Optional<TransactionInfo> infoById1 = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
     Long energyUsageTotal1 = infoById1.get().getReceipt().getEnergyUsageTotal();
     Long fee1 = infoById1.get().getFee();
@@ -216,8 +216,8 @@ public class ContractLinkage006 {
     logger.info("netUsed1:" + netUsed1);
     logger.info("energyUsed1:" + energyUsed1);
     logger.info("netFee1:" + netFee1);
-    Account infoafter1 = PublicMethed.queryAccount(linkage006Address2, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter1 = PublicMethed
+    Account infoafter1 = PublicMethedForDailybuild.queryAccount(linkage006Address2, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter1 = PublicMethedForDailybuild
         .getAccountResource(linkage006Address2,
             blockingStubFull1);
     Long afterBalance1 = infoafter1.getBalance();
@@ -239,18 +239,18 @@ public class ContractLinkage006 {
     Assert.assertTrue(afterNetUsed1 > beforeNetUsed1);
     Assert.assertTrue((beforeEnergyUsed1 + energyUsed1) >= afterEnergyUsed1);
 
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
   }
 
   @Test(enabled = true, description = "Boundary value for contract stack"
       + "(Trigger 64 level can't success)")
   public void teststackOutByContract2() {
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     initParmes = "\"" + Base58.encode58Check(fromAddress) + "\",\"64\"";
-    AccountResourceMessage resourceInfo2 = PublicMethed.getAccountResource(linkage006Address2,
+    AccountResourceMessage resourceInfo2 = PublicMethedForDailybuild.getAccountResource(linkage006Address2,
         blockingStubFull);
-    Account info2 = PublicMethed.queryAccount(linkage006Address2, blockingStubFull);
+    Account info2 = PublicMethedForDailybuild.queryAccount(linkage006Address2, blockingStubFull);
     Long beforeBalance2 = info2.getBalance();
     Long beforeEnergyLimit2 = resourceInfo2.getEnergyLimit();
     Long beforeEnergyUsed2 = resourceInfo2.getEnergyUsed();
@@ -266,12 +266,12 @@ public class ContractLinkage006 {
     logger.info("beforeNetUsed2:" + beforeNetUsed2);
     logger.info("beforeFreeNetUsed2:" + beforeFreeNetUsed2);
     //failed ,use EnergyUsed and NetUsed
-    txid = PublicMethed.triggerContractSideChain(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "init(address,uint256)", initParmes, false,
         1000, 100000000L, linkage006Address2, linkage006Key2, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> infoById2 = PublicMethed
+    Optional<TransactionInfo> infoById2 = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
     Long energyUsageTotal2 = infoById2.get().getReceipt().getEnergyUsageTotal();
     Long fee2 = infoById2.get().getFee();
@@ -286,8 +286,8 @@ public class ContractLinkage006 {
     logger.info("energyUsed2:" + energyUsed2);
     logger.info("netFee2:" + netFee2);
 
-    Account infoafter2 = PublicMethed.queryAccount(linkage006Address2, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter2 = PublicMethed.getAccountResource(linkage006Address2,
+    Account infoafter2 = PublicMethedForDailybuild.queryAccount(linkage006Address2, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter2 = PublicMethedForDailybuild.getAccountResource(linkage006Address2,
         blockingStubFull1);
     Long afterBalance2 = infoafter2.getBalance();
     Long afterEnergyLimit2 = resourceInfoafter2.getEnergyLimit();
@@ -306,9 +306,9 @@ public class ContractLinkage006 {
 
     Assert.assertTrue((beforeBalance2 - fee2) == afterBalance2);
     Assert.assertTrue((beforeEnergyUsed2 + energyUsed2) >= afterEnergyUsed2);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 1);
-    PublicMethed.unFreezeBalance(linkage006Address2, linkage006Key2, 1,
+    PublicMethedForDailybuild.unFreezeBalance(linkage006Address2, linkage006Key2, 1,
         linkage006Address2, blockingStubFull);
   }
 

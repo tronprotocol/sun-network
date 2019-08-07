@@ -28,14 +28,14 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class TriggerConstant001 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
@@ -77,7 +77,7 @@ public class TriggerConstant001 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(contractExcKey);
+    PublicMethedForDailybuild.printAddress(contractExcKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -93,31 +93,31 @@ public class TriggerConstant001 {
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
 
     {
-      Assert.assertTrue(PublicMethed
+      Assert.assertTrue(PublicMethedForDailybuild
           .sendcoin(contractExcAddress, 10000_000_000L, testNetAccountAddress, testNetAccountKey,
               blockingStubFull));
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
       String filePath = "src/test/resources/soliditycode/TriggerConstant001.sol";
       String contractName = "testConstantContract";
-      HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+      HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
       String code = retMap.get("byteCode").toString();
       final String abi = retMap.get("abI").toString();
 
-      contractAddressNoAbi = PublicMethed.deployContract(contractName, "[]", code, "", maxFeeLimit,
+      contractAddressNoAbi = PublicMethedForDailybuild.deployContract(contractName, "[]", code, "", maxFeeLimit,
           0L, 100, null, contractExcKey,
           contractExcAddress, blockingStubFull);
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
-      SmartContract smartContract = PublicMethed.getContract(
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+      SmartContract smartContract = PublicMethedForDailybuild.getContract(
           contractAddressNoAbi, blockingStubFull);
       Assert.assertTrue(smartContract.getAbi().toString().isEmpty());
       Assert.assertTrue(smartContract.getName().equalsIgnoreCase(contractName));
       Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
 
-      contractAddressWithAbi = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+      contractAddressWithAbi = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
           0L, 100, null, contractExcKey,
           contractExcAddress, blockingStubFull);
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
-      SmartContract smartContract2 = PublicMethed.getContract(
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+      SmartContract smartContract2 = PublicMethedForDailybuild.getContract(
           contractAddressWithAbi, blockingStubFull);
       Assert.assertFalse(smartContract2.getAbi().toString().isEmpty());
       Assert.assertTrue(smartContract2.getName().equalsIgnoreCase(contractName));
@@ -131,7 +131,7 @@ public class TriggerConstant001 {
 
     String txid = "";
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressNoAbi,
             "testPayable()", "#", false,
             0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
@@ -152,7 +152,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a non-payable function without ABI")
   public void test02TriggerConstantContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressNoAbi,
             "testNoPayable()", "#", false,
             0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
@@ -174,7 +174,7 @@ public class TriggerConstant001 {
   public void test03TriggerConstantContract() {
 
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressNoAbi,
             "testView()", "#", false,
             0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
@@ -196,7 +196,7 @@ public class TriggerConstant001 {
   public void test04TriggerConstantContract() {
 
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressNoAbi,
             "testPure()", "#", false,
             0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
@@ -219,7 +219,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a payable function with ABI")
   public void test05TriggerConstantContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressNoAbi,
             "testPayable()", "#", false,
             0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
@@ -231,7 +231,7 @@ public class TriggerConstant001 {
         containsString("CONTRACT_EXE_ERROR"));
     Assert.assertThat(transactionExtention.getResult().getMessage().toStringUtf8(),
         containsString("Attempt to call a state modifying opcode inside STATICCALL"));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
 
   }
@@ -240,7 +240,7 @@ public class TriggerConstant001 {
   public void test06TriggerConstantContract() {
 
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressWithAbi,
             "testNoPayable()", "#", false,
             0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
@@ -252,7 +252,7 @@ public class TriggerConstant001 {
         containsString("CONTRACT_EXE_ERROR"));
     Assert.assertThat(transactionExtention.getResult().getMessage().toStringUtf8(),
         containsString("Attempt to call a state modifying opcode inside STATICCALL"));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
 
   }
@@ -260,7 +260,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a view function with ABI")
   public void test07TriggerConstantContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressWithAbi,
             "testView()", "#", false,
             0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
@@ -284,7 +284,7 @@ public class TriggerConstant001 {
   public void test08TriggerConstantContract() {
 
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressWithAbi,
             "testPure()", "#", false,
             0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
@@ -308,9 +308,9 @@ public class TriggerConstant001 {
   public void test09TriggerContract() {
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -321,14 +321,14 @@ public class TriggerConstant001 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    txid = PublicMethed
-        .triggerContractSideChain(contractAddressNoAbi,
+    txid = PublicMethedForDailybuild
+        .triggerContract(contractAddressNoAbi,
             "testPayable()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -341,8 +341,8 @@ public class TriggerConstant001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -369,9 +369,9 @@ public class TriggerConstant001 {
   public void test10TriggerContract() {
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -382,14 +382,14 @@ public class TriggerConstant001 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    txid = PublicMethed
-        .triggerContractSideChain(contractAddressNoAbi,
+    txid = PublicMethedForDailybuild
+        .triggerContract(contractAddressNoAbi,
             "testNoPayable()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -402,8 +402,8 @@ public class TriggerConstant001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -431,9 +431,9 @@ public class TriggerConstant001 {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -444,14 +444,14 @@ public class TriggerConstant001 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    txid = PublicMethed
-        .triggerContractSideChain(contractAddressNoAbi,
+    txid = PublicMethedForDailybuild
+        .triggerContract(contractAddressNoAbi,
             "testView()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -464,8 +464,8 @@ public class TriggerConstant001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -493,9 +493,9 @@ public class TriggerConstant001 {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -506,14 +506,14 @@ public class TriggerConstant001 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    txid = PublicMethed
-        .triggerContractSideChain(contractAddressNoAbi,
+    txid = PublicMethedForDailybuild
+        .triggerContract(contractAddressNoAbi,
             "testPure()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -526,8 +526,8 @@ public class TriggerConstant001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -553,7 +553,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerContract a pure function with ABI")
   public void test18TriggerContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerContractForExtention(contractAddressWithAbi,
             "testPure()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
@@ -577,9 +577,9 @@ public class TriggerConstant001 {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -589,14 +589,14 @@ public class TriggerConstant001 {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
-    txid = PublicMethed
-        .triggerContractSideChain(contractAddressWithAbi,
+    txid = PublicMethedForDailybuild
+        .triggerContract(contractAddressWithAbi,
             "testPayable()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -609,8 +609,8 @@ public class TriggerConstant001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -636,9 +636,9 @@ public class TriggerConstant001 {
   public void test20TriggerContract() {
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -648,14 +648,14 @@ public class TriggerConstant001 {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
-    txid = PublicMethed
-        .triggerContractSideChain(contractAddressNoAbi,
+    txid = PublicMethedForDailybuild
+        .triggerContract(contractAddressNoAbi,
             "testNoPayable()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -668,8 +668,8 @@ public class TriggerConstant001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -694,7 +694,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerContract a view function with ABI")
   public void test21TriggerContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerContractForExtention(contractAddressWithAbi,
             "testView()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
@@ -718,7 +718,7 @@ public class TriggerConstant001 {
   public void test24TriggerConstantContract() {
 
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressWithAbi,
             "testView2()", "#", false,
             0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
@@ -745,7 +745,7 @@ public class TriggerConstant001 {
       + "revert()")
   public void test25TriggerContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerContractForExtention(contractAddressWithAbi,
             "testView2()", "#", false,
             0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
@@ -770,7 +770,7 @@ public class TriggerConstant001 {
   public void testTriggerConstantContract() {
 
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressNoAbi,
             "testView2()", "#", false,
             0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);

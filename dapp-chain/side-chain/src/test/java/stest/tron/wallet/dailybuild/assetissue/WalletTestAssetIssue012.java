@@ -1,4 +1,3 @@
-/*
 package stest.tron.wallet.dailybuild.assetissue;
 
 import com.google.protobuf.ByteString;
@@ -17,10 +16,9 @@ import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
-import org.tron.protos.Protocol.Account;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class WalletTestAssetIssue012 {
@@ -29,8 +27,16 @@ public class WalletTestAssetIssue012 {
       .getString("foundationAccount.key1");
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
+
+  private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.slideTokenOwnerKey");
+  private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
+  private final String tokenId = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.slideTokenId");
+  private static ByteString assetAccountId = null;
+
 
 
   private static final long now = System.currentTimeMillis();
@@ -66,13 +72,11 @@ public class WalletTestAssetIssue012 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
+   */
 
-
-  @BeforeClass(enabled = true)
+  @BeforeClass(enabled = false)
   public void beforeClass() {
     logger.info(testKeyForAssetIssue012);
     logger.info(transferAssetCreateKey);
@@ -81,10 +85,6 @@ public class WalletTestAssetIssue012 {
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-  }
-
-  @Test(enabled = true, description = "Transfer asset use token owner net")
-  public void testTransferAssetUseCreatorNet() {
     //get account
     ecKey1 = new ECKey(Utils.getRandom());
     asset012Address = ecKey1.getAddress();
@@ -94,39 +94,35 @@ public class WalletTestAssetIssue012 {
     transferAssetAddress = ecKey2.getAddress();
     transferAssetCreateKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
-    PublicMethed.printAddress(testKeyForAssetIssue012);
-    PublicMethed.printAddress(transferAssetCreateKey);
+    PublicMethedForDailybuild.printAddress(testKeyForAssetIssue012);
+    PublicMethedForDailybuild.printAddress(transferAssetCreateKey);
 
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(asset012Address, sendAmount, fromAddress, testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild
         .freezeBalance(asset012Address, 100000000L, 3, testKeyForAssetIssue012,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Long start = System.currentTimeMillis() + 2000;
-    Long end = System.currentTimeMillis() + 1000000000;
-    Assert.assertTrue(PublicMethed
-        .createAssetIssue(asset012Address, name, totalSupply, 1, 1, start, end, 1, description,
-            url, freeAssetNetLimit, publicFreeAssetNetLimit, 1L, 1L, testKeyForAssetIssue012,
-            blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    assetAccountId = ByteString.copyFromUtf8(tokenId);
+    org.junit.Assert
+        .assertTrue(PublicMethedForDailybuild.transferAsset(asset012Address, assetAccountId.toByteArray(),
+            100000000L, tokenOnwerAddress, tokenOwnerKey, blockingStubFull));
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account getAssetIdFromThisAccount;
-    getAssetIdFromThisAccount = PublicMethed.queryAccount(asset012Address, blockingStubFull);
-    ByteString assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
+  }
 
+  @Test(enabled = false, description = "Transfer asset use token owner net")
+  public void testTransferAssetUseCreatorNet() {
     //Transfer asset to an account.
-    Assert.assertTrue(PublicMethed.transferAsset(
+    Assert.assertTrue(PublicMethedForDailybuild.transferAsset(
         transferAssetAddress, assetAccountId.toByteArray(), 10000000L, asset012Address,
         testKeyForAssetIssue012, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     //Before transfer asset issue, query the net used from creator and transfer.
-    AccountNetMessage assetCreatorNet = PublicMethed
+    AccountNetMessage assetCreatorNet = PublicMethedForDailybuild
         .getAccountNet(asset012Address, blockingStubFull);
-    AccountNetMessage assetTransferNet = PublicMethed
+    AccountNetMessage assetTransferNet = PublicMethedForDailybuild
         .getAccountNet(transferAssetAddress, blockingStubFull);
     Long creatorBeforeNetUsed = assetCreatorNet.getNetUsed();
     Long transferBeforeFreeNetUsed = assetTransferNet.getFreeNetUsed();
@@ -135,27 +131,27 @@ public class WalletTestAssetIssue012 {
 
     //Transfer send some asset issue to default account, to test if this
     // transaction use the creator net.
-    Assert.assertTrue(PublicMethed.transferAsset(toAddress, assetAccountId.toByteArray(), 1L,
+    Assert.assertTrue(PublicMethedForDailybuild.transferAsset(toAddress, assetAccountId.toByteArray(), 1L,
         transferAssetAddress, transferAssetCreateKey, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    assetCreatorNet = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    assetCreatorNet = PublicMethedForDailybuild
         .getAccountNet(asset012Address, blockingStubFull);
-    assetTransferNet = PublicMethed
+    assetTransferNet = PublicMethedForDailybuild
         .getAccountNet(transferAssetAddress, blockingStubFull);
+    PublicMethedForDailybuild.printAddress(testKeyForAssetIssue012);
+    PublicMethedForDailybuild.printAddress(transferAssetCreateKey);
     Long creatorAfterNetUsed = assetCreatorNet.getNetUsed();
     Long transferAfterFreeNetUsed = assetTransferNet.getFreeNetUsed();
-    logger.info(Long.toString(creatorAfterNetUsed));
-    logger.info(Long.toString(transferAfterFreeNetUsed));
+    logger.info("creatorAfterNetUsed:" + creatorAfterNetUsed);
+    logger.info("creatorBeforeNetUsed:" + creatorBeforeNetUsed);
 
     Assert.assertTrue(creatorAfterNetUsed - creatorBeforeNetUsed > netCostMeasure);
     Assert.assertTrue(transferAfterFreeNetUsed - transferBeforeFreeNetUsed < netCostMeasure);
   }
 
-  */
-/**
+  /**
    * constructor.
-   *//*
-
+   */
 
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
@@ -166,4 +162,3 @@ public class WalletTestAssetIssue012 {
 }
 
 
-*/

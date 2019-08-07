@@ -16,7 +16,7 @@ import org.tron.common.utils.ByteArray;
 import org.tron.core.Wallet;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class WalletTestNode001 {
@@ -71,7 +71,7 @@ public class WalletTestNode001 {
       if (nodeList.getNodesCount() != 0 || nodeList1.getNodesCount() != 0) {
         break;
       }
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     }
     //Assert.assertTrue(nodeList.getNodesCount() != 0 || nodeList1.getNodesCount() != 0);
 

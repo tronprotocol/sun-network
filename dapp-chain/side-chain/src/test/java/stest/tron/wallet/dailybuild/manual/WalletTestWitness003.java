@@ -29,7 +29,7 @@ import org.tron.protos.Protocol.Block;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
 
 //import stest.tron.wallet.common.client.AccountComparator;
@@ -39,13 +39,13 @@ public class WalletTestWitness003 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   private final String testUpdateWitnessKey = Configuration.getByPath("testng.conf")
       .getString("witness.key1");
-  private final byte[] updateAddress = PublicMethed.getFinalAddress(testUpdateWitnessKey);
+  private final byte[] updateAddress = PublicMethedForDailybuild.getFinalAddress(testUpdateWitnessKey);
   private static final byte[] INVAILD_ADDRESS = Base58
       .decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
 
@@ -85,8 +85,8 @@ public class WalletTestWitness003 {
   @BeforeClass
   public void beforeClass() {
     logger.info(lowBalTest);
-    logger.info(ByteArray.toHexString(PublicMethed.getFinalAddress(lowBalTest)));
-    logger.info(Base58.encode58Check(PublicMethed.getFinalAddress(lowBalTest)));
+    logger.info(ByteArray.toHexString(PublicMethedForDailybuild.getFinalAddress(lowBalTest)));
+    logger.info(Base58.encode58Check(PublicMethedForDailybuild.getFinalAddress(lowBalTest)));
 
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
@@ -115,7 +115,7 @@ public class WalletTestWitness003 {
     Optional<WitnessList> result = Optional.ofNullable(witnesslist);
     GrpcAPI.WitnessList witnessList = result.get();
     if (result.get().getWitnessesCount() < 6) {
-      Assert.assertTrue(PublicMethed
+      Assert.assertTrue(PublicMethedForDailybuild
           .sendcoin(lowBalAddress, costForCreateWitness, fromAddress, testKey002,
               blockingStubFull));
       //null url, update failed
@@ -140,6 +140,7 @@ public class WalletTestWitness003 {
       //too long url, update failed
       Assert.assertFalse(updateWitness(updateAddress, tooLongUrl.getBytes(), testUpdateWitnessKey));
       //Content space and special char, update success
+      PublicMethedForDailybuild.printAddress(testUpdateWitnessKey);
       Assert.assertTrue(updateWitness(updateAddress, updateSpaceUrl, testUpdateWitnessKey));
       //update success
       Assert.assertTrue(updateWitness(updateAddress, updateUrl, testUpdateWitnessKey));
@@ -210,8 +211,8 @@ public class WalletTestWitness003 {
       logger.info("transaction == null");
       return false;
     }
-    transaction = signTransaction(ecKey, transaction);
-    GrpcAPI.Return response = PublicMethed.broadcastTransaction(transaction, blockingStubFull);
+    transaction = PublicMethedForDailybuild.signTransaction(ecKey, transaction);
+    GrpcAPI.Return response = PublicMethedForDailybuild.broadcastTransaction(transaction, blockingStubFull);
     if (response.getResult() == false) {
       logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
       logger.info("response.getRestult() == false");

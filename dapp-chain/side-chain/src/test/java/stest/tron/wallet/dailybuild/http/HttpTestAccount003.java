@@ -14,14 +14,14 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.HttpMethed;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class HttpTestAccount003 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private JSONObject responseContent;
   private HttpResponse response;
   private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
@@ -30,10 +30,10 @@ public class HttpTestAccount003 {
       .getStringList("httpnode.ip.list").get(2);
   private final String witnessKey001 = Configuration.getByPath("testng.conf")
       .getString("witness.key1");
-  private final byte[] witness1Address = PublicMethed.getFinalAddress(witnessKey001);
+  private final byte[] witness1Address = PublicMethedForDailybuild.getFinalAddress(witnessKey001);
   private final String witnessKey002 = Configuration.getByPath("testng.conf")
       .getString("witness.key2");
-  private final byte[] witness2Address = PublicMethed.getFinalAddress(witnessKey002);
+  private final byte[] witness2Address = PublicMethedForDailybuild.getFinalAddress(witnessKey002);
 
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] newAccountAddress = ecKey1.getAddress();
@@ -154,7 +154,7 @@ public class HttpTestAccount003 {
    */
   @Test(enabled = true, description = "Create account by http")
   public void test6CreateAccount() {
-    PublicMethed.printAddress(newAccountKey);
+    PublicMethedForDailybuild.printAddress(newAccountKey);
     response = HttpMethed.createAccount(httpnode, fromAddress, newAccountAddress, testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
@@ -173,7 +173,7 @@ public class HttpTestAccount003 {
         testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
-    PublicMethed.printAddress(newAccountKey);
+    PublicMethedForDailybuild.printAddress(newAccountKey);
 
     response = HttpMethed.createWitness(httpnode, newAccountAddress, updateUrl);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -186,11 +186,10 @@ public class HttpTestAccount003 {
    */
   @Test(enabled = true, description = "Withdraw by http")
   public void test8Withdraw() {
-    response = HttpMethed.withdrawBalance(httpnode, witness1Address);
+    response = HttpMethed.withdrawBalance(httpnode, witness2Address, witnessKey002);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
-    Assert.assertTrue(
-        responseContent.getString("Error").indexOf("is a guard representative") != -1);
+    Assert.assertTrue(responseContent.getString("result").equals("true"));
   }
 
   /**
