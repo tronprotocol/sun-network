@@ -1761,7 +1761,7 @@ public class Client {
 
   private void deposit(String[] parameters) {
     if (parameters == null || parameters.length < 1) {
-      System.out.println("deposit needs parameters ");
+      System.out.println("deposit needs parameters (trx| trc10| trc20| trc721)");
       return;
     }
 
@@ -2530,7 +2530,7 @@ public class Client {
 
   private void withdraw(String[] parameters) {
     if (parameters == null || parameters.length < 1) {
-      System.out.println("withdraw needs parameters ");
+      System.out.println("withdraw needs parameters (trx|trc10|trc20|trc721)");
       return;
     }
 
@@ -2734,7 +2734,7 @@ public class Client {
 
   private void mapping(String[] parameters) {
     if (parameters == null || parameters.length < 1) {
-      System.out.println("mapping needs parameters ");
+      System.out.println("mapping needs parameters (trc20 |trc721 )");
       return;
     }
 
