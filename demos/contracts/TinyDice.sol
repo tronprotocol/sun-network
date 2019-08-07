@@ -43,7 +43,7 @@ contract TinyDice is  KillableOwnership {
         if (batchIndex < index) {
             // allowd overflow here.
             defaultSalt = bytes32(uint256(defaultSalt) + _point + msg.value); 
-            uint256 random = uint256(keccak256(abi.encodePacked(defaultSalt, blockhash(block.number)))).mod(100);
+            uint256 random = uint256(keccak256(abi.encodePacked(defaultSalt, blockhash(block.number - 1)))).mod(100);
             rtu(random);
         }
         
