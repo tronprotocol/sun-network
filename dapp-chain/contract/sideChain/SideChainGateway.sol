@@ -48,10 +48,10 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     address public sunTokenAddress;
     address mintTRXContract = 0x10000;
     address mintTRC10Contract = 0x10001;
-    uint256 withdrawMinTrx = 0;
-    uint256 withdrawMinTrc10 = 0;
-    uint256 withdrawMinTrc20 = 0;
-    uint256 withdrawFee = 0;
+    uint256 public withdrawMinTrx = 0;
+    uint256 public withdrawMinTrc10 = 0;
+    uint256 public withdrawMinTrc20 = 0;
+    uint256 public withdrawFee = 0;
     uint256 public bonus;
     bool pause;
     bool stop;
