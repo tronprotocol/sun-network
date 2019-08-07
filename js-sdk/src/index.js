@@ -338,17 +338,24 @@ export default class SunWeb {
             let result = null;
             if (functionSelector === 'approve') {
                 const approveInstance = await this.mainchain.contract().at(contractAddress);
-                result = await approveInstance.approve(this.mainGatewayAddress, num).send(options, privateKey)
+                result = await approveInstance.approve(this.mainGatewayAddress, num).send(options, privateKey);
             } else {
                 const contractInstance = await this.mainchain.contract().at(this.mainGatewayAddress);
-                if (functionSelector === 'depositTRC20') {
-                    result = await contractInstance.depositTRC20(contractAddress, num).send(options, privateKey);
-                } else if (functionSelector === 'depositTRC721') {
-                    result = await contractInstance.depositTRC721(contractAddress, num).send(options, privateKey);
-                } else if (functionSelector === 'retryDeposit') {
-                    result = await contractInstance.retryDeposit(num).send(options, privateKey); 
-                } else if (functionSelector === 'retryMapping') {
-                    result = await contractInstance.retryMapping(num).send(options, privateKey); 
+                switch(functionSelector) {
+                    case 'depositTRC20':
+                        result = await contractInstance.depositTRC20(contractAddress, num).send(options, privateKey);
+                        break;
+                    case 'depositTRC721':
+                        result = await contractInstance.depositTRC721(contractAddress, num).send(options, privateKey);
+                        break;
+                    case 'retryDeposit':
+                        result = await contractInstance.retryDeposit(num).send(options, privateKey);
+                        break; 
+                    case 'retryMapping':
+                        result = await contractInstance.retryMapping(num).send(options, privateKey);
+                        break;
+                    default:
+                        break;
                 }
             }
             callback(null, result);
@@ -645,7 +652,7 @@ export default class SunWeb {
         functionSelector,
         numOrId,
         feeLimit,
-        contractAddress,  // side chain trc20 contract address after mapping
+        contractAddress,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
         callback = false
