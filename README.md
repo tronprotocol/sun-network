@@ -32,7 +32,8 @@ This will make a lot of sense to the dapp developer and the main chain.
 * [JS SDK](https://github.com/tronprotocol/sun-network/tree/develop/js-sdk)
 * [JAVA SDK](https://github.com/tronprotocol/sun-network/tree/develop/sun-sdk)
 * [SideChain Wallet Cli](https://github.com/tronprotocol/sun-network/tree/develop/sun-cli)
-* [Demo#1](https://github.com/tronprotocol/sun-network/tree/develop/)
+* [Demo#1](https://github.com/tronprotocol/sun-network/tree/develop/demos/DonateNow)
+* [Demo#2](https://github.com/tronprotocol/sun-network/tree/develop/demos/TinyDice)
 
 
 # Resource
