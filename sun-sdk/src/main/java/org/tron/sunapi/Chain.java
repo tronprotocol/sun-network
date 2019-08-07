@@ -180,10 +180,10 @@ public class Chain implements ChainInterface {
     long callValue = request.getCallValue();
     long tokenCallValue = request.getTokenCallValue();
     String tokenId = request.getTokenId();
-    if (argsStr.equalsIgnoreCase("#")) {
+    if (StringUtils.isEmpty(argsStr) || argsStr.equalsIgnoreCase("#")) {
       argsStr = "";
     }
-    if (tokenId.equalsIgnoreCase("#")) {
+    if (StringUtils.isEmpty(tokenId) || tokenId.equalsIgnoreCase("#")) {
       tokenId = "";
     }
     try {
