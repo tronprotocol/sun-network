@@ -31,9 +31,9 @@ contract MainChainGateway is OracleManagerContract {
 
     uint256 public mappingFee;
     uint256 public bonus;
-    uint256 depositMinTrx = 0;
-    uint256 depositMinTrc10 = 0;
-    uint256 depositMinTrc20 = 0;
+    uint256 public depositMinTrx = 0;
+    uint256 public depositMinTrc10 = 0;
+    uint256 public depositMinTrc20 = 0;
     address public sunTokenAddress;
     mapping(address => uint256) public mainToSideContractMap;
     DepositMsg[] userDepositList;
