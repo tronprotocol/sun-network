@@ -1503,7 +1503,7 @@ public class ServerApi {
       logger.info("Result:" + Hex.toHexString(result));
       String trxId = ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
 
-      return new TransactionResponse(transaction.getRet(0).getRet(), trxId,
+      return new TransactionResponse(true, transaction.getRet(0).getRet(), trxId,
           Hex.toHexString(result));
 
     }
