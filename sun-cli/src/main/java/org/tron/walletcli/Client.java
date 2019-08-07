@@ -1951,7 +1951,6 @@ public class Client {
     allCmds.add("getassetissuebyid");
     allCmds.add("sendcoin");
     allCmds.add("transferasset");
-    allCmds.add("assetissue");
     allCmds.add("createaccount");
     allCmds.add("createwitness");
     allCmds.add("updatewitness");
@@ -1968,6 +1967,8 @@ public class Client {
     allCmds.add("listnodes");
     allCmds.add("getblock");
     allCmds.add("gettransactionbyid");
+    allCmds.add("gettransactionsfromthis");
+    allCmds.add("gettransactionstothis");
     allCmds.add("gettransactioninfobyid");
     allCmds.add("getblockbyid");
     allCmds.add("updatesetting");
@@ -2796,10 +2797,6 @@ public class Client {
           transferAsset(parameters);
           break;
         }
-        case "assetissue": {
-          assetIssue(parameters);
-          break;
-        }
         case "createaccount": {
           createAccount(parameters);
           break;
@@ -2862,6 +2859,14 @@ public class Client {
         }
         case "gettransactionbyid": {
           getTransactionById(parameters);
+          break;
+        }
+        case "gettransactionsfromthis": {
+          getTransactionsFromThis(parameters);
+          break;
+        }
+        case "gettransactionstothis": {
+          getTransactionsToThis(parameters);
           break;
         }
         case "gettransactioninfobyid": {
