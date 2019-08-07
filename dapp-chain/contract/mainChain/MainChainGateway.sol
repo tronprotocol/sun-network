@@ -30,6 +30,7 @@ contract MainChainGateway is OracleManagerContract {
     event TRC721Withdraw(address owner, address contractAddress, uint256 uid, uint256 nonce);
 
     uint256 public mappingFee;
+    uint256 public bonus;
     uint256 depositMinTrx = 0;
     uint256 depositMinTrc10 = 0;
     uint256 depositMinTrc20 = 0;
@@ -150,6 +151,9 @@ contract MainChainGateway is OracleManagerContract {
 
     function mappingTRC20(bytes txId) public onlyNotStop onlyNotPause goDelegateCall payable returns (uint256) {
         require(msg.value >= mappingFee, "trc20MappingFee not enough");
+        if (msg.value > 0) {
+            bonus += msg.value;
+        }
         address trc20Address = calcContractAddress(txId, msg.sender);
         require(trc20Address != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         require(mainToSideContractMap[trc20Address] != 1, "trc20Address mapped");
@@ -165,6 +169,9 @@ contract MainChainGateway is OracleManagerContract {
     // 2. deployDAppTRC721AndMapping
     function mappingTRC721(bytes txId) public onlyNotStop onlyNotPause goDelegateCall payable returns (uint256) {
         require(msg.value >= mappingFee, "trc721MappingFee not enough");
+        if (msg.value > 0) {
+            bonus += msg.value;
+        }
         address trc721Address = calcContractAddress(txId, msg.sender);
         require(trc721Address != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         require(mainToSideContractMap[trc721Address] != 1, "trc721Address mapped");

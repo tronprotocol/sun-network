@@ -52,7 +52,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     uint256 withdrawMinTrc10 = 0;
     uint256 withdrawMinTrc20 = 0;
     uint256 withdrawFee = 0;
-    uint256 bonus;
+    uint256 public bonus;
     bool pause;
     bool stop;
 
