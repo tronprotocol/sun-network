@@ -257,4 +257,16 @@ contract MainChainGateway is OracleManagerContract {
         require(_sunTokenAddress != address(0), "_sunTokenAddress == address(0)");
         sunTokenAddress = _sunTokenAddress;
     }
+
+    function setDepositMinTrx(uint256 minValue) public onlyOwner {
+        depositMinTrx = minValue;
+    }
+
+    function setDepositMinTrc10(uint256 minValue) public onlyOwner {
+        depositMinTrc10 = minValue;
+    }
+
+    function setDepositMinTrc20(uint256 minValue) public onlyOwner {
+        depositMinTrc20 = minValue;
+    }
 }

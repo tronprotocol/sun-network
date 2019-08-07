@@ -457,11 +457,32 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         }
     }
 
+    function transferOwnership(address _newOwner) public onlyOwner {
+        require(_newOwner != address(0));
+        owner = _newOwner;
+    }
+
     function setPause(bool isPause) public onlyOwner {
         pause = isPause;
     }
 
     function setStop(bool isStop) public onlyOwner {
         stop = isStop;
+    }
+
+    function setWithdrawMinTrx(uint256 minValue) public onlyOwner {
+        withdrawMinTrx = minValue;
+    }
+
+    function setWithdrawMinTrc10(uint256 minValue) public onlyOwner {
+        withdrawMinTrc10 = minValue;
+    }
+
+    function setWithdrawMinTrc20(uint256 minValue) public onlyOwner {
+        withdrawMinTrc20 = minValue;
+    }
+
+    function setWithdrawFee(uint256 fee) public onlyOwner {
+        withdrawFee = fee;
     }
 }
