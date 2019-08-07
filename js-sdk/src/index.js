@@ -345,6 +345,10 @@ export default class SunWeb {
                     result = await contractInstance.depositTRC20(contractAddress, num).send(options, privateKey);
                 } else if (functionSelector === 'depositTRC721') {
                     result = await contractInstance.depositTRC721(contractAddress, num).send(options, privateKey);
+                } else if (functionSelector === 'retryDeposit') {
+                    result = await contractInstance.retryDeposit(num).send(options, privateKey); 
+                } else if (functionSelector === 'retryMapping') {
+                    result = await contractInstance.retryMapping(num).send(options, privateKey); 
                 }
             }
             callback(null, result);
@@ -638,6 +642,7 @@ export default class SunWeb {
     }
 
     async withdrawTrc(
+        functionSelector,
         numOrId,
         feeLimit,
         contractAddress,  // side chain trc20 contract address after mapping
@@ -654,9 +659,14 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.withdrawTrc, numOrId, feeLimit, contractAddress, options, privateKey);
+            return this.injectPromise(this.withdrawTrc, functionSelector, numOrId, feeLimit, contractAddress, options, privateKey);
         }
         if (this.validator.notValid([
+            {
+                name: 'functionSelector',
+                type: 'not-empty-string',
+                value: functionSelector
+            },
             {
                 name: 'numOrId',
                 type: 'integer',
@@ -689,7 +699,6 @@ export default class SunWeb {
                 value: numOrId
             }
         ];
-        const functionSelector = 'withdrawal(uint256)';
 
         try {
             const address = privateKey ? this.sidechain.address.fromPrivateKey(privateKey) : this.sidechain.defaultAddress.base58;
@@ -784,7 +793,9 @@ export default class SunWeb {
         privateKey = this.mainchain.defaultPrivateKey,
         callback = false
     ) {
+        const functionSelector = 'withdrawal(uint256)';
         return this.withdrawTrc(
+            functionSelector,
             num,
             feeLimit,
             contractAddress,
@@ -801,7 +812,9 @@ export default class SunWeb {
         privateKey = this.mainchain.defaultPrivateKey,
         callback = false
     ) {
+        const functionSelector = 'withdrawal(uint256)';
         return this.withdrawTrc(
+            functionSelector,
             id,
             feeLimit,
             contractAddress,
@@ -888,7 +901,9 @@ export default class SunWeb {
         privateKey = this.sidechain.defaultPrivateKey,
         callback = false
     ) {
+        const functionSelector = 'retryWithdraw(uint256)';
         return this.withdrawTrc(
+            functionSelector,
             nonce,
             feeLimit,
             this.sideGatewayAddress,
@@ -905,7 +920,9 @@ export default class SunWeb {
         privateKey = this.mainchain.defaultPrivateKey,
         callback = false
     ) {
-        return this.withdrawTrc(
+        const functionSelector = 'retryDeposit';
+        return this.depositTrc(
+            functionSelector,
             nonce,
             feeLimit,
             this.mainGatewayAddress,
@@ -922,7 +939,9 @@ export default class SunWeb {
         privateKey = this.mainchain.defaultPrivateKey,
         callback = false
     ) {
-        return this.withdrawTrc(
+        const functionSelector = 'retryMapping';
+        return this.depositTrc(
+            functionSelector,
             nonce,
             feeLimit,
             this.mainGatewayAddress,
