@@ -47,7 +47,7 @@ contract DAppTRC721 is TRC721, IDApp {
         emit Transfer(address(0), to, tokenId);
     }
 
-    function withdrawal(uint256 tokenId) external returns (uint256 r) {
+    function withdrawal(uint256 tokenId) payable external returns (uint256 r) {
         transfer(gateway, tokenId);
         r = ITRC721Receiver(gateway).onTRC721Received.value(msg.value)(msg.sender, tokenId);
     }

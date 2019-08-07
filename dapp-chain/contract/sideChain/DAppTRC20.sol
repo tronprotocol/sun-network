@@ -42,7 +42,7 @@ contract DAppTRC20 is TRC20, IDApp {
         emit Transfer(address(0), to, value);
     }
 
-    function withdrawal(uint256 value) external returns (uint256 r) {
+    function withdrawal(uint256 value) payable external returns (uint256 r) {
         transfer(gateway, value);
         r = ITRC20Receiver(gateway).onTRC20Received.value(msg.value)(msg.sender, value);
     }
