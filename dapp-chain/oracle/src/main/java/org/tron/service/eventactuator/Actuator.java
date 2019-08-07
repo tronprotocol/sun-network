@@ -59,7 +59,7 @@ public abstract class Actuator {
       return CheckTxRet.SUCCESS;
     } catch (Exception e) {
       // fail
-      logger.error("capsule err txId is {}", transactionId, e);
+      logger.error("check err txId is {}", transactionId, e);
       return CheckTxRet.FAIL;
     }
   }
