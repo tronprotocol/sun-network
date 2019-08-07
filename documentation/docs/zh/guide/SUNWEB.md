@@ -376,6 +376,65 @@ sunWeb.injectFund(1000, 10000000);
 | feeLimit  | Cost limit         | Integer, long | Required |
 | options   | The permissions Id | Object        | Optional |
 
+## 重试
+
+#### retryDeposit
+
+```javascript
+// format
+sunWeb.retryDeposit(nonce, feeLimit, options);
+
+// example
+sunWeb.retryDeposit(1000, 10000000);
+
+```
+
+###### Arguments
+
+| Parameter | Description                  | Type          | Options  |
+| --------- | ---------------------------- | ------------- | -------- |
+| nonce     | Nonce value of asset deposit | Integer       | Required |
+| feeLimit  | Cost limit                   | Integer, long | Required |
+| options   | The permissions Id           | Object        | Optional |
+
+#### retryMapping
+
+```javascript
+// format
+sunWeb.retryMapping(nonce, feeLimit, options);
+
+// example
+sunWeb.retryMapping(1000, 10000000);
+
+```
+
+###### Arguments
+
+| Parameter | Description                  | Type          | Options  |
+| --------- | ---------------------------- | ------------- | -------- |
+| nonce     | Nonce value of asset deposit | Integer       | Required |
+| feeLimit  | Cost limit                   | Integer, long | Required |
+| options   | The permissions Id           | Object        | Optional |
+
+#### retryWithdraw
+
+```javascript
+// format
+sunWeb.retryWithdraw(nonce, feeLimit, options);
+
+// example
+sunWeb.retryWithdraw(1000, 10000000);
+
+```
+
+###### Arguments
+
+| Parameter | Description                  | Type          | Options  |
+| --------- | ---------------------------- | ------------- | -------- |
+| nonce     | Nonce value of asset deposit | Integer       | Required |
+| feeLimit  | Cost limit                   | Integer, long | Required |
+| options   | The permissions Id           | Object        | Optional |
+
 ## 签名
 
 Sun-network 的签名有一些改变，主链的签名逻辑和TronWeb的保持一致，侧链的签名逻辑有更改。因此，如果需要和TronLink一样弹出签名框，需要分别覆盖sunWeb.mainchain.trx.sign()和sunWeb.sidechain.trx.sign().
