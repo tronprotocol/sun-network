@@ -485,4 +485,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     function setWithdrawFee(uint256 fee) public onlyOwner {
         withdrawFee = fee;
     }
+
+    function depositDone(uint256 nonce) view public returns (bool r) {
+        r = depositSigns[nonce].success;
+    }
 }
