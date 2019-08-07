@@ -882,14 +882,14 @@ export default class SunWeb {
     }
 
     async retryWithdraw(
-        nounce,
+        nonce,
         feeLimit,
         options = {},
         privateKey = this.sidechain.defaultPrivateKey,
         callback = false
     ) {
         return this.withdrawTrc(
-            nounce,
+            nonce,
             feeLimit,
             this.sideGatewayAddress,
             options,
@@ -899,14 +899,14 @@ export default class SunWeb {
     }
 
     async retryDeposit(
-        nounce,
+        nonce,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
         callback = false
     ) {
         return this.withdrawTrc(
-            nounce,
+            nonce,
             feeLimit,
             this.mainGatewayAddress,
             options,
@@ -916,14 +916,14 @@ export default class SunWeb {
     }
 
     async retryMapping(
-        nounce,
+        nonce,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
         callback = false
     ) {
         return this.withdrawTrc(
-            nounce,
+            nonce,
             feeLimit,
             this.mainGatewayAddress,
             options,
