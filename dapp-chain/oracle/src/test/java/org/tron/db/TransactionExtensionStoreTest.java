@@ -1,6 +1,5 @@
 package org.tron.db;
 
-
 import org.iq80.leveldb.util.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -8,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.tron.common.utils.ByteArray;
 
-public class TransactionExtensionCapsuleStoreTest {
+public class TransactionExtensionStoreTest {
 
   private static TransactionExtensionStore store;
 
