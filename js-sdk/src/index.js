@@ -736,7 +736,7 @@ export default class SunWeb {
                     message: broadcast.code
                 };
                 if (broadcast.message)
-                    err.message = this.tronWeb.toUtf8(broadcast.message);
+                    err.message = this.sidechain.toUtf8(broadcast.message);
                 return callback(err)
             }
 
@@ -761,7 +761,7 @@ export default class SunWeb {
 
                 if (output.result && output.result == 'FAILED') {
                     return callback({
-                        error: this.tronWeb.toUtf8(output.resMessage),
+                        error: this.sidechain.toUtf8(output.resMessage),
                         transaction: signedTransaction,
                         output
                     });
