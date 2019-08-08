@@ -84,7 +84,6 @@ dependencies {
 }
 
 run {
-    standardInput = System.in
     mainClassName = 'org.tron.tinydice.Server'
 }
 
