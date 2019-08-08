@@ -2633,7 +2633,7 @@ public class PublicMethedForDailybuild {
     }
 
     byte[] owner = ownerAddress;
-    byte[] input = Hex.decode(AbiUtil.parseMethod(method, argsStr, isHex));
+    byte[] input = Hex.decode(AbiUtilForDailyBuild.parseMethod(method, argsStr, isHex));
 
     Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
@@ -2729,7 +2729,7 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    byte[] input = Hex.decode(AbiUtil.parseMethod(method, params));
+    byte[] input = Hex.decode(AbiUtilForDailyBuild.parseMethod(method, params));
 
     Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
@@ -3452,7 +3452,7 @@ public class PublicMethedForDailybuild {
     }
 
     byte[] owner = ownerAddress;
-    byte[] input = Hex.decode(AbiUtil.parseMethod(method, argsStr, isHex));
+    byte[] input = Hex.decode(AbiUtilForDailyBuild.parseMethod(method, argsStr, isHex));
 
     Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
@@ -3872,7 +3872,7 @@ public class PublicMethedForDailybuild {
     }
 
     byte[] owner = ownerAddress;
-    byte[] input = Hex.decode(AbiUtil.parseMethod(method, argsStr, isHex));
+    byte[] input = Hex.decode(AbiUtilForDailyBuild.parseMethod(method, argsStr, isHex));
 
     Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
@@ -4092,7 +4092,7 @@ public class PublicMethedForDailybuild {
     }
 
     byte[] owner = ownerAddress;
-    byte[] input = Hex.decode(AbiUtil.parseMethod(method, argsStr, isHex));
+    byte[] input = Hex.decode(AbiUtilForDailyBuild.parseMethod(method, argsStr, isHex));
 
     Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
@@ -4133,7 +4133,7 @@ public class PublicMethedForDailybuild {
     }
 
     byte[] owner = ownerAddress;
-    byte[] input = Hex.decode(AbiUtil.parseMethod(method, argsStr, isHex));
+    byte[] input = Hex.decode(AbiUtilForDailyBuild.parseMethod(method, argsStr, isHex));
 
     Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
