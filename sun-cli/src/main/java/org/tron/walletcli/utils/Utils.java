@@ -752,6 +752,79 @@ public class Utils {
     return result;
   }
 
+  public static String printSideChainAssetIssue(AssetIssueContract assetIssue) {
+    String result = "";
+    result += "id: ";
+    result += assetIssue.getId();
+    result += "\n";
+    result += "owner_address: ";
+    result += AddressUtil.encode58Check(assetIssue.getOwnerAddress().toByteArray());
+    result += "\n";
+    result += "name: ";
+    result += new String(assetIssue.getName().toByteArray(), Charset.forName("UTF-8"));
+    result += "\n";
+    result += "order: ";
+    result += assetIssue.getOrder();
+    result += "\n";
+    result += "total_supply: ";
+    result += assetIssue.getTotalSupply();
+    result += "\n";
+    result += "trx_num: ";
+    result += assetIssue.getTrxNum();
+    result += "\n";
+    result += "num: ";
+    result += assetIssue.getNum();
+    result += "\n";
+    result += "precision ";
+    result += assetIssue.getPrecision();
+    result += "\n";
+    result += "vote_score: ";
+    result += assetIssue.getVoteScore();
+    result += "\n";
+    result += "description: ";
+    result += new String(assetIssue.getDescription().toByteArray(), Charset.forName("UTF-8"));
+    result += "\n";
+    result += "url: ";
+    result += new String(assetIssue.getUrl().toByteArray(), Charset.forName("UTF-8"));
+    result += "\n";
+    result += "free asset net limit: ";
+    result += assetIssue.getFreeAssetNetLimit();
+    result += "\n";
+    result += "public free asset net limit: ";
+    result += assetIssue.getPublicFreeAssetNetLimit();
+    result += "\n";
+    result += "public free asset net usage: ";
+    result += assetIssue.getPublicFreeAssetNetUsage();
+    result += "\n";
+    result += "public latest free net time: ";
+    result += assetIssue.getPublicLatestFreeNetTime();
+    result += "\n";
+
+    if (assetIssue.getFrozenSupplyCount() > 0) {
+      for (FrozenSupply frozenSupply : assetIssue.getFrozenSupplyList()) {
+        result += "frozen_supply";
+        result += "\n";
+        result += "{";
+        result += "\n";
+        result += "  amount: ";
+        result += frozenSupply.getFrozenAmount();
+        result += "\n";
+        result += "  frozen_days: ";
+        result += frozenSupply.getFrozenDays();
+        result += "\n";
+        result += "}";
+        result += "\n";
+      }
+    }
+
+    if (assetIssue.getId().equals("")) {
+      result += "\n";
+      result += "Note: In 3.2, you can use getAssetIssueById or getAssetIssueListByName, because 3.2 allows same token name.";
+      result += "\n";
+    }
+    return result;
+  }
+
   public static String printAssetIssueList(AssetIssueList assetIssueList) {
     String result = "\n";
     int i = 0;
@@ -761,6 +834,23 @@ public class Utils {
       result += "[";
       result += "\n";
       result += printAssetIssue(assetIssue);
+      result += "]";
+      result += "\n";
+      result += "\n";
+      i++;
+    }
+    return result;
+  }
+
+  public static String printSideChainAssetIssueList(AssetIssueList assetIssueList) {
+    String result = "\n";
+    int i = 0;
+    for (AssetIssueContract assetIssue : assetIssueList.getAssetIssueList()) {
+      result += "assetIssue " + i + " :::";
+      result += "\n";
+      result += "[";
+      result += "\n";
+      result += printSideChainAssetIssue(assetIssue);
       result += "]";
       result += "\n";
       result += "\n";

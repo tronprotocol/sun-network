@@ -50,7 +50,7 @@ public class ArgsTest {
 
     Assert.assertEquals("0", genesisBlock.getTimestamp());
 
-    Assert.assertEquals("0x0000000000000000000000000000000000000000000000000000000000000000",
+    Assert.assertEquals("f0eac6d064d2d0cb7cdac16cfb72e47059d209afdce718238bf5429aba7d3464",
         genesisBlock.getParentHash());
 
     Assert.assertEquals(

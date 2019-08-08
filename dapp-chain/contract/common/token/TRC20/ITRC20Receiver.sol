@@ -12,5 +12,5 @@ contract ITRC20Receiver {
      *  which can be also obtained as `ITRC20Receiver(0).onTRC20Received.selector`
      */
 
-    function onTRC20Received(address from, uint256 value) public returns (uint256);
+    function onTRC20Received(address from, uint256 value) payable public returns (uint256);
 }

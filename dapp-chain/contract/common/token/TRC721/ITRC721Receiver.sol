@@ -13,5 +13,5 @@ contract ITRC721Receiver {
      *  which can be also obtained as `ITRC721Receiver(0).onTRC721Received.selector`
      */
 
-    function onTRC721Received(address from, uint256 tokenId) public returns (uint256);
+    function onTRC721Received(address from, uint256 tokenId) payable public returns (uint256);
 }

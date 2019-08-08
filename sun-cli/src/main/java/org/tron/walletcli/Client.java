@@ -676,7 +676,11 @@ public class Client {
   private void getAssetIssueList() {
     AssetIssueList result = walletApiWrapper.getAssetIssueList();
     if (result != null) {
-      logger.info(Utils.printAssetIssueList(result));
+      if (walletApiWrapper.isMainChain()) {
+        logger.info(Utils.printAssetIssueList(result));
+      } else {
+        logger.info(Utils.printSideChainAssetIssueList(result));
+      }
     } else {
       logger.info("GetAssetIssueList " + " failed !!");
     }
@@ -1757,7 +1761,7 @@ public class Client {
 
   private void deposit(String[] parameters) {
     if (parameters == null || parameters.length < 1) {
-      System.out.println("deposit needs parameters ");
+      System.out.println("deposit needs parameters (trx| trc10| trc20| trc721)");
       return;
     }
 
@@ -1951,7 +1955,6 @@ public class Client {
     allCmds.add("getassetissuebyid");
     allCmds.add("sendcoin");
     allCmds.add("transferasset");
-    allCmds.add("assetissue");
     allCmds.add("createaccount");
     allCmds.add("createwitness");
     allCmds.add("updatewitness");
@@ -1968,6 +1971,8 @@ public class Client {
     allCmds.add("listnodes");
     allCmds.add("getblock");
     allCmds.add("gettransactionbyid");
+    allCmds.add("gettransactionsfromthis");
+    allCmds.add("gettransactionstothis");
     allCmds.add("gettransactioninfobyid");
     allCmds.add("getblockbyid");
     allCmds.add("updatesetting");
@@ -2421,16 +2426,18 @@ public class Client {
   }
 
   private void withdrawTrx(String[] parameters) {
-    if (parameters == null || parameters.length != 3) {
-      System.out.println("withdraw Trx needs 2 parameters like following: ");
-      System.out.println("withdraw Trx trx_num fee_limit ");
+    if (parameters == null || parameters.length != 4) {
+      System.out.println("withdraw Trx needs 3 parameters like following: ");
+      System.out.println("withdraw Trx trx_num withdrawFee fee_limit ");
       return;
     }
 
     long trxNum = Long.parseLong(parameters[1]);
-    long feeLimit = Long.parseLong(parameters[2]);
+    long withdrawFee = Long.parseLong(parameters[2]);
+    long feeLimit = Long.parseLong(parameters[3]);
 
-    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.withdrawTrx(trxNum, feeLimit);
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+        .withdrawTrx(trxNum, withdrawFee, feeLimit);
     if (checkResult(resp)) {
       System.out.println("withdraw trx success");
       System.out.println(
@@ -2444,19 +2451,20 @@ public class Client {
   }
 
   private void withdrawTrc10(String[] parameters) {
-    if (parameters == null || parameters.length != 4) {
-      System.out.println("withdraw trc10 needs 3 parameters like following: ");
-      System.out.println("withdraw trc10 trc10Id value fee_limit ");
+    if (parameters == null || parameters.length != 5) {
+      System.out.println("withdraw trc10 needs 4 parameters like following: ");
+      System.out.println("withdraw trc10 trc10Id value withdrawFee fee_limit ");
       return;
     }
 
     String trc10 = parameters[1];
     String value = parameters[2];
-    long feeLimit = Long.parseLong(parameters[3]);
+    long withdrawFee = Long.parseLong(parameters[3]);
+    long feeLimit = Long.parseLong(parameters[4]);
     long tokenValue = Long.parseLong(value);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .withdrawTrc10(trc10, tokenValue, feeLimit);
+        .withdrawTrc10(trc10, tokenValue, withdrawFee, feeLimit);
     if (checkResult(resp)) {
       System.out.println("withdraw trc10 success");
       System.out.println(
@@ -2468,18 +2476,19 @@ public class Client {
   }
 
   private void withdrawTrc20(String[] parameters) {
-    if (parameters == null || parameters.length != 4) {
-      System.out.println("withdraw Trc20 needs 3 parameters like following: ");
-      System.out.println("withdraw Trc20 sideTrc20Address value fee_limit ");
+    if (parameters == null || parameters.length != 5) {
+      System.out.println("withdraw Trc20 needs 4 parameters like following: ");
+      System.out.println("withdraw Trc20 sideTrc20Address value withdrawFee fee_limit ");
       return;
     }
 
     String sideTrc20Address = parameters[1]; //sidechain trc20 address
     String value = parameters[2];
-    long feeLimit = Long.parseLong(parameters[3]);
+    long withdrawFee = Long.parseLong(parameters[3]);
+    long feeLimit = Long.parseLong(parameters[4]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .withdrawTrc20(sideTrc20Address, value, feeLimit);
+        .withdrawTrc20(sideTrc20Address, value, withdrawFee, feeLimit);
     if (checkResult(resp)) {
       System.out.println("withdraw trc20 success");
       System.out.println(
@@ -2493,18 +2502,19 @@ public class Client {
   }
 
   private void withdrawTrc721(String[] parameters) {
-    if (parameters == null || parameters.length != 4) {
-      System.out.println("withdraw Trc721 needs 3 parameters like following: ");
-      System.out.println("withdraw Trc721 sideTrc721Address uid fee_limit ");
+    if (parameters == null || parameters.length != 5) {
+      System.out.println("withdraw Trc721 needs 4 parameters like following: ");
+      System.out.println("withdraw Trc721 sideTrc721Address uid withdrawFee fee_limit ");
       return;
     }
 
     String sideTrc721Address = parameters[1]; //sidechain trc721 address
     String uid = parameters[2];
-    long feeLimit = Long.parseLong(parameters[3]);
+    long withdrawFee = Long.parseLong(parameters[3]);
+    long feeLimit = Long.parseLong(parameters[4]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .withdrawTrc721(sideTrc721Address, uid, feeLimit);
+        .withdrawTrc721(sideTrc721Address, uid, withdrawFee, feeLimit);
     if (checkResult(resp)) {
       System.out.println("withdraw trc721 success");
       System.out.println(
@@ -2520,7 +2530,7 @@ public class Client {
 
   private void withdraw(String[] parameters) {
     if (parameters == null || parameters.length < 1) {
-      System.out.println("withdraw needs parameters ");
+      System.out.println("withdraw needs parameters (trx|trc10|trc20|trc721)");
       return;
     }
 
@@ -2675,16 +2685,18 @@ public class Client {
   }
 
   private void mappingTrc20(String[] parameters) {
-    if (parameters == null || parameters.length != 3) {
-      System.out.println("mapping trc20 needs 2 parameters like following: ");
-      System.out.println("mapping trc20  trxHash  feeLimit");
+    if (parameters == null || parameters.length != 4) {
+      System.out.println("mapping trc20 needs 3 parameters like following: ");
+      System.out.println("mapping trc20  trxHash mappingFee feeLimit");
       return;
     }
 
     String trxHash = parameters[1];
-    long feeLimit = Long.valueOf(parameters[2]);
+    long mappingFee = Long.valueOf(parameters[2]);
+    long feeLimit = Long.valueOf(parameters[3]);
 
-    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper.mappingTrc20(trxHash, feeLimit);
+    SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+        .mappingTrc20(trxHash, mappingFee, feeLimit);
     if (checkResult(resp)) {
       System.out.println("mapping trc20 success");
       System.out.println(
@@ -2697,17 +2709,18 @@ public class Client {
   }
 
   private void mappingTrc721(String[] parameters) {
-    if (parameters == null || parameters.length != 3) {
-      System.out.println("mapping trc721 needs 2 parameters like following: ");
-      System.out.println("mapping trc721  trxHash  feeLimit");
+    if (parameters == null || parameters.length != 4) {
+      System.out.println("mapping trc721 needs 3 parameters like following: ");
+      System.out.println("mapping trc721  trxHash mappingFee feeLimit");
       return;
     }
 
     String trxHash = parameters[1];
-    long feeLimit = Long.valueOf(parameters[2]);
+    long mappingFee = Long.valueOf(parameters[2]);
+    long feeLimit = Long.valueOf(parameters[3]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .mappingTrc721(trxHash, feeLimit);
+        .mappingTrc721(trxHash, mappingFee, feeLimit);
     if (checkResult(resp)) {
       System.out.println("mapping trc721 success");
       System.out.println(
@@ -2721,7 +2734,7 @@ public class Client {
 
   private void mapping(String[] parameters) {
     if (parameters == null || parameters.length < 1) {
-      System.out.println("mapping needs parameters ");
+      System.out.println("mapping needs parameters (trc20 |trc721 )");
       return;
     }
 
@@ -2796,10 +2809,6 @@ public class Client {
           transferAsset(parameters);
           break;
         }
-        case "assetissue": {
-          assetIssue(parameters);
-          break;
-        }
         case "createaccount": {
           createAccount(parameters);
           break;
@@ -2862,6 +2871,14 @@ public class Client {
         }
         case "gettransactionbyid": {
           getTransactionById(parameters);
+          break;
+        }
+        case "gettransactionsfromthis": {
+          getTransactionsFromThis(parameters);
+          break;
+        }
+        case "gettransactionstothis": {
+          getTransactionsToThis(parameters);
           break;
         }
         case "gettransactioninfobyid": {
