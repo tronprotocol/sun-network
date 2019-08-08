@@ -10,10 +10,10 @@ import java.util.Properties;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.spongycastle.util.encoders.Hex;
 import org.springframework.stereotype.Component;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.SignUtils;
 import org.tron.common.utils.WalletUtil;
 
 
@@ -63,9 +63,6 @@ public class Args {
   @Getter
   private String mainchainKafka;
 
-  @Getter
-  @Parameter(names = {"-p", "--private-key"}, description = "Oracle Private Key")
-  private String oraclePrivateKeyStr;
   @Getter
   private byte[] oraclePrivateKey;
 
@@ -130,15 +127,12 @@ public class Args {
     this.sidechainGateway = WalletUtil
         .decodeFromBase58Check(sidechainGatewayStr);
 
-    if (StringUtils.isEmpty(this.oraclePrivateKeyStr)) {
-      this.oraclePrivateKeyStr = config.getString("oracle.private.key");
-    }
-    this.oraclePrivateKey = Hex.decode(this.oraclePrivateKeyStr);
+    this.oraclePrivateKey = new ECKey(SignUtils.getRandom()).getPrivKeyBytes();
 
     this.mainchainKafka = config.getString("kafka.server");
 
-    if (config.hasPath("alert.dingding.webhook.token")) {
-      this.alertDingWebhookToken = config.getString("alert.dingding.webhook.token");
+    if (config.hasPath("alert.webhook.url")) {
+      this.alertDingWebhookToken = config.getString("alert.webhook.url");
     }
     if (config.hasPath("initTaskSwitch") && config.getBoolean("initTaskSwitch")) {
       this.initTask = true;

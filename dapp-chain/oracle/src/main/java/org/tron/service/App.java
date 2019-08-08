@@ -17,6 +17,7 @@ public class App {
     logger.info("start...");
     Args arg = Args.getInstance();
     arg.setParam(args);
+    logger.info("oracle address is {}", arg.getOracleAddress());
     logger.info("group id {}", arg.getKafkaGroupId());
     if (arg.isInitTask()) {
       (new InitTask()).batchProcessEventAndTx();
