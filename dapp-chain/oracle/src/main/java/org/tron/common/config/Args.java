@@ -137,8 +137,8 @@ public class Args {
 
     this.mainchainKafka = config.getString("kafka.server");
 
-    if (config.hasPath("alert.dingding.webhook.token")) {
-      this.alertDingWebhookToken = config.getString("alert.dingding.webhook.token");
+    if (config.hasPath("alert.webhook.url")) {
+      this.alertDingWebhookToken = config.getString("alert.webhook.url");
     }
     if (config.hasPath("initTaskSwitch") && config.getBoolean("initTaskSwitch")) {
       this.initTask = true;
