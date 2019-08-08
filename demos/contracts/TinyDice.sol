@@ -39,8 +39,8 @@ contract TinyDice is  KillableOwnership {
     function bet(uint256 _point) isHuman whenNotPaused public  payable returns (uint256) {
         require(_point < 97 && _point > 1);
         require(msg.value >= 1 * precision && msg.value <= 1000 * precision);
-        
-        items[index ++] = Item(msg.sender, msg.value, _point, 0, 0);
+        index = index.add(1);
+        items[index] = Item(msg.sender, msg.value, _point, 0, 0);
        
         emit Bet(msg.sender, msg.value, index);
         return index;
@@ -48,13 +48,12 @@ contract TinyDice is  KillableOwnership {
 
     function rtu() public returns (uint256, uint256, uint256, uint256) {
         require(batchIndex < index);
+        uint256 currIndex = batchIndex.add(1);
         Item storage item = items[currIndex];
         
         // allowd overflow here.
         defaultSalt = bytes32(uint256(defaultSalt) + item.point + msg.value); 
         uint256 random = uint256(keccak256(abi.encodePacked(defaultSalt, blockhash(block.number - 1)))).mod(100);
-        uint256 currIndex = batchIndex + 1;
-        // _random = _random.mod(100);
         
         uint256 payOut = 0;
         
