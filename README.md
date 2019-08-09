@@ -14,6 +14,8 @@
 
 ## What's SunNetwork?
 
+[![Join the chat at https://gitter.im/tronprotocol/sun-network](https://badges.gitter.im/tronprotocol/sun-network.svg)](https://gitter.im/tronprotocol/sun-network)
+
 Sun Network is a project dedicated to building a trustful decentralized sidechain of TRON Main Chain. 
 It will greatly improving the tps of the main chain, while supporting the execution of smart contract transactions with very low energy cost.
 This will make a lot of sense to the dapp developer and the main chain.
@@ -32,7 +34,8 @@ This will make a lot of sense to the dapp developer and the main chain.
 * [JS SDK](https://github.com/tronprotocol/sun-network/tree/develop/js-sdk)
 * [JAVA SDK](https://github.com/tronprotocol/sun-network/tree/develop/sun-sdk)
 * [SideChain Wallet Cli](https://github.com/tronprotocol/sun-network/tree/develop/sun-cli)
-* [Demo#1](https://github.com/tronprotocol/sun-network/tree/develop/)
+* [Demo#1](https://github.com/tronprotocol/sun-network/tree/develop/demos/DonateNow)
+* [Demo#2](https://github.com/tronprotocol/sun-network/tree/develop/demos/TinyDice)
 
 
 # Resource
