@@ -1,5 +1,5 @@
  <template>
-    <el-dialog title="" :visible.sync="params.show" append-to-body :close-on-click-modal="false"custom-class="how-dialog play-dialog custom-dg" >
+    <el-dialog title="" :visible.sync="params.show" append-to-body :close-on-click-modal="false">
         <el-form :model="form" size="small" ref="form">
             <el-form-item label="Private Key" :label-width="formLabelWidth" prop="privateKey">
                <el-input size="small" v-model.trim="form.privateKey" clearable></el-input>

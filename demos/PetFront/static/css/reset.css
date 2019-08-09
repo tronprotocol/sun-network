@@ -124,9 +124,9 @@ body {
   /* display: none; */
 }
 
-.how-dialog .el-dialog__close:before {
+/* .how-dialog .el-dialog__close:before {
   content: "";
-}
+} */
 
 .how-dialog .el-dialog__header {
   text-align: center;
