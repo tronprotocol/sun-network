@@ -30,13 +30,14 @@ ringstate.*
 shareddata.*
 
 # protobuf generated classes
-src/main/gen
+dapp-chain/side-chain/src/main/gen
 
-src/main/java/org/tron/core/bftconsensus
-src/test/java/org/tron/consensus2
-src/main/java/META-INF/
-src/main/resources/META-INF/
-/bin/
+dapp-chain/side-chain/src/main/java/org/tron/core/bftconsensus
+dapp-chain/side-chain/src/test/java/org/tron/consensus2
+dapp-chain/side-chain/src/main/java/META-INF/
+dapp-chain/side-chain/src/main/resources/META-INF/
+dapp-chain/side-chain/bin/
+dapp-chain/contract/solc
 
 # Eclipse IDE specific files and folders
 /.project
@@ -45,13 +46,19 @@ src/main/resources/META-INF/
 /.apt_generated/
 
 # output directory
-/output-directory/
+dapp-chain/side-chain/output-directory/
 
-/output_manager/
-/output_witness/
+dapp-chain/side-chain/output_manager/
+dapp-chain/side-chain/output_witness/
 output*
 nodeId.properties
-Wallet
 
 # vm_trace
-/vm_trace/
+dapp-chain/side-chain/vm_trace/
+
+
+# node
+node_modules/
+/documentation/config.js
+/documentation/package-lock.json
+/documentation/docs/.vuepress/github
