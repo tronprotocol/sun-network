@@ -449,6 +449,7 @@ export default class SunWeb {
      */
     async mappingTrc(
         trxHash,
+        mappingFee,
         feeLimit,
         functionSelector,
         options = {},
@@ -464,13 +465,19 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.mappingTrc, trxHash, feeLimit, functionSelector, options, privateKey);
+            return this.injectPromise(this.mappingTrc, trxHash, mappingFee, feeLimit, functionSelector, options, privateKey);
         }
         if (this.validator.notValid([
             {
                 name: 'trxHash',
                 type: 'not-empty-string',
                 value: trxHash
+            },
+            {
+                name: 'mappingFee',
+                type: 'integer',
+                value: mappingFee,
+                gt: 0
             },
             {
                 name: 'feeLimit',
@@ -486,7 +493,7 @@ export default class SunWeb {
         options = {
             feeLimit,
             ...options,
-            callValue: 0
+            callValue: mappingFee
         };
         try {
             const contractInstance = await this.mainchain.contract().at(this.mainGatewayAddress);
@@ -506,6 +513,7 @@ export default class SunWeb {
 
     async mappingTrc20(
         trxHash,
+        mappingFee,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
@@ -514,6 +522,7 @@ export default class SunWeb {
         const functionSelector = 'mappingTRC20';
         return this.mappingTrc(
             trxHash,
+            mappingFee,
             feeLimit,
             functionSelector,
             options,
@@ -523,6 +532,7 @@ export default class SunWeb {
 
     async mappingTrc721(
         trxHash,
+        mappingFee,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
@@ -531,6 +541,7 @@ export default class SunWeb {
         const functionSelector = 'mappingTRC721';
         return this.mappingTrc(
             trxHash,
+            mappingFee,
             feeLimit,
             functionSelector,
             options,
@@ -543,6 +554,7 @@ export default class SunWeb {
      */
     async withdrawTrx(
         callValue,
+        withdrawFee,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
@@ -557,13 +569,19 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.withdrawTrx, callValue, feeLimit, options, privateKey);
+            return this.injectPromise(this.withdrawTrx, callValue, withdrawFee, feeLimit, options, privateKey);
         }
         if (this.validator.notValid([
             {
                 name: 'callValue',
                 type: 'integer',
                 value: callValue,
+                gte: 0
+            },
+            {
+                name: 'withdrawFee',
+                type: 'integer',
+                value: withdrawFee,
                 gte: 0
             },
             {
@@ -577,7 +595,7 @@ export default class SunWeb {
             return;
         }
         options = {
-            callValue,
+            callValue: Number(callValue) + Number(withdrawFee),
             feeLimit,
             ...options
         };
@@ -593,6 +611,7 @@ export default class SunWeb {
     async withdrawTrc10(
         tokenId,
         tokenValue,
+        withdrawFee,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
@@ -607,7 +626,7 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.withdrawTrc10, tokenId, tokenValue, feeLimit, options, privateKey);
+            return this.injectPromise(this.withdrawTrc10, tokenId, tokenValue, withdrawFee, feeLimit, options, privateKey);
         }
         if (this.validator.notValid([
             {
@@ -623,6 +642,12 @@ export default class SunWeb {
                 gte: 0
             },
             {
+                name: 'withdrawFee',
+                type: 'integer',
+                value: withdrawFee,
+                gte: 0
+            },
+            {
                 name: 'feeLimit',
                 type: 'integer',
                 value: feeLimit,
@@ -635,7 +660,7 @@ export default class SunWeb {
         options = {
             tokenValue,
             tokenId,
-            callValue: 0,
+            callValue: withdrawFee,
             feeLimit,
             ...options
         };
@@ -651,6 +676,7 @@ export default class SunWeb {
     async withdrawTrc(
         functionSelector,
         numOrId,
+        withdrawFee,
         feeLimit,
         contractAddress,
         options = {},
@@ -666,7 +692,7 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.withdrawTrc, functionSelector, numOrId, feeLimit, contractAddress, options, privateKey);
+            return this.injectPromise(this.withdrawTrc, functionSelector, numOrId, withdrawFee, feeLimit, contractAddress, options, privateKey);
         }
         if (this.validator.notValid([
             {
@@ -678,6 +704,12 @@ export default class SunWeb {
                 name: 'numOrId',
                 type: 'integer',
                 value: numOrId,
+                gte: 0
+            },
+            {
+                name: 'withdrawFee',
+                type: 'integer',
+                value: withdrawFee,
                 gte: 0
             },
             {
@@ -698,7 +730,7 @@ export default class SunWeb {
         options = {
             feeLimit,
             ...options,
-            callValue: 0
+            callValue: withdrawFee
         };
         const parameters = [
             {
@@ -794,6 +826,7 @@ export default class SunWeb {
 
     async withdrawTrc20(
         num,
+        withdrawFee,
         feeLimit,
         contractAddress,
         options,
@@ -804,6 +837,7 @@ export default class SunWeb {
         return this.withdrawTrc(
             functionSelector,
             num,
+            withdrawFee,
             feeLimit,
             contractAddress,
             options,
@@ -813,6 +847,7 @@ export default class SunWeb {
 
     async withdrawTrc721(
         id,
+        withdrawFee,
         feeLimit,
         contractAddress,
         options,
@@ -823,6 +858,7 @@ export default class SunWeb {
         return this.withdrawTrc(
             functionSelector,
             id,
+            withdrawFee,
             feeLimit,
             contractAddress,
             options,
