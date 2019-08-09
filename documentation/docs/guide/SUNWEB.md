@@ -224,19 +224,20 @@ sunWeb.approveTrc721(100, 10000000, 'TUxDmFbEceGgjWCb6rLVcrFgnsWwofPdPq');
 
 ```javascript
 // format
-mappingTrc20(trxHash, feeLimit, options);
+mappingTrc20(trxHash, mappingFee, feeLimit, options);
 
 // example
-mappingTrc20('548442d9080605a60adf1d30cc126a2b9c6308cbe9ec224f8c67a6c2590fa299', 100000, , options);
+mappingTrc20('548442d9080605a60adf1d30cc126a2b9c6308cbe9ec224f8c67a6c2590fa299', 100000, 10000, options);
 ```
 
 ###### Arguments
 
-| Parameter | Description                                                                    | Type          | Options  |
-| --------- | ------------------------------------------------------------------------------ | ------------- | -------- |
-| trxHash   | The hash value of the transaction for the main chain deployment TRC20 contract | Hex string    | Required |
-| feeLimit  | cost limit                                                                     | Integer, long | Required |
-| options   | The permissions Id                                                             | Object        | Optional |
+| Parameter  | Description                                                  | Type                  | Options  |
+| ---------- | ------------------------------------------------------------ | --------------------- | -------- |
+| trxHash    | The hash value of the transaction for the main chain deployment TRC20 contract | Hex string            | Required |
+| mappingFee | Mapping Fee                                                  | Integer(units in SUN) | Required |
+| feeLimit   | cost limit                                                   | Integer, long         | Required |
+| options    | The permissions Id                                           | Object                | Optional |
 
 ### mappingTrc721
 
@@ -244,19 +245,20 @@ mappingTrc20('548442d9080605a60adf1d30cc126a2b9c6308cbe9ec224f8c67a6c2590fa299',
 
 ```javascript
 // format
-mappingTrc721(trxHash, feeLimit, options);
+mappingTrc721(trxHash, mappingFee, feeLimit, options);
 
 // example
-mappingTrc721('548442d9080605a60adf1d30cc126a2b9c6308cbe9ec224f8c67a6c2590fa299', 100000, , options);
+mappingTrc721('548442d9080605a60adf1d30cc126a2b9c6308cbe9ec224f8c67a6c2590fa299', 100000, 1000, options);
 ```
 
 ###### Arguments
 
-| Parameter | Description                                                                     | Type          | Options  |
-| --------- | ------------------------------------------------------------------------------- | ------------- | -------- |
-| trxHash   | The hash value of the transaction for the main chain deployment TRC721 contract | Hex string    | Required |
-| feeLimit  | cost limit                                                                      | Integer, long | Required |
-| options   | The permissions Id                                                              | Object        | Optional |
+| Parameter  | Description                                                  | Type                  | Options  |
+| ---------- | ------------------------------------------------------------ | --------------------- | -------- |
+| trxHash    | The hash value of the transaction for the main chain deployment TRC721 contract | Hex string            | Required |
+| mappingFee | Mapping Fee                                                  | Integer(units in SUN) | Required |
+| feeLimit   | cost limit                                                   | Integer, long         | Required |
+| options    | The permissions Id                                           | Object                | Optional |
 
 ## Asset Withdraw
 
@@ -266,19 +268,20 @@ mappingTrc721('548442d9080605a60adf1d30cc126a2b9c6308cbe9ec224f8c67a6c2590fa299'
 
 ```javascript
 // Format
-sunWeb.withdrawTrx(callValue, feeLimit, options);
+sunWeb.withdrawTrx(callValue, withdrawFee, feeLimit, options);
 
 // example
-sunWeb.withdrawTrx(100000000, 1000000);
+sunWeb.withdrawTrx(100000000, 10000, 1000000);
 ```
 
 ###### Arguments
 
-| Parameter | Description                             | Type                   | Options  |
-| --------- | --------------------------------------- | ---------------------- | -------- |
-| callValue | Amount of TRX (Units in SUN) to deposit | Integer (Units in SUN) | Required |
-| feeLimit  | Cost limit                              | Integer, long          | Required |
-| options   | The permissions Id                      | Object                 | Optional |
+| Parameter   | Description                             | Type                   | Options  |
+| ----------- | --------------------------------------- | ---------------------- | -------- |
+| callValue   | Amount of TRX (Units in SUN) to deposit | Integer (Units in SUN) | Required |
+| withdrawFee | Withdraw Fee                            | Integer(Units in SUN)  | Required |
+| feeLimit    | Cost limit                              | Integer, long          | Required |
+| options     | The permissions Id                      | Object                 | Optional |
 
 ### withdrawTrc10
 
@@ -286,20 +289,21 @@ sunWeb.withdrawTrx(100000000, 1000000);
 
 ```javascript
 // format
-sunWeb.withdrawTrc10(tokenId, tokenValue, feeLimit, options);
+sunWeb.withdrawTrc10(tokenId, tokenValue, withdrawFee, feeLimit, options);
 
 // example
-sunWeb.withdrawTrc10(100059, 10000000, 100000);
+sunWeb.withdrawTrc10(100059, 10000000, 10000, 100000);
 ```
 
 ###### Arguments
 
-| Parameter  | Description                                     | Type                   | Options  |
-| ---------- | ----------------------------------------------- | ---------------------- | -------- |
-| tokenId    | Token Id of TRC10                               | Integer                | Required |
-| tokenValue | Amount of TRC10 token (Units in SUN) to deposit | Integer (Units in SUN) | Required |
-| feeLimit   | Cost limit                                      | Integer, long          | Required |
-| options    | The permissions Id                              | Object                 | Optional |
+| Parameter   | Description                                     | Type                   | Options  |
+| ----------- | ----------------------------------------------- | ---------------------- | -------- |
+| tokenId     | Token Id of TRC10                               | Integer                | Required |
+| tokenValue  | Amount of TRC10 token (Units in SUN) to deposit | Integer (Units in SUN) | Required |
+| withdrawFee | Withdraw Fee                                    | Integer(Units in SUN)  | Required |
+| feeLimit    | Cost limit                                      | Integer, long          | Required |
+| options     | The permissions Id                              | Object                 | Optional |
 
 #### withdrawTrc20
 
@@ -307,20 +311,21 @@ sunWeb.withdrawTrc10(100059, 10000000, 100000);
 
 ```javascript
 // format
-sunWeb.withdrawTrc20(num, feeLimit, contractAddress, options);
+sunWeb.withdrawTrc20(num, withdrawFee, feeLimit, contractAddress, options);
 
 // example
-sunWeb.withdrawTrc20(10000, 10000000, 'TWzXQmDoASGodMss7uPD6vUgLHnkQFX7ok');
+sunWeb.withdrawTrc20(10000, 10000, 10000000, 'TWzXQmDoASGodMss7uPD6vUgLHnkQFX7ok');
 ```
 
 ###### Arguments
 
-| Parameter       | Description                                     | Type          | Options  |
-| --------------- | ----------------------------------------------- | ------------- | -------- |
-| Num             | Num of TRC20                                    | Integer       | Required |
-| contractAddress | Side Chain TRC20 Contract Address after mapping | Integer       | Required |
-| feeLimit        | Cost limit                                      | Integer, long | Required |
-| options         | The permissions Id                              | Object        | Optional |
+| Parameter       | Description                                     | Type                  | Options  |
+| --------------- | ----------------------------------------------- | --------------------- | -------- |
+| Num             | Num of TRC20                                    | Integer               | Required |
+| withdrawFee     | Withdraw Fee                                    | Integer(units in SUN) | Required |
+| contractAddress | Side Chain TRC20 Contract Address after mapping | Integer               | Required |
+| feeLimit        | Cost limit                                      | Integer, long         | Required |
+| options         | The permissions Id                              | Object                | Optional |
 
 #### withdrawTrc721
 
@@ -328,20 +333,21 @@ sunWeb.withdrawTrc20(10000, 10000000, 'TWzXQmDoASGodMss7uPD6vUgLHnkQFX7ok');
 
 ```javascript
 // format
-sunWeb.withdrawTrc721(id, feeLimit, contractAddress, options);
+sunWeb.withdrawTrc721(id, withdrawFee, feeLimit, contractAddress, options);
 
 // example
-sunWeb.withdrawTrc721(101, 10000000, 'TA2xrVESq2UcEtDtgPzxNJEiLgxmMVdtFR');
+sunWeb.withdrawTrc721(101, 1000, 10000000, 'TA2xrVESq2UcEtDtgPzxNJEiLgxmMVdtFR');
 ```
 
 ###### Arguments
 
-| Parameter       | Description                                     | Type          | Options  |
-| --------------- | ----------------------------------------------- | ------------- | -------- |
-| id              | Id of TRC721                                    | Integer       | Required |
-| contractAddress | Side Chain TRC20 Contract Address after mapping | Integer       | Required |
-| feeLimit        | Cost limit                                      | Integer, long | Required |
-| options         | The permissions Id                              | Object        | Optional |
+| Parameter       | Description                                     | Type                  | Options  |
+| --------------- | ----------------------------------------------- | --------------------- | -------- |
+| id              | Id of TRC721                                    | Integer               | Required |
+| contractAddress | Side Chain TRC20 Contract Address after mapping | Integer               | Required |
+| withdrawFee     | Withdraw Fee                                    | Integer(units in SUN) | Required |
+| feeLimit        | Cost limit                                      | Integer, long         | Required |
+| options         | The permissions Id                              | Object                | Optional |
 
 ## Inject Fund
 Inject asset into the fundation of the sidechain.
