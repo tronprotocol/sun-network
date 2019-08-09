@@ -8,6 +8,7 @@ import com.google.common.primitives.Longs;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -57,6 +58,7 @@ import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.AddressUtil;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ByteUtil;
+import org.tron.common.utils.DataWord;
 import org.tron.common.utils.Similarity;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
@@ -77,6 +79,7 @@ import org.tron.sunapi.SunNetworkResponse;
 import org.tron.sunapi.response.TransactionResponse;
 import org.tron.sunserver.ServerApi;
 import org.tron.walletcli.keystore.StringUtils;
+import org.tron.walletcli.keystore.Wallet;
 import org.tron.walletcli.keystore.Wallet;
 import org.tron.walletcli.keystore.WalletUtils;
 import org.tron.walletcli.utils.Utils;
@@ -1818,7 +1821,7 @@ public class Client {
     long endInS = System.currentTimeMillis() / 1000;
 
     try {
-      Thread.sleep(10 * 60 * 1000); // 10 minutes
+      Thread.sleep(2 * 60 * 1000); // 2 minutes
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
@@ -1872,17 +1875,19 @@ public class Client {
         (sideFinalBalance - sideInitBalance) * 1.0 / (mainInitBalance - mainFinalBalance));
 
     switch2Side();
-    Map<String, Integer> retryMap = recordRetryResult(txIdNonces, "", "depositDone(uint256)");
+    Map<String, Integer> retryMap = recordRetryResult(txIdNonces, AddressUtil.encode58Check(ServerApi.getSideGatewayAddress()), "depositDone(uint256)");
+    switch2Main();
     for (String key : retryMap.keySet()) {
       SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
           .retryDeposit(String.valueOf(retryMap.get(key)), feeLimit);
     }
 
-    Map<String, Integer> retryResultMap = recordRetryResult(retryMap, "", "depositDone(uint256)");
+    switch2Side();
+    Map<String, Integer> retryResultMap = recordRetryResult(retryMap, AddressUtil.encode58Check(ServerApi.getSideGatewayAddress()), "depositDone(uint256)");
     for (String key : retryResultMap.keySet()) {
       logger.info("side chain failed: txid: {}, nouce: {}", key, retryResultMap.get(key));
-    }//todo
-
+    }
+    switch2Main();
   }
 
   private void checkDepositNonceStatus(Map<Integer, Boolean> nonceStatus, String address,
@@ -1982,7 +1987,7 @@ public class Client {
       Integer nouce = txIdNonces.get(key);
       p[2] = "" + nouce;
       TransactionResponse r = triggerContractReturn(p);
-      if (!Boolean.valueOf(r.constantResult)) {
+      if (Integer.valueOf(r.constantResult) == 0) {
         retryMap.put(key, nouce);
       }
     }
@@ -2915,13 +2920,21 @@ public class Client {
       }
     }
 
-    long endInS = System.currentTimeMillis() / 1000;
-
     try {
       latch.await(Long.MAX_VALUE, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
+
+
+    long endInS = System.currentTimeMillis() / 1000;
+
+    try {
+      Thread.sleep(2 * 60 * 1000); // 2 minutes
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
 
     long fee = 0;
     long energyFee = 0;
@@ -2972,17 +2985,51 @@ public class Client {
         (mainFinalBalance - mainInitBalance) * 1.0 / (sideInitBalance - sideFinalBalance));
 
     switch2Main();
-    Map<String, Integer> retryMap = recordRetryResult(txIdNonces, "", "//");//todo
+    Map<String, Integer> retryMap = recordWithdrawRetryResult(txIdNonces, AddressUtil.encode58Check(ServerApi.getMainGatewayAddress()), "withdrawDone(bytes32,uint256)");
+    switch2Side();
+
+
     for (String key : retryMap.keySet()) {
       SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
           .retryWithdraw(String.valueOf(retryMap.get(key)), feeLimit);
     }
 
-    Map<String, Integer> retryResultMap = recordRetryResult(retryMap, "", "");//todo
-    for (String key : retryResultMap.keySet()) {
+    switch2Main();Map<String, Integer> retryResultMap = recordWithdrawRetryResult(retryMap, AddressUtil.encode58Check(ServerApi.getMainGatewayAddress()) , "withdrawDone(bytes32,uint256)");
+    for(String key : retryResultMap.keySet()) {
       logger.info("main chain failed: txid: {}, nouce: {}", key, retryResultMap.get(key));
-    }//todo
+    }
+    switch2Side();
 
+  }
+
+  private static String getWithdrawTRXDataHash(String from, String value, String nonce) {
+    byte[] fromBytes = AddressUtil.decodeFromBase58Check(from);
+    byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
+    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
+    byte[] data = ByteUtil
+        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), valueBytes, nonceBytes);
+    return ByteArray.toHexString(Hash.sha3(data));
+  }
+
+  private Map<String, Integer> recordWithdrawRetryResult (Map<String, Integer> txIdNonces, String address, String method) {
+    String[] p = new String[8];
+    p[0] = address;
+    p[1] = method;
+    p[3] = "false";
+    p[4] = "100000000";
+    p[5] = "0";
+    p[6] = "0";
+    p[7] = "0";
+    Map<String, Integer> retryMap = new ConcurrentHashMap<>();
+    for (String key : txIdNonces.keySet()) {
+      Integer nouce = txIdNonces.get(key);
+      p[2] = "\"" + getWithdrawTRXDataHash("TYz9jztSkwNZLg6DsatdXP6XohKXbYb9AG", "1", "" + nouce) +  "\"," + nouce;
+      TransactionResponse r = triggerContractReturn(p);
+      if (Integer.valueOf(r.constantResult) == 0) {
+        retryMap.put(key, nouce);
+      }
+    }
+    return retryMap;
   }
 
   private void withdrawTrc10(String[] parameters) {
