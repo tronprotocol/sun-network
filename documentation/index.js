@@ -21,8 +21,8 @@ app.all('*', function(req, res, next) {
 });
 
 app.use(express.json());
-app.use('/sunnetwork', express.static('docs/.vuepress/dist'));
-app.use('/sunnetwork/doc', express.static('docs/.vuepress/distdoc'));
+app.use('/sunnetwork', express.static('home/dist'));
+app.use('/sunnetwork/doc', express.static('docs/.vuepress/dist'));
 app.post('/sunnetwork/token', async (req, res) => {
   let to_address = '';
   let amount = 1e10;
