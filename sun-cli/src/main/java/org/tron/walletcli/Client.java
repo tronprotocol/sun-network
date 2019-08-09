@@ -1,5 +1,8 @@
 package org.tron.walletcli;
 
+import static java.lang.Math.log;
+import static java.lang.Math.min;
+
 import com.beust.jcommander.JCommander;
 import com.google.common.primitives.Longs;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -13,11 +16,13 @@ import java.util.Base64.Encoder;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -72,6 +77,8 @@ import org.tron.sunapi.SunNetworkResponse;
 import org.tron.sunapi.response.TransactionResponse;
 import org.tron.sunserver.ServerApi;
 import org.tron.walletcli.keystore.StringUtils;
+import org.tron.walletcli.keystore.Wallet;
+import org.tron.walletcli.keystore.WalletUtils;
 import org.tron.walletcli.utils.Utils;
 
 public class Client {
@@ -1775,7 +1782,7 @@ public class Client {
     Map<String, Integer> txIdNonces = new ConcurrentHashMap<>();
 
     long count = durationInS * tps;
-    CountDownLatch latch = new CountDownLatch((int)count);
+    CountDownLatch latch = new CountDownLatch((int) count);
 
     for (long i = 0; i < durationInS; i++) {
       for (int j = 0; j < 10; j++) {
@@ -1820,7 +1827,7 @@ public class Client {
     long energyFee = 0;
     long energyTotal = 0;
 
-    for(Map.Entry<String, String> entry: txIds.entrySet()) {
+    for (Map.Entry<String, String> entry : txIds.entrySet()) {
       String txId = entry.getValue();
       if (txId == null) {
         continue;
@@ -1830,7 +1837,8 @@ public class Client {
       if (result.isPresent()) {
         logger.info("statistics, index: {}, txId: {}, get success", entry.getKey(), txId);
         TransactionInfo transactionInfo = result.get();
-        Integer nonce = Integer.parseInt(Hex.toHexString(transactionInfo.getContractResult(0).toByteArray()), 16);
+        Integer nonce = Integer
+            .parseInt(Hex.toHexString(transactionInfo.getContractResult(0).toByteArray()), 16);
         logger.info("statistics, txId: {}, nonce: {}", txId, nonce);
         txIdNonces.put(txId, nonce);
         fee += transactionInfo.getFee();
@@ -1863,7 +1871,6 @@ public class Client {
     logger.info("side success ratio: {}",
         (sideFinalBalance - sideInitBalance) * 1.0 / (mainInitBalance - mainFinalBalance));
 
-
     switch2Side();
     Map<String, Integer> retryMap = recordRetryResult(txIdNonces, "", "depositDone(uint256)");
     for (String key : retryMap.keySet()) {
@@ -1872,13 +1879,96 @@ public class Client {
     }
 
     Map<String, Integer> retryResultMap = recordRetryResult(retryMap, "", "depositDone(uint256)");
-    for(String key : retryResultMap.keySet()) {
+    for (String key : retryResultMap.keySet()) {
       logger.info("side chain failed: txid: {}, nouce: {}", key, retryResultMap.get(key));
     }//todo
 
   }
 
-  private Map<String, Integer> recordRetryResult (Map<String, Integer> txIdNonces, String address, String method) {
+  private void checkDepositNonceStatus(Map<Integer, Boolean> nonceStatus, String address,
+      String method) {
+    int baseFeeLimit = 100000000;
+    for (Map.Entry<Integer, Boolean> entry : nonceStatus.entrySet()) {
+      Integer nonce = entry.getKey();
+      baseFeeLimit += 1;
+      boolean status = getNonceStatus(address, method, String.valueOf(baseFeeLimit),
+          String.valueOf(nonce));
+      if (status) {
+        nonceStatus.put(nonce, true);
+      }
+    }
+  }
+
+  private void checkDeposit(String[] parameters) {
+
+    if (parameters == null || parameters.length != 3) {
+      System.out.println("checkDeposit needs 3 parameters like following: ");
+      System.out.println("checkDeposit from_nonce_inclusive end_nonce_exclusive duration(seconds)");
+      return;
+    }
+
+    int from_nonce_inclusive = Integer.parseInt(parameters[0]);
+    int end_nonce_exclusive = Integer.parseInt(parameters[1]);
+    int durationInS = Integer.parseInt(parameters[2]);
+    int totalCnt = end_nonce_exclusive - from_nonce_inclusive;
+
+    Map<Integer, Boolean> nonceStatus = new ConcurrentHashMap<>();
+
+    for (int nonce = from_nonce_inclusive; nonce < end_nonce_exclusive; nonce++) {
+      nonceStatus.put(nonce, false);
+    }
+
+    switch2Side();
+
+    checkDepositNonceStatus(nonceStatus,
+        AddressUtil.encode58Check(ServerApi.getSideGatewayAddress()), "depositDone(uint256)");
+
+    try {
+      Thread.sleep(30 * 1000); // 30 seconds
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    switch2Main();
+
+    int firstSuccess = 0;
+    int baseFeeLimit = 100000000;
+    Map<Integer, Boolean> needReCheck = new ConcurrentHashMap<>();
+    for (Map.Entry<Integer, Boolean> entry : nonceStatus.entrySet()) {
+      Integer nonce = entry.getKey();
+      Boolean status = entry.getValue();
+      if (status) {
+        firstSuccess++;
+      } else {
+        SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+            .retryDeposit(String.valueOf(nonce), baseFeeLimit + nonce % 500);
+        needReCheck.put(nonce, false);
+      }
+    }
+
+    switch2Side();
+
+    checkDepositNonceStatus(needReCheck,
+        AddressUtil.encode58Check(ServerApi.getSideGatewayAddress()), "depositDone(uint256)");
+
+    int secondSuccess = 0;
+    for (Map.Entry<Integer, Boolean> entry : needReCheck.entrySet()) {
+      Integer nonce = entry.getKey();
+      Boolean status = entry.getValue();
+      if (status) {
+        secondSuccess++;
+      } else {
+        logger.info("retry fail nonce: {}", nonce);
+      }
+    }
+
+    logger.info("side success / main success: {}%",  String.format("%.2f", firstSuccess * 1.0 / totalCnt * 100));
+    logger.info("side success tps: {}", firstSuccess * 1.0 / durationInS);
+    logger.info("total side success / main success: {}%",  String.format("%.2f", (firstSuccess + secondSuccess) * 1.0 / totalCnt * 100));
+  }
+
+  private Map<String, Integer> recordRetryResult(Map<String, Integer> txIdNonces, String address,
+      String method) {
     String[] p = new String[8];
     p[0] = address;
     p[1] = method;
@@ -1897,6 +1987,20 @@ public class Client {
       }
     }
     return retryMap;
+  }
+
+  private boolean getNonceStatus(String address, String method, String feeLimit, String args) {
+    String[] p = new String[8];
+    p[0] = address;
+    p[1] = method;
+    p[2] = args;
+    p[3] = "false";
+    p[4] = feeLimit;
+    p[5] = "0";
+    p[6] = "0";
+    p[7] = "0";
+    TransactionResponse r = triggerContractReturn(p);
+    return Integer.valueOf(r.constantResult) == 1;
   }
 
   private void depositTrc10(String[] parameters) {
@@ -2136,6 +2240,7 @@ public class Client {
     allCmds.add("retry");
     allCmds.add("exit");
     allCmds.add("quit");
+    allCmds.add("checkdeposit");
 
     Collections.sort(allCmds, new Comparator<String>() {
       public int compare(String arg0, String arg1) {
@@ -2207,6 +2312,7 @@ public class Client {
     allCmds.add("broadcasttransaction");
     allCmds.add("exit");
     allCmds.add("quit");
+    allCmds.add("checkwithdraw");
 
     Collections.sort(allCmds, new Comparator<String>() {
       public int compare(String arg0, String arg1) {
@@ -2593,6 +2699,10 @@ public class Client {
           depositTrxStress(parameters);
           break;
         }
+        case "checkDeposit": {
+          checkDeposit(parameters);
+          break;
+        }
         case "mapping": {
           mapping(parameters);
           break;
@@ -2665,6 +2775,74 @@ public class Client {
     return;
   }
 
+  private void checkWithdraw(String[] parameters) {
+    if (parameters == null || parameters.length != 3) {
+      System.out.println("checkWithdraw needs 3 parameters like following: ");
+      System.out.println("checkWithdraw from_nonce_inclusive end_nonce_exclusive duration(seconds)");
+      return;
+    }
+
+    int from_nonce_inclusive = Integer.parseInt(parameters[0]);
+    int end_nonce_exclusive = Integer.parseInt(parameters[1]);
+    int durationInS = Integer.parseInt(parameters[2]);
+    int totalCnt = end_nonce_exclusive - from_nonce_inclusive;
+
+    Map<Integer, Boolean> nonceStatus = new ConcurrentHashMap<>();
+
+    for (int nonce = from_nonce_inclusive; nonce < end_nonce_exclusive; nonce++) {
+      nonceStatus.put(nonce, false);
+    }
+
+    switch2Main();
+
+    checkDepositNonceStatus(nonceStatus,
+        AddressUtil.encode58Check(ServerApi.getSideGatewayAddress()), "depositDone(uint256)");
+
+    try {
+      Thread.sleep(30 * 1000); // 30 seconds
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    switch2Main();
+
+    int firstSuccess = 0;
+    int baseFeeLimit = 100000000;
+    Map<Integer, Boolean> needReCheck = new ConcurrentHashMap<>();
+    for (Map.Entry<Integer, Boolean> entry : nonceStatus.entrySet()) {
+      Integer nonce = entry.getKey();
+      Boolean status = entry.getValue();
+      if (status) {
+        firstSuccess++;
+      } else {
+        SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
+            .retryDeposit(String.valueOf(nonce), baseFeeLimit + nonce % 500);
+        needReCheck.put(nonce, false);
+      }
+    }
+
+    switch2Side();
+
+    checkDepositNonceStatus(needReCheck,
+        AddressUtil.encode58Check(ServerApi.getSideGatewayAddress()), "depositDone(uint256)");
+
+    int secondSuccess = 0;
+    for (Map.Entry<Integer, Boolean> entry : needReCheck.entrySet()) {
+      Integer nonce = entry.getKey();
+      Boolean status = entry.getValue();
+      if (status) {
+        secondSuccess++;
+      } else {
+        logger.info("retry fail nonce: {}", nonce);
+      }
+    }
+
+    logger.info("side success / main success: {}%",  String.format("%.2f", firstSuccess * 1.0 / totalCnt * 100));
+    logger.info("side success tps: {}", firstSuccess * 1.0 / durationInS);
+    logger.info("total side success / main success: {}%",  String.format("%.2f", (firstSuccess + secondSuccess) * 1.0 / totalCnt * 100));
+  }
+
+
   private void withdrawTrxStress(String[] parameters) {
 
     if (parameters == null || parameters.length != 4) {
@@ -2691,7 +2869,7 @@ public class Client {
     ExecutorService service = Executors.newFixedThreadPool(100);
 
     long count = durationInS * tps;
-    CountDownLatch latch = new CountDownLatch((int)count);
+    CountDownLatch latch = new CountDownLatch((int) count);
 
     Map<String, String> txIds = new ConcurrentHashMap<>();
     Map<String, Integer> txIdNonces = new ConcurrentHashMap<>();
@@ -2749,7 +2927,7 @@ public class Client {
     long energyFee = 0;
     long energyTotal = 0;
 
-    for(Map.Entry<String, String> entry: txIds.entrySet()) {
+    for (Map.Entry<String, String> entry : txIds.entrySet()) {
       String txId = entry.getValue();
       if (txId == null) {
         continue;
@@ -2759,7 +2937,8 @@ public class Client {
       if (result.isPresent()) {
         logger.info("statistics, index: {}, txId: {}, get success", entry.getKey(), txId);
         TransactionInfo transactionInfo = result.get();
-        Integer nonce = Integer.parseInt(Hex.toHexString(transactionInfo.getContractResult(0).toByteArray()), 16);
+        Integer nonce = Integer
+            .parseInt(Hex.toHexString(transactionInfo.getContractResult(0).toByteArray()), 16);
         logger.info("statistics, txId: {}, nonce: {}", txId, nonce);
         txIdNonces.put(txId, nonce);
         fee += transactionInfo.getFee();
@@ -2799,8 +2978,8 @@ public class Client {
           .retryWithdraw(String.valueOf(retryMap.get(key)), feeLimit);
     }
 
-    Map<String, Integer> retryResultMap = recordRetryResult(retryMap, "" , "");//todo
-    for(String key : retryResultMap.keySet()) {
+    Map<String, Integer> retryResultMap = recordRetryResult(retryMap, "", "");//todo
+    for (String key : retryResultMap.keySet()) {
       logger.info("main chain failed: txid: {}, nouce: {}", key, retryResultMap.get(key));
     }//todo
 
@@ -3311,6 +3490,10 @@ public class Client {
         }
         case "broadcasttransaction": {
           broadcastTransaction(parameters);
+          break;
+        }
+        case "checkwithdraw": {
+          checkWithdraw(parameters);
           break;
         }
         case "exit":
