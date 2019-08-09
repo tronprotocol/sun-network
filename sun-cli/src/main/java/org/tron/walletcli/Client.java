@@ -1901,6 +1901,7 @@ public class Client {
     int baseFeeLimit = 100000000;
     for (Map.Entry<Integer, Boolean> entry : nonceStatus.entrySet()) {
       Integer nonce = entry.getKey();
+      logger.info("nonce: {}", nonce);
       baseFeeLimit += 1;
       boolean status = getNonceStatus(address, method, String.valueOf(baseFeeLimit),
           String.valueOf(nonce));
@@ -2019,6 +2020,9 @@ public class Client {
       }
     }
 
+    logger.info(
+        "main tx: {}, main send success: {}, side deposit first success: {}, side deposit total success: {}",
+        totalCnt, totalSendCnt, firstSuccess, firstSuccess + secondSuccess);
     logger.info("main send success / main tx: {}%",
         String.format("%.2f", totalSendCnt * 1.0 / totalCnt * 100));
     logger.info("side deposit success / main send success: {}%",
@@ -2061,6 +2065,17 @@ public class Client {
     p[6] = "0";
     p[7] = "0";
     TransactionResponse r = triggerContractReturn(p);
+    if (r == null || r.constantResult == null) {
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      r = triggerContractReturn(p);
+    }
+    if (r == null || r.constantResult == null) {
+      return false;
+    }
     return Integer.valueOf(r.constantResult) == 1;
   }
 
@@ -2951,6 +2966,9 @@ public class Client {
       }
     }
 
+    logger.info(
+        "side tx: {}, side send success: {}, main withdraw first success: {}, main withdraw total success: {}",
+        totalCnt, totalSendCnt, firstSuccess, firstSuccess + secondSuccess);
     logger.info("side send success / side tx: {}%",
         String.format("%.2f", totalSendCnt * 1.0 / totalCnt * 100));
     logger.info("main withdraw success / side send success: {}%",
