@@ -154,3 +154,27 @@ protobuf {
         }
     }
 }
+
+def binaryRelease(taskName, jarName, mainClass) {
+    return tasks.create("${taskName}", Jar) {
+        baseName = jarName
+        version = null
+        from(sourceSets.main.output) {
+            include "/**"
+        }
+
+        from {
+            configurations.compile.collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+
+        manifest {
+            attributes "Main-Class": "${mainClass}"
+        }
+    }
+}
+artifacts {
+    archives(binaryRelease('oracleAppJar', 'oracle', 'org.tron.service.App'),
+            binaryRelease('keystoreFectoryJar', 'keystoreFectory', 'org.tron.service.KeystoreFactory'))
+}

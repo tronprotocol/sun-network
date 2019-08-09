@@ -8,8 +8,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
-public class ConsumerDemo {
+public abstract class  ConsumerDemo {
 
   @Test
   public void main(String[] args) {
