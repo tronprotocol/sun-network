@@ -25,7 +25,8 @@ contract DonateNow is  KillableOwnership {
     function donate(string _msg) isHuman whenNotPaused public  payable returns (uint256) {
         require(msg.value > 0);
         totalDonation = totalDonation.add(msg.value);
-        items[index++] = Item(msg.sender, msg.value, _msg);
+        index = index.add(1);
+        items[index] = Item(msg.sender, msg.value, _msg);
        
         emit Donate(msg.sender, msg.value, index);
         return index;
