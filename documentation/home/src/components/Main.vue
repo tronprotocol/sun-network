@@ -30,7 +30,7 @@
             <div class="introduce-1-right">
               <div class="introduce-1-right-content">
                 <div class="introduce-1-right-title">Compatible with TRON Protocol</div>
-                <div class="introduce-1-right-desc">The sidechain uses the DPoS consensus, the same as the mainchain. It supports almost all of the functionalities of the mainchain. TRON users can easily adapt to the sidechain, and developers can quickly migrate or develop new DApps on the sidechain.</div>
+                <div class="introduce-1-right-desc">The sidechain uses the DPoS consensus, the same as the mainchain. It supports smart contract and almost all of the functionalities of the mainchain. TRON users can easily adapt to the sidechain, and developers can quickly migrate or develop new DApps on the sidechain.</div>
                 <div class="introduce-1-right-title">Highly Customizable</div>
                 <div class="introduce-1-right-desc">DAppChain is committed to provide all ecosystem participants with a highly flexible, well-configured, and highly customized network of multiple sidechains. This is also one of the characteristics of each sidechain in DAppChain that is different from the main chain.</div>
               </div>
@@ -135,7 +135,7 @@
       <section>
         <div class="demos-title">
           <b class="divider"></b>
-          <div class="divider-title">Demo</div>
+          <div class="divider-title">Demos</div>
           <b class="divider"></b>
         </div>
         <div class="demo-cards">

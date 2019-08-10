@@ -10,6 +10,7 @@
 
 <style lang="scss">
 body {
+  font-family: PingFangSC-Regular, sans-serif;
   section {
     margin: 0 auto;
     max-width: 1200px;
