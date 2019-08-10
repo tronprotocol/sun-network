@@ -22,6 +22,14 @@
             @click="withdrawTrx()"
           >{{$t('WithdrawText')}}</el-button>
 
+          <a
+            class="test nav-menu-item"
+            type="text"
+            href="https://tron.network/sunnetwork/"
+            target="_blank"
+            style="text-decoration: none;"
+          >{{$t('ApplyTestCoin')}}</a>
+
           <!-- 游戏介绍 -->
           <el-dropdown
             @command="handleCommand"

@@ -23,6 +23,14 @@
             @click="withdrawTrx()"
           >{{$t('WithdrawText')}}</el-button>
 
+           <a
+            class="test nav-menu-item"
+            type="text"
+            href="https://tron.network/sunnetwork/"
+            target="_blank"
+            style="text-decoration: none;color: #8f8f8f;font-weight: 500;font-size: 0.16rem;"
+          >Apply for test coin</a>
+
           <!--  账户-->
           <div
             v-if="address && address.base58"
