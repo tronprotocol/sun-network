@@ -8,12 +8,12 @@ switch (env) {
     interfaceData = {
         mainOptions: {
             fullNode: 'http://47.252.84.158:50052/mf',
-            solidityNode: 'http://47.252.84.158:50052/mf',
+            solidityNode: 'http://47.252.84.158:50052/ms',
             eventServer: 'http://47.252.84.158:50052/mf'
           },
           sideOptions: {
             fullNode: 'http://47.252.84.158:50052/sf',
-            solidityNode: 'http://47.252.84.158:50052/sf',
+            solidityNode: 'http://47.252.84.158:50052/ss',
             eventServer: 'http://47.252.84.141:8080'  
           },
       mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
@@ -35,7 +35,7 @@ switch (env) {
     interfaceData = {
         mainOptions: {
             fullNode: 'http://47.252.84.158:50052/mf',
-            solidityNode: 'http://47.252.84.158:50052/mf',
+            solidityNode: 'http://47.252.84.158:50052/ms',
             eventServer: 'http://47.252.84.158:50052/mf'
           },
           sideOptions: {

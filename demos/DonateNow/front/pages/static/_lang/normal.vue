@@ -21,7 +21,7 @@
             </div>
           </div>
           <div class="input-div">
-            <el-input placeholder="Share your story" v-model.trim="story" style="width: 80%;"></el-input>
+            <el-input placeholder="Share your story" v-model="story" style="width: 80%;"></el-input>
             <el-input placeholder="Donate with love" v-model.trim="amount" style="width: calc(80% - 0.5rem);margin-top: 20px;"></el-input> <span style="font-size:0.2rem; color: #777777;">TRX</span>
             <span @click="donate()" class="donate-btn">Let’s Do it</span>
           </div>
@@ -231,7 +231,7 @@ export default {
         });
         return;
       }
-      const story = this.story;
+      const story = this.story.trim();
       const self = this;
       let transactionId = await this.contractInstance
         .donate(this.story)
