@@ -38,7 +38,14 @@
       "plugin:vue/essential",
       "@vue/prettier"
     ],
-    "rules": {},
+    "rules": {
+      "prettier/prettier": [
+        "error",
+        {
+          "singleQuote": true
+        }
+      ]
+    },
     "parserOptions": {
       "parser": "babel-eslint"
     }
