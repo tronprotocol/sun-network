@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "postinstall": "cd home && npm i",
     "config": "cp sample.config.js config.js",
+    "home:dev": "cd home && npm run serve",
+    "home:build": "cd home && npm run build",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
     "docs:dev:github": "cross-env GITHUB='github' vuepress dev docs",
