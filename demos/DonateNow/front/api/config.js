@@ -7,37 +7,37 @@ switch (env) {
   case "pro":
     interfaceData = {
       mainOptions: {
-        fullNode: 'http://fullnode.tron.network',
-        solidityNode: 'http://solidity.tron.network',
-        eventServer: 'http://fullnode.tron.network'
+        fullNode: 'http://47.252.84.158:8090',
+        solidityNode: 'http://47.252.84.158:8090',
+        eventServer: 'http://47.252.84.158:8090'
       },
       sideOptions: {
-        fullNode: 'http://fullnode.sun.network',
-        solidityNode: 'http://solidity.sun.network',
+        fullNode: 'http://47.252.85.90:8090',
+        solidityNode: 'http://47.252.85.90:8091',
         eventServer: 'http://47.252.84.141:8080'  
       },
-      mainGatewayAddress: 'TGHxhFu4jV4XqMGmk3tEQdSeihWVHE9kBP',
-      sideGatewayAddress: 'TBHr5KpbA7oACUysTKxHiAD7c6X6nkZii1',
-      chainId: '41455cb714d762dc46d490eab37bba67b0ba910a59',
-      contractAddress: "TKwqhYfr7bzWy1aGBHziUeJJ4jWq7g5kPj"
+      mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
+      sideGatewayAddress: 'TJ4apMhB5fhmAwqPcgX9i43SUJZuK6eZj4',
+      chainId: '410A6DBD0780EA9B136E3E9F04EBE80C6C288B80EE',
+      contractAddress: "TG1uvkjpZdT1969wqokcDYiQ7gGUMQTvqK"
     }
     break;
   default:
     interfaceData = {
       mainOptions: {
-        fullNode: 'http://fullnode.tron.network',
-        solidityNode: 'http://solidity.tron.network',
-        eventServer: 'http://fullnode.tron.network'
+        fullNode: 'http://47.252.84.158:8090',
+        solidityNode: 'http://47.252.84.158:8090',
+        eventServer: 'http://47.252.84.158:8090'
       },
       sideOptions: {
-        fullNode: 'http://fullnode.sun.network',
-        solidityNode: 'http://solidity.sun.network',
+        fullNode: 'http://47.252.85.90:8090',
+        solidityNode: 'http://47.252.85.90:8091',
         eventServer: 'http://47.252.84.141:8080'  
       },
-      mainGatewayAddress: 'TGHxhFu4jV4XqMGmk3tEQdSeihWVHE9kBP',
-      sideGatewayAddress: 'TBHr5KpbA7oACUysTKxHiAD7c6X6nkZii1',
-      chainId: '41455cb714d762dc46d490eab37bba67b0ba910a59',
-      contractAddress: "TWdczkpcnG71X6zYCSXpWNJn6fUfFNEwLT"
+      mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
+      sideGatewayAddress: 'TJ4apMhB5fhmAwqPcgX9i43SUJZuK6eZj4',
+      chainId: '410A6DBD0780EA9B136E3E9F04EBE80C6C288B80EE',
+      contractAddress: "TG1uvkjpZdT1969wqokcDYiQ7gGUMQTvqK"
     }
     break;
 }
