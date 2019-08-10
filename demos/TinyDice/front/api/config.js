@@ -40,7 +40,7 @@ switch (env) {
           },
           sideOptions: {
             fullNode: 'http://47.252.84.158:50052/sf',
-            solidityNode: 'http://47.252.84.158:50052/sf',
+            solidityNode: 'http://47.252.84.158:50052/ss',
             eventServer: 'http://47.252.84.141:8080'  
           },
         mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
