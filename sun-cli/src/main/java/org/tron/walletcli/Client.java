@@ -9,6 +9,11 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
@@ -1896,6 +1901,55 @@ public class Client {
     switch2Main();
   }
 
+
+  private Map<String, Integer> recordRetryResult(Map<String, Integer> txIdNonces, String address,
+      String method) {
+    String[] p = new String[8];
+    p[0] = address;
+    p[1] = method;
+    p[3] = "false";
+    p[4] = "100000000";
+    p[5] = "0";
+    p[6] = "0";
+    p[7] = "0";
+    Map<String, Integer> retryMap = new ConcurrentHashMap<>();
+    for (String key : txIdNonces.keySet()) {
+      Integer nouce = txIdNonces.get(key);
+      p[2] = "" + nouce;
+      TransactionResponse r = triggerContractReturn(p);
+      if (Integer.valueOf(r.constantResult) == 0) {
+        retryMap.put(key, nouce);
+      }
+    }
+    return retryMap;
+  }
+
+  private boolean getNonceStatus(String address, String method, String feeLimit, String args) {
+    String[] p = new String[8];
+    p[0] = address;
+    p[1] = method;
+    p[2] = args;
+    p[3] = "false";
+    p[4] = feeLimit;
+    p[5] = "0";
+    p[6] = "0";
+    p[7] = "0";
+    TransactionResponse r = triggerContractReturn(p);
+    if (r == null || r.constantResult == null) {
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      r = triggerContractReturn(p);
+    }
+    if (r == null || r.constantResult == null) {
+      return false;
+    }
+    return Integer.valueOf(r.constantResult) == 1;
+  }
+
+
   private void checkDepositNonceStatus(Map<Integer, Boolean> nonceStatus, String address,
       String method) {
     int baseFeeLimit = 100000000;
@@ -2032,52 +2086,7 @@ public class Client {
         String.format("%.2f", (firstSuccess + secondSuccess) * 1.0 / totalSendCnt * 100));
   }
 
-  private Map<String, Integer> recordRetryResult(Map<String, Integer> txIdNonces, String address,
-      String method) {
-    String[] p = new String[8];
-    p[0] = address;
-    p[1] = method;
-    p[3] = "false";
-    p[4] = "100000000";
-    p[5] = "0";
-    p[6] = "0";
-    p[7] = "0";
-    Map<String, Integer> retryMap = new ConcurrentHashMap<>();
-    for (String key : txIdNonces.keySet()) {
-      Integer nouce = txIdNonces.get(key);
-      p[2] = "" + nouce;
-      TransactionResponse r = triggerContractReturn(p);
-      if (Integer.valueOf(r.constantResult) == 0) {
-        retryMap.put(key, nouce);
-      }
-    }
-    return retryMap;
-  }
 
-  private boolean getNonceStatus(String address, String method, String feeLimit, String args) {
-    String[] p = new String[8];
-    p[0] = address;
-    p[1] = method;
-    p[2] = args;
-    p[3] = "false";
-    p[4] = feeLimit;
-    p[5] = "0";
-    p[6] = "0";
-    p[7] = "0";
-    TransactionResponse r = triggerContractReturn(p);
-    if (r == null || r.constantResult == null) {
-      try {
-        Thread.sleep(10);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-      r = triggerContractReturn(p);
-    }
-    if (r == null || r.constantResult == null) {
-      return false;
-    }
-    return Integer.valueOf(r.constantResult) == 1;
-  }
 
   private void depositTrc10(String[] parameters) {
     if (parameters == null || parameters.length != 4) {
@@ -2314,6 +2323,7 @@ public class Client {
     allCmds.add("deposittrxstress");
     allCmds.add("mapping");
     allCmds.add("retry");
+    allCmds.add("initAccounts");
     allCmds.add("exit");
     allCmds.add("quit");
     allCmds.add("checkdeposit");
@@ -2771,20 +2781,16 @@ public class Client {
           deposit(parameters);
           break;
         }
-        case "deposittrxstress": {
-          depositTrxStress(parameters);
-          break;
-        }
-        case "checkdeposit": {
-          checkDeposit(parameters);
-          break;
-        }
         case "mapping": {
           mapping(parameters);
           break;
         }
         case "retry": {
           mainRetry(parameters);
+          break;
+        }
+        case "initaccounts": {
+          initAccounts(parameters);
           break;
         }
         case "exit":
@@ -3012,7 +3018,7 @@ public class Client {
 
     for (long i = 0; i < durationInS; i++) {
       for (int j = 0; j < 10; j++) {
-        long useFeeLimit = feeLimit + i % 50 + j;
+        long useFeeLimit = feeLimit + i % 500 + j;
         long iBak = i;
         int jBak = j;
         IntStream.range(0, tps / 10).forEach(k -> service.submit(() -> {
@@ -3058,6 +3064,7 @@ public class Client {
     }
 
     long endInS = System.currentTimeMillis() / 1000;
+    logger.info("withdraw send finishes! start : {}, end : {}", startInS, endInS);
 
     try {
       Thread.sleep(2 * 60 * 1000); // 2 minutes
@@ -3132,6 +3139,84 @@ public class Client {
       logger.info("main chain failed: txid: {}, nouce: {}", key, retryResultMap.get(key));
     }
     switch2Side();
+
+  }
+
+  public void initAccounts(String[] parameters) {
+
+    if (parameters == null || parameters.length != 3) {
+      System.out.println("initAccounts needs 3 parameters like following: ");
+      System.out.println("initAccounts init_amount main_amount side_amount ");
+      return;
+    }
+
+    int initAmount = Integer.parseInt(parameters[0]);
+    long mainAmount = Long.parseLong(parameters[1]);
+    long sideAmount = Long.parseLong(parameters[2]);
+    List<String> addresses = new ArrayList<>();
+    for (int i = 0; i < initAmount; i ++) {
+      createStressAccount(addresses, mainAmount, sideAmount);
+      try {
+        Thread.sleep(10);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    try {
+      Thread.sleep(30000);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    String[] addPri;
+    List<String> addressesInit = new ArrayList<>();
+    for (String addressAndPri : addresses) {
+      addPri = addressAndPri.split(",");
+      if (addPri == null || addPri.length != 2) {
+        continue;
+      }
+      String address = addPri[0];
+      SunNetworkResponse<Account> mainResult = walletApiWrapper.getAccount(address);
+      switch2Side();
+      SunNetworkResponse<Account> sideResult = walletApiWrapper.getAccount(address);
+      switch2Main();
+      if (mainResult != null && mainResult.getCode().equals(ErrorCodeEnum.SUCCESS.getCode()) && mainResult.getData().getBalance() == mainAmount
+       && sideResult != null && sideResult.getCode().equals(ErrorCodeEnum.SUCCESS.getCode()) && sideResult.getData().getBalance() == sideAmount) {
+        logger.info("init account success! {}", address);
+        addressesInit.add(addressAndPri);
+      }
+      try {
+        Thread.sleep(10);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
+    }
+
+    String fileName = "/Users/tron/Desktop/accounts.txt";
+    try {
+      BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
+      for (String addressAndPri : addressesInit) {
+        logger.info("Account is {}", addressAndPri);
+        out.write(addressAndPri);
+        out.flush();
+        out.newLine();
+      }
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void createStressAccount(List<String> addresses, long mainAmount, long sideAmount) {
+    AddressPrKeyPairMessage result = walletApiWrapper.generateAddress();
+    SunNetworkResponse<TransactionResponse> mainResp = walletApiWrapper.sendCoin(result.getAddress(), mainAmount);
+    switch2Side();
+    SunNetworkResponse<TransactionResponse> sideResp = walletApiWrapper.sendCoin(result.getAddress(), sideAmount);
+    switch2Main();
+
+    addresses.add(result.getAddress() + "," + result.getPrivateKey());
 
   }
 
