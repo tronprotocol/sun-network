@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "nuxt",
+    "local": "PATH_TYPE=local nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate"

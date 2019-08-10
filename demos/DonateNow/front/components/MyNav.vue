@@ -11,6 +11,12 @@
         </a>
         <span class="sun-network">Sun Network</span>
         <div class="nav">
+           <el-button
+            class="test nav-menu-item"
+            type="text"
+            @click="openDoc()"
+          >Apply for test coin</el-button>
+
           <el-button
             class="deposit nav-menu-item"
             type="text"
@@ -22,14 +28,6 @@
             type="text"
             @click="withdrawTrx()"
           >{{$t('WithdrawText')}}</el-button>
-
-           <a
-            class="test nav-menu-item"
-            type="text"
-            href="https://tron.network/sunnetwork/"
-            target="_blank"
-            style="text-decoration: none;color: #8f8f8f;font-weight: 500;font-size: 0.16rem;"
-          >Apply for test coin</a>
 
           <!--  账户-->
           <div
@@ -174,6 +172,9 @@ export default {
     ])
   },
   methods: {
+    openDoc() {
+      window.open('https://tron.network/sunnetwork/doc');
+    },
     async login() {
       let self = this;
       this.loginDgParams = {

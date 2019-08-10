@@ -7,6 +7,7 @@
   "scripts": {
     "dev:test": "PATH_TYPE=test nuxt",
     "dev": "PATH_TYPE=pro nuxt",
+    "local": "PATH_TYPE=local nuxt",
     "start": "nuxt start -p $PORT",
     "build": "nuxt build && PORT=3001 npm start",
     "generate": "nuxt generate",
