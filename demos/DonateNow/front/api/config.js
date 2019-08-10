@@ -7,13 +7,13 @@ switch (env) {
   case "pro":
     interfaceData = {
       mainOptions: {
-        fullNode: 'http://47.252.84.158:8090',
-        solidityNode: 'http://47.252.84.158:8090',
-        eventServer: 'http://47.252.84.158:8090'
+        fullNode: 'http://47.252.84.158:50053/mf',
+        solidityNode: 'http://47.252.84.158:50053/mf',
+        eventServer: 'http://47.252.84.158:50053/mf'
       },
       sideOptions: {
-        fullNode: 'http://47.252.85.90:8090',
-        solidityNode: 'http://47.252.85.90:8091',
+        fullNode: 'http://47.252.84.158:50053/sf',
+        solidityNode: 'http://47.252.84.158:50053/sf',
         eventServer: 'http://47.252.84.141:8080'  
       },
       mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
@@ -25,13 +25,13 @@ switch (env) {
   default:
     interfaceData = {
       mainOptions: {
-        fullNode: 'http://47.252.84.158:8090',
-        solidityNode: 'http://47.252.84.158:8090',
-        eventServer: 'http://47.252.84.158:8090'
+        fullNode: 'http://47.252.84.158:50053/mf',
+        solidityNode: 'http://47.252.84.158:50053/mf',
+        eventServer: 'http://47.252.84.158:50053/mf'
       },
-      sideOptions: {
-        fullNode: 'http://47.252.85.90:8090',
-        solidityNode: 'http://47.252.85.90:8091',
+     sideOptions: {
+        fullNode: 'http://47.252.84.158:50053/sf',
+        solidityNode: 'http://47.252.84.158:50053/sf',
         eventServer: 'http://47.252.84.141:8080'  
       },
       mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
