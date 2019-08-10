@@ -15,6 +15,7 @@
   "WithdrawTrc10": "WithdrawTrc10",
   "WithdrawTrc20": "WithdrawTrc20",
   "WithdrawTrc721": "WithdrawTrc721",
+  "ApplyTestCoin": "申请测试币",
   "MappingText": "Mapping",
   "MappingTrx": "MappingTrx",
   "MappingTrc20": "MappingTrc20",
