@@ -3,7 +3,7 @@ const TronWeb = require('tronweb');
 const axios = require('axios');
 const config = require('./config');
 const app = express();
-const port = process.argv[2] ? process.argv[2] : 8080;
+const port = process.argv[2] ? process.argv[2] : 9090;
 
 const owner_address = TronWeb.address.toHex(TronWeb.address.fromPrivateKey(config.privateKey));
 const giveMap = {};
@@ -21,8 +21,8 @@ app.all('*', function(req, res, next) {
 });
 
 app.use(express.json());
-app.use('/sunnetwork', express.static('docs/.vuepress/dist'));
-app.use('/sunnetwork/doc', express.static('docs/.vuepress/distdoc'));
+app.use('/sunnetwork', express.static('home/dist'));
+app.use('/sunnetwork/doc', express.static('docs/.vuepress/dist'));
 app.post('/sunnetwork/token', async (req, res) => {
   let to_address = '';
   let amount = 1e10;
