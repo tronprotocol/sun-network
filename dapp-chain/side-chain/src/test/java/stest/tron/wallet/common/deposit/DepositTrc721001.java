@@ -214,7 +214,9 @@ public class DepositTrc721001 {
     String arg = "1001";
     byte[] input1 = Hex.decode(AbiUtil.parseMethod("ownerOf(uint256)", arg, false));
     String ownerTrx = PublicMethed
-        .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0l, input1, 1000000000,
+        .triggerContractSideChain(sideContractAddress,
+            WalletClient.decodeFromBase58Check("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY"), 0l, input1,
+            1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
     Optional<TransactionInfo> infoById2 = PublicMethed

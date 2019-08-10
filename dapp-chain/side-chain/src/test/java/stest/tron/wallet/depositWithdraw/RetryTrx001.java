@@ -146,7 +146,7 @@ public class RetryTrx001 {
     logger.info("sideGatewayAddress:" + sideGatewayAddress);
     long withdrawValue = 1;
     String txid1 = PublicMethed
-        .withdrawTrx(mainGateWayAddress,
+        .withdrawTrx("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
             sideGatewayAddress,
             withdrawValue,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -211,9 +211,10 @@ public class RetryTrx001 {
         accountSideAfterRetryBalance);
     //retry  Withdraw trx
 
-    String retryWithdrawTxid = PublicMethed.retryWithdraw(mainGateWayAddress, sideGatewayAddress,
-        nonceWithdraw,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
+    String retryWithdrawTxid = PublicMethed
+        .retryWithdraw("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY", sideGatewayAddress,
+            nonceWithdraw,
+            maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     logger.info("retryWithdrawTxid:" + retryWithdrawTxid);
@@ -225,7 +226,7 @@ public class RetryTrx001 {
   }
 
   @Test(enabled = true, description = "Retry Deposit and Withdraw Trx with nonce exception ")
-  public void test1RetryTrx002() {
+  public void test2RetryTrx002() {
     //other account Retry Deposit
     Account accountMainBeforeRetry = PublicMethed.queryAccount(depositAddress, blockingStubFull);
     long accountMainBeforeRetryBalance = accountMainBeforeRetry.getBalance();
@@ -295,9 +296,10 @@ public class RetryTrx001 {
         infoByIdretryDepositTxid2.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value
-    String retryWithdrawTxid2 = PublicMethed.retryWithdraw(mainGateWayAddress, sideGatewayAddress,
-        bigNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
+    String retryWithdrawTxid2 = PublicMethed
+        .retryWithdraw("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY", sideGatewayAddress,
+            bigNonce,
+            maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     logger.info("retryDepositTxid2:" + retryWithdrawTxid2);
@@ -322,9 +324,10 @@ public class RetryTrx001 {
     Assert.assertTrue(infoByIdretryDepositTxid3.get().getResultValue() == 0);
 
     //Withdraw noce value is 0
-    String retryWithdrawTxid3 = PublicMethed.retryWithdraw(mainGateWayAddress, sideGatewayAddress,
-        smallNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
+    String retryWithdrawTxid3 = PublicMethed
+        .retryWithdraw("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY", sideGatewayAddress,
+            smallNonce,
+            maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     logger.info("retryDepositTxid2:" + retryWithdrawTxid3);
@@ -349,9 +352,10 @@ public class RetryTrx001 {
         infoByIdretryDepositTxid4.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is Long.max_value+1
-    String retryWithdrawTxid4 = PublicMethed.retryWithdraw(mainGateWayAddress, sideGatewayAddress,
-        maxNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
+    String retryWithdrawTxid4 = PublicMethed
+        .retryWithdraw("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY", sideGatewayAddress,
+            maxNonce,
+            maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     logger.info("retryDepositTxid2:" + retryWithdrawTxid3);
@@ -379,9 +383,10 @@ public class RetryTrx001 {
         infoByIdretryDepositTxid5.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is Long.min_value-1
-    String retryWithdrawTxid5 = PublicMethed.retryWithdraw(mainGateWayAddress, sideGatewayAddress,
-        minNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
+    String retryWithdrawTxid5 = PublicMethed
+        .retryWithdraw("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY", sideGatewayAddress,
+            minNonce,
+            maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     logger.info("retryDepositTxid2:" + retryWithdrawTxid5);
@@ -409,9 +414,10 @@ public class RetryTrx001 {
         infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is -1
-    String retryWithdrawTxid6 = PublicMethed.retryWithdraw(mainGateWayAddress, sideGatewayAddress,
-        minusNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
+    String retryWithdrawTxid6 = PublicMethed
+        .retryWithdraw("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY", sideGatewayAddress,
+            minusNonce,
+            maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     logger.info("retryWithdrawTxid6:" + retryWithdrawTxid6);

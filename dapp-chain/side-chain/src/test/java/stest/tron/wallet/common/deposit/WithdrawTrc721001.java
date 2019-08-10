@@ -210,7 +210,9 @@ public class WithdrawTrc721001 {
     String arg = "1001";
     byte[] input1 = Hex.decode(AbiUtil.parseMethod("ownerOf(uint256)", arg, false));
     String ownerTrx = PublicMethed
-        .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0l, input1, 1000000000,
+        .triggerContractSideChain(sideContractAddress,
+            WalletClient.decodeFromBase58Check("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY"), 0l, input1,
+            1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
     Optional<TransactionInfo> infoById2 = PublicMethed
@@ -242,17 +244,23 @@ public class WithdrawTrc721001 {
     methodStr = "withdrawal(uint256)";
     input = Hex.decode(AbiUtil.parseMethod(methodStr, "1001", false));
     String withdrawTxid1 = PublicMethed
-        .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0, input, maxFeeLimit,
+        .triggerContractSideChain(sideContractAddress,
+            WalletClient.decodeFromBase58Check("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY"), 0, input,
+            maxFeeLimit,
             0, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("withdrawTxid: " + withdrawTxid1);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(withdrawTxid1, blockingSideStubFull);
+    logger.info("fee:" + infoById.get().getFee());
     Assert.assertNotNull(withdrawTxid1);
     Assert.assertEquals(0, infoById.get().getResultValue());
-
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     // TRC721`s owner in mainChain should be Depositor
     return2 = PublicMethed
         .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
@@ -266,7 +274,9 @@ public class WithdrawTrc721001 {
     Assert.assertEquals(Base58.encode58Check(testAddress001), addressFinal);
 
     ownerTrx = PublicMethed
-        .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0l, input1, 1000000000,
+        .triggerContractSideChain(sideContractAddress,
+            WalletClient.decodeFromBase58Check("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY"), 0l, input1,
+            1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);

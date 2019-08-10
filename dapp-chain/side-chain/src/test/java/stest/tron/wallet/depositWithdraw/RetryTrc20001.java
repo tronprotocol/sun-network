@@ -215,7 +215,9 @@ public class RetryTrc20001 {
     nonce = Long.toString(nonceLong);
 
     String sideChainTxid = PublicMethed
-        .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0l, input1, 1000000000,
+        .triggerContractSideChain(sideContractAddress,
+            WalletClient.decodeFromBase58Check("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY"), 0l, input1,
+            1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("sideChainTxid : " + sideChainTxid);
     Optional<TransactionInfo> infoById2 = PublicMethed
@@ -234,7 +236,7 @@ public class RetryTrc20001 {
     logger.info("mainTrc20Balance2:" + mainTrc20Balance2);
     Assert.assertTrue(mainTrc20Balance - 1000 == mainTrc20Balance2);
 
-    String withdrawTrc20Txid = PublicMethed.withdrawTrc20(mainChainAddress,
+    String withdrawTrc20Txid = PublicMethed.withdrawTrc20("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
         sideChainAddress, "100",
         WalletClient.encode58Check(sideContractAddress),
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -255,7 +257,9 @@ public class RetryTrc20001 {
 
     byte[] input4 = Hex.decode(AbiUtil.parseMethod("balanceOf(address)", parame, false));
     String sideChainTxid1 = PublicMethed
-        .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0l, input4, 1000000000,
+        .triggerContractSideChain(sideContractAddress,
+            WalletClient.decodeFromBase58Check("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY")
+            , 0l, input4, 1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("sideChainTxid1 : " + sideChainTxid1);
     Optional<TransactionInfo> infoById3 = PublicMethed
@@ -307,9 +311,10 @@ public class RetryTrc20001 {
 
     //retry withdraw trc20
 
-    String retryWithdrawTxid = PublicMethed.retryWithdraw(mainChainAddress, sideChainAddress,
-        nonceWithdraw,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
+    String retryWithdrawTxid = PublicMethed
+        .retryWithdraw("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY", sideChainAddress,
+            nonceWithdraw,
+            maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     logger.info("retryWithdrawTxid:" + retryWithdrawTxid);
     Optional<TransactionInfo> infoByIdretryWithdraw = PublicMethed
@@ -376,7 +381,7 @@ public class RetryTrc20001 {
 
     //retry withdraw trc20
 
-    String retryWithdrawTxid2 = PublicMethed.retryWithdraw(mainChainAddress,
+    String retryWithdrawTxid2 = PublicMethed.retryWithdraw("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
         sideChainAddress, bigNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -414,7 +419,7 @@ public class RetryTrc20001 {
 
     //retry withdraw trc20 noce value is 0
 
-    String retryWithdrawTxid3 = PublicMethed.retryWithdraw(mainChainAddress,
+    String retryWithdrawTxid3 = PublicMethed.retryWithdraw("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
         sideChainAddress, smallNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -455,7 +460,7 @@ public class RetryTrc20001 {
 
     //retry withdraw trc20 noce value is Long.max_value+1
 
-    String retryWithdrawTxid4 = PublicMethed.retryWithdraw(mainChainAddress,
+    String retryWithdrawTxid4 = PublicMethed.retryWithdraw("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
         sideChainAddress, maxNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -499,7 +504,7 @@ public class RetryTrc20001 {
 
     //retry withdraw trc20 noce value is Long.min_value-1
 
-    String retryWithdrawTxid5 = PublicMethed.retryWithdraw(mainChainAddress,
+    String retryWithdrawTxid5 = PublicMethed.retryWithdraw("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
         sideChainAddress, bigNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -543,7 +548,7 @@ public class RetryTrc20001 {
 
     //retry withdraw trc20 noce value is -1
 
-    String retryWithdrawTxid6 = PublicMethed.retryWithdraw(mainChainAddress,
+    String retryWithdrawTxid6 = PublicMethed.retryWithdraw("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
         sideChainAddress, minusNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);

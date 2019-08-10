@@ -113,7 +113,7 @@ public class DepositTrc10001 {
         .queryAccount(depositAddress, blockingStubFull).getAssetIssuedID();
     logger.info("The token ID: " + assetAccountId.toStringUtf8());
 
-    String methodStr = "depositTRC10()";
+    String methodStr = "depositTRC10(uint64,uint64)";
     byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
 
     String inputTokenID = assetAccountId.toStringUtf8();

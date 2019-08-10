@@ -152,7 +152,7 @@ public class WithdrawTrx002 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     String txid1 = PublicMethed
-        .withdrawTrx(mainGateWayAddress,
+        .withdrawTrx("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
             sideGatewayAddress,
             callValue,
             maxFeeLimit, withdrawAddress, withdrawAddressKey, blockingStubFull,
@@ -197,7 +197,7 @@ public class WithdrawTrx002 {
     //balance<value
     long callValue1 = accountSideBeforeBalance + 1;
     Return response = PublicMethed
-        .withdrawTrxForReturn(mainGateWayAddress,
+        .withdrawTrxForReturn("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
             sideGatewayAddress,
             callValue1,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
@@ -212,7 +212,7 @@ public class WithdrawTrx002 {
     long callValue2 = -1;
 
     Return response1 = PublicMethed
-        .withdrawTrxForReturn(mainGateWayAddress,
+        .withdrawTrxForReturn("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
             sideGatewayAddress,
             callValue2,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
@@ -226,7 +226,7 @@ public class WithdrawTrx002 {
     // value is 0
     long callValue3 = 0;
     String txidn = PublicMethed
-        .withdrawTrx(mainGateWayAddress,
+        .withdrawTrx("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
             sideGatewayAddress,
             callValue3,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
@@ -242,7 +242,7 @@ public class WithdrawTrx002 {
     // value is Long.MAX_VALUE+1
     long callValue4 = Long.MAX_VALUE + 1;
     Return response3 = PublicMethed
-        .withdrawTrxForReturn(mainGateWayAddress,
+        .withdrawTrxForReturn("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
             sideGatewayAddress,
             callValue4,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
@@ -256,7 +256,7 @@ public class WithdrawTrx002 {
     // value is Long.MIN_VALUE - 1
     long callValue5 = Long.MIN_VALUE - 1;
     Return response4 = PublicMethed
-        .withdrawTrxForReturn(mainGateWayAddress,
+        .withdrawTrxForReturn("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
             sideGatewayAddress,
             callValue5,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
@@ -301,7 +301,7 @@ public class WithdrawTrx002 {
     long callValue1 = accountSideBeforeBalance;
     long fee_limit = 1;
     String txid = PublicMethed
-        .withdrawTrx(mainGateWayAddress,
+        .withdrawTrx("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
             sideGatewayAddress,
             callValue1,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,

@@ -27,7 +27,6 @@ import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.AbiUtil;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
-import org.tron.api.GrpcAPI.TransactionExtention;
 
 
 @Slf4j
@@ -193,22 +192,17 @@ public class DepositTrc20001 {
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertNotNull(sideContractAddress);
 
-
-      String arg = parame;
-      byte[] input1 = Hex.decode(AbiUtil.parseMethod("balanceOf(address)", arg, false));
-      TransactionExtention return2 = PublicMethed
-              .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
-                      0l, "0", depositAddress, testKeyFordeposit, blockingStubFull);
+    String arg = parame;
+    byte[] input1 = Hex.decode(AbiUtil.parseMethod("balanceOf(address)", arg, false));
+    TransactionExtention return2 = PublicMethed
+        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+            0l, "0", depositAddress, testKeyFordeposit, blockingStubFull);
 //余额转换
-      Long a=ByteArray.toLong(ByteArray
-              .fromHexString(ByteArray.toHexString(return2.getConstantResult(0).toByteArray())));
-      logger.info("a:"+a);
+    Long a = ByteArray.toLong(ByteArray
+        .fromHexString(ByteArray.toHexString(return2.getConstantResult(0).toByteArray())));
+    logger.info("a:" + a);
 
-
-
-
-
-      String deposittrx = PublicMethed
+    String deposittrx = PublicMethed
         .depositTrc20(WalletClient.encode58Check(trc20Contract), mainChainAddress, 1000, 1000000000,
             depositAddress, testKeyFordeposit, blockingStubFull);
     logger.info(deposittrx);
@@ -216,13 +210,15 @@ public class DepositTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
-    String arg4= parame;
+    String arg4 = parame;
     byte[] input4 = Hex.decode(AbiUtil.parseMethod("balanceOf(address)", arg, false));
     String ownerTrx = PublicMethed
-        .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0l, input4, 1000000000,
+        .triggerContractSideChain(sideContractAddress,
+            WalletClient.decodeFromBase58Check("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY"), 0l, input4,
+            1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
-    Optional<TransactionInfo>  infoById2 = PublicMethed
+    Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -231,20 +227,15 @@ public class DepositTrc20001 {
 //    Assert.assertEquals(0, byId2.get().);
     Assert.assertEquals(1000, ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray()));
 
-      TransactionExtention return3 = PublicMethed
-              .triggerContractForTransactionExtention(trc20Contract, 0l, input4, 1000000000,
-                      0l, "0", depositAddress, testKeyFordeposit, blockingStubFull);
-//余额转换
-      Long b=ByteArray.toLong(ByteArray
-              .fromHexString(ByteArray.toHexString(return3.getConstantResult(0).toByteArray())));
-      logger.info("b:"+b);
+    TransactionExtention return3 = PublicMethed
+        .triggerContractForTransactionExtention(trc20Contract, 0l, input4, 1000000000,
+            0l, "0", depositAddress, testKeyFordeposit, blockingStubFull);
+    Long b = ByteArray.toLong(ByteArray
+        .fromHexString(ByteArray.toHexString(return3.getConstantResult(0).toByteArray())));
+    logger.info("b:" + b);
 
-    Assert.assertEquals(a-1000, ByteArray.toLong(ByteArray
-            .fromHexString(ByteArray.toHexString(return3.getConstantResult(0).toByteArray()))));
-
-
-
-
+    Assert.assertEquals(a - 1000, ByteArray.toLong(ByteArray
+        .fromHexString(ByteArray.toHexString(return3.getConstantResult(0).toByteArray()))));
 
 
   }

@@ -201,7 +201,9 @@ public class WithdrawTrc20001 {
     Assert.assertEquals(0, infodeposittrx.get().getResultValue());
 
     String sideChainTxid = PublicMethed
-        .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0l, input1, 1000000000,
+        .triggerContractSideChain(sideContractAddress,
+            WalletClient.decodeFromBase58Check("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY"), 0l, input1,
+            1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("sideChainTxid : " + sideChainTxid);
     Optional<TransactionInfo> infoById2 = PublicMethed
@@ -220,7 +222,7 @@ public class WithdrawTrc20001 {
     logger.info("mainTrc20Balance2:" + mainTrc20Balance2);
     Assert.assertTrue(mainTrc20Balance - 1000 == mainTrc20Balance2);
 
-    String withdrawTrc20Txid = PublicMethed.withdrawTrc20(mainChainAddress,
+    String withdrawTrc20Txid = PublicMethed.withdrawTrc20("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
         sideChainAddress, "100",
         WalletClient.encode58Check(sideContractAddress),
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -233,10 +235,13 @@ public class WithdrawTrc20001 {
     Optional<TransactionInfo> infoByIdwithdrawTrc20 = PublicMethed
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
     Assert.assertEquals(0, infoByIdwithdrawTrc20.get().getResultValue());
+    logger.info("infoByIdwithdrawTrc20Fee:" + infoByIdwithdrawTrc20.get().getFee());
 
     byte[] input4 = Hex.decode(AbiUtil.parseMethod("balanceOf(address)", parame, false));
     String sideChainTxid1 = PublicMethed
-        .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0l, input4, 1000000000,
+        .triggerContractSideChain(sideContractAddress,
+            WalletClient.decodeFromBase58Check("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY"), 0l, input4,
+            1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("sideChainTxid1 : " + sideChainTxid1);
     Optional<TransactionInfo> infoById3 = PublicMethed

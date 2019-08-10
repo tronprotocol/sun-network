@@ -33,6 +33,7 @@ import org.tron.keystore.WalletFile;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.CreateSmartContract.Builder;
+import org.tron.protos.Contract.FundInjectContract;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
@@ -483,6 +484,8 @@ public class PublicMethed {
         .setTxid(txid).build();
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     if (response.getResult() == true) {
+      System.out.println(
+          " txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
       return ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
     }
 
@@ -580,6 +583,8 @@ public class PublicMethed {
         .setTxid(txid).build();
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     if (response.getResult() == true) {
+      System.out.println(
+          "txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
       return ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
     }
 
@@ -2177,5 +2182,149 @@ public class PublicMethed {
 
   }
 
+
+  /**
+   * constructor.
+   */
+  public static boolean fundInject(
+      byte[] ownerAddress,
+      String priKey, long value, byte[] mainGateWay,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    //String priKey = testKey002;
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+
+    ByteString addressBs = ByteString.copyFrom(ownerAddress);
+    FundInjectContract request = FundInjectContract.newBuilder().setOwnerAddress(addressBs)
+        .setAmount(value).build();
+
+    TransactionExtention transactionExtention = blockingStubFull.fundInject(request);
+    if (transactionExtention == null) {
+      logger.info("transaction ==null");
+      return false;
+
+    }
+
+    Return ret = transactionExtention.getResult();
+    if (!ret.getResult()) {
+      System.out.println("Code = " + ret.getCode());
+      System.out.println("Message = " + ret.getMessage().toStringUtf8());
+      return false;
+
+    } else {
+      System.out.println("Code = " + ret.getCode());
+      System.out.println("Message = " + ret.getMessage().toStringUtf8());
+    }
+
+    Transaction transaction = transactionExtention.getTransaction();
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      System.out.println("Transaction is empty");
+      return false;
+    }
+    System.out.println(
+        "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
+
+//    transaction = signTransaction(ecKey, transaction);
+    transaction = signTransaction(ecKey, transaction, mainGateWay, false);
+
+    GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
+    if (response.getResult() == false) {
+      logger.info(" Code = " + response.getCode());
+      logger.info("Message = " + response.getMessage().toStringUtf8());
+
+    } else {
+      return true;
+    }
+
+    return false;
+  }
+
+
+  /**
+   * constructor.
+   */
+  public static Return fundInjectForReturn(
+      byte[] ownerAddress,
+      String priKey, long value, byte[] mainGateWay,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    //String priKey = testKey002;
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+
+    ByteString addressBs = ByteString.copyFrom(ownerAddress);
+    FundInjectContract request = FundInjectContract.newBuilder().setOwnerAddress(addressBs)
+        .setAmount(value).build();
+
+    TransactionExtention transactionExtention = blockingStubFull.fundInject(request);
+    if (transactionExtention == null) {
+      logger.info("transaction ==null");
+      return null;
+
+    }
+
+    Return ret = transactionExtention.getResult();
+    return ret;
+//    if (!ret.getResult()) {
+//      System.out.println("Code = " + ret.getCode());
+//      System.out.println("Message = " + ret.getMessage().toStringUtf8());
+//      return null;
+//
+//    } else {
+//      System.out.println("Code = " + ret.getCode());
+//      System.out.println("Message = " + ret.getMessage().toStringUtf8());
+//    }
+//
+//    Transaction transaction = transactionExtention.getTransaction();
+//    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+//      System.out.println("Transaction is empty");
+//      return null;
+//    }
+//    System.out.println(
+//        "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
+
+//    transaction = signTransaction(ecKey, transaction);
+//    transaction = signTransaction(ecKey, transaction, mainGateWay, false);
+//
+//    GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
+//    return response;
+  }
+
+
+  public static Return withdrawTrc20ForReturn(
+      String mainGatewayAddr, String sideTokenAddress,
+      String value, String tokenAddress, long feeLimit, byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
+      WalletGrpc.WalletBlockingStub blockingsideStubFull) {
+
+//    byte[] txData1 = PublicMethed.sideSignTokenData(tokenAddress, ownerAddress, priKey,
+//        WalletClient.decodeFromBase58Check(mainGatewayAddr), blockingStubFull, value, 0,
+//        0, "0");
+    String methodStr1 = "withdrawal(uint256)";
+
+    byte[] input1 = Hex
+        .decode(AbiUtil
+            .parseMethod(methodStr1, value, false));
+    Return i = PublicMethed
+        .triggerContractSideChainForReturn(WalletClient.decodeFromBase58Check(tokenAddress),
+            WalletClient.decodeFromBase58Check(mainGatewayAddr),
+            0,
+            input1,
+            feeLimit, 0, "0", ownerAddress, priKey, blockingsideStubFull);
+    return i;
+  }
 
 }

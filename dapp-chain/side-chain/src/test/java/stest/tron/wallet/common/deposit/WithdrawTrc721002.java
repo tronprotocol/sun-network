@@ -212,7 +212,9 @@ public class WithdrawTrc721002 {
     String arg = "1001";
     byte[] input1 = Hex.decode(AbiUtil.parseMethod("ownerOf(uint256)", arg, false));
     String ownerTrx = PublicMethed
-        .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0l, input1, 1000000000,
+        .triggerContractSideChain(sideContractAddress,
+            WalletClient.decodeFromBase58Check("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY"), 0l, input1,
+            1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
     Optional<TransactionInfo> infoById2 = PublicMethed
@@ -276,7 +278,7 @@ public class WithdrawTrc721002 {
     Assert.assertEquals(0, infoById.get().getResultValue());
 
     String withdrawtxid = PublicMethed
-        .withdrawTrc(mainChainAddress, sideContractAddress, "1001",
+        .withdrawTrc("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY", sideContractAddress, "1001",
             maxFeeLimit,
             foundationAddress001, foundationKey001, blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(withdrawtxid, blockingSideStubFull);
@@ -287,7 +289,7 @@ public class WithdrawTrc721002 {
 
     // withdraw with wrong tokenID
     String withdrawtxid2 = PublicMethed
-        .withdrawTrc(mainChainAddress, sideContractAddress, "1002",
+        .withdrawTrc("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY", sideContractAddress, "1002",
             maxFeeLimit,
             testAddress001, testKey001, blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(withdrawtxid2, blockingSideStubFull);
@@ -304,7 +306,9 @@ public class WithdrawTrc721002 {
     String methodStr = "withdrawal(uint256)";
     byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "1001", false));
     String withdrawTxid1 = PublicMethed
-        .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0, input, maxFeeLimit,
+        .triggerContractSideChain(sideContractAddress,
+            WalletClient.decodeFromBase58Check("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY"), 0,
+            input, maxFeeLimit,
             0, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("withdrawTxid: " + withdrawTxid1);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -332,7 +336,9 @@ public class WithdrawTrc721002 {
     Assert.assertEquals(Base58.encode58Check(testAddress001), addressFinal);
 
     String ownerTrx = PublicMethed
-        .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0l, input1, 1000000000,
+        .triggerContractSideChain(sideContractAddress,
+            WalletClient.decodeFromBase58Check("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY"), 0l, input1,
+            1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -347,7 +353,9 @@ public class WithdrawTrc721002 {
 
     // withdraw the TRC721 twice
     withdrawTxid1 = PublicMethed
-        .triggerContractSideChain(sideContractAddress, mainChainAddressKey, 0, input, maxFeeLimit,
+        .triggerContractSideChain(sideContractAddress,
+            WalletClient.decodeFromBase58Check("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY"), 0, input,
+            maxFeeLimit,
             0, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("withdrawTxid: " + withdrawTxid1);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);

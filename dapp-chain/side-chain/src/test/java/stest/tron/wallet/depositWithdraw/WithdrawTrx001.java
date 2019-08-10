@@ -138,7 +138,7 @@ public class WithdrawTrx001 {
     logger.info("sideGatewayAddress:" + sideGatewayAddress);
     long withdrawValue = 1;
     String txid1 = PublicMethed
-        .withdrawTrx(mainGateWayAddress,
+        .withdrawTrx("TVZfiYbNp9viMQwbnhsyJ7oFevwpFTpPpY",
             sideGatewayAddress,
             withdrawValue,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
