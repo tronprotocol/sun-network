@@ -28,9 +28,9 @@
         </div>
         <div>
           <div class="sub-title">GRPC:</div>
-          <span>- 47.252.85.90:50061</span>
-          <span>- 47.252.80.185:50061</span>
-          <span>- 47.252.84.141:50061</span>
+          <span>- 47.252.85.90:50060</span>
+          <span>- 47.252.80.185:50060</span>
+          <span>- 47.252.84.141:50060</span>
         </div>
       </div>
     </div>
