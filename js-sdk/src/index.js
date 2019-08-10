@@ -948,6 +948,7 @@ export default class SunWeb {
         return this.withdrawTrc(
             functionSelector,
             nonce,
+            0,
             feeLimit,
             this.sideGatewayAddress,
             options,
