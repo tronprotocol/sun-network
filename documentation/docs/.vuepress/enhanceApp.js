@@ -1,5 +1,5 @@
-import VueUi from '@vue/ui';
-import '@vue/ui/dist/vue-ui.css';
+// import VueUi from '@vue/ui';
+// import '@vue/ui/dist/vue-ui.css';
 import axios from 'axios';
 
 export default ({
@@ -11,7 +11,7 @@ export default ({
   // ...做一些其他的应用级别的优化
   if (typeof process === 'undefined') {
     // process is undefined in a browser
-    Vue.use(VueUi);
+    // Vue.use(VueUi);
   }
   Vue.prototype.$axios = axios;
 };

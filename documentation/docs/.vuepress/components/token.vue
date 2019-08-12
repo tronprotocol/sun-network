@@ -1,14 +1,6 @@
 <template>
   <div class="token">
-    <div class="row">
-      <h3 class="tokenLabel">{{i18n.title}}</h3>
-      <VueInput v-model="addr" :placeholder="i18n.placeholder" class="big addr" />
-      <VueButton class="primary big" :label="i18n.submit" @click="token" />
-      <div class="tokenRet" v-if="showRes">
-        <VueIcon :icon="tokenRet ? 'done' : 'error'" />
-        {{tokenRet ? i18n.submitDone : i18n.submitError}}
-      </div>
-    </div>
+    <a href="http://testnet.tronex.io/join/getJoinPage" class="nav-link action-button">{{i18n.title}}</a>
   </div>
 </template>
 
@@ -17,50 +9,16 @@ export default {
   name: 'token',
   data() {
     return {
-      addr: '',
-      showRes: false,
-      tokenRet: false,
       i18n: {
-        title: 'Receive 10,000 Test (TRX) Coins',
-        placeholder: 'Test wallet address',
-        submit: 'SUBMIT',
-        submitDone: 'Submitted successfully',
-        submitError: 'Incorrect address or reach daily limit'
+        title: 'Apply for test coins'
       }
     };
   },
   mounted() {
     if (this.$route.path.indexOf('/zh/') == 0) {
       this.i18n = {
-        title: '获取10000测试币',
-        placeholder: '测试网钱包地址',
-        submit: '提交',
-        submitDone: '提交成功',
-        submitError: '地址错误或达到每日获取上限'
+        title: '测试币申请'
       };
-    }
-  },
-  methods: {
-    token: function() {
-      let dataUrl = '';
-      if (process.env.NODE_ENV == 'development') {
-        dataUrl = 'http://localhost:3000';
-      }
-      if (process.env.GITHUB == 'github') {
-        dataUrl = 'https://tron.network';
-      }
-      this.$axios
-        .post(`${dataUrl}/sunnetwork/token`, {
-          addr: this.addr
-        })
-        .then(_ => {
-          this.tokenRet = _.data.ok;
-          this.showRes = true;
-        })
-        .catch(error => {
-          this.tokenRet = false;
-          this.showRes = true;
-        });
     }
   }
 };
@@ -70,18 +28,18 @@ export default {
 .token {
   width: 100%;
   text-align: center;
-  padding: 10px 0;
+  padding: 20px 0;
 
-  .tokenLabel {
-    color: lighten($textColor, 10%);
-  }
-
-  .addr {
-    min-width: 25rem;
-  }
-
-  .tokenRet {
-    padding-top: 10px;
+  .action-button {
+    display: inline-block;
+    font-size: 1.2rem;
+    color: #fff;
+    background-color: #3eaf7c;
+    padding: 0.8rem 1.6rem;
+    border-radius: 4px;
+    transition: background-color 0.1s ease;
+    box-sizing: border-box;
+    border-bottom: 1px solid #389d70;
   }
 }
 </style>
