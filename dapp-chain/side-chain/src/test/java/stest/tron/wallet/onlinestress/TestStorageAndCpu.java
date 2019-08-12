@@ -15,8 +15,9 @@ import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.WalletGrpc;
 import org.tron.core.Wallet;
+import org.tron.core.config.Parameter.ChainParameters;
 import org.tron.protos.Protocol.Block;
-import org.tron.protos.Protocol.ChainParameters;
+import org.tron.protos.Protocol.SideChainParameters;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
@@ -109,9 +110,9 @@ public class TestStorageAndCpu {
     SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     String txid;
 
-    ChainParameters chainParameters = blockingStubFull
-        .getChainParameters(EmptyMessage.newBuilder().build());
-    Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
+    SideChainParameters chainParameters = blockingStubFull
+        .getSideChainParameters(EmptyMessage.newBuilder().build());
+    Optional<SideChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
 
     Integer i = 1;
     while (i++ < 8000) {
@@ -135,7 +136,7 @@ public class TestStorageAndCpu {
       }
       if (i % 10 == 0) {
         chainParameters = blockingStubFull
-            .getChainParameters(EmptyMessage.newBuilder().build());
+            .getSideChainParameters(EmptyMessage.newBuilder().build());
         getChainParameters = Optional.ofNullable(chainParameters);
         logger.info(getChainParameters.get().getChainParameter(22).getKey());
         logger.info(getChainParameters.get().getChainParameter(22).getValue());

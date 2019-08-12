@@ -19,7 +19,7 @@ import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.utils.ByteArray;
 import org.tron.core.Wallet;
-import org.tron.protos.Protocol.ChainParameters;
+import org.tron.protos.Protocol.SideChainParameters;
 import org.tron.protos.Protocol.SideChainProposal;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
@@ -193,9 +193,9 @@ public class WalletTestCommittee004 {
     defaultCommitteeMap.put("CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT", 0L);
     defaultCommitteeMap.put("CREATE_NEW_ACCOUNT_BANDWIDTH_RATE", 1L);
 
-    ChainParameters chainParameters = blockingStubFull
-        .getChainParameters(EmptyMessage.newBuilder().build());
-    Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
+    SideChainParameters chainParameters = blockingStubFull
+        .getSideChainParameters(EmptyMessage.newBuilder().build());
+    Optional<SideChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
     logger.info(Long.toString(getChainParameters.get().getChainParameterCount()));
     for (Integer i = 0; i < getChainParameters.get().getChainParameterCount(); i++) {
       logger.info(getChainParameters.get().getChainParameter(i).getKey());
