@@ -1,8 +1,7 @@
-package stest.tron.wallet.common.deposit;
+package stest.tron.wallet.depositWithdraw;
 
 import static org.hamcrest.core.StringContains.containsString;
 
-import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
@@ -39,14 +38,7 @@ public class DepositTrc721002 {
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
-  private static final long now = System.currentTimeMillis();
-  private static String tokenName = "testAssetIssue_" + Long.toString(now);
-  private static ByteString assetAccountId = null;
-  private static final long TotalSupply = 1000L;
-  private String description = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetDescription");
-  private String url = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetUrl");
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
 
@@ -57,9 +49,9 @@ public class DepositTrc721002 {
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
 
   private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
+      .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+      .getStringList("fullnode.ip.list").get(0);
 
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] depositAddress001 = ecKey1.getAddress();
@@ -72,6 +64,10 @@ public class DepositTrc721002 {
   String sideChainAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key2");
   final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
+
+  final String ChainIdAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.ChainIdAddress");
+  final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
 
   String deployTxid = null;
   byte[] trc20Contract = null;

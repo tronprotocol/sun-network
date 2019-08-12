@@ -50,13 +50,18 @@ public class RetryTrx001 {
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
 
   private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
+      .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+      .getStringList("fullnode.ip.list").get(0);
+
   final String mainGateWayAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key1");
   final String sideGatewayAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key2");
+
+  final String ChainIdAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.ChainIdAddress");
+  final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] depositAddress = ecKey1.getAddress();
   String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -146,7 +151,7 @@ public class RetryTrx001 {
     logger.info("sideGatewayAddress:" + sideGatewayAddress);
     long withdrawValue = 1;
     String txid1 = PublicMethed
-        .withdrawTrx(mainGateWayAddress,
+        .withdrawTrx(ChainIdAddress,
             sideGatewayAddress,
             withdrawValue,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -211,7 +216,7 @@ public class RetryTrx001 {
         accountSideAfterRetryBalance);
     //retry  Withdraw trx
 
-    String retryWithdrawTxid = PublicMethed.retryWithdraw(mainGateWayAddress, sideGatewayAddress,
+    String retryWithdrawTxid = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
         nonceWithdraw,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
 
@@ -266,7 +271,7 @@ public class RetryTrx001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
-    String retryWithdrawTxid = PublicMethed.retryWithdraw(mainGateWayAddress, sideGatewayAddress,
+    String retryWithdrawTxid = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
         nonceWithdraw,
         maxFeeLimit, depositAddress2, testKeyFordeposit2, blockingSideStubFull);
     logger.info("retryWithdrawTxid:" + retryWithdrawTxid);
@@ -295,7 +300,7 @@ public class RetryTrx001 {
         infoByIdretryDepositTxid2.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value
-    String retryWithdrawTxid2 = PublicMethed.retryWithdraw(mainGateWayAddress, sideGatewayAddress,
+    String retryWithdrawTxid2 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
         bigNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -322,7 +327,7 @@ public class RetryTrx001 {
     Assert.assertTrue(infoByIdretryDepositTxid3.get().getResultValue() == 0);
 
     //Withdraw noce value is 0
-    String retryWithdrawTxid3 = PublicMethed.retryWithdraw(mainGateWayAddress, sideGatewayAddress,
+    String retryWithdrawTxid3 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
         smallNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -349,7 +354,7 @@ public class RetryTrx001 {
         infoByIdretryDepositTxid4.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is Long.max_value+1
-    String retryWithdrawTxid4 = PublicMethed.retryWithdraw(mainGateWayAddress, sideGatewayAddress,
+    String retryWithdrawTxid4 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
         maxNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -379,7 +384,7 @@ public class RetryTrx001 {
         infoByIdretryDepositTxid5.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is Long.min_value-1
-    String retryWithdrawTxid5 = PublicMethed.retryWithdraw(mainGateWayAddress, sideGatewayAddress,
+    String retryWithdrawTxid5 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
         minNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -409,7 +414,7 @@ public class RetryTrx001 {
         infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is -1
-    String retryWithdrawTxid6 = PublicMethed.retryWithdraw(mainGateWayAddress, sideGatewayAddress,
+    String retryWithdrawTxid6 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
         minusNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);

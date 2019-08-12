@@ -1,5 +1,7 @@
 package stest.tron.wallet.depositWithdraw;
 
+import static org.tron.api.GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR;
+
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -12,6 +14,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.EmptyMessage;
+import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
@@ -19,6 +23,7 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
+import org.tron.protos.Protocol.SideChainParameters;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
@@ -28,7 +33,7 @@ import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 
 @Slf4j
-public class WithdrawTrx001 {
+public class FundInjectTrx001 {
 
 
   private final String testDepositTrx = Configuration.getByPath("testng.conf")
@@ -44,23 +49,31 @@ public class WithdrawTrx001 {
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
 
+  private final String witnessA = Configuration.getByPath("testng.conf")
+      .getString("witness.key1");
+  private final byte[] witnessAddressA = PublicMethed.getFinalAddress(witnessA);
 
+  private final String witnessB = Configuration.getByPath("testng.conf")
+      .getString("witness.key2");
+  private final byte[] witnessAddressB = PublicMethed.getFinalAddress(witnessB);
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
 
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] depositAddress = ecKey1.getAddress();
-  String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   final String mainGateWayAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key1");
-  final String sideGatewayAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key2");
 
   final String ChainIdAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.ChainIdAddress");
+  final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
+
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] depositAddress = ecKey1.getAddress();
+  String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
 
   @BeforeSuite
   public void beforeSuite() {
@@ -85,8 +98,8 @@ public class WithdrawTrx001 {
     blockingSideStubFull = WalletGrpc.newBlockingStub(channelFull1);
   }
 
-  @Test(enabled = true, description = "Withdraw Trx")
-  public void test1WithdrawTrx001() {
+  @Test(enabled = true, description = "Fundinject ")
+  public void test1Fundinject001() {
 
     Assert.assertTrue(PublicMethed
         .sendcoin(depositAddress, 2000000000L, testDepositAddress, testDepositTrx,
@@ -136,42 +149,86 @@ public class WithdrawTrx001 {
     Assert.assertEquals(Base58.encode58Check(depositAddress), accountSideAfterAddress);
     Assert.assertEquals(1500000000, accountSideAfterBalance);
 
-    logger.info("sideGatewayAddress:" + sideGatewayAddress);
-    long withdrawValue = 1;
-    String txid1 = PublicMethed
-        .withdrawTrx(ChainIdAddress,
-            sideGatewayAddress,
-            withdrawValue,
-            maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Account accountWitnessAddressA = PublicMethed
+        .queryAccount(witnessAddressA, blockingSideStubFull);
+    long witnessAddressAllowance = accountWitnessAddressA.getAllowance();
+    logger.info("witnessAddressAllowance:" + witnessAddressAllowance);
 
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    SideChainParameters sideChainParameters = blockingSideStubFull
+        .getSideChainParameters(EmptyMessage.newBuilder().build());
+    Optional<SideChainParameters> getChainParameters = Optional.ofNullable(sideChainParameters);
+    long fund = Long.valueOf(getChainParameters.get().getChainParameter(32).getValue());
+    String fundAddress = getChainParameters.get().getChainParameter(33).getValue();
+    long dayToSustainByFund = Long
+        .valueOf(getChainParameters.get().getChainParameter(35).getValue());
+    long percentToPayWitness = Long
+        .valueOf(getChainParameters.get().getChainParameter(36).getValue());
+    Assert.assertTrue(PublicMethed.fundInject(depositAddress, testKeyFordeposit, 1000000,
+        WalletClient.decodeFromBase58Check(ChainIdAddress),
+        blockingSideStubFull));
+    Account fundAddressBefore = PublicMethed
+        .queryAccount(WalletClient.decodeFromBase58Check(fundAddress), blockingSideStubFull);
+    long fundAddressbeforeBalance = fundAddressBefore.getBalance();
 
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    long payPerBlock = fund / ((86400 / 3) * dayToSustainByFund);
+    long amountForWitness = payPerBlock * (percentToPayWitness / 100);
+    long amountForfundInjectAddress = payPerBlock - amountForWitness;
+    logger.info("fund:" + fund);
+    logger.info("fundAddress:" + fundAddress);
 
-    Optional<TransactionInfo> infoById1 = PublicMethed
-        .getTransactionInfoById(txid1, blockingSideStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() == 0);
-    long fee1 = infoById1.get().getFee();
-    logger.info("fee1:" + fee1);
-    Account accountSideAfterWithdraw = PublicMethed
-        .queryAccount(depositAddress, blockingSideStubFull);
-    long accountSideAfterWithdrawBalance = accountSideAfterWithdraw.getBalance();
-    ByteString addressAfterWithdraw = accountSideAfterWithdraw.getAddress();
-    String addressAfterWithdrawAddress = Base58
-        .encode58Check(addressAfterWithdraw.toByteArray());
-    logger.info("addressAfterWithdrawAddress:" + addressAfterWithdrawAddress);
-    Assert.assertEquals(Base58.encode58Check(depositAddress), addressAfterWithdrawAddress);
-    Assert.assertEquals(accountSideAfterBalance - fee1 - withdrawValue,
-        accountSideAfterWithdrawBalance);
-    Account accountMainAfterWithdraw = PublicMethed.queryAccount(depositAddress, blockingStubFull);
-    long accountMainAfterWithdrawBalance = accountMainAfterWithdraw.getBalance();
-    logger.info("accountAfterWithdrawBalance:" + accountMainAfterWithdrawBalance);
-    Assert.assertEquals(accountMainAfterWithdrawBalance,
-        accountMainAfterBalance + withdrawValue);
+    logger.info("percentToPayWitness:" + percentToPayWitness);
 
+    logger.info("payPerBlock:" + payPerBlock);
+    logger.info("amountForWitness:" + amountForWitness);
+    logger.info("amountForfundInjectAddress:" + amountForfundInjectAddress);
+//    Block nowBlock = blockingSideStubFull.getNowBlock(EmptyMessage.newBuilder().build());
+//    final Long currentNum = nowBlock.getBlockHeader().getRawData().getNumber();
+//
+//    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+//    Block afterBlock = blockingSideStubFull.getNowBlock(EmptyMessage.newBuilder().build());
+//    final Long aftertNum = afterBlock.getBlockHeader().getRawData().getNumber();
+//    Account fundAddressAfetr = PublicMethed
+//        .queryAccount(WalletClient.decodeFromBase58Check(fundAddress), blockingSideStubFull);
+//    long fundAddressAfterBalance = fundAddressAfetr.getBalance();
+//
+//    Assert.assertEquals(fundAddressbeforeBalance + amountForfundInjectAddress,
+//        fundAddressAfterBalance);
+//    Account witnessAddressAfterA = PublicMethed.queryAccount(witnessAddressA, blockingSideStubFull);
+//    long witnessAddressAfterAllowance = witnessAddressAfterA.getAllowance();
+//    logger.info("witnessAddressAfterAllowance:" + witnessAddressAfterAllowance);
+//    Assert.assertTrue(witnessAddressAllowance - (aftertNum - currentNum + 1) * amountForWitness
+//        == witnessAddressAfterAllowance);
+  }
+
+  @Test(enabled = true, description = "Fundinject Exception")
+  public void test2Fundinject002() {
+    //value is 1
+    Return response = PublicMethed.fundInjectForReturn(depositAddress, testKeyFordeposit, 1,
+        WalletClient.decodeFromBase58Check(ChainIdAddress), blockingSideStubFull);
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
+    Assert.assertEquals("contract validate error : fund amount must be larger than 1TRX/SunToken",
+        response.getMessage().toStringUtf8());
+    //other account
+
+    ECKey ecKey2 = new ECKey(Utils.getRandom());
+    byte[] injectAddress2 = ecKey2.getAddress();
+    String testKeyInjectAddress2 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+
+    Return response1 = PublicMethed.fundInjectForReturn(injectAddress2, testKeyInjectAddress2, 1,
+        WalletClient.decodeFromBase58Check(ChainIdAddress), blockingSideStubFull);
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response1.getCode());
+//    Assert.assertEquals("contract validate error : account not exists",
+//        response1.getMessage().toStringUtf8());
+
+    //value is 1
+    long value = 1500000000;
+    Return response3 = PublicMethed
+        .fundInjectForReturn(depositAddress, testKeyFordeposit, value + 1,
+            WalletClient.decodeFromBase58Check(ChainIdAddress), blockingSideStubFull);
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response3.getCode());
+    Assert.assertEquals("contract validate error : fund amount must be less than accountBalance",
+        response3.getMessage().toStringUtf8());
 
   }
 
