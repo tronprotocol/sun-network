@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <div class="block introduce-main">
-      <section>
+      <!-- <section>
         <p class="main-title">DAppChain</p>
         <p class="main-desc">
           Similar environment, Better experience
@@ -10,7 +10,7 @@
         <p class="main-doc">
           <el-button type="danger" @click="learnMore">Learn More</el-button>
         </p>
-      </section>
+      </section> -->
       <div class="main-footer">
         <section>
           <p class="main-footer-title">DAppChain, sidechain of TRON</p>
@@ -208,7 +208,7 @@ export default {
     width: 100%;
 
     &.introduce-main {
-      min-height: 200px;
+      min-height: 100px;
       .main-title {
         font-size: 50px;
         color: #383838;
@@ -238,6 +238,7 @@ export default {
         background: #ff543d;
         color: white;
         text-align: center;
+        padding: 60px 0;
         .main-footer-title {
           font-size: 34px;
           padding-top: 15px;
@@ -405,6 +406,9 @@ export default {
           margin: auto;
           width: 345px;
           padding-top: 40px;
+          @media (max-width: 600px) {
+            width: 90%;
+          }
         }
         .title {
           font-size: 28px;
