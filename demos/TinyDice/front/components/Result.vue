@@ -181,7 +181,8 @@ export default {
       "address",
       "autoBet",
       "platForm",
-      "globalSunWeb"
+      "globalSunWeb",
+      "loginState"
     ])
   },
   watch: {
@@ -220,6 +221,16 @@ export default {
      * 切换不同的tab标签页
      */
     tab(index) {
+      if (index == 1) {
+        if (!this.loginState) {
+          this.$message({
+            type: "warn",
+          message: this.$t("noLogin"),
+          showClose: true
+          });
+          return;
+        }
+      }
       const tables = this.$refs.output.getElementsByTagName("table");
       const tabItem = this.$refs.tab.getElementsByTagName("a");
       for (let i = 0; i < tabItem.length; i++) {

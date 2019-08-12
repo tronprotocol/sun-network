@@ -17,7 +17,7 @@
             >{{gap>0?'+':''}}{{gap}}</i>
           </span>&nbsp;
           <strong ref="balance">
-            <span v-if="!(address && address.base58)">--</span>
+            <span v-if="!(address && address.base58) || !loginState">--</span>
           </strong>&nbsp;TRX
         </div>
       </el-col>
@@ -382,7 +382,8 @@ export default {
       "diviend",
       "platForm",
       "trx20Account",
-      "globalSunWeb"
+      "globalSunWeb",
+      "loginState"
     ]),
     /**
      * 挖矿数量
@@ -506,9 +507,9 @@ export default {
      * ROLL 摇色子事件
      */
     async roll() {
-      if (!this.address.base58) {
+      if (!this.address.base58 || !this.loginState) {
         this.$message({
-          type: "success",
+          type: "warn",
           message: this.$t("noLogin"),
           showClose: true
         });
@@ -668,6 +669,9 @@ export default {
      * 更新store中balance的值
      */
     async watchBalance() {
+      if (!this.loginState) {
+        return;
+      }
       // const balance = await getBalance(this.address.hex);
       const balance = await this.globalSunWeb.sidechain.trx.getBalance();
 

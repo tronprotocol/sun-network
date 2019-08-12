@@ -63,7 +63,7 @@ import { getBalance, getaccount } from "~/assets/js/common";
 import bus from "~/assets/js/bus";
 import interfaceData from "@/api/config";
 import SunWeb from 'sunweb';
-import { clearInterval, setInterval } from 'timers';
+import { clearInterval, setInterval, setTimeout } from 'timers';
 
 let contractAddress = interfaceData.contractAddress;
 
@@ -91,28 +91,28 @@ export default {
     };
   },
   created() {
-    const sunWeb = new SunWeb(interfaceData.mainOptions, interfaceData.sideOptions, interfaceData.mainGatewayAddress, interfaceData.sideGatewayAddress, interfaceData.chainId);
+    const sunWeb = new SunWeb(interfaceData.mainOptions, interfaceData.sideOptions, interfaceData.mainGatewayAddress, interfaceData.sideGatewayAddress, interfaceData.chainId, interfaceData.privateKey);
     this.$store.commit('SET_SUNWEB', sunWeb);
   
   },
   watch: {
-    "globalSunWeb.mainchain.defaultAddress": {
-      deep: true,
-      handler(newVal, oldVal) {
-        if (
-          newVal &&
-          oldVal &&
-          newVal.base58 &&
-          oldVal.base58 &&
-          newVal.base58 !== oldVal.base58
-        ) {
-          window.location.reload(true);
-        }
-      }
-    }
+    // "globalSunWeb.mainchain.defaultAddress": {
+    //   deep: true,
+    //   handler(newVal, oldVal) {
+    //     if (
+    //       newVal &&
+    //       oldVal &&
+    //       newVal.base58 &&
+    //       oldVal.base58 &&
+    //       newVal.base58 !== oldVal.base58
+    //     ) {
+    //       window.location.reload(true);
+    //     }
+    //   }
+    // }
   },
   computed: {
-    ...mapState(["globalSunWeb", "address", "balance", "mBalance", "donateIndex"])
+    ...mapState(["globalSunWeb", "address", "balance", "mBalance", "donateIndex", "loginState"])
   },
   async mounted() {
       /**
@@ -123,6 +123,13 @@ export default {
         .at(contractAddress);
       this.contractInstance = contractInstance;
       this.$store.commit("SET_CONTRACT_INSTANCE", contractInstance);
+      setTimeout(() => {
+        this.$message({
+          type: "warn",
+          message: this.$t("noLogin"),
+          showClose: true
+        });
+      }, 1000)
       setTimeout(()=>{this.getAllDonations()}, 0);
       this.interTotal = setInterval(async () => {
         this.getAllDonationAmount();
@@ -131,6 +138,7 @@ export default {
   },
   methods: {
     async getAllDonationAmount() {
+      let options = {};
       if (!this.address.base58) {
         return;
       }
@@ -141,15 +149,20 @@ export default {
         .call()
         .catch(err => {
           console.log(err)
-          self.$message.error(err);
+          if (err == 'callerAddress account does not exist') {
+          }
+          // self.$message.error(err);
           return;
         });
+        if (!result) {
+          return;
+        }
         let total = parseInt(result._hex.replace('/^0x/', '') || 0, 16);
         this.totalDonate = this.globalSunWeb.sidechain.fromSun(total);
     },
     async getAllDonations() {
       if (!this.address.base58) {
-        setTimeout(() => { this.getAllDonations() }, 1000);
+        // setTimeout(() => { this.getAllDonations() }, 1000);
         return;
       }
       const self = this;
@@ -158,10 +171,13 @@ export default {
         .call()
         .catch(err => {
           console.log(err)
-          self.$message.error(err);
+          if (err == 'callerAddress account does not exist') {
+
+          }
+          // self.$message.error(err);
           return;
         });
-
+      console.log(result)
       if (!result) return;
       let donateIndex = parseInt(result._hex.replace('/^0x/', '') || 0, 16);
       let num = 1;
@@ -174,9 +190,15 @@ export default {
           .call()
           .catch(err => {
             console.log(err)
-            self.$message.error(err);
+             if (err == 'callerAddress account does not exist') {
+
+             }
+            // self.$message.error(err);
             return;
           });
+          if (!record) {
+            return;
+          }
           if (record) {
             const temp = {
               address: self.globalSunWeb.sidechain.address.fromHex(record[0]),
@@ -213,9 +235,9 @@ export default {
       return arr;
     },
     async donate() {
-      if (!this.address.base58) {
+      if (!this.address.base58 || !this.loginState) {
         this.$message({
-          type: "success",
+          type: "warn",
           message: this.$t("noLogin"),
           showClose: true
         });

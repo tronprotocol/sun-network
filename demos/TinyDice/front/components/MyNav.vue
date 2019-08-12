@@ -51,7 +51,7 @@
           ></how-to-play>
           <!--  账户-->
           <div
-            v-if="address && address.base58"
+            v-if="address && address.base58 && loginState"
             class="account"
           >
             <el-tooltip
@@ -240,12 +240,12 @@ export default {
    
   },
   watch: {
-    address: {
-      deep: true,
-      handler(val) {
-        this.getData();
-      }
-    }
+    // address: {
+    //   deep: true,
+    //   handler(val) {
+    //     this.getData();
+    //   }
+    // }
   },
   mounted() {
     this.intervalBalance = setInterval(() => {
@@ -262,7 +262,8 @@ export default {
       "balance",
       "account",
       "trx20Account",
-      "mBalance"
+      "mBalance",
+      "loginState"
     ]),
     dice() {
       let asset = this.account ? this.account.asset : [];
@@ -284,14 +285,15 @@ export default {
         confirm: async (privateKey) => {
           self.globalSunWeb.mainchain.setPrivateKey(privateKey.privateKey);
           self.globalSunWeb.sidechain.setPrivateKey(privateKey.privateKey);
-          window.sunWeb = self.globalSunWeb; /////
+          // window.sunWeb = self.globalSunWeb; /////
           self.$store.commit('SET_SUNWEB', self.globalSunWeb);
+          self.$store.commit('SET_LOGINSTATE', true);
           self.getBalance();
         }
       }
     },
     async getBalance() {
-      if (!this.address.base58) {
+      if (!this.loginState) {
         return;
       }
       const balance = await this.globalSunWeb.sidechain.trx.getBalance();
@@ -300,9 +302,9 @@ export default {
       this.$store.commit('SET_MBALANCE', this.globalSunWeb.mainchain.fromSun(mBalance));
     },
     withdrawTrx() {
-      if (!this.address.base58) {
+      if (!this.loginState) {
         this.$message({
-          type: "success",
+          type: "warn",
           message: this.$t("noLogin"),
           showClose: true
         });
@@ -333,9 +335,9 @@ export default {
       }
     },
     depositTrx() {
-      if (!this.address.base58) {
+     if (!this.loginState) {
         this.$message({
-          type: "success",
+          type: "warn",
           message: this.$t("noLogin"),
           showClose: true
         });
@@ -482,7 +484,7 @@ export default {
         return;
       }
       let balance = await getBalance(this.address.hex);
-      let account = await getaccount(this.address.hex);
+      // let account = await getaccount(this.address.hex);
       this.$store.commit("SET_BALANCE", this.globalSunWeb.mainchain.fromSun(balance));
       this.$store.commit("SET_ACCOUNT", account);
     },

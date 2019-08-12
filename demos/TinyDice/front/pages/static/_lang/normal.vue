@@ -67,10 +67,10 @@ export default {
     };
   },
   created() {
-    if (JSON.stringify(this.sunWeb === '{}')) {
-      this.sunWeb = new SunWeb(interfaceData.mainOptions, interfaceData.sideOptions, interfaceData.mainGatewayAddress, interfaceData.sideGatewayAddress, interfaceData.chainId);
+      console.log(interfaceData)
+      this.sunWeb = new SunWeb(interfaceData.mainOptions, interfaceData.sideOptions, interfaceData.mainGatewayAddress, interfaceData.sideGatewayAddress, interfaceData.chainId, interfaceData.privateKey);
+      window.sunWeb = this.sunWeb
       this.$store.commit('SET_SUNWEB', this.sunWeb);
-    }
     // this.$store.commit("SET_RANDOM", "");
   },
   watch: {
@@ -78,27 +78,27 @@ export default {
       deep: true,
       handler(val) {}
     },
-    globalSunWeb: {
-      deep: true,
-      handler(val) {
-        this.sunWeb = val;
-        // window.sunWeb = this.sunWeb;
-      }
-    },
-    "globalSunWeb.mainchain.defaultAddress": {
-      deep: true,
-      handler(newVal, oldVal) {
-        if (
-          newVal &&
-          oldVal &&
-          newVal.base58 &&
-          oldVal.base58 &&
-          newVal.base58 !== oldVal.base58
-        ) {
-          window.location.reload(true);
-        }
-      }
-    }
+    // globalSunWeb: {
+    //   deep: true,
+    //   handler(val) {
+    //     this.sunWeb = val;
+    //     // window.sunWeb = this.sunWeb;
+    //   }
+    // },
+    // "globalSunWeb.mainchain.defaultAddress": {
+    //   deep: true,
+    //   handler(newVal, oldVal) {
+    //     if (
+    //       newVal &&
+    //       oldVal &&
+    //       newVal.base58 &&
+    //       oldVal.base58 &&
+    //       newVal.base58 !== oldVal.base58
+    //     ) {
+    //       window.location.reload(true);
+    //     }
+    //   }
+    // }
   },
   computed: {
     ...mapState(["dapp", "globalSunWeb", "address"])
@@ -112,6 +112,13 @@ export default {
         .at(contractAddress);
       this.contractInstance = contractInstance;
       this.$store.commit("SET_CONTRACT_INSTANCE", contractInstance);
+      setTimeout(() => {
+        this.$message({
+          type: "warn",
+          message: this.$t("noLogin"),
+          showClose: true
+        });
+      }, 1000)
   }
 };
 </script>

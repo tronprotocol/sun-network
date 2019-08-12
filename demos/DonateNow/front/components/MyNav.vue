@@ -31,7 +31,7 @@
 
           <!--  账户-->
           <div
-            v-if="address && address.base58"
+            v-if="address && address.base58 && loginState"
             class="account"
           >
             <el-tooltip
@@ -169,6 +169,7 @@ export default {
       "dialogLogin",
       "balance",
       "mBalance",
+      "loginState"
     ])
   },
   methods: {
@@ -183,12 +184,13 @@ export default {
           self.globalSunWeb.mainchain.setPrivateKey(privateKey.privateKey);
           self.globalSunWeb.sidechain.setPrivateKey(privateKey.privateKey);
           self.$store.commit('SET_SUNWEB', self.globalSunWeb);
+          self.$store.commit('SET_LOGINSTATE', true);
           self.getBalance();
         }
       }
     },
     async getBalance() {
-      if (!this.address.base58) {
+      if (!this.address.base58 || !this.loginState) {
         return;
       }
       const balance = await this.globalSunWeb.sidechain.trx.getBalance();
@@ -197,9 +199,9 @@ export default {
       this.$store.commit('SET_MBALANCE', this.globalSunWeb.mainchain.fromSun(mBalance));
     },
     withdrawTrx() {
-      if (!this.address.base58) {
+      if (!this.address.base58 && !this.loginState) {
         this.$message({
-          type: "success",
+          type: "warn",
           message: this.$t("noLogin"),
           showClose: true
         });
@@ -230,9 +232,9 @@ export default {
       }
     },
     depositTrx() {
-      if (!this.address.base58) {
+      if (!this.address.base58 || !this.loginState) {
         this.$message({
-          type: "success",
+          type: "warn",
           message: this.$t("noLogin"),
           showClose: true
         });

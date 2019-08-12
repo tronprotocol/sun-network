@@ -27,7 +27,8 @@ switch (env) {
       // 游戏合约
       contractAddress: "TXK6pbKRV7i6fPNdTfAHY7AsTs4URJruhV",
       // 代币合约
-      trx20ContractAddress: 'THvZvKPLHKLJhEFYKiyqj6j8G8nGgfg7ur'
+      trx20ContractAddress: 'THvZvKPLHKLJhEFYKiyqj6j8G8nGgfg7ur',
+      privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F'
       
     }
     break;
@@ -54,7 +55,9 @@ switch (env) {
       // 游戏合约
       contractAddress: "TXK6pbKRV7i6fPNdTfAHY7AsTs4URJruhV",
       // 代币合约
-      trx20ContractAddress: 'THvZvKPLHKLJhEFYKiyqj6j8G8nGgfg7ur'
+      trx20ContractAddress: 'THvZvKPLHKLJhEFYKiyqj6j8G8nGgfg7ur',
+      privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F'
+
     }
     break;
   default:
@@ -80,7 +83,9 @@ switch (env) {
         // 游戏合约
         contractAddress: "TXK6pbKRV7i6fPNdTfAHY7AsTs4URJruhV",
         // 代币合约
-        trx20ContractAddress: 'THvZvKPLHKLJhEFYKiyqj6j8G8nGgfg7ur'
+        trx20ContractAddress: 'THvZvKPLHKLJhEFYKiyqj6j8G8nGgfg7ur',
+        privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F'
+
     }
     break;
 }

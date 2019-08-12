@@ -9,6 +9,7 @@ export const state = () => ({
   contractAddress: "",
   contractInstance: null,
   dialogLogin: false,
+  loginState: false,
   myBetsLength: 0,
   showLoading: true,
   random: 0,
@@ -32,6 +33,9 @@ export const mutations = {
     if (state.locales.indexOf(locale) !== -1) {
       state.locale = locale;
     }
+  },
+  SET_LOGINSTATE(state, loginState) {
+    state.loginState = loginState;
   },
   SET_CONTRACT_ADDRESS(state, address) {
     state.contractAddress = address;

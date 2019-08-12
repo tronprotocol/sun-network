@@ -19,7 +19,8 @@ switch (env) {
       mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
       sideGatewayAddress: 'TJ4apMhB5fhmAwqPcgX9i43SUJZuK6eZj4',
       chainId: '410A6DBD0780EA9B136E3E9F04EBE80C6C288B80EE',
-      contractAddress: "TG1uvkjpZdT1969wqokcDYiQ7gGUMQTvqK"
+      contractAddress: "TG1uvkjpZdT1969wqokcDYiQ7gGUMQTvqK",
+      privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F'
     }
     break;
     case "local":
@@ -37,7 +38,8 @@ switch (env) {
       mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
       sideGatewayAddress: 'TJ4apMhB5fhmAwqPcgX9i43SUJZuK6eZj4',
       chainId: '410A6DBD0780EA9B136E3E9F04EBE80C6C288B80EE',
-      contractAddress: "TG1uvkjpZdT1969wqokcDYiQ7gGUMQTvqK"
+      contractAddress: "TG1uvkjpZdT1969wqokcDYiQ7gGUMQTvqK",
+      privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F'
     }
     break;
   default:
@@ -55,7 +57,8 @@ switch (env) {
       mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
       sideGatewayAddress: 'TJ4apMhB5fhmAwqPcgX9i43SUJZuK6eZj4',
       chainId: '410A6DBD0780EA9B136E3E9F04EBE80C6C288B80EE',
-      contractAddress: "TG1uvkjpZdT1969wqokcDYiQ7gGUMQTvqK"
+      contractAddress: "TG1uvkjpZdT1969wqokcDYiQ7gGUMQTvqK",
+      privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F'
     }
     break;
 }

@@ -288,7 +288,7 @@
   "diceTip": "* dice挖矿到账时间为5min左右",
   "withDrawSuccess": "提取成功",
   "cancel": "取消",
-  "noLogin": "请先登录再开始游戏.",
+  "noLogin": "TronLink即将支持，请先使用测试账号私钥登陆.",
   "exchange": "交易所",
   "timeOut": "因事件服务器卡顿，获取智能合约投注结果超时，但并不影响您的投注结果，您可在钱包里查看余额变化。",
   "Dividend": {
