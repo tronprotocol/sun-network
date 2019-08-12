@@ -42,6 +42,7 @@ import org.tron.common.logsfilter.TriggerConfig;
 import org.tron.common.overlay.discover.node.Node;
 import org.tron.common.storage.RocksDbSettings;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.Sha256Hash;
 import org.tron.core.Constant;
 import org.tron.core.Wallet;
 import org.tron.core.config.Configuration;
@@ -50,6 +51,7 @@ import org.tron.core.config.Parameter.NetConstants;
 import org.tron.core.config.Parameter.NodeConstant;
 import org.tron.core.db.AccountStore;
 import org.tron.core.db.backup.DbBackupConfig;
+import org.tron.core.exception.ContractValidateException;
 import org.tron.keystore.CipherException;
 import org.tron.keystore.Credentials;
 import org.tron.keystore.WalletUtils;
@@ -352,7 +354,6 @@ public class Args {
 //  @Setter
 //  private long allowSameTokenName; //committee parameter
 
-
   // remove in side-chain
 //  @Getter
 //  @Setter
@@ -478,13 +479,17 @@ public class Args {
   private int validContractProtoThreadNum;
 
   //side-chain
-  @Getter
-  @Setter
-  private List<byte[]> gatewayList;
+//  @Getter
+//  @Setter
+//  private List<byte[]> sideChainGatewayList;
 
   @Getter
   @Setter
   private List<byte[]> mainChainGateWayList;
+
+  @Getter
+  @Setter
+  private String sideChainId;
 
   @Getter
   @Setter
@@ -510,6 +515,21 @@ public class Args {
   @Setter
   private long maxCpuTimeOfOneTx;
 
+  @Getter
+  @Setter
+  private long dayToSustainByFund;
+
+  @Getter
+  @Setter
+  private int percentToPayWitness;
+
+  @Getter
+  @Setter
+  private int voteSwitch;
+
+  @Getter
+  @Setter
+  private int witnessMaxActiveNum;
 
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
@@ -594,6 +614,10 @@ public class Args {
     INSTANCE.energyFee = 1;
     INSTANCE.totalEnergyLimit = 100000000000L;
     INSTANCE.maxCpuTimeOfOneTx = 50L;
+    INSTANCE.dayToSustainByFund = 90L;
+    INSTANCE.percentToPayWitness = 80;
+    INSTANCE.voteSwitch = 0;
+    INSTANCE.witnessMaxActiveNum = 27;
   }
 
   /**
@@ -761,7 +785,9 @@ public class Args {
       INSTANCE.genesisBlock = new GenesisBlock();
 
       INSTANCE.genesisBlock.setTimestamp(config.getString("genesis.block.timestamp"));
-      INSTANCE.genesisBlock.setParentHash(config.getString("genesis.block.parentHash"));
+      byte[] chainId = ByteArray.fromHexString(config.getString("genesis.block.sideChainId"));
+      String parentHash = ByteArray.toHexString(Sha256Hash.hash(chainId));
+      INSTANCE.genesisBlock.setParentHash(parentHash);
 
       if (config.hasPath("genesis.block.assets")) {
         INSTANCE.genesisBlock.setAssets(getAccountsFromConfig(config));
@@ -976,8 +1002,10 @@ public class Args {
     INSTANCE.saveInternalTx =
         config.hasPath("vm.saveInternalTx") && config.getBoolean("vm.saveInternalTx");
 
-    INSTANCE.gatewayList = getGateWayList(config,"gateWayList");
-    INSTANCE.mainChainGateWayList = getGateWayList(config, "mainChainGateWayList");
+//    INSTANCE.sideChainGatewayList = getGateWayList(config,"sidechain.sideChainGateWayList");
+    INSTANCE.mainChainGateWayList = getGateWayList(config, "sidechain.mainChainGateWayList");
+    // mandatory to have sideChainId
+    INSTANCE.sideChainId = config.getString("genesis.block.sideChainId");
 
     INSTANCE.eventPluginConfig =
         config.hasPath("event.subscribe") ?
@@ -1005,12 +1033,12 @@ public class Args {
       initRocksDbSettings(config);
     }
 
-
     // side chain
-    INSTANCE.sideChainChargingBandwidth =
-            config.hasPath("sidechain.chargingBandwidth") ? config
-                    .getInt("sidechain.chargingBandwidth") : 1;
-    
+//    INSTANCE.sideChainChargingBandwidth =
+//        config.hasPath("sidechain.chargingBandwidth") ? config
+//            .getInt("sidechain.chargingBandwidth") : 1;
+    INSTANCE.sideChainChargingBandwidth = 1;
+
     INSTANCE.chargingSwitchOn =
         config.hasPath("committee.chargingSwitchOn") ? config
             .getInt("committee.chargingSwitchOn") : 0;
@@ -1030,6 +1058,21 @@ public class Args {
         config.hasPath("sidechain.maxCpuTimeOfOneTx") ? config
             .getLong("sidechain.maxCpuTimeOfOneTx") : 50L;
 
+    INSTANCE.dayToSustainByFund =
+        config.hasPath("sidechain.dayToSustainByFund") ? config
+            .getLong("sidechain.dayToSustainByFund") : 90L;
+
+    INSTANCE.percentToPayWitness =
+        config.hasPath("sidechain.percentToPayWitness") ? config
+            .getInt("sidechain.percentToPayWitness") : 80;
+
+    INSTANCE.voteSwitch =
+        config.hasPath("committee.voteSwitch") ? config
+            .getInt("committee.voteSwitch") : 0;
+
+    INSTANCE.witnessMaxActiveNum =
+        config.hasPath("sidechain.witnessMaxActiveNum") ? config.
+            getInt("sidechain.witnessMaxActiveNum") : 27;
     logConfig();
   }
 
@@ -1110,9 +1153,19 @@ public class Args {
     }
     List<byte[]> ret = new ArrayList<>();
     List<String> list = config.getStringList(path);
-    for (String configString : list) {
-      ret.add(Wallet.decodeFromBase58Check(configString));
+    try {
+      for (String configString : list) {
+        byte[] address = Wallet.decodeFromBase58Check(configString);
+        if (!Wallet.addressValid(address)) {
+          throw new ContractValidateException("invalid gateway address");
+        }
+        ret.add(address);
+      }
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+      exit(-1);
     }
+
     return ret;
   }
 

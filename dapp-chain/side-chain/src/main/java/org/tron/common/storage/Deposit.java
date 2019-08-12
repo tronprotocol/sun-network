@@ -117,7 +117,7 @@ public interface Deposit {
 
   byte[] getBlackHoleAddress();
 
-  List<byte[]> getGatewayList();
+  List<byte[]> getSideChainGateWayList();
 
   boolean isGatewayAddress(byte[] address);
 

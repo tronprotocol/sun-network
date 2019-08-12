@@ -1,9 +1,10 @@
 package org.tron.service.eventenum;
 
 public enum MainEventType implements EventType {
-  TRX_RECEIVED("TRXReceived(address,uint256,uint256)"),
-  TRC10_RECEIVED("TRC10Received(address,trcToken,uint256,uint256)"),
-  TRC20_RECEIVED("TRC20Received(address,address,uint256,uint256)"),
+  
+  TRX_RECEIVED("TRXReceived(address,uint64,uint256)"),
+  TRC10_RECEIVED("TRC10Received(address,uint64,uint64,uint256)"),
+  TRC20_RECEIVED("TRC20Received(address,address,uint64,uint256)"),
   TRC721_RECEIVED("TRC721Received(address,address,uint256,uint256)"),
 
   TRX_WITHDRAW("TRXWithdraw(address,uint256,uint256)"),

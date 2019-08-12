@@ -15,6 +15,7 @@ import org.tron.api.GrpcAPI.AccountNetMessage;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
 import org.tron.api.GrpcAPI.AssetIssueList;
+import org.tron.api.GrpcAPI.BlockExtention;
 import org.tron.api.GrpcAPI.BlockListExtention;
 import org.tron.api.GrpcAPI.DelegatedResourceList;
 import org.tron.api.GrpcAPI.ExchangeList;
@@ -26,6 +27,7 @@ import org.tron.api.GrpcAPI.TransactionListExtention;
 import org.tron.api.GrpcAPI.TransactionSignWeight;
 import org.tron.api.GrpcAPI.WitnessList;
 import org.tron.common.utils.AbiUtil;
+import org.tron.common.utils.AddressUtil;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.exception.CancelException;
@@ -35,9 +37,11 @@ import org.tron.protos.Contract;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
+import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.DelegatedResourceAccountIndex;
 import org.tron.protos.Protocol.Exchange;
 import org.tron.protos.Protocol.Proposal;
+import org.tron.protos.Protocol.SideChainParameters;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
@@ -45,45 +49,67 @@ import org.tron.sunapi.request.AssertIssueRequest;
 import org.tron.sunapi.request.DeployContractRequest;
 import org.tron.sunapi.request.ExchangeCreateRequest;
 import org.tron.sunapi.request.ExchangeTransactionRequest;
-import org.tron.sunapi.request.FreezeBalanceRequest;
 import org.tron.sunapi.request.TriggerContractRequest;
-import org.tron.sunapi.request.UpdateAssetRequest;
-import org.tron.sunapi.response.DeployContractResponse;
 import org.tron.sunapi.response.TransactionResponse;
-import org.tron.sunserver.WalletApi;
+import org.tron.sunserver.IMultiTransactionSign;
+import org.tron.sunserver.ServerApi;
 
 @Slf4j
 public class Chain implements ChainInterface {
+
   @Getter
-  private WalletApi serverApi;
+  private ServerApi serverApi;
 
   /**
-   * @author sun-network
    * @param config the environment configuration path
    * @param priKey the private key of user
    * @param isMainChain main chain or side chain
    * @return the result of initialize
+   * @author sun-network
    */
 
-  public SunNetworkResponse<Integer> init(String config, String priKey, boolean isMainChain) {
+  public SunNetworkResponse<Integer> init(IServerConfig config, String priKey, boolean isMainChain,
+      IMultiTransactionSign multiTransactionSign) {
     SunNetworkResponse<Integer> ret = new SunNetworkResponse<>();
-    byte[] temp =  org.tron.keystore.StringUtils.hexs2Bytes(priKey.getBytes());
+    byte[] temp = ByteArray.fromHexString(priKey);
 
-    if (!WalletApi.priKeyValid(temp)) {
+    if (!Utils.priKeyValid(temp)) {
       ret.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
-    serverApi = new WalletApi(config, temp, isMainChain);
+    serverApi = new ServerApi(config, temp, isMainChain, multiTransactionSign);
+
+    return ret.success(0);
+  }
+
+  public SunNetworkResponse<Integer> init(IServerConfig config, boolean isMainChain,
+      IMultiTransactionSign multiTransactionSign) {
+    SunNetworkResponse<Integer> ret = new SunNetworkResponse<>();
+
+    serverApi = new ServerApi(config, isMainChain, multiTransactionSign);
+
+    return ret.success(0);
+  }
+
+  public SunNetworkResponse<Integer> setPrivateKey(String priKey) {
+    SunNetworkResponse<Integer> ret = new SunNetworkResponse<>();
+    byte[] temp = ByteArray.fromHexString(priKey);
+
+    if (!Utils.priKeyValid(temp)) {
+      ret.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
+    }
+
+    serverApi.initPrivateKey(temp);
 
     return ret.success(0);
   }
 
   /**
-   * @author sun-network
    * @param request request of deploy contract
    * @return the response of deploy contract which contains the address of contract deployed
+   * @author sun-network
    */
-  public SunNetworkResponse<DeployContractResponse> deployContract(DeployContractRequest request) {
-    SunNetworkResponse<DeployContractResponse> resp = new SunNetworkResponse<DeployContractResponse>();
+  public SunNetworkResponse<TransactionResponse> deployContract(DeployContractRequest request) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
     String contractName = request.getContractName();
     String abiStr = request.getAbiStr();
@@ -112,27 +138,24 @@ public class Chain implements ChainInterface {
         }
       }
 
-      long trx = request.getTrx();
+      long value = request.getValue();
       long tokenValue = request.getTokenValue();
       String tokenId = request.getTokenId();
       String libraryAddressPair = request.getLibraryAddressPair();
       String compilerVersion = request.getCompilerVersion();
 
-      String contractAddress = serverApi.deployContract(contractName, abiStr, codeStr, feeLimit, trx,
-          consumeUserResourcePercent, originEnergyLimit, tokenValue, tokenId, libraryAddressPair,
-          compilerVersion);
-      if(StringUtils.isEmpty(contractAddress)) {
-        resp.failed(ErrorCodeEnum.ERROR_UNKNOWN);
+      TransactionResponse ret = serverApi
+          .deployContract(contractName, abiStr, codeStr, feeLimit, value,
+              consumeUserResourcePercent, originEnergyLimit, tokenValue, tokenId,
+              libraryAddressPair,
+              compilerVersion);
+      resp.setData(ret);
+      if (ret.getResult()) {
+        resp.success(ret);
       } else {
-        resp.success(new DeployContractResponse(contractAddress));
+        resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
-    } catch(EncodingException e) {
+    } catch (EncodingException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_ENCODING);
     } catch (Exception e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
@@ -142,9 +165,9 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param request request of trigger contract
    * @return the response of trigger contract which contains the id of transaction
+   * @author sun-network
    */
   public SunNetworkResponse<TransactionResponse> triggerContract(TriggerContractRequest request) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
@@ -157,15 +180,15 @@ public class Chain implements ChainInterface {
     long callValue = request.getCallValue();
     long tokenCallValue = request.getTokenCallValue();
     String tokenId = request.getTokenId();
-    if (argsStr.equalsIgnoreCase("#")) {
+    if (StringUtils.isEmpty(argsStr) || argsStr.equalsIgnoreCase("#")) {
       argsStr = "";
     }
-    if (tokenId.equalsIgnoreCase("#")) {
+    if (StringUtils.isEmpty(tokenId) || tokenId.equalsIgnoreCase("#")) {
       tokenId = "";
     }
     try {
       byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, isHex));
-      byte[] contractAddress = WalletApi.decodeFromBase58Check(contractAddrStr);
+      byte[] contractAddress = AddressUtil.decodeFromBase58Check(contractAddrStr);
 
       TransactionResponse result = serverApi
           .triggerContract(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
@@ -175,7 +198,7 @@ public class Chain implements ChainInterface {
       } else {
         resp.success(result);
       }
-    } catch(EncodingException e) {
+    } catch (EncodingException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_ENCODING);
     } catch (Exception e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
@@ -185,23 +208,23 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @return address
+   * @author sun-network
    */
-  public SunNetworkResponse<String>  getAddress() {
-    SunNetworkResponse<String> resp = new SunNetworkResponse<>();
+  public SunNetworkResponse<byte[]> getAddress() {
+    SunNetworkResponse<byte[]> resp = new SunNetworkResponse<>();
 
-    String address = WalletApi.encode58Check(serverApi.getAddress());
+    byte[] address = serverApi.getAddress();
     resp.success(address);
 
     return resp;
   }
 
   /**
-   * @author sun-network
    * @return balance
+   * @author sun-network
    */
-  public SunNetworkResponse<Long>  getBalance() {
+  public SunNetworkResponse<Long> getBalance() {
     SunNetworkResponse<Long> resp = new SunNetworkResponse<>();
 
     Account account = serverApi.queryAccount();
@@ -216,12 +239,12 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @return account information
+   * @author sun-network
    */
-  public SunNetworkResponse<Account> getAccount(String address){
+  public SunNetworkResponse<Account> getAccount(String address) {
     SunNetworkResponse<Account> resp = new SunNetworkResponse<>();
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = AddressUtil.decodeFromBase58Check(address);
     if (addressBytes == null) {
       resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
       return null;
@@ -233,11 +256,11 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param accountId account ID
    * @return account information
+   * @author sun-network
    */
-  public SunNetworkResponse<Account> getAccountById( String accountId) {
+  public SunNetworkResponse<Account> getAccountById(String accountId) {
     SunNetworkResponse<Account> resp = new SunNetworkResponse<>();
 
     Account account = serverApi.queryAccountById(accountId);
@@ -247,68 +270,62 @@ public class Chain implements ChainInterface {
       resp.success(account);
     }
 
-    return  resp;
+    return resp;
   }
 
   /**
-   * @author sun-network
    * @param accountName accountName
    * @return the result of update
+   * @author sun-network
    */
-  public SunNetworkResponse<Integer> updateAccount(String accountName) {
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
+  public SunNetworkResponse<TransactionResponse> updateAccount(String accountName) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    if(StringUtils.isEmpty(accountName)) {
+    if (StringUtils.isEmpty(accountName)) {
       resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
       return resp;
     }
     byte[] accountNameBytes = ByteArray.fromString(accountName);
 
     try {
-      boolean ret = serverApi.updateAccount(accountNameBytes);
-      if (ret) {
-        resp.success(0);
+      TransactionResponse result = serverApi.updateAccount(accountNameBytes);
+      resp.setData(result);
+      if (StringUtils.isEmpty(result.getTrxId())) {
+        resp.failed(ErrorCodeEnum.FAILED);
       } else {
-        resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
+        resp.success(result);
       }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
     }
 
     return resp;
   }
 
   /**
-   * @author sun-network
    * @param accountId the account ID
    * @return the result of update
+   * @author sun-network
    */
-  public SunNetworkResponse<Integer> setAccountId(String accountId){
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
+  public SunNetworkResponse<TransactionResponse> setAccountId(String accountId) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    if(StringUtils.isEmpty(accountId)) {
+    if (StringUtils.isEmpty(accountId)) {
       resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
       return resp;
     }
     byte[] accountIdBytes = ByteArray.fromString(accountId);
 
     try {
-      boolean ret = serverApi.setAccountId(accountIdBytes);
-      if (ret) {
-        resp.success(0);
+      TransactionResponse result = serverApi.setAccountId(accountIdBytes);
+      resp.setData(result);
+      if (StringUtils.isEmpty(result.getTrxId())) {
+        resp.failed(ErrorCodeEnum.FAILED);
       } else {
-        resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
+        resp.success(result);
       }
-    }catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
     }
 
     return resp;
@@ -317,17 +334,13 @@ public class Chain implements ChainInterface {
   //TODO main
 
   /**
-   * @author sun-network
-   * @param request
    * @return the result of update
+   * @author sun-network
    */
-  public SunNetworkResponse<Integer> updateAsset(UpdateAssetRequest request) {
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
-
-    String newLimitString = request.getNewLimitString();
-    String newPublicLimitString = request.getNewPublicLimitString();
-    String description = request.getDescription();
-    String url = request.getUrl();
+  public SunNetworkResponse<TransactionResponse> updateAsset(String newLimitString,
+      String newPublicLimitString,
+      String description, String url) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
     byte[] descriptionBytes = ByteArray.fromString(description);
     byte[] urlBytes = ByteArray.fromString(url);
@@ -335,32 +348,29 @@ public class Chain implements ChainInterface {
     long newPublicLimit = new Long(newPublicLimitString);
 
     try {
-      boolean ret = serverApi.updateAsset(descriptionBytes, urlBytes, newLimit, newPublicLimit);
-      if (ret) {
-        resp.success(0);
-      } else {
+      TransactionResponse result = serverApi
+          .updateAsset(descriptionBytes, urlBytes, newLimit, newPublicLimit);
+      resp.setData(result);
+      if (StringUtils.isEmpty(result.getTrxId())) {
         resp.failed(ErrorCodeEnum.FAILED);
+      } else {
+        resp.success(result);
       }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
     }
 
     return resp;
   }
 
   /**
-   * @author sun-network
-   * @param address
    * @return asset issue list
+   * @author sun-network
    */
   public SunNetworkResponse<AssetIssueList> getAssetIssueByAccount(String address) {
     SunNetworkResponse<AssetIssueList> resp = new SunNetworkResponse<>();
 
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = AddressUtil.decodeFromBase58Check(address);
     if (addressBytes == null) {
       resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
       return resp;
@@ -378,14 +388,13 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
-   * @param address
    * @return asset issue list
+   * @author sun-network
    */
   public SunNetworkResponse<AccountNetMessage> getAccountNet(String address) {
     SunNetworkResponse<AccountNetMessage> resp = new SunNetworkResponse<>();
 
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = AddressUtil.decodeFromBase58Check(address);
     if (addressBytes == null) {
       resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
@@ -401,14 +410,13 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
-   * @param address
    * @return account resource
+   * @author sun-network
    */
   public SunNetworkResponse<AccountResourceMessage> getAccountResource(String address) {
     SunNetworkResponse<AccountResourceMessage> resp = new SunNetworkResponse<>();
 
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = AddressUtil.decodeFromBase58Check(address);
     if (addressBytes == null) {
       resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
@@ -424,9 +432,8 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
-   * @param assetName
    * @return asset issue
+   * @author sun-network
    */
   // In 3.2 version, this function will return null if there are two or more asset with the same token name,
   // so please use getAssetIssueById or getAssetIssueListByName. This function just remains for compatibility.
@@ -444,9 +451,8 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
-   * @param assetName
    * @return asset issue list
+   * @author sun-network
    */
   public SunNetworkResponse<AssetIssueList> getAssetIssueListByName(String assetName) {
     SunNetworkResponse<AssetIssueList> resp = new SunNetworkResponse<>();
@@ -463,9 +469,9 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param assetId the asset ID
    * @return asset issue
+   * @author sun-network
    */
   public SunNetworkResponse<AssetIssueContract> getAssetIssueById(String assetId) {
     SunNetworkResponse<AssetIssueContract> resp = new SunNetworkResponse<>();
@@ -481,148 +487,141 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param toAddress the destination address
    * @param amount the amount of trx
    * @return the result of send
+   * @author sun-network
    */
-  public SunNetworkResponse<Integer> sendCoin(String toAddress, long amount) {
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
+  public SunNetworkResponse<TransactionResponse> sendCoin(String toAddress, long amount) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    byte[] to = WalletApi.decodeFromBase58Check(toAddress);
+    byte[] to = AddressUtil.decodeFromBase58Check(toAddress);
     if (to == null) {
       resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
       return resp;
     }
 
     try {
-      boolean result = serverApi.sendCoin(to, amount);
-      if (result) {
-        resp.success(0);
+      TransactionResponse result = serverApi.sendCoin(to, amount);
+      resp.setData(result);
+      if (result.getResult()) {
+        resp.success(result);
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
-    resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
     }
     return resp;
   }
 
   /**
-   * @author sun-network
    * @param toAddress the destination address
    * @param assertName the asset name
    * @param amount the amount of asset
    * @return the result of transfer
+   * @author sun-network
    */
-  public SunNetworkResponse<Integer> transferAsset(String toAddress, String assertName, long amount) {
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
+  public SunNetworkResponse<TransactionResponse> transferAsset(String toAddress, String assertName,
+      long amount) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    byte[] to = WalletApi.decodeFromBase58Check(toAddress);
+    byte[] to = AddressUtil.decodeFromBase58Check(toAddress);
     if (to == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
 
     try {
-      boolean result = serverApi.transferAsset(to, assertName.getBytes(), amount);
-      if (result) {
-        resp.success(0);
+      TransactionResponse result = serverApi.transferAsset(to, assertName.getBytes(), amount);
+      resp.setData(result);
+      if (result.getResult()) {
+        resp.success(result);
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
     }
 
     return resp;
   }
 
   /**
-   * @author sun-network
    * @param toAddress the destination address
    * @param assertName the asset name
    * @param amount the amount of asset
    * @return the result of participating asset issue
+   * @author sun-network
    */
   //TODO main
-  public SunNetworkResponse<Integer> participateAssetIssue(String toAddress, String assertName, long amount) {
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
+  public SunNetworkResponse<TransactionResponse> participateAssetIssue(String toAddress,
+      String assertName, long amount) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
-    byte[] to = WalletApi.decodeFromBase58Check(toAddress);
+    byte[] to = AddressUtil.decodeFromBase58Check(toAddress);
     if (to == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
 
     try {
-      boolean result = serverApi.participateAssetIssue(to, assertName.getBytes(), amount);
-      if (result) {
-        resp.success(0);
+      TransactionResponse result = serverApi
+          .participateAssetIssue(to, assertName.getBytes(), amount);
+      resp.setData(result);
+      if (result.getResult()) {
+        resp.success(result);
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
     }
 
     return resp;
   }
 
 
-  private boolean assetIssueProc(String name, long totalSupply, int trxNum, int icoNum, int precision,
+  private TransactionResponse assetIssueProc(String name, long totalSupply, int trxNum, int icoNum,
+      int precision,
       long startTime, long endTime, int voteScore, String description, String url,
-      long freeNetLimit, long publicFreeNetLimit, HashMap<String, String> frozenSupply)
-      throws CipherException, IOException, CancelException {
-
+      long freeNetLimit, long publicFreeNetLimit, HashMap<String, String> frozenSupply) {
 
     Contract.AssetIssueContract.Builder builder = Contract.AssetIssueContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(serverApi.getAddress()));
     builder.setName(ByteString.copyFrom(name.getBytes()));
 
     if (totalSupply <= 0) {
-      return false;
+      return null;
     }
     builder.setTotalSupply(totalSupply);
 
     if (trxNum <= 0) {
-      return false;
+      return null;
     }
     builder.setTrxNum(trxNum);
 
     if (icoNum <= 0) {
-      return false;
+      return null;
     }
     builder.setNum(icoNum);
 
     if (precision < 0) {
-      return false;
+      return null;
     }
     builder.setPrecision(precision);
 
     long now = System.currentTimeMillis();
     if (startTime <= now) {
-      return false;
+      return null;
     }
     if (endTime <= startTime) {
-      return false;
+      return null;
     }
 
     if (freeNetLimit < 0) {
-      return false;
+      return null;
     }
     if (publicFreeNetLimit < 0) {
-      return false;
+      return null;
     }
 
     builder.setStartTime(startTime);
@@ -648,13 +647,13 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param request the request of assert issue
    * @return the result of creating assert issue
+   * @author sun-network
    */
   //TODO main
-  public SunNetworkResponse<Integer> assetIssue(AssertIssueRequest request) {
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
+  public SunNetworkResponse<TransactionResponse> assetIssue(AssertIssueRequest request) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
     String name = request.getName();
     String totalSupplyStr = request.getTotalSupplyStr();
@@ -680,109 +679,94 @@ public class Chain implements ChainInterface {
     long freeAssetNetLimit = new Long(freeNetLimitPerAccount);
     long publicFreeNetLimit = new Long(publicFreeNetLimitString);
 
-    try {
-
-      boolean result = assetIssueProc(name, totalSupply, trxNum, icoNum, precision, startTime,
-          endTime,
-          0, description, url, freeAssetNetLimit, publicFreeNetLimit, frozenSupply);
-      if (result) {
-        resp.success(0);
-      } else {
-        resp.failed(ErrorCodeEnum.FAILED);
-      }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    TransactionResponse result = assetIssueProc(name, totalSupply, trxNum, icoNum, precision,
+        startTime,
+        endTime, 0, description, url, freeAssetNetLimit, publicFreeNetLimit, frozenSupply);
+    resp.setData(result);
+    if (result == null || result.getResult() != true) {
+      resp.failed(ErrorCodeEnum.FAILED);
+    } else {
+      resp.success(result);
     }
 
     return resp;
   }
 
   /**
-   * @author sun-network
    * @param address the account address
    * @return the result of creating account
+   * @author sun-network
    */
-  public SunNetworkResponse<Integer> createAccount(String address) {
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
+  public SunNetworkResponse<TransactionResponse> createAccount(String address) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = AddressUtil.decodeFromBase58Check(address);
+    if (addressBytes == null) {
+      return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
+    }
+
     try {
-      boolean result = serverApi.createAccount(addressBytes);
-      if (result) {
-        resp.success(0);
+      TransactionResponse result = serverApi.createAccount(addressBytes);
+      resp.setData(result);
+      if (result.getResult()) {
+        resp.success(result);
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
     }
 
     return resp;
   }
 
   /**
-   * @author sun-network
-   * @param url
    * @return the result of creating witness
+   * @author sun-network
    */
-  public SunNetworkResponse<Integer> createWitness(String url) {
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
+  public SunNetworkResponse<TransactionResponse> createWitness(String url) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
     try {
-      boolean result = serverApi.createWitness(url.getBytes());
-      if (result) {
-        resp.success(0);
+      TransactionResponse result = serverApi.createWitness(url.getBytes());
+      resp.setData(result);
+      if (result.getResult()) {
+        resp.success(result);
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
     }
 
     return resp;
   }
 
   /**
-   * @author sun-network
-   * @param url
    * @return the result of update
+   * @author sun-network
    */
-  public SunNetworkResponse<Integer> updateWitness(String url) {
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
+  public SunNetworkResponse<TransactionResponse> updateWitness(String url) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
     try {
-      boolean result = serverApi.updateWitness(url.getBytes());
-      if (result) {
-        resp.success(0);
+      TransactionResponse result = serverApi.updateWitness(url.getBytes());
+      resp.setData(result);
+      if (result.getResult()) {
+        resp.success(result);
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
     }
 
     return resp;
   }
 
   /**
-   * @author sun-network
    * @return the witness list
+   * @author sun-network
    */
   public SunNetworkResponse<WitnessList> listWitnesses() {
     SunNetworkResponse<WitnessList> resp = new SunNetworkResponse<>();
@@ -799,8 +783,8 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @return the asset issue list
+   * @author sun-network
    */
   public SunNetworkResponse<AssetIssueList> getAssetIssueList() {
     SunNetworkResponse<AssetIssueList> resp = new SunNetworkResponse<>();
@@ -817,12 +801,12 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param offset the offset from the first asset
    * @param limit the number of asset issues
    * @return assert issue list
+   * @author sun-network
    */
-  public SunNetworkResponse<AssetIssueList> getAssetIssueList(int offset, int limit) {
+  public SunNetworkResponse<AssetIssueList> getAssetIssueList(long offset, long limit) {
     SunNetworkResponse<AssetIssueList> resp = new SunNetworkResponse<>();
 
     Optional<AssetIssueList> result = serverApi.getAssetIssueList(offset, limit);
@@ -837,12 +821,12 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param offset the offset from the first proposal
    * @param limit the number of proposal
    * @return proposal list
+   * @author sun-network
    */
-  public SunNetworkResponse<ProposalList> getProposalsListPaginated(int offset, int limit) {
+  public SunNetworkResponse<ProposalList> getProposalsListPaginated(long offset, long limit) {
     SunNetworkResponse<ProposalList> resp = new SunNetworkResponse<>();
 
     Optional<ProposalList> result = serverApi.getProposalListPaginated(offset, limit);
@@ -857,13 +841,13 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param offset the offset from the first exchange
    * @param limit the number of exchange
    * @return exchange list
+   * @author sun-network
    */
   //TODO main
-  public SunNetworkResponse<ExchangeList> getExchangesListPaginated(int offset, int limit) {
+  public SunNetworkResponse<ExchangeList> getExchangesListPaginated(long offset, long limit) {
     SunNetworkResponse<ExchangeList> resp = new SunNetworkResponse<>();
 
     Optional<ExchangeList> result = serverApi.getExchangeListPaginated(offset, limit);
@@ -878,8 +862,8 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @return node list
+   * @author sun-network
    */
   public SunNetworkResponse<NodeList> listNodes() {
     SunNetworkResponse<NodeList> resp = new SunNetworkResponse<>();
@@ -896,23 +880,23 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param blockNum the block number
    * @return Block
+   * @author sun-network
    */
-  public SunNetworkResponse<Block> getBlock(long blockNum) {
-    SunNetworkResponse<Block> resp = new SunNetworkResponse<>();
+  public SunNetworkResponse<BlockExtention> getBlock(long blockNum) {
+    SunNetworkResponse<BlockExtention> resp = new SunNetworkResponse<>();
 
-    Block block = serverApi.getBlock(blockNum);
+    BlockExtention block = serverApi.getBlock2(blockNum);
     resp.success(block);
 
     return resp;
   }
 
   /**
-   * @author sun-network
    * @param blockNum the block number
    * @return the count of transaction
+   * @author sun-network
    */
   public SunNetworkResponse<Long> getTransactionCountByBlockNum(long blockNum) {
     SunNetworkResponse<Long> resp = new SunNetworkResponse<>();
@@ -924,73 +908,88 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param witness the vote information which contains address and vote count
    * @return the result of vote
+   * @author sun-network
    */
-  public SunNetworkResponse<Integer> voteWitness(HashMap<String, String> witness)  {
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
+  public SunNetworkResponse<TransactionResponse> voteWitness(HashMap<String, String> witness) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    if(witness == null || witness.isEmpty()) {
+    if (witness == null || witness.isEmpty()) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
     try {
-      boolean result = serverApi.voteWitness(witness);
-      if (result) {
-        resp.success(0);
+      TransactionResponse result = serverApi.voteWitness(witness);
+      resp.setData(result);
+      if (result.getResult()) {
+        resp.success(result);
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
     }
 
     return resp;
   }
 
   /**
-   * @author sun-network
-   * @param request the request of freeze balance
    * @return the result of freeze balance
+   * @author sun-network
    */
-  public SunNetworkResponse<Integer>  freezeBalance(FreezeBalanceRequest request) {
-    SunNetworkResponse<Integer> resp = new SunNetworkResponse<>();
-
-    long frozen_balance = request.getFrozen_balance();
-    long frozen_duration = request.getFrozen_duration();
-    int resourceCode = request.getResourceCode();
-    String receiverAddress = request.getReceiverAddress();
+  public SunNetworkResponse<TransactionResponse> freezeBalance(long frozen_balance,
+      long frozen_duration,
+      int resourceCode, String receiverAddress) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
     try {
-      boolean result = serverApi.freezeBalance(frozen_balance, frozen_duration, resourceCode,
-          receiverAddress);
-      if (result) {
-        resp.success(0);
+      TransactionResponse result = serverApi
+          .freezeBalance(frozen_balance, frozen_duration, resourceCode,
+              receiverAddress);
+      resp.setData(result);
+      if (result.getResult()) {
+        resp.success(result);
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
     }
+
     return resp;
   }
 
   /**
+   * @return the result of inject fund
    * @author sun-network
+   */
+  public SunNetworkResponse<TransactionResponse> fundInject(long amount) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
+
+    try {
+      TransactionResponse result = serverApi.fundInject(amount);
+      resp.setData(result);
+      if (result.getResult()) {
+        resp.success(result);
+      } else {
+        resp.failed(ErrorCodeEnum.FAILED);
+      }
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
+    }
+
+    return resp;
+  }
+
+  /**
    * @param resourceCode the resource code
    * @param receiverAddress the receive address
    * @return the result of unfreeze balance
+   * @author sun-network
    */
-  public SunNetworkResponse<TransactionResponse> unfreezeBalance(int resourceCode, String receiverAddress) {
+  public SunNetworkResponse<TransactionResponse> unfreezeBalance(int resourceCode,
+      String receiverAddress) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
     try {
@@ -1001,20 +1000,16 @@ public class Chain implements ChainInterface {
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    }  catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
     }
 
     return resp;
   }
 
   /**
-   * @author sun-network
    * @return the result of unfreeze asset
+   * @author sun-network
    */
   //TODO main
   public SunNetworkResponse<TransactionResponse> unfreezeAsset() {
@@ -1028,9 +1023,9 @@ public class Chain implements ChainInterface {
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
+    } catch (IOException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
+    } catch (CipherException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
     } catch (CancelException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
@@ -1040,10 +1035,10 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param id the proposal id
    * @param approval the proposal or not
    * @return the result of approving proposal
+   * @author sun-network
    */
   public SunNetworkResponse<TransactionResponse> approveProposal(long id, boolean approval) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
@@ -1056,9 +1051,9 @@ public class Chain implements ChainInterface {
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
+    } catch (IOException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
+    } catch (CipherException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
     } catch (CancelException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
@@ -1068,9 +1063,9 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param id the id of proposal
    * @return the result of deleting proposal
+   * @author sun-network
    */
   public SunNetworkResponse<TransactionResponse> deleteProposal(long id) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
@@ -1083,9 +1078,9 @@ public class Chain implements ChainInterface {
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
+    } catch (IOException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
+    } catch (CipherException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
     } catch (CancelException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
@@ -1095,14 +1090,14 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param id the id of proposal
    * @return the proposal
+   * @author sun-network
    */
   public SunNetworkResponse<Proposal> getProposal(String id) {
     SunNetworkResponse<Proposal> resp = new SunNetworkResponse<>();
 
-    if(StringUtils.isEmpty(id)) {
+    if (StringUtils.isEmpty(id)) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
@@ -1118,15 +1113,16 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param fromAddress the from address
    * @param toAddress the address delegated
    * @return the delegated resource list
+   * @author sun-network
    */
-  public SunNetworkResponse<DelegatedResourceList> getDelegatedResource(String fromAddress, String toAddress) {
+  public SunNetworkResponse<DelegatedResourceList> getDelegatedResource(String fromAddress,
+      String toAddress) {
     SunNetworkResponse<DelegatedResourceList> resp = new SunNetworkResponse<>();
 
-    if(StringUtils.isEmpty(fromAddress) || StringUtils.isEmpty(toAddress) ) {
+    if (StringUtils.isEmpty(fromAddress) || StringUtils.isEmpty(toAddress)) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
@@ -1142,18 +1138,19 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
-   * @param address
    * @return the delegated resource account index
+   * @author sun-network
    */
-  public SunNetworkResponse<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndex(String address) {
+  public SunNetworkResponse<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndex(
+      String address) {
     SunNetworkResponse<DelegatedResourceAccountIndex> resp = new SunNetworkResponse<>();
 
-    if(StringUtils.isEmpty(address))  {
+    if (StringUtils.isEmpty(address)) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
-    Optional<DelegatedResourceAccountIndex> result = serverApi.getDelegatedResourceAccountIndex(address);
+    Optional<DelegatedResourceAccountIndex> result = serverApi
+        .getDelegatedResourceAccountIndex(address);
     if (result.isPresent()) {
       DelegatedResourceAccountIndex delegatedResourceAccountIndex = result.get();
       resp.success(delegatedResourceAccountIndex);
@@ -1165,20 +1162,21 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param request the request of exchange
    * @return the result of creating exchange
+   * @author sun-network
    */
   //TODO main
   public SunNetworkResponse<TransactionResponse> exchangeCreate(ExchangeCreateRequest request) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
-    if (request == null || StringUtils.isEmpty(request.getFirstTokenId()) || StringUtils.isEmpty(request.getSecondTokenId())) {
+    if (request == null || StringUtils.isEmpty(request.getFirstTokenId()) || StringUtils
+        .isEmpty(request.getSecondTokenId())) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
-    byte[] firstTokenId     = request.getFirstTokenId().getBytes();
-    long firstTokenBalance  = request.getFirstTokenBalance();
-    byte[] secondTokenId    = request.getSecondTokenId().getBytes();
+    byte[] firstTokenId = request.getFirstTokenId().getBytes();
+    long firstTokenBalance = request.getFirstTokenBalance();
+    byte[] secondTokenId = request.getSecondTokenId().getBytes();
     long secondTokenBalance = request.getSecondTokenBalance();
 
     try {
@@ -1190,9 +1188,9 @@ public class Chain implements ChainInterface {
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
+    } catch (IOException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
+    } catch (CipherException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
     } catch (CancelException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
@@ -1202,17 +1200,18 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param exchangeId the exchange id
    * @param tokenIdStr the token id
    * @param quantity the quantity
    * @return the result of injecting exchange
+   * @author sun-network
    */
   //TODO main
-  public SunNetworkResponse<TransactionResponse> exchangeInject(long exchangeId, String tokenIdStr, long quantity) {
+  public SunNetworkResponse<TransactionResponse> exchangeInject(long exchangeId, String tokenIdStr,
+      long quantity) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    if(StringUtils.isEmpty(tokenIdStr)) {
+    if (StringUtils.isEmpty(tokenIdStr)) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
@@ -1225,9 +1224,9 @@ public class Chain implements ChainInterface {
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
+    } catch (IOException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
+    } catch (CipherException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
     } catch (CancelException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
@@ -1237,17 +1236,18 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param exchangeId the exchange id
    * @param tokenIdStr the token id
    * @param quantity the quantity
    * @return the result of withdrawing exchange
+   * @author sun-network
    */
   //TODO main
-  public SunNetworkResponse<TransactionResponse> exchangeWithdraw(long exchangeId, String tokenIdStr, long quantity) {
+  public SunNetworkResponse<TransactionResponse> exchangeWithdraw(long exchangeId,
+      String tokenIdStr, long quantity) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    if(StringUtils.isEmpty(tokenIdStr)) {
+    if (StringUtils.isEmpty(tokenIdStr)) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
@@ -1260,9 +1260,9 @@ public class Chain implements ChainInterface {
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
+    } catch (IOException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
+    } catch (CipherException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
     } catch (CancelException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
@@ -1272,34 +1272,36 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param request the request of exchange request
    * @return the result of exchange transaction
+   * @author sun-network
    */
   //TODO main
-  public SunNetworkResponse<TransactionResponse> exchangeTransaction(ExchangeTransactionRequest request) {
+  public SunNetworkResponse<TransactionResponse> exchangeTransaction(
+      ExchangeTransactionRequest request) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    if(StringUtils.isEmpty(request.getTokenId())) {
+    if (StringUtils.isEmpty(request.getTokenId())) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
     long exchangeId = request.getExchangeId();
-    byte[] tokenId  = request.getTokenId().getBytes();
-    long quant      = request.getQuant();
-    long expected   = request.getExpected();
+    byte[] tokenId = request.getTokenId().getBytes();
+    long quant = request.getQuant();
+    long expected = request.getExpected();
 
     try {
-      TransactionResponse result = serverApi.exchangeTransaction(exchangeId, tokenId, quant, expected);
+      TransactionResponse result = serverApi
+          .exchangeTransaction(exchangeId, tokenId, quant, expected);
       resp.setData(result);
       if (result.getResult()) {
         resp.success(result);
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
+    } catch (IOException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
+    } catch (CipherException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
     } catch (CancelException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
@@ -1309,8 +1311,8 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @return exchange list
+   * @author sun-network
    */
   //TODO main
   public SunNetworkResponse<ExchangeList> listExchanges() {
@@ -1328,15 +1330,15 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param id the exchange id
    * @return exchange
+   * @author sun-network
    */
   //TODO main
   public SunNetworkResponse<Exchange> getExchange(String id) {
     SunNetworkResponse<Exchange> resp = new SunNetworkResponse<>();
 
-    if(StringUtils.isEmpty(id)) {
+    if (StringUtils.isEmpty(id)) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
@@ -1352,10 +1354,10 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @return the result of withdrawing balance
+   * @author sun-network
    */
-  public SunNetworkResponse<TransactionResponse>  withdrawBalance()  {
+  public SunNetworkResponse<TransactionResponse> withdrawBalance() {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
     try {
@@ -1366,20 +1368,16 @@ public class Chain implements ChainInterface {
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
     }
 
     return resp;
   }
 
   /**
-   * @author sun-network
    * @return the total amount of transaction
+   * @author sun-network
    */
   public SunNetworkResponse<NumberMessage> getTotalTransaction() {
     SunNetworkResponse<NumberMessage> resp = new SunNetworkResponse<>();
@@ -1390,8 +1388,8 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @return the next maintenance time
+   * @author sun-network
    */
   public SunNetworkResponse<String> getNextMaintenanceTime() {
     SunNetworkResponse<String> resp = new SunNetworkResponse<>();
@@ -1404,14 +1402,14 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param trxId the transaction ID
    * @return transaction
+   * @author sun-network
    */
   public SunNetworkResponse<Transaction> getTransactionById(String trxId) {
     SunNetworkResponse<Transaction> resp = new SunNetworkResponse<>();
 
-    if(StringUtils.isEmpty(trxId)) {
+    if (StringUtils.isEmpty(trxId)) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
@@ -1427,14 +1425,14 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param trxId the transaction ID
    * @return transaction information
+   * @author sun-network
    */
   public SunNetworkResponse<TransactionInfo> getTransactionInfoById(String trxId) {
     SunNetworkResponse<TransactionInfo> resp = new SunNetworkResponse<>();
 
-    if(StringUtils.isEmpty(trxId)) {
+    if (StringUtils.isEmpty(trxId)) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
@@ -1450,21 +1448,23 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param address the account address
    * @param offset the offset from first transaction
    * @param limit the number of transaction
    * @return transaction list extension
+   * @author sun-network
    */
-  public SunNetworkResponse<TransactionListExtention> getTransactionsFromThis(String address, int offset, int limit) {
+  public SunNetworkResponse<TransactionListExtention> getTransactionsFromThis(String address,
+      int offset, int limit) {
     SunNetworkResponse<TransactionListExtention> resp = new SunNetworkResponse<>();
 
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = AddressUtil.decodeFromBase58Check(address);
     if (addressBytes == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
-    Optional<TransactionListExtention> result = serverApi.getTransactionsFromThis2(addressBytes, offset, limit);
+    Optional<TransactionListExtention> result = serverApi
+        .getTransactionsFromThis2(addressBytes, offset, limit);
     if (result.isPresent()) {
       TransactionListExtention transactionList = result.get();
       resp.success(transactionList);
@@ -1476,21 +1476,23 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param address the account address
    * @param offset the offset from first transaction
    * @param limit the number of transaction
    * @return transaction list extension
+   * @author sun-network
    */
-  public SunNetworkResponse<TransactionListExtention> getTransactionsToThis(String address, int offset, int limit) {
+  public SunNetworkResponse<TransactionListExtention> getTransactionsToThis(String address,
+      int offset, int limit) {
     SunNetworkResponse<TransactionListExtention> resp = new SunNetworkResponse<>();
 
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = AddressUtil.decodeFromBase58Check(address);
     if (addressBytes == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
-    Optional<TransactionListExtention> result = serverApi.getTransactionsToThis2(addressBytes, offset, limit);
+    Optional<TransactionListExtention> result = serverApi
+        .getTransactionsToThis2(addressBytes, offset, limit);
     if (result.isPresent()) {
       TransactionListExtention transactionList = result.get();
       resp.success(transactionList);
@@ -1502,9 +1504,9 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param blockID the block ID
    * @return Block
+   * @author sun-network
    */
   public SunNetworkResponse<Block> getBlockById(String blockID) {
     SunNetworkResponse<Block> resp = new SunNetworkResponse<>();
@@ -1521,10 +1523,10 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param start the start number
    * @param end the end number
    * @return Block list extension
+   * @author sun-network
    */
   public SunNetworkResponse<BlockListExtention> getBlockByLimitNext(long start, long end) {
     SunNetworkResponse<BlockListExtention> resp = new SunNetworkResponse<>();
@@ -1541,9 +1543,9 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param num the latest number
    * @return Block list extension
+   * @author sun-network
    */
   public SunNetworkResponse<BlockListExtention> getBlockByLatestNum(long num) {
     SunNetworkResponse<BlockListExtention> resp = new SunNetworkResponse<>();
@@ -1560,16 +1562,17 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param address the account address
    * @param consumeUserResourcePercent the percent of user resource consuming
    * @return the result of update
+   * @author sun-network
    */
-  public SunNetworkResponse<TransactionResponse> updateSetting(String address, long consumeUserResourcePercent) {
+  public SunNetworkResponse<TransactionResponse> updateSetting(String address,
+      long consumeUserResourcePercent) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    byte[] contractAddress = WalletApi.decodeFromBase58Check(address);
-    if(contractAddress == null) {
+    byte[] contractAddress = AddressUtil.decodeFromBase58Check(address);
+    if (contractAddress == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
 
@@ -1578,16 +1581,17 @@ public class Chain implements ChainInterface {
     }
 
     try {
-      TransactionResponse result = serverApi.updateSetting(contractAddress, consumeUserResourcePercent);
+      TransactionResponse result = serverApi
+          .updateSetting(contractAddress, consumeUserResourcePercent);
       resp.setData(result);
       if (result.getResult()) {
         resp.success(result);
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
+    } catch (IOException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
+    } catch (CipherException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
     } catch (CancelException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
@@ -1597,16 +1601,17 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param address the account address
    * @param originEnergyLimit the limit of origin energy
    * @return the result of update
+   * @author sun-network
    */
-  public SunNetworkResponse<TransactionResponse> updateEnergyLimit(String address, long originEnergyLimit) {
+  public SunNetworkResponse<TransactionResponse> updateEnergyLimit(String address,
+      long originEnergyLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    byte[] contractAddress = WalletApi.decodeFromBase58Check(address);
-    if(contractAddress == null) {
+    byte[] contractAddress = AddressUtil.decodeFromBase58Check(address);
+    if (contractAddress == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
 
@@ -1622,9 +1627,9 @@ public class Chain implements ChainInterface {
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
+    } catch (IOException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
+    } catch (CipherException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
     } catch (CancelException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
@@ -1634,14 +1639,14 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param address the contact address
    * @return smart contract information
+   * @author sun-network
    */
   public SunNetworkResponse<SmartContract> getContract(String address) {
     SunNetworkResponse<SmartContract> resp = new SunNetworkResponse<>();
 
-    byte[] addressBytes = WalletApi.decodeFromBase58Check(address);
+    byte[] addressBytes = AddressUtil.decodeFromBase58Check(address);
     if (addressBytes == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
@@ -1657,8 +1662,8 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @return the address pair
+   * @author sun-network
    */
   public SunNetworkResponse<AddressPrKeyPairMessage> generateAddress() {
     SunNetworkResponse<AddressPrKeyPairMessage> resp = new SunNetworkResponse<>();
@@ -1674,24 +1679,25 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param address the account address
    * @param permissionJson the permission information
    * @return the result of update
+   * @author sun-network
    */
-  public SunNetworkResponse<TransactionResponse> updateAccountPermission(String address, String permissionJson) {
+  public SunNetworkResponse<TransactionResponse> updateAccountPermission(String address,
+      String permissionJson) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    if(StringUtils.isEmpty(permissionJson)) {
+    if (StringUtils.isEmpty(permissionJson)) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
-    byte[] ownerAddress = WalletApi.decodeFromBase58Check(address);
+    byte[] ownerAddress = AddressUtil.decodeFromBase58Check(address);
     if (ownerAddress == null) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
     }
 
-    try{
+    try {
       TransactionResponse ret = serverApi.accountPermissionUpdate(ownerAddress, permissionJson);
       resp.setData(ret);
       if (ret.getResult()) {
@@ -1699,9 +1705,9 @@ public class Chain implements ChainInterface {
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
+    } catch (IOException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
+    } catch (CipherException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
     } catch (CancelException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
@@ -1711,17 +1717,17 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
    * @param transactionStr the transaction string
    * @return the sign weight of transaction
+   * @author sun-network
    */
-  public SunNetworkResponse<TransactionSignWeight> getTransactionSignWeight(String transactionStr)  {
+  public SunNetworkResponse<TransactionSignWeight> getTransactionSignWeight(String transactionStr) {
     SunNetworkResponse<TransactionSignWeight> resp = new SunNetworkResponse<>();
 
     Transaction transaction;
     try {
       transaction = Transaction.parseFrom(ByteArray.fromHexString(transactionStr));
-    } catch(InvalidProtocolBufferException e) {
+    } catch (InvalidProtocolBufferException e) {
       return resp.failed(ErrorCodeEnum.EXCEPTION_INVALID_PROTOCOL_BUFFER);
     }
 
@@ -1736,21 +1742,22 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @author sun-network
-   ** @param transactionStr the transaction string
    * @return the  approved list of transaction
+   * @author sun-network * @param transactionStr the transaction string
    */
-  public SunNetworkResponse<TransactionApprovedList> getTransactionApprovedList(String transactionStr) {
+  public SunNetworkResponse<TransactionApprovedList> getTransactionApprovedList(
+      String transactionStr) {
     SunNetworkResponse<TransactionApprovedList> resp = new SunNetworkResponse<>();
 
     Transaction transaction;
     try {
       transaction = Transaction.parseFrom(ByteArray.fromHexString(transactionStr));
-    } catch(InvalidProtocolBufferException e) {
+    } catch (InvalidProtocolBufferException e) {
       return resp.failed(ErrorCodeEnum.EXCEPTION_INVALID_PROTOCOL_BUFFER);
     }
 
-    TransactionApprovedList transactionApprovedList = serverApi.getTransactionApprovedList(transaction);
+    TransactionApprovedList transactionApprovedList = serverApi
+        .getTransactionApprovedList(transaction);
     if (transactionApprovedList != null) {
       resp.success(transactionApprovedList);
 
@@ -1758,15 +1765,15 @@ public class Chain implements ChainInterface {
       resp.failed(ErrorCodeEnum.FAILED);
     }
 
-    return  resp;
+    return resp;
   }
 
   /**
-   * @author sun-network
    * @param transactionStr the transaction string
    * @return the transaction added signature
+   * @author sun-network
    */
-  public SunNetworkResponse<Transaction>  addTransactionSign(String transactionStr) {
+  public SunNetworkResponse<Transaction> addTransactionSign(String transactionStr) {
     SunNetworkResponse<Transaction> resp = new SunNetworkResponse<>();
 
     Transaction transaction;
@@ -1775,34 +1782,26 @@ public class Chain implements ChainInterface {
       if (transaction == null || transaction.getRawData().getContractCount() == 0) {
         return resp.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
       }
-    } catch(InvalidProtocolBufferException e) {
+    } catch (InvalidProtocolBufferException e) {
       return resp.failed(ErrorCodeEnum.EXCEPTION_INVALID_PROTOCOL_BUFFER);
     }
 
-    try {
-      transaction = serverApi.addTransactionSign(transaction);
-      if (transaction != null) {
-        resp.success(transaction);
-      } else {
-        resp.failed(ErrorCodeEnum.FAILED);
-      }
-    } catch(IOException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
-    } catch (CancelException e) {
-      resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);
+    transaction = serverApi.addTransactionSign(transaction);
+    if (transaction != null) {
+      resp.success(transaction);
+    } else {
+      resp.failed(ErrorCodeEnum.FAILED);
     }
 
     return resp;
   }
 
   /**
-   * @author sun-network
    * @param transactionStr the transaction string
    * @return the result of broadcast
+   * @author sun-network
    */
-  public SunNetworkResponse<TransactionResponse>  broadcastTransaction(String transactionStr) {
+  public SunNetworkResponse<TransactionResponse> broadcastTransaction(String transactionStr) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
     Transaction transaction;
@@ -1826,5 +1825,54 @@ public class Chain implements ChainInterface {
     return resp;
   }
 
+  /**
+   * @return the result of broadcast
+   * @author sun-network
+   */
+  public SunNetworkResponse<ChainParameters> getChainParameters() {
+    SunNetworkResponse<ChainParameters> resp = new SunNetworkResponse<>();
+
+    Optional<ChainParameters> result = serverApi.getChainParameters();
+    if (result.isPresent()) {
+      ChainParameters chainParameters = result.get();
+      resp.success(chainParameters);
+    } else {
+      resp.failed(ErrorCodeEnum.FAILED);
+    }
+
+    return resp;
+  }
+
+  /**
+   * @return the result of broadcast
+   * @author sun-network
+   */
+  public SunNetworkResponse<SideChainParameters> getSideChainParameters() {
+    SunNetworkResponse<SideChainParameters> resp = new SunNetworkResponse<>();
+
+    Optional<SideChainParameters> result = serverApi.getSideChainParameters();
+    if (result.isPresent()) {
+      SideChainParameters sideChainParameters = result.get();
+      resp.success(sideChainParameters);
+    } else {
+      resp.failed(ErrorCodeEnum.FAILED);
+    }
+
+    return resp;
+  }
+
+  /**
+   * @param txId the transaction ID
+   * @return the result of broadcast
+   * @author sun-network
+   */
+  public SunNetworkResponse<Boolean> checkTrxResult(String txId) {
+    SunNetworkResponse<Boolean> resp = new SunNetworkResponse<Boolean>();
+
+    boolean result = serverApi.checkTxInfo(txId);
+    resp.success(result);
+
+    return resp;
+  }
 
 }

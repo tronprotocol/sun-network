@@ -36,7 +36,7 @@ public class TransactionResponse {
   /**
    * the response code for constant transaction
    */
-  public code   constantCode;
+  public code constantCode;
 
   /**
    * the result for constant transaction
@@ -85,7 +85,8 @@ public class TransactionResponse {
     this.responseType   = ResponseType.TRANSACTION_NORMAL;
   }
 
-  public  TransactionResponse(code c, String trxId, String constantResult) {
+  public  TransactionResponse(boolean result, code c, String trxId, String constantResult) {
+    this.result         = result;
     this.trxId          = trxId;
     this.constantCode   = c;
     this.constantResult = constantResult;

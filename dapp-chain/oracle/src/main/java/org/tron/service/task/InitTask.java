@@ -11,6 +11,7 @@ import org.tron.db.TransactionExtensionStore;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.NonceMsg;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
+import org.tron.service.capsule.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC10Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC20Actuator;
@@ -36,7 +37,8 @@ public class InitTask {
     Set<ByteBuffer> allTxKeys = TransactionExtensionStore.getInstance().allKeys();
     for (ByteBuffer TxKey : allTxKeys) {
       byte[] event = EventStore.getInstance().getData(TxKey.array());
-      if (event == null) {
+      byte[] tx = TransactionExtensionStore.getInstance().getData(TxKey.array());
+      if (event == null || tx == null) {
         // impossible
         continue;
       }
@@ -45,6 +47,7 @@ public class InitTask {
         if (actuator == null) {
           continue;
         }
+        actuator.setTransactionExtensionCapsule(new TransactionExtensionCapsule(tx));
         byte[] nonceMsgBytes = NonceStore.getInstance().getData(actuator.getNonceKey());
         NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
         if (nonceMsg.getStatus() == NonceStatus.BROADCASTED) {
@@ -65,7 +68,7 @@ public class InitTask {
       try {
         Actuator actuator = getActuatorByEventMsg(event);
         if (actuator == null || allTxKeys
-            .contains(ByteBuffer.wrap(actuator.getNonceKey()).asReadOnlyBuffer())) {
+            .contains(ByteBuffer.wrap(actuator.getNonceKey()))) {
           continue;
         }
         Manager.getInstance().setProcessProcessing(actuator.getNonceKey());

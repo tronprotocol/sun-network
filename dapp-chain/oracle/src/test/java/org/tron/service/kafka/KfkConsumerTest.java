@@ -1,5 +1,8 @@
 package org.tron.service.kafka;
 
-public class KfkConsumerTest {
+import org.junit.Ignore;
+
+
+public abstract class KfkConsumerTest {
 
 }

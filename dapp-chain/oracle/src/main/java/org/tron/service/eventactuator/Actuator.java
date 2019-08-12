@@ -1,21 +1,25 @@
 package org.tron.service.eventactuator;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
-import org.tron.protos.Sidechain.TaskEnum;
+import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.service.capsule.TransactionExtensionCapsule;
 
 @Slf4j(topic = "actuator")
 public abstract class Actuator {
 
+  @Setter
   protected TransactionExtensionCapsule transactionExtensionCapsule;
 
   public abstract EventMsg getMessage();
 
   public abstract EventType getType();
+
+  public abstract TaskEnum getTaskEnum();
 
   public abstract CreateRet createTransactionExtensionCapsule();
 
@@ -25,7 +29,7 @@ public abstract class Actuator {
 
   public BroadcastRet broadcastTransactionExtensionCapsule() {
     try {
-      if (transactionExtensionCapsule.getType() == TaskEnum.MAIN_CHAIN) {
+      if (getTaskEnum() == TaskEnum.MAIN_CHAIN) {
         MainChainGatewayApi.broadcast(transactionExtensionCapsule.getTransaction());
       } else {
         SideChainGatewayApi.broadcast(transactionExtensionCapsule.getTransaction());
@@ -46,19 +50,16 @@ public abstract class Actuator {
   public CheckTxRet checkTxInfo() {
     String transactionId = transactionExtensionCapsule.getTransactionId();
     try {
-      switch (transactionExtensionCapsule.getType()) {
-        case MAIN_CHAIN:
-          MainChainGatewayApi.checkTxInfo(transactionId);
-          break;
-        case SIDE_CHAIN:
-          SideChainGatewayApi.checkTxInfo(transactionId);
-          break;
+      if (getTaskEnum() == TaskEnum.MAIN_CHAIN) {
+        MainChainGatewayApi.checkTxInfo(transactionId);
+      } else {
+        SideChainGatewayApi.checkTxInfo(transactionId);
       }
       // success
       return CheckTxRet.SUCCESS;
     } catch (Exception e) {
       // fail
-      logger.error("capsule err txId is {}", transactionId, e);
+      logger.error("check err txId is {}", transactionId, e);
       return CheckTxRet.FAIL;
     }
   }

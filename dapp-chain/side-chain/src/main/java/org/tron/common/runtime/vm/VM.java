@@ -226,14 +226,13 @@ public class VM {
           energyCost += calcMemEnergy(energyCosts, oldMemSize, in.max(out), 0, op);
           checkMemorySize(op, in.max(out));
 
-          if (VMConfig.isVmResourceChargingOn) {
-            if (energyCost > program.getEnergyLimitLeft().longValueSafe()) {
-              throw new OutOfEnergyException(
-                  "Not enough energy for '%s' operation executing: opEnergy[%d], programEnergy[%d]",
-                  op.name(),
-                  energyCost, program.getEnergyLimitLeft().longValueSafe());
-            }
+          if (energyCost > program.getEnergyLimitLeft().longValueSafe()) {
+            throw new OutOfEnergyException(
+                "Not enough energy for '%s' operation executing: opEnergy[%d], programEnergy[%d]",
+                op.name(),
+                energyCost, program.getEnergyLimitLeft().longValueSafe());
           }
+
           DataWord getEnergyLimitLeft = program.getEnergyLimitLeft().clone();
           getEnergyLimitLeft.sub(new DataWord(energyCost));
 
@@ -261,13 +260,11 @@ public class VM {
           BigInteger dataSize = stack.get(stack.size() - 2).value();
           BigInteger dataCost = dataSize
               .multiply(BigInteger.valueOf(energyCosts.getLOG_DATA_ENERGY()));
-          if (VMConfig.isVmResourceChargingOn) {
-            if (program.getEnergyLimitLeft().value().compareTo(dataCost) < 0) {
-              throw new OutOfEnergyException(
-                  "Not enough energy for '%s' operation executing: opEnergy[%d], programEnergy[%d]",
-                  op.name(),
-                  dataCost.longValueExact(), program.getEnergyLimitLeft().longValueSafe());
-            }
+          if (program.getEnergyLimitLeft().value().compareTo(dataCost) < 0) {
+            throw new OutOfEnergyException(
+                "Not enough energy for '%s' operation executing: opEnergy[%d], programEnergy[%d]",
+                op.name(),
+                dataCost.longValueExact(), program.getEnergyLimitLeft().longValueSafe());
           }
           energyCost = energyCosts.getLOG_ENERGY()
               + energyCosts.getLOG_TOPIC_ENERGY() * nTopics

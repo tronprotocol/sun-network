@@ -38,15 +38,18 @@ public class CheckTransactionTask {
   private void checkTransaction(Actuator eventActuator) {
     CheckTxRet checkTxRet = eventActuator.checkTxInfo();
     String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
+    String chain = eventActuator.getTaskEnum().name();
     if (checkTxRet == CheckTxRet.SUCCESS) {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
       if (logger.isInfoEnabled()) {
-        String msg = MessageCode.CHECK_TRANSACTION_SUCCESS.getMsg(transactionId);
+        String msg = MessageCode.CHECK_TRANSACTION_SUCCESS
+            .getMsg(chain, transactionId);
         logger.info(msg);
       }
     } else {
       Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
-      String msg = MessageCode.CHECK_TRANSACTION_FAIL.getMsg(transactionId);
+      String msg = MessageCode.CHECK_TRANSACTION_FAIL
+          .getMsg(chain, transactionId);
       AlertUtil.sendAlert(msg);
     }
   }

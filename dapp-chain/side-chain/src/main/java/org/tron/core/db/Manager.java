@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -826,7 +827,7 @@ public class Manager {
         AccountCapsule accountCapsule = getAccountStore().get(address);
         try {
           adjustBalance(accountCapsule, -fee, chargingType);
-          adjustBalance(this.getAccountStore().getBlackhole().createDbKey(), +fee, chargingType);
+          adjustFund(fee);
         } catch (BalanceInsufficientException e) {
           throw new AccountResourceInsufficientException(
               "Account Insufficient  balance[" + fee + "] to MultiSign");
@@ -848,6 +849,26 @@ public class Manager {
       throws ContractValidateException, TooBigTransactionResultException, AccountResourceInsufficientException {
     EnergyProcessor processor = new EnergyProcessor(this);
     processor.bandwidthEnergyConsume(trx,trace);
+  }
+
+  public void checkTransactionSize(TransactionCapsule trx)
+      throws TooBigTransactionResultException, TooBigTransactionException {
+    List<Contract> contracts = trx.getInstance().getRawData().getContractList();
+    if (trx.getResultSerializedSize() > Constant.MAX_RESULT_SIZE_IN_TX * contracts.size()) {
+      throw new TooBigTransactionResultException();
+    }
+
+    long bytesSize;
+
+    bytesSize = trx.getInstance().toBuilder().clearRet().build().getSerializedSize();
+
+    for (Contract contract : contracts) {
+      bytesSize += Constant.MAX_RESULT_SIZE_IN_TX;
+      if (bytesSize > this.getDynamicPropertiesStore().getMaxGateWayContractSize()) {
+        throw new TooBigTransactionException(
+            "too big transaction, the size is " + bytesSize + " bytes");
+      }
+    }
   }
 
 
@@ -1271,7 +1292,14 @@ public class Manager {
     TransactionTrace trace = new TransactionTrace(trxCap, this);
     trxCap.setTrxTrace(trace);
 
-    if (dynamicPropertiesStore.getChargingSwitch() == 1) {
+
+    boolean isSideChainGateWayCall = trace.isSideChainGateWayContractCall();
+    if (isSideChainGateWayCall){
+      this.checkTransactionSize(trxCap);
+    }
+
+    if (dynamicPropertiesStore.getChargingSwitch() == 1
+        && !isSideChainGateWayCall) {
       //
       if(dynamicPropertiesStore.getSideChainChargingBandwidth() == 1) {
         consumeBandwidth(trxCap, trace);
@@ -1280,6 +1308,7 @@ public class Manager {
       }
       consumeMultiSignFee(trxCap, trace);
     }
+
 
     VMConfig.handleProposalInVM(this);
     trace.init(blockCap, eventPluginLoaded);
@@ -1602,6 +1631,7 @@ public class Manager {
     if (needMaint) {
       if (block.getNum() == 1) {
         this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
+        modifyPayPerBlock();
       } else {
         this.processMaintenance(block);
       }
@@ -1700,6 +1730,7 @@ public class Manager {
    */
   private void processMaintenance(BlockCapsule block) {
     proposalController.processProposals();
+    modifyPayPerBlock();
     witnessController.updateWitness();
     this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
     forkController.reset();
@@ -1730,8 +1761,20 @@ public class Manager {
     this.getWitnessStore().put(witnessCapsule.getAddress().toByteArray(), witnessCapsule);
 
     try {
-      adjustAllowance(witnessCapsule.getAddress().toByteArray(),
-          getDynamicPropertiesStore().getWitnessPayPerBlock());
+      if (dynamicPropertiesStore.getFundDistributeEnableSwitch() == 1) {
+        long payPerBlock = (-1) * (adjustFund(
+            (-1) * getDynamicPropertiesStore().getWitnessPayPerBlock()));
+        long percent = getDynamicPropertiesStore().getPercentToPayWitness();
+        long amountForWitness = BigInteger.valueOf(payPerBlock)
+            .multiply(BigInteger.valueOf(percent))
+            .divide(BigInteger.valueOf(100)).longValue();
+        int chargingType = getDynamicPropertiesStore().getSideChainChargingType();
+        logger.info("payPerBlock = {}, percent = {}, amountForWitness = {}", payPerBlock, percent,
+            amountForWitness);
+        adjustAllowance(witnessCapsule.getAddress().toByteArray(), amountForWitness);
+        adjustBalance(getDynamicPropertiesStore().getFundInjectAddress(),
+            payPerBlock - amountForWitness, chargingType);
+      }
     } catch (BalanceInsufficientException e) {
       logger.warn(e.getMessage(), e);
     }
@@ -1997,5 +2040,33 @@ public class Manager {
         }
       }
     }
+  }
+
+  public void modifyPayPerBlock() {
+    long fund = getDynamicPropertiesStore().getFund();
+    long dayToSustain = getDynamicPropertiesStore().getDayToSustainByFund();
+    long pay = fund / (86400 / 3 * dayToSustain);
+    logger
+        .info("[Modify Pay Per Block], fund = {}, daytosustain = {}, pay = {}", fund, dayToSustain,
+            pay);
+    getDynamicPropertiesStore().saveWitnessPayPerBlock(
+        getDynamicPropertiesStore().getFund() / (86400 / 3 * getDynamicPropertiesStore()
+            .getDayToSustainByFund()));
+  }
+
+  public long adjustFund(long num) {
+
+    long fund = getDynamicPropertiesStore().getFund();
+    if (num == 0) {
+      return 0;
+    }
+
+    if (num < 0 && fund < -num) {//if |num| > fund, return all of fund
+      getDynamicPropertiesStore().saveFund(0);
+      return fund * (-1);
+    }
+
+    getDynamicPropertiesStore().saveFund(fund + num);
+    return num;
   }
 }

@@ -24,21 +24,15 @@ public class MainChainGatewayApi {
   enum GatewayApi {
     GATEWAY_API;
     private WalletClient instance;
-    private WalletClient solidityInstance;
 
     GatewayApi() {
       instance = new WalletClient(Args.getInstance().getMainchainFullNode(),
-          Args.getInstance().getOraclePrivateKey(), true);
-      solidityInstance = new WalletClient(Args.getInstance().getMainchainSolidity(),
-          Args.getInstance().getOraclePrivateKey(), true);
+          Args.getInstance().getMainchainSolidity(), Args.getInstance().getOraclePrivateKey(),
+          true);
     }
 
     public WalletClient getInstance() {
       return instance;
-    }
-
-    public WalletClient getSolidityInstance() {
-      return solidityInstance;
     }
 
   }
@@ -85,10 +79,11 @@ public class MainChainGatewayApi {
     return AbiUtil.unpackUint(ret);
   }
 
-  public static boolean getWithdrawStatus(String nonce) throws RpcConnectException {
+  public static boolean getWithdrawStatus(String withdrawDataHash, String nonce)
+      throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "withdrawDone(uint256)";
-    List params = Arrays.asList(nonce);
+    String method = "withdrawDone(bytes32,uint256)";
+    List params = Arrays.asList(withdrawDataHash, nonce);
     byte[] ret = GATEWAY_API.getInstance()
         .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
     return AbiUtil.unpackStatus(ret);
@@ -143,7 +138,7 @@ public class MainChainGatewayApi {
 
   public static byte[] checkTxInfo(String txId)
       throws TxFailException, TxRollbackException {
-    return GATEWAY_API.getSolidityInstance().checkTxInfo(txId);
+    return GATEWAY_API.getInstance().checkTxInfo(txId);
   }
 
   public static boolean broadcast(Transaction transaction)

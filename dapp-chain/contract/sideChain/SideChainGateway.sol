@@ -48,11 +48,11 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     address public sunTokenAddress;
     address mintTRXContract = 0x10000;
     address mintTRC10Contract = 0x10001;
-    uint256 mappingFee;
-    uint256 withdrawMinTrx = 0;
-    uint256 withdrawMinTrc10 = 0;
-    uint256 withdrawMinTrc20 = 0;
-    uint256 bonus;
+    uint256 public withdrawMinTrx = 0;
+    uint256 public withdrawMinTrc10 = 0;
+    uint256 public withdrawMinTrc20 = 0;
+    uint256 public withdrawFee = 0;
+    uint256 public bonus;
     bool pause;
     bool stop;
 
@@ -103,6 +103,12 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
             logicAddress.delegatecall(msg.data);
             return;
         }
+        _;
+    }
+
+    modifier checkForTrc10(uint256 tokenId, uint256 tokenValue) {
+        require(tokenId == msg.tokenid, "tokenId != msg.tokenid");
+        require(tokenValue == msg.tokenvalue, "tokenValue != msg.tokenvalue");
         _;
     }
 
@@ -265,12 +271,14 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 7. withdrawTRC10
-    function withdrawTRC10() payable public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
+    function withdrawTRC10(uint256 tokenId, uint256 tokenValue) payable public onlyNotPause onlyNotStop checkForTrc10(tokenId, tokenValue) goDelegateCall returns (uint256 r) {
+        require(tokenIdMap[msg.tokenid], "tokenIdMap[msg.tokenid] == false");
+        require(msg.tokenvalue > 0, "tokenvalue must be > 0");
+        require(msg.tokenvalue >= withdrawMinTrc10, "tokenvalue must be >= withdrawMinTrc10");
+        require(msg.value >= withdrawFee, "value must be >= withdrawFee");
         if (msg.value > 0) {
             bonus += msg.value;
         }
-        require(tokenIdMap[msg.tokenid], "tokenIdMap[msg.tokenid] == false");
-        require(msg.tokenvalue > withdrawMinTrc10, "tokenvalue must be > withdrawMinTrc10");
 
         userWithdrawList.push(WithdrawMsg(msg.sender, address(0), msg.tokenid, msg.tokenvalue, DataModel.TokenKind.TRC10, DataModel.Status.SUCCESS));
         // burn
@@ -290,12 +298,16 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 8. withdrawTRC20
-    function onTRC20Received(address from, uint256 value) public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
+    function onTRC20Received(address from, uint256 value) payable public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "mainChainAddress == address(0)");
-        require(value > withdrawMinTrc20, "value must be > withdrawMinTrc20");
-
+        require(value > 0, "value must be > 0");
+        require(value >= withdrawMinTrc20, "value must be >= withdrawMinTrc20");
+        require(msg.value >= withdrawFee, "value must be >= withdrawFee");
+        if (msg.value > 0) {
+            bonus += msg.value;
+        }
         userWithdrawList.push(WithdrawMsg(from, mainChainAddress, 0, value, DataModel.TokenKind.TRC20, DataModel.Status.SUCCESS));
 
         // burn
@@ -315,11 +327,14 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 9. withdrawTRC721
-    function onTRC721Received(address from, uint256 uId) public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
+    function onTRC721Received(address from, uint256 uId) payable public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "mainChainAddress == address(0)");
-
+        require(msg.value >= withdrawFee, "value must be >= withdrawFee");
+        if (msg.value > 0) {
+            bonus += msg.value;
+        }
         userWithdrawList.push(WithdrawMsg(from, mainChainAddress, 0, uId, DataModel.TokenKind.TRC721, DataModel.Status.SUCCESS));
 
         // burn
@@ -340,12 +355,16 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     // 10. withdrawTRX
     function withdrawTRX() payable public onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
-        require(msg.value > withdrawMinTrx, "value must be > withdrawMinTrx");
-
-        userWithdrawList.push(WithdrawMsg(msg.sender, address(0), 0, msg.value, DataModel.TokenKind.TRX, DataModel.Status.SUCCESS));
+        require(msg.value >= withdrawMinTrx + withdrawFee, "value must be >= withdrawMinTrx+withdrawFee");
+        if (msg.value > 0) {
+            bonus += withdrawFee;
+        }
+        uint256 withdrawValue = msg.value - withdrawFee;
+        require(withdrawValue > 0, "withdrawValue must be > 0");
+        userWithdrawList.push(WithdrawMsg(msg.sender, address(0), 0, withdrawValue, DataModel.TokenKind.TRX, DataModel.Status.SUCCESS));
         // burn
-        address(0).transfer(msg.value);
-        emit WithdrawTRX(msg.sender, msg.value, userWithdrawList.length - 1);
+        address(0).transfer(withdrawValue);
+        emit WithdrawTRX(msg.sender, withdrawValue, userWithdrawList.length - 1);
         r = userWithdrawList.length - 1;
     }
 
@@ -399,9 +418,10 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
             }
         } else {
             if (withdrawSigns[nonce].success) {
-                emit WithdrawTRX(withdrawMsg.user, withdrawMsg.valueOrUid, nonce);
-            } else {
                 emit MultiSignForWithdrawTRX(withdrawMsg.user, withdrawMsg.valueOrUid, nonce);
+            } else {
+                emit WithdrawTRX(withdrawMsg.user, withdrawMsg.valueOrUid, nonce);
+
             }
         }
     }
@@ -437,8 +457,9 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         }
     }
 
-    function setMappingFee(uint256 fee) public onlyOwner {
-        mappingFee = fee;
+    function transferOwnership(address _newOwner) public onlyOwner {
+        require(_newOwner != address(0));
+        owner = _newOwner;
     }
 
     function setPause(bool isPause) public onlyOwner {
@@ -447,5 +468,25 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     function setStop(bool isStop) public onlyOwner {
         stop = isStop;
+    }
+
+    function setWithdrawMinTrx(uint256 minValue) public onlyOwner {
+        withdrawMinTrx = minValue;
+    }
+
+    function setWithdrawMinTrc10(uint256 minValue) public onlyOwner {
+        withdrawMinTrc10 = minValue;
+    }
+
+    function setWithdrawMinTrc20(uint256 minValue) public onlyOwner {
+        withdrawMinTrc20 = minValue;
+    }
+
+    function setWithdrawFee(uint256 fee) public onlyOwner {
+        withdrawFee = fee;
+    }
+
+    function depositDone(uint256 nonce) view public returns (bool r) {
+        r = depositSigns[nonce].success;
     }
 }

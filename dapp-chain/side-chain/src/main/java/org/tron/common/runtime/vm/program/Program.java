@@ -24,7 +24,10 @@ import static org.apache.commons.lang3.ArrayUtils.getLength;
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.apache.commons.lang3.ArrayUtils.nullToEmpty;
-import static org.tron.common.runtime.utils.MUtil.*;
+import static org.tron.common.runtime.utils.MUtil.convertToTronAddress;
+import static org.tron.common.runtime.utils.MUtil.transfer;
+import static org.tron.common.runtime.utils.MUtil.transferAllToken;
+import static org.tron.common.runtime.utils.MUtil.transferAssert;
 import static org.tron.common.utils.BIUtil.isPositive;
 import static org.tron.common.utils.BIUtil.toBI;
 import static org.tron.common.utils.ByteUtil.stripLeadingZeroes;
@@ -66,7 +69,6 @@ import org.tron.common.utils.FastByteComparisons;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
 import org.tron.core.actuator.TransferActuator;
-import org.tron.core.actuator.TransferAssetActuator;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.ContractCapsule;
@@ -74,8 +76,6 @@ import org.tron.core.config.args.Args;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.TronException;
-import org.tron.protos.Contract;
-import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.SmartContract.Builder;
@@ -408,6 +408,7 @@ public class Program {
 
     if (FastByteComparisons.compareTo(owner, 0, 20, obtainer, 0, 20) == 0) {
       // if owner == obtainer just zeroing account according to Yellow Paper
+      // 'suicide to itself' represent 'destroy',which means the token should not be transferred to fund
       getContractState().addBalance(owner, -balance);
       byte[] blackHoleAddress = getContractState().getBlackHoleAddress();
       getContractState().addBalance(blackHoleAddress, balance);
@@ -534,10 +535,8 @@ public class Program {
     // 4. CREATE THE CONTRACT OUT OF RETURN
     byte[] code = createResult.getHReturn();
 
-    long saveCodeEnergy = 0;
-    if (VMConfig.isVmResourceChargingOn) {
-      saveCodeEnergy = (long) getLength(code) * EnergyCost.getInstance().getCREATE_DATA();
-    }
+    long saveCodeEnergy = (long) getLength(code) * EnergyCost.getInstance().getCREATE_DATA();
+
     long afterSpend =
         programInvoke.getEnergyLimit() - createResult.getEnergyUsed() - saveCodeEnergy;
     if (!createResult.isRevert()) {
@@ -794,14 +793,12 @@ public class Program {
   }
 
   public void spendEnergy(long energyValue, String opName) {
-    if (VMConfig.isVmResourceChargingOn) {
-      if (getEnergylimitLeftLong() < energyValue) {
-        throw new OutOfEnergyException(
-            "Not enough energy for '%s' operation executing: curInvokeEnergyLimit[%d], curOpEnergy[%d], usedEnergy[%d]",
-            opName, invoke.getEnergyLimit(), energyValue, getResult().getEnergyUsed());
-      }
-      getResult().spendEnergy(energyValue);
+    if (getEnergylimitLeftLong() < energyValue) {
+      throw new OutOfEnergyException(
+          "Not enough energy for '%s' operation executing: curInvokeEnergyLimit[%d], curOpEnergy[%d], usedEnergy[%d]",
+          opName, invoke.getEnergyLimit(), energyValue, getResult().getEnergyUsed());
     }
+    getResult().spendEnergy(energyValue);
   }
 
   public void checkCPUTimeLimit(String opName) {
@@ -1398,10 +1395,7 @@ public class Program {
       }
     }
 
-    long requiredEnergy = 0;
-    if (VMConfig.isVmResourceChargingOn) {
-      requiredEnergy = contract.getEnergyForData(data);
-    }
+    long requiredEnergy = contract.getEnergyForData(data);
     if (requiredEnergy > msg.getEnergy().longValue()) {
       // Not need to throw an exception, method caller needn't know that
       // regard as consumed the energy

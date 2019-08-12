@@ -1,0 +1,4 @@
+rootProject.name = 'TinyDice'
+includeFlat 'sun-sdk'
+project(':sun-sdk').projectDir = new File(settingsDir, '../../../sun-sdk/')
+project(':sun-sdk').buildFileName = 'build.gradle'

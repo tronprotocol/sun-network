@@ -747,7 +747,7 @@ public class RpcApiService implements Service {
         builder.setAmount(amount);
         transactionCapsule = createTransactionCapsule(builder.build(),
             ContractType.TransferContract);
-        transactionCapsule.sign(privateKey);
+        transactionCapsule.signWithSideChainId(privateKey);
         GrpcAPI.Return retur = wallet.broadcastTransaction(transactionCapsule.getInstance());
         responseBuild.setTransaction(transactionCapsule.getInstance());
         responseBuild.setTxid(transactionCapsule.getTransactionId().getByteString());
@@ -780,7 +780,7 @@ public class RpcApiService implements Service {
         builder.setAmount(amount);
         transactionCapsule = createTransactionCapsule(builder.build(),
             ContractType.TransferAssetContract);
-        transactionCapsule.sign(privateKey);
+        transactionCapsule.signWithSideChainId(privateKey);
         GrpcAPI.Return retur = wallet.broadcastTransaction(transactionCapsule.getInstance());
         responseBuild.setTransaction(transactionCapsule.getInstance());
         responseBuild.setTxid(transactionCapsule.getTransactionId().getByteString());
@@ -1190,6 +1190,12 @@ public class RpcApiService implements Service {
 //      createTransactionExtention(request, ContractType.ExchangeTransactionContract,
 //          responseObserver);
 //    }
+
+    @Override
+    public void fundInject(Contract.FundInjectContract request,
+        StreamObserver<TransactionExtention> responseObserver) {
+      createTransactionExtention(request, ContractType.FundInjectContract, responseObserver);
+    }
 
     @Override
     public void getNowBlock(EmptyMessage request, StreamObserver<Block> responseObserver) {
@@ -1637,9 +1643,9 @@ public class RpcApiService implements Service {
 //    }
 
     @Override
-    public void getChainParameters(EmptyMessage request,
-        StreamObserver<Protocol.ChainParameters> responseObserver) {
-      responseObserver.onNext(wallet.getChainParameters());
+    public void getSideChainParameters(EmptyMessage request,
+        StreamObserver<Protocol.SideChainParameters> responseObserver) {
+      responseObserver.onNext(wallet.getSideChainParameters());
       responseObserver.onCompleted();
     }
 

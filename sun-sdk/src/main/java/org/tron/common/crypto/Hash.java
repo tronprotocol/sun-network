@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tron.common.crypto.jce.TronCastleProvider;
 import org.tron.common.utils.ByteArray;
-import org.tron.sunserver.WalletApi;
+import org.tron.sunserver.ServerApi;
 
 public class Hash {
 
@@ -129,7 +129,7 @@ public class Hash {
   public static byte[] sha3omit12(byte[] input) {
     byte[] hash = sha3(input);
     byte[] address = copyOfRange(hash, 11, hash.length);
-    address[0] = WalletApi.getAddressPreFixByte();
+    address[0] = ServerApi.getAddressPreFixByte();
     return address;
   }
 }

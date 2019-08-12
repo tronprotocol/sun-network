@@ -48,7 +48,7 @@ public class BlockUtilTest {
     //test create GenesisBlockCapsule
     BlockCapsule blockCapsule1 = BlockUtil.newGenesisBlockCapsule();
     Sha256Hash sha256Hash = Sha256Hash.wrap(ByteArray
-        .fromHexString("0x0000000000000000000000000000000000000000000000000000000000000000"));
+        .fromHexString("f0eac6d064d2d0cb7cdac16cfb72e47059d209afdce718238bf5429aba7d3464"));
 
     Assert.assertEquals(0, blockCapsule1.getTimeStamp());
     Assert.assertEquals(sha256Hash,

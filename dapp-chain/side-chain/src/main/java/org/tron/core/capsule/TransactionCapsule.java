@@ -46,7 +46,6 @@ import org.tron.common.overlay.message.Message;
 import org.tron.common.runtime.Runtime;
 import org.tron.common.runtime.vm.program.Program;
 import org.tron.common.runtime.vm.program.Program.BadJumpDestinationException;
-import org.tron.common.runtime.vm.program.Program.BytecodeExecutionException;
 import org.tron.common.runtime.vm.program.Program.IllegalOperationException;
 import org.tron.common.runtime.vm.program.Program.JVMStackOverFlowException;
 import org.tron.common.runtime.vm.program.Program.OutOfEnergyException;
@@ -75,10 +74,11 @@ import org.tron.protos.Contract.AccountUpdateContract;
 import org.tron.protos.Contract.ClearABIContract;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.FreezeBalanceContract;
+import org.tron.protos.Contract.FundInjectContract;
 import org.tron.protos.Contract.ProposalApproveContract;
-import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Contract.ProposalDeleteContract;
 import org.tron.protos.Contract.SetAccountIdContract;
+import org.tron.protos.Contract.SideChainProposalCreateContract;
 import org.tron.protos.Contract.TransferAssetContract;
 import org.tron.protos.Contract.TransferContract;
 import org.tron.protos.Contract.TriggerSmartContract;
@@ -271,6 +271,13 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
     this.transaction = this.transaction.toBuilder().addSignature(sig).build();
   }
 
+  public void signWithSideChainId(byte[] privateKey) {
+    ECKey ecKey = ECKey.fromPrivate(privateKey);
+    ECDSASignature signature = ecKey.sign(getHashWithSideChainId(getRawHash().getBytes()));
+    ByteString sig = ByteString.copyFrom(signature.toByteArray());
+    this.transaction = this.transaction.toBuilder().addSignature(sig).build();
+  }
+
   public static long getWeight(Permission permission, byte[] address) {
     List<Key> list = permission.getKeysList();
     for (Key key : list) {
@@ -282,7 +289,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
   }
 
   public static long checkWeight(Permission permission, List<ByteString> sigs, byte[] hash,
-       List<ByteString> approveList, Manager dbManager)
+      List<ByteString> approveList, Manager dbManager)
       throws SignatureException, PermissionException, SignatureFormatException {
     long currentWeight = 0;
 //    if (signature.size() % 65 != 0) {
@@ -294,10 +301,6 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
               + permission.getKeysCount());
     }
 
-    byte[] mainChainGateWayListByteArray = ByteArray.fromBytes21List(dbManager.getDynamicPropertiesStore().getMainChainGateWayList());
-    byte[] hashWithMainChainGateWay = Arrays.copyOf(hash, hash.length + mainChainGateWayListByteArray.length);
-    System.arraycopy(mainChainGateWayListByteArray, 0, hashWithMainChainGateWay, hash.length, mainChainGateWayListByteArray.length);
-
     HashMap addMap = new HashMap();
     for (ByteString sig : sigs) {
       if (sig.size() < 65) {
@@ -305,7 +308,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
             "Signature size is " + sig.size());
       }
       String base64 = TransactionCapsule.getBase64FromByteString(sig);
-      byte[] address = ECKey.signatureToAddress(Sha256Hash.hash(hashWithMainChainGateWay), base64);
+      byte[] address = ECKey.signatureToAddress(getHashWithSideChainId(hash), base64);
       long weight = getWeight(permission, address);
       if (weight == 0) {
         throw new PermissionException(
@@ -363,7 +366,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
           ByteArray.toHexString(privateKey) + "'s address is " + Wallet
               .encode58Check(address) + " but it is not contained of permission.");
     }
-    ECDSASignature signature = ecKey.sign(getRawHash().getBytes());
+    ECDSASignature signature = ecKey.sign(getHashWithSideChainId(getRawHash().getBytes()));
     ByteString sig = ByteString.copyFrom(signature.toByteArray());
     this.transaction = this.transaction.toBuilder().addSignature(sig).build();
   }
@@ -445,6 +448,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
           break;
         case AccountPermissionUpdateContract:
           owner = contractParameter.unpack(AccountPermissionUpdateContract.class).getOwnerAddress();
+          break;
+        case FundInjectContract:
+          owner = contractParameter.unpack(FundInjectContract.class).getOwnerAddress();
           break;
         // todo add other contract
         default:
@@ -582,6 +588,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
 //        break;
       case AccountPermissionUpdateContract:
         clazz = AccountPermissionUpdateContract.class;
+        break;
+      case FundInjectContract:
+        clazz = FundInjectContract.class;
         break;
       // todo add other contract
       default:
@@ -906,5 +915,35 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
       return null;
     }
     return this.transaction.getRet(0).getContractRet();
+  }
+
+  public boolean checkIfSideChainGateWayContractCall(Manager dbManager) {
+    try {
+      Transaction.Contract contract = this.transaction.getRawData().getContract(0);
+      if (contract.getType() == ContractType.TriggerSmartContract) {
+        Any contractParameter = contract.getParameter();
+        Contract.TriggerSmartContract smartContract =
+            contractParameter.unpack(TriggerSmartContract.class);
+        List<byte[]> gatewayList = dbManager.getDynamicPropertiesStore().getSideChainGateWayList();
+        for (byte[] gateway : gatewayList) {
+          if (ByteUtil.equals(gateway, smartContract.getContractAddress().toByteArray())) {
+            return true;
+          }
+        }
+        return false;
+
+      }
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
+    return false;
+  }
+
+  public static byte[] getHashWithSideChainId(byte[] hash) {
+    byte[] sideChainIdByteArray = ByteArray.fromHexString(Args.getInstance().getSideChainId());
+    byte[] hashWithSideChainId = Arrays.copyOf(hash, hash.length + sideChainIdByteArray.length);
+    System.arraycopy(sideChainIdByteArray, 0, hashWithSideChainId, hash.length,
+        sideChainIdByteArray.length);
+    return Sha256Hash.hash(hashWithSideChainId);
   }
 }

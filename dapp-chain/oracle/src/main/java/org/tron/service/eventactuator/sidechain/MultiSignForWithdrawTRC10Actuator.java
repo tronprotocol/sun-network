@@ -15,17 +15,19 @@ import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
+import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.protos.Sidechain.MultiSignForWithdrawTRC10Event;
-import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.capsule.TransactionExtensionCapsule;
 
 @Slf4j(topic = "sideChainTask")
-public class MultiSignForWithdrawTRC10Actuator extends MultSignForWIthdrawActuator {
+public class MultiSignForWithdrawTRC10Actuator extends MultiSignForWithdrawActuator {
 
   private static final String PREFIX = "withdraw_2_";
   private MultiSignForWithdrawTRC10Event event;
   @Getter
   private EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TRC10_EVENT;
+  @Getter
+  private TaskEnum taskEnum = TaskEnum.MAIN_CHAIN;
 
   public MultiSignForWithdrawTRC10Actuator(String from, String tokenId, String value,
       String nonce) {
@@ -60,9 +62,8 @@ public class MultiSignForWithdrawTRC10Actuator extends MultSignForWIthdrawActuat
       Transaction tx = MainChainGatewayApi
           .multiSignForWithdrawTRC10Transaction(fromStr, tokenIdStr, valueStr, nonceStr,
               oracleSigns);
-      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
-          PREFIX + nonceStr, tx, getDelay(fromStr,
-          tokenIdStr, valueStr, nonceStr, oracleSigns));
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(PREFIX + nonceStr, tx,
+          getDelay(fromStr, tokenIdStr, valueStr, nonceStr, oracleSigns));
       return CreateRet.SUCCESS;
     } catch (Exception e) {
       logger.error("when create transaction extension capsule", e);
@@ -78,7 +79,8 @@ public class MultiSignForWithdrawTRC10Actuator extends MultSignForWIthdrawActuat
 
   @Override
   public EventMsg getMessage() {
-    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType()).build();
+    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType())
+        .setTaskEnum(getTaskEnum()).build();
   }
 
   @Override
@@ -91,4 +93,13 @@ public class MultiSignForWithdrawTRC10Actuator extends MultSignForWIthdrawActuat
     return event.getNonce().toByteArray();
   }
 
+  @Override
+  public String getWithdrawDataHash() {
+    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+    String tokenIdStr = event.getTokenId().toStringUtf8();
+    String valueStr = event.getValue().toStringUtf8();
+    String nonceStr = event.getNonce().toStringUtf8();
+    return ByteArray.toHexString(
+        SideChainGatewayApi.getWithdrawTRC10DataHash(fromStr, tokenIdStr, valueStr, nonceStr));
+  }
 }

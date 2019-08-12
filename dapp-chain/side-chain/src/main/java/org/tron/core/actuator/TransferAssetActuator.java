@@ -70,7 +70,7 @@ public class TransferAssetActuator extends AbstractActuator {
       long amount = transferAssetContract.getAmount();
 
       dbManager.adjustBalance(ownerAddress, -fee, chargingType);
-      dbManager.adjustBalance(dbManager.getAccountStore().getBlackhole().createDbKey(), fee, chargingType);
+      dbManager.adjustFund(fee);
 
       AccountCapsule ownerAccountCapsule = accountStore.get(ownerAddress);
       if (!ownerAccountCapsule.reduceAssetAmountV2(assetName.toByteArray(), amount)) {

@@ -70,5 +70,6 @@ public class Constant {
   // SideChain
   public static final String SUN_TOKEN_ID = "2000000";
   public static final long MICRO_SUN_TOKEN_PER_ENERGY = 100;
+  public static final String TRON_ZERO_ADDRESS_HEX = "410000000000000000000000000000000000000000";
 
 }

@@ -85,6 +85,12 @@ public class SideChainGatewayApi {
 
   public static String getWithdrawTRC10Sign(String from, String tokenId, String value,
       String nonce) {
+    return Hex.toHexString(GATEWAY_API.getInstance()
+        .signDigest(getWithdrawTRC10DataHash(from, tokenId, value, nonce)));
+  }
+
+  public static byte[] getWithdrawTRC10DataHash(String from, String tokenId, String value,
+      String nonce) {
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
     byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
     byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
@@ -92,7 +98,7 @@ public class SideChainGatewayApi {
     byte[] data = ByteUtil
         .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), tokenIdBytes, valueBytes,
             nonceBytes);
-    return Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+    return Hash.sha3(data);
   }
 
   public static Transaction withdrawTRC20Transaction(String from, String mainChainAddress,
@@ -109,6 +115,13 @@ public class SideChainGatewayApi {
 
   public static String getWithdrawTRCTokenSign(String from, String mainChainAddress, String value,
       String nonce) {
+    return Hex.toHexString(GATEWAY_API.getInstance()
+        .signDigest(getWithdrawTRCTokenDataHash(from, mainChainAddress, value, nonce)));
+  }
+
+  public static byte[] getWithdrawTRCTokenDataHash(String from, String mainChainAddress,
+      String value,
+      String nonce) {
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
     byte[] mainChainAddressBytes = WalletUtil.decodeFromBase58Check(mainChainAddress);
     byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
@@ -116,7 +129,7 @@ public class SideChainGatewayApi {
     byte[] data = ByteUtil.merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length),
         Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length), valueBytes,
         nonceBytes);
-    return Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+    return Hash.sha3(data);
   }
 
   public static Transaction withdrawTRC721Transaction(String from, String mainChainAddress,
@@ -142,12 +155,17 @@ public class SideChainGatewayApi {
   }
 
   public static String getWithdrawTRXSign(String from, String value, String nonce) {
+    return Hex.toHexString(
+        GATEWAY_API.getInstance().signDigest(getWithdrawTRXDataHash(from, value, nonce)));
+  }
+
+  public static byte[] getWithdrawTRXDataHash(String from, String value, String nonce) {
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
     byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
     byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
     byte[] data = ByteUtil
         .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), valueBytes, nonceBytes);
-    return Hex.toHexString(GATEWAY_API.getInstance().signDigest(Hash.sha3(data)));
+    return Hash.sha3(data);
   }
 
   public static Transaction mappingTransaction(String mainChainAddress, String sideChainAddress,
@@ -194,21 +212,15 @@ public class SideChainGatewayApi {
     GATEWAY_API;
 
     private WalletClient instance;
-    private WalletClient solidityInstance;
 
     GatewayApi() {
       instance = new WalletClient(Args.getInstance().getSidechainFullNode(),
-          Args.getInstance().getOraclePrivateKey(), false);
-      solidityInstance = new WalletClient(Args.getInstance().getSidechainSolidity(),
-          Args.getInstance().getOraclePrivateKey(), false);
+          Args.getInstance().getSidechainSolidity(), Args.getInstance().getOraclePrivateKey(),
+          false);
     }
 
     public WalletClient getInstance() {
       return instance;
-    }
-
-    public WalletClient getSolidityInstance() {
-      return solidityInstance;
     }
   }
 
@@ -243,7 +255,7 @@ public class SideChainGatewayApi {
 
   public static byte[] checkTxInfo(String txId)
       throws TxFailException, TxRollbackException {
-    return GATEWAY_API.getSolidityInstance().checkTxInfo(txId);
+    return GATEWAY_API.getInstance().checkTxInfo(txId);
   }
 
   public static boolean broadcast(Transaction transaction)

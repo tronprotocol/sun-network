@@ -213,31 +213,4 @@ public class TransactionUtils {
     return builder.build();
   }
 
-  /**
-   * constructor.
-   */
-  /*  public static Transaction setDelaySeconds(Transaction transaction, long delaySeconds) {
-    DeferredStage deferredStage = transaction.getRawData().toBuilder()
-        .getDeferredStage().toBuilder().setDelaySeconds(delaySeconds)
-        .setStage(UNEXECUTEDDEFERREDTRANSACTION).build();
-    Transaction.raw rawData = transaction.toBuilder().getRawData()
-        .toBuilder().setDeferredStage(deferredStage).build();
-    return transaction.toBuilder().setRawData(rawData).build();
-  }*/
-
-  /*  *//**
-   * constructor.
-   *//*
-  public static GrpcAPI.TransactionExtention setDelaySecondsToExtension(GrpcAPI
-      .TransactionExtention transactionExtention, long delaySeconds) {
-    if (delaySeconds == 0) {
-      return transactionExtention;
-    }
-    GrpcAPI.TransactionExtention.Builder builder = transactionExtention.toBuilder();
-
-    Transaction transaction = setDelaySeconds(transactionExtention.getTransaction(), delaySeconds);
-    builder.setTransaction(transaction);
-
-    return builder.build();
-  }*/
 }

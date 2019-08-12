@@ -1,5 +1,8 @@
 package org.tron.service.eventactuator;
 
-public class ChainTaskTest {
+import org.junit.Ignore;
+
+
+public abstract class ChainTaskTest {
 
 }

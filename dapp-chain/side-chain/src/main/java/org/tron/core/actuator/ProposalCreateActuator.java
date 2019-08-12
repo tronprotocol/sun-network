@@ -12,20 +12,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.spongycastle.util.encoders.Hex;
+import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.StringUtil;
+import org.tron.core.Constant;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.capsule.TransactionResultCapsule;
 import org.tron.core.config.Parameter.ChainParameters;
-import org.tron.core.config.Parameter.ForkBlockVersionConsts;
-import org.tron.core.config.Parameter.ForkBlockVersionEnum;
 import org.tron.core.config.args.Args;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.protos.Contract.SideChainProposalCreateContract;
+import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.Transaction.Result.code;
 
 @Slf4j(topic = "actuator")
@@ -147,7 +148,8 @@ public class ProposalCreateActuator extends AbstractActuator {
 
     switch (entry.getKey().intValue()) {
       case (0): {
-        if (Long.valueOf(entry.getValue()) < 3 * 27 * 1000 || Long.valueOf(entry.getValue()) > 24 * 3600 * 1000) {
+        if (Long.valueOf(entry.getValue()) < 3 * Args.getInstance().getWitnessMaxActiveNum() * 1000
+            || Long.valueOf(entry.getValue()) > 24 * 3600 * 1000) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [3 * 27 * 1000,24 * 3600 * 1000]");
         }
@@ -161,7 +163,8 @@ public class ProposalCreateActuator extends AbstractActuator {
       case (6):
       case (7):
       case (8): {
-        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0
+            || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000_000_000L]");
         }
@@ -180,6 +183,10 @@ public class ProposalCreateActuator extends AbstractActuator {
         break;
       }
       case (11):
+        if (Long.valueOf(entry.getValue()) <= 0) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid range is greater than 0");
+        }
         break;
       case (12):
         break;
@@ -190,33 +197,35 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       case (17): { // deprecated
-        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0
+            || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000_000_000L]");
         }
         break;
       }
-      case (18): {
-        if (Long.valueOf(entry.getValue()) != 1) {
-          throw new ContractValidateException(
-              "This value[ALLOW_TVM_TRANSFER_TRC10] is only allowed to be 1");
-        }
-        break;
-      }
+//      case (18): {
+//        if (Long.valueOf(entry.getValue()) != 1) {
+//          throw new ContractValidateException(
+//              "This value[ALLOW_TVM_TRANSFER_TRC10] is only allowed to be 1");
+//        }
+//        break;
+//      }
       case (19): {
-        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0
+            || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000_000_000L]");
         }
         break;
       }
-      case (20): {
-        if (Long.valueOf(entry.getValue()) != 1) {
-          throw new ContractValidateException(
-              "This value[ALLOW_MULTI_SIGN] is only allowed to be 1");
-        }
-        break;
-      }
+//      case (20): {
+//        if (Long.valueOf(entry.getValue()) != 1) {
+//          throw new ContractValidateException(
+//              "This value[ALLOW_MULTI_SIGN] is only allowed to be 1");
+//        }
+//        break;
+//      }
       case (21): {
         if (Long.valueOf(entry.getValue()) != 1) {
           throw new ContractValidateException(
@@ -225,60 +234,148 @@ public class ProposalCreateActuator extends AbstractActuator {
         break;
       }
       case (22): {
-        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0
+            || Long.valueOf(entry.getValue()) > 100_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000L]");
         }
         break;
       }
       case (23): {
-        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 100_000_000_000L) {
+        if (Long.valueOf(entry.getValue()) < 0
+            || Long.valueOf(entry.getValue()) > 100_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000L]");
         }
         break;
       }
-      case (1_000_000): {
-        if (Long.valueOf(entry.getValue()) != 1) {
+      case (25): {
+        if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
           throw new ContractValidateException(
-              "this value[ENERGY_CHARGING_SWITCH] is only allowed to be 1");
+              "This value[ALLOW_ACCOUNT_STATE_ROOT] is only allowed to be 1 or 0");
+        }
+        break;
+      }
+      case (1_000_000): {
+        if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
+          throw new ContractValidateException(
+              "this value[ENERGY_CHARGING_SWITCH] is only allowed to be 1 or 0");
         }
         break;
       }
       case (1_000_001): {
         List<String> list = Arrays.asList(entry.getValue().split(","));
         Iterator<String> it = list.iterator();
-        while(it.hasNext()) {
-          if ( Wallet.decodeFromBase58Check(it.next()).length != 21) {
-            throw new ContractValidateException(
-                "gateway address has to be 21 bytes");
+        try {
+          while (it.hasNext()) {
+            if (!Wallet.addressValid(Wallet.decodeFromBase58Check(it.next()))) {
+              throw new ContractValidateException(
+                  "Invalid gateway address");
+            }
           }
+        } catch (Exception e) {
+          throw new ContractValidateException(
+              "Invalid gateway address");
+        }
+        break;
+      }
+      case (1_000_002): {
+        List<String> list = Arrays.asList(entry.getValue().split(","));
+        Iterator<String> it = list.iterator();
+        try {
+          while (it.hasNext()) {
+            if (!Wallet.addressValid(Wallet.decodeFromBase58Check(it.next()))) {
+              throw new ContractValidateException(
+                  "Invalid gateway address");
+            }
+          }
+        } catch (Exception e) {
+          throw new ContractValidateException(
+              "Invalid gateway address");
+        }
+        break;
+      }
+      case (1_000_003): {
+        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 259_200_000L) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid range is [0,259_200_000L]");
+        }
+        break;
+      }
+      case (1_000_004): {
+        if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid value is {0,1}");
+        }
+        break;
+      }
+      case (1_000_005): {
+        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 500 * 1024) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid range is [0,512000]");
+        }
+        break;
+      }
+//      case (1_000_006):{
+//        if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
+//          throw new ContractValidateException(
+//              "Bad chain parameter value,valid value is {0,1}");
+//        }
+//        break;
+//      }
+      case (1_000_007):{
+        try {
+          byte[] address = Wallet.decodeFromBase58Check(entry.getValue());
+          if (!Wallet.addressValid(address)) {
+            throw new ContractValidateException(
+                "Invalid Fund Inject Address");
+          }
+          if (ByteUtil.equals(address,
+              Hex.decode(Constant.TRON_ZERO_ADDRESS_HEX))) {
+            throw new ContractValidateException("target Fund Inject Address should not be set to "
+                + "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb");
+          }
+
+          if (this.dbManager.getAccountStore().get(address) == null) {
+            throw new ContractValidateException("target Fund Inject Address not exist");
+          }
+          if (this.dbManager.getAccountStore().get(address).getType()
+              == AccountType.Contract) {
+            throw new ContractValidateException("target Fund Inject Address should not "
+                + "be a contract");
+          }
+        } catch (Exception e){
+          throw new ContractValidateException(
+              "Invalid Fund Inject Address");
         }
 
         break;
       }
-      case (1_000_002) :{
-        List<String> list = Arrays.asList(entry.getValue().split(","));
-        Iterator<String> it = list.iterator();
-        while(it.hasNext()) {
-          if ( Wallet.decodeFromBase58Check(it.next()).length != 21) {
-            throw new ContractValidateException(
-                "gateway address has to be 21 bytes");
-          }
+      case (1_000_008):{
+        if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid value is {0,1}");
+        }
+        if (Long.valueOf(entry.getValue()) == 1 && ByteUtil.equals(this.dbManager.getDynamicPropertiesStore().getFundInjectAddress(),
+            Hex.decode(Constant.TRON_ZERO_ADDRESS_HEX))) {
+          throw new ContractValidateException(
+              "Fund Inject Address should not be default T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
+                  + " to enable Fund distribution switch"
+          );
         }
         break;
       }
-      case (1_000_003) :{
-        if (Long.valueOf(entry.getValue()) < 0 || Long.valueOf(entry.getValue()) > 259_200_000L) {
+      case (1_000_009): {
+        if (Long.valueOf(entry.getValue()) < 1 || Long.valueOf(entry.getValue()) > 365) {
           throw new ContractValidateException(
-                  "Bad chain parameter value,valid range is [0,259_200_000L]");
+              "Bad chain parameter value,valid range is [1,365]");
         }
         break;
       }
-      case (1_000_004) :{
-        if (Long.valueOf(entry.getValue()) != 1 || Long.valueOf(entry.getValue()) != 0) {
+      case (1_000_010): {
+        if (Integer.valueOf(entry.getValue()) < 0 || Integer.valueOf(entry.getValue()) > 100) {
           throw new ContractValidateException(
-              "Bad chain parameter value,valid range is [0,1]");
+              "Bad chain parameter value,valid range is [0,100]");
         }
         break;
       }

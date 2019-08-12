@@ -5,31 +5,21 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.protos.Protocol.Transaction;
-import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.protos.Sidechain.TransactionExtension;
 
 public class TransactionExtensionCapsule {
 
   private TransactionExtension.Builder instance;
 
-  public TransactionExtensionCapsule(TaskEnum type, String nonceKey,
-      Transaction transaction, long delay) {
+  public TransactionExtensionCapsule(String nonceKey, Transaction transaction, long delay) {
     byte[] txId = Sha256Hash.hash(transaction.getRawData().toByteArray());
-    instance = TransactionExtension.newBuilder().setTaskEnum(type)
+    instance = TransactionExtension.newBuilder()
         .setNonceKey(ByteString.copyFrom(ByteArray.fromString(nonceKey)))
         .setTransactionId(ByteString.copyFrom(txId)).setTransaction(transaction).setDelay(delay);
   }
 
   public TransactionExtensionCapsule(byte[] data) throws InvalidProtocolBufferException {
     this.instance = TransactionExtension.parseFrom(data).toBuilder();
-  }
-
-  public TaskEnum getType() {
-    return instance.getTaskEnum();
-  }
-
-  public void setType(TaskEnum chain) {
-    instance.setTaskEnum(chain);
   }
 
   public String getTransactionId() {
