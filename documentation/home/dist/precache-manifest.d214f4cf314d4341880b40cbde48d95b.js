@@ -4,12 +4,12 @@ self.__precacheManifest = [
     "url": "/sunnetwork/js/about.feefef8c.js"
   },
   {
-    "revision": "fe405bbdf95c6d88ac82",
-    "url": "/sunnetwork/css/app.7899f414.css"
+    "revision": "face4e8ee047ceb62496",
+    "url": "/sunnetwork/css/app.0460c020.css"
   },
   {
-    "revision": "fe405bbdf95c6d88ac82",
-    "url": "/sunnetwork/js/app.30724f37.js"
+    "revision": "face4e8ee047ceb62496",
+    "url": "/sunnetwork/js/app.e7dfe92c.js"
   },
   {
     "revision": "aa30c5d24a7b1b7b8b4f",
@@ -56,7 +56,7 @@ self.__precacheManifest = [
     "url": "/sunnetwork/img/sidechainl.95809b3e.png"
   },
   {
-    "revision": "0d4c8e1ccc74bc7ce63a4bd5f982966e",
+    "revision": "a512e867339a4bf4b6d0bd187790ad13",
     "url": "/sunnetwork/index.html"
   },
   {
