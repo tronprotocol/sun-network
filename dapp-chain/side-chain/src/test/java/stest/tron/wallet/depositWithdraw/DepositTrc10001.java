@@ -46,9 +46,9 @@ public class DepositTrc10001 {
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
 
   private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
+      .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+      .getStringList("fullnode.ip.list").get(0);
 
 
   private final String testKeyFordeposit = Configuration.getByPath("testng.conf")
@@ -151,9 +151,7 @@ public class DepositTrc10001 {
         response.getMessage().toStringUtf8());
 
 //Depositor has not tokenId
-//    assetAccountId = PublicMethed
-//        .queryAccount(depositAddress2, blockingStubFull).getAssetIssuedID();
-//    String inputTokenID1 = assetAccountId.toStringUtf8();
+
     String inputTokenID1 = "" + 1000001;
 
     long inputTokenValue1 = 2;

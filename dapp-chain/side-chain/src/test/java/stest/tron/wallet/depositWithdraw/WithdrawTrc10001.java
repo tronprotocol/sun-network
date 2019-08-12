@@ -52,9 +52,9 @@ public class WithdrawTrc10001 {
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
 
   private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
+      .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+      .getStringList("fullnode.ip.list").get(0);
 
   private final String testKeyFordeposit = Configuration.getByPath("testng.conf")
       .getString("mainNetAssetAccountKey.key3");
@@ -63,13 +63,17 @@ public class WithdrawTrc10001 {
 
 
   private final String testKeyFordeposit2 = Configuration.getByPath("testng.conf")
-      .getString("mainNetAssetAccountKey.key2");
+      .getString("mainNetAssetAccountKey.key4");
 
   private final byte[] depositAddress2 = PublicMethed.getFinalAddress(testKeyFordeposit2);
   final String sideGatewayAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key2");
   final String mainGateWayAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key1");
+
+  final String ChainIdAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.ChainIdAddress");
+  final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
 
   @BeforeSuite
   public void beforeSuite() {
@@ -182,7 +186,7 @@ public class WithdrawTrc10001 {
     //withdrawTrc10
     String withdrawToken = Long.toString(inputTokenValue - 1);
     String txid2 = PublicMethed
-        .withdrawTrc10(inputTokenID, withdrawToken, mainGateWayAddress,
+        .withdrawTrc10(inputTokenID, withdrawToken, ChainIdAddress,
             sideGatewayAddress,
             0,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -223,7 +227,7 @@ public class WithdrawTrc10001 {
         .sendcoin(withdrawAddress, 100000000L, testDepositAddress, testDepositTrx,
             blockingStubFull));
     Return response = PublicMethed
-        .withdrawTrcForReturn(inputTokenID, withdrawToken, mainGateWayAddress,
+        .withdrawTrcForReturn(inputTokenID, withdrawToken, ChainIdAddress,
             sideGatewayAddress,
             0,
             maxFeeLimit, withdrawAddress, withdrawAddressKey, blockingStubFull,
@@ -285,7 +289,7 @@ public class WithdrawTrc10001 {
     String inputTokenID = assetAccountId.toStringUtf8();
 
     Return response = PublicMethed
-        .withdrawTrcForReturn(inputTokenID, withdrawToken, mainGateWayAddress,
+        .withdrawTrcForReturn(inputTokenID, withdrawToken, ChainIdAddress,
             sideGatewayAddress,
             0,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -298,7 +302,7 @@ public class WithdrawTrc10001 {
     String withdrawToken1 = Long.toString(-1);
 
     Return response1 = PublicMethed
-        .withdrawTrcForReturn(inputTokenID, withdrawToken1, mainGateWayAddress,
+        .withdrawTrcForReturn(inputTokenID, withdrawToken1, ChainIdAddress,
             sideGatewayAddress,
             0,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -310,7 +314,7 @@ public class WithdrawTrc10001 {
     // value is Long.MAX_VALUE+1
     String withdrawToken2 = Long.toString(Long.MAX_VALUE + 1);
     Return response2 = PublicMethed
-        .withdrawTrcForReturn(inputTokenID, withdrawToken2, mainGateWayAddress,
+        .withdrawTrcForReturn(inputTokenID, withdrawToken2, ChainIdAddress,
             sideGatewayAddress,
             0,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -322,7 +326,7 @@ public class WithdrawTrc10001 {
     // value is Long.MIN_VALUE - 1
     String withdrawToken3 = Long.toString(Long.MIN_VALUE - 1);
     Return response3 = PublicMethed
-        .withdrawTrcForReturn(inputTokenID, withdrawToken3, mainGateWayAddress,
+        .withdrawTrcForReturn(inputTokenID, withdrawToken3, ChainIdAddress,
             sideGatewayAddress,
             0,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -335,7 +339,7 @@ public class WithdrawTrc10001 {
     long callValue4 = 0;
     String withdrawToken4 = Long.toString(0);
     String txid = PublicMethed
-        .withdrawTrc10(inputTokenID, withdrawToken4, mainGateWayAddress,
+        .withdrawTrc10(inputTokenID, withdrawToken4, ChainIdAddress,
             sideGatewayAddress,
             0,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -390,7 +394,7 @@ public class WithdrawTrc10001 {
     String withdrawToken = Long.toString(depositSideTokenBefore + 1);
     String fakeTokenId = Long.toString(Long.valueOf(assetAccountId.toStringUtf8()) + 100);
     Return response = PublicMethed
-        .withdrawTrcForReturn(fakeTokenId, withdrawToken, mainGateWayAddress,
+        .withdrawTrcForReturn(fakeTokenId, withdrawToken, ChainIdAddress,
             sideGatewayAddress,
             0,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -407,7 +411,7 @@ public class WithdrawTrc10001 {
 
     String withdrawToken1 = Long.toString(1);
     String txid2 = PublicMethed
-        .withdrawTrc10(inputTokenID1, withdrawToken1, mainGateWayAddress,
+        .withdrawTrc10(inputTokenID1, withdrawToken1, ChainIdAddress,
             sideGatewayAddress,
             0,
             maxFeeLimit, depositAddress2, testKeyFordeposit2, blockingStubFull,
@@ -415,7 +419,7 @@ public class WithdrawTrc10001 {
 
     logger.info("The token ID: " + assetAccountId1.toStringUtf8());
     Return response1 = PublicMethed
-        .withdrawTrcForReturn(inputTokenID1, withdrawToken1, mainGateWayAddress,
+        .withdrawTrcForReturn(inputTokenID1, withdrawToken1, ChainIdAddress,
             sideGatewayAddress,
             0,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -440,7 +444,7 @@ public class WithdrawTrc10001 {
     // tokenId is 1000000
     String fakeTokenId2 = "1000000";
     Return response3 = PublicMethed
-        .withdrawTrcForReturn(fakeTokenId2, withdrawToken, mainGateWayAddress,
+        .withdrawTrcForReturn(fakeTokenId2, withdrawToken, ChainIdAddress,
             sideGatewayAddress,
             0,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -452,7 +456,7 @@ public class WithdrawTrc10001 {
     // tokenID is Long.MAX_VALUE + 1
     String fakeTokenId3 = Long.toString(Long.MAX_VALUE + 1);
     Return response4 = PublicMethed
-        .withdrawTrcForReturn(fakeTokenId3, withdrawToken, mainGateWayAddress,
+        .withdrawTrcForReturn(fakeTokenId3, withdrawToken, ChainIdAddress,
             sideGatewayAddress,
             0,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -465,7 +469,7 @@ public class WithdrawTrc10001 {
     // tokenID is Long.MIN_VALUE - 1
     String fakeTokenId4 = Long.toString(Long.MIN_VALUE - 1);
     Return response5 = PublicMethed
-        .withdrawTrcForReturn(fakeTokenId4, withdrawToken, mainGateWayAddress,
+        .withdrawTrcForReturn(fakeTokenId4, withdrawToken, ChainIdAddress,
             sideGatewayAddress,
             0,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -520,7 +524,7 @@ public class WithdrawTrc10001 {
     //withdrawTrc10
     String withdrawToken = Long.toString(inputTokenValue);
     String txid1 = PublicMethed
-        .withdrawTrc10(inputTokenID, withdrawToken, mainGateWayAddress,
+        .withdrawTrc10(inputTokenID, withdrawToken, ChainIdAddress,
             sideGatewayAddress,
             0,
             1, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);

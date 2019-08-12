@@ -51,15 +51,16 @@ public class DepositTrx002 {
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
 
   private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
+      .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+      .getStringList("fullnode.ip.list").get(0);
 
 
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] depositAddress = ecKey1.getAddress();
   String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
+  final String mainGateWayAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key1");
 
   @BeforeSuite
   public void beforeSuite() {
@@ -106,15 +107,13 @@ public class DepositTrx002 {
     logger.info("accountSideBeforeBalance:" + accountSideBeforeBalance);
     Assert.assertTrue(accountSideBeforeBalance == 0);
 
-    final String transferTokenContractAddress = Configuration.getByPath("testng.conf")
-        .getString("gateway_address.key1");
-    logger.info("transferTokenContractAddress:" + transferTokenContractAddress);
+    logger.info("mainGateWayAddress:" + mainGateWayAddress);
     String methodStr = "depositTRX()";
     byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
 
     long callValue = 1;
     Return response = PublicMethed
-        .triggerContractForReturn(WalletClient.decodeFromBase58Check(transferTokenContractAddress),
+        .triggerContractForReturn(WalletClient.decodeFromBase58Check(mainGateWayAddress),
             callValue,
             input,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
@@ -161,15 +160,12 @@ public class DepositTrx002 {
     logger.info("accountSideBeforeBalance:" + accountSideBeforeBalance);
     Assert.assertTrue(accountSideBeforeBalance == 0);
 
-    final String transferTokenContractAddress = Configuration.getByPath("testng.conf")
-        .getString("gateway_address.key1");
-    logger.info("transferTokenContractAddress:" + transferTokenContractAddress);
     String methodStr = "depositTRX()";
     byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
     //value>balance
     long callValue = accountBeforeBalance + 1;
     Return response = PublicMethed
-        .triggerContractForReturn(WalletClient.decodeFromBase58Check(transferTokenContractAddress),
+        .triggerContractForReturn(WalletClient.decodeFromBase58Check(mainGateWayAddress),
             callValue,
             input,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
@@ -180,7 +176,7 @@ public class DepositTrx002 {
     //value is -1
     long callValue1 = -1;
     Return response1 = PublicMethed
-        .triggerContractForReturn(WalletClient.decodeFromBase58Check(transferTokenContractAddress),
+        .triggerContractForReturn(WalletClient.decodeFromBase58Check(mainGateWayAddress),
             callValue1,
             input,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
@@ -192,7 +188,7 @@ public class DepositTrx002 {
     long callValue2 = Long.MAX_VALUE + 1;
     logger.info("callValue2:" + callValue2);
     Return response2 = PublicMethed
-        .triggerContractForReturn(WalletClient.decodeFromBase58Check(transferTokenContractAddress),
+        .triggerContractForReturn(WalletClient.decodeFromBase58Check(mainGateWayAddress),
             callValue2,
             input,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
@@ -206,7 +202,7 @@ public class DepositTrx002 {
     logger.info("callValue3:" + callValue3);
 
     Return response3 = PublicMethed
-        .triggerContractForReturn(WalletClient.decodeFromBase58Check(transferTokenContractAddress),
+        .triggerContractForReturn(WalletClient.decodeFromBase58Check(mainGateWayAddress),
             callValue3,
             input,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
@@ -217,7 +213,7 @@ public class DepositTrx002 {
     //value is 0
     long callValue4 = 0;
     String txid = PublicMethed
-        .triggerContract(WalletClient.decodeFromBase58Check(transferTokenContractAddress),
+        .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
             callValue4,
             input,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
@@ -269,16 +265,13 @@ public class DepositTrx002 {
     logger.info("accountSideBeforeBalance:" + accountSideBeforeBalance);
     Assert.assertTrue(accountSideBeforeBalance == 0);
 
-    final String transferTokenContractAddress = Configuration.getByPath("testng.conf")
-        .getString("gateway_address.key1");
-    logger.info("transferTokenContractAddress:" + transferTokenContractAddress);
     String methodStr = "depositTRX()";
     byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
     //feelimit is 1
     long callValue = 1;
     String txid = PublicMethed
         .triggerContract(
-            WalletClient.decodeFromBase58Check(transferTokenContractAddress),
+            WalletClient.decodeFromBase58Check(mainGateWayAddress),
             callValue,
             input,
             1, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
