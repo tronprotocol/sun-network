@@ -58,10 +58,10 @@ public class ContractTrcToken012 {
   private byte[] user001Address = ecKey2.getAddress();
   private String user001Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenOwnerKey");
+      .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenId");
+      .getString("tokenFoundationAccount.slideTokenId");
 
   @BeforeSuite
   public void beforeSuite() {

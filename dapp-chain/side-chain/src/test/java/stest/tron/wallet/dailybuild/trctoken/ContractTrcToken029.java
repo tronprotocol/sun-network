@@ -57,10 +57,10 @@ public class ContractTrcToken029 {
   byte[] transferTokenContractAddress;
 
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenOwnerKey");
+      .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenId");
+      .getString("tokenFoundationAccount.slideTokenId");
 
   @BeforeSuite
   public void beforeSuite() {

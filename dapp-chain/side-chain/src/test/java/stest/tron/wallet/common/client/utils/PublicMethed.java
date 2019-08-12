@@ -1931,16 +1931,18 @@ public class PublicMethed {
     return response.getResult();
   }
 
-
-
-  //
-
-
+  /**
+   * constructor.
+   */
 
   public static String getMaingatewayAddr(){
     return Configuration.getByPath("testng.conf")
-            .getString("gateway_address.key1");
+            .getString("gateway_address.chainIdAddress");
   }
+
+  /**
+   * constructor.
+   */
 
   public static byte[] getMaingatewayByteAddr(){
     return  WalletClient.decodeFromBase58Check(getMaingatewayAddr());

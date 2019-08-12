@@ -21,10 +21,10 @@ public class HttpTestEasyAccount001 {
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenOwnerKey");
+      .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final static String tokenId = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenId");
+      .getString("tokenFoundationAccount.slideTokenId");
   private JSONObject responseContent;
   private HttpResponse response;
   private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")

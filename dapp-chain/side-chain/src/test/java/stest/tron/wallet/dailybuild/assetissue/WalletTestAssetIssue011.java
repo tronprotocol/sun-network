@@ -41,10 +41,10 @@ public class WalletTestAssetIssue011 {
   String description = "just-test";
   String url = "https://github.com/tronprotocol/wallet-cli/";
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenOwnerKey");
+      .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenId");
+      .getString("tokenFoundationAccount.slideTokenId");
   private static ByteString assetAccountId = null;
 
 

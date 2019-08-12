@@ -39,10 +39,10 @@ public class ContractTrcToken001 {
   private long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenOwnerKey");
+      .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenId");
+      .getString("tokenFoundationAccount.slideTokenId");
   private static ByteString assetAccountId = null;
   private static final long now = System.currentTimeMillis();
   private static String tokenName = "testAssetIssue_" + Long.toString(now);

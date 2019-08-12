@@ -63,7 +63,7 @@ public class PublicMethedForMutiSign {
   Wallet wallet = new Wallet();
   private static final Logger logger = LoggerFactory.getLogger("TestLogger");
   public static final String mainGateWay = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.gateway_address");
+      .getString("gateway_address.chainIdAddress");
 
   /**
    * constructor.

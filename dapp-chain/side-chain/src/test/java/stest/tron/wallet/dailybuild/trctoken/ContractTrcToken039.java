@@ -28,10 +28,10 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 @Slf4j
 public class ContractTrcToken039 {
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenOwnerKey");
+      .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenId");
+      .getString("tokenFoundationAccount.slideTokenId");
 
 
   private final String testKey002 = Configuration.getByPath("testng.conf")

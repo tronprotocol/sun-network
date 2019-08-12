@@ -32,10 +32,10 @@ public class WalletTestAssetIssue015 {
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenOwnerKey");
+      .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenId");
+      .getString("tokenFoundationAccount.slideTokenId");
   private static ByteString assetAccountId = null;
   private static final long now = System.currentTimeMillis();
   private static String name = "AssetIssue015_" + Long.toString(now);

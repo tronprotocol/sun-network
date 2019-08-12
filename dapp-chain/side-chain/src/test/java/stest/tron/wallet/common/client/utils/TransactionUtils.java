@@ -40,7 +40,7 @@ public class TransactionUtils {
   public static final int UNEXECUTEDDEFERREDTRANSACTION = 1;
   public static final int EXECUTINGDEFERREDTRANSACTION = 2;
   public static final String mainGateWay = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.gateway_address");
+      .getString("gateway_address.chainIdAddress");
 
   /**
    * constructor.

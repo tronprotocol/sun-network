@@ -87,7 +87,7 @@ public class PublicMethedForDailybuild {
   private static final Logger logger = LoggerFactory.getLogger("TestLogger");
 
   public static final String mainGateWay = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.gateway_address");
+      .getString("gateway_address.chainIdAddress");
 
 
   /**

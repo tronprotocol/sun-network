@@ -49,10 +49,10 @@ public class HttpTestAsset001 {
   private static final long totalSupply = now;
   private static String assetIssueId;
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenOwnerKey");
+      .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final static String tokenId = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenId");
+      .getString("tokenFoundationAccount.slideTokenId");
   private static String updateDescription = "Description_update_" + Long.toString(now);
   private static String updateUrl = "Url_update_" + Long.toString(now);
 

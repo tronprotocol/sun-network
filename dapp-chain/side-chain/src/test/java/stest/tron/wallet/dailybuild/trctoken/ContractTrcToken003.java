@@ -59,16 +59,16 @@ public class ContractTrcToken003 {
   private String user001Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenOwnerKey");
+      .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenId");
+      .getString("tokenFoundationAccount.slideTokenId");
 
   private final String tokenOwnerKey2 = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenOwnerKey2");
+      .getString("tokenFoundationAccount.slideTokenOwnerKey2");
   private final byte[] tokenOnwerAddress2 = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey2);
   private final String tokenId2 = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slideTokenId2");
+      .getString("tokenFoundationAccount.slideTokenId2");
 
   @BeforeSuite
   public void beforeSuite() {
