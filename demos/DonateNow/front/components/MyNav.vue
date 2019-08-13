@@ -199,7 +199,7 @@ export default {
       this.$store.commit('SET_MBALANCE', this.globalSunWeb.mainchain.fromSun(mBalance));
     },
     withdrawTrx() {
-      if (!this.address.base58 && !this.loginState) {
+      if (!this.address.base58 || !this.loginState) {
         this.$message({
           type: "warn",
           message: this.$t("noLogin"),

@@ -184,7 +184,7 @@ export default {
       let arr = [];
       while(donateIndex > 0) {
         num++;
-        if (num > 20) break;
+        if (num > 100) break;
         let record = await this.contractInstance
           .check(donateIndex)
           .call()
@@ -244,8 +244,8 @@ export default {
         return;
       }
 
-      const amount = parseInt(this.amount);
-      if (isNaN(amount) && amount <= 0) {
+       const amount = parseFloat(this.amount);
+       if (isNaN(amount) || amount <= 0) {
         this.$message({
           type: "success",
           message: "Please input valid donate TRX",

@@ -67,11 +67,8 @@ export default {
     };
   },
   created() {
-      console.log(interfaceData)
       this.sunWeb = new SunWeb(interfaceData.mainOptions, interfaceData.sideOptions, interfaceData.mainGatewayAddress, interfaceData.sideGatewayAddress, interfaceData.chainId, interfaceData.privateKey);
-      window.sunWeb = this.sunWeb
       this.$store.commit('SET_SUNWEB', this.sunWeb);
-    // this.$store.commit("SET_RANDOM", "");
   },
   watch: {
     address: {
