@@ -87,11 +87,11 @@
               </div>
             </el-col>
             <el-col :span="8" :xs="24">
-              <div class="card-div" @click="gotoDiscord">
+              <div class="card-div" @click="gotoTelegram">
                 <el-card>
                   <div class="card-content">
-                    <img src="../assets/discord.png" alt="discord" />
-                    <div class="card-title">Discord</div>
+                    <img src="../assets/telegram.png" alt="Telegram" />
+                    <div class="card-title">Telegram</div>
                     <div class="card-desc">Join the community.</div>
                   </div>
                 </el-card>
@@ -190,6 +190,9 @@ export default {
     },
     gotoDiscord: function() {
       window.open(this.$store.state.discordUrl);
+    },
+    gotoTelegram: function() {
+      window.open(this.$store.state.telegramUrl);
     },
     gotoDemo1: function() {
       window.open(this.$store.state.demo1Url);
