@@ -10,7 +10,7 @@
         <p class="main-doc">
           <el-button type="danger" @click="learnMore">Learn More</el-button>
         </p>
-      </section> -->
+      </section>-->
       <div class="main-footer">
         <section>
           <p class="main-footer-title">DAppChain, sidechain of TRON</p>
@@ -90,7 +90,7 @@
               <div class="card-div" @click="gotoDiscord">
                 <el-card>
                   <div class="card-content">
-                    <img src="../assets/telegram.png" alt="discord" />
+                    <img src="../assets/discord.png" alt="discord" />
                     <div class="card-title">Discord</div>
                     <div class="card-desc">Join the community.</div>
                   </div>
