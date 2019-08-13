@@ -4,12 +4,12 @@ self.__precacheManifest = [
     "url": "/sunnetwork/js/about.feefef8c.js"
   },
   {
-    "revision": "f4e74abc03c7075143ed",
-    "url": "/sunnetwork/css/app.54737607.css"
+    "revision": "96e2824581ae36a3524f",
+    "url": "/sunnetwork/css/app.555b4cc7.css"
   },
   {
-    "revision": "f4e74abc03c7075143ed",
-    "url": "/sunnetwork/js/app.2c129df7.js"
+    "revision": "96e2824581ae36a3524f",
+    "url": "/sunnetwork/js/app.b623d0a7.js"
   },
   {
     "revision": "aa30c5d24a7b1b7b8b4f",
@@ -48,15 +48,15 @@ self.__precacheManifest = [
     "url": "/sunnetwork/img/sidechainr.a132dce3.png"
   },
   {
+    "revision": "2b0d7de28a4bee4a0559f71d444a9fbf",
+    "url": "/sunnetwork/img/telegram.2b0d7de2.png"
+  },
+  {
     "revision": "95809b3ea91bc06936a6d62295a77147",
     "url": "/sunnetwork/img/sidechainl.95809b3e.png"
   },
   {
-    "revision": "384ec8be00b38ed0e396b9f1ed06627f",
-    "url": "/sunnetwork/img/discord.384ec8be.png"
-  },
-  {
-    "revision": "9742d4f1987022579867a40ed9a5932f",
+    "revision": "ae04ee7e75b39924eef565c966877763",
     "url": "/sunnetwork/index.html"
   },
   {
