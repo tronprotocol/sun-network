@@ -63,7 +63,7 @@ public class WithdrawTrc721002 {
   final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
 
   final String ChainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.ChainIdAddress");
+      .getString("gateway_address.chainIdAddress");
   byte[] trc20Contract = null;
   byte[] sideContractAddress = null;
 

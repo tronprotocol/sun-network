@@ -64,7 +64,7 @@ public class WithdrawTrc20002 {
       .getString("gateway_address.key2");
   final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
   final String ChainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.ChainIdAddress");
+      .getString("gateway_address.chainIdAddress");
 
   @BeforeSuite
   public void beforeSuite() {
