@@ -20,6 +20,7 @@ import org.tron.core.Wallet;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 
 @Slf4j
@@ -27,10 +28,10 @@ public class WalletTestCommittee001 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   //Witness 47.93.9.236
   private final String witnessKey001 = Configuration.getByPath("testng.conf")
       .getString("witness.key1");
@@ -48,11 +49,11 @@ public class WalletTestCommittee001 {
       .getString("witness.key5");
 
 
-  private final byte[] witness001Address = PublicMethed.getFinalAddress(witnessKey001);
-  private final byte[] witness002Address = PublicMethed.getFinalAddress(witnessKey002);
-  private final byte[] witness003Address = PublicMethed.getFinalAddress(witnessKey003);
-  private final byte[] witness004Address = PublicMethed.getFinalAddress(witnessKey004);
-  private final byte[] witness005Address = PublicMethed.getFinalAddress(witnessKey005);
+  private final byte[] witness001Address = PublicMethedForDailybuild.getFinalAddress(witnessKey001);
+  private final byte[] witness002Address = PublicMethedForDailybuild.getFinalAddress(witnessKey002);
+  private final byte[] witness003Address = PublicMethedForDailybuild.getFinalAddress(witnessKey003);
+  private final byte[] witness004Address = PublicMethedForDailybuild.getFinalAddress(witnessKey004);
+  private final byte[] witness005Address = PublicMethedForDailybuild.getFinalAddress(witnessKey005);
 
 
   private ManagedChannel channelFull = null;
@@ -102,7 +103,8 @@ public class WalletTestCommittee001 {
     final long now = System.currentTimeMillis();
     HashMap<Long, String> proposalMap = new HashMap<Long, String>();
     proposalMap.put(0L, "1000006");
-    PublicMethed.sideChainProposalCreate(witness001Address, witnessKey001, proposalMap, blockingStubFull);
+    PublicMethed
+        .sideChainProposalCreate(witness001Address, witnessKey001, proposalMap, blockingStubFull);
 
     //List proposals
     proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());

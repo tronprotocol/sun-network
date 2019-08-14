@@ -34,7 +34,9 @@ import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
 @Slf4j
 public class VoteWitnessAccount2Test {
@@ -42,7 +44,7 @@ public class VoteWitnessAccount2Test {
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
 
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
   private ManagedChannel channelFull = null;
   private ManagedChannel searchChannelFull = null;
@@ -90,11 +92,11 @@ public class VoteWitnessAccount2Test {
     byte[] lowBalAddress2 = ecKey2.getAddress();
     String lowBalTest2 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
     //sendcoin
-    Return ret1 = PublicMethed.sendcoin2(lowBalAddress, 21245000000L,
+    Return ret1 = PublicMethedForDailybuild.sendcoin2(lowBalAddress, 21245000000L,
         fromAddress, testKey002, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
-    ret1 = PublicMethed.sendcoin2(lowBalAddress2, 21245000000L,
+    ret1 = PublicMethedForDailybuild.sendcoin2(lowBalAddress2, 21245000000L,
         fromAddress, testKey002, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
@@ -128,7 +130,7 @@ public class VoteWitnessAccount2Test {
     //Assert.assertFalse(VoteWitness(smallVoteMap, NO_FROZEN_ADDRESS, no_frozen_balance_testKey));
 
     //Freeze balance to get vote ability.
-    ret1 = PublicMethed.freezeBalance2(fromAddress, 10000000L, 3L, testKey002, blockingStubFull);
+    ret1 = PublicMethedForDailybuild.freezeBalance2(fromAddress, 10000000L, 3L, testKey002, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
     //Vote failed when the vote is large than the freeze balance.
@@ -436,7 +438,7 @@ public class VoteWitnessAccount2Test {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     Return response = blockingStubFull.broadcastTransaction(transaction);
 
     if (response.getResult() == false) {
@@ -518,7 +520,7 @@ public class VoteWitnessAccount2Test {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     Return response = blockingStubFull.broadcastTransaction(transaction);
     if (response.getResult() == false) {
       return false;
@@ -582,7 +584,8 @@ public class VoteWitnessAccount2Test {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey,PublicMethed.getMaingatewayByteAddr(),false);
+    return TransactionUtilsForDailybuild
+        .sign(transaction, ecKey, PublicMethed.getMaingatewayByteAddr(),false);
   }
 }
 

@@ -21,7 +21,7 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+
 import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 @Slf4j
@@ -29,7 +29,7 @@ public class WalletTestMutiSign001 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
   private long multiSignFee = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.multiSignFee");
@@ -102,15 +102,15 @@ public class WalletTestMutiSign001 {
     ecKey3 = new ECKey(Utils.getRandom());
     ownerAddress = ecKey3.getAddress();
     ownerKey = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
-    PublicMethed.printAddress(ownerKey);
+    PublicMethedForDailybuild.printAddress(ownerKey);
 
     long needCoin = updateAccountPermissionFee * 1 + multiSignFee * 3;
 
     Assert.assertTrue(
-        PublicMethed.sendcoin(ownerAddress, needCoin + 2048000000L, fromAddress, testKey002,
+        PublicMethedForDailybuild.sendcoin(ownerAddress, needCoin + 2048000000L, fromAddress, testKey002,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Long balanceBefore = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Long balanceBefore = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
 
     permissionKeyString[0] = manager1Key;
@@ -119,26 +119,26 @@ public class WalletTestMutiSign001 {
     ownerKeyString[1] = manager1Key;
     accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":2,\"keys\":["
-            + "{\"address\":\"" + PublicMethed.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(ownerKey)
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager1Key) + "\",\"weight\":1},"
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(ownerKey)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":2,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethed.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(manager2Key) + "\",\"weight\":1}"
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager1Key) + "\",\"weight\":1},"
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager2Key) + "\",\"weight\":1}"
             + "]}]}";
 
     logger.info(accountPermissionJson);
     String txid = PublicMethedForMutiSign
         .accountPermissionUpdateForTransactionId(accountPermissionJson, ownerAddress, ownerKey,
             blockingStubFull, ownerKeyString);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> infoById = PublicMethed
+    Optional<TransactionInfo> infoById = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
 
-    long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
+    long balanceAfter = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull).getBalance();
     long energyFee = infoById.get().getReceipt().getEnergyFee();
     long netFee = infoById.get().getReceipt().getNetFee();
     long fee = infoById.get().getFee();
@@ -161,13 +161,13 @@ public class WalletTestMutiSign001 {
         .createAssetIssueForTransactionId(ownerAddress, name, totalSupply, 1,
             1, start, end, 1, description, url, 2000L, 2000L,
             1L, 1L, ownerKey, blockingStubFull, ownerKeyString);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Assert.assertNotNull(txid);
 
-    infoById = PublicMethed
+    infoById = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
-    balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
+    balanceAfter = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull).getBalance();
     energyFee = infoById.get().getReceipt().getEnergyFee();
     netFee = infoById.get().getReceipt().getNetFee();
     fee = infoById.get().getFee();
@@ -191,25 +191,25 @@ public class WalletTestMutiSign001 {
 
   @Test(enabled = true)
   public void testMutiSign2TransferAssetissue() {
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.printAddress(manager1Key);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.printAddress(manager1Key);
     Account getAssetIdFromOwnerAccount;
-    getAssetIdFromOwnerAccount = PublicMethed.queryAccount(ownerAddress, blockingStubFull);
+    getAssetIdFromOwnerAccount = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull);
     assetAccountId1 = getAssetIdFromOwnerAccount.getAssetIssuedID();
-    Long balanceBefore = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
+    Long balanceBefore = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
 
     String txid = PublicMethedForMutiSign.transferAssetForTransactionId(manager1Address,
         assetAccountId1.toByteArray(), 10, ownerAddress, ownerKey, blockingStubFull,
         ownerKeyString);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Assert.assertNotNull(txid);
 
-    Optional<TransactionInfo> infoById = PublicMethed
+    Optional<TransactionInfo> infoById = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
-    long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
+    long balanceAfter = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull).getBalance();
     long energyFee = infoById.get().getReceipt().getEnergyFee();
     long netFee = infoById.get().getReceipt().getNetFee();
     long fee = infoById.get().getFee();
@@ -238,38 +238,38 @@ public class WalletTestMutiSign001 {
     long needCoin = updateAccountPermissionFee * 1 + multiSignFee * 2;
 
     Assert.assertTrue(
-        PublicMethed.sendcoin(participateAddress, needCoin + 2048000000L, fromAddress, testKey002,
+        PublicMethedForDailybuild.sendcoin(participateAddress, needCoin + 2048000000L, fromAddress, testKey002,
             blockingStubFull));
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Long balanceBefore = PublicMethed.queryAccount(participateAddress, blockingStubFull)
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Long balanceBefore = PublicMethedForDailybuild.queryAccount(participateAddress, blockingStubFull)
         .getBalance();
     logger.info("balanceBefore: " + balanceBefore);
     ownerKeyString[0] = participateKey;
     ownerKeyString[1] = manager1Key;
     accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":2,\"keys\":["
-            + "{\"address\":\"" + PublicMethed.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(participateKey)
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager1Key) + "\",\"weight\":1},"
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(participateKey)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":2,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethed.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(manager2Key) + "\",\"weight\":1}"
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager1Key) + "\",\"weight\":1},"
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager2Key) + "\",\"weight\":1}"
             + "]}]}";
     logger.info(accountPermissionJson);
     String txid = PublicMethedForMutiSign
         .accountPermissionUpdateForTransactionId(accountPermissionJson, participateAddress,
             participateKey, blockingStubFull, ownerKeyString);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Assert.assertNotNull(txid);
 
-    Optional<TransactionInfo> infoById = PublicMethed
+    Optional<TransactionInfo> infoById = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
-    long balanceAfter = PublicMethed.queryAccount(participateAddress, blockingStubFull)
+    long balanceAfter = PublicMethedForDailybuild.queryAccount(participateAddress, blockingStubFull)
         .getBalance();
     long energyFee = infoById.get().getReceipt().getEnergyFee();
     long netFee = infoById.get().getReceipt().getNetFee();
@@ -291,10 +291,10 @@ public class WalletTestMutiSign001 {
 
     Assert.assertNotNull(txid);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
-    balanceAfter = PublicMethed.queryAccount(participateAddress, blockingStubFull)
+    balanceAfter = PublicMethedForDailybuild.queryAccount(participateAddress, blockingStubFull)
         .getBalance();
     energyFee = infoById.get().getReceipt().getEnergyFee();
     netFee = infoById.get().getReceipt().getNetFee();
@@ -321,19 +321,19 @@ public class WalletTestMutiSign001 {
     ownerKeyString[0] = ownerKey;
     description = "MutiSign001_update_description" + Long.toString(now);
 
-    Long balanceBefore = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
+    Long balanceBefore = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
 
     String txid = PublicMethedForMutiSign
         .updateAssetForTransactionId(ownerAddress, description.getBytes(), url.getBytes(), 100L,
             100L, ownerKey, 2, blockingStubFull, permissionKeyString);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Assert.assertNotNull(txid);
 
-    Optional<TransactionInfo> infoById = PublicMethed
+    Optional<TransactionInfo> infoById = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
-    long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
+    long balanceAfter = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull).getBalance();
     long energyFee = infoById.get().getReceipt().getEnergyFee();
     long netFee = infoById.get().getReceipt().getNetFee();
     long fee = infoById.get().getFee();

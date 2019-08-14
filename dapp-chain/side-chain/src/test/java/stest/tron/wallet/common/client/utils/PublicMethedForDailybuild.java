@@ -104,7 +104,19 @@ public class PublicMethedForDailybuild {
   /**
    * constructor.
    */
+  public static String getMaingatewayAddr(){
+    return Configuration.getByPath("testng.conf")
+        .getString("gateway_address.chainIdAddress");
+  }
 
+  /**
+   * constructor.
+   */
+
+  public static byte[] getMaingatewayByteAddr(){
+    return  WalletClient.decodeFromBase58Check(getMaingatewayAddr());
+
+  }
   /**
    * constructor.
    */
@@ -1614,7 +1626,7 @@ public class PublicMethedForDailybuild {
     }
     transaction = TransactionUtils.setTimestamp(transaction);
     transaction = signTransaction(ecKey, transaction);
-    //transaction = TransactionUtils.sign(transaction, ecKey);
+    //transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }

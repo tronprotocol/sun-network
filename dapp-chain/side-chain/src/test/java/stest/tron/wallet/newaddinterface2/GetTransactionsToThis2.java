@@ -28,7 +28,9 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
 
 @Slf4j
@@ -49,8 +51,8 @@ public class GetTransactionsToThis2 {
   private static final byte[] INVAILD_ADDRESS =
       Base58.decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
 
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
   private ManagedChannel channelFull = null;
   private ManagedChannel channelSolidity = null;
@@ -93,7 +95,7 @@ public class GetTransactionsToThis2 {
   @Test(enabled = true)
   public void testgetTransactionsToThis2() {
     //Create a transfer.
-    Assert.assertTrue(PublicMethed.sendcoin(toAddress, 1000000, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(toAddress, 1000000, fromAddress,
         testKey002, blockingStubFull));
 
     ByteString addressBs = ByteString.copyFrom(toAddress);
@@ -108,7 +110,8 @@ public class GetTransactionsToThis2 {
         .ofNullable(transactionListExtention);
 
     if (gettransactionstothis2.get().getTransactionCount() == 0) {
-      Assert.assertTrue(PublicMethed.sendcoin(toAddress, 1000000L, fromAddress, testKey002,
+      Assert.assertTrue(
+          PublicMethedForDailybuild.sendcoin(toAddress, 1000000L, fromAddress, testKey002,
           blockingStubFull));
     }
 
@@ -233,7 +236,7 @@ public class GetTransactionsToThis2 {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtilsForDailybuild.sign(transaction, ecKey);
   }
 }
 

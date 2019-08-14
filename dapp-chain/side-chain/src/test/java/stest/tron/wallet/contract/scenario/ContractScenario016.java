@@ -26,13 +26,13 @@ import org.tron.protos.Protocol.Transaction.Result.contractResult;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractScenario016 {
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
@@ -73,7 +73,7 @@ public class ContractScenario016 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(testKeyForGrammarAddress);
+    PublicMethedForDailybuild.printAddress(testKeyForGrammarAddress);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -86,10 +86,10 @@ public class ContractScenario016 {
 
   @Test(enabled = true, description = "ContractResult is BAD_JUMP_DESTINATION")
   public void test1Grammar001() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(grammarAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String contractName = "Test";
 
     String code = "608060405234801561001057600080fd5b50d3801561001d57600080fd5b50d2801561002a57600"
@@ -107,24 +107,24 @@ public class ContractScenario016 {
         + "\":[],\"name\":\"testBadJumpDestination\",\"outputs\":[],\"payable\":false,\"stateMutab"
         + "ility\":\"nonpayable\",\"type\":\"function\"}]";
 
-    byte[] contractAddress = PublicMethed.deployContract(contractName, abi, code,
+    byte[] contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code,
         "", maxFeeLimit,
         0L, 100, null, testKeyForGrammarAddress, grammarAddress, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     org.testng.Assert.assertTrue(smartContract.getAbi().toString() != null);
     String txid = null;
     Optional<TransactionInfo> infoById = null;
-    txid = PublicMethed.triggerContractSideChain(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testBadJumpDestination()", "#", false,
         0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("Txid is " + txid);
     logger.info("Trigger energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
-    Optional<Transaction> byId = PublicMethed.getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> byId = PublicMethedForDailybuild.getTransactionById(txid, blockingStubFull);
     logger.info("getRet：" + byId.get().getRet(0));
     logger.info("getNumber：" + byId.get().getRet(0).getContractRet().getNumber());
     logger.info("getContractRetValue：" + byId.get().getRet(0).getContractRetValue());
@@ -153,20 +153,20 @@ public class ContractScenario016 {
 
     String filePath = "src/test/resources/soliditycode/contractUnknownException.sol";
     String contractName = "testC";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    String txid = PublicMethed
+    String txid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
             20L, 100, null, testKeyForGrammarAddress,
             grammarAddress, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("Txid is " + txid);
     logger.info("Trigger energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
-    Optional<Transaction> byId = PublicMethed.getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> byId = PublicMethedForDailybuild.getTransactionById(txid, blockingStubFull);
     logger.info("getRet：" + byId.get().getRet(0));
     logger.info("getNumber：" + byId.get().getRet(0).getContractRet().getNumber());
     logger.info("getContractRetValue：" + byId.get().getRet(0).getContractRetValue());

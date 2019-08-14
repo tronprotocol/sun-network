@@ -26,8 +26,9 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Transaction;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
 @Slf4j
 public class FreezeAndSendcoin {
@@ -38,8 +39,8 @@ public class FreezeAndSendcoin {
   private final String testKey003 =
       "6815B367FDDE637E53E9ADC8E69424E07724333C9A2B973CFA469975E20753FC";
 
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
   private static final long now = System.currentTimeMillis();
   private final Long sendAmount = 10000000L;
@@ -98,8 +99,8 @@ public class FreezeAndSendcoin {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] freezeAddress = ecKey1.getAddress();
     String testKeyForFreeze = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-    Account toAccountInfo = PublicMethed.queryAccount(testKey003, blockingStubFull);
-    Account freezeAccountInfo = PublicMethed.queryAccount(testKeyForFreeze, blockingStubFull);
+    Account toAccountInfo = PublicMethedForDailybuild.queryAccount(testKey003, blockingStubFull);
+    Account freezeAccountInfo = PublicMethedForDailybuild.queryAccount(testKeyForFreeze, blockingStubFull);
 
     Integer i = 0;
     Boolean ret = false;
@@ -121,7 +122,7 @@ public class FreezeAndSendcoin {
       blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
       freezeBalance(freezeAddress, 3000000L, 3L, testKeyForFreeze, blockingStubFull);
-      PublicMethed
+      PublicMethedForDailybuild
           .sendcoin(freezeAddress, sendAmount, toAddress, testKey003, blockingStubFull);
 
       ret = freezeBalance(freezeAddress, 1000000L, 3L, testKeyForFreeze, blockingStubFull);
@@ -130,11 +131,11 @@ public class FreezeAndSendcoin {
 
       if (ret) {
         logger.info("New account freeze success " + Integer.toString(i));
-        sendRet = PublicMethed.sendcoin(toAddress, 6000000L, freezeAddress,
+        sendRet = PublicMethedForDailybuild.sendcoin(toAddress, 6000000L, freezeAddress,
             testKeyForFreeze, blockingStubFull);
         if (sendRet) {
           logger.info("This account transfer coin back. " + Integer.toString(i));
-          freezeAccountInfo = PublicMethed.queryAccount(testKeyForFreeze, blockingStubFull);
+          freezeAccountInfo = PublicMethedForDailybuild.queryAccount(testKeyForFreeze, blockingStubFull);
           logger.info("This account now has balance is " + Long
               .toString(freezeAccountInfo.getBalance()));
 
@@ -148,7 +149,7 @@ public class FreezeAndSendcoin {
       ecKey1 = new ECKey(Utils.getRandom());
       freezeAddress = ecKey1.getAddress();
       testKeyForFreeze = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-      toAccountInfo = PublicMethed.queryAccount(testKey003, blockingStubFull);
+      toAccountInfo = PublicMethedForDailybuild.queryAccount(testKey003, blockingStubFull);
       logger.info("Now the toaddress balance is " + Long.toString(toAccountInfo.getBalance()));
       NumberMessage beforeGetTotalTransaction = blockingStubFull
           .totalTransaction(GrpcAPI.EmptyMessage.newBuilder().build());
@@ -222,7 +223,7 @@ public class FreezeAndSendcoin {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
 
     if (response.getResult() == false) {
@@ -272,7 +273,7 @@ public class FreezeAndSendcoin {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     Return response = blockingStubFull.broadcastTransaction(transaction);
     if (response.getResult() == false) {
       return false;
@@ -322,7 +323,7 @@ public class FreezeAndSendcoin {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtilsForDailybuild.sign(transaction, ecKey);
   }
 
 }

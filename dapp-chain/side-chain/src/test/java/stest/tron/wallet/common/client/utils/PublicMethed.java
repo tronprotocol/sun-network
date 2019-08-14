@@ -328,7 +328,7 @@ public class PublicMethed {
         logger.info("transaction ==null");
         continue;
       }
-      transaction = signTransaction(ecKey, transaction,getMaingatewayByteAddr(),false);
+      transaction = signTransaction(ecKey, transaction);
       GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
       return response.getResult();
     }
@@ -2953,7 +2953,7 @@ public class PublicMethed {
     String dirPath = solFile.substring(solFile.lastIndexOf("/"), solFile.lastIndexOf("."));
     String outputPath = "src/test/resources/soliditycode/output" + dirPath;
     try {
-      retMap = PublicMethed.getBycodeAbi(solFile, contractName);
+      retMap = getBycodeAbi(solFile, contractName);
       String library = fileRead(outputPath + "/" + contractName + ".bin", true);
       retMap.put("library", library);
       logger.debug("library: " + library);

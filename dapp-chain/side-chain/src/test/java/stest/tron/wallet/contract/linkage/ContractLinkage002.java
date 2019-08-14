@@ -26,14 +26,14 @@ import org.tron.protos.Protocol.Transaction.Result.contractResult;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractLinkage002 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -61,7 +61,7 @@ public class ContractLinkage002 {
    */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(linkage002Key);
+    PublicMethedForDailybuild.printAddress(linkage002Key);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -74,29 +74,29 @@ public class ContractLinkage002 {
 
   @Test(enabled = true)
   public void updateSetting() {
-    String sendcoin = PublicMethed
+    String sendcoin = PublicMethedForDailybuild
         .sendcoinGetTransactionId(linkage002Address, 200000000000L, fromAddress,
             testKey002, blockingStubFull);
     Account info;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById0 = null;
-    infoById0 = PublicMethed.getTransactionInfoById(sendcoin, blockingStubFull);
+    infoById0 = PublicMethedForDailybuild.getTransactionInfoById(sendcoin, blockingStubFull);
     logger.info("infoById0   " + infoById0.get());
     Assert.assertEquals(ByteArray.toHexString(infoById0.get().getContractResult(0).toByteArray()),
         "");
     Assert.assertEquals(infoById0.get().getResult().getNumber(), 0);
-    Optional<Transaction> ById = PublicMethed.getTransactionById(sendcoin, blockingStubFull);
+    Optional<Transaction> ById = PublicMethedForDailybuild.getTransactionById(sendcoin, blockingStubFull);
     Assert.assertEquals(ById.get().getRet(0).getContractRet().getNumber(),
         SUCCESS_VALUE);
     Assert.assertEquals(ById.get().getRet(0).getContractRetValue(), SUCCESS_VALUE);
     Assert.assertEquals(ById.get().getRet(0).getContractRet(), contractResult.SUCCESS);
 
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(linkage002Address, 50000000L,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(linkage002Address, 50000000L,
         3, 1, linkage002Key, blockingStubFull));
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(linkage002Address,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(linkage002Address,
         blockingStubFull);
-    info = PublicMethed.queryAccount(linkage002Address, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(linkage002Address, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyLimit = resourceInfo.getEnergyLimit();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -114,18 +114,18 @@ public class ContractLinkage002 {
 
     String filePath = "./src/test/resources/soliditycode/contractLinkage002.sol";
     String contractName = "divideIHaveArgsReturnStorage";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
     //Set the consumeUserResourcePercent is -1,Nothing change.
     byte[] contractAddress;
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "",
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "",
         maxFeeLimit, 0L, -1, null, linkage002Key, linkage002Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Account infoafter = PublicMethed.queryAccount(linkage002Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(linkage002Address,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Account infoafter = PublicMethedForDailybuild.queryAccount(linkage002Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(linkage002Address,
         blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyLimit = resourceInfoafter.getEnergyLimit();
@@ -147,9 +147,9 @@ public class ContractLinkage002 {
     Assert.assertTrue(afterFreeNetUsed > 0);
 
     //Set the consumeUserResourcePercent is 101,Nothing change.
-    AccountResourceMessage resourceInfo3 = PublicMethed.getAccountResource(linkage002Address,
+    AccountResourceMessage resourceInfo3 = PublicMethedForDailybuild.getAccountResource(linkage002Address,
         blockingStubFull);
-    Account info3 = PublicMethed.queryAccount(linkage002Address, blockingStubFull);
+    Account info3 = PublicMethedForDailybuild.queryAccount(linkage002Address, blockingStubFull);
     Long beforeBalance3 = info3.getBalance();
     Long beforeEnergyLimit3 = resourceInfo3.getEnergyLimit();
     Long beforeEnergyUsed3 = resourceInfo3.getEnergyUsed();
@@ -165,10 +165,10 @@ public class ContractLinkage002 {
     logger.info("beforeNetUsed3:" + beforeNetUsed3);
     logger.info("beforeFreeNetUsed3:" + beforeFreeNetUsed3);
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 101, null, linkage002Key, linkage002Address, blockingStubFull);
-    Account infoafter3 = PublicMethed.queryAccount(linkage002Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter3 = PublicMethed.getAccountResource(linkage002Address,
+    Account infoafter3 = PublicMethedForDailybuild.queryAccount(linkage002Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter3 = PublicMethedForDailybuild.getAccountResource(linkage002Address,
         blockingStubFull1);
     Long afterBalance3 = infoafter3.getBalance();
     Long afterEnergyLimit3 = resourceInfoafter3.getEnergyLimit();
@@ -192,15 +192,15 @@ public class ContractLinkage002 {
 
     //Set consumeUserResourcePercent is 100,balance not change,use FreeNet freezeBalanceGetEnergy.
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, linkage002Key, linkage002Address, blockingStubFull);
-    SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getConsumeUserResourcePercent() == 100);
 
     //Set the consumeUserResourcePercent is 0,balance not change,use FreeNet freezeBalanceGetEnergy.
-    AccountResourceMessage resourceInfo2 = PublicMethed.getAccountResource(linkage002Address,
+    AccountResourceMessage resourceInfo2 = PublicMethedForDailybuild.getAccountResource(linkage002Address,
         blockingStubFull);
-    Account info2 = PublicMethed.queryAccount(linkage002Address, blockingStubFull);
+    Account info2 = PublicMethedForDailybuild.queryAccount(linkage002Address, blockingStubFull);
     Long beforeBalance2 = info2.getBalance();
     Long beforeEnergyLimit2 = resourceInfo2.getEnergyLimit();
     Long beforeEnergyUsed2 = resourceInfo2.getEnergyUsed();
@@ -216,11 +216,11 @@ public class ContractLinkage002 {
     logger.info("beforeNetUsed2:" + beforeNetUsed2);
     logger.info("beforeFreeNetUsed2:" + beforeFreeNetUsed2);
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 0, null, linkage002Key, linkage002Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Account infoafter2 = PublicMethed.queryAccount(linkage002Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter2 = PublicMethed.getAccountResource(linkage002Address,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Account infoafter2 = PublicMethedForDailybuild.queryAccount(linkage002Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter2 = PublicMethedForDailybuild.getAccountResource(linkage002Address,
         blockingStubFull1);
     Long afterBalance2 = infoafter2.getBalance();
     Long afterEnergyLimit2 = resourceInfoafter2.getEnergyLimit();
@@ -241,19 +241,19 @@ public class ContractLinkage002 {
     Assert.assertTrue(afterNetUsed2 == 0);
     Assert.assertTrue(afterEnergyUsed2 > 0);
     Assert.assertTrue(afterFreeNetUsed2 > 0);
-    smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getConsumeUserResourcePercent() == 0);
 
     //Update the consumeUserResourcePercent setting.
-    Assert.assertTrue(PublicMethed.updateSetting(contractAddress, 66L,
+    Assert.assertTrue(PublicMethedForDailybuild.updateSetting(contractAddress, 66L,
         linkage002Key, linkage002Address, blockingStubFull));
-    smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getConsumeUserResourcePercent() == 66);
 
     //Updaate the consumeUserResourcePercent setting with -1 and 101
-    Assert.assertFalse(PublicMethed.updateSetting(contractAddress, -1L,
+    Assert.assertFalse(PublicMethedForDailybuild.updateSetting(contractAddress, -1L,
         linkage002Key, linkage002Address, blockingStubFull));
-    Assert.assertFalse(PublicMethed.updateSetting(contractAddress, 101L,
+    Assert.assertFalse(PublicMethedForDailybuild.updateSetting(contractAddress, 101L,
         linkage002Key, linkage002Address, blockingStubFull));
 
   }

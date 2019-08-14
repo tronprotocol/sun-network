@@ -19,14 +19,14 @@ import org.tron.core.Wallet;
 import org.tron.protos.Protocol.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractScenario010 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -51,7 +51,7 @@ public class ContractScenario010 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(contract009Key);
+    PublicMethedForDailybuild.printAddress(contract009Key);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -63,12 +63,12 @@ public class ContractScenario010 {
     ecKey1 = new ECKey(Utils.getRandom());
     contract009Address = ecKey1.getAddress();
     contract009Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-    Assert.assertTrue(PublicMethed.sendcoin(contract009Address, 600000000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contract009Address, 600000000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(contract009Address, 10000000L,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(contract009Address, 10000000L,
         3, 1, contract009Key, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(contract009Address,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(contract009Address,
         blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
@@ -79,21 +79,21 @@ public class ContractScenario010 {
     logger.info("before Net usage is " + Long.toString(netUsage));
     String filePath = "./src/test/resources/soliditycode/contractScenario010.sol";
     String contractName = "TRON_ERC721";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    byte[] libraryAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    byte[] libraryAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, contract009Key, contract009Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    SmartContract smartContract = PublicMethed.getContract(libraryAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild.getContract(libraryAddress, blockingStubFull);
 
     Assert.assertFalse(smartContract.getAbi().toString().isEmpty());
     Assert.assertTrue(smartContract.getName().equalsIgnoreCase(contractName));
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
     logger.info(ByteArray.toHexString(smartContract.getContractAddress().toByteArray()));
-    accountResource = PublicMethed.getAccountResource(contract009Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild.getAccountResource(contract009Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
     netUsage = accountResource.getNetUsed();

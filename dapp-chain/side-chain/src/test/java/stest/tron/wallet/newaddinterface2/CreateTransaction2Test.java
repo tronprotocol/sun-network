@@ -28,8 +28,10 @@ import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
 @Slf4j
 public class CreateTransaction2Test {
@@ -44,8 +46,8 @@ public class CreateTransaction2Test {
       .decodeFromBase58Check("THph9K2M2nLvkianrMGswRhz5hjSA9fuH7");
   private static final byte[] toAddress = Base58
       .decodeFromBase58Check("TV75jZpdmP2juMe1dRwGrwpV6AMU6mr1EU");*/
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
   private ManagedChannel channelFull = null;
   private ManagedChannel searchChannelFull = null;
@@ -90,45 +92,45 @@ public class CreateTransaction2Test {
 
   @Test
   public void testSendCoin2() {
-    Assert.assertTrue(PublicMethed.sendcoin(sendAccountAddress, 90000000000L,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(sendAccountAddress, 90000000000L,
         fromAddress, testKey002, blockingStubFull));
 
     logger.info(receiptAccountKey);
-    Account sendAccount = PublicMethed.queryAccount(sendAccountKey, blockingStubFull);
+    Account sendAccount = PublicMethedForDailybuild.queryAccount(sendAccountKey, blockingStubFull);
     Long sendAccountBeforeBalance = sendAccount.getBalance();
     Assert.assertTrue(sendAccountBeforeBalance == 90000000000L);
-    Account receiptAccount = PublicMethed.queryAccount(receiptAccountKey, blockingStubFull);
+    Account receiptAccount = PublicMethedForDailybuild.queryAccount(receiptAccountKey, blockingStubFull);
     Long receiptAccountBeforeBalance = receiptAccount.getBalance();
     Assert.assertTrue(receiptAccountBeforeBalance == 0);
     //normal sendcoin2
-    Return ret1 = PublicMethed.sendcoin2(receiptAccountAddress, 49880000000L,
+    Return ret1 = PublicMethedForDailybuild.sendcoin2(receiptAccountAddress, 49880000000L,
         sendAccountAddress, sendAccountKey, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
 
-    sendAccount = PublicMethed.queryAccount(sendAccountKey, blockingStubFull);
+    sendAccount = PublicMethedForDailybuild.queryAccount(sendAccountKey, blockingStubFull);
     Long sendAccountAfterBalance = sendAccount.getBalance();
     logger.info(Long.toString(sendAccountAfterBalance));
     Assert.assertTrue(sendAccountAfterBalance == 90000000000L - 49880000000L - 100000L);
 
-    receiptAccount = PublicMethed.queryAccount(receiptAccountKey, blockingStubFull);
+    receiptAccount = PublicMethedForDailybuild.queryAccount(receiptAccountKey, blockingStubFull);
     Long receiptAccountAfterBalance = receiptAccount.getBalance();
     Assert.assertTrue(receiptAccountAfterBalance == 49880000000L);
     //Send coin failed due to no enough balance.
-    ret1 = PublicMethed
+    ret1 = PublicMethedForDailybuild
         .sendcoin2(receiptAccountAddress, 9199999999999999999L, sendAccountAddress, sendAccountKey,
             blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(),
         "contract validate error : Validate TransferContract error, balance is not sufficient.");
     //Send coin failed due to the amount is 0.
-    ret1 = PublicMethed
+    ret1 = PublicMethedForDailybuild
         .sendcoin2(receiptAccountAddress, 0L, sendAccountAddress, sendAccountKey, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(),
         "contract validate error : Amount must greater than 0.");
     //Send coin failed due to the amount is -1Trx.
-    ret1 = PublicMethed
+    ret1 = PublicMethedForDailybuild
         .sendcoin2(receiptAccountAddress, -1000000L, sendAccountAddress, sendAccountKey,
             blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
@@ -136,24 +138,24 @@ public class CreateTransaction2Test {
         "contract validate error : Amount must greater than 0.");
 
     //Send coin to yourself
-    ret1 = PublicMethed.sendcoin2(sendAccountAddress, 1000000L, sendAccountAddress, sendAccountKey,
+    ret1 = PublicMethedForDailybuild.sendcoin2(sendAccountAddress, 1000000L, sendAccountAddress, sendAccountKey,
         blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(),
         "contract validate error : Cannot transfer trx to yourself.");
     //transfer all balance
-    ret1 = PublicMethed.sendcoin2(receiptAccountAddress, 40119900000L,
+    ret1 = PublicMethedForDailybuild.sendcoin2(receiptAccountAddress, 40119900000L,
         sendAccountAddress, sendAccountKey, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
 
-    sendAccount = PublicMethed.queryAccount(sendAccountKey, blockingStubFull);
+    sendAccount = PublicMethedForDailybuild.queryAccount(sendAccountKey, blockingStubFull);
     Long sendAccountAfterBalance1 = sendAccount.getBalance();
     logger.info(Long.toString(sendAccountAfterBalance1));
     Assert.assertTrue(
         sendAccountAfterBalance1 == 90000000000L - 49880000000L - 100000 - 40119900000L);
 
-    receiptAccount = PublicMethed.queryAccount(receiptAccountKey, blockingStubFull);
+    receiptAccount = PublicMethedForDailybuild.queryAccount(receiptAccountKey, blockingStubFull);
     Long receiptAccountAfterBalance1 = receiptAccount.getBalance();
     logger.info(Long.toString(receiptAccountAfterBalance1));
     Assert.assertTrue(receiptAccountAfterBalance1 == 49880000000L + 40119900000L);
@@ -219,7 +221,7 @@ public class CreateTransaction2Test {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     Return response = blockingStubFull.broadcastTransaction(transaction);
 
     if (response.getResult() == false) {
@@ -351,7 +353,7 @@ public class CreateTransaction2Test {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtilsForDailybuild.sign(transaction, ecKey);
   }
 }
 

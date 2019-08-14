@@ -25,7 +25,7 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 
 @Slf4j
@@ -33,7 +33,7 @@ public class WalletTestAccount001 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String invalidTestKey =
       "592BB6C9BB255409A6A45EFD18E9A74FECDDCCE93A40D96B70FBE334E6361E36";
 
@@ -76,7 +76,7 @@ public class WalletTestAccount001 {
   public void testqueryaccountfromfullnode() {
     //Query success, get the right balance,bandwidth and the account name.
     Account queryResult = queryAccount(testKey002, blockingStubFull);
-    /*    Account queryResult = PublicMethed.queryAccountByAddress(fromAddress,blockingStubFull);
+    /*    Account queryResult = PublicMethedForDailybuild.queryAccountByAddress(fromAddress,blockingStubFull);
     logger.info(ByteArray.toStr(queryResult.getAccountName().toByteArray()));
     logger.info(Long.toString(queryResult.getBalance()));
     logger.info(ByteArray.toStr(queryResult.getAddress().toByteArray()));*/
@@ -154,7 +154,7 @@ public class WalletTestAccount001 {
     }
     logger.info(Integer.toString(ecKey.getAddress().length));
 
-    //PublicMethed.AddPreFix();
+    //PublicMethedForDailybuild.AddPreFix();
     logger.info(Integer.toString(ecKey.getAddress().length));
     System.out.println("address ====== " + ByteArray.toHexString(ecKey.getAddress()));
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
@@ -186,7 +186,7 @@ public class WalletTestAccount001 {
       byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
-    //byte[] address = PublicMethed.AddPreFix(ecKey.getAddress());
+    //byte[] address = PublicMethedForDailybuild.AddPreFix(ecKey.getAddress());
     return grpcQueryAccountSolidity(ecKey.getAddress(), blockingStubSolidity);
     //return grpcQueryAccountSolidity(address,blockingStubSolidity);
   }
@@ -210,7 +210,7 @@ public class WalletTestAccount001 {
 
   public Account grpcQueryAccount(byte[] address,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //address = PublicMethed.AddPreFix(address);
+    //address = PublicMethedForDailybuild.AddPreFix(address);
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
@@ -222,7 +222,7 @@ public class WalletTestAccount001 {
 
   public Account grpcQueryAccountSolidity(byte[] address,
       WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity) {
-    //address = PublicMethed.AddPreFix(address);
+    //address = PublicMethedForDailybuild.AddPreFix(address);
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubSolidity.getAccount(request);

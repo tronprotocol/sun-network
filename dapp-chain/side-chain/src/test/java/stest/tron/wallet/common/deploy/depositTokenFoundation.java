@@ -3,19 +3,26 @@ package stest.tron.wallet.common.deploy;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.matcher.CollectionOneToOneMatcher;
 import org.spongycastle.util.encoders.Hex;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Test;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
+import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.AbiUtil;
+import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 
 @Slf4j
@@ -59,7 +66,7 @@ public class depositTokenFoundation {
 
   final String tokenFoundationKey002 = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.slideTokenOwnerKey2");
-  final byte[] tokenFoundationAddress002 = PublicMethed.getFinalAddress(tokenFoundationKey001);
+  final byte[] tokenFoundationAddress002 = PublicMethed.getFinalAddress(tokenFoundationKey002);
   final String tokenFoundationId002 = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.slideTokenId2");
 
@@ -90,12 +97,24 @@ public class depositTokenFoundation {
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingSideStubFull);
       Account FoundationAccount = PublicMethed.queryAccount(tokenFoundationKey001,blockingSideStubFull);
-      if (FoundationAccount.getAssetIssuedID().toStringUtf8().equals(tokenFoundationId001) &&
-          FoundationAccount.getAssetCount() >= inputTokenValue ){
-        break;
-      }else if (tryConut++ > 3){
-        logger.info("deposit Token 001 FAIED!!");
-        Assert.assertTrue(false);
+      try {
+        String tokenid = FoundationAccount.getAssetV2Map().keySet().toArray()[0].toString();
+        Long tokenValue = FoundationAccount.getAssetV2Map().get(tokenid);
+
+        logger.info("FoundationAccount.getAssetIssuedID().toStringUtf8(): " + tokenid);
+        logger.info("FoundationAccount.getAssetCount(): " + tokenValue);
+
+        if (tokenValue != null && tokenValue >= inputTokenValue){
+          break;
+        }else if (tryConut++ > 3){
+          logger.info("deposit Token 002 FAIED!!");
+          Assert.assertTrue(false);
+        }
+      }catch (Exception e){
+        if (tryConut++ > 3){
+          logger.info("deposit Token 002 FAIED!!");
+          Assert.assertTrue(false);
+        }
       }
     }
 
@@ -111,14 +130,50 @@ public class depositTokenFoundation {
               blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+
       Account FoundationAccount = PublicMethed.queryAccount(tokenFoundationKey002,blockingSideStubFull);
-      if (FoundationAccount.getAssetIssuedID().toStringUtf8().equals(tokenFoundationId002) &&
-          FoundationAccount.getAssetCount() >= inputTokenValue ){
-        break;
-      }else if (tryConut++ > 3){
-        logger.info("deposit Token 002 FAIED!!");
-        Assert.assertTrue(false);
+      try {
+        String tokenid = FoundationAccount.getAssetV2Map().keySet().toArray()[0].toString();
+        Long tokenValue = FoundationAccount.getAssetV2Map().get(tokenid);
+
+        logger.info("FoundationAccount.getAssetIssuedID().toStringUtf8(): " + tokenid);
+        logger.info("FoundationAccount.getAssetCount(): " + tokenValue);
+
+        if (tokenValue != null && tokenValue >= inputTokenValue){
+          break;
+        }else if (tryConut++ > 3){
+          logger.info("deposit Token 002 FAIED!!");
+          Assert.assertTrue(false);
+        }
+      }catch (Exception e){
+        if (tryConut++ > 3){
+          logger.info("deposit Token 002 FAIED!!");
+          Assert.assertTrue(false);
+        }
       }
+
+    }
+  }
+
+
+  @Test(enabled = true, description = "deploy Side Chain Gateway")
+  public void test1DepositTrc20001() {
+    String mainChainAddress = Configuration.getByPath("testng.conf")
+        .getString("gateway_address.chainIdAddress");
+    /*try {
+      File mainChainFile = new File("/home/mainChainGatewayAddress");
+      FileReader reader = new FileReader(mainChainFile);
+      BufferedReader breader = new BufferedReader(reader);
+      mainChainAddress = breader.readLine();
+      breader.close();
+    } catch (Exception e) {
+      logger.info("Read main Gateway ContractAddress Failed");
+      return;
+    }*/
+    try {
+      Thread.sleep(1000);
+    }catch (Exception e){
+      e.printStackTrace();
     }
 
   }

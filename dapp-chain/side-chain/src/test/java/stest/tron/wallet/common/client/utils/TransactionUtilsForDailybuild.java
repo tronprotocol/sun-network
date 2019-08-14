@@ -32,7 +32,7 @@ import stest.tron.wallet.common.client.Configuration;
 //import org.tron.protos.Protocol.DeferredStage;
 
 
-public class TransactionUtils {
+public class TransactionUtilsForDailybuild {
 
   private static final Logger logger = LoggerFactory.getLogger("Transaction");
   private static final int RESERVE_BALANCE = 10;
@@ -172,9 +172,14 @@ public class TransactionUtils {
   }
 
 
+  /*
+   */
+
   /**
    * constructor.
    */
+
+
   public static Transaction sign(Transaction transaction, ECKey myKey) {
     ByteString lockSript = ByteString.copyFrom(myKey.getAddress());
     Transaction.Builder transactionBuilderSigned = transaction.toBuilder();
@@ -189,7 +194,9 @@ public class TransactionUtils {
     }
 
     transaction = transactionBuilderSigned.build();
-    return transaction;
+    boolean isSideChain = false;
+    return TransactionUtils
+        .sign(transaction, myKey, Wallet.decodeFromBase58Check(mainGateWay), isSideChain);
   }
 
   /**

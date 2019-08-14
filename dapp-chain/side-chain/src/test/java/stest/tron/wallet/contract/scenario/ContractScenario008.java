@@ -20,14 +20,14 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractScenario008 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -63,16 +63,16 @@ public class ContractScenario008 {
     ecKey1 = new ECKey(Utils.getRandom());
     contract008Address = ecKey1.getAddress();
     contract008Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-    PublicMethed.printAddress(contract008Key);
-    Assert.assertTrue(PublicMethed.sendcoin(contract008Address, 5000000000L, fromAddress,
+    PublicMethedForDailybuild.printAddress(contract008Key);
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contract008Address, 5000000000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(contract008Address, 1000000L,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(contract008Address, 1000000L,
         3, 1, contract008Key, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(contract008Address,
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(contract008Address,
         blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
-    Account account = PublicMethed.queryAccount(contract008Key, blockingStubFull);
+    Account account = PublicMethedForDailybuild.queryAccount(contract008Key, blockingStubFull);
     logger.info("before balance is " + Long.toString(account.getBalance()));
     logger.info("before energy limit is " + Long.toString(energyLimit));
     logger.info("before energy usage is " + Long.toString(energyUsage));
@@ -80,21 +80,21 @@ public class ContractScenario008 {
 
     String filePath = "./src/test/resources/soliditycode/contractScenario008.sol";
     String contractName = "KittyCore";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    byte[] contractAddress = PublicMethed.deployContract(contractName, abi, code, "", shortFeeLimit,
+    byte[] contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", shortFeeLimit,
         0L, 100, null, contract008Key, contract008Address, blockingStubFull);
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, contract008Key, contract008Address, blockingStubFull);
 
-    final SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
-    accountResource = PublicMethed.getAccountResource(contract008Address, blockingStubFull);
+    final SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
+    accountResource = PublicMethedForDailybuild.getAccountResource(contract008Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
-    account = PublicMethed.queryAccount(contract008Key, blockingStubFull);
+    account = PublicMethedForDailybuild.queryAccount(contract008Key, blockingStubFull);
     logger.info("after balance is " + Long.toString(account.getBalance()));
     logger.info("after energy limit is " + Long.toString(energyLimit));
     logger.info("after energy usage is " + Long.toString(energyUsage));
