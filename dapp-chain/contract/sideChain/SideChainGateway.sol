@@ -48,9 +48,9 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     address public sunTokenAddress;
     address mintTRXContract = 0x10000;
     address mintTRC10Contract = 0x10001;
-    uint256 public withdrawMinTrx = 0;
-    uint256 public withdrawMinTrc10 = 0;
-    uint256 public withdrawMinTrc20 = 0;
+    uint256 public withdrawMinTrx = 1;
+    uint256 public withdrawMinTrc10 = 1;
+    uint256 public withdrawMinTrc20 = 1;
     uint256 public withdrawFee = 0;
     uint256 public bonus;
     bool pause;
@@ -273,7 +273,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     // 7. withdrawTRC10
     function withdrawTRC10(uint256 tokenId, uint256 tokenValue) payable public onlyNotPause onlyNotStop checkForTrc10(tokenId, tokenValue) goDelegateCall returns (uint256 r) {
         require(tokenIdMap[msg.tokenid], "tokenIdMap[msg.tokenid] == false");
-        require(msg.tokenvalue > 0, "tokenvalue must be > 0");
         require(msg.tokenvalue >= withdrawMinTrc10, "tokenvalue must be >= withdrawMinTrc10");
         require(msg.value >= withdrawFee, "value must be >= withdrawFee");
         if (msg.value > 0) {
@@ -302,7 +301,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "mainChainAddress == address(0)");
-        require(value > 0, "value must be > 0");
         require(value >= withdrawMinTrc20, "value must be >= withdrawMinTrc20");
         require(msg.value >= withdrawFee, "value must be >= withdrawFee");
         if (msg.value > 0) {
@@ -360,7 +358,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
             bonus += withdrawFee;
         }
         uint256 withdrawValue = msg.value - withdrawFee;
-        require(withdrawValue > 0, "withdrawValue must be > 0");
         userWithdrawList.push(WithdrawMsg(msg.sender, address(0), 0, withdrawValue, DataModel.TokenKind.TRX, DataModel.Status.SUCCESS));
         // burn
         address(0).transfer(withdrawValue);

@@ -31,9 +31,9 @@ contract MainChainGateway is OracleManagerContract {
 
     uint256 public mappingFee;
     uint256 public bonus;
-    uint256 public depositMinTrx = 0;
-    uint256 public depositMinTrc10 = 0;
-    uint256 public depositMinTrc20 = 0;
+    uint256 public depositMinTrx = 1;
+    uint256 public depositMinTrc10 = 1;
+    uint256 public depositMinTrc20 = 1;
     address public sunTokenAddress;
     mapping(address => uint256) public mainToSideContractMap;
     DepositMsg[] userDepositList;
@@ -107,7 +107,6 @@ contract MainChainGateway is OracleManagerContract {
     function depositTRC20(address contractAddress, uint64 value)
     public onlyNotStop onlyNotPause goDelegateCall returns (uint256) {
         require(mainToSideContractMap[contractAddress] == 1, "not an allowed token");
-        require(value > 0, "value must be > 0");
         require(value >= depositMinTrc20, "value must be >= depositMinTrc20");
         TRC20(contractAddress).transferFrom(msg.sender, address(this), value);
         userDepositList.push(DepositMsg(msg.sender, value, 2, contractAddress, 0, 0, 0));
@@ -125,7 +124,6 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function depositTRX() payable public onlyNotStop onlyNotPause goDelegateCall returns (uint256) {
-        require(msg.value > 0, "value must be > 0");
         require(msg.value >= depositMinTrx, "value must be >= depositMinTrx");
         require(msg.value <= uint64Max, "msg.value must <= uint64Max");
         userDepositList.push(DepositMsg(msg.sender, uint64(msg.value), 0, address(0), 0, 0, 0));
@@ -134,7 +132,6 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function depositTRC10(uint64 tokenId, uint64 tokenValue) payable public onlyNotStop onlyNotPause checkForTrc10(tokenId, tokenValue) goDelegateCall returns (uint256) {
-        require(msg.tokenvalue > 0, "value must be > 0");
         require(msg.tokenvalue >= depositMinTrc10, "tokenvalue must be >= depositMinTrc10");
         require(msg.tokenid <= uint64Max, "msg.tokenid must <= uint64Max");
         require(msg.tokenvalue <= uint64Max, "msg.tokenvalue must <= uint64Max");
