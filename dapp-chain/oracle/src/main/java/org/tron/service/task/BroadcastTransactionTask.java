@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.common.MessageCode;
 import org.tron.common.config.SystemSetting;
 import org.tron.db.Manager;
-import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.Actuator.BroadcastRet;
 
@@ -45,7 +44,7 @@ public class BroadcastTransactionTask {
     } else {
       String chain = eventActuator.getTaskEnum().name();
       if (broadcastRet == BroadcastRet.DONE) {
-        Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
+        Manager.getInstance().setProcessSuccess(eventActuator.getNonceKey());
         if (logger.isInfoEnabled()) {
           String msg = MessageCode.BROADCAST_TRANSACTION_SUCCESS
               .getMsg(chain, transactionId);

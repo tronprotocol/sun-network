@@ -47,7 +47,15 @@ public class Manager {
     }
   }
 
-  public void setProcessStatus(byte[] nonceKeyBytes, NonceStatus nonceStatus) {
+  public void setProcessFail(byte[] nonceKeyBytes) {
+    setProcessStatus(nonceKeyBytes, NonceStatus.FAIL);
+  }
+
+  public void setProcessSuccess(byte[] nonceKeyBytes) {
+    setProcessStatus(nonceKeyBytes, NonceStatus.SUCCESS);
+  }
+
+  private void setProcessStatus(byte[] nonceKeyBytes, NonceStatus nonceStatus) {
     // delete or set order:
     // 1. delete tx store
     // 2. delete event store

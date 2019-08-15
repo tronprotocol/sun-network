@@ -7,7 +7,6 @@ import org.tron.common.utils.AlertUtil;
 import org.tron.db.Manager;
 import org.tron.db.NonceStore;
 import org.tron.protos.Sidechain.NonceMsg;
-import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "retryTransactionTask")
@@ -27,7 +26,7 @@ public class RetryTransactionTask {
       NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
       int retryTimes = nonceMsg.getRetryTimes() + 1;
       if (retryTimes >= SystemSetting.ORACLE_RETRY_TIMES) {
-        Manager.getInstance().setProcessStatus(actuator.getNonceKey(), NonceStatus.FAIL);
+        Manager.getInstance().setProcessFail(actuator.getNonceKey());
         AlertUtil.sendAlert(msg);
       } else {
         Manager.getInstance().setProcessRetry(actuator.getNonceKey(), retryTimes);
