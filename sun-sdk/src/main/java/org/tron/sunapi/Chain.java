@@ -26,6 +26,7 @@ import org.tron.api.GrpcAPI.TransactionApprovedList;
 import org.tron.api.GrpcAPI.TransactionListExtention;
 import org.tron.api.GrpcAPI.TransactionSignWeight;
 import org.tron.api.GrpcAPI.WitnessList;
+import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.AddressUtil;
 import org.tron.common.utils.ByteArray;
@@ -1676,6 +1677,19 @@ public class Chain implements ChainInterface {
     }
 
     return resp;
+  }
+
+  /**
+   * @return the address pair offline
+   * @author sun-network
+   */
+  public AddressPrKeyPairMessage generateAddressOffline() {
+    ECKey ecKey = new ECKey(Utils.getRandom());
+    byte[] priKey = ecKey.getPrivKeyBytes();
+    byte[] address = ecKey.getAddress();
+    String priKeyStr = org.apache.commons.codec.binary.Hex.encodeHexString(priKey);
+    String base58check = AddressUtil.encode58Check(address);
+    return AddressPrKeyPairMessage.newBuilder().setAddress(base58check).setPrivateKey(priKeyStr).build();
   }
 
   /**
