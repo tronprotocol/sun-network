@@ -2,7 +2,7 @@ package org.tron.service.task;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
-import org.tron.common.config.SystemSetting;
+import org.tron.common.config.Args;
 import org.tron.common.utils.AlertUtil;
 import org.tron.db.Manager;
 import org.tron.db.NonceStore;
@@ -21,11 +21,12 @@ public class RetryTransactionTask {
   @Transactional
   public void processAndSubmit(Actuator actuator, String msg) {
 
+    logger.info("RetryTransactionTask processAndSubmit! msg = {}", msg);
     try {
       byte[] nonceMsgBytes = NonceStore.getInstance().getData(actuator.getNonceKey());
       NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
       int retryTimes = nonceMsg.getRetryTimes() + 1;
-      if (retryTimes >= SystemSetting.ORACLE_RETRY_TIMES) {
+      if (retryTimes >= Args.getInstance().getOracleRetryTimes()) {
         Manager.getInstance().setProcessFail(actuator.getNonceKey());
         AlertUtil.sendAlert(msg);
       } else {
@@ -39,9 +40,9 @@ public class RetryTransactionTask {
   }
 
   private long getDelay(int retryTimes) {
-    // age in [0, 4]
-    // delay = (2 ^ age - 1) * 10 second
-    return (Double.valueOf(Math.pow(2, retryTimes)).longValue() - 1) * 10;
+    // retryTimes in [0, 4]
+    // delay = (2 ^ retryTimes - 1) * 10 * 60 seconds
+    return (Double.valueOf(Math.pow(2, retryTimes)).longValue() - 1) * 10 * 60;
   }
 
 }

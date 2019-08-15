@@ -18,6 +18,4 @@ public class SystemSetting {
 
   public static final int CLIENT_RETRY_INTERVAL = 500;
 
-  public static final int ORACLE_RETRY_TIMES = 5;
-
 }
