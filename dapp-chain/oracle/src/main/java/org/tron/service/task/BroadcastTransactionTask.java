@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.MessageCode;
 import org.tron.common.config.SystemSetting;
-import org.tron.common.utils.AlertUtil;
 import org.tron.db.Manager;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
@@ -53,10 +52,9 @@ public class BroadcastTransactionTask {
           logger.info(msg);
         }
       } else {
-        Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
         String msg = MessageCode.BROADCAST_TRANSACTION_FAIL
             .getMsg(chain, transactionId);
-        AlertUtil.sendAlert(msg);
+        RetryTransactionTask.getInstance().processAndSubmit(eventActuator, msg);
       }
     }
   }

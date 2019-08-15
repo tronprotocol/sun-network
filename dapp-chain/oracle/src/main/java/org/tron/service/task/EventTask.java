@@ -83,7 +83,7 @@ public class EventTask {
 
   private void processAndSubmit(Actuator eventActuator) {
     Manager.getInstance().setProcessProcessing(eventActuator.getNonceKey(),
-        eventActuator.getMessage().toByteArray());
-    CreateTransactionTask.getInstance().submitCreate(eventActuator);
+        eventActuator.getMessage().toByteArray(), 0);
+    CreateTransactionTask.getInstance().submitCreate(eventActuator, 0l);
   }
 }
