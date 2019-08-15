@@ -59,40 +59,40 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     // Withdrawal functions
-    function withdrawTRC10(address _to, trcToken tokenId, uint256 value, uint256 nonce, bytes[] oracleSigns)
+    function withdrawTRC10(address _to, trcToken tokenId, uint256 value, uint256 nonce, bytes[] oracleSigns, address[] signOracles)
     public onlyNotStop onlyOracle goDelegateCall {
         require(oracleSigns.length <= numOracles, "withdraw TRC10 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, tokenId, value, nonce));
-        bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns);
+        bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
         if (needWithdraw) {
             _to.transferToken(value, tokenId);
             emit TRC10Withdraw(msg.sender, tokenId, value, nonce);
         }
     }
 
-    function withdrawTRC20(address _to, address contractAddress, uint256 value, uint256 nonce, bytes[] oracleSigns)
+    function withdrawTRC20(address _to, address contractAddress, uint256 value, uint256 nonce, bytes[] oracleSigns, address[] signOracles)
     public onlyNotStop onlyOracle goDelegateCall {
         require(oracleSigns.length <= numOracles, "withdraw TRC20 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, value, nonce));
-        bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns);
+        bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
         if (needWithdraw) {
             TRC20(contractAddress).transfer(_to, value);
             emit TRC20Withdraw(_to, contractAddress, value, nonce);
         }
     }
 
-    function withdrawTRC721(address _to, address contractAddress, uint256 uid, uint256 nonce, bytes[] oracleSigns)
+    function withdrawTRC721(address _to, address contractAddress, uint256 uid, uint256 nonce, bytes[] oracleSigns, address[] signOracles)
     public onlyNotStop onlyOracle goDelegateCall {
         require(oracleSigns.length <= numOracles, "withdraw TRC721 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, uid, nonce));
-        bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns);
+        bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
         if (needWithdraw) {
             TRC721(contractAddress).transferFrom(address(this), _to, uid);
             emit TRC721Withdraw(_to, contractAddress, uid, nonce);
         }
     }
 
-    function withdrawTRX(address _to, uint256 value, uint256 nonce, bytes[] oracleSigns)
+    function withdrawTRX(address _to, uint256 value, uint256 nonce, bytes[] oracleSigns, address[] signOracles)
     public onlyNotStop onlyOracle goDelegateCall {
         require(oracleSigns.length <= numOracles, "withdraw TRX signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, value, nonce));
@@ -308,4 +308,5 @@ contract MainChainGateway is OracleManagerContract {
     function setDepositMinTrc20(uint256 minValue) public onlyOwner {
         depositMinTrc20 = minValue;
     }
+
 }

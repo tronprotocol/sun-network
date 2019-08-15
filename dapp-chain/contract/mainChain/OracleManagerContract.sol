@@ -16,6 +16,7 @@ contract OracleManagerContract is Ownable {
     mapping(uint256 => mapping(bytes32 => SignMsg)) withdrawMultiSignList;
 
     address public logicAddress;
+    bool public multivalidatesignSwitch = false;
     bool public pause;
     bool public stop;
 
@@ -51,11 +52,39 @@ contract OracleManagerContract is Ownable {
         _;
     }
 
-    function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] sigList) internal returns (bool) {
+    function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] sigList, address[] signOracles) internal returns (bool) {
+        if (multivalidatesignSwitch) {
+            return checkOraclesWithMultiValidate(dataHash, nonce, sigList, signOracles);
+        }
+        
         SignMsg storage signMsg = withdrawMultiSignList[nonce][dataHash];
-
         for (uint256 i = 0; i < sigList.length; i++) {
             address _oracle = dataHash.recover(sigList[i]);
+            if (oracleIndex[_oracle] == 0) {// not oracle
+                continue;
+            }
+            uint256 signed = (1 << (oracleIndex[_oracle] - 1)) & signMsg.signedOracleFlag;
+            if (signed == 0) {// not signed
+                signMsg.signedOracleFlag = (1 << (oracleIndex[_oracle] - 1)) | signMsg.signedOracleFlag;
+                signMsg.countSign++;
+            }
+        }
+
+        if (signMsg.countSign > numCommonOracles && !signMsg.success) {
+            signMsg.success = true;
+            return true;
+        }
+        return false;
+    }
+
+    function checkOraclesWithMultiValidate(bytes32 dataHash, uint256 nonce, bytes[] sigList, address[] oracleList) internal returns (bool) {
+        SignMsg storage signMsg = withdrawMultiSignList[nonce][dataHash];
+        bytes32 ret = multivalidatesign(dataHash, sigList, oracleList);
+        for (uint256 i = 0; i < sigList.length; i++) {
+            if (ret[i] == byte(0)) {
+                continue;
+            }
+            address _oracle = oracleList[i];
             if (oracleIndex[_oracle] == 0) {// not oracle
                 continue;
             }
@@ -114,6 +143,10 @@ contract OracleManagerContract is Ownable {
 
     function setStop(bool status) public onlyOwner {
         stop = status;
+    }
+
+    function setMultivalidatesignSwitch(uint256 switch) public onlyOwner {
+        multivalidatesignSwitch = switch;
     }
 
     function multiSignForDelegate(address newAddress) internal returns (bool) {
