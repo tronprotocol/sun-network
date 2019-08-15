@@ -54,11 +54,12 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     uint256 public withdrawFee = 0;
     uint256 public retryFee = 0;
     uint256 public bonus;
-    bool pause;
-    bool stop;
+    bool public pause;
+    bool public stop;
 
     mapping(address => address) public mainToSideContractMap;
     mapping(address => address) public sideToMainContractMap;
+    address[] public mainContractList;
     mapping(uint256 => bool) public tokenIdMap;
     mapping(address => bool) public oracles;
 
@@ -72,6 +73,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     struct SignMsg {
         mapping(address => bool) oracleSigned;
         bytes[] signs;
+        address[] signOracles;
         uint256 signCnt;
         bool success;
     }
@@ -128,8 +130,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         _;
     }
 
-    function getWithdrawSigns(uint256 nonce) view public returns (bytes[]) {
-        return withdrawSigns[nonce].signs;
+    function getWithdrawSigns(uint256 nonce) view public returns (bytes[], address[]) {
+        return (withdrawSigns[nonce].signs, withdrawSigns[nonce].signOracles);
     }
 
     function addOracle(address _oracle) public onlyOwner {
@@ -163,6 +165,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         mainToSideContractMap[mainChainAddress] = sideChainAddress;
         sideToMainContractMap[sideChainAddress] = mainChainAddress;
         emit DeployDAppTRC20AndMapping(mainChainAddress, sideChainAddress);
+        mainContractList.push(mainChainAddress);
         r = sideChainAddress;
     }
 
@@ -180,6 +183,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         mainToSideContractMap[mainChainAddress] = sideChainAddress;
         sideToMainContractMap[sideChainAddress] = mainChainAddress;
         emit DeployDAppTRC721AndMapping(mainChainAddress, sideChainAddress);
+        mainContractList.push(mainChainAddress);
         r = sideChainAddress;
     }
 
@@ -295,11 +299,15 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     function multiSignForWithdrawTRC10(uint256 nonce, bytes oracleSign) public onlyNotStop onlyOracle goDelegateCall {
+        bool enoughSign = countMultiSignForWithdraw(nonce, oracleSign);
+        if (!enoughSign) {
+            return;
+        }
+
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
         bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.tokenId, withdrawMsg.valueOrUid, nonce));
-        require(dataHash.recover(oracleSign) == msg.sender, "sign error");
-        bool needEmit = multiSignForWithdraw(nonce, oracleSign);
-        if (needEmit) {
+        bool firstEnoughSuccess = countMultiSignForWithdraw(nonce, dataHash);
+        if (firstEnoughSuccess) {
             emit MultiSignForWithdrawTRC10(withdrawMsg.user, withdrawMsg.tokenId, withdrawMsg.valueOrUid, nonce);
         }
     }
@@ -322,11 +330,15 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     function multiSignForWithdrawTRC20(uint256 nonce, bytes oracleSign) public onlyNotStop onlyOracle goDelegateCall {
+        bool enoughSign = countMultiSignForWithdraw(nonce, oracleSign);
+        if (!enoughSign) {
+            return;
+        }
+
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
         bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.mainChainAddress, withdrawMsg.valueOrUid, nonce));
-        require(dataHash.recover(oracleSign) == msg.sender, "sign error");
-        bool needEmit = multiSignForWithdraw(nonce, oracleSign);
-        if (needEmit) {
+        bool firstEnoughSuccess = countMultiSignForWithdraw(nonce, dataHash);
+        if (firstEnoughSuccess) {
             emit MultiSignForWithdrawTRC20(withdrawMsg.user, withdrawMsg.mainChainAddress, withdrawMsg.valueOrUid, nonce);
         }
     }
@@ -349,11 +361,15 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     function multiSignForWithdrawTRC721(uint256 nonce, bytes oracleSign) public onlyNotStop onlyOracle goDelegateCall {
+        bool enoughSign = countMultiSignForWithdraw(nonce, oracleSign);
+        if (!enoughSign) {
+            return;
+        }
+
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
         bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.mainChainAddress, withdrawMsg.valueOrUid, nonce));
-        require(dataHash.recover(oracleSign) == msg.sender, "sign error");
-        bool needEmit = multiSignForWithdraw(nonce, oracleSign);
-        if (needEmit) {
+        bool firstEnoughSuccess = countMultiSignForWithdraw(nonce, dataHash);
+        if (firstEnoughSuccess) {
             emit MultiSignForWithdrawTRC721(withdrawMsg.user, withdrawMsg.mainChainAddress, withdrawMsg.valueOrUid, nonce);
         }
     }
@@ -373,25 +389,43 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     function multiSignForWithdrawTRX(uint256 nonce, bytes oracleSign) public onlyNotStop onlyOracle goDelegateCall {
+        bool enoughSign = countMultiSignForWithdraw(nonce, oracleSign);
+        if (!enoughSign) {
+            return;
+        }
+
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
         bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.valueOrUid, nonce));
-        require(dataHash.recover(oracleSign) == msg.sender, "sign error");
-        bool needEmit = multiSignForWithdraw(nonce, oracleSign);
-        if (needEmit) {
+        bytes32 ret = multivalidatesign(dataHash, withdrawSigns[nonce].sgns, withdrawSigns[nonce].signOracles);
+        bool firstEnoughSuccess = countMultiSignForWithdraw(nonce, dataHash);
+        if (firstEnoughSuccess) {
             emit MultiSignForWithdrawTRX(withdrawMsg.user, withdrawMsg.valueOrUid, nonce);
         }
     }
 
-    function multiSignForWithdraw(uint256 nonce, bytes oracleSign) internal returns (bool) {
+    function countMultiSignForWithdraw(uint256 nonce, bytes oracleSign) internal returns (bool){
         if (withdrawSigns[nonce].oracleSigned[msg.sender]) {
             return false;
         }
         withdrawSigns[nonce].oracleSigned[msg.sender] = true;
         withdrawSigns[nonce].signs.push(oracleSign);
+        withdrawSigns[nonce].signOracles.push(msg.sender);
         withdrawSigns[nonce].signCnt += 1;
-
         if (withdrawSigns[nonce].signCnt > oracleCnt * 2 / 3 && !withdrawSigns[nonce].success) {
-            withdrawSigns[nonce].success = true;
+            return true;
+        }
+        return false;
+    }
+
+    function countMultiSignForWithdraw(uint256 nonce, bytes oracleSign) internal returns (bool){
+        if (withdrawSigns[nonce].oracleSigned[msg.sender]) {
+            return false;
+        }
+        withdrawSigns[nonce].oracleSigned[msg.sender] = true;
+        withdrawSigns[nonce].signs.push(oracleSign);
+        withdrawSigns[nonce].signOracles.push(msg.sender);
+        withdrawSigns[nonce].signCnt += 1;
+        if (withdrawSigns[nonce].signCnt > oracleCnt * 2 / 3 && !withdrawSigns[nonce].success) {
             return true;
         }
         return false;
@@ -459,6 +493,20 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         return false;
     }
 
+    function countMultiSignForWithdraw(uint256 nonce, bytes32 dataHash) internal returns (bool) {
+        bytes32 ret = multivalidatesign(dataHash, withdrawSigns[nonce].signs, withdrawSigns[nonce].signOracles);
+        uint256 count = countSuccess(ret);
+        if (count > oracleCnt * 2 / 3 && !withdrawSigns[nonce].success) {
+            withdrawSigns[nonce].success = true;
+            return true;
+        }
+        return false;
+    }
+
+    function countSuccess(bytes32 ret) internal returns (uint256) {
+        return 0;
+    }
+
     function() onlyNotPause onlyNotStop goDelegateCall payable public {
         require(false, "not allow function fallback");
     }
@@ -494,6 +542,10 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     function withdrawFee() view public returns (uint256) {
         return withdrawFee;
+    }
+
+    function mainContractCount() view public returns (uint256) {
+        return mainContractList.length;
     }
 
     function depositDone(uint256 nonce) view public returns (bool r) {

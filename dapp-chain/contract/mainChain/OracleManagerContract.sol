@@ -15,9 +15,9 @@ contract OracleManagerContract is Ownable {
     mapping(address => SignMsg)  delegateSigns;
     mapping(uint256 => mapping(bytes32 => SignMsg)) withdrawMultiSignList;
 
-    address logicAddress;
-    bool pause;
-    bool stop;
+    address public logicAddress;
+    bool public pause;
+    bool public stop;
 
     struct SignMsg {
         uint256 signedOracleFlag;
