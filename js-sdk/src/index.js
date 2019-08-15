@@ -177,6 +177,7 @@ export default class SunWeb {
      */
     async depositTrx(
         callValue,
+        depositFee,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
@@ -191,13 +192,19 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.depositTrx, callValue, feeLimit, options, privateKey);
+            return this.injectPromise(this.depositTrx, callValue, depositFee, feeLimit, options, privateKey);
         }
         if (this.validator.notValid([
             {
                 name: 'callValue',
                 type: 'integer',
                 value: callValue,
+                gte: 0
+            },
+            {
+                name: 'depositFee',
+                type: 'integer',
+                value: depositFee,
                 gte: 0
             },
             {
@@ -211,7 +218,7 @@ export default class SunWeb {
             return;
         }
         options = {
-            callValue,
+            callValue: Number(callValue) + Number(depositFee),
             feeLimit,
             ...options
         };
@@ -227,6 +234,7 @@ export default class SunWeb {
     async depositTrc10(
         tokenId,
         tokenValue,
+        depositFee,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
@@ -240,13 +248,19 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.depositTrc10, tokenId, tokenValue, feeLimit, options, privateKey);
+            return this.injectPromise(this.depositTrc10, tokenId, tokenValue, depositFee, feeLimit, options, privateKey);
         }
         if (this.validator.notValid([
             {
                 name: 'tokenValue',
                 type: 'integer',
                 value: tokenValue,
+                gte: 0
+            },
+            {
+                name: 'depositFee',
+                type: 'integer',
+                value: depositFee,
                 gte: 0
             },
             {
@@ -269,7 +283,8 @@ export default class SunWeb {
             tokenId,
             tokenValue,
             feeLimit,
-            ...options
+            ...options,
+            callValue: depositFee
         };
         try {
             const contractInstance = await this.mainchain.contract().at(this.mainGatewayAddress);
@@ -283,6 +298,7 @@ export default class SunWeb {
     async depositTrc(
         functionSelector,
         num,
+        fee,
         feeLimit,
         contractAddress,
         options = {},
@@ -298,7 +314,7 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.depositTrc, functionSelector, num, feeLimit, contractAddress, options, privateKey);
+            return this.injectPromise(this.depositTrc, functionSelector, num, fee, feeLimit, contractAddress, options, privateKey);
         }
         if (this.validator.notValid([
             {
@@ -310,6 +326,12 @@ export default class SunWeb {
                 name: 'num',
                 type: 'integer',
                 value: num,
+                gte: 0
+            },
+            {
+                name: 'fee',
+                type: 'integer',
+                value: fee,
                 gte: 0
             },
             {
@@ -330,7 +352,7 @@ export default class SunWeb {
         options = {
             feeLimit,
             ...options,
-            callValue: 0,
+            callValue: fee,
             tokenId: '',
             tokenValue: 0
         };
@@ -376,6 +398,7 @@ export default class SunWeb {
         return this.depositTrc(
             functionSelector,
             num,
+            0,
             feeLimit,
             contractAddress,
             options,
@@ -396,6 +419,7 @@ export default class SunWeb {
         return this.depositTrc(
             functionSelector,
             id,
+            0,
             feeLimit,
             contractAddress,
             options,
@@ -406,6 +430,7 @@ export default class SunWeb {
 
     async depositTrc20(
         num,
+        depositFee,
         feeLimit,
         contractAddress,
         options = {},
@@ -416,6 +441,7 @@ export default class SunWeb {
         return this.depositTrc(
             functionSelector,
             num,
+            depositFee,
             feeLimit,
             contractAddress,
             options,
@@ -426,6 +452,7 @@ export default class SunWeb {
 
     async depositTrc721(
         id,
+        depositFee,
         feeLimit,
         contractAddress,
         options = {},
@@ -436,6 +463,7 @@ export default class SunWeb {
         return this.depositTrc(
             functionSelector,
             id,
+            depositFee,
             feeLimit,
             contractAddress,
             options,
@@ -939,6 +967,7 @@ export default class SunWeb {
 
     async retryWithdraw(
         nonce,
+        retryWithdrawFee,
         feeLimit,
         options = {},
         privateKey = this.sidechain.defaultPrivateKey,
@@ -948,7 +977,7 @@ export default class SunWeb {
         return this.withdrawTrc(
             functionSelector,
             nonce,
-            0,
+            retryWithdrawFee,
             feeLimit,
             this.sideGatewayAddress,
             options,
@@ -959,6 +988,7 @@ export default class SunWeb {
 
     async retryDeposit(
         nonce,
+        retryDepositFee,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
@@ -968,6 +998,7 @@ export default class SunWeb {
         return this.depositTrc(
             functionSelector,
             nonce,
+            retryDepositFee,
             feeLimit,
             this.mainGatewayAddress,
             options,
@@ -978,6 +1009,7 @@ export default class SunWeb {
 
     async retryMapping(
         nonce,
+        retryMappingFee,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
@@ -987,6 +1019,7 @@ export default class SunWeb {
         return this.depositTrc(
             functionSelector,
             nonce,
+            retryMappingFee,
             feeLimit,
             this.mainGatewayAddress,
             options,
