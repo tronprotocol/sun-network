@@ -43,7 +43,12 @@ contract DAppTRC20 is TRC20, IDApp {
     }
 
     function withdrawal(uint256 value) payable external returns (uint256 r) {
+        uint256 withdrawFee = ITRC721Receiver(gateway).withdrawFee();
+        require(msg.value >= withdrawFee, "value must be >= withdrawFee");
+        if (msg.value - withdrawFee > 0) {
+            msg.sender.transfer(msg.value - withdrawFee);
+        }
         transfer(gateway, value);
-        r = ITRC20Receiver(gateway).onTRC20Received.value(msg.value)(msg.sender, value);
+        r = ITRC20Receiver(gateway).onTRC20Received.value(withdrawFee)(msg.sender, value);
     }
 }

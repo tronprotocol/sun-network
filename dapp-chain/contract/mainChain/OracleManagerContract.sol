@@ -30,6 +30,8 @@ contract OracleManagerContract is Ownable {
 
     modifier onlyOracle() {require(oracleIndex[msg.sender] > 0, "not oracle");
         _;}
+    modifier isHuman() {require(msg.sender == tx.origin, "not allow contract");
+        _;}
     modifier onlyNotPause() {require(!pause, "is pause");
         _;}
     modifier onlyNotStop() {require(!stop, "is stop");

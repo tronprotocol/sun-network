@@ -48,7 +48,12 @@ contract DAppTRC721 is TRC721, IDApp {
     }
 
     function withdrawal(uint256 tokenId) payable external returns (uint256 r) {
+        uint256 withdrawFee = ITRC721Receiver(gateway).withdrawFee();
+        require(msg.value >= withdrawFee, "value must be >= withdrawFee");
+        if (msg.value - withdrawFee > 0) {
+            msg.sender.transfer(msg.value - withdrawFee);
+        }
         transfer(gateway, tokenId);
-        r = ITRC721Receiver(gateway).onTRC721Received.value(msg.value)(msg.sender, tokenId);
+        r = ITRC721Receiver(gateway).onTRC721Received.value(withdrawFee)(msg.sender, tokenId);
     }
 }

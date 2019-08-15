@@ -14,4 +14,6 @@ contract ITRC721Receiver {
      */
 
     function onTRC721Received(address from, uint256 tokenId) payable public returns (uint256);
+
+    function withdrawFee() view public returns (uint256);
 }
