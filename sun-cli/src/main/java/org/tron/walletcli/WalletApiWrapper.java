@@ -341,6 +341,10 @@ public class WalletApiWrapper {
     return null;
   }
 
+  public AddressPrKeyPairMessage generateAddressOffline() {
+    return getSdk().mainChainService.generateAddressOffline();
+  }
+
   public SunNetworkResponse<TransactionResponse> createWitness(String url) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: createWitness failed,  Please login first !!");

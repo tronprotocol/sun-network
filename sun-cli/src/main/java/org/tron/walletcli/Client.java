@@ -1541,6 +1541,18 @@ public class Client {
     }
   }
 
+  private void generateAddressOffline() {
+    AddressPrKeyPairMessage result = walletApiWrapper.generateAddressOffline();
+    if (null != result) {
+      System.out.println("Address: " + result.getAddress());
+      System.out.println("PrivateKey: " + result.getPrivateKey());
+      logger.info("GenerateAddress " + " successful !!");
+    } else {
+      logger.info("GenerateAddress " + " failed !!");
+    }
+  }
+
+
   private void updateAccountPermission(String[] parameters)
       throws CipherException, IOException, CancelException {
     if (parameters == null || parameters.length != 2) {
@@ -1915,6 +1927,7 @@ public class Client {
     allCmds.add("triggercontract");
     allCmds.add("getcontract");
     allCmds.add("generateaddress");
+    allCmds.add("generateaddressoffline");
     allCmds.add("updateaccountpermission");
     allCmds.add("gettransactionsignweight");
     allCmds.add("gettransactionapprovedlist");
@@ -1945,6 +1958,8 @@ public class Client {
   private List<String> getAllSideCmds() {
     List<String> allCmds = new ArrayList<String>();
     allCmds.add("help");
+    allCmds.add("importwallet");
+    allCmds.add("importwalletbybase64");
     allCmds.add("switchtomain");
     allCmds.add("sm");
     allCmds.add("login");
@@ -1953,6 +1968,7 @@ public class Client {
     allCmds.add("getbalance");
     allCmds.add("getaccount");
     allCmds.add("updateaccount");
+    allCmds.add("gettransactioncountbyblocknum");
     allCmds.add("getaccountresource");
     allCmds.add("getassetissuebyid");
     allCmds.add("sendcoin");
@@ -1994,6 +2010,7 @@ public class Client {
     allCmds.add("gettransactionapprovedlist");
     allCmds.add("addtransactionsign");
     allCmds.add("broadcasttransaction");
+    allCmds.add("generateaddressoffline");
     allCmds.add("exit");
     allCmds.add("quit");
 
@@ -2348,6 +2365,10 @@ public class Client {
         }
         case "generateaddress": {
           generateAddress();
+          break;
+        }
+        case "generateaddressoffline": {
+          generateAddressOffline();
           break;
         }
         case "updateaccountpermission": {
@@ -2974,6 +2995,10 @@ public class Client {
         }
         case "broadcasttransaction": {
           broadcastTransaction(parameters);
+          break;
+        }
+        case "generateaddressoffline": {
+          generateAddressOffline();
           break;
         }
         case "exit":
