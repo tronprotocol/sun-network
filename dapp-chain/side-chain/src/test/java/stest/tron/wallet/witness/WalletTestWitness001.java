@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.GrpcAPI.Return;
+import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.WalletGrpc;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
@@ -175,8 +176,8 @@ public class WalletTestWitness001 {
     }
 
     Contract.VoteWitnessContract contract = builder.build();
-
-    Transaction transaction = blockingStubFull.voteWitnessAccount(contract);
+    TransactionExtention transactionExtention = blockingStubFull.voteWitnessAccount2(contract);
+    Transaction transaction = transactionExtention.getTransaction();
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       logger.info("transaction == null");
       return false;

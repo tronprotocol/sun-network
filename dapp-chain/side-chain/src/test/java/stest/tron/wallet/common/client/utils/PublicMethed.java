@@ -410,7 +410,7 @@ public class PublicMethed {
   public static String triggerContract(byte[] contractAddress, String method, String argsStr,
       Boolean isHex, long callValue, long feeLimit, byte[] ownerAddress,
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull){
-    return triggerContractSideChain(contractAddress, method, argsStr, isHex, callValue, feeLimit,
+    return triggerContract(contractAddress, method, argsStr, isHex, callValue, feeLimit,
         "0", 0, ownerAddress, priKey, blockingStubFull);
 
   }
@@ -528,13 +528,7 @@ public class PublicMethed {
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull
   ){
     //LOADCONF
-
-    final String mainGateWayAddress = Configuration.getByPath("testng.conf")
-        .getString("gateway_address.key1");
-
-    byte[] mainGateWay = WalletClient.decodeFromBase58Check(mainGateWayAddress);
-
-
+    byte[] mainGateWay = PublicMethed.getMaingatewayByteAddr();
 
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     ECKey temKey = null;
