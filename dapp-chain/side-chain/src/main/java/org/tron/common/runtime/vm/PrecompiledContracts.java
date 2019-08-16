@@ -778,6 +778,7 @@ public class PrecompiledContracts {
   public static class MultiValidateSign extends PrecompiledContract {
     private static final ExecutorService workers;
     private static final int ENGERYPERSIGN = 1500;
+    private static final byte[] ZEROADDR = MUtil.allZero32TronAddress();
 
     static {
       workers = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
@@ -871,9 +872,8 @@ public class PrecompiledContracts {
       byte v;
       byte[] r;
       byte[] s;
-      byte[] zeroAddr = MUtil.convertToTronAddress(new byte[20]);
       DataWord out = null;
-      if (sign.length < 65 || address.equals(zeroAddr)) {
+      if (sign.length < 65 || Arrays.equals(ZEROADDR,address) ) {
         return false;
       }
       try {
