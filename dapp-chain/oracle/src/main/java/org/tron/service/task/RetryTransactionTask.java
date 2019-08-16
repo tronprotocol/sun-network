@@ -21,11 +21,11 @@ public class RetryTransactionTask {
   @Transactional
   public void processAndSubmit(Actuator actuator, String msg) {
 
-    logger.info("RetryTransactionTask processAndSubmit! msg = {}", msg);
     try {
       byte[] nonceMsgBytes = NonceStore.getInstance().getData(actuator.getNonceKey());
       NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
       int retryTimes = nonceMsg.getRetryTimes() + 1;
+      logger.info("RetryTransactionTask processAndSubmit! msg = {}, retryTimes = {}", msg, retryTimes);
       if (retryTimes >= Args.getInstance().getOracleRetryTimes()) {
         Manager.getInstance().setProcessFail(actuator.getNonceKey());
         AlertUtil.sendAlert(msg);
