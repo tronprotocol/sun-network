@@ -49,22 +49,20 @@ contract OracleManagerContract is Ownable {
         _;
     }
 
-    function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] sigList, address[] signOracles) internal returns (bool) {
+    function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] memory sigList, address[] memory signOracles) internal returns (bool) {
         require(sigList.length == signOracles.length, "error sigList.length or signOracles.length");
         if (multivalidatesignSwitch) {
             uint256 signFlag = 0;
             for (uint256 i = 0; i < sigList.length; i++) {
                 if (oracleIndex[signOracles[i]] == 0) {
-                    signOracles[i] = 0;
-                    sigList[i] = 0;
+                    signOracles[i] = address(0);
                     continue;
                 }
                 uint256 signed = (1 << (oracleIndex[signOracles[i]] - 1)) & signFlag;
                 if (signed == 0) {// not signed
-                    signFlag = (1 << (oracleIndex[_oracle] - 1)) | signMsg.signedOracleFlag;
+                    signFlag = (1 << (oracleIndex[signOracles[i]] - 1)) | signFlag;
                 } else {
-                    signOracles[i] = 0;
-                    sigList[i] = 0;
+                    signOracles[i] = address(0);
                 }
             }
             return checkOraclesWithMultiValidate(dataHash, nonce, sigList, signOracles);
@@ -90,7 +88,7 @@ contract OracleManagerContract is Ownable {
         return false;
     }
 
-    function checkOraclesWithMultiValidate(bytes32 dataHash, uint256 nonce, bytes[] sigList, address[] oracleList) internal returns (bool) {
+    function checkOraclesWithMultiValidate(bytes32 dataHash, uint256 nonce, bytes[] memory sigList, address[] memory oracleList) internal returns (bool) {
         SignMsg storage signMsg = withdrawMultiSignList[nonce][dataHash];
         bytes32 ret = multivalidatesign(dataHash, sigList, oracleList);
         signMsg.countSign = countSuccess(ret);
@@ -149,8 +147,8 @@ contract OracleManagerContract is Ownable {
         stop = status;
     }
 
-    function setMultivalidatesignSwitch(uint256 switch) public onlyOwner {
-        multivalidatesignSwitch = switch;
+    function setMultivalidatesignSwitch(bool status) public onlyOwner {
+        multivalidatesignSwitch = status;
     }
 
     function multiSignForDelegate(address newAddress) internal returns (bool) {

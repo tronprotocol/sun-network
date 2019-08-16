@@ -58,7 +58,7 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     // Withdrawal functions
-    function withdrawTRC10(address _to, trcToken tokenId, uint256 value, uint256 nonce, bytes[] oracleSigns, address[] signOracles)
+    function withdrawTRC10(address payable _to, trcToken tokenId, uint256 value, uint256 nonce, bytes[] memory oracleSigns, address[] memory signOracles)
     public goDelegateCall onlyNotStop onlyOracle {
         require(oracleSigns.length <= numOracles, "withdraw TRC10 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, tokenId, value, nonce));
@@ -69,7 +69,7 @@ contract MainChainGateway is OracleManagerContract {
         }
     }
 
-    function withdrawTRC20(address _to, address contractAddress, uint256 value, uint256 nonce, bytes[] oracleSigns, address[] signOracles)
+    function withdrawTRC20(address _to, address contractAddress, uint256 value, uint256 nonce, bytes[] memory oracleSigns, address[] memory signOracles)
     public goDelegateCall onlyNotStop onlyOracle {
         require(oracleSigns.length <= numOracles, "withdraw TRC20 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, value, nonce));
@@ -80,7 +80,7 @@ contract MainChainGateway is OracleManagerContract {
         }
     }
 
-    function withdrawTRC721(address _to, address contractAddress, uint256 uid, uint256 nonce, bytes[] oracleSigns, address[] signOracles)
+    function withdrawTRC721(address _to, address contractAddress, uint256 uid, uint256 nonce, bytes[] memory oracleSigns, address[] memory signOracles)
     public goDelegateCall onlyNotStop onlyOracle {
         require(oracleSigns.length <= numOracles, "withdraw TRC721 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, uid, nonce));
@@ -91,11 +91,11 @@ contract MainChainGateway is OracleManagerContract {
         }
     }
 
-    function withdrawTRX(address _to, uint256 value, uint256 nonce, bytes[] oracleSigns, address[] signOracles)
+    function withdrawTRX(address payable _to, uint256 value, uint256 nonce, bytes[] memory oracleSigns, address[] memory signOracles)
     public goDelegateCall onlyNotStop onlyOracle {
         require(oracleSigns.length <= numOracles, "withdraw TRX signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, value, nonce));
-        bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns);
+        bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
         if (needWithdraw) {
             _to.transfer(value);
             // ensure it's not reentrant
@@ -153,7 +153,7 @@ contract MainChainGateway is OracleManagerContract {
         }
         bonus += depositFee;
         require(msg.tokenvalue >= depositMinTrc10, "tokenvalue must be >= depositMinTrc10");
-        require(msg.tokenid <= uint64Max, "msg.tokenid must <= uint64Max");
+        require(uint256(msg.tokenid) <= uint64Max, "msg.tokenid must <= uint64Max");
         require(msg.tokenvalue <= uint64Max, "msg.tokenvalue must <= uint64Max");
         userDepositList.push(DepositMsg(msg.sender, tokenValue, 1, address(0), tokenId, 0, 0));
         emit TRC10Received(msg.sender, tokenId, tokenValue, userDepositList.length - 1);
@@ -164,7 +164,7 @@ contract MainChainGateway is OracleManagerContract {
         revert("not allow function fallback");
     }
 
-    function mappingTRC20(bytes txId) payable public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
+    function mappingTRC20(bytes memory txId) payable public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(msg.value >= mappingFee, "trc20MappingFee not enough");
         if (msg.value > 0) {
             bonus += msg.value;
@@ -182,7 +182,7 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     // 2. deployDAppTRC721AndMapping
-    function mappingTRC721(bytes txId) payable public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
+    function mappingTRC721(bytes memory txId) payable public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(msg.value >= mappingFee, "trc721MappingFee not enough");
         if (msg.value > 0) {
             bonus += msg.value;
@@ -239,10 +239,10 @@ contract MainChainGateway is OracleManagerContract {
         }
     }
 
-    function calcContractAddress(bytes txId, address _owner) internal pure returns (address r) {
+    function calcContractAddress(bytes memory txId, address _owner) internal pure returns (address r) {
         bytes memory addressBytes = addressToBytes(_owner);
         bytes memory combinedBytes = concatBytes(txId, addressBytes);
-        r = address(keccak256(combinedBytes));
+        r = address(uint256(keccak256(combinedBytes)));
     }
 
     function addressToBytes(address a) internal pure returns (bytes memory b) {
@@ -256,7 +256,7 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function concatBytes(bytes memory b1, bytes memory b2) internal pure returns (bytes memory r) {
-        r = abi.encodePacked(b1, 0x41, b2);
+        r = abi.encodePacked(b1, byte(0x41), b2);
     }
 
     // Returns all the TRX
