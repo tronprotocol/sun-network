@@ -2,9 +2,9 @@
 if [[ "$TRAVIS_BRANCH" = "develop" || "$TRAVIS_BRANCH" = "master" ]];then
 
      stestlogname="`date +%Y%m%d%H%M%S`_stest.log"
-     timeout 10 ping -c 5  39.106.81.60 > /dev/null || exit 1
+     timeout 10 ping -c 5  39.105.147.203 > /dev/null || exit 1
 
-     stest_server=39.106.81.60
+     stest_server=39.105.147.203
      docker_num_in_60=`ssh -p 22008 -t java-tron@$stest_server 'docker ps -a | wc -l'`
      if [[ ${docker_num} -le 2 ]];
      then
@@ -29,8 +29,7 @@ if [[ "$TRAVIS_BRANCH" = "develop" || "$TRAVIS_BRANCH" = "master" ]];then
      echo "stest end"
 
     echo $?
-    #ret=$(cat $stestlogname | grep "stest FAILED" | wc -l)
-    ret=0
+    ret=$(cat $stestlogname | grep "stest FAILED" | wc -l)
     if [ $ret != 0 ];then
       echo $ret
       rm -f $stestlogname

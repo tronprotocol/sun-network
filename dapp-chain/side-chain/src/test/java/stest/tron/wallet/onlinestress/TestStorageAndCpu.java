@@ -23,21 +23,22 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class TestStorageAndCpu {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("witness.key5");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("witness.key4");
-  private final byte[] testAddress003 = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] testAddress003 = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
   private final String testKey004 = Configuration.getByPath("testng.conf")
       .getString("witness.key3");
-  private final byte[] testAddress004 = PublicMethed.getFinalAddress(testKey004);
+  private final byte[] testAddress004 = PublicMethedForDailybuild.getFinalAddress(testKey004);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -70,8 +71,8 @@ public class TestStorageAndCpu {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(testKey002);
-    PublicMethed.printAddress(testKey003);
+    PublicMethedForDailybuild.printAddress(testKey002);
+    PublicMethedForDailybuild.printAddress(testKey003);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -97,9 +98,9 @@ public class TestStorageAndCpu {
         .getString("code.code_TestStorageAndCpu_storageAndCpu");
     String abi = Configuration.getByPath("testng.conf")
         .getString("abi.abi_TestStorageAndCpu_storageAndCpu");
-    PublicMethed
+    PublicMethedForDailybuild
         .freezeBalanceGetEnergy(fromAddress, 1000000000000L, 3, 1, testKey002, blockingStubFull);
-    byte[] contractAddress = PublicMethed.deployContract(contractName, abi, code,
+    byte[] contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code,
         "", maxFeeLimit,
         0L, 100, null, testKey002, fromAddress, blockingStubFull);
     try {
@@ -107,7 +108,7 @@ public class TestStorageAndCpu {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     String txid;
 
     SideChainParameters chainParameters = blockingStubFull
@@ -117,14 +118,14 @@ public class TestStorageAndCpu {
     Integer i = 1;
     while (i++ < 8000) {
       String initParmes = "\"" + "930" + "\"";
-      txid = PublicMethed.triggerContractSideChain(contractAddress,
+      txid = PublicMethedForDailybuild.triggerContract(contractAddress,
           "testUseCpu(uint256)", "9100", false,
           0, maxFeeLimit, fromAddress, testKey002, blockingStubFull);
-      txid = PublicMethed.triggerContractSideChain(contractAddress,
+      txid = PublicMethedForDailybuild.triggerContract(contractAddress,
           "storage8Char()", "", false,
           0, maxFeeLimit, fromAddress, testKey002, blockingStubFull);
       //storage 9 EnergyUsageTotal is  211533, 10 is 236674, 5 is 110969,21 is 500000
-      txid = PublicMethed.triggerContractSideChain(contractAddress,
+      txid = PublicMethedForDailybuild.triggerContract(contractAddress,
           "testUseStorage(uint256)", "21", false,
           0, maxFeeLimit, fromAddress, testKey002, blockingStubFull);
       //logger.info("i is " +Integer.toString(i) + " " + txid);
@@ -191,7 +192,7 @@ public class TestStorageAndCpu {
     logger.info("Total transaction is " + (totalNum - 30));
     logger.info("Average Tps is " + (totalNum / costTime));
 
-    infoById = PublicMethed.getTransactionInfoById(findOneTxid, blockingStubFull1);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(findOneTxid, blockingStubFull1);
     Long oneEnergyTotal = infoById.get().getReceipt().getEnergyUsageTotal();
     logger.info("EnergyTotal is " + oneEnergyTotal);
     logger.info("Average energy is " + oneEnergyTotal * (totalNum / costTime));

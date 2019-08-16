@@ -22,18 +22,17 @@ import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class WalletTestAccount006 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
   private static final long now = System.currentTimeMillis();
   private static String name = "AssetIssue012_" + Long.toString(now);
@@ -65,7 +64,7 @@ public class WalletTestAccount006 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(account006Key);
+    PublicMethedForDailybuild.printAddress(account006Key);
 
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
@@ -84,9 +83,9 @@ public class WalletTestAccount006 {
     GrpcAPI.AssetIssueList assetIssueList1 = blockingStubFull
         .getAssetIssueByAccount(request1);
     Optional<GrpcAPI.AssetIssueList> queryAssetByAccount = Optional.ofNullable(assetIssueList1);
-    Assert.assertTrue(PublicMethed.freezeBalance(fromAddress, 100000000, 3, testKey002,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(fromAddress, 100000000, 3, testKey002,
         blockingStubFull));
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(account006Address, sendAmount, fromAddress, testKey002, blockingStubFull));
 
     //Get new account net information.
@@ -113,7 +112,7 @@ public class WalletTestAccount006 {
   public void test2UseFreeNet() {
 
     //Transfer some TRX to other to test free net cost.
-    Assert.assertTrue(PublicMethed.sendcoin(fromAddress, 1L, account006Address,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(fromAddress, 1L, account006Address,
         account006Key, blockingStubFull));
     ByteString addressBs = ByteString.copyFrom(account006Address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
@@ -126,7 +125,7 @@ public class WalletTestAccount006 {
 
   @Test(enabled = true)
   public void test3UseMoneyToDoTransaction() {
-    Assert.assertTrue(PublicMethed.sendcoin(account006Address, 1000000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(account006Address, 1000000L, fromAddress,
         testKey002, blockingStubFull));
     ByteString addressBs = ByteString.copyFrom(account006Address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
@@ -134,16 +133,16 @@ public class WalletTestAccount006 {
     //Use out the free net
     Integer times = 0;
     while (accountNetMessage.getFreeNetUsed() < BASELINE && times++ < 30) {
-      PublicMethed.sendcoin(fromAddress, 1L, account006Address, account006Key,
+      PublicMethedForDailybuild.sendcoin(fromAddress, 1L, account006Address, account006Key,
           blockingStubFull);
       accountNetMessage = blockingStubFull.getAccountNet(request);
     }
 
-    Account queryAccount = PublicMethed.queryAccount(account006Key, blockingStubFull);
+    Account queryAccount = PublicMethedForDailybuild.queryAccount(account006Key, blockingStubFull);
     Long beforeSendBalance = queryAccount.getBalance();
-    Assert.assertTrue(PublicMethed.sendcoin(fromAddress, 1L, account006Address, account006Key,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(fromAddress, 1L, account006Address, account006Key,
         blockingStubFull));
-    queryAccount = PublicMethed.queryAccount(account006Key, blockingStubFull);
+    queryAccount = PublicMethedForDailybuild.queryAccount(account006Key, blockingStubFull);
     Long afterSendBalance = queryAccount.getBalance();
     //when the free net is not enough and no balance freeze, use money to do the transaction.
     Assert.assertTrue(beforeSendBalance - afterSendBalance > 1);
@@ -153,9 +152,9 @@ public class WalletTestAccount006 {
   @Test(enabled = true)
   public void test4UseNet() {
     //Freeze balance to own net.
-    Assert.assertTrue(PublicMethed.freezeBalance(account006Address, 10000000L,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(account006Address, 10000000L,
         3, account006Key, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(toAddress, 1L, account006Address,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(toAddress, 1L, account006Address,
         account006Key, blockingStubFull));
     ByteString addressBs = ByteString.copyFrom(account006Address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
@@ -163,11 +162,11 @@ public class WalletTestAccount006 {
     Assert.assertTrue(accountNetMessage.getNetLimit() > 0);
     Assert.assertTrue(accountNetMessage.getNetUsed() > 150);
 
-    Account queryAccount = PublicMethed.queryAccount(account006Key, blockingStubFull);
+    Account queryAccount = PublicMethedForDailybuild.queryAccount(account006Key, blockingStubFull);
     Long beforeSendBalance = queryAccount.getBalance();
-    Assert.assertTrue(PublicMethed.sendcoin(fromAddress, 1L, account006Address,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(fromAddress, 1L, account006Address,
         account006Key, blockingStubFull));
-    queryAccount = PublicMethed.queryAccount(account006Key, blockingStubFull);
+    queryAccount = PublicMethedForDailybuild.queryAccount(account006Key, blockingStubFull);
     Long afterSendBalance = queryAccount.getBalance();
     //when you freeze balance and has net,you didn't cost money.
     logger.info("before is " + Long.toString(beforeSendBalance) + " and after is "

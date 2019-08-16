@@ -21,14 +21,14 @@ import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractScenario003 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -57,12 +57,12 @@ public class ContractScenario003 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(contract003Key);
+    PublicMethedForDailybuild.printAddress(contract003Key);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-    logger.info(Long.toString(PublicMethed.queryAccount(contract003Key, blockingStubFull)
+    logger.info(Long.toString(PublicMethedForDailybuild.queryAccount(contract003Key, blockingStubFull)
         .getBalance()));
     channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
         .usePlaintext(true)
@@ -76,14 +76,14 @@ public class ContractScenario003 {
     contract003Address = ecKey1.getAddress();
     contract003Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-    Assert.assertTrue(PublicMethed.sendcoin(contract003Address, 500000000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contract003Address, 500000000L, fromAddress,
         testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(contract003Address,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(contract003Address,
         blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
-    Long balanceBefore = PublicMethed.queryAccount(contract003Key, blockingStubFull).getBalance();
+    Long balanceBefore = PublicMethedForDailybuild.queryAccount(contract003Key, blockingStubFull).getBalance();
 
     logger.info("before energy limit is " + Long.toString(energyLimit));
     logger.info("before energy usage is " + Long.toString(energyUsage));
@@ -91,31 +91,31 @@ public class ContractScenario003 {
 
     String filePath = "./src/test/resources/soliditycode/contractScenario003.sol";
     String contractName = "divideIHaveArgsReturnStorage";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    String txid = PublicMethed.deployContractAndGetTransactionInfoById(contractName, abi, code, "",
+    String txid = PublicMethedForDailybuild.deployContractAndGetTransactionInfoById(contractName, abi, code, "",
         maxFeeLimit, 0L, 100, null, contract003Key, contract003Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     logger.info(txid);
-    Optional<TransactionInfo> infoById = PublicMethed
+    Optional<TransactionInfo> infoById = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
     logger.info("Deploy energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
     com.google.protobuf.ByteString contractAddress = infoById.get().getContractAddress();
-    SmartContract smartContract = PublicMethed
+    SmartContract smartContract = PublicMethedForDailybuild
         .getContract(contractAddress.toByteArray(), blockingStubFull);
     Assert.assertTrue(smartContract.getAbi() != null);
     Assert.assertTrue(smartContract.getName().equalsIgnoreCase(contractName));
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    accountResource = PublicMethed.getAccountResource(contract003Address, blockingStubFull1);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
+    accountResource = PublicMethedForDailybuild.getAccountResource(contract003Address, blockingStubFull1);
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
-    Long balanceAfter = PublicMethed.queryAccount(contract003Address, blockingStubFull1)
+    Long balanceAfter = PublicMethedForDailybuild.queryAccount(contract003Address, blockingStubFull1)
         .getBalance();
 
     logger.info("after energy limit is " + Long.toString(energyLimit));

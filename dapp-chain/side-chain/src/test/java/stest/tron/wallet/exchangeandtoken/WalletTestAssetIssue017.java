@@ -27,7 +27,7 @@ import org.tron.protos.Contract;
 import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+
 import stest.tron.wallet.common.client.utils.TransactionUtils;
 
 @Slf4j
@@ -37,8 +37,8 @@ public class WalletTestAssetIssue017 {
       .getString("foundationAccount.key1");
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
 
   private static long start;
@@ -105,7 +105,7 @@ public class WalletTestAssetIssue017 {
     asset017Address = ecKey1.getAddress();
     testKeyForAssetIssue017 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(asset017Address, sendAmount, fromAddress, testKey002, blockingStubFull));
     start = System.currentTimeMillis() + 2000;
     end = System.currentTimeMillis() + 1000000000;
@@ -131,7 +131,7 @@ public class WalletTestAssetIssue017 {
     for (Integer i = 0; i < assetIssueListPaginated.get().getAssetIssueCount(); i++) {
       Assert.assertTrue(assetIssueListPaginated.get().getAssetIssue(i).getTotalSupply() > 0);
     }
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
+    PublicMethedForDailybuild.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
   }
 
   @Test(enabled = true)
@@ -194,7 +194,7 @@ public class WalletTestAssetIssue017 {
     PaginatedMessage.Builder pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(offset);
     pageMessageBuilder.setLimit(limit);
-    Assert.assertTrue(PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,
+    Assert.assertTrue(PublicMethedForDailybuild.waitSolidityNodeSynFullNodeData(blockingStubFull,
         blockingStubSolidity));
     AssetIssueList assetIssueList = blockingStubSolidity
         .getPaginatedAssetIssueList(pageMessageBuilder.build());
@@ -361,6 +361,6 @@ public class WalletTestAssetIssue017 {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtilsForDailybuild.sign(transaction, ecKey);
   }
 }*/

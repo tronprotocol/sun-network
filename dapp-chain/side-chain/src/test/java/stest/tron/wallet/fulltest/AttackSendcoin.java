@@ -30,8 +30,9 @@ import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
 @Slf4j
 public class AttackSendcoin {
@@ -60,13 +61,13 @@ public class AttackSendcoin {
       "271c824fcb55f04a9f86f768424a80edeb26ab79cf12aa56643b595f689c008a";
 
 
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
-  private final byte[] attackAddress = PublicMethed.getFinalAddress(testKey001);
-  private final byte[] normal1Address = PublicMethed.getFinalAddress(normalKey001);
-  private final byte[] normal2Address = PublicMethed.getFinalAddress(normalKey002);
-  private final byte[] normal3Address = PublicMethed.getFinalAddress(normalKey003);
-  private final byte[] normal4Address = PublicMethed.getFinalAddress(normalKey004);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
+  private final byte[] attackAddress = PublicMethedForDailybuild.getFinalAddress(testKey001);
+  private final byte[] normal1Address = PublicMethedForDailybuild.getFinalAddress(normalKey001);
+  private final byte[] normal2Address = PublicMethedForDailybuild.getFinalAddress(normalKey002);
+  private final byte[] normal3Address = PublicMethedForDailybuild.getFinalAddress(normalKey003);
+  private final byte[] normal4Address = PublicMethedForDailybuild.getFinalAddress(normalKey004);
 
 
   private static final long now = System.currentTimeMillis();
@@ -113,12 +114,12 @@ public class AttackSendcoin {
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-    final Account fromInfo = PublicMethed.queryAccount(testKey002, blockingStubFull);
-    final Account attackInfo = PublicMethed.queryAccount(testKey001, blockingStubFull);
-    final Account normal1Info = PublicMethed.queryAccount(normalKey001, blockingStubFull);
-    final Account normal2Info = PublicMethed.queryAccount(normalKey002, blockingStubFull);
-    final Account normal3Info = PublicMethed.queryAccount(normalKey003, blockingStubFull);
-    final Account normal4Info = PublicMethed.queryAccount(normalKey004, blockingStubFull);
+    final Account fromInfo = PublicMethedForDailybuild.queryAccount(testKey002, blockingStubFull);
+    final Account attackInfo = PublicMethedForDailybuild.queryAccount(testKey001, blockingStubFull);
+    final Account normal1Info = PublicMethedForDailybuild.queryAccount(normalKey001, blockingStubFull);
+    final Account normal2Info = PublicMethedForDailybuild.queryAccount(normalKey002, blockingStubFull);
+    final Account normal3Info = PublicMethedForDailybuild.queryAccount(normalKey003, blockingStubFull);
+    final Account normal4Info = PublicMethedForDailybuild.queryAccount(normalKey004, blockingStubFull);
     beforeFromBalance = fromInfo.getBalance();
     beforeNormal1Balance = normal1Info.getBalance();
     beforeNormal2Balance = normal2Info.getBalance();
@@ -148,9 +149,9 @@ public class AttackSendcoin {
       blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
       if (randNum == 3) {
-        PublicMethed.sendcoin(attackAddress, attackAmount, fromAddress, testKey002,
+        PublicMethedForDailybuild.sendcoin(attackAddress, attackAmount, fromAddress, testKey002,
             blockingStubFull);
-        PublicMethed.sendcoin(attackAddress, attackAmount, fromAddress, testKey002,
+        PublicMethedForDailybuild.sendcoin(attackAddress, attackAmount, fromAddress, testKey002,
             blockingStubFull);
         /*        PublicMethed.sendcoin(attackAddress, attackAmount, fromAddress, testKey002,
             blockingStubFull);
@@ -167,22 +168,22 @@ public class AttackSendcoin {
       }
 
       if (randNum == 0) {
-        PublicMethed.sendcoin(normal1Address, sendNromal1Amount, fromAddress,
+        PublicMethedForDailybuild.sendcoin(normal1Address, sendNromal1Amount, fromAddress,
             testKey002, blockingStubFull);
         continue;
       }
       if (randNum == 1) {
-        PublicMethed.sendcoin(normal2Address, sendNromal2Amount, fromAddress,
+        PublicMethedForDailybuild.sendcoin(normal2Address, sendNromal2Amount, fromAddress,
             testKey002, blockingStubFull);
         continue;
       }
       if (randNum == 2) {
-        PublicMethed.sendcoin(normal3Address, sendNromal3Amount, fromAddress,
+        PublicMethedForDailybuild.sendcoin(normal3Address, sendNromal3Amount, fromAddress,
             testKey002, blockingStubFull);
         continue;
       }
       if (randNum == 3) {
-        PublicMethed.sendcoin(normal4Address, sendNromal4Amount, fromAddress,
+        PublicMethedForDailybuild.sendcoin(normal4Address, sendNromal4Amount, fromAddress,
             testKey002, blockingStubFull);
         continue;
       }
@@ -200,12 +201,12 @@ public class AttackSendcoin {
     logger.info("The time is " + Long.toString(end - start));
 
     //Print 6 account balance information.
-    final Account fromInfo = PublicMethed.queryAccount(testKey002, blockingStubFull);
-    final Account attackInfo = PublicMethed.queryAccount(testKey001, blockingStubFull);
-    final Account normal1Info = PublicMethed.queryAccount(normalKey001, blockingStubFull);
-    final Account normal2Info = PublicMethed.queryAccount(normalKey002, blockingStubFull);
-    final Account normal3Info = PublicMethed.queryAccount(normalKey003, blockingStubFull);
-    final Account normal4Info = PublicMethed.queryAccount(normalKey004, blockingStubFull);
+    final Account fromInfo = PublicMethedForDailybuild.queryAccount(testKey002, blockingStubFull);
+    final Account attackInfo = PublicMethedForDailybuild.queryAccount(testKey001, blockingStubFull);
+    final Account normal1Info = PublicMethedForDailybuild.queryAccount(normalKey001, blockingStubFull);
+    final Account normal2Info = PublicMethedForDailybuild.queryAccount(normalKey002, blockingStubFull);
+    final Account normal3Info = PublicMethedForDailybuild.queryAccount(normalKey003, blockingStubFull);
+    final Account normal4Info = PublicMethedForDailybuild.queryAccount(normalKey004, blockingStubFull);
 
     afterFromBalance = fromInfo.getBalance();
     afterNormal1Balance = normal1Info.getBalance();
@@ -342,7 +343,7 @@ public class AttackSendcoin {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     Return response = blockingStubFull.broadcastTransaction(transaction);
 
     if (response.getResult() == false) {
@@ -392,7 +393,7 @@ public class AttackSendcoin {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     Return response = blockingStubFull.broadcastTransaction(transaction);
     if (response.getResult() == false) {
       return false;
@@ -442,7 +443,7 @@ public class AttackSendcoin {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtilsForDailybuild.sign(transaction, ecKey);
   }
 
 }

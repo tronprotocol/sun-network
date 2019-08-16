@@ -41,8 +41,8 @@ public class CreateAssetIssue2Test {
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
 
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   private static final byte[] INVAILD_ADDRESS = Base58
       .decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
   private static final long now = System.currentTimeMillis();
@@ -89,11 +89,11 @@ public class CreateAssetIssue2Test {
         .getAssetIssueByAccount(request1);
     Optional<GrpcAPI.AssetIssueList> queryAssetByAccount = Optional.ofNullable(assetIssueList1);
     if (queryAssetByAccount.get().getAssetIssueCount() == 0) {
-      Assert.assertTrue(PublicMethed.sendcoin(noBandwitchAddress, 2048000000,
+      Assert.assertTrue(PublicMethedForDailybuild.sendcoin(noBandwitchAddress, 2048000000,
           fromAddress, testKey002, blockingStubFull));
       Long start = System.currentTimeMillis() + 2000000;
       Long end = System.currentTimeMillis() + 1000000000;
-      GrpcAPI.Return ret1 = PublicMethed.createAssetIssue2(noBandwitchAddress, name, totalSupply, 1,
+      GrpcAPI.Return ret1 = PublicMethedForDailybuild.createAssetIssue2(noBandwitchAddress, name, totalSupply, 1,
           100, start, end, 1, description, url, 10000L, 10000L,
           1L, 1L, noBandwitch, blockingStubFull);
       Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);

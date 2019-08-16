@@ -31,6 +31,7 @@ import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
 //import stest.tron.wallet.common.client.AccountComparator;
 
@@ -324,7 +325,7 @@ public class WalletTestWitness003 {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtilsForDailybuild.sign(transaction, ecKey);
   }
 }
 

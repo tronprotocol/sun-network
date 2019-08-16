@@ -20,7 +20,7 @@ import org.tron.protos.Contract;
 import org.tron.protos.Protocol.Account;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+
 
 @Slf4j
 public class WalletTestAssetIssue020 {
@@ -29,8 +29,8 @@ public class WalletTestAssetIssue020 {
       .getString("foundationAccount.key1");
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   private static final long now = System.currentTimeMillis();
   private static final String name = "Assetissue020_" + Long.toString(now);
   private static final String char33Name = "To_long_asset_name_a" + Long.toString(now);
@@ -82,54 +82,54 @@ public class WalletTestAssetIssue020 {
     ecKey1 = new ECKey(Utils.getRandom());
     asset020Address = ecKey1.getAddress();
     asset020Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-    PublicMethed.printAddress(asset020Key);
+    PublicMethedForDailybuild.printAddress(asset020Key);
 
     ecKey2 = new ECKey(Utils.getRandom());
     asset020SecondAddress = ecKey2.getAddress();
     asset020SecondKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-    PublicMethed.printAddress(asset020SecondKey);
+    PublicMethedForDailybuild.printAddress(asset020SecondKey);
     logger.info(name);
 
-    Assert.assertTrue(PublicMethed.sendcoin(asset020Address, 2048000000, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(asset020Address, 2048000000, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(asset020SecondAddress, 2048000000, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(asset020SecondAddress, 2048000000, fromAddress,
         testKey002, blockingStubFull));
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     //Can create 32 char token name.
     Long start = System.currentTimeMillis() + 2000000;
     Long end = System.currentTimeMillis() + 1000000000;
 
     //When precision is -1, can not create asset issue
-    Assert.assertFalse(PublicMethed.createAssetIssue(asset020Address,
+    Assert.assertFalse(PublicMethedForDailybuild.createAssetIssue(asset020Address,
         name, totalSupply, 1, 1, -1, start, end, 1, description, url,
         2000L, 2000L, 1L, 1L, asset020Key, blockingStubFull));
 
     //When precision is 7, can not create asset issue
-    Assert.assertFalse(PublicMethed.createAssetIssue(asset020Address,
+    Assert.assertFalse(PublicMethedForDailybuild.createAssetIssue(asset020Address,
         name, totalSupply, 1, 1, 7, start, end, 1, description, url,
         2000L, 2000L, 1L, 1L, asset020Key, blockingStubFull));
 
     //When precision is 6, is equal to default.
-    Assert.assertTrue(PublicMethed.createAssetIssue(asset020Address,
+    Assert.assertTrue(PublicMethedForDailybuild.createAssetIssue(asset020Address,
         name, totalSupply, 1, 1, 6, start, end, 1, description, url,
         2000L, 2000L, 1L, 1L, asset020Key, blockingStubFull));
 
     Account getAssetIdFromThisAccount;
-    getAssetIdFromThisAccount = PublicMethed.queryAccount(asset020Address, blockingStubFull);
+    getAssetIdFromThisAccount = PublicMethedForDailybuild.queryAccount(asset020Address, blockingStubFull);
     assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
 
-    Contract.AssetIssueContract assetIssueInfo = PublicMethed
+    Contract.AssetIssueContract assetIssueInfo = PublicMethedForDailybuild
         .getAssetIssueByName(name, blockingStubFull);
     final Integer preCisionByName = assetIssueInfo.getPrecision();
     final Long TotalSupplyByName = assetIssueInfo.getTotalSupply();
 
-    assetIssueInfo = PublicMethed.getAssetIssueById(ByteArray.toStr(assetAccountId
+    assetIssueInfo = PublicMethedForDailybuild.getAssetIssueById(ByteArray.toStr(assetAccountId
         .toByteArray()), blockingStubFull);
     final Integer preCisionById = assetIssueInfo.getPrecision();
     final Long TotalSupplyById = assetIssueInfo.getTotalSupply();
 
-    assetIssueInfo = PublicMethed.getAssetIssueListByName(name, blockingStubFull)
+    assetIssueInfo = PublicMethedForDailybuild.getAssetIssueListByName(name, blockingStubFull)
         .get().getAssetIssue(0);
     final Integer preCisionByListName = assetIssueInfo.getPrecision();
     final Long TotalSupplyByListName = assetIssueInfo.getTotalSupply();
@@ -146,11 +146,11 @@ public class WalletTestAssetIssue020 {
     Assert.assertEquals(TotalSupplyById, TotalSupplyByName);
 
     //When precision is 6, is equal to default.
-    Assert.assertTrue(PublicMethed.createAssetIssue(asset020SecondAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.createAssetIssue(asset020SecondAddress,
         name, totalSupply, 1, 1, 1, start, end, 1, description, url,
         2000L, 2000L, 1L, 1L, asset020SecondKey, blockingStubFull));
 
-    assetIssueInfo = PublicMethed.getAssetIssueByName(name, blockingStubFull);
+    assetIssueInfo = PublicMethedForDailybuild.getAssetIssueByName(name, blockingStubFull);
     Assert.assertTrue(assetIssueInfo.getName().isEmpty());
 
   }

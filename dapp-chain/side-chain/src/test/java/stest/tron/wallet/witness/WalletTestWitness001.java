@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.GrpcAPI.Return;
+import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.WalletGrpc;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
@@ -31,21 +32,23 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
 @Slf4j
 public class WalletTestWitness001 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   private final String witnessKey001 = Configuration.getByPath("testng.conf")
       .getString("witness.key1");
-  private final byte[] witnessAddress = PublicMethed.getFinalAddress(witnessKey001);
+  private final byte[] witnessAddress = PublicMethedForDailybuild.getFinalAddress(witnessKey001);
 
 
   private ManagedChannel channelFull = null;
@@ -103,9 +106,9 @@ public class WalletTestWitness001 {
     //Assert.assertFalse(VoteWitness(smallVoteMap, NO_FROZEN_ADDRESS, no_frozen_balance_testKey));
 
     //Freeze balance to get vote ability.
-    Assert.assertTrue(PublicMethed.freezeBalance(fromAddress, 1200000L, 3L,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(fromAddress, 1200000L, 3L,
         testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     //Vote failed when the vote is large than the freeze balance.
     Assert.assertFalse(voteWitness(veryLargeMap, fromAddress, testKey002));
     //Vote failed due to 0 vote.
@@ -173,8 +176,8 @@ public class WalletTestWitness001 {
     }
 
     Contract.VoteWitnessContract contract = builder.build();
-
-    Transaction transaction = blockingStubFull.voteWitnessAccount(contract);
+    TransactionExtention transactionExtention = blockingStubFull.voteWitnessAccount2(contract);
+    Transaction transaction = transactionExtention.getTransaction();
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       logger.info("transaction == null");
       return false;
@@ -255,7 +258,7 @@ public class WalletTestWitness001 {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     Return response = blockingStubFull.broadcastTransaction(transaction);
 
     if (response.getResult() == false) {
@@ -337,7 +340,7 @@ public class WalletTestWitness001 {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     Return response = blockingStubFull.broadcastTransaction(transaction);
     if (response.getResult() == false) {
       return false;
@@ -401,7 +404,7 @@ public class WalletTestWitness001 {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtilsForDailybuild.sign(transaction, ecKey);
   }
 }
 

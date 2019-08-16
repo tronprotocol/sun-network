@@ -2,8 +2,10 @@ package stest.tron.wallet.common.deploy;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -67,7 +69,7 @@ public class deploySideGateway {
   @Test(enabled = true, description = "deploy Side Chain Gateway")
   public void test1DepositTrc20001() {
     String mainChainAddress = Configuration.getByPath("testng.conf")
-        .getString("gateway_address.sideChainIdAddress");
+        .getString("gateway_address.chainIdAddress");
     /*try {
       File mainChainFile = new File("/home/mainChainGatewayAddress");
       FileReader reader = new FileReader(mainChainFile);

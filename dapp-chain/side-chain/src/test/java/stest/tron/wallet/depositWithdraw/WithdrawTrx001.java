@@ -26,6 +26,7 @@ import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.AbiUtil;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 @Slf4j
 public class WithdrawTrx001 {
@@ -60,7 +61,7 @@ public class WithdrawTrx001 {
       .getString("gateway_address.key2");
 
   final String ChainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.ChainIdAddress");
+      .getString("gateway_address.chainIdAddress");
 
   @BeforeSuite
   public void beforeSuite() {

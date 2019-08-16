@@ -33,8 +33,9 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
 @Slf4j
 public class ContinueVote {
@@ -48,7 +49,7 @@ public class ContinueVote {
   /*  //testng001、testng002、testng003、testng004
   private static final byte[] fromAddress = Base58
       .decodeFromBase58Check("THph9K2M2nLvkianrMGswRhz5hjSA9fuH7");*/
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
 
   private ManagedChannel channelFull = null;
@@ -99,7 +100,7 @@ public class ContinueVote {
     String voteStr = "TB4B1RMhoPeivkj4Hebm6tttHjRY9yQFes";
     HashMap<String, String> smallVoteMap = new HashMap<String, String>();
     smallVoteMap.put(voteStr, "1");
-    Account fromInfo = PublicMethed.queryAccount(testKey002, blockingStubFull);
+    Account fromInfo = PublicMethedForDailybuild.queryAccount(testKey002, blockingStubFull);
 
     Boolean ret = false;
     Integer i = 0;
@@ -109,7 +110,7 @@ public class ContinueVote {
       smallVoteMap = new HashMap<String, String>();
       smallVoteMap.put(voteStr, Integer.toString(randNum));
       if (fromInfo.getFrozen(0).getFrozenBalance() < 10000000) {
-        PublicMethed.freezeBalance(fromAddress, 10000000000L, 3, testKey002, blockingStubFull);
+        PublicMethedForDailybuild.freezeBalance(fromAddress, 10000000000L, 3, testKey002, blockingStubFull);
       }
       ret = voteWitness(smallVoteMap, fromAddress, testKey002);
       if (ret) {
@@ -118,7 +119,7 @@ public class ContinueVote {
             .getVotes(0).getVoteCount()));
         logger.info(Integer.toString(i++));
       }
-      fromInfo = PublicMethed.queryAccount(testKey002, blockingStubFull);
+      fromInfo = PublicMethedForDailybuild.queryAccount(testKey002, blockingStubFull);
       accountNetMessage = blockingStubFull.getAccountNet(request);
       logger.info("Now the from net used is " + Long.toString(accountNetMessage.getNetUsed()));
 
@@ -260,7 +261,7 @@ public class ContinueVote {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     Return response = blockingStubFull.broadcastTransaction(transaction);
 
     if (response.getResult() == false) {
@@ -342,7 +343,7 @@ public class ContinueVote {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     Return response = blockingStubFull.broadcastTransaction(transaction);
     if (response.getResult() == false) {
       return false;
@@ -406,7 +407,7 @@ public class ContinueVote {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtilsForDailybuild.sign(transaction, ecKey);
   }
 }
 

@@ -65,7 +65,7 @@ public class RetryTrc721001 {
   final byte[] sideGatewayAddressKey = WalletClient.decodeFromBase58Check(sideGatewayAddress);
 
   final String ChainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.ChainIdAddress");
+      .getString("gateway_address.chainIdAddress");
   final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
 
   String nonce = null;

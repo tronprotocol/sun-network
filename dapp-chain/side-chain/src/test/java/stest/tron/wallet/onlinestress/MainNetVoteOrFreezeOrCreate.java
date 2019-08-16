@@ -331,7 +331,7 @@ public class MainNetVoteOrFreezeOrCreate {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtilsForDailybuild.sign(transaction, ecKey);
   }
 
   */
@@ -372,7 +372,7 @@ public class MainNetVoteOrFreezeOrCreate {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
 
     if (response.getResult() == false) {

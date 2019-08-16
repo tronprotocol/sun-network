@@ -21,17 +21,17 @@ import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractScenario005 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -56,7 +56,7 @@ public class ContractScenario005 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(contract005Key);
+    PublicMethedForDailybuild.printAddress(contract005Key);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -65,11 +65,11 @@ public class ContractScenario005 {
 
   @Test(enabled = true)
   public void deployIcoContract() {
-    Assert.assertTrue(PublicMethed.sendcoin(contract005Address, 200000000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contract005Address, 200000000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(contract005Address, 10000000L,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(contract005Address, 10000000L,
         3, 1, contract005Key, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(contract005Address,
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(contract005Address,
         blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
@@ -79,27 +79,27 @@ public class ContractScenario005 {
 
     String filePath = "./src/test/resources/soliditycode/contractScenario005.sol";
     String contractName = "Crowdsale";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    String txid = PublicMethed
+    String txid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
             0L, 100, null, contract005Key, contract005Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Optional<TransactionInfo> infoById = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
     logger.info("Txid is " + txid);
     logger.info("Deploy energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
     byte[] contractAddress = null;
     contractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
 
     Assert.assertFalse(smartContract.getAbi().toString().isEmpty());
     Assert.assertTrue(smartContract.getName().equalsIgnoreCase(contractName));
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
-    accountResource = PublicMethed.getAccountResource(contract005Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild.getAccountResource(contract005Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
     Assert.assertTrue(energyLimit > 0);

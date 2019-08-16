@@ -27,14 +27,14 @@ import org.tron.protos.Protocol.Transaction.Result.contractResult;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractScenario014 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
@@ -75,7 +75,7 @@ public class ContractScenario014 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(contractExcKey);
+    PublicMethedForDailybuild.printAddress(contractExcKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -93,30 +93,30 @@ public class ContractScenario014 {
 
   @Test(enabled = true, description = "Clear a contract with ABI created by itself")
   public void testClearAbi() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(contractExcAddress, 10000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/ClearAbi001.sol";
     String contractName = "testConstantContract";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, contractExcKey,
         contractExcAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     Assert.assertFalse(smartContract.getAbi().toString().isEmpty());
     Assert.assertTrue(smartContract.getName().equalsIgnoreCase(contractName));
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -126,23 +126,23 @@ public class ContractScenario014 {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
 
-    String txid = PublicMethed
+    String txid = PublicMethedForDailybuild
         .clearContractAbi(contractAddress, contractExcAddress, contractExcKey,
             blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(0,infoById.get().getResultValue());
     Assert.assertEquals("",
         ByteArray.toHexString(infoById.get().getResMessage().toByteArray()));
 
-    Optional<Transaction> byId = PublicMethed.getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> byId = PublicMethedForDailybuild.getTransactionById(txid, blockingStubFull);
     Assert.assertEquals(byId.get().getRet(0).getContractRet().getNumber(),
         SUCCESS_VALUE);
     Assert.assertEquals(byId.get().getRet(0).getContractRetValue(), SUCCESS_VALUE);
     Assert.assertEquals(byId.get().getRet(0).getContractRet(), contractResult.SUCCESS);
 
-    smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getAbi().toString().isEmpty());
     Assert.assertTrue(smartContract.getName().equalsIgnoreCase(contractName));
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());

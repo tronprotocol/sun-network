@@ -27,22 +27,24 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
 @Slf4j
 public class WalletTestAccount005 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   private final String notWitnessTestKey =
       "8CB4480194192F30907E14B52498F594BD046E21D7C4D8FE866563A6760AC891";
 
-  private final byte[] notWitness = PublicMethed.getFinalAddress(notWitnessTestKey);
+  private final byte[] notWitness = PublicMethedForDailybuild.getFinalAddress(notWitnessTestKey);
 
   private ManagedChannel channelFull = null;
   private ManagedChannel searchChannelFull = null;
@@ -262,7 +264,7 @@ public class WalletTestAccount005 {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtilsForDailybuild.sign(transaction, ecKey);
   }
 }
 

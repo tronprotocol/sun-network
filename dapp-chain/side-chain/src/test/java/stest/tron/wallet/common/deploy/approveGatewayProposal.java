@@ -74,7 +74,7 @@ public class approveGatewayProposal {
   @Test(enabled = true)
   public void testApproveProposal() {
     String mainChainAddress = Configuration.getByPath("testng.conf")
-        .getString("gateway_address.sideChainIdAddress");
+        .getString("gateway_address.chainIdAddress");
     String sideChainAddress = "";
     try {
       File sideChainFile = new File("/home/sideChainGatewayAddress");
@@ -88,7 +88,6 @@ public class approveGatewayProposal {
     }
 
     HashMap<Long, String> proposalMap = new HashMap<Long, String>();
-    logger.info("mainChainAddress: " + mainChainAddress);
     logger.info("sideChainAddress: " + sideChainAddress);
     logger.info("testDepositTrx: " + testDepositTrx);
     proposalMap.put(1000001L, sideChainAddress);

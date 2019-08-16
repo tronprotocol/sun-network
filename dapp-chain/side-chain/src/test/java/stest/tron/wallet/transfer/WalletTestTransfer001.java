@@ -29,18 +29,20 @@ import org.tron.protos.Protocol.Transaction;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
 @Slf4j
 public class WalletTestTransfer001 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
 
   private ManagedChannel channelFull = null;
@@ -98,30 +100,30 @@ public class WalletTestTransfer001 {
     final byte[] receiptAccountAddress = ecKey2.getAddress();
     receiptAccountKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
-    Assert.assertTrue(PublicMethed.sendcoin(sendAccountAddress, 90000000000L,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(sendAccountAddress, 90000000000L,
         fromAddress, testKey002, blockingStubFull));
 
     logger.info(receiptAccountKey);
     //Test send coin.
-    Account sendAccount = PublicMethed.queryAccount(sendAccountKey, blockingStubFull);
+    Account sendAccount = PublicMethedForDailybuild.queryAccount(sendAccountKey, blockingStubFull);
     Long sendAccountBeforeBalance = sendAccount.getBalance();
     Assert.assertTrue(sendAccountBeforeBalance == 90000000000L);
-    Account receiptAccount = PublicMethed.queryAccount(receiptAccountKey, blockingStubFull);
+    Account receiptAccount = PublicMethedForDailybuild.queryAccount(receiptAccountKey, blockingStubFull);
     Long receiptAccountBeforeBalance = receiptAccount.getBalance();
     Assert.assertTrue(receiptAccountBeforeBalance == 0);
 
     //Test send coin
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.sendcoin(receiptAccountAddress, 49880000000L,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(receiptAccountAddress, 49880000000L,
         sendAccountAddress, sendAccountKey, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    sendAccount = PublicMethed.queryAccount(sendAccountKey, blockingStubFull);
+    sendAccount = PublicMethedForDailybuild.queryAccount(sendAccountKey, blockingStubFull);
     Long sendAccountAfterBalance = sendAccount.getBalance();
     logger.info(Long.toString(sendAccountAfterBalance));
     Assert.assertTrue(sendAccountAfterBalance == 90000000000L - 49880000000L - 100000L);
 
-    receiptAccount = PublicMethed.queryAccount(receiptAccountKey, blockingStubFull);
+    receiptAccount = PublicMethedForDailybuild.queryAccount(receiptAccountKey, blockingStubFull);
     Long receiptAccountAfterBalance = receiptAccount.getBalance();
     logger.info(Long.toString(receiptAccountAfterBalance));
     Assert.assertTrue(receiptAccountAfterBalance == 49880000000L);
@@ -194,7 +196,7 @@ public class WalletTestTransfer001 {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     Return response = blockingStubFull.broadcastTransaction(transaction);
 
     if (response.getResult() == false) {
@@ -326,7 +328,7 @@ public class WalletTestTransfer001 {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtilsForDailybuild.sign(transaction, ecKey);
   }
 }
 

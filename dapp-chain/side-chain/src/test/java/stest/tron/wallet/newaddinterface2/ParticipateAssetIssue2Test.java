@@ -41,8 +41,8 @@ public class ParticipateAssetIssue2Test {
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
 
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
   private static final long now = System.currentTimeMillis();
   private static String name = "testAssetIssue002_" + Long.toString(now);
@@ -97,10 +97,10 @@ public class ParticipateAssetIssue2Test {
       Long start = System.currentTimeMillis() + 2000;
       Long end = System.currentTimeMillis() + 1000000000;
       //send coin to the new account
-      Assert.assertTrue(PublicMethed.sendcoin(participateAccountAddress, 2048000000, fromAddress,
+      Assert.assertTrue(PublicMethedForDailybuild.sendcoin(participateAccountAddress, 2048000000, fromAddress,
           testKey002, blockingStubFull));
       //Create a new Asset Issue
-      Assert.assertTrue(PublicMethed.createAssetIssue(participateAccountAddress,
+      Assert.assertTrue(PublicMethedForDailybuild.createAssetIssue(participateAccountAddress,
           name, totalSupply, 1, 1, System.currentTimeMillis() + 2000,
           System.currentTimeMillis() + 1000000000, 1, description, url,
           2000L, 2000L, 1L, 1L,
@@ -120,34 +120,34 @@ public class ParticipateAssetIssue2Test {
     //Participate AssetIssue success
     logger.info(name);
     //Freeze amount to get bandwitch.
-    Assert.assertTrue(PublicMethed.freezeBalance(toAddress, 10000000, 3, testKey003,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(toAddress, 10000000, 3, testKey003,
         blockingStubFull));
 
     //The amount is large than the total supply, participate failed.
-    Return ret1 = PublicMethed.participateAssetIssue2(participateAccountAddress,
+    Return ret1 = PublicMethedForDailybuild.participateAssetIssue2(participateAccountAddress,
         name.getBytes(), 9100000000000000000L, toAddress, testKey003, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(),
         "contract validate error : No enough balance !");
     //The asset issue name is not correct, participate failed.
-    ret1 = PublicMethed.participateAssetIssue2(participateAccountAddress,
+    ret1 = PublicMethedForDailybuild.participateAssetIssue2(participateAccountAddress,
         (name + "wrong").getBytes(), 100L, toAddress, testKey003, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
     //The amount is 0, participate asset issue failed.
-    ret1 = PublicMethed.participateAssetIssue2(participateAccountAddress,
+    ret1 = PublicMethedForDailybuild.participateAssetIssue2(participateAccountAddress,
         name.getBytes(), 0L, toAddress, testKey003, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(),
         "contract validate error : Amount must greater than 0!");
 
     //The amount is -1, participate asset issue failed.
-    ret1 = PublicMethed.participateAssetIssue2(participateAccountAddress,
+    ret1 = PublicMethedForDailybuild.participateAssetIssue2(participateAccountAddress,
         name.getBytes(), -1L, toAddress, testKey003, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(),
         "contract validate error : Amount must greater than 0!");
     //The asset issue owner address is not correct, participate asset issue failed.
-    ret1 = PublicMethed.participateAssetIssue2(fromAddress, name.getBytes(), 100L,
+    ret1 = PublicMethedForDailybuild.participateAssetIssue2(fromAddress, name.getBytes(), 100L,
         toAddress, testKey003, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
   }

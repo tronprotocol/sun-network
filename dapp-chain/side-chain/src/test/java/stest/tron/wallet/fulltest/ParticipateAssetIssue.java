@@ -41,8 +41,8 @@ public class ParticipateAssetIssue {
   private final String testKey003 =
       "6815B367FDDE637E53E9ADC8E69424E07724333C9A2B973CFA469975E20753FC";
 
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
   private static final long now = System.currentTimeMillis();
   private static String name = "PartAssetIssue_" + Long.toString(now);
@@ -99,17 +99,17 @@ public class ParticipateAssetIssue {
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     //Send coin to 2 account.
-    Assert.assertTrue(PublicMethed.sendcoin(createAddress, sendAmount, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(createAddress, sendAmount, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(participateAssetAddress, sendAmount,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(participateAssetAddress, sendAmount,
         fromAddress, testKey002, blockingStubFull));
     //Participate account freeze balance to get bandwidth.
-    Assert.assertTrue(PublicMethed.freezeBalance(participateAssetAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(participateAssetAddress,
         10000000L, 3, testKeyForParticipate, blockingStubFull));
     //Create an asset issue.
     Long start = System.currentTimeMillis() + 2000;
     Long end = System.currentTimeMillis() + 1000000000;
-    Assert.assertTrue(PublicMethed.createAssetIssue(createAddress, name, totalSupply, 1, 1,
+    Assert.assertTrue(PublicMethedForDailybuild.createAssetIssue(createAddress, name, totalSupply, 1, 1,
         start, end, 1, description, url, freeAssetNetLimit, publicFreeAssetNetLimit,
         10L, 10L, testKeyForCreate, blockingStubFull));
     try {
@@ -117,8 +117,8 @@ public class ParticipateAssetIssue {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    final Account createInfo = PublicMethed.queryAccount(testKeyForCreate, blockingStubFull);
-    final Account participateInfo = PublicMethed.queryAccount(testKeyForParticipate,
+    final Account createInfo = PublicMethedForDailybuild.queryAccount(testKeyForCreate, blockingStubFull);
+    final Account participateInfo = PublicMethedForDailybuild.queryAccount(testKeyForParticipate,
         blockingStubFull);
 
     Map<String, Long> assetIssueMap = new HashMap<String, Long>();
@@ -170,7 +170,7 @@ public class ParticipateAssetIssue {
     end1 = System.currentTimeMillis();
     logger.info("The time is " + Long.toString(end1 - start1));
 
-    Account createInfo = PublicMethed.queryAccount(testKeyForCreate, blockingStubFull);
+    Account createInfo = PublicMethedForDailybuild.queryAccount(testKeyForCreate, blockingStubFull);
 
     Map<String, Long> createAssetIssueMap = new HashMap<String, Long>();
 
@@ -187,7 +187,7 @@ public class ParticipateAssetIssue {
     afterCreateAssetIssueBalance = temp;
 
     temp = 0L;
-    Account participateInfo = PublicMethed.queryAccount(testKeyForParticipate, blockingStubFull);
+    Account participateInfo = PublicMethedForDailybuild.queryAccount(testKeyForParticipate, blockingStubFull);
     Map<String, Long> participateAssetIssueMap = new HashMap<String, Long>();
     participateAssetIssueMap = participateInfo.getAssetMap();
     for (Long key : participateAssetIssueMap.values()) {
@@ -222,8 +222,8 @@ public class ParticipateAssetIssue {
       }
     }
 
-    createInfo = PublicMethed.queryAccount(testKeyForCreate, blockingStubFull);
-    participateInfo = PublicMethed.queryAccount(testKeyForParticipate, blockingStubFull);
+    createInfo = PublicMethedForDailybuild.queryAccount(testKeyForCreate, blockingStubFull);
+    participateInfo = PublicMethedForDailybuild.queryAccount(testKeyForParticipate, blockingStubFull);
     createAssetIssueMap = new HashMap<String, Long>();
     participateAssetIssueMap = new HashMap<String, Long>();
 
@@ -311,7 +311,7 @@ public class ParticipateAssetIssue {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtilsForDailybuild.sign(transaction, ecKey);
   }
 
   */

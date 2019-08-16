@@ -20,13 +20,14 @@ import org.tron.protos.Protocol.Account;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class CreateAccount2Test {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private static final long now = System.currentTimeMillis();
   private static String name = "AssetIssue012_" + Long.toString(now);
   private static final long totalSupply = now;
@@ -64,24 +65,24 @@ public class CreateAccount2Test {
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-    Assert.assertTrue(PublicMethed.sendcoin(account007Address, 10000000,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(account007Address, 10000000,
         fromAddress, testKey002, blockingStubFull));
   }
 
   @Test(enabled = true)
   public void testCreateAccount2() {
-    Account accountInfo = PublicMethed.queryAccount(account007Key, blockingStubFull);
+    Account accountInfo = PublicMethedForDailybuild.queryAccount(account007Key, blockingStubFull);
     final Long beforeBalance = accountInfo.getBalance();
-    AccountNetMessage accountNetInfo = PublicMethed.getAccountNet(account007Address,
+    AccountNetMessage accountNetInfo = PublicMethedForDailybuild.getAccountNet(account007Address,
         blockingStubFull);
     final Long beforeFreeNet = accountNetInfo.getFreeNetUsed();
-    GrpcAPI.Return ret1 = PublicMethed.createAccount2(account007Address, newAccountAddress,
+    GrpcAPI.Return ret1 = PublicMethedForDailybuild.createAccount2(account007Address, newAccountAddress,
         account007Key, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
-    accountInfo = PublicMethed.queryAccount(account007Key, blockingStubFull);
+    accountInfo = PublicMethedForDailybuild.queryAccount(account007Key, blockingStubFull);
     Long afterBalance = accountInfo.getBalance();
-    accountNetInfo = PublicMethed.getAccountNet(account007Address,
+    accountNetInfo = PublicMethedForDailybuild.getAccountNet(account007Address,
         blockingStubFull);
     Long afterFreeNet = accountNetInfo.getFreeNetUsed();
     logger.info(Long.toString(beforeBalance));
@@ -95,7 +96,7 @@ public class CreateAccount2Test {
   @Test(enabled = true)
   public void testExceptionCreateAccount2() {
     //Try to create an exist account
-    GrpcAPI.Return ret1 = PublicMethed
+    GrpcAPI.Return ret1 = PublicMethedForDailybuild
         .createAccount2(account007Address, account007Address, account007Key,
             blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
@@ -103,7 +104,7 @@ public class CreateAccount2Test {
         "contract validate error : Account has existed");
     //Try to create an invalid account
     byte[] wrongAddress = "wrongAddress".getBytes();
-    ret1 = PublicMethed.createAccount2(account007Address, wrongAddress, account007Key,
+    ret1 = PublicMethedForDailybuild.createAccount2(account007Address, wrongAddress, account007Key,
         blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(),

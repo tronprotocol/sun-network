@@ -60,7 +60,7 @@ public class RetryTrx001 {
       .getString("gateway_address.key2");
 
   final String ChainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.ChainIdAddress");
+      .getString("gateway_address.chainIdAddress");
   final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] depositAddress = ecKey1.getAddress();

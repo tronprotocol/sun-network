@@ -38,7 +38,7 @@ public class UpdateAsset2Test {
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
 
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
 
   private static final long now = System.currentTimeMillis();
@@ -104,24 +104,24 @@ public class UpdateAsset2Test {
         .getAssetIssueByAccount(request1);
     Optional<GrpcAPI.AssetIssueList> queryAssetByAccount = Optional.ofNullable(assetIssueList1);
     if (queryAssetByAccount.get().getAssetIssueCount() == 0) {
-      //Assert.assertTrue(PublicMethed.freezeBalance(fromAddress,10000000L,3,
+      //Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(fromAddress,10000000L,3,
       //    testKey002,blockingStubFull));
-      Assert.assertTrue(PublicMethed
-          .sendcoin(asset010Address, sendAmount, fromAddress, testKey002, blockingStubFull));
-      Assert.assertTrue(PublicMethed
-          .freezeBalance(asset010Address, 200000000L, 3, testKeyForAssetIssue010,
+      Assert.assertTrue(PublicMethedForDailybuild
+        .sendcoin(asset010Address, sendAmount, fromAddress, testKey002, blockingStubFull));
+      Assert.assertTrue(PublicMethedForDailybuild
+        .freezeBalance(asset010Address, 200000000L, 3, testKeyForAssetIssue010,
               blockingStubFull));
       Long start = System.currentTimeMillis() + 2000;
       Long end = System.currentTimeMillis() + 1000000000;
-      Assert.assertTrue(PublicMethed.createAssetIssue(asset010Address, name, totalSupply, 1, 1,
+      Assert.assertTrue(PublicMethedForDailybuild.createAssetIssue(asset010Address, name, totalSupply, 1, 1,
           start, end, 1, description, url, freeAssetNetLimit, publicFreeAssetNetLimit,
           1L, 1L, testKeyForAssetIssue010, blockingStubFull));
     } else {
       logger.info("This account already create an assetisue");
       Optional<GrpcAPI.AssetIssueList> queryAssetByAccount1 = Optional.ofNullable(assetIssueList1);
       name = ByteArray.toStr(queryAssetByAccount1.get().getAssetIssue(0).getName().toByteArray());
-      Assert.assertTrue(PublicMethed
-          .updateAsset(asset010Address, description.getBytes(), url.getBytes(), freeAssetNetLimit,
+      Assert.assertTrue(PublicMethedForDailybuild
+        .updateAsset(asset010Address, description.getBytes(), url.getBytes(), freeAssetNetLimit,
               publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull));
     }
 
@@ -137,7 +137,7 @@ public class UpdateAsset2Test {
     Assert.assertTrue(assetIssueByName.getPublicFreeAssetNetLimit() == publicFreeAssetNetLimit);
 
     //Test update asset issue
-    Return ret1 = PublicMethed
+    Return ret1 = PublicMethedForDailybuild
         .updateAsset2(asset010Address, updateDescription.getBytes(), updateUrl.getBytes(),
             updateFreeAssetNetLimit,
             updatePublicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull);
@@ -162,7 +162,7 @@ public class UpdateAsset2Test {
   public void testUpdateAssetIssueExcption2() {
     //Test update asset issue for wrong parameter
     //publicFreeAssetNetLimit is -1
-    Return ret1 = PublicMethed
+    Return ret1 = PublicMethedForDailybuild
         .updateAsset2(asset010Address, updateDescription.getBytes(), updateUrl.getBytes(),
             updateFreeAssetNetLimit,
             -1L, testKeyForAssetIssue010, blockingStubFull);
@@ -170,39 +170,39 @@ public class UpdateAsset2Test {
     Assert.assertEquals(ret1.getMessage().toStringUtf8(),
         "contract validate error : Invalid PublicFreeAssetNetLimit");
     //publicFreeAssetNetLimit is 0
-    ret1 = PublicMethed
+    ret1 = PublicMethedForDailybuild
         .updateAsset2(asset010Address, updateDescription.getBytes(), updateUrl.getBytes(),
             updateFreeAssetNetLimit,
             0, testKeyForAssetIssue010, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
     //FreeAssetNetLimit is -1
-    ret1 = PublicMethed
+    ret1 = PublicMethedForDailybuild
         .updateAsset2(asset010Address, updateDescription.getBytes(), updateUrl.getBytes(), -1,
             publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(),
         "contract validate error : Invalid FreeAssetNetLimit");
     //FreeAssetNetLimit is 0
-    ret1 = PublicMethed
+    ret1 = PublicMethedForDailybuild
         .updateAsset2(asset010Address, updateDescription.getBytes(), updateUrl.getBytes(), 0,
             publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
     //Description is null
-    ret1 = PublicMethed
+    ret1 = PublicMethedForDailybuild
         .updateAsset2(asset010Address, "".getBytes(), updateUrl.getBytes(), freeAssetNetLimit,
             publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
     //Url is null
-    ret1 = PublicMethed
+    ret1 = PublicMethedForDailybuild
         .updateAsset2(asset010Address, description.getBytes(), "".getBytes(), freeAssetNetLimit,
             publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "contract validate error : Invalid url");
     //Too long discription
-    ret1 = PublicMethed
+    ret1 = PublicMethedForDailybuild
         .updateAsset2(asset010Address, tooLongDescription.getBytes(), url.getBytes(),
             freeAssetNetLimit,
             publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull);
@@ -210,7 +210,7 @@ public class UpdateAsset2Test {
     Assert.assertEquals(ret1.getMessage().toStringUtf8(),
         "contract validate error : Invalid description");
     //Too long URL
-    ret1 = PublicMethed
+    ret1 = PublicMethedForDailybuild
         .updateAsset2(asset010Address, description.getBytes(), tooLongUrl.getBytes(),
             freeAssetNetLimit,
             publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull);
@@ -226,7 +226,7 @@ public class UpdateAsset2Test {
 
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
-    Return ret1 = PublicMethed
+    Return ret1 = PublicMethedForDailybuild
         .updateAsset2(asset010Address, description.getBytes(), url.getBytes(), 1999999999,
             199, testKeyForAssetIssue010, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
@@ -254,7 +254,7 @@ public class UpdateAsset2Test {
       ex.printStackTrace();
     }
     ECKey ecKey = temKey;
-    Account search = PublicMethed.queryAccount(priKey, blockingStubFull);
+    Account search = PublicMethedForDailybuild.queryAccount(priKey, blockingStubFull);
 
     try {
       Contract.AssetIssueContract.Builder builder = Contract.AssetIssueContract.newBuilder();

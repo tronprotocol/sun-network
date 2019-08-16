@@ -30,7 +30,9 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
 //import stest.tron.wallet.common.client.AccountComparator;
 
@@ -43,7 +45,7 @@ public class CreateaAndUpdateWitness2Test {
   private static final byte[] INVAILD_ADDRESS = Base58
       .decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
 
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private static final Long costForCreateWitness = 9999000000L;
   String createWitnessUrl = "http://www.createwitnessurl.com";
   String updateWitnessUrl = "http://www.updatewitnessurl.com";
@@ -76,8 +78,8 @@ public class CreateaAndUpdateWitness2Test {
   @BeforeClass
   public void beforeClass() {
     logger.info(lowBalTest);
-    logger.info(ByteArray.toHexString(PublicMethed.getFinalAddress(lowBalTest)));
-    logger.info(Base58.encode58Check(PublicMethed.getFinalAddress(lowBalTest)));
+    logger.info(ByteArray.toHexString(PublicMethedForDailybuild.getFinalAddress(lowBalTest)));
+    logger.info(Base58.encode58Check(PublicMethedForDailybuild.getFinalAddress(lowBalTest)));
 
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
@@ -427,7 +429,8 @@ public class CreateaAndUpdateWitness2Test {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey,PublicMethed.getMaingatewayByteAddr(),false);
+    return TransactionUtilsForDailybuild
+        .sign(transaction, ecKey, PublicMethed.getMaingatewayByteAddr(),false);
   }
 }
 

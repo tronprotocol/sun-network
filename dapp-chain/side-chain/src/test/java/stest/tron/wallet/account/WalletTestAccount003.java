@@ -31,8 +31,10 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
 //import stest.tron.wallet.common.client.AccountComparator;
 
@@ -41,10 +43,10 @@ public class WalletTestAccount003 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
   private static final long now = System.currentTimeMillis();
   private static final String name = "testAssetIssue_" + Long.toString(now);
@@ -85,7 +87,7 @@ public class WalletTestAccount003 {
 
   @BeforeClass
   public void beforeClass() {
-    PublicMethed.printAddress(lowBalTest);
+    PublicMethedForDailybuild.printAddress(lowBalTest);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -94,46 +96,46 @@ public class WalletTestAccount003 {
 
   @Test
   public void test1CreateAccount() {
-    Account noCreateAccount = PublicMethed.queryAccount(lowBalTest, blockingStubFull);
+    Account noCreateAccount = PublicMethedForDailybuild.queryAccount(lowBalTest, blockingStubFull);
     while (noCreateAccount.getBalance() != 0) {
       ecKey = new ECKey(Utils.getRandom());
       lowBalAddress = ecKey.getAddress();
       lowBalTest = ByteArray.toHexString(ecKey.getPrivKeyBytes());
-      noCreateAccount = PublicMethed.queryAccount(lowBalTest, blockingStubFull);
+      noCreateAccount = PublicMethedForDailybuild.queryAccount(lowBalTest, blockingStubFull);
     }
     logger.info("lowBalAddress  " + ByteArray.toHexString(lowBalAddress));
     logger.info("lowBalTest  " + lowBalTest);
-    Assert.assertTrue(PublicMethed.sendcoin(lowBalAddress, 1L, fromAddress, testKey002,blockingStubFull));
-    noCreateAccount = PublicMethed.queryAccount(lowBalTest, blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(lowBalAddress, 1L, fromAddress, testKey002,blockingStubFull));
+    noCreateAccount = PublicMethedForDailybuild.queryAccount(lowBalTest, blockingStubFull);
     logger.info(Long.toString(noCreateAccount.getBalance()));
     Assert.assertTrue(noCreateAccount.getBalance() == 1);
   }
 
   @Test(enabled = true)
   public void test2UpdateAccount() {
-//    Assert.assertFalse(PublicMethed.updateAccount(lowBalAddress,
+//    Assert.assertFalse(PublicMethedForDailybuild.updateAccount(lowBalAddress,
 //        mostLongNamePlusOneChar.getBytes(), lowBalTest, blockingStubFull));
-    Assert.assertFalse(PublicMethed.updateAccount(lowBalAddress, "".getBytes(), lowBalTest,
+    Assert.assertFalse(PublicMethedForDailybuild.updateAccount(lowBalAddress, "".getBytes(), lowBalTest,
         blockingStubFull));
     String mostLongName = getRandomStr(33);
-    Assert.assertTrue(PublicMethed.updateAccount(lowBalAddress, mostLongName.getBytes(), lowBalTest,
+    Assert.assertTrue(PublicMethedForDailybuild.updateAccount(lowBalAddress, mostLongName.getBytes(), lowBalTest,
         blockingStubFull));
     String firstUpdateName = getRandomStr(32);
-    Assert.assertFalse(PublicMethed.updateAccount(lowBalAddress, firstUpdateName.getBytes(),
+    Assert.assertFalse(PublicMethedForDailybuild.updateAccount(lowBalAddress, firstUpdateName.getBytes(),
         lowBalTest, blockingStubFull));
     String secondUpdateName = getRandomStr(15);
-    Assert.assertFalse(PublicMethed.updateAccount(lowBalAddress, secondUpdateName.getBytes(),
+    Assert.assertFalse(PublicMethedForDailybuild.updateAccount(lowBalAddress, secondUpdateName.getBytes(),
         lowBalTest, blockingStubFull));
   }
 
 //  @Test(enabled = true)
 //  public void test3NoBalanceCreateAssetIssue() {
-//    Account lowaccount = PublicMethed.queryAccount(lowBalTest, blockingStubFull);
+//    Account lowaccount = PublicMethedForDailybuild.queryAccount(lowBalTest, blockingStubFull);
 //    if (lowaccount.getBalance() > 0) {
 //      Assert.assertTrue(sendCoin(toAddress, lowaccount.getBalance(), lowBalAddress, lowBalTest));
 //    }
 //    //Create AssetIssue failed when there is no enough balance.
-//    Assert.assertFalse(PublicMethed.createAssetIssue(lowBalAddress, name, TotalSupply, 1, 1,
+//    Assert.assertFalse(PublicMethedForDailybuild.createAssetIssue(lowBalAddress, name, TotalSupply, 1, 1,
 //        now + 100000000L, now + 10000000000L, 2, description, url, 10000L,
 //        10000L, 1L, 1L, lowBalTest, blockingStubFull));
 //    logger.info("nobalancecreateassetissue");
@@ -154,7 +156,7 @@ public class WalletTestAccount003 {
   @Test(enabled = true)
   public void test6NoFreezeBalanceToUnfreezeBalance() {
     //Unfreeze account failed when no freeze balance
-    Account noFreezeAccount = PublicMethed.queryAccount(lowBalTest, blockingStubFull);
+    Account noFreezeAccount = PublicMethedForDailybuild.queryAccount(lowBalTest, blockingStubFull);
     if (noFreezeAccount.getFrozenCount() == 0) {
       Assert.assertFalse(unFreezeBalance(lowBalAddress, lowBalTest));
     } else {
@@ -334,7 +336,7 @@ public class WalletTestAccount003 {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtilsForDailybuild.sign(transaction, ecKey);
   }
 
   /**
@@ -367,7 +369,7 @@ public class WalletTestAccount003 {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
     if (response.getResult() == false) {
       return false;
@@ -457,7 +459,7 @@ public class WalletTestAccount003 {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
 
     if (response.getResult() == false) {

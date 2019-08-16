@@ -6,48 +6,40 @@
     <listener class-name="stest.tron.wallet.common.client.utils.RetryListener"/>
   </listeners>
 
-<!--  <test name="account,transfer">
+  <test name="beforeSuite">
     <classes>
-      <class name="stest.tron.wallet.common.deposit.DepositTrx001"></class>
-      <class name="stest.tron.wallet.common.deposit.WithdrawTrx001"></class>
+      <class name="stest.tron.wallet.common.deploy.depositTokenFoundation"></class>
     </classes>
-  </test>-->
+  </test>
 
+  <test name="sun-network">
+    <classes>
+      <class name="stest.tron.wallet.depositWithdraw.WithdrawTrx001"></class>
+      <class name="stest.tron.wallet.depositWithdraw.WithdrawTrc10001"></class>
+      <class name="stest.tron.wallet.depositWithdraw.WithdrawTrc20001"></class>
+      <class name="stest.tron.wallet.depositWithdraw.WithdrawTrc721001"></class>
+      <class name="stest.tron.wallet.depositWithdraw.RetryTrx001"></class>
+    </classes>
+  </test>
   <test name="account,transfer">
     <packages>
-      <package name="stest.tron.wallet.transfer">
-      </package>
-      <package name="stest.tron.wallet.account">
-      </package>
+      <package name="stest.tron.wallet.transfer"></package>
+      <package name="stest.tron.wallet.account"></package>
     </packages>
   </test>
 
-<!--  <test name="exchangeandtoken,mutisign">
-    <packages>
-      <package name="stest.tron.wallet.exchangeandtoken">
-      </package>
-      <package name="stest.tron.wallet.mutisign">
-      </package>
-    </packages>
-  </test>-->
-
   <test name="Contract linkage,block,node">
     <packages>
-      <package name="stest.tron.wallet.contract.linkage">
-      </package>
-      <package name="stest.tron.wallet.block">
-      </package>
+      <package name="stest.tron.wallet.contract.linkage"></package>
+      <package name="stest.tron.wallet.block"></package>
     </packages>
   </test>
 
   <test name="contract scenario,committee,witness">
     <packages>
-      <package name="stest.tron.wallet.contract.scenario">
-      </package>
-      <package name="stest.tron.wallet.committee">
-      </package>
-      <package name="stest.tron.wallet.witness">
-      </package>
+      <package name="stest.tron.wallet.contract.scenario"></package>
+      <package name="stest.tron.wallet.committee"></package>
+      <package name="stest.tron.wallet.witness"></package>
     </packages>
   </test>
 

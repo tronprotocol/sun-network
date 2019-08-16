@@ -20,14 +20,14 @@ import org.tron.core.Wallet;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractScenario013 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -56,7 +56,7 @@ public class ContractScenario013 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(contract013Key);
+    PublicMethedForDailybuild.printAddress(contract013Key);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -65,9 +65,9 @@ public class ContractScenario013 {
 
   @Test(enabled = true)
   public void deployTronTrxAndSunContract() {
-    Assert.assertTrue(PublicMethed.sendcoin(contract013Address, 20000000000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contract013Address, 20000000000L, fromAddress,
         testKey002, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(contract013Address,
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(contract013Address,
         blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
@@ -77,16 +77,16 @@ public class ContractScenario013 {
 
     String filePath = "./src/test/resources/soliditycode/contractScenario013.sol";
     String contractName = "timetest";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    txid = PublicMethed.deployContractAndGetTransactionInfoById(contractName, abi, code, "",
+    txid = PublicMethedForDailybuild.deployContractAndGetTransactionInfoById(contractName, abi, code, "",
         maxFeeLimit, 0L, 100, null, contract013Key, contract013Address, blockingStubFull);
     logger.info(txid);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     Assert.assertTrue(infoById.get().getReceipt().getEnergyUsageTotal() > 0);
@@ -95,7 +95,7 @@ public class ContractScenario013 {
 
   @Test(enabled = true)
   public void triggerTronTrxAndSunContract() {
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(contract013Address,
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(contract013Address,
         blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
@@ -105,27 +105,27 @@ public class ContractScenario013 {
 
     String filePath = "./src/test/resources/soliditycode/contractScenario013.sol";
     String contractName = "timetest";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    String txid = PublicMethed
+    String txid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
             0L, 100, null, contract013Key, contract013Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     logger.info("energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
     contractAddress = infoById.get().getContractAddress().toByteArray();
 
-    txid = PublicMethed.triggerContractSideChain(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "time()", "#", false,
         0, 100000000L, contract013Address, contract013Key, blockingStubFull);
     logger.info(txid);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("result is " + infoById.get().getResultValue());
     logger.info("energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
     Assert.assertTrue(infoById.get().getResultValue() == 0);
