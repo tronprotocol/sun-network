@@ -1,5 +1,3 @@
-pragma solidity ^0.4.24;
-
 /**
  * @title TRC721 token receiver interface
  * @dev Interface for any contract that wants to support safeTransfers
@@ -15,5 +13,5 @@ contract ITRC721Receiver {
 
     function onTRC721Received(address from, uint256 tokenId) payable public returns (uint256);
 
-    function withdrawFee() view public returns (uint256);
+    function getWithdrawFee() view public returns (uint256);
 }

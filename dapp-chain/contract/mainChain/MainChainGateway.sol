@@ -1,4 +1,3 @@
-pragma solidity ^0.4.24;
 pragma experimental ABIEncoderV2;
 
 import "../common/token/TRC721/TRC721.sol";
