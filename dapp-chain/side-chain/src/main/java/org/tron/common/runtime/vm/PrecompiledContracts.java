@@ -236,9 +236,18 @@ public class PrecompiledContracts {
 
     @Getter
     @Setter
-    private long timeoutInUs;
+    private long vmShouldEndInUs;
 
 
+    public long getCPUTimeLeftInUs(){
+      long vmNowInUs = System.nanoTime() / 1000;
+      long left = getVmShouldEndInUs() - vmNowInUs;
+      if(left <= 0) {
+        throw Program.Exception.notEnoughTime("call");
+      } else {
+        return  left;
+      }
+    }
   }
 
   public static class MineToken extends  PrecompiledContract{
@@ -864,7 +873,7 @@ public class PrecompiledContracts {
           futures.add(future);
         }
 
-        countDownLatch.await(getTimeoutInUs()*1000, TimeUnit.NANOSECONDS);
+        countDownLatch.await(getCPUTimeLeftInUs()*1000, TimeUnit.NANOSECONDS);
 
         for (Future<ValidateSignResult> future : futures) {
           if(future.get() == null){
