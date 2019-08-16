@@ -455,7 +455,6 @@ public class RetryTrx001 {
 
     Account accountMainBefore = PublicMethed.queryAccount(depositAddress1, blockingStubFull);
     long accountMainBeforeBalance = accountMainBefore.getBalance();
-    Assert.assertTrue(accountMainBeforeBalance == 2000000000L);
     Account accountSideBefore = PublicMethed.queryAccount(depositAddress1, blockingSideStubFull);
     long accountSideBeforeBalance = accountSideBefore.getBalance();
     ByteString address = accountSideBefore.getAddress();
