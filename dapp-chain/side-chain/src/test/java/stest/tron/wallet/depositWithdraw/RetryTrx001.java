@@ -14,6 +14,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
@@ -59,14 +60,29 @@ public class RetryTrx001 {
   final String sideGatewayAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key2");
 
-  final String ChainIdAddress = Configuration.getByPath("testng.conf")
+  final String chainIdAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.chainIdAddress");
-  final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
+  final byte[] chainIdAddressKey = WalletClient.decodeFromBase58Check(chainIdAddress);
+
+  ECKey ecKey = new ECKey(Utils.getRandom());
+  byte[] depositAddress = ecKey.getAddress();
+  String testKeyFordeposit = ByteArray.toHexString(ecKey.getPrivKeyBytes());
+
   ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] depositAddress = ecKey1.getAddress();
-  String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  byte[] depositAddress1 = ecKey1.getAddress();
+  String testKeyFordeposit1 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
+
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] depositAddress2 = ecKey2.getAddress();
+  String testKeyFordeposit2 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
   String nonce = null;
   String nonceWithdraw = null;
+
+
+  private final String testOracle = Configuration.getByPath("testng.conf")
+      .getString("oralceAccountKey.key1");
+  private final byte[] testOracleAddress = PublicMethed.getFinalAddress(testOracle);
 
   @BeforeSuite
   public void beforeSuite() {
@@ -151,7 +167,7 @@ public class RetryTrx001 {
     logger.info("sideGatewayAddress:" + sideGatewayAddress);
     long withdrawValue = 1;
     String txid1 = PublicMethed
-        .withdrawTrx(ChainIdAddress,
+        .withdrawTrx(chainIdAddress,
             sideGatewayAddress,
             withdrawValue,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
@@ -216,7 +232,7 @@ public class RetryTrx001 {
         accountSideAfterRetryBalance);
     //retry  Withdraw trx
 
-    String retryWithdrawTxid = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
+    String retryWithdrawTxid = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         nonceWithdraw,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
 
@@ -230,7 +246,7 @@ public class RetryTrx001 {
   }
 
   @Test(enabled = true, description = "Retry Deposit and Withdraw Trx with nonce exception ")
-  public void test1RetryTrx002() {
+  public void test2RetryTrx002() {
     //other account Retry Deposit
     Account accountMainBeforeRetry = PublicMethed.queryAccount(depositAddress, blockingStubFull);
     long accountMainBeforeRetryBalance = accountMainBeforeRetry.getBalance();
@@ -271,7 +287,7 @@ public class RetryTrx001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
-    String retryWithdrawTxid = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
+    String retryWithdrawTxid = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         nonceWithdraw,
         maxFeeLimit, depositAddress2, testKeyFordeposit2, blockingSideStubFull);
     logger.info("retryWithdrawTxid:" + retryWithdrawTxid);
@@ -300,7 +316,7 @@ public class RetryTrx001 {
         infoByIdretryDepositTxid2.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value
-    String retryWithdrawTxid2 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
+    String retryWithdrawTxid2 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         bigNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -327,7 +343,7 @@ public class RetryTrx001 {
     Assert.assertTrue(infoByIdretryDepositTxid3.get().getResultValue() == 0);
 
     //Withdraw noce value is 0
-    String retryWithdrawTxid3 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
+    String retryWithdrawTxid3 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         smallNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -354,7 +370,7 @@ public class RetryTrx001 {
         infoByIdretryDepositTxid4.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is Long.max_value+1
-    String retryWithdrawTxid4 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
+    String retryWithdrawTxid4 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         maxNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -384,7 +400,7 @@ public class RetryTrx001 {
         infoByIdretryDepositTxid5.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is Long.min_value-1
-    String retryWithdrawTxid5 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
+    String retryWithdrawTxid5 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         minNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -414,7 +430,7 @@ public class RetryTrx001 {
         infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is -1
-    String retryWithdrawTxid6 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
+    String retryWithdrawTxid6 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         minusNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -428,6 +444,403 @@ public class RetryTrx001 {
         infoByIdrretryWithdrawTxid6.get().getResMessage().toStringUtf8());
   }
 
+
+  @Test(enabled = true, description = "Retry Deposit and Withdraw Trx with mainOralce value is 0")
+  public void test3RetryTrx003() {
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(depositAddress1, 2000000000L, testDepositAddress, testDepositTrx,
+            blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Account accountMainBefore = PublicMethed.queryAccount(depositAddress1, blockingStubFull);
+    long accountMainBeforeBalance = accountMainBefore.getBalance();
+    Assert.assertTrue(accountMainBeforeBalance == 2000000000L);
+    Account accountSideBefore = PublicMethed.queryAccount(depositAddress1, blockingSideStubFull);
+    long accountSideBeforeBalance = accountSideBefore.getBalance();
+    ByteString address = accountSideBefore.getAddress();
+    String accountSideBeforeAddress = Base58.encode58Check(address.toByteArray());
+    logger.info("accountSideBeforeAddress:" + accountSideBeforeAddress);
+    Assert.assertEquals("3QJmnh", accountSideBeforeAddress);
+
+    logger.info("accountBeforeBalance:" + accountMainBeforeBalance);
+    logger.info("accountSideBeforeBalance:" + accountSideBeforeBalance);
+
+    logger.info("transferTokenContractAddress:" + mainGateWayAddress);
+    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(testOracleAddress, 10000000,
+        0, 0, testOracle, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Account oracleMainBeforeSend = PublicMethed.queryAccount(testOracleAddress, blockingStubFull);
+    long oracleMainBeforeSendBalance = oracleMainBeforeSend.getBalance();
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(depositAddress2, oracleMainBeforeSendBalance, testOracleAddress, testOracle,
+            blockingStubFull));
+    AccountResourceMessage oracleMainBeforeWithdraw = PublicMethed
+        .getAccountResource(testOracleAddress,
+            blockingStubFull);
+    long oracleMainBeforeWithdrawnEnergyLimit = oracleMainBeforeWithdraw.getEnergyLimit();
+    long oracleMainBeforeWithdrawEnergyUsage = oracleMainBeforeWithdraw.getEnergyUsed();
+    long oracleMainBeforeWithdrawNetUsed = oracleMainBeforeWithdraw.getNetUsed();
+    long oracleMainBeforeWithdrawNetLimit = oracleMainBeforeWithdraw.getNetLimit();
+    Assert.assertEquals(oracleMainBeforeWithdrawnEnergyLimit, 0);
+    Assert.assertEquals(oracleMainBeforeWithdrawEnergyUsage, 0);
+    Assert.assertTrue(oracleMainBeforeWithdrawNetUsed < oracleMainBeforeWithdrawNetLimit);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    String methodStr = "depositTRX()";
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
+
+    long callValue = 1500000000;
+    String txid = PublicMethed
+        .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
+            callValue,
+            input,
+            maxFeeLimit, 0, "", depositAddress1, testKeyFordeposit1, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    logger.info("txid:" + txid);
+
+    Optional<TransactionInfo> infoById = PublicMethed
+        .getTransactionInfoById(txid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getResultValue() == 0);
+    long fee = infoById.get().getFee();
+    logger.info("fee:" + fee);
+
+    Long nonceLong = ByteArray.toLong(ByteArray
+        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
+    logger.info("nonce:" + nonceLong);
+    nonce = Long.toString(nonceLong);
+    Account accountMainAfter = PublicMethed.queryAccount(depositAddress1, blockingStubFull);
+    long accountMainAfterBalance = accountMainAfter.getBalance();
+    logger.info("accountAfterBalance:" + accountMainAfterBalance);
+    Assert.assertEquals(accountMainAfterBalance, accountMainBeforeBalance - fee - 1500000000);
+    Account accountSideAfter = PublicMethed.queryAccount(depositAddress1, blockingSideStubFull);
+    long accountSideAfterBalance = accountSideAfter.getBalance();
+    ByteString addressSideAfter = accountSideAfter.getAddress();
+    String accountSideAfterAddress = Base58.encode58Check(addressSideAfter.toByteArray());
+    logger.info("accountSideAfterAddress:" + accountSideAfterAddress);
+    Assert.assertEquals(Base58.encode58Check(depositAddress1), accountSideAfterAddress);
+    Assert.assertEquals(1500000000, accountSideAfterBalance);
+
+    logger.info("sideGatewayAddress:" + sideGatewayAddress);
+
+    long withdrawValue = 1;
+    String txid1 = PublicMethed
+        .withdrawTrx(chainIdAddress,
+            sideGatewayAddress,
+            withdrawValue,
+            maxFeeLimit, depositAddress1, testKeyFordeposit1, blockingStubFull,
+            blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    logger.info("txid1:" + txid1);
+    Optional<TransactionInfo> infoById1 = PublicMethed
+        .getTransactionInfoById(txid1, blockingSideStubFull);
+    Assert.assertTrue(infoById1.get().getResultValue() == 0);
+    long fee1 = infoById1.get().getFee();
+    logger.info("fee1:" + fee1);
+    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
+        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
+    nonceWithdraw = Long.toString(nonceWithdrawLong);
+    logger.info("nonceWithdraw:" + nonceWithdraw);
+
+    Account accountSideAfterWithdraw = PublicMethed
+        .queryAccount(depositAddress1, blockingSideStubFull);
+    long accountSideAfterWithdrawBalance = accountSideAfterWithdraw.getBalance();
+    ByteString addressAfterWithdraw = accountSideAfterWithdraw.getAddress();
+    String addressAfterWithdrawAddress = Base58
+        .encode58Check(addressAfterWithdraw.toByteArray());
+    logger.info("addressAfterWithdrawAddress:" + addressAfterWithdrawAddress);
+    Assert.assertEquals(Base58.encode58Check(depositAddress1), addressAfterWithdrawAddress);
+    Assert.assertEquals(accountSideAfterBalance - fee1 - 1,
+        accountSideAfterWithdrawBalance);
+    Account accountMainAfterWithdraw = PublicMethed.queryAccount(depositAddress1, blockingStubFull);
+    long accountMainAfterWithdrawBalance = accountMainAfterWithdraw.getBalance();
+    logger.info("accountAfterWithdrawBalance:" + accountMainAfterWithdrawBalance);
+    Assert.assertEquals(accountMainAfterWithdrawBalance,
+        accountMainAfterBalance);
+
+    //retry  Withdraw trx
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(testOracleAddress, oracleMainBeforeSendBalance - 200000, depositAddress2,
+            testKeyFordeposit2,
+            blockingStubFull));
+    try {
+      Thread.sleep(60000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    Account oracleMainAfterSend = PublicMethed.queryAccount(testOracleAddress, blockingStubFull);
+    long oracleMainAfterSendBalance = oracleMainAfterSend.getBalance();
+    logger.info("oracleMainAfterSendBalance:" + oracleMainAfterSendBalance);
+
+    String retryWithdrawTxid = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
+        nonceWithdraw,
+        maxFeeLimit, depositAddress1, testKeyFordeposit1, blockingSideStubFull);
+    try {
+      Thread.sleep(60000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    logger.info("retryWithdrawTxid:" + retryWithdrawTxid);
+    Optional<TransactionInfo> infoByIdretryWithdraw = PublicMethed
+        .getTransactionInfoById(retryWithdrawTxid, blockingSideStubFull);
+    Assert.assertTrue(infoByIdretryWithdraw.get().getResultValue() == 0);
+    long infoByIdretryWithdrawFee = infoByIdretryWithdraw.get().getFee();
+    logger.info("infoByIdretryWithdrawFee:" + infoByIdretryWithdrawFee);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Account accountMainAfterRetryWithdraw = PublicMethed
+        .queryAccount(depositAddress1, blockingStubFull);
+    long accountMainAfterRetryWithdrawBalance = accountMainAfterRetryWithdraw.getBalance();
+    Account accountSideAfterRetryWithdraw = PublicMethed
+        .queryAccount(depositAddress1, blockingSideStubFull);
+    long accountSideAfterRetryWithdrawBalance = accountSideAfterRetryWithdraw.getBalance();
+    Assert.assertEquals(accountSideAfterWithdrawBalance - infoByIdretryWithdrawFee,
+        accountSideAfterRetryWithdrawBalance);
+    Assert.assertEquals(accountMainAfterWithdrawBalance + 1,
+        accountMainAfterRetryWithdrawBalance);
+  }
+
+
+  @Test(enabled = true, description = "Retry Deposit and Withdraw Trx with sideOralce value is 0")
+  public void test4RetryTrx004() {
+    PublicMethed.printAddress(testKeyFordeposit);
+    PublicMethed.printAddress(testKeyFordeposit1);
+    PublicMethed.printAddress(testKeyFordeposit2);
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(depositAddress1, 2000000000L, testDepositAddress, testDepositTrx,
+            blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Account accountMainBefore = PublicMethed.queryAccount(depositAddress1, blockingStubFull);
+    long accountMainBeforeBalance = accountMainBefore.getBalance();
+    Account accountSideBefore = PublicMethed.queryAccount(depositAddress1, blockingSideStubFull);
+    long accountSideBeforeBalance = accountSideBefore.getBalance();
+    ByteString address = accountSideBefore.getAddress();
+    String accountSideBeforeAddress = Base58.encode58Check(address.toByteArray());
+    logger.info("accountSideBeforeAddress:" + accountSideBeforeAddress);
+
+    logger.info("accountBeforeBalance:" + accountMainBeforeBalance);
+    logger.info("accountSideBeforeBalance:" + accountSideBeforeBalance);
+
+    logger.info("mainGateWayAddress:" + mainGateWayAddress);
+    Assert.assertTrue(PublicMethed.freezeBalanceSideChainGetEnergy(testOracleAddress, 100000000,
+        3, 0, testOracle, chainIdAddressKey, blockingSideStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Account oracleMainBeforeSend = PublicMethed
+        .queryAccount(testOracleAddress, blockingSideStubFull);
+    long oracleMainBeforeSendBalance = oracleMainBeforeSend.getBalance();
+
+    Assert.assertTrue(PublicMethed
+        .sendcoinForSidechain(depositAddress2, oracleMainBeforeSendBalance, testOracleAddress,
+            testOracle, chainIdAddressKey,
+            blockingSideStubFull));
+    AccountResourceMessage oracleSideBeforeWithdraw = PublicMethed
+        .getAccountResource(testOracleAddress,
+            blockingSideStubFull);
+    long oracleSideBeforeWithdrawnEnergyLimit = oracleSideBeforeWithdraw.getEnergyLimit();
+    long oracleSideBeforeWithdrawEnergyUsage = oracleSideBeforeWithdraw.getEnergyUsed();
+    long oracleSideBeforeWithdrawNetUsed = oracleSideBeforeWithdraw.getNetUsed();
+    long oracleSideBeforeWithdrawNetLimit = oracleSideBeforeWithdraw.getNetLimit();
+    Assert.assertEquals(oracleSideBeforeWithdrawnEnergyLimit, 0);
+    Assert.assertEquals(oracleSideBeforeWithdrawEnergyUsage, 0);
+    Assert.assertTrue(oracleSideBeforeWithdrawNetUsed < oracleSideBeforeWithdrawNetLimit);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+
+    String methodStr = "depositTRX()";
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
+
+    long callValue = 1500000000;
+    String txid = PublicMethed
+        .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
+            callValue,
+            input,
+            maxFeeLimit, 0, "", depositAddress1, testKeyFordeposit1, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    logger.info("txid:" + txid);
+
+    Optional<TransactionInfo> infoById = PublicMethed
+        .getTransactionInfoById(txid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getResultValue() == 0);
+    long fee = infoById.get().getFee();
+    logger.info("fee:" + fee);
+
+    Long nonceLong = ByteArray.toLong(ByteArray
+        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
+    logger.info("nonce:" + nonceLong);
+    nonce = Long.toString(nonceLong);
+    Account accountMainAfter = PublicMethed.queryAccount(depositAddress1, blockingStubFull);
+    long accountMainAfterBalance = accountMainAfter.getBalance();
+    logger.info("accountAfterBalance:" + accountMainAfterBalance);
+    ByteString addressMainAfter = accountMainAfter.getAddress();
+    String accountMainAfterAddress = Base58.encode58Check(addressMainAfter.toByteArray());
+    logger.info("accountMainAfterAddress:" + accountMainAfterAddress);
+    Assert.assertEquals(accountMainAfterBalance, accountMainBeforeBalance - fee - 1500000000);
+    Account accountSideAfter = PublicMethed.queryAccount(depositAddress1, blockingSideStubFull);
+    long accountSideAfterBalance = accountSideAfter.getBalance();
+    ByteString addressSideAfter = accountSideAfter.getAddress();
+    String accountSideAfterAddress = Base58.encode58Check(addressSideAfter.toByteArray());
+    logger.info("accountSideAfterAddress:" + accountSideAfterAddress);
+//    Assert.assertEquals(Base58.encode58Check(depositAddress1), accountSideAfterAddress);
+    Assert.assertEquals(accountSideBeforeBalance, accountSideAfterBalance);
+
+    Assert.assertTrue(PublicMethed
+        .sendcoinForSidechain(testOracleAddress, oracleMainBeforeSendBalance - 200000,
+            depositAddress2,
+            testKeyFordeposit2, chainIdAddressKey,
+            blockingSideStubFull));
+    try {
+      Thread.sleep(60000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    //retry deposit trx
+    String retryDepositTxid = PublicMethed.retryDeposit(mainGateWayAddress,
+        nonce,
+        maxFeeLimit, depositAddress1, testKeyFordeposit1, blockingStubFull);
+    try {
+      Thread.sleep(60000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    logger.info("retryDepositTxid:" + retryDepositTxid);
+    Optional<TransactionInfo> infoByIdretryDeposit = PublicMethed
+        .getTransactionInfoById(retryDepositTxid, blockingStubFull);
+    Assert.assertTrue(infoByIdretryDeposit.get().getResultValue() == 0);
+    long infoByIdretryDepositFee = infoByIdretryDeposit.get().getFee();
+    logger.info("infoByIdretryDepositFee:" + infoByIdretryDepositFee);
+    Account accountMainAfterRetry = PublicMethed.queryAccount(depositAddress1, blockingStubFull);
+    long accountMainAfterRetryBalance = accountMainAfterRetry.getBalance();
+    logger.info("accountMainAfterRetryBalance:" + accountMainAfterRetryBalance);
+
+    Assert.assertEquals(accountMainAfterBalance - infoByIdretryDepositFee,
+        accountMainAfterRetryBalance);
+
+    Account accountSideAfteRetry = PublicMethed
+        .queryAccount(depositAddress1, blockingSideStubFull);
+    long accountSideAfterRetryBalance = accountSideAfteRetry.getBalance();
+    logger.info("accountSideAfterRetryBalance:" + accountSideAfterRetryBalance);
+
+    Assert.assertEquals(accountSideAfterBalance + callValue,
+        accountSideAfterRetryBalance);
+
+    Account oracleSideBeforeSend = PublicMethed
+        .queryAccount(testOracleAddress, blockingSideStubFull);
+    long oracleSideBeforeSendBalance = oracleSideBeforeSend.getBalance();
+    Assert.assertTrue(PublicMethed
+        .sendcoinForSidechain(depositAddress2, oracleSideBeforeSendBalance, testOracleAddress,
+            testOracle, chainIdAddressKey,
+            blockingSideStubFull));
+
+//withdrawTrx
+    logger.info("sideGatewayAddress:" + sideGatewayAddress);
+
+    long withdrawValue = 1;
+    String txid1 = PublicMethed
+        .withdrawTrx(chainIdAddress,
+            sideGatewayAddress,
+            withdrawValue,
+            maxFeeLimit, depositAddress1, testKeyFordeposit1, blockingStubFull,
+            blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    logger.info("txid1:" + txid1);
+    Optional<TransactionInfo> infoById1 = PublicMethed
+        .getTransactionInfoById(txid1, blockingSideStubFull);
+    Assert.assertTrue(infoById1.get().getResultValue() == 0);
+    long fee1 = infoById1.get().getFee();
+    logger.info("fee1:" + fee1);
+    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
+        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
+    nonceWithdraw = Long.toString(nonceWithdrawLong);
+    logger.info("nonceWithdraw:" + nonceWithdraw);
+
+    Account accountSideAfterWithdraw = PublicMethed
+        .queryAccount(depositAddress1, blockingSideStubFull);
+    long accountSideAfterWithdrawBalance = accountSideAfterWithdraw.getBalance();
+    ByteString addressAfterWithdraw = accountSideAfterWithdraw.getAddress();
+    String addressAfterWithdrawAddress = Base58
+        .encode58Check(addressAfterWithdraw.toByteArray());
+    logger.info("addressAfterWithdrawAddress:" + addressAfterWithdrawAddress);
+    Assert.assertEquals(Base58.encode58Check(depositAddress1), addressAfterWithdrawAddress);
+    Assert.assertEquals(accountSideAfterRetryBalance - fee1 - withdrawValue,
+        accountSideAfterWithdrawBalance);
+    Account accountMainAfterWithdraw = PublicMethed.queryAccount(depositAddress1, blockingStubFull);
+    long accountMainAfterWithdrawBalance = accountMainAfterWithdraw.getBalance();
+    logger.info("accountAfterWithdrawBalance:" + accountMainAfterWithdrawBalance);
+    Assert.assertEquals(accountMainAfterWithdrawBalance,
+        accountMainAfterRetryBalance);
+
+    Assert.assertTrue(PublicMethed
+        .sendcoinForSidechain(testOracleAddress, oracleSideBeforeSendBalance - 100000,
+            depositAddress2,
+            testKeyFordeposit2, chainIdAddressKey,
+            blockingSideStubFull));
+    try {
+      Thread.sleep(60000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    //retry  Withdraw trx
+
+    Account oracleMainAfterSend = PublicMethed
+        .queryAccount(testOracleAddress, blockingSideStubFull);
+    long oracleMainAfterSendBalance = oracleMainAfterSend.getBalance();
+    logger.info("oracleMainAfterSendBalance:" + oracleMainAfterSendBalance);
+
+    String retryWithdrawTxid = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
+        nonceWithdraw,
+        maxFeeLimit, depositAddress1, testKeyFordeposit1, blockingSideStubFull);
+    try {
+      Thread.sleep(60000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+//
+    logger.info("retryWithdrawTxid:" + retryWithdrawTxid);
+    Optional<TransactionInfo> infoByIdretryWithdraw = PublicMethed
+        .getTransactionInfoById(retryWithdrawTxid, blockingSideStubFull);
+    Assert.assertTrue(infoByIdretryWithdraw.get().getResultValue() == 0);
+    long infoByIdretryWithdrawFee = infoByIdretryWithdraw.get().getFee();
+    logger.info("infoByIdretryWithdrawFee:" + infoByIdretryWithdrawFee);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Account accountMainAfterRetryWithdraw = PublicMethed
+        .queryAccount(depositAddress1, blockingStubFull);
+    long accountMainAfterRetryWithdrawBalance = accountMainAfterRetryWithdraw.getBalance();
+    Account accountSideAfterRetryWithdraw = PublicMethed
+        .queryAccount(depositAddress1, blockingSideStubFull);
+    long accountSideAfterRetryWithdrawBalance = accountSideAfterRetryWithdraw.getBalance();
+    Assert.assertEquals(accountSideAfterWithdrawBalance - infoByIdretryWithdrawFee,
+        accountSideAfterRetryWithdrawBalance);
+    Assert.assertEquals(accountMainAfterWithdrawBalance + withdrawValue,
+        accountMainAfterRetryWithdrawBalance);
+  }
 
   /**
    * constructor.

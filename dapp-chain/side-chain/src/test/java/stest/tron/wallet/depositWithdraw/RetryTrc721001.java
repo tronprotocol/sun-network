@@ -13,6 +13,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
@@ -64,13 +65,24 @@ public class RetryTrc721001 {
       .getString("gateway_address.key2");
   final byte[] sideGatewayAddressKey = WalletClient.decodeFromBase58Check(sideGatewayAddress);
 
-  final String ChainIdAddress = Configuration.getByPath("testng.conf")
+  final String chainIdAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.chainIdAddress");
-  final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
+  final byte[] chainIdAddressKey = WalletClient.decodeFromBase58Check(chainIdAddress);
+
+  private final String testOracle = Configuration.getByPath("testng.conf")
+      .getString("oralceAccountKey.key1");
+  private final byte[] testOracleAddress = PublicMethed.getFinalAddress(testOracle);
+
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] depositAddress2 = ecKey2.getAddress();
+  String testKeyFordeposit2 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
   String nonce = null;
   String nonceWithdraw = null;
   String nonceMap = null;
+  byte[] sideContractAddress = null;
+  byte[] trc20Contract = null;
+  long oracleSideBeforeWithdrawSendBalance = 0;
 
   @BeforeSuite
   public void beforeSuite() {
@@ -153,7 +165,7 @@ public class RetryTrc721001 {
 
     infoById = PublicMethed
         .getTransactionInfoById(deployTxid, blockingStubFull);
-    byte[] trc20Contract = infoById.get().getContractAddress().toByteArray();
+    trc20Contract = infoById.get().getContractAddress().toByteArray();
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertNotNull(trc20Contract);
 
@@ -215,7 +227,7 @@ public class RetryTrc721001 {
     String addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
     logger.info("address_final: " + addressFinal);
 
-    byte[] sideContractAddress = WalletClient.decodeFromBase58Check(addressFinal);
+    sideContractAddress = WalletClient.decodeFromBase58Check(addressFinal);
     Assert.assertNotNull(sideContractAddress);
 
     // deposit TRC721 to sideChain
@@ -239,7 +251,7 @@ public class RetryTrc721001 {
     String arg = "1001";
     byte[] input1 = Hex.decode(AbiUtil.parseMethod("ownerOf(uint256)", arg, false));
     String ownerTrx = PublicMethed
-        .triggerContractSideChain(sideContractAddress, ChainIdAddressKey, 0l, input1,
+        .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1,
             1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
@@ -293,7 +305,7 @@ public class RetryTrc721001 {
     methodStr = "withdrawal(uint256)";
     input = Hex.decode(AbiUtil.parseMethod(methodStr, "1001", false));
     String withdrawTxid1 = PublicMethed
-        .triggerContractSideChain(sideContractAddress, ChainIdAddressKey, 0, input, maxFeeLimit,
+        .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0, input, maxFeeLimit,
             0, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("withdrawTxid: " + withdrawTxid1);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -321,7 +333,7 @@ public class RetryTrc721001 {
     Assert.assertEquals(Base58.encode58Check(testAddress001), addressFinal);
 
     ownerTrx = PublicMethed
-        .triggerContractSideChain(sideContractAddress, ChainIdAddressKey, 0l, input1,
+        .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1,
             1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -335,7 +347,7 @@ public class RetryTrc721001 {
 
     //retry  Withdraw 721
 
-    String retryWithdrawTxid = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
+    String retryWithdrawTxid = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         nonceWithdraw,
         maxFeeLimit, testAddress001, testKey001, blockingSideStubFull);
 
@@ -346,7 +358,7 @@ public class RetryTrc721001 {
     Assert.assertTrue(infoByIdretryWithdraw.get().getResultValue() == 0);
 
     ownerTrx = PublicMethed
-        .triggerContractSideChain(sideContractAddress, ChainIdAddressKey, 0l, input1,
+        .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1,
             1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -414,7 +426,7 @@ public class RetryTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
-    String retryWithdrawTxid = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
+    String retryWithdrawTxid = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         nonceWithdraw,
         maxFeeLimit, depositAddress2, testKeyFordeposit2, blockingSideStubFull);
     logger.info("retryWithdrawTxid:" + retryWithdrawTxid);
@@ -452,7 +464,7 @@ public class RetryTrc721001 {
         infoByIdretryMapTxid2.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value
-    String retryWithdrawTxid2 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
+    String retryWithdrawTxid2 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         bigNonce,
         maxFeeLimit, foundationAddress001, foundationKey001, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -489,7 +501,7 @@ public class RetryTrc721001 {
     Assert.assertTrue(infoByIdretryMapTxid3.get().getResultValue() == 0);
 
     //Withdraw noce value is 0
-    String retryWithdrawTxid3 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
+    String retryWithdrawTxid3 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         smallNonce,
         maxFeeLimit, foundationAddress001, foundationKey001, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -531,7 +543,7 @@ public class RetryTrc721001 {
         infoByIdretryMapTxid4.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is Long.max_value+1
-    String retryWithdrawTxid4 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
+    String retryWithdrawTxid4 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         maxNonce,
         maxFeeLimit, foundationAddress001, foundationKey001, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -576,7 +588,7 @@ public class RetryTrc721001 {
         infoByIdretryMapTxid5.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is Long.min_value-1
-    String retryWithdrawTxid5 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
+    String retryWithdrawTxid5 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         minNonce,
         maxFeeLimit, foundationAddress001, foundationKey001, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -620,7 +632,7 @@ public class RetryTrc721001 {
         infoByIdretryMapTxid6.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is -1
-    String retryWithdrawTxid6 = PublicMethed.retryWithdraw(ChainIdAddress, sideGatewayAddress,
+    String retryWithdrawTxid6 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         minusNonce,
         maxFeeLimit, foundationAddress001, foundationKey001, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -634,11 +646,400 @@ public class RetryTrc721001 {
         infoByIdrretryWithdrawTxid6.get().getResMessage().toStringUtf8());
   }
 
+
+  @Test(enabled = true, description = "Retry Deposit and Withdraw Trx with mainOralce value is 0 ")
+  public void test3RetryTrc721003() {
+
+    // TRC721`s owner in mainChain should be depositer
+    String arg = "1001";
+    byte[] input1 = Hex.decode(AbiUtil.parseMethod("ownerOf(uint256)", arg, false));
+    TransactionExtention return2 = PublicMethed
+        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+            0l, "0", testAddress001, testKey001, blockingStubFull);
+    String ContractRestule = Hex.toHexString(return2.getConstantResult(0).toByteArray());
+
+    String addressFinal = Base58
+        .encode58Check(ByteArray.fromHexString("41" + ContractRestule.substring(24)));
+    logger.info("address_final: " + addressFinal);
+    Assert.assertEquals(Base58.encode58Check(testAddress001), addressFinal);
+
+    Account oracleMainBeforeSend = PublicMethed.queryAccount(testOracleAddress, blockingStubFull);
+    long oracleMainBeforeSendBalance = oracleMainBeforeSend.getBalance();
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(depositAddress2, oracleMainBeforeSendBalance, testOracleAddress, testOracle,
+            blockingStubFull));
+    AccountResourceMessage oracleMainBeforeDeposit = PublicMethed
+        .getAccountResource(testOracleAddress,
+            blockingStubFull);
+    long oracleMainBeforeDepositEnergyLimit = oracleMainBeforeDeposit.getEnergyLimit();
+    long oracleMainBeforeDepositEnergyUsage = oracleMainBeforeDeposit.getEnergyUsed();
+    long oracleMainBeforeDepositNetUsed = oracleMainBeforeDeposit.getNetUsed();
+    long oracleMainBeforeDepositNetLimit = oracleMainBeforeDeposit.getNetLimit();
+    Assert.assertEquals(oracleMainBeforeDepositEnergyLimit, 0);
+    Assert.assertEquals(oracleMainBeforeDepositEnergyUsage, 0);
+    Assert.assertTrue(oracleMainBeforeDepositNetUsed < oracleMainBeforeDepositNetLimit);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    // deposit TRC721 to sideChain
+    String deposittrx = PublicMethed
+        .depositTrc721(WalletClient.encode58Check(trc20Contract), mainGateWayAddress, 1001,
+            1000000000,
+            testAddress001, testKey001, blockingStubFull);
+    logger.info(deposittrx);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById = PublicMethed
+        .getTransactionInfoById(deposittrx, blockingStubFull);
+    Assert.assertNotNull(deposittrx);
+    Assert.assertEquals(0, infoById.get().getResultValue());
+    Assert.assertEquals("SUCESS", infoById.get().getResult().name());
+
+    // TRC721`s owner in sideChain should be Depositor
+    String ownerTrx = PublicMethed
+        .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1,
+            1000000000,
+            0l, "0", testAddress001, testKey001, blockingSideStubFull);
+    logger.info("ownerTrx : " + ownerTrx);
+    Optional<TransactionInfo> infoById2 = PublicMethed
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
+    String tmpAddress = ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray());
+    addressFinal = Base58.encode58Check(ByteArray.fromHexString("41" + tmpAddress.substring(24)));
+    logger.info("address_final: " + addressFinal);
+    Assert.assertEquals("SUCESS", infoById2.get().getResult().name());
+    Assert.assertEquals(0, infoById2.get().getResultValue());
+    Assert.assertNotNull(ownerTrx);
+    Assert.assertEquals(Base58.encode58Check(testAddress001), addressFinal);
+
+    // TRC721`s owner in mainChain should be mainGateway
+    TransactionExtention return3 = PublicMethed
+        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+            0l, "0", testAddress001, testKey001, blockingStubFull);
+    ContractRestule = Hex.toHexString(return3.getConstantResult(0).toByteArray());
+    tmpAddress = ContractRestule.substring(24);
+    addressFinal = Base58.encode58Check(ByteArray.fromHexString("41" + tmpAddress));
+    logger.info("address_final: " + addressFinal);
+    Assert.assertEquals(mainGateWayAddress, addressFinal);
+
+    // withdraw TRC721
+    String methodStr = "withdrawal(uint256)";
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "1001", false));
+    String withdrawTxid1 = PublicMethed
+        .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0, input, maxFeeLimit,
+            0, "0", testAddress001, testKey001, blockingSideStubFull);
+    logger.info("withdrawTxid: " + withdrawTxid1);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethed.getTransactionInfoById(withdrawTxid1, blockingSideStubFull);
+    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
+        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
+    logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
+    nonceWithdraw = Long.toString(nonceWithdrawLong);
+    Assert.assertNotNull(withdrawTxid1);
+    Assert.assertEquals(0, infoById.get().getResultValue());
+
+    // TRC721`s owner in mainChain should be mainGateway
+    TransactionExtention return4 = PublicMethed
+        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+            0l, "0", testAddress001, testKey001, blockingStubFull);
+    ContractRestule = Hex.toHexString(return4.getConstantResult(0).toByteArray());
+    tmpAddress = ContractRestule.substring(24);
+    addressFinal = Base58.encode58Check(ByteArray.fromHexString("41" + tmpAddress));
+    logger.info("address_final: " + addressFinal);
+    Assert.assertEquals(mainGateWayAddress, addressFinal);
+
+    // TRC721`s owner in sideChain should be REVERT
+    ownerTrx = PublicMethed
+        .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1,
+            1000000000,
+            0l, "0", testAddress001, testKey001, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    logger.info("ownerTrx : " + ownerTrx);
+    infoById = PublicMethed
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
+    Assert.assertEquals(1, infoById.get().getResultValue());
+    Assert.assertEquals("REVERT opcode executed",
+        ByteArray.toStr(infoById.get().getResMessage().toByteArray()));
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(testOracleAddress, oracleMainBeforeSendBalance - 200000, depositAddress2,
+            testKeyFordeposit2,
+            blockingStubFull));
+    try {
+      Thread.sleep(60000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    String retryWithdrawTxid = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
+        nonceWithdraw,
+        maxFeeLimit, testAddress001, testKey001, blockingSideStubFull);
+
+    try {
+      Thread.sleep(60000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    logger.info("retryWithdrawTxid:" + retryWithdrawTxid);
+    Optional<TransactionInfo> infoByIdretryWithdraw = PublicMethed
+        .getTransactionInfoById(retryWithdrawTxid, blockingSideStubFull);
+    Assert.assertTrue(infoByIdretryWithdraw.get().getResultValue() == 0);
+
+    // TRC721`s owner in mainChain should be depositer
+    TransactionExtention return5 = PublicMethed
+        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+            0l, "0", testAddress001, testKey001, blockingStubFull);
+    ContractRestule = Hex.toHexString(return5.getConstantResult(0).toByteArray());
+
+    String addressFinal4 = Base58
+        .encode58Check(ByteArray.fromHexString("41" + ContractRestule.substring(24)));
+    logger.info("address_final: " + addressFinal4);
+    Assert.assertEquals(Base58.encode58Check(testAddress001), addressFinal4);
+
+  }
+
+
+  @Test(enabled = true, description = "Retry Deposit and Withdraw Trx with sideOralce value is 0 ")
+  public void test4RetryTrc721004() {
+    Account oracleSideBeforeSend = PublicMethed
+        .queryAccount(testOracleAddress, blockingSideStubFull);
+    long oracleSideBeforeSendBalance = oracleSideBeforeSend.getBalance();
+
+    Assert.assertTrue(PublicMethed
+        .sendcoinForSidechain(depositAddress2, oracleSideBeforeSendBalance, testOracleAddress,
+            testOracle, chainIdAddressKey,
+            blockingSideStubFull));
+    AccountResourceMessage oracleMainBeforeDeposit = PublicMethed
+        .getAccountResource(testOracleAddress,
+            blockingSideStubFull);
+    long oracleMainBeforeDepositEnergyLimit = oracleMainBeforeDeposit.getEnergyLimit();
+    long oracleMainBeforeDepositEnergyUsage = oracleMainBeforeDeposit.getEnergyUsed();
+    long oracleMainBeforeDepositNetUsed = oracleMainBeforeDeposit.getNetUsed();
+    long oracleMainBeforeDepositNetLimit = oracleMainBeforeDeposit.getNetLimit();
+    Assert.assertEquals(oracleMainBeforeDepositEnergyLimit, 0);
+    Assert.assertEquals(oracleMainBeforeDepositEnergyUsage, 0);
+    Assert.assertTrue(oracleMainBeforeDepositNetUsed < oracleMainBeforeDepositNetLimit);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+
+    // deposit TRC721 to sideChain
+    String deposittrx = PublicMethed
+        .depositTrc721(WalletClient.encode58Check(trc20Contract), mainGateWayAddress, 1001,
+            1000000000,
+            testAddress001, testKey001, blockingStubFull);
+    logger.info(deposittrx);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById = PublicMethed
+        .getTransactionInfoById(deposittrx, blockingStubFull);
+    Assert.assertNotNull(deposittrx);
+    Assert.assertEquals(0, infoById.get().getResultValue());
+    Assert.assertEquals("SUCESS", infoById.get().getResult().name());
+    Long nonceLong = ByteArray.toLong(ByteArray
+        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
+    logger.info("nonce:" + nonceLong);
+    nonce = Long.toString(nonceLong);
+
+    // TRC721`s owner in mainChain should be mainGateway
+    String arg = "1001";
+    byte[] input1 = Hex.decode(AbiUtil.parseMethod("ownerOf(uint256)", arg, false));
+    TransactionExtention return2 = PublicMethed
+        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+            0l, "0", testAddress001, testKey001, blockingStubFull);
+    String ContractRestule = Hex.toHexString(return2.getConstantResult(0).toByteArray());
+    String tmpAddress = ContractRestule.substring(24);
+    String addressFinal = Base58.encode58Check(ByteArray.fromHexString("41" + tmpAddress));
+    logger.info("address_final: " + addressFinal);
+    Assert.assertEquals(mainGateWayAddress, addressFinal);
+
+    // TRC721`s owner in sideChain should be REVERT
+    String ownerTrx = PublicMethed
+        .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1,
+            1000000000,
+            0l, "0", testAddress001, testKey001, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    logger.info("ownerTrx : " + ownerTrx);
+    infoById = PublicMethed
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
+    Assert.assertEquals(1, infoById.get().getResultValue());
+    Assert.assertEquals("REVERT opcode executed",
+        ByteArray.toStr(infoById.get().getResMessage().toByteArray()));
+
+    Assert.assertTrue(PublicMethed
+        .sendcoinForSidechain(testOracleAddress, oracleSideBeforeSendBalance - 200000,
+            depositAddress2,
+            testKeyFordeposit2, chainIdAddressKey,
+            blockingSideStubFull));
+    try {
+      Thread.sleep(60000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    //retry deposit trx
+    String retryDepositTxid = PublicMethed.retryDeposit(mainGateWayAddress,
+        nonce,
+        maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Optional<TransactionInfo> infoByIdretryDeposit = PublicMethed
+        .getTransactionInfoById(retryDepositTxid, blockingStubFull);
+    Assert.assertTrue(infoByIdretryDeposit.get().getResultValue() == 0);
+
+    try {
+      Thread.sleep(60000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    // TRC721`s owner in sideChain should be Depositor
+    ownerTrx = PublicMethed
+        .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1,
+            1000000000,
+            0l, "0", testAddress001, testKey001, blockingSideStubFull);
+    logger.info("ownerTrx : " + ownerTrx);
+    Optional<TransactionInfo> infoById2 = PublicMethed
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
+    tmpAddress = ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray());
+    addressFinal = Base58.encode58Check(ByteArray.fromHexString("41" + tmpAddress.substring(24)));
+    logger.info("address_final: " + addressFinal);
+    Assert.assertEquals("SUCESS", infoById2.get().getResult().name());
+    Assert.assertEquals(0, infoById2.get().getResultValue());
+    Assert.assertNotNull(ownerTrx);
+    Assert.assertEquals(Base58.encode58Check(testAddress001), addressFinal);
+
+    // TRC721`s owner in mainChain should be mainGateway
+    TransactionExtention return3 = PublicMethed
+        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+            0l, "0", testAddress001, testKey001, blockingStubFull);
+    ContractRestule = Hex.toHexString(return3.getConstantResult(0).toByteArray());
+    tmpAddress = ContractRestule.substring(24);
+    addressFinal = Base58.encode58Check(ByteArray.fromHexString("41" + tmpAddress));
+    logger.info("address_final: " + addressFinal);
+    Assert.assertEquals(mainGateWayAddress, addressFinal);
+
+    Account oracleSideBeforeWithdrawSend = PublicMethed
+        .queryAccount(testOracleAddress, blockingSideStubFull);
+    oracleSideBeforeWithdrawSendBalance = oracleSideBeforeWithdrawSend.getBalance();
+    Assert.assertTrue(PublicMethed
+        .sendcoinForSidechain(depositAddress2, oracleSideBeforeWithdrawSendBalance,
+            testOracleAddress,
+            testOracle, chainIdAddressKey,
+            blockingSideStubFull));
+    AccountResourceMessage oracleSideBeforeWithdraw = PublicMethed
+        .getAccountResource(testOracleAddress,
+            blockingSideStubFull);
+    long oracleSideBeforeWithdrawnEnergyLimit = oracleSideBeforeWithdraw.getEnergyLimit();
+    long oracleSideBeforeWithdrawEnergyUsage = oracleSideBeforeWithdraw.getEnergyUsed();
+    long oracleSideBeforeWithdrawNetUsed = oracleSideBeforeWithdraw.getNetUsed();
+    long oracleSideBeforeWithdrawNetLimit = oracleSideBeforeWithdraw.getNetLimit();
+    Assert.assertEquals(oracleSideBeforeWithdrawnEnergyLimit, 0);
+    Assert.assertEquals(oracleSideBeforeWithdrawEnergyUsage, 0);
+    Assert.assertTrue(oracleSideBeforeWithdrawNetUsed < oracleSideBeforeWithdrawNetLimit);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+
+    // withdraw TRC721
+    String methodStr = "withdrawal(uint256)";
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "1001", false));
+    String withdrawTxid1 = PublicMethed
+        .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0, input, maxFeeLimit,
+            0, "0", testAddress001, testKey001, blockingSideStubFull);
+    logger.info("withdrawTxid: " + withdrawTxid1);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethed.getTransactionInfoById(withdrawTxid1, blockingSideStubFull);
+    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
+        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
+    logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
+    nonceWithdraw = Long.toString(nonceWithdrawLong);
+    Assert.assertNotNull(withdrawTxid1);
+    Assert.assertEquals(0, infoById.get().getResultValue());
+
+    // TRC721`s owner in mainChain should be mainGateway
+    TransactionExtention return4 = PublicMethed
+        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+            0l, "0", testAddress001, testKey001, blockingStubFull);
+    ContractRestule = Hex.toHexString(return4.getConstantResult(0).toByteArray());
+    tmpAddress = ContractRestule.substring(24);
+    addressFinal = Base58.encode58Check(ByteArray.fromHexString("41" + tmpAddress));
+    logger.info("address_final: " + addressFinal);
+    Assert.assertEquals(mainGateWayAddress, addressFinal);
+
+    // TRC721`s owner in sideChain should be REVERT
+    ownerTrx = PublicMethed
+        .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1,
+            1000000000,
+            0l, "0", testAddress001, testKey001, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    logger.info("ownerTrx : " + ownerTrx);
+    infoById = PublicMethed
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
+    Assert.assertEquals(1, infoById.get().getResultValue());
+    Assert.assertEquals("REVERT opcode executed",
+        ByteArray.toStr(infoById.get().getResMessage().toByteArray()));
+
+    Assert.assertTrue(PublicMethed
+        .sendcoinForSidechain(testOracleAddress, oracleSideBeforeWithdrawSendBalance - 200000,
+            depositAddress2,
+            testKeyFordeposit2, chainIdAddressKey,
+            blockingSideStubFull));
+    try {
+      Thread.sleep(60000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    String retryWithdrawTxid = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
+        nonceWithdraw,
+        maxFeeLimit, testAddress001, testKey001, blockingSideStubFull);
+
+    try {
+      Thread.sleep(60000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    logger.info("retryWithdrawTxid:" + retryWithdrawTxid);
+    Optional<TransactionInfo> infoByIdretryWithdraw = PublicMethed
+        .getTransactionInfoById(retryWithdrawTxid, blockingSideStubFull);
+    Assert.assertTrue(infoByIdretryWithdraw.get().getResultValue() == 0);
+
+    // TRC721`s owner in mainChain should be depositer
+    TransactionExtention return5 = PublicMethed
+        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+            0l, "0", testAddress001, testKey001, blockingStubFull);
+    ContractRestule = Hex.toHexString(return5.getConstantResult(0).toByteArray());
+
+    String addressFinal4 = Base58
+        .encode58Check(ByteArray.fromHexString("41" + ContractRestule.substring(24)));
+    logger.info("address_final: " + addressFinal4);
+    Assert.assertEquals(Base58.encode58Check(testAddress001), addressFinal4);
+
+
+  }
+
   /**
    * constructor.
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
+    PublicMethed
+        .sendcoinForSidechain(testOracleAddress, oracleSideBeforeWithdrawSendBalance - 200000,
+            depositAddress2,
+            testKeyFordeposit2, chainIdAddressKey,
+            blockingSideStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
