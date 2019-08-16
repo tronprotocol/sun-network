@@ -480,9 +480,12 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     function countMultiSignForWithdraw(uint256 nonce, bytes32 dataHash) internal returns (bool) {
+        if (withdrawSigns[nonce].success) {
+            return false;
+        }
         bytes32 ret = multivalidatesign(dataHash, withdrawSigns[nonce].signs, withdrawSigns[nonce].signOracles);
         uint256 count = countSuccess(ret);
-        if (count > oracleCnt * 2 / 3 && !withdrawSigns[nonce].success) {
+        if (count > oracleCnt * 2 / 3) {
             withdrawSigns[nonce].success = true;
             return true;
         }
