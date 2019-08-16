@@ -162,7 +162,7 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function() external onlyNotStop onlyNotPause goDelegateCall payable {
-        require(false, "not allow function fallback");
+        revert("not allow function fallback");
     }
 
     function mappingTRC20(bytes txId) public onlyNotStop onlyNotPause isHuman goDelegateCall payable returns (uint256) {

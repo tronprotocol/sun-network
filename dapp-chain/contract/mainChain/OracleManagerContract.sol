@@ -53,10 +53,17 @@ contract OracleManagerContract is Ownable {
     }
 
     function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] sigList, address[] signOracles) internal returns (bool) {
+        require(sigList.length == signOracles.length, "error sigList.length or signOracles.length");
+        for (uint256 i = 0; i < sigList.length; i++) {
+            if (oracleIndex[signOracles[i]] == 0) {
+                signOracles[i] = 0;
+                sigList[i] = 0;
+            }
+        }
         if (multivalidatesignSwitch) {
             return checkOraclesWithMultiValidate(dataHash, nonce, sigList, signOracles);
         }
-        
+
         SignMsg storage signMsg = withdrawMultiSignList[nonce][dataHash];
         for (uint256 i = 0; i < sigList.length; i++) {
             address _oracle = dataHash.recover(sigList[i]);
@@ -80,6 +87,7 @@ contract OracleManagerContract is Ownable {
     function checkOraclesWithMultiValidate(bytes32 dataHash, uint256 nonce, bytes[] sigList, address[] oracleList) internal returns (bool) {
         SignMsg storage signMsg = withdrawMultiSignList[nonce][dataHash];
         bytes32 ret = multivalidatesign(dataHash, sigList, oracleList);
+
         for (uint256 i = 0; i < sigList.length; i++) {
             if (ret[i] == byte(0)) {
                 continue;

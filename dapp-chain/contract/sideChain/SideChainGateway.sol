@@ -319,7 +319,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         require(mainChainAddress != address(0), "mainChainAddress == address(0)");
         require(value >= withdrawMinTrc20, "value must be >= withdrawMinTrc20");
         if (msg.value > 0) {
-            bonus += msg.valu;
+            bonus += msg.value;
         }
         userWithdrawList.push(WithdrawMsg(from, mainChainAddress, 0, value, DataModel.TokenKind.TRC20, DataModel.Status.SUCCESS));
 
@@ -417,20 +417,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         return false;
     }
 
-    function countMultiSignForWithdraw(uint256 nonce, bytes oracleSign) internal returns (bool){
-        if (withdrawSigns[nonce].oracleSigned[msg.sender]) {
-            return false;
-        }
-        withdrawSigns[nonce].oracleSigned[msg.sender] = true;
-        withdrawSigns[nonce].signs.push(oracleSign);
-        withdrawSigns[nonce].signOracles.push(msg.sender);
-        withdrawSigns[nonce].signCnt += 1;
-        if (withdrawSigns[nonce].signCnt > oracleCnt * 2 / 3 && !withdrawSigns[nonce].success) {
-            return true;
-        }
-        return false;
-    }
-
     // 11. retryWithdraw
     function retryWithdraw(uint256 nonce) payable public onlyNotPause onlyNotStop isHuman goDelegateCall {
         require(msg.value >= retryFee, "msg.value need  >= retryFee");
@@ -504,11 +490,14 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     function countSuccess(bytes32 ret) internal returns (uint256) {
-        return 0;
+        uint256 count;
+        uint256 _num = uint256(ret);
+        for (; _num > 0; ++count) {_num &= (_num - 1);}
+        return count;
     }
 
     function() onlyNotPause onlyNotStop goDelegateCall payable public {
-        require(false, "not allow function fallback");
+        revert("not allow function fallback");
     }
 
     function transferOwnership(address _newOwner) public onlyOwner {
