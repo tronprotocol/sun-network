@@ -1,5 +1,3 @@
-pragma solidity ^0.4.24;
-
 import "./ITRC20.sol";
 import "../../math/SafeMath.sol";
 

@@ -197,4 +197,7 @@ public interface ChainInterface {
 
   SunNetworkResponse<TransactionResponse> broadcastTransaction(String transactionStr);
 
+  //offline functions
+  AddressPrKeyPairMessage generateAddressOffline();
+
 }

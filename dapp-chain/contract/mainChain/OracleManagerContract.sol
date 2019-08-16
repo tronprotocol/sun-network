@@ -1,5 +1,3 @@
-pragma solidity ^0.4.24;
-
 import "./ownership/Ownable.sol";
 import "../common/ECVerify.sol";
 
@@ -9,15 +7,15 @@ contract OracleManagerContract is Ownable {
 
 
     uint256 public numOracles;
-    uint256 public numCommonOracles;
     mapping(address => uint256) public oracleIndex;
     mapping(uint256 => address) public indexOracle;
     mapping(address => SignMsg)  delegateSigns;
     mapping(uint256 => mapping(bytes32 => SignMsg)) withdrawMultiSignList;
 
-    address logicAddress;
-    bool pause;
-    bool stop;
+    address public logicAddress;
+    bool public multivalidatesignSwitch = false;
+    bool public pause;
+    bool public stop;
 
     struct SignMsg {
         uint256 signedOracleFlag;
@@ -29,6 +27,8 @@ contract OracleManagerContract is Ownable {
     event LogicAddressChanged(address oldAddress, address newAddress);
 
     modifier onlyOracle() {require(oracleIndex[msg.sender] > 0, "not oracle");
+        _;}
+    modifier isHuman() {require(msg.sender == tx.origin, "not allow contract");
         _;}
     modifier onlyNotPause() {require(!pause, "is pause");
         _;}
@@ -49,9 +49,26 @@ contract OracleManagerContract is Ownable {
         _;
     }
 
-    function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] sigList) internal returns (bool) {
-        SignMsg storage signMsg = withdrawMultiSignList[nonce][dataHash];
+    function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] memory sigList, address[] memory signOracles) internal returns (bool) {
+        require(sigList.length == signOracles.length, "error sigList.length or signOracles.length");
+        if (multivalidatesignSwitch) {
+            uint256 signFlag = 0;
+            for (uint256 i = 0; i < sigList.length; i++) {
+                if (oracleIndex[signOracles[i]] == 0) {
+                    signOracles[i] = address(0);
+                    continue;
+                }
+                uint256 signed = (1 << (oracleIndex[signOracles[i]] - 1)) & signFlag;
+                if (signed == 0) {// not signed
+                    signFlag = (1 << (oracleIndex[signOracles[i]] - 1)) | signFlag;
+                } else {
+                    signOracles[i] = address(0);
+                }
+            }
+            return checkOraclesWithMultiValidate(dataHash, nonce, sigList, signOracles);
+        }
 
+        SignMsg storage signMsg = withdrawMultiSignList[nonce][dataHash];
         for (uint256 i = 0; i < sigList.length; i++) {
             address _oracle = dataHash.recover(sigList[i]);
             if (oracleIndex[_oracle] == 0) {// not oracle
@@ -64,14 +81,32 @@ contract OracleManagerContract is Ownable {
             }
         }
 
-        if (signMsg.countSign > numCommonOracles && !signMsg.success) {
+        if (signMsg.countSign > numOracles * 2 / 3 && !signMsg.success) {
             signMsg.success = true;
             return true;
         }
         return false;
     }
 
-    function addOracle(address _oracle) public onlyOwner {
+    function checkOraclesWithMultiValidate(bytes32 dataHash, uint256 nonce, bytes[] memory sigList, address[] memory oracleList) internal returns (bool) {
+        SignMsg storage signMsg = withdrawMultiSignList[nonce][dataHash];
+        bytes32 ret = multivalidatesign(dataHash, sigList, oracleList);
+        signMsg.countSign = countSuccess(ret);
+        if (signMsg.countSign > numOracles * 2 / 3 && !signMsg.success) {
+            signMsg.success = true;
+            return true;
+        }
+        return false;
+    }
+
+    function countSuccess(bytes32 ret) internal returns (uint256) {
+        uint256 count;
+        uint256 _num = uint256(ret);
+        for (; _num > 0; ++count) {_num &= (_num - 1);}
+        return count;
+    }
+
+    function addOracle(address _oracle) public goDelegateCall onlyOwner {
         require(oracleIndex[_oracle] == 0, "this address is already oracle");
 
         uint256 i;
@@ -85,17 +120,15 @@ contract OracleManagerContract is Ownable {
         indexOracle[i] = _oracle;
 
         numOracles++;
-        numCommonOracles = numOracles * 2 / 3;
     }
 
-    function delOracle(address _oracle) public onlyOwner {
+    function delOracle(address _oracle) public goDelegateCall onlyOwner {
         require(oracleIndex[_oracle] > 0, "this address is not oracle");
 
         indexOracle[oracleIndex[_oracle]] = address(0);
         oracleIndex[_oracle] = 0;
 
         numOracles--;
-        numCommonOracles = numOracles * 2 / 3;
     }
 
     function setDelegateAddress(address newAddress) public onlyOracle {
@@ -106,12 +139,16 @@ contract OracleManagerContract is Ownable {
         }
     }
 
-    function setPause(bool status) public onlyOwner {
+    function setPause(bool status) public goDelegateCall onlyOwner {
         pause = status;
     }
 
-    function setStop(bool status) public onlyOwner {
+    function setStop(bool status) public goDelegateCall onlyOwner {
         stop = status;
+    }
+
+    function setMultivalidatesignSwitch(bool status) public onlyOwner {
+        multivalidatesignSwitch = status;
     }
 
     function multiSignForDelegate(address newAddress) internal returns (bool) {
@@ -125,7 +162,7 @@ contract OracleManagerContract is Ownable {
         signMsg.signedOracleFlag = (1 << (oracleIndex[msg.sender] - 1)) | signMsg.signedOracleFlag;
         signMsg.countSign++;
 
-        if (signMsg.countSign > numCommonOracles && !signMsg.success) {
+        if (signMsg.countSign > numOracles * 2 / 3 && !signMsg.success) {
             signMsg.success = true;
             return true;
         }

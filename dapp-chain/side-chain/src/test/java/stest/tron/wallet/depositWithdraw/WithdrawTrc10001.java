@@ -426,7 +426,7 @@ public class WithdrawTrc10001 {
 
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response1.getCode());
     Assert.assertEquals(
-        "contract validate error : assetBalance must greater than 0.",
+        "contract validate error : No asset !",
         response1.getMessage().toStringUtf8());
 
     // tokenId is null
