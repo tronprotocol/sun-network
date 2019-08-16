@@ -869,7 +869,7 @@ public class PrecompiledContracts {
         for (Future<ValidateSignResult> future : futures) {
           if(future.get() == null){
             logger.info("MultiValidateSign timeout");
-            throw Program.Exception.alreadyTimeOut();
+            throw Program.Exception.notEnoughTime("call MultiValidateSign precompile method");
           }
           if (future.get().getRes()) {
             res[future.get().getNonce()] = 1;
