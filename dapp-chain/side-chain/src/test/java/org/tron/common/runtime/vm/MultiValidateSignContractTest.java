@@ -204,7 +204,7 @@ public class MultiValidateSignContractTest {
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
     byte[] input = Hex.decode(AbiUtil.parseParameters(METHOD_SIGN, parameters));
     contract.getEnergyForData(input);
-    contract.setTimeoutInUs(50 * 1000);
+    contract.setVmShouldEndInUs(System.nanoTime() / 1000 + 50 * 1000);
     Pair<Boolean, byte[]> ret = contract.execute(input);
     logger.info("BytesArray:{}，HexString:{}", Arrays.toString(ret.getValue()),
         Hex.toHexString(ret.getValue()));

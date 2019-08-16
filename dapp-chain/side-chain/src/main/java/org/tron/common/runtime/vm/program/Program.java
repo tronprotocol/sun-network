@@ -801,16 +801,6 @@ public class Program {
     getResult().spendEnergy(energyValue);
   }
 
-  public long getCPUTimeLeftInUs(){
-    long vmNowInUs = System.nanoTime() / 1000;
-    long left = getVmShouldEndInUs() - vmNowInUs;
-    if(left <= 0) {
-      throw Exception.alreadyTimeOut();
-    }else {
-      return  left;
-    }
-  }
-
   public void checkCPUTimeLimit(String opName) {
     if (Args.getInstance().isDebug()) {
       return;
@@ -1419,7 +1409,7 @@ public class Program {
       contract.setDeposit(deposit);
       contract.setResult(this.result);
       contract.setStaticCall(isStaticCall());
-      contract.setTimeoutInUs(getCPUTimeLeftInUs());
+      contract.setVmShouldEndInUs(getVmShouldEndInUs());
 
       Pair<Boolean, byte[]> out = contract.execute(data);
 
