@@ -18,6 +18,7 @@ import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.protos.Sidechain.MultiSignForWithdrawTRC721Event;
 import org.tron.service.capsule.TransactionExtensionCapsule;
+import org.tron.service.eventactuator.SignListParam;
 
 @Slf4j(topic = "sideChainTask")
 public class MultiSignForWithdrawTRC721Actuator extends MultiSignForWithdrawActuator {
@@ -56,16 +57,16 @@ public class MultiSignForWithdrawTRC721Actuator extends MultiSignForWithdrawActu
           .encode58Check(event.getMainchainAddress().toByteArray());
       String uIdStr = event.getUId().toStringUtf8();
       String nonceStr = event.getNonce().toStringUtf8();
-      List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(nonceStr);
+      SignListParam signParam = SideChainGatewayApi.getWithdrawOracleSigns(nonceStr);
 
       logger.info(
           "MultiSignForWithdrawTRC721Actuator, from: {}, mainChainAddress: {}, uId: {}, nonce: {}",
           fromStr, mainChainAddressStr, uIdStr, nonceStr);
       Transaction tx = MainChainGatewayApi
           .multiSignForWithdrawTRC721Transaction(fromStr, mainChainAddressStr, uIdStr, nonceStr,
-              oracleSigns);
+              signParam);
       this.transactionExtensionCapsule = new TransactionExtensionCapsule(PREFIX + nonceStr, tx,
-          getDelay(fromStr, mainChainAddressStr, uIdStr, nonceStr, oracleSigns));
+          getDelay(fromStr, mainChainAddressStr, uIdStr, nonceStr, signParam.getOracleSigns()));
       return CreateRet.SUCCESS;
     } catch (Exception e) {
       logger.error("when create transaction extension capsule", e);

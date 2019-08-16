@@ -16,6 +16,7 @@ import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.service.eventactuator.SignListParam;
 
 @Slf4j(topic = "mainApi")
 public class MainChainGatewayApi {
@@ -90,44 +91,48 @@ public class MainChainGatewayApi {
   }
 
   public static Transaction multiSignForWithdrawTRC10Transaction(String from, String tokenId,
-      String value, String nonce, List<String> oracleSigns) throws RpcConnectException {
+      String value, String nonce, SignListParam signParam) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "withdrawTRC10(address,trcToken,uint256,uint256,bytes[])";
-    List params = Arrays.asList(from, tokenId, value, nonce, oracleSigns);
+    String method = "withdrawTRC10(address,trcToken,uint256,uint256,bytes[],address[])";
+    List params = Arrays.asList(from, tokenId, value, nonce, signParam.getOracleSigns(),
+        signParam.getOracleAddresses());
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
   public static Transaction multiSignForWithdrawTRC20Transaction(String from,
-      String mainChainAddress, String value, String nonce, List<String> oracleSigns)
+      String mainChainAddress, String value, String nonce, SignListParam signParam)
       throws RpcConnectException {
 
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "withdrawTRC20(address,address,uint256,uint256,bytes[])";
-    List params = Arrays.asList(from, mainChainAddress, value, nonce, oracleSigns);
+    String method = "withdrawTRC20(address,address,uint256,uint256,bytes[],address[])";
+    List params = Arrays.asList(from, mainChainAddress, value, nonce, signParam.getOracleSigns(),
+        signParam.getOracleAddresses());
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
 
   }
 
   public static Transaction multiSignForWithdrawTRC721Transaction(String from,
-      String mainChainAddress, String uId, String nonce, List<String> oracleSigns)
+      String mainChainAddress, String uId, String nonce, SignListParam signParam)
       throws RpcConnectException {
 
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "withdrawTRC721(address,address,uint256,uint256,bytes[])";
-    List params = Arrays.asList(from, mainChainAddress, uId, nonce, oracleSigns);
+    String method = "withdrawTRC721(address,address,uint256,uint256,bytes[],address[])";
+    List params = Arrays.asList(from, mainChainAddress, uId, nonce, signParam.getOracleSigns(),
+        signParam.getOracleAddresses());
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
 
   }
 
   public static Transaction multiSignForWithdrawTRXTransaction(String from, String value,
-      String nonce, List<String> oracleSigns) throws RpcConnectException {
+      String nonce, SignListParam signParam) throws RpcConnectException {
 
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
-    String method = "withdrawTRX(address,uint256,uint256,bytes[])";
-    List params = Arrays.asList(from, value, nonce, oracleSigns);
+    String method = "withdrawTRX(address,uint256,uint256,bytes[],address[])";
+    List params = Arrays
+        .asList(from, value, nonce, signParam.getOracleSigns(), signParam.getOracleAddresses());
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }

@@ -1,6 +1,3 @@
-pragma solidity ^0.4.24;
-
-
 /**
  * @title TRC20 token receiver interface
  * @dev Interface for any contract that wants to support safeTransfers
@@ -13,4 +10,6 @@ contract ITRC20Receiver {
      */
 
     function onTRC20Received(address from, uint256 value) payable public returns (uint256);
+
+    function getWithdrawFee() view public returns (uint256);
 }
