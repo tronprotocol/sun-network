@@ -44,6 +44,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -78,6 +79,7 @@ import org.tron.core.actuator.WithdrawBalanceActuator;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.TransactionCapsule;
+import org.tron.core.config.args.Args;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.protos.Contract;
@@ -231,6 +233,10 @@ public class PrecompiledContracts {
     @Getter
     @Setter
     private boolean isStaticCall;
+
+    @Getter
+    @Setter
+    private long timeoutInUs;
 
 
   }
@@ -857,9 +863,14 @@ public class PrecompiledContracts {
               .submit(new ValidateSignTask(countDownLatch, hash, signatures[i], addresses[i], i));
           futures.add(future);
         }
-        countDownLatch.await();
+
+        countDownLatch.await(getTimeoutInUs()*1000, TimeUnit.NANOSECONDS);
 
         for (Future<ValidateSignResult> future : futures) {
+          if(future.get() == null){
+            logger.info("MultiValidateSign timeout");
+            throw Program.Exception.alreadyTimeOut();
+          }
           if (future.get().getRes()) {
             res[future.get().getNonce()] = 1;
           }
@@ -883,11 +894,9 @@ public class PrecompiledContracts {
         if (v < 27) {
           v += 27;
         }
-        if (v != 0 ) {
-          ECKey.ECDSASignature signature = ECKey.ECDSASignature.fromComponents(r, s, v);
-          if (signature.validateComponents()) {
-            out = new DataWord(ECKey.signatureToAddress(hash, signature));
-          }
+        ECKey.ECDSASignature signature = ECKey.ECDSASignature.fromComponents(r, s, v);
+        if (signature.validateComponents()) {
+          out = new DataWord(ECKey.signatureToAddress(hash, signature));
         }
       } catch (Throwable any) {
         logger.info("ECRecover error", any.getMessage());
