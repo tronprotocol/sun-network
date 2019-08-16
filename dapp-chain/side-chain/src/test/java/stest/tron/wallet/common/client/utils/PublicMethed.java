@@ -1172,7 +1172,25 @@ public class PublicMethed {
     return trxid;
   }
 
-  /**
+    /**
+     * constructor.
+     */
+    public static String mappingTrc20fee(byte[] mainGatewayAddress,
+                                         String trxHash, long mappingfee,long feeLimit,
+                                         byte[] ownerAddress,
+                                         String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+        String methodStr = "mappingTRC20(bytes)";
+        String argsStr = "\"" + trxHash + "\""+","+mappingfee;
+
+        String trxid = triggerContract(mainGatewayAddress, methodStr, argsStr, false, 0, feeLimit,
+                ownerAddress, priKey, blockingStubFull);
+        return trxid;
+    }
+
+
+
+    /**
    * constructor.
    */
   public static String mappingTrc721(byte[] mainGatewayAddress,
@@ -1650,6 +1668,31 @@ public class PublicMethed {
     return txid1;
   }
 
+    /**
+     * constructor.
+     */
+    public static String withdrawTrxfee(
+            String mainGatewayAddr, String sideGatewayAddress,
+            long callvalue,long withdrawfee, long feeLimit,byte[] ownerAddress,
+            String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
+            WalletGrpc.WalletBlockingStub blockingsideStubFull) {
+        long tokenCallValue = 0;
+        String tokenId = "0";
+        String methodStr1 = "withdrawTRX()";
+        long callValue=callvalue+withdrawfee;
+        byte[] input1 = Hex
+                .decode(AbiUtil.parseMethod(methodStr1, "", false));
+
+        String txid1 = PublicMethed
+                .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideGatewayAddress),
+                        WalletClient.decodeFromBase58Check(mainGatewayAddr),
+                        callValue,
+                        input1,
+
+                        feeLimit, tokenCallValue, tokenId, ownerAddress, priKey, blockingsideStubFull);
+        logger.info("txid:" + txid1);
+        return txid1;
+    }
 
   /**
    * constructor.
@@ -1963,7 +2006,31 @@ public class PublicMethed {
     return txid1;
   }
 
-  /**
+    /**
+     * constructor.
+     */
+    public static String withdrawtrc20fee(
+            String mainGatewayAddr, String sideTokenAddress,
+            String value, String tokenAddress, long feeLimit, byte[] ownerAddress,long callValue,
+            String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
+            WalletGrpc.WalletBlockingStub blockingsideStubFull) {
+
+        String methodStr1 = "withdrawal(uint256)";
+        byte[] input1 = Hex
+                .decode(AbiUtil
+                        .parseMethod(methodStr1, value, false));
+        String txid1 = PublicMethed
+                .triggerContractSideChain(WalletClient.decodeFromBase58Check(tokenAddress),
+                        WalletClient.decodeFromBase58Check(mainGatewayAddr),
+                        callValue,
+                        input1,
+                        feeLimit, 0, "0", ownerAddress, priKey, blockingsideStubFull);
+        return txid1;
+    }
+
+
+
+    /**
    * constructor.
    */
 
