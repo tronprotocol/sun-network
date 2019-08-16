@@ -20,6 +20,7 @@ import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.DataWord;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.service.eventactuator.SignListParam;
 
 @Slf4j(topic = "sideApi")
 public class SideChainGatewayApi {
@@ -224,13 +225,13 @@ public class SideChainGatewayApi {
     }
   }
 
-  public static List<String> getWithdrawOracleSigns(String nonce) throws RpcConnectException {
+  public static SignListParam getWithdrawOracleSigns(String nonce) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "getWithdrawSigns(uint256)";
     List params = Arrays.asList(nonce);
     byte[] ret = GATEWAY_API.getInstance()
         .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
-    return AbiUtil.unpackOracleSigns(ret);
+    return new SignListParam(AbiUtil.unpackOracleSigns(ret), AbiUtil.unpackOracleSigns(ret));
   }
 
   public static List<String> getMappingOracleSigns(String txId, String dataHash)
