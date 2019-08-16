@@ -53,13 +53,22 @@ contract OracleManagerContract is Ownable {
 
     function checkOracles(bytes32 dataHash, uint256 nonce, bytes[] sigList, address[] signOracles) internal returns (bool) {
         require(sigList.length == signOracles.length, "error sigList.length or signOracles.length");
-        for (uint256 i = 0; i < sigList.length; i++) {
-            if (oracleIndex[signOracles[i]] == 0) {
-                signOracles[i] = 0;
-                sigList[i] = 0;
-            }
-        }
         if (multivalidatesignSwitch) {
+            uint256 signFlag = 0;
+            for (uint256 i = 0; i < sigList.length; i++) {
+                if (oracleIndex[signOracles[i]] == 0) {
+                    signOracles[i] = 0;
+                    sigList[i] = 0;
+                    continue;
+                }
+                uint256 signed = (1 << (oracleIndex[signOracles[i]] - 1)) & signFlag;
+                if (signed == 0) {// not signed
+                    signFlag = (1 << (oracleIndex[_oracle] - 1)) | signMsg.signedOracleFlag;
+                } else {
+                    signOracles[i] = 0;
+                    sigList[i] = 0;
+                }
+            }
             return checkOraclesWithMultiValidate(dataHash, nonce, sigList, signOracles);
         }
 
@@ -101,7 +110,7 @@ contract OracleManagerContract is Ownable {
         return count;
     }
 
-    function addOracle(address _oracle) public onlyOwner {
+    function addOracle(address _oracle) public goDelegateCall onlyOwner {
         require(oracleIndex[_oracle] == 0, "this address is already oracle");
 
         uint256 i;
@@ -117,7 +126,7 @@ contract OracleManagerContract is Ownable {
         numOracles++;
     }
 
-    function delOracle(address _oracle) public onlyOwner {
+    function delOracle(address _oracle) public goDelegateCall onlyOwner {
         require(oracleIndex[_oracle] > 0, "this address is not oracle");
 
         indexOracle[oracleIndex[_oracle]] = address(0);
@@ -134,11 +143,11 @@ contract OracleManagerContract is Ownable {
         }
     }
 
-    function setPause(bool status) public onlyOwner {
+    function setPause(bool status) public goDelegateCall onlyOwner {
         pause = status;
     }
 
-    function setStop(bool status) public onlyOwner {
+    function setStop(bool status) public goDelegateCall onlyOwner {
         stop = status;
     }
 

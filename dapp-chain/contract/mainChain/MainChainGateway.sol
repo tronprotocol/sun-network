@@ -60,7 +60,7 @@ contract MainChainGateway is OracleManagerContract {
 
     // Withdrawal functions
     function withdrawTRC10(address _to, trcToken tokenId, uint256 value, uint256 nonce, bytes[] oracleSigns, address[] signOracles)
-    public onlyNotStop onlyOracle goDelegateCall {
+    public goDelegateCall onlyNotStop onlyOracle {
         require(oracleSigns.length <= numOracles, "withdraw TRC10 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, tokenId, value, nonce));
         bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
@@ -71,7 +71,7 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function withdrawTRC20(address _to, address contractAddress, uint256 value, uint256 nonce, bytes[] oracleSigns, address[] signOracles)
-    public onlyNotStop onlyOracle goDelegateCall {
+    public goDelegateCall onlyNotStop onlyOracle {
         require(oracleSigns.length <= numOracles, "withdraw TRC20 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, value, nonce));
         bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
@@ -82,7 +82,7 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function withdrawTRC721(address _to, address contractAddress, uint256 uid, uint256 nonce, bytes[] oracleSigns, address[] signOracles)
-    public onlyNotStop onlyOracle goDelegateCall {
+    public goDelegateCall onlyNotStop onlyOracle {
         require(oracleSigns.length <= numOracles, "withdraw TRC721 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, uid, nonce));
         bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
@@ -93,7 +93,7 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function withdrawTRX(address _to, uint256 value, uint256 nonce, bytes[] oracleSigns, address[] signOracles)
-    public onlyNotStop onlyOracle goDelegateCall {
+    public goDelegateCall onlyNotStop onlyOracle {
         require(oracleSigns.length <= numOracles, "withdraw TRX signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, value, nonce));
         bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns);
@@ -106,8 +106,8 @@ contract MainChainGateway is OracleManagerContract {
 
     // Approve and Deposit function for 2-step deposits
     // Requires first to have called `approve` on the specified TRC20 contract
-    function depositTRC20(address contractAddress, uint64 value)
-    public onlyNotStop onlyNotPause isHuman goDelegateCall returns (uint256) {
+    function depositTRC20(address contractAddress, uint64 value) payable
+    public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(msg.value >= depositFee, "msg.value need  >= depositFee");
         if (msg.value - depositFee > 0) {
             msg.sender.transfer(msg.value - depositFee);
@@ -121,8 +121,8 @@ contract MainChainGateway is OracleManagerContract {
         return userDepositList.length - 1;
     }
 
-    function depositTRC721(address contractAddress, uint256 uid)
-    public onlyNotStop onlyNotPause isHuman goDelegateCall returns (uint256) {
+    function depositTRC721(address contractAddress, uint256 uid) payable
+    public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(msg.value >= depositFee, "msg.value need  >= depositFee");
         if (msg.value - depositFee > 0) {
             msg.sender.transfer(msg.value - depositFee);
@@ -135,7 +135,7 @@ contract MainChainGateway is OracleManagerContract {
         return userDepositList.length - 1;
     }
 
-    function depositTRX() payable public onlyNotStop onlyNotPause isHuman goDelegateCall returns (uint256) {
+    function depositTRX() payable public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(msg.value >= depositFee, "msg.value need  >= depositFee");
         bonus += depositFee;
         uint256 value = msg.value - depositFee;
@@ -147,7 +147,7 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function depositTRC10(uint64 tokenId, uint64 tokenValue) payable public
-    onlyNotStop onlyNotPause isHuman checkForTrc10(tokenId, tokenValue) goDelegateCall returns (uint256) {
+    goDelegateCall onlyNotStop onlyNotPause isHuman checkForTrc10(tokenId, tokenValue) returns (uint256) {
         require(msg.value >= depositFee, "msg.value need  >= depositFee");
         if (msg.value - depositFee > 0) {
             msg.sender.transfer(msg.value - depositFee);
@@ -161,11 +161,11 @@ contract MainChainGateway is OracleManagerContract {
         return userDepositList.length - 1;
     }
 
-    function() external onlyNotStop onlyNotPause goDelegateCall payable {
+    function() payable external goDelegateCall onlyNotStop onlyNotPause {
         revert("not allow function fallback");
     }
 
-    function mappingTRC20(bytes txId) public onlyNotStop onlyNotPause isHuman goDelegateCall payable returns (uint256) {
+    function mappingTRC20(bytes txId) payable public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(msg.value >= mappingFee, "trc20MappingFee not enough");
         if (msg.value > 0) {
             bonus += msg.value;
@@ -183,7 +183,7 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     // 2. deployDAppTRC721AndMapping
-    function mappingTRC721(bytes txId) public onlyNotStop onlyNotPause isHuman goDelegateCall payable returns (uint256) {
+    function mappingTRC721(bytes txId) payable public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(msg.value >= mappingFee, "trc721MappingFee not enough");
         if (msg.value > 0) {
             bonus += msg.value;
@@ -200,7 +200,7 @@ contract MainChainGateway is OracleManagerContract {
         return userMappingList.length - 1;
     }
 
-    function retryDeposit(uint256 nonce) payable public onlyNotStop onlyNotPause isHuman goDelegateCall {
+    function retryDeposit(uint256 nonce) payable public goDelegateCall onlyNotStop onlyNotPause isHuman {
         require(msg.value >= retryFee, "msg.value need  >= retryFee");
         if (msg.value - retryFee > 0) {
             msg.sender.transfer(msg.value - retryFee);
@@ -223,7 +223,7 @@ contract MainChainGateway is OracleManagerContract {
         }
     }
 
-    function retryMapping(uint256 nonce) payable public onlyNotStop onlyNotPause isHuman goDelegateCall {
+    function retryMapping(uint256 nonce) payable public goDelegateCall onlyNotStop onlyNotPause isHuman {
         require(msg.value >= retryFee, "msg.value need  >= retryFee");
         if (msg.value - retryFee > 0) {
             msg.sender.transfer(msg.value - retryFee);
@@ -280,32 +280,32 @@ contract MainChainGateway is OracleManagerContract {
         return TRC721(contractAddress).ownerOf(uid) == address(this);
     }
 
-    function setMappingFee(uint256 fee) public onlyOwner {
+    function setMappingFee(uint256 fee) public goDelegateCall onlyOwner {
         mappingFee = fee;
     }
 
-    function setDepositFee(uint256 fee) public onlyOwner {
+    function setDepositFee(uint256 fee) public goDelegateCall onlyOwner {
         depositFee = fee;
     }
 
-    function setRetryFee(uint256 fee) public onlyOwner {
+    function setRetryFee(uint256 fee) public goDelegateCall onlyOwner {
         retryFee = fee;
     }
 
-    function setSunTokenAddress(address _sunTokenAddress) public onlyOwner {
+    function setSunTokenAddress(address _sunTokenAddress) public goDelegateCall onlyOwner {
         require(_sunTokenAddress != address(0), "_sunTokenAddress == address(0)");
         sunTokenAddress = _sunTokenAddress;
     }
 
-    function setDepositMinTrx(uint256 minValue) public onlyOwner {
+    function setDepositMinTrx(uint256 minValue) public goDelegateCall onlyOwner {
         depositMinTrx = minValue;
     }
 
-    function setDepositMinTrc10(uint256 minValue) public onlyOwner {
+    function setDepositMinTrc10(uint256 minValue) public goDelegateCall onlyOwner {
         depositMinTrc10 = minValue;
     }
 
-    function setDepositMinTrc20(uint256 minValue) public onlyOwner {
+    function setDepositMinTrc20(uint256 minValue) public goDelegateCall onlyOwner {
         depositMinTrc20 = minValue;
     }
 
