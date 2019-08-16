@@ -9,7 +9,6 @@ contract OracleManagerContract is Ownable {
 
 
     uint256 public numOracles;
-    uint256 public numCommonOracles;
     mapping(address => uint256) public oracleIndex;
     mapping(uint256 => address) public indexOracle;
     mapping(address => SignMsg)  delegateSigns;
@@ -77,7 +76,7 @@ contract OracleManagerContract is Ownable {
             }
         }
 
-        if (signMsg.countSign > numCommonOracles && !signMsg.success) {
+        if (signMsg.countSign > numOracles * 2 / 3 && !signMsg.success) {
             signMsg.success = true;
             return true;
         }
@@ -87,27 +86,19 @@ contract OracleManagerContract is Ownable {
     function checkOraclesWithMultiValidate(bytes32 dataHash, uint256 nonce, bytes[] sigList, address[] oracleList) internal returns (bool) {
         SignMsg storage signMsg = withdrawMultiSignList[nonce][dataHash];
         bytes32 ret = multivalidatesign(dataHash, sigList, oracleList);
-
-        for (uint256 i = 0; i < sigList.length; i++) {
-            if (ret[i] == byte(0)) {
-                continue;
-            }
-            address _oracle = oracleList[i];
-            if (oracleIndex[_oracle] == 0) {// not oracle
-                continue;
-            }
-            uint256 signed = (1 << (oracleIndex[_oracle] - 1)) & signMsg.signedOracleFlag;
-            if (signed == 0) {// not signed
-                signMsg.signedOracleFlag = (1 << (oracleIndex[_oracle] - 1)) | signMsg.signedOracleFlag;
-                signMsg.countSign++;
-            }
-        }
-
-        if (signMsg.countSign > numCommonOracles && !signMsg.success) {
+        signMsg.countSign = countSuccess(ret);
+        if (signMsg.countSign > numOracles * 2 / 3 && !signMsg.success) {
             signMsg.success = true;
             return true;
         }
         return false;
+    }
+
+    function countSuccess(bytes32 ret) internal returns (uint256) {
+        uint256 count;
+        uint256 _num = uint256(ret);
+        for (; _num > 0; ++count) {_num &= (_num - 1);}
+        return count;
     }
 
     function addOracle(address _oracle) public onlyOwner {
@@ -124,7 +115,6 @@ contract OracleManagerContract is Ownable {
         indexOracle[i] = _oracle;
 
         numOracles++;
-        numCommonOracles = numOracles * 2 / 3;
     }
 
     function delOracle(address _oracle) public onlyOwner {
@@ -134,7 +124,6 @@ contract OracleManagerContract is Ownable {
         oracleIndex[_oracle] = 0;
 
         numOracles--;
-        numCommonOracles = numOracles * 2 / 3;
     }
 
     function setDelegateAddress(address newAddress) public onlyOracle {
@@ -168,7 +157,7 @@ contract OracleManagerContract is Ownable {
         signMsg.signedOracleFlag = (1 << (oracleIndex[msg.sender] - 1)) | signMsg.signedOracleFlag;
         signMsg.countSign++;
 
-        if (signMsg.countSign > numCommonOracles && !signMsg.success) {
+        if (signMsg.countSign > numOracles * 2 / 3 && !signMsg.success) {
             signMsg.success = true;
             return true;
         }
