@@ -58,6 +58,7 @@ import org.tron.common.crypto.zksnark.BN128G1;
 import org.tron.common.crypto.zksnark.BN128G2;
 import org.tron.common.crypto.zksnark.Fp;
 import org.tron.common.crypto.zksnark.PairingCheck;
+import org.tron.common.runtime.utils.MUtil;
 import org.tron.common.runtime.vm.program.Program;
 import org.tron.common.runtime.vm.program.Program.BytecodeExecutionException;
 import org.tron.common.runtime.vm.program.Program.PrecompiledContractException;
@@ -870,8 +871,9 @@ public class PrecompiledContracts {
       byte v;
       byte[] r;
       byte[] s;
+      byte[] zeroAddr = MUtil.convertToTronAddress(new byte[20]);
       DataWord out = null;
-      if (sign.length < 65) {
+      if (sign.length < 65 || address.equals(zeroAddr)) {
         return false;
       }
       try {
