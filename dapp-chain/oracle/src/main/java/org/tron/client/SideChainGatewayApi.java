@@ -231,7 +231,7 @@ public class SideChainGatewayApi {
     List params = Arrays.asList(nonce);
     byte[] ret = GATEWAY_API.getInstance()
         .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
-    return new SignListParam(AbiUtil.unpackOracleSigns(ret), AbiUtil.unpackOracleSigns(ret));
+    return AbiUtil.unpackSignListParam(ret);
   }
 
   public static List<String> getMappingOracleSigns(String txId, String dataHash)
