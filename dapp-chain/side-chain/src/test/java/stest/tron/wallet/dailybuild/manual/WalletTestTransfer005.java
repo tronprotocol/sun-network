@@ -83,7 +83,7 @@ public class WalletTestTransfer005 {
 
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void testgetTransactionsFromThis() {
     //Create a transfer.
     //Assert.assertTrue(PublicMethedForDailybuild.sendcoin(toAddress,1000000,fromAddress,
@@ -115,7 +115,7 @@ public class WalletTestTransfer005 {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void testgetTransactionsFromThisByInvaildAddress() {
     //Invaild address.
     ByteString addressBs = ByteString.copyFrom(INVAILD_ADDRESS);

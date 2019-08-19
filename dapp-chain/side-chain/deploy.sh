@@ -16,13 +16,17 @@ if [[ "$TRAVIS_BRANCH" = "develop" || "$TRAVIS_BRANCH" = "master" ]];then
 
      change_branch_CMD="sed -i '1c branch_name_side=$TRAVIS_BRANCH' /data/databackup/docker_workspace_sideChain/do_stest_sidechain.sh"
      ssh java-tron@$stest_server -p 22008 $change_branch_CMD
-     ssh java-tron@$stest_server -p 22008 sh /data/databackup/docker_workspace_sideChain/do_stest_sidechain.sh > $stestlogname
+     ssh java-tron@$stest_server -p 22008 sh /data/databackup/docker_workspace_sideChain/do_stest_sidechain.sh > $stestlogname &
+     sleep 500 && echo $TRAVIS_BRANCH &
+     wait
      if [[ `find $stestlogname -type f | xargs grep "Connection refused"` =~ "Connection refused" || `find $stestlogname -type f | xargs grep "stest FAILED"` =~ "stest FAILED" ]];
      then
       rm -f $stestlogname
       echo "first Retry stest task"
       ssh java-tron@$stest_server -p 22008 $change_branch_CMD
-      ssh java-tron@$stest_server -p 22008 sh /data/databackup/docker_workspace_sideChain/do_stest_sidechain.sh > $stestlogname
+      ssh java-tron@$stest_server -p 22008 sh /data/databackup/docker_workspace_sideChain/do_stest_sidechain.sh > $stestlogname &
+      sleep 500 && echo $TRAVIS_BRANCH &
+      wait
      fi
      echo "stest start"
      cat $stestlogname | grep "Stest result is:" -A 10000
