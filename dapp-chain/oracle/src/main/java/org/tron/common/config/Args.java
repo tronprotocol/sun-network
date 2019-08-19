@@ -74,6 +74,9 @@ public class Args {
   @Getter
   private byte[] oraclePrivateKey;
 
+  @Getter
+  private int oracleRetryTimes;
+
   @Parameter(names = {"-pw", "--password"}, description = "Oracle keystore password")
   private String password;
 
@@ -137,6 +140,8 @@ public class Args {
     this.sidechainGatewayStr = config.getString("gateway.sidechain.address");
     this.sidechainGateway = WalletUtil
         .decodeFromBase58Check(sidechainGatewayStr);
+
+    this.oracleRetryTimes = config.getInt("oracle.retryTimes");
 
     if (StringUtils.isNotEmpty(this.oraclePrivateKeyStr)) {
       this.oraclePrivateKey = Hex.decode(this.oraclePrivateKeyStr);
