@@ -794,6 +794,7 @@ public class PrecompiledContracts {
     private static final ExecutorService workers;
     private static final int ENGERYPERSIGN = 1500;
     private static final byte[] ZEROADDR = MUtil.allZero32TronAddress();
+    private static final byte[] EMPTYADDR = new byte[32];
 
     static {
       workers = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
@@ -896,7 +897,7 @@ public class PrecompiledContracts {
       byte[] s;
       DataWord out = null;
       if (sign.length < 65 || Arrays.equals(ZEROADDR,address)
-          || Arrays.equals(new byte[32],address)) {
+          || Arrays.equals(EMPTYADDR,address)) {
         return false;
       }
       try {
