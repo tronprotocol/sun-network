@@ -746,7 +746,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getAllowProtoFilterNum();
     } catch (IllegalArgumentException e) {
-      this.saveAllowProtoFilterNum(1);
+      this.saveAllowProtoFilterNum(Args.getInstance().getAllowProtoFilterNum());
     }
 
     try {

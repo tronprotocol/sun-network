@@ -224,10 +224,10 @@ public class ProposalController {
               .saveMultiSignFee(Long.valueOf(entry.getValue()));
           break;
         }
-//        case (24): {
-//          manager.getDynamicPropertiesStore().saveAllowProtoFilterNum(Long.valueOf(entry.getValue()));
-//          break;
-//        }
+        case (24): {
+          manager.getDynamicPropertiesStore().saveAllowProtoFilterNum(Long.valueOf(entry.getValue()));
+          break;
+        }
         case (25): {
           manager.getDynamicPropertiesStore().saveAllowAccountStateRoot(Long.valueOf(entry.getValue()));
           break;

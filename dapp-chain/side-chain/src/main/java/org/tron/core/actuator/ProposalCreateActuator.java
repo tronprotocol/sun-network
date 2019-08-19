@@ -256,6 +256,13 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       }
+      case (24): {
+        if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
+          throw new ContractValidateException(
+              "This value[ALLOW_PROTO_FILTER_NUM] is only allowed to be 1 or 0");
+        }
+        break;
+      }
       case (25): {
         if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
           throw new ContractValidateException(
