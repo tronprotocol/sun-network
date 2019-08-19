@@ -687,6 +687,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getAllowUpdateAccountName();
+    } catch (IllegalArgumentException e) {
+      this.saveAllowUpdateAccountName(0);
+    }
+
+    try {
       this.getBlockFilledSlots();
     } catch (IllegalArgumentException e) {
       int[] blockFilledSlots = new int[getBlockFilledSlotsNumber()];
@@ -1956,6 +1962,19 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
 
   public boolean supportDR() {
     return getAllowDelegateResource() == 1L;
+  }
+
+  public void saveAllowUpdateAccountName(long rate) {
+    this.put(ALLOW_UPDATE_ACCOUNT_NAME,
+        new BytesCapsule(ByteArray.fromLong(rate)));
+  }
+
+  public long getAllowUpdateAccountName() {
+    return Optional.ofNullable(getUnchecked(ALLOW_UPDATE_ACCOUNT_NAME))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+        .orElseThrow(
+            () -> new IllegalArgumentException("not found ALLOW_UPDATE_ACCOUNT_NAME"));
   }
 
   public void saveTotalSignNum(int num) {

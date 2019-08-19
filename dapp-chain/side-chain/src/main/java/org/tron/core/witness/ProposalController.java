@@ -172,11 +172,10 @@ public class ProposalController {
               .saveMaxCpuTimeOfOneTx(Long.valueOf(entry.getValue()));
           break;
         }
-        // default to allow update account name
-//        case (14): {
-//          manager.getDynamicPropertiesStore().saveAllowUpdateAccountName(entry.getValue());
-//          break;
-//        }
+        case (14): {
+          manager.getDynamicPropertiesStore().saveAllowUpdateAccountName(Long.valueOf(entry.getValue()));
+          break;
+        }
         // default to allow same token
 //        case (15): {
 //          manager.getDynamicPropertiesStore().saveAllowSameTokenName(entry.getValue());
