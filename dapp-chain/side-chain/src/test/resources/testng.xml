@@ -13,13 +13,9 @@
   </test>
 
   <test name="sun-network">
-    <classes>
-      <class name="stest.tron.wallet.depositWithdraw.WithdrawTrx001"></class>
-      <class name="stest.tron.wallet.depositWithdraw.WithdrawTrc10001"></class>
-      <class name="stest.tron.wallet.depositWithdraw.WithdrawTrc20001"></class>
-      <class name="stest.tron.wallet.depositWithdraw.WithdrawTrc721001"></class>
-      <class name="stest.tron.wallet.depositWithdraw.RetryTrx001"></class>
-    </classes>
+    <packages>
+      <package name="stest.tron.wallet.sunnetwork"></package>
+    </packages>
   </test>
   <test name="account,transfer">
     <packages>
