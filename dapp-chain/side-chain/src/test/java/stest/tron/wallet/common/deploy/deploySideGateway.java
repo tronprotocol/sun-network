@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.encoders.Hex;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
@@ -88,11 +89,16 @@ public class deploySideGateway {
       logger.info("OralceBalance: " + OralceBalance);
 
       String contractName = "gateWaysidechainContract";
-      String code = Configuration.getByPath("testng.conf")
-          .getString("code.code_SideGateway");
-      String abi = Configuration.getByPath("testng.conf")
-          .getString("abi.abi_SideGateway");
-      String parame = "\"" + Base58.encode58Check(oracleAddress) + "\"";
+      String code = null;
+      String abi = null;
+
+      try {
+        code = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/MainChainGateway.bin",false);
+        abi = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/MainChainGateway.abi",false);
+      } catch (Exception e) {
+        Assert.fail("Read ABI Failed");
+        return;
+      }
 
       String deployTxid = PublicMethed
           .deploySideContractWithConstantParame(contractName, abi, code, "#",
@@ -110,19 +116,23 @@ public class deploySideGateway {
         count += 1;
         continue;
       } else {
-        byte[] input = Hex.decode(AbiUtil.parseMethod("addOracle(address)", parame, false));
-        String triggerTxid1 = PublicMethed.triggerContractSideChain(sideChainGateway,
-                WalletClient.decodeFromBase58Check(mainChainAddress), 0, input, maxFeeLimit,
-            0, "0", foundationAddress003, foundationKey003, blockingStubFull);
-        PublicMethed.waitProduceNextBlock(blockingStubFull);
-        Optional<TransactionInfo> infoById1 = PublicMethed
-            .getTransactionInfoById(triggerTxid1, blockingStubFull);
-        if (triggerTxid1 == null || infoById1.get().getResultValue() == 1) {
-          count += 1;
-          continue;
-        } else {
-          break;
+        String[] Oracle_Address = {
+            "TV75jZpdmP2juMe1dRwGrwpV6AMU6mr1EU",
+            "THph9K2M2nLvkianrMGswRhz5hjSA9fuH7",
+            "TCw4yb4hS923FisfMsxAzQ85srXkK6RWGk",
+            "TMaPUPt1idXgoL8kpfQsp2fSe6ejeCHpBg"
+        };
+        for(int i=0;i<4;i++){
+          String parame = "\"" + Oracle_Address[i] + "\"";
+          byte[] input = Hex.decode(AbiUtil.parseMethod("addOracle(address)", parame, false));
+          String triggerTxid1 = PublicMethed.triggerContractSideChain(sideChainGateway,
+              WalletClient.decodeFromBase58Check(mainChainAddress), 0, input, maxFeeLimit,
+              0, "0", foundationAddress003, foundationKey003, blockingStubFull);
+          PublicMethed.waitProduceNextBlock(blockingStubFull);
+          Optional<TransactionInfo> infoById1 = PublicMethed
+              .getTransactionInfoById(triggerTxid1, blockingStubFull);
         }
+
       }
     }
 
