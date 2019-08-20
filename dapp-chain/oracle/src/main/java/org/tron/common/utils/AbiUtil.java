@@ -550,7 +550,7 @@ public class AbiUtil {
     ArrayList<String> addressList = new ArrayList<>();
     do {
       byte[] address = DataWord.getDataWord(data, des).getLast20Bytes();
-      signList.add(WalletUtil.encode58CheckWithoutPrefix(address));
+      addressList.add(WalletUtil.encode58CheckWithoutPrefix(address));
     } while (des++ < length);
     return new SignListParam(signList, addressList);
   }

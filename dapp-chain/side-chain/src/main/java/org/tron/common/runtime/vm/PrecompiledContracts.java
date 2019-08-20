@@ -794,6 +794,7 @@ public class PrecompiledContracts {
     private static final ExecutorService workers;
     private static final int ENGERYPERSIGN = 1500;
     private static final byte[] ZEROADDR = MUtil.allZero32TronAddress();
+    private static final byte[] EMPTYADDR = new byte[32];
 
     static {
       workers = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
@@ -847,8 +848,10 @@ public class PrecompiledContracts {
         throws InterruptedException, ExecutionException {
       DataWord[] words = DataWord.parseArray(data);
       byte[] hash = words[0].getData();
-      byte[][] signatures = extractBytesArray(words, words[1].intValueSafe() / DataWord.WORD_SIZE, data);
-      byte[][] addresses = extractBytes32Array(words, words[2].intValueSafe() / DataWord.WORD_SIZE);
+      byte[][] signatures = extractBytesArray(
+          words, words[1].intValueSafe() / DataWord.WORD_SIZE, data);
+      byte[][] addresses = extractBytes32Array(
+          words, words[2].intValueSafe() / DataWord.WORD_SIZE);
       int cnt = signatures.length;
       if (cnt == 0 || signatures.length != addresses.length) {
         return Pair.of(true, new byte[DataWord.WORD_SIZE]);
@@ -873,10 +876,10 @@ public class PrecompiledContracts {
           futures.add(future);
         }
 
-        countDownLatch.await(getCPUTimeLeftInUs()*1000, TimeUnit.NANOSECONDS);
+        countDownLatch.await(getCPUTimeLeftInUs() * 1000, TimeUnit.NANOSECONDS);
 
         for (Future<ValidateSignResult> future : futures) {
-          if(future.get() == null){
+          if (future.get() == null) {
             logger.info("MultiValidateSign timeout");
             throw Program.Exception.notEnoughTime("call MultiValidateSign precompile method");
           }
@@ -893,7 +896,8 @@ public class PrecompiledContracts {
       byte[] r;
       byte[] s;
       DataWord out = null;
-      if (sign.length < 65 || Arrays.equals(ZEROADDR,address) ) {
+      if (sign.length < 65 || Arrays.equals(ZEROADDR,address)
+          || Arrays.equals(EMPTYADDR,address)) {
         return false;
       }
       try {

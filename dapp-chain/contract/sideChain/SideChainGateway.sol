@@ -219,8 +219,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
             tokenIdMap[tokenId] = true;
         }
         mintTRC10Contract.call(abi.encode(value, tokenId, name, symbol, decimals));
-        to.transferToken(value, int256(tokenId));
-        emit DepositTRC10(to, int256(tokenId), value);
+        to.transferToken(value, tokenId);
+        emit DepositTRC10(to, tokenId, value);
     }
 
     // 4. depositTRC20

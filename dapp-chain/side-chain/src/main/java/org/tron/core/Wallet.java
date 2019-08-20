@@ -837,11 +837,11 @@ public class Wallet {
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getMaxCpuTimeOfOneTx()))
             .build());
     //    ALLOW_UPDATE_ACCOUNT_NAME, // 1, 14
-//    builder.addChainParameter(
-//        Protocol.SideChainParameters.SideChainParameter.newBuilder()
-//            .setKey("getAllowUpdateAccountName")
-//            .setValue(dbManager.getDynamicPropertiesStore().getAllowUpdateAccountName())
-//            .build());
+    builder.addChainParameter(
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getAllowUpdateAccountName")
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowUpdateAccountName()))
+            .build());
     //    ALLOW_SAME_TOKEN_NAME, // 1, 15
 //    builder.addChainParameter(
 //        Protocol.SideChainParameters.SideChainParameter.newBuilder()
