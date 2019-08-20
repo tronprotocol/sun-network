@@ -93,8 +93,8 @@ public class deploySideGateway {
       String abi = null;
 
       try {
-        code = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/MainChainGateway.bin",false);
-        abi = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/MainChainGateway.abi",false);
+        code = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.bin",false);
+        abi = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.abi",false);
       } catch (Exception e) {
         Assert.fail("Read ABI Failed");
         return;
