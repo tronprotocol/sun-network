@@ -538,6 +538,10 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         return withdrawFee;
     }
 
+    function getMainContractList() view public returns (address[] memory) {
+        return mainContractList;
+    }
+
     function setRetryFee(uint256 fee) external goDelegateCall onlyOwner {
         retryFee = fee;
     }
