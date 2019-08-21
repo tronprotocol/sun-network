@@ -651,12 +651,14 @@ public class RuntimeImpl implements Runtime {
       }
       logger.info("runtime result is :{}", result.getException().getMessage());
     }
-    if (!VMConfig.isVmResourceChargingOn()
-        || trace.isSideChainGateWayContractCall() && this.isResultSuccess()) {
-      trace.setBill(0);
-    }
-    else {
-      trace.setBill(result.getEnergyUsed());
+    if(!isStaticCall){
+      if (!VMConfig.isVmResourceChargingOn()
+          || trace.isSideChainGateWayContractCall() && this.isResultSuccess()) {
+        trace.setBill(0);
+      }
+      else {
+        trace.setBill(result.getEnergyUsed());
+      }
     }
   }
 
