@@ -166,9 +166,10 @@ contract MainChainGateway is OracleManagerContract {
 
     function mappingTRC20(bytes memory txId) payable public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(msg.value >= mappingFee, "trc20MappingFee not enough");
-        if (msg.value > 0) {
-            bonus += msg.value;
+        if (msg.value - mappingFee > 0) {
+            msg.sender.transfer(msg.value - mappingFee);
         }
+        bonus += mappingFee;
         address trc20Address = calcContractAddress(txId, msg.sender);
         require(trc20Address != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         require(mainToSideContractMap[trc20Address] != 1, "trc20Address mapped");
@@ -184,9 +185,10 @@ contract MainChainGateway is OracleManagerContract {
     // 2. deployDAppTRC721AndMapping
     function mappingTRC721(bytes memory txId) payable public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(msg.value >= mappingFee, "trc721MappingFee not enough");
-        if (msg.value > 0) {
-            bonus += msg.value;
+        if (msg.value - mappingFee > 0) {
+            msg.sender.transfer(msg.value - mappingFee);
         }
+        bonus += mappingFee;
         address trc721Address = calcContractAddress(txId, msg.sender);
         require(trc721Address != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         require(mainToSideContractMap[trc721Address] != 1, "trc721Address mapped");

@@ -22,13 +22,13 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     // 10. withdrawTRX
 
 
-    event DeployDAppTRC20AndMapping(address mainChainAddress, address sideChainAddress);
-    event DeployDAppTRC721AndMapping(address mainChainAddress, address sideChainAddress);
+    event DeployDAppTRC20AndMapping(address mainChainAddress, address sideChainAddress, uint256 nonce);
+    event DeployDAppTRC721AndMapping(address mainChainAddress, address sideChainAddress, uint256 nonce);
 
-    event DepositTRC10(address to, trcToken tokenId, uint256 value);
-    event DepositTRC20(address to, address sideChainAddress, uint256 value);
-    event DepositTRC721(address to, address sideChainAddress, uint256 uId);
-    event DepositTRX(address to, uint256 value);
+    event DepositTRC10(address to, trcToken tokenId, uint256 value, uint256 nonce);
+    event DepositTRC20(address to, address sideChainAddress, uint256 value, uint256 nonce);
+    event DepositTRC721(address to, address sideChainAddress, uint256 uId, uint256 nonce);
+    event DepositTRX(address to, uint256 value, uint256 nonce);
 
     event WithdrawTRC10(address from, trcToken tokenId, uint256 value, uint256 nonce);
     event WithdrawTRC20(address from, address mainChainAddress, uint256 value, uint256 nonce);
@@ -155,16 +155,16 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         bool needMapping = multiSignForMapping(nonce);
         if (needMapping) {
-            deployDAppTRC20AndMapping(mainChainAddress, name, symbol, decimals);
+            deployDAppTRC20AndMapping(mainChainAddress, name, symbol, decimals, nonce);
         }
     }
 
-    function deployDAppTRC20AndMapping(address mainChainAddress, string memory name, string memory symbol, uint8 decimals) internal returns (address r) {
+    function deployDAppTRC20AndMapping(address mainChainAddress, string memory name, string memory symbol, uint8 decimals, uint256 nonce) internal returns (address r) {
         address sideChainAddress = address(new DAppTRC20(address(this), name, symbol, decimals));
         require(mainToSideContractMap[mainChainAddress] == address(0), "TRC20 contract is mapped");
         mainToSideContractMap[mainChainAddress] = sideChainAddress;
         sideToMainContractMap[sideChainAddress] = mainChainAddress;
-        emit DeployDAppTRC20AndMapping(mainChainAddress, sideChainAddress);
+        emit DeployDAppTRC20AndMapping(mainChainAddress, sideChainAddress, nonce);
         mainContractList.push(mainChainAddress);
         r = sideChainAddress;
     }
@@ -174,16 +174,16 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         bool needMapping = multiSignForMapping(nonce);
         if (needMapping) {
-            deployDAppTRC721AndMapping(mainChainAddress, name, symbol);
+            deployDAppTRC721AndMapping(mainChainAddress, name, symbol, nonce);
         }
     }
 
-    function deployDAppTRC721AndMapping(address mainChainAddress, string memory name, string memory symbol) internal returns (address r) {
+    function deployDAppTRC721AndMapping(address mainChainAddress, string memory name, string memory symbol, uint256 nonce) internal returns (address r) {
         address sideChainAddress = address(new DAppTRC721(address(this), name, symbol));
         require(mainToSideContractMap[mainChainAddress] == address(0), "TRC20 contract is mapped");
         mainToSideContractMap[mainChainAddress] = sideChainAddress;
         sideToMainContractMap[sideChainAddress] = mainChainAddress;
-        emit DeployDAppTRC721AndMapping(mainChainAddress, sideChainAddress);
+        emit DeployDAppTRC721AndMapping(mainChainAddress, sideChainAddress, nonce);
         mainContractList.push(mainChainAddress);
         r = sideChainAddress;
     }
@@ -208,11 +208,11 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         require(tokenId > 1000000 && tokenId <= 2000000, "tokenId <= 1000000 or tokenId > 2000000");
         bool needDeposit = multiSignForDeposit(nonce);
         if (needDeposit) {
-            depositTRC10(to, tokenId, value, name, symbol, decimals);
+            depositTRC10(to, tokenId, value, name, symbol, decimals, nonce);
         }
     }
 
-    function depositTRC10(address payable to, trcToken _tokenId, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals) internal {
+    function depositTRC10(address payable to, trcToken _tokenId, uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, uint256 nonce) internal {
         uint256 tokenId = uint256(_tokenId);
         bool exist = tokenIdMap[tokenId];
         if (exist == false) {
@@ -220,7 +220,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         }
         mintTRC10Contract.call(abi.encode(value, tokenId, name, symbol, decimals));
         to.transferToken(value, tokenId);
-        emit DepositTRC10(to, tokenId, value);
+        emit DepositTRC10(to, tokenId, value, nonce);
     }
 
     // 4. depositTRC20
@@ -229,13 +229,13 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         require(sideChainAddress != address(0), "the main chain address hasn't mapped");
         bool needDeposit = multiSignForDeposit(nonce);
         if (needDeposit) {
-            depositTRC20(to, sideChainAddress, value);
+            depositTRC20(to, sideChainAddress, value, nonce);
         }
     }
 
-    function depositTRC20(address to, address sideChainAddress, uint256 value) internal {
+    function depositTRC20(address to, address sideChainAddress, uint256 value, uint256 nonce) internal {
         IDApp(sideChainAddress).mint(to, value);
-        emit DepositTRC20(to, sideChainAddress, value);
+        emit DepositTRC20(to, sideChainAddress, value, nonce);
     }
 
     // 5. depositTRC721
@@ -244,27 +244,27 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         require(sideChainAddress != address(0), "the main chain address hasn't mapped");
         bool needDeposit = multiSignForDeposit(nonce);
         if (needDeposit) {
-            depositTRC721(to, sideChainAddress, uId);
+            depositTRC721(to, sideChainAddress, uId, nonce);
         }
     }
 
-    function depositTRC721(address to, address sideChainAddress, uint256 uId) internal {
+    function depositTRC721(address to, address sideChainAddress, uint256 uId, uint256 nonce) internal {
         IDApp(sideChainAddress).mint(to, uId);
-        emit DepositTRC721(to, sideChainAddress, uId);
+        emit DepositTRC721(to, sideChainAddress, uId, nonce);
     }
 
     // 6. depositTRX
     function multiSignForDepositTRX(address payable to, uint256 value, uint256 nonce) public goDelegateCall onlyNotStop onlyOracle {
         bool needDeposit = multiSignForDeposit(nonce);
         if (needDeposit) {
-            depositTRX(to, value);
+            depositTRX(to, value, nonce);
         }
     }
 
-    function depositTRX(address payable to, uint256 value) internal {
+    function depositTRX(address payable to, uint256 value, uint256 nonce) internal {
         mintTRXContract.call(abi.encode(value));
         to.transfer(value);
-        emit DepositTRX(to, value);
+        emit DepositTRX(to, value, nonce);
     }
 
     function multiSignForDeposit(uint256 nonce) internal returns (bool) {
@@ -540,6 +540,10 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     function getMainContractList() view public returns (address[] memory) {
         return mainContractList;
+    }
+
+    function mappingDone(uint256 nonce) view public returns (bool) {
+        return mappingSigns[nonce].success;
     }
 
     function setRetryFee(uint256 fee) external goDelegateCall onlyOwner {
