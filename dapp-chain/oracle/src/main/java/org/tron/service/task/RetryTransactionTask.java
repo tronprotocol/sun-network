@@ -3,7 +3,9 @@ package org.tron.service.task;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.tron.common.config.Args;
+import org.tron.common.config.SystemSetting;
 import org.tron.common.utils.AlertUtil;
+import org.tron.db.EventStore;
 import org.tron.db.Manager;
 import org.tron.db.NonceStore;
 import org.tron.protos.Sidechain.NonceMsg;
@@ -22,16 +24,18 @@ public class RetryTransactionTask {
   public void processAndSubmit(Actuator actuator, String msg) {
 
     try {
-      byte[] nonceMsgBytes = NonceStore.getInstance().getData(actuator.getNonceKey());
+      Actuator newActuator = InitTask.getActuatorByEventMsg(EventStore.getInstance().getData(actuator.getNonce()));
+      byte[] nonceMsgBytes = NonceStore.getInstance().getData(newActuator.getNonceKey());
       NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
       int retryTimes = nonceMsg.getRetryTimes() + 1;
+      newActuator.setRetryTimes(retryTimes);
       logger.info("RetryTransactionTask processAndSubmit! msg = {}, retryTimes = {}", msg, retryTimes);
-      if (retryTimes >= Args.getInstance().getOracleRetryTimes()) {
-        Manager.getInstance().setProcessFail(actuator.getNonceKey());
+      if (retryTimes % SystemSetting.RETRY_TIMES_OFFSET >= Args.getInstance().getOracleRetryTimes()) {
+        Manager.getInstance().setProcessFail(newActuator.getNonceKey());
         AlertUtil.sendAlert(msg);
       } else {
-        Manager.getInstance().setProcessRetry(actuator.getNonceKey(), retryTimes);
-        CreateTransactionTask.getInstance().submitCreate(actuator, getDelay(retryTimes));
+        Manager.getInstance().setProcessRetry(newActuator.getNonceKey());
+        CreateTransactionTask.getInstance().submitCreate(newActuator, getDelay(retryTimes));
       }
     } catch (Exception e) {
       logger.error("parse pb error", e);

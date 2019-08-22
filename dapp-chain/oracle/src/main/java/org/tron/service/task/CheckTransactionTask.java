@@ -34,20 +34,25 @@ public class CheckTransactionTask {
   }
 
   private void checkTransaction(Actuator eventActuator) {
-    CheckTxRet checkTxRet = eventActuator.checkTxInfo();
-    String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
-    String chain = eventActuator.getTaskEnum().name();
-    if (checkTxRet == CheckTxRet.SUCCESS) {
-      Manager.getInstance().setProcessSuccess(eventActuator.getNonceKey());
-      if (logger.isInfoEnabled()) {
-        String msg = MessageCode.CHECK_TRANSACTION_SUCCESS
+    try {
+      CheckTxRet checkTxRet = eventActuator.checkTxInfo();
+      String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
+      String chain = eventActuator.getTaskEnum().name();
+      if (checkTxRet == CheckTxRet.SUCCESS) {
+        Manager.getInstance().setProcessSuccess(eventActuator.getNonceKey());
+        if (logger.isInfoEnabled()) {
+          String msg = MessageCode.CHECK_TRANSACTION_SUCCESS
+              .getMsg(chain, transactionId);
+          logger.info(msg);
+        }
+      } else {
+        String msg = MessageCode.CHECK_TRANSACTION_FAIL
             .getMsg(chain, transactionId);
-        logger.info(msg);
+        RetryTransactionTask.getInstance().processAndSubmit(eventActuator, msg);
       }
-    } else {
-      String msg = MessageCode.CHECK_TRANSACTION_FAIL
-          .getMsg(chain, transactionId);
-      RetryTransactionTask.getInstance().processAndSubmit(eventActuator, msg);
+    } catch (Exception e) {
+      logger.error("checkTransaction catch error! nouce = {}", eventActuator.getNonceKey(), e);
+      Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
     }
   }
 }
