@@ -18,6 +18,19 @@ public class Manager {
   private Manager() {
   }
 
+  public void setProcessProcessingInit(byte[] nonceKeyBytes, int retryTimes) {
+    // insert or set order:
+    // 1. set nonce
+    // 2. insert event
+    // 3. insert tx (in other thread)
+    NonceMsg nonceMsg = NonceMsg.newBuilder()
+        .setRetryTimes(retryTimes)
+        .setStatus(NonceStatus.PROCESSING)
+        .setNextProcessTimestamp(System.currentTimeMillis() / 1000 +
+            SystemSetting.RETRY_PROCESSING_INTERVAL).build();
+    NonceStore.getInstance().putData(nonceKeyBytes, nonceMsg.toByteArray());
+  }
+
   public boolean setProcessProcessing(byte[] nonceKeyBytes, byte[] msgBytes, int retryTimes) {
     // insert or set order:
     // 1. set nonce

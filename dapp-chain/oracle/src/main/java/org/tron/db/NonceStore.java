@@ -1,8 +1,8 @@
 package org.tron.db;
 
 import lombok.extern.slf4j.Slf4j;
-import org.iq80.leveldb.DBException;
 import org.tron.common.config.SystemSetting;
+import org.tron.common.utils.ByteArray;
 import org.tron.protos.Sidechain.NonceMsg;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 
@@ -30,10 +30,13 @@ public class NonceStore extends OracleStore {
         database.put(key, nonceMsg.toByteArray());
         return true;
       } else if (nonceMsgInStore.getStatus() == NonceStatus.FAIL) {
-        if (nonceMsg.getRetryTimes() == nonceMsgInStore.getRetryTimes() + 1 || nonceMsg.getRetryTimes() / SystemSetting.RETRY_TIMES_OFFSET
-            == nonceMsgInStore.getRetryTimes() / SystemSetting.RETRY_TIMES_OFFSET + 1) {
+        if (nonceMsg.getRetryTimes() == nonceMsgInStore.getRetryTimes() + 1 || nonceMsg.getRetryTimes() / SystemSetting.RETRY_TIMES_EPOCH_OFFSET
+            == nonceMsgInStore.getRetryTimes() / SystemSetting.RETRY_TIMES_EPOCH_OFFSET + 1) {
           database.put(key, nonceMsg.toByteArray());
           return true;
+        } else {
+          logger.info("putDataIfIdle fail! nonce = {}, nonceMsg retry = {}, nonceInStore retry = {}",
+              ByteArray.toStr(key), nonceMsg.getRetryTimes(), nonceMsgInStore.getRetryTimes());
         }
       }
       return false;

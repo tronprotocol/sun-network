@@ -18,6 +18,6 @@ public class SystemSetting {
 
   public static final int CLIENT_RETRY_INTERVAL = 500;
 
-  public static final int RETRY_TIMES_OFFSET = 1000;
+  public static final int RETRY_TIMES_EPOCH_OFFSET = 1000;
 
 }

@@ -142,8 +142,8 @@ public class Args {
         .decodeFromBase58Check(sidechainGatewayStr);
 
     this.oracleRetryTimes = config.getInt("oracle.retryTimes");
-    if (oracleRetryTimes >= SystemSetting.RETRY_TIMES_OFFSET) {
-      logger.error("oracle retryTimes shoud less than " + SystemSetting.RETRY_TIMES_OFFSET);
+    if (oracleRetryTimes >= SystemSetting.RETRY_TIMES_EPOCH_OFFSET) {
+      logger.error("oracle retryTimes shoud less than " + SystemSetting.RETRY_TIMES_EPOCH_OFFSET);
       exit(-1);
     }
 

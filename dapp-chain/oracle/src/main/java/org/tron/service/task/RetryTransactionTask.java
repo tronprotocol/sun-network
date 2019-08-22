@@ -30,7 +30,7 @@ public class RetryTransactionTask {
       int retryTimes = nonceMsg.getRetryTimes() + 1;
       newActuator.setRetryTimes(retryTimes);
       logger.info("RetryTransactionTask processAndSubmit! msg = {}, retryTimes = {}", msg, retryTimes);
-      if (retryTimes % SystemSetting.RETRY_TIMES_OFFSET >= Args.getInstance().getOracleRetryTimes()) {
+      if (retryTimes % SystemSetting.RETRY_TIMES_EPOCH_OFFSET >= Args.getInstance().getOracleRetryTimes()) {
         Manager.getInstance().setProcessFail(newActuator.getNonceKey());
         AlertUtil.sendAlert(msg);
       } else {

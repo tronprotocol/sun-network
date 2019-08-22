@@ -10,7 +10,6 @@ import org.tron.common.MessageCode;
 import org.tron.common.config.Args;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.utils.ByteArray;
-import org.tron.db.Manager;
 import org.tron.db.NonceStore;
 import org.tron.protos.Sidechain.NonceMsg;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
@@ -91,7 +90,8 @@ public class EventTask {
   private void setRetryTimesForUserRetry(Actuator actuator) throws InvalidProtocolBufferException {
     try {
       int retryTimesInStore = NonceMsg.parseFrom(NonceStore.getInstance().getData(actuator.getNonceKey())).getRetryTimes();
-      int retryNew = (retryTimesInStore / SystemSetting.RETRY_TIMES_OFFSET + 1) * SystemSetting.RETRY_TIMES_OFFSET;
+      int retryNew = (retryTimesInStore / SystemSetting.RETRY_TIMES_EPOCH_OFFSET
+          + 1) * SystemSetting.RETRY_TIMES_EPOCH_OFFSET;
       actuator.setRetryTimes(retryNew);
     } catch (Exception e) {
       logger.error("setRetryTimesForUserRetry catch error! nouce = {}", actuator.getNonceKey(), e);
