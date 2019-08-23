@@ -26,6 +26,7 @@ message NonceMsg {
   }
   NonceStatus status = 1;
   int64 next_process_timestamp = 2;
+  int32 retry_times = 3;
 }
 
 message EventMsg {
