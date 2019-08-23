@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.MessageCode;
 import org.tron.common.config.SystemSetting;
+import org.tron.common.utils.ByteArray;
 import org.tron.db.Manager;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.Actuator.CheckTxRet;
@@ -51,7 +52,7 @@ public class CheckTransactionTask {
         RetryTransactionTask.getInstance().processAndSubmit(eventActuator, msg);
       }
     } catch (Exception e) {
-      logger.error("checkTransaction catch error! nouce = {}", eventActuator.getNonceKey(), e);
+      logger.error("checkTransaction catch error! nouce = {}", ByteArray.toStr(eventActuator.getNonceKey()), e);
       Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
     }
   }

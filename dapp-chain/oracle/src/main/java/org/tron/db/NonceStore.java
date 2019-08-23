@@ -26,10 +26,16 @@ public class NonceStore extends OracleStore {
     resetDbLock.readLock().lock();
     try {
       NonceMsg nonceMsgInStore = NonceMsg.parseFrom(database.get(key));
+
       if (nonceMsgInStore == null) {
         database.put(key, nonceMsg.toByteArray());
+        logger.info("putDataIfIdle nonce = {}, status = {}, retryTimes = {}",
+            ByteArray.toStr(key), nonceMsg.getStatus(), nonceMsg.getRetryTimes());
         return true;
       } else if (nonceMsgInStore.getStatus() == NonceStatus.FAIL) {
+        logger.info("putDataIfIdle nonce = {}, status = {}, retryTimes = {}; InStore status = {}, retryTimes = {}",
+            ByteArray.toStr(key), nonceMsg.getStatus(), nonceMsg.getRetryTimes(),
+            nonceMsgInStore.getStatus(), nonceMsgInStore.getRetryTimes());
         if (nonceMsg.getRetryTimes() == nonceMsgInStore.getRetryTimes() + 1 || nonceMsg.getRetryTimes() / SystemSetting.RETRY_TIMES_EPOCH_OFFSET
             == nonceMsgInStore.getRetryTimes() / SystemSetting.RETRY_TIMES_EPOCH_OFFSET + 1) {
           database.put(key, nonceMsg.toByteArray());
@@ -41,7 +47,7 @@ public class NonceStore extends OracleStore {
       }
       return false;
     } catch (Exception e) {
-      logger.debug(e.getMessage(), e);
+      logger.info(e.getMessage(), e);
       return false;
     } finally {
       resetDbLock.readLock().unlock();
