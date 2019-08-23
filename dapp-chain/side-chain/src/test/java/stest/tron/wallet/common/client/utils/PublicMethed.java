@@ -732,6 +732,7 @@ public class PublicMethed {
         .setTxid(txid).build();
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     if (response.getResult() == true) {
+      logger.info("txid:" + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
       return ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
     }
 
