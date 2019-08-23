@@ -53,7 +53,7 @@ public class InitTask {
         if (nonceMsg.getStatus() == NonceStatus.BROADCASTED) {
           CheckTransactionTask.getInstance().submitCheck(actuator, 60);
         } else {
-          Manager.getInstance().setProcessProcessing(actuator.getNonceKey(), 0);
+          Manager.getInstance().setProcessProcessingInit(actuator.getNonceKey(),0);
           BroadcastTransactionTask.getInstance()
               .submitBroadcast(actuator, actuator.getTransactionExtensionCapsule().getDelay());
         }
@@ -71,7 +71,7 @@ public class InitTask {
             .contains(ByteBuffer.wrap(actuator.getNonceKey()))) {
           continue;
         }
-        Manager.getInstance().setProcessProcessing(actuator.getNonceKey(), 0);
+        Manager.getInstance().setProcessProcessingInit(actuator.getNonceKey(),0);
         CreateTransactionTask.getInstance().submitCreate(actuator, 0l);
       } catch (InvalidProtocolBufferException e) {
         logger.error("parse pb error", e);

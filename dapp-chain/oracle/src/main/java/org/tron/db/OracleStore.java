@@ -24,10 +24,10 @@ public class OracleStore {
   private static final JniDBFactory factory = new JniDBFactory();
 
   protected String dataBaseName;
-  private DB database;
+  protected DB database;
   protected String parentName;
   private boolean alive;
-  private ReadWriteLock resetDbLock = new ReentrantReadWriteLock();
+  protected ReadWriteLock resetDbLock = new ReentrantReadWriteLock();
 
   public void initDB() {
     resetDbLock.writeLock().lock();

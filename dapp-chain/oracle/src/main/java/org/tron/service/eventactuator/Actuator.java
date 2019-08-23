@@ -12,6 +12,8 @@ import org.tron.service.capsule.TransactionExtensionCapsule;
 @Slf4j(topic = "actuator")
 public abstract class Actuator {
 
+  private int retryTimes;
+
   @Setter
   protected TransactionExtensionCapsule transactionExtensionCapsule;
 
@@ -62,6 +64,14 @@ public abstract class Actuator {
       logger.error("check err txId is {}", transactionId, e);
       return CheckTxRet.FAIL;
     }
+  }
+
+  public int getRetryTimes() {
+    return retryTimes;
+  }
+
+  public void setRetryTimes(int retryTimes) {
+    this.retryTimes = retryTimes;
   }
 
   public enum BroadcastRet {

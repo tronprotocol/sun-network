@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.common.MessageCode;
 import org.tron.common.config.SystemSetting;
 import org.tron.common.utils.ByteArray;
+import org.tron.db.Manager;
 import org.tron.db.TransactionExtensionStore;
 import org.tron.service.capsule.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
@@ -39,25 +40,37 @@ public class CreateTransactionTask {
   }
 
   private void createTransaction(Actuator eventActuator) {
-    CreateRet createRet = eventActuator.createTransactionExtensionCapsule();
-    String chain = eventActuator.getTaskEnum().name();
-    if (createRet == CreateRet.SUCCESS) {
-      TransactionExtensionCapsule txExtensionCapsule = eventActuator
-          .getTransactionExtensionCapsule();
-      this.transactionExtensionStore
-          .putData(eventActuator.getNonceKey(), txExtensionCapsule.getData());
-      BroadcastTransactionTask.getInstance()
-          .submitBroadcast(eventActuator, txExtensionCapsule.getDelay());
-      if (logger.isInfoEnabled()) {
-        String msg = MessageCode.CREATE_TRANSACTION_SUCCESS
-            .getMsg(chain, txExtensionCapsule.getTransactionId());
-        logger.info(msg);
-      }
-    } else {
-      String msg = MessageCode.CREATE_TRANSACTION_FAIL
-          .getMsg(chain, ByteArray.toStr(eventActuator.getNonceKey()));
-      RetryTransactionTask.getInstance().processAndSubmit(eventActuator, msg);
 
+    try {
+      if (!Manager.getInstance().setProcessProcessing(eventActuator.getNonceKey(),
+          eventActuator.getMessage().toByteArray(), eventActuator.getRetryTimes())) {
+        logger.info("createTransaction setProcessProcessing fail, return, nouce = {}", eventActuator.getNonceKey());
+        return;
+      }
+
+      CreateRet createRet = eventActuator.createTransactionExtensionCapsule();
+      String chain = eventActuator.getTaskEnum().name();
+      if (createRet == CreateRet.SUCCESS) {
+        TransactionExtensionCapsule txExtensionCapsule = eventActuator
+            .getTransactionExtensionCapsule();
+        this.transactionExtensionStore
+            .putData(eventActuator.getNonceKey(), txExtensionCapsule.getData());
+        BroadcastTransactionTask.getInstance()
+            .submitBroadcast(eventActuator, txExtensionCapsule.getDelay());
+        if (logger.isInfoEnabled()) {
+          String msg = MessageCode.CREATE_TRANSACTION_SUCCESS
+              .getMsg(chain, txExtensionCapsule.getTransactionId());
+          logger.info(msg);
+        }
+      } else {
+        String msg = MessageCode.CREATE_TRANSACTION_FAIL
+            .getMsg(chain, ByteArray.toStr(eventActuator.getNonceKey()));
+        RetryTransactionTask.getInstance().processAndSubmit(eventActuator, msg);
+
+      }
+    } catch (Exception e) {
+      logger.error("createTransaction catch error! nouce = {}", eventActuator.getNonceKey(), e);
+      Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
     }
   }
 }
