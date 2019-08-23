@@ -297,7 +297,7 @@ public class Mappingfee001 {
 
   }
 
-  @Test(enabled = false, description = "Deposit Trc721")
+  @Test(enabled = true, description = "Deposit Trc721")
   public void mappingfeetrc20002() {
 
     PublicMethed.printAddress(testKeyFordeposit);
@@ -474,7 +474,7 @@ public class Mappingfee001 {
   }
 
 
-  @Test(enabled = false, description = "Deposit Trc721")
+  @Test(enabled = true, description = "Deposit Trc721")
   public void mappingfeetrc20003() {
 
     PublicMethed.printAddress(testKeyFordeposit);
