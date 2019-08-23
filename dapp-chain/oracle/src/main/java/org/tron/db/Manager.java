@@ -18,20 +18,19 @@ public class Manager {
   private Manager() {
   }
 
-  public void setProcessProcessing(byte[] nonceKeyBytes, byte[] msgBytes) {
+  public void setProcessProcessing(byte[] nonceKeyBytes, byte[] msgBytes, int retryTimes) {
     // insert or set order:
     // 1. set nonce
     // 2. insert event
     // 3. insert tx (in other thread)
-    NonceMsg nonceMsg = NonceMsg.newBuilder().setStatus(NonceStatus.PROCESSING)
-        .setNextProcessTimestamp(System.currentTimeMillis() / 1000 +
-            SystemSetting.RETRY_PROCESSING_INTERVAL).build();
-    NonceStore.getInstance().putData(nonceKeyBytes, nonceMsg.toByteArray());
+    setProcessProcessing(nonceKeyBytes, retryTimes);
     EventStore.getInstance().putData(nonceKeyBytes, msgBytes);
   }
 
-  public void setProcessProcessing(byte[] nonceKeyBytes) {
-    NonceMsg nonceMsg = NonceMsg.newBuilder().setStatus(NonceStatus.PROCESSING)
+  public void setProcessProcessing(byte[] nonceKeyBytes, int retryTimes) {
+    NonceMsg nonceMsg = NonceMsg.newBuilder()
+        .setRetryTimes(retryTimes)
+        .setStatus(NonceStatus.PROCESSING)
         .setNextProcessTimestamp(System.currentTimeMillis() / 1000 +
             SystemSetting.RETRY_PROCESSING_INTERVAL).build();
     NonceStore.getInstance().putData(nonceKeyBytes, nonceMsg.toByteArray());
@@ -48,17 +47,32 @@ public class Manager {
     }
   }
 
-  public void setProcessStatus(byte[] nonceKeyBytes, NonceStatus nonceStatus) {
+  public void setProcessFail(byte[] nonceKeyBytes) {
+    setProcessStatus(nonceKeyBytes, NonceStatus.FAIL);
+  }
+
+  public void setProcessSuccess(byte[] nonceKeyBytes) {
+    setProcessStatus(nonceKeyBytes, NonceStatus.SUCCESS);
+  }
+
+  private void setProcessStatus(byte[] nonceKeyBytes, NonceStatus nonceStatus) {
     // delete or set order:
     // 1. delete tx store
     // 2. delete event store
     // 3. set nonce store
     TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
-    // TODO: if fail, not delete event ?
     EventStore.getInstance().deleteData(nonceKeyBytes);
     NonceMsg nonceMsg = NonceMsg.newBuilder().setStatus(nonceStatus)
         .setNextProcessTimestamp(0).build();
     NonceStore.getInstance()
         .putData(nonceKeyBytes, nonceMsg.toByteArray());
+  }
+
+  public void setProcessRetry(byte[] nonceKeyBytes, int retryTimes) {
+    // set order:
+    // 1. delete tx store
+    // 2. set nonce store
+    TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
+    setProcessProcessing(nonceKeyBytes, retryTimes);
   }
 }

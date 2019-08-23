@@ -9,13 +9,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.encoders.Hex;
 import org.tron.common.crypto.Hash;
 import org.tron.common.exception.EncodingException;
 import org.tron.service.eventactuator.SignListParam;
 
-
+@Slf4j(topic = "abiUtil")
 public class AbiUtil {
 
   private static Pattern paramTypeBytes = Pattern.compile("^bytes([0-9]*)$");
@@ -523,18 +524,43 @@ public class AbiUtil {
 
   public static SignListParam unpackSignListParam(byte[] data) {
     if (data.length % WORD_LENGTH != 0 || data.length / WORD_LENGTH < 3) {
+      logger.info("con not unpack data to SignListParam .data is {}", ByteArray.toHexString(data));
       return new SignListParam(Lists.newArrayList(), Lists.newArrayList());
     }
-    ArrayList<Integer> indexList = new ArrayList<>();
+    try {
+      ArrayList<String> signList = getSignList(data, 0);
+      ArrayList<String> addressList = getAddressList(data, 1);
+      return new SignListParam(signList, addressList);
+    } catch (Exception e) {
+      logger.error(e.getMessage(), e);
+      logger.info("con not unpack data to SignListParam .data is {}", ByteArray.toHexString(data));
+    }
+    return new SignListParam(Lists.newArrayList(), Lists.newArrayList());
+  }
 
-    int des = DataWord.getDataWord(data, 0).intValue() / WORD_LENGTH;
+  private static ArrayList<String> getAddressList(byte[] data, int desIndex) {
+    int des = DataWord.getDataWord(data, desIndex).intValue() / WORD_LENGTH;
     int length = DataWord.getDataWord(data, des).intValue();
+    length += des++;
+    ArrayList<String> addressList = new ArrayList<>();
+    do {
+      byte[] address = DataWord.getDataWord(data, des).getLast20Bytes();
+      addressList.add(WalletUtil.encode58CheckWithoutPrefix(address));
+    } while (des++ < length);
+    return addressList;
+  }
+
+  private static ArrayList<String> getSignList(byte[] data, int desIndex) {
+    ArrayList<Integer> indexList = new ArrayList<>();
+    ArrayList<String> signList = new ArrayList<>();
+    int des = DataWord.getDataWord(data, desIndex).intValue() / WORD_LENGTH;
+    int length = DataWord.getDataWord(data, des).intValue();
+
     length += des++;
     do {
       indexList.add(DataWord.getDataWord(data, des).intValue());
     } while (des++ < length);
     des++;
-    ArrayList<String> signList = new ArrayList<>();
     indexList.forEach(index -> {
       index += WORD_LENGTH * 3;
       int valueLength = DataWord.getDataWord(data, index / WORD_LENGTH).intValue();
@@ -543,16 +569,7 @@ public class AbiUtil {
       signList.add(ByteArray.toHexString(range));
 
     });
-
-    des = DataWord.getDataWord(data, 1).intValue() / WORD_LENGTH;
-    length = DataWord.getDataWord(data, des).intValue();
-    length += des++;
-    ArrayList<String> addressList = new ArrayList<>();
-    do {
-      byte[] address = DataWord.getDataWord(data, des).getLast20Bytes();
-      signList.add(WalletUtil.encode58CheckWithoutPrefix(address));
-    } while (des++ < length);
-    return new SignListParam(signList, addressList);
+    return signList;
   }
 
   public static boolean unpackStatus(byte[] data) {
@@ -586,7 +603,7 @@ public class AbiUtil {
     //test2();
     //test6();
     //test7();
-    test6();
+    test9();
 //    String method = "test(address,string,int)";
 //    String method = "test(string,int2,string)";
 //    String params = "asdf,3123,adf";

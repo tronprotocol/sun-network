@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.encoders.Hex;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
@@ -88,11 +89,17 @@ public class deploySideGateway {
       logger.info("OralceBalance: " + OralceBalance);
 
       String contractName = "gateWaysidechainContract";
-      String code = Configuration.getByPath("testng.conf")
-          .getString("code.code_SideGateway");
-      String abi = Configuration.getByPath("testng.conf")
-          .getString("abi.abi_SideGateway");
+      String code = null;
+      String abi = null;
       String parame = "\"" + Base58.encode58Check(oracleAddress) + "\"";
+
+      try {
+        code = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.bin",false);
+        abi = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.abi",false);
+      } catch (Exception e) {
+        Assert.fail("Read ABI Failed");
+        return;
+      }
 
       String deployTxid = PublicMethed
           .deploySideContractWithConstantParame(contractName, abi, code, "#",
@@ -112,7 +119,7 @@ public class deploySideGateway {
       } else {
         byte[] input = Hex.decode(AbiUtil.parseMethod("addOracle(address)", parame, false));
         String triggerTxid1 = PublicMethed.triggerContractSideChain(sideChainGateway,
-                WalletClient.decodeFromBase58Check(mainChainAddress), 0, input, maxFeeLimit,
+            WalletClient.decodeFromBase58Check(mainChainAddress), 0, input, maxFeeLimit,
             0, "0", foundationAddress003, foundationKey003, blockingStubFull);
         PublicMethed.waitProduceNextBlock(blockingStubFull);
         Optional<TransactionInfo> infoById1 = PublicMethed
