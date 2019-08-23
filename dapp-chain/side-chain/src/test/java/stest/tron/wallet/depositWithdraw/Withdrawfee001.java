@@ -478,6 +478,7 @@ public class Withdrawfee001 {
 
     Account accountBefore3 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
     long accountBeforeBalance3 = accountBefore3.getBalance();
+    logger.info("accountBeforeBalance3:" + accountBeforeBalance3);
     Account accountSideBefore3 = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
     long accountSideBeforeBalance3 = accountSideBefore3.getBalance();
 
@@ -486,7 +487,10 @@ public class Withdrawfee001 {
             sideGatewayAddress,
             withdrawValue, 300,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
-
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById6 = PublicMethed
         .getTransactionInfoById(txid6, blockingSideStubFull);
     Assert.assertEquals(0, infoById6.get().getResultValue());
@@ -504,6 +508,8 @@ public class Withdrawfee001 {
     long accountBeforeBalance4 = accountBefore4.getBalance();
     Account accountSideBefore4 = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
     long accountSideBeforeBalance4 = accountSideBefore4.getBalance();
+    logger.info("accountBeforeBalance4:" + accountBeforeBalance4);
+
     Assert.assertEquals(accountBeforeBalance3 + withdrawValue + 100, accountBeforeBalance4);
     Assert.assertEquals(accountSideBeforeBalance3 - withdrawValue - fee1 - 300,
         accountSideBeforeBalance4);
