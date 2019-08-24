@@ -68,6 +68,7 @@
   <logger name="abiUtil" level="INFO"/>
   <logger name="nonceStore" level="INFO"/>
   <logger name="manager" level="INFO"/>
+  <logger name="retryTransactionTask" level="INFO"/>
 
 </configuration>
 
