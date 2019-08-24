@@ -25,24 +25,27 @@ public class NonceStore extends OracleStore {
     // if new nonce or fail
     resetDbLock.readLock().lock();
     try {
-      NonceMsg nonceMsgInStore = NonceMsg.parseFrom(database.get(key));
+      byte[] nonceByteInStore = database.get(key);
 
-      if (nonceMsgInStore == null) {
+      if (nonceByteInStore == null) {
         database.put(key, nonceMsg.toByteArray());
         logger.info("putDataIfIdle nonce = {}, status = {}, retryTimes = {}",
             ByteArray.toStr(key), nonceMsg.getStatus(), nonceMsg.getRetryTimes());
         return true;
-      } else if (nonceMsgInStore.getStatus() == NonceStatus.FAIL) {
-        logger.info("putDataIfIdle nonce = {}, status = {}, retryTimes = {}; InStore status = {}, retryTimes = {}",
-            ByteArray.toStr(key), nonceMsg.getStatus(), nonceMsg.getRetryTimes(),
-            nonceMsgInStore.getStatus(), nonceMsgInStore.getRetryTimes());
-        if (nonceMsg.getRetryTimes() == nonceMsgInStore.getRetryTimes() + 1 || nonceMsg.getRetryTimes() / SystemSetting.RETRY_TIMES_EPOCH_OFFSET
-            == nonceMsgInStore.getRetryTimes() / SystemSetting.RETRY_TIMES_EPOCH_OFFSET + 1) {
-          database.put(key, nonceMsg.toByteArray());
-          return true;
-        } else {
-          logger.info("putDataIfIdle fail! nonce = {}, nonceMsg retry = {}, nonceInStore retry = {}",
-              ByteArray.toStr(key), nonceMsg.getRetryTimes(), nonceMsgInStore.getRetryTimes());
+      } else {
+        NonceMsg nonceMsgInStore = NonceMsg.parseFrom(nonceByteInStore);
+        if (nonceMsgInStore.getStatus() == NonceStatus.FAIL) {
+          logger.info("putDataIfIdle nonce = {}, status = {}, retryTimes = {}; InStore status = {}, retryTimes = {}",
+              ByteArray.toStr(key), nonceMsg.getStatus(), nonceMsg.getRetryTimes(),
+              nonceMsgInStore.getStatus(), nonceMsgInStore.getRetryTimes());
+          if (nonceMsg.getRetryTimes() == nonceMsgInStore.getRetryTimes() + 1 || nonceMsg.getRetryTimes() / SystemSetting.RETRY_TIMES_EPOCH_OFFSET
+              == nonceMsgInStore.getRetryTimes() / SystemSetting.RETRY_TIMES_EPOCH_OFFSET + 1) {
+            database.put(key, nonceMsg.toByteArray());
+            return true;
+          } else {
+            logger.info("putDataIfIdle fail! nonce = {}, nonceMsg retry = {}, nonceInStore retry = {}",
+                ByteArray.toStr(key), nonceMsg.getRetryTimes(), nonceMsgInStore.getRetryTimes());
+          }
         }
       }
       return false;
