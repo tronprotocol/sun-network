@@ -3,6 +3,7 @@ package org.tron.db;
 import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.SystemSetting;
+import org.tron.common.utils.ByteArray;
 import org.tron.protos.Sidechain.NonceMsg;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 
@@ -43,6 +44,8 @@ public class Manager {
             SystemSetting.RETRY_PROCESSING_INTERVAL).build();
 
     // not processing nor broadcasted
+    logger.info("putDataIfIdle nonce = {}, nonce status = {}, nonce retryTimes = {}",
+        ByteArray.toStr(nonceKeyBytes), nonceMsg.getStatus(), nonceMsg.getRetryTimes());
     if (!NonceStore.getInstance().putDataIfIdle(nonceKeyBytes, nonceMsg)) {
       return false;
     }
