@@ -66,6 +66,8 @@
   <logger name="sideApi" level="INFO"/>
   <logger name="keystoreFactory" level="INFO"/>
   <logger name="abiUtil" level="INFO"/>
+  <logger name="nonceStore" level="INFO"/>
+  <logger name="manager" level="INFO"/>
 
 </configuration>
 

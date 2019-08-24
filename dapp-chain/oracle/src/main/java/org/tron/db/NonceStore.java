@@ -6,7 +6,7 @@ import org.tron.common.utils.ByteArray;
 import org.tron.protos.Sidechain.NonceMsg;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 
-@Slf4j
+@Slf4j(topic = "nonceStore")
 public class NonceStore extends OracleStore {
 
   private static NonceStore instance = new NonceStore();
