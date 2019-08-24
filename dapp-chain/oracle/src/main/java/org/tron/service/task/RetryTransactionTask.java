@@ -24,7 +24,7 @@ public class RetryTransactionTask {
   public void processAndSubmit(Actuator actuator, String msg) {
 
     try {
-      Actuator newActuator = InitTask.getActuatorByEventMsg(EventStore.getInstance().getData(actuator.getNonce()));
+      Actuator newActuator = InitTask.getActuatorByEventMsg(EventStore.getInstance().getData(actuator.getNonceKey()));
       byte[] nonceMsgBytes = NonceStore.getInstance().getData(newActuator.getNonceKey());
       NonceMsg nonceMsg = NonceMsg.parseFrom(nonceMsgBytes);
       int retryTimes = nonceMsg.getRetryTimes() + 1;
