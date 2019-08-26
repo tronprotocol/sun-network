@@ -35,7 +35,7 @@ public class RetryTransactionTask {
         AlertUtil.sendAlert(msg);
       } else {
         Manager.getInstance().setProcessRetry(newActuator.getNonceKey(), nonceMsg);
-        CreateTransactionTask.getInstance().submitCreate(newActuator, getDelay(retryTimes ));
+        CreateTransactionTask.getInstance().submitCreate(newActuator, getDelay(retryTimes));
       }
     } catch (Exception e) {
       logger.error("parse pb error", e);
