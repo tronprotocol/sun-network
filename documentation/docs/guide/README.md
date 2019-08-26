@@ -80,6 +80,8 @@ MainChain gateway contract,
 SideChain gateway contract,
 Standard TRC20/TRC721 contract
 
+TRC20/TRC721 will be automatically generated on side chain in gateway contract. In this case, new asset contracts will not contain abi. Thus, user has to use triggerconstantcontract method to call a constant function to avoid broadcasting transactions and charging fees.
+
 #### 3.2 MainChain gateway contract and SideChain gateway contract.
 
 ##### 3.2.1 TRC20/TRC721 contract mapping:
@@ -302,9 +304,13 @@ Http Interface
 
 RPC Interface
 
-- 47.252.85.90:50061
-- 47.252.80.185:50061
-- 47.252.84.141:50061
+- 47.252.85.90:50060
+- 47.252.80.185:50060
+- 47.252.84.141:50060
+
+### 2. DAppChain testnet gateway address
+- main chain gateway: TEaRKX1nazX7EiCu3XwaHjLZeCrHRLXoRa
+- side chain gateway: TDdo671JXH5S74iVvXEDyUXSgADYtg5ns7
 
 ### 3. Apply for test coins
 
