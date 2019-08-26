@@ -16,11 +16,13 @@ switch (env) {
         solidityNode: 'http://47.252.84.158:50053/ss',
         eventServer: 'http://47.252.84.141:8080'  
       },
-      mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
-      sideGatewayAddress: 'TJ4apMhB5fhmAwqPcgX9i43SUJZuK6eZj4',
+      mainGatewayAddress: 'TEaRKX1nazX7EiCu3XwaHjLZeCrHRLXoRa',
+      sideGatewayAddress: 'TDdo671JXH5S74iVvXEDyUXSgADYtg5ns7',
       chainId: '410A6DBD0780EA9B136E3E9F04EBE80C6C288B80EE',
       contractAddress: "TG1uvkjpZdT1969wqokcDYiQ7gGUMQTvqK",
-      privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F'
+      privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F',
+      depositFee: 0,
+      withdrawFee: 0,
     }
     break;
     case "local":
@@ -35,11 +37,13 @@ switch (env) {
         solidityNode: 'http://solidity.sun.network',
         eventServer: 'http://47.252.84.141:8080',
       },
-      mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
-      sideGatewayAddress: 'TJ4apMhB5fhmAwqPcgX9i43SUJZuK6eZj4',
+      mainGatewayAddress: 'TEaRKX1nazX7EiCu3XwaHjLZeCrHRLXoRa',
+      sideGatewayAddress: 'TDdo671JXH5S74iVvXEDyUXSgADYtg5ns7',
       chainId: '410A6DBD0780EA9B136E3E9F04EBE80C6C288B80EE',
       contractAddress: "TG1uvkjpZdT1969wqokcDYiQ7gGUMQTvqK",
-      privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F'
+      privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F',
+      depositFee: 0,
+      withdrawFee: 0,
     }
     break;
   default:
@@ -54,11 +58,13 @@ switch (env) {
         solidityNode: 'http://47.252.84.158:50053/ss',
         eventServer: 'http://47.252.84.141:8080'  
       },
-      mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
-      sideGatewayAddress: 'TJ4apMhB5fhmAwqPcgX9i43SUJZuK6eZj4',
+      mainGatewayAddress: 'TEaRKX1nazX7EiCu3XwaHjLZeCrHRLXoRa',
+      sideGatewayAddress: 'TDdo671JXH5S74iVvXEDyUXSgADYtg5ns7',
       chainId: '410A6DBD0780EA9B136E3E9F04EBE80C6C288B80EE',
       contractAddress: "TG1uvkjpZdT1969wqokcDYiQ7gGUMQTvqK",
-      privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F'
+      privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F',
+      depositFee: 0,
+      withdrawFee: 0,
     }
     break;
 }

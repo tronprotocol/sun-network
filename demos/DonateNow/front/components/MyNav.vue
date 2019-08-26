@@ -105,6 +105,7 @@ import LoginDg from './dialog/login';
 import DepositTrxDg from './dialog/depositTrx';
 import WithdrawTrxDg from './dialog/depositTrx';
 import { getBalance, getaccount } from "~/assets/js/common";
+import interfaceData from '../api/config';
 
 import { mapState } from "vuex";
 
@@ -214,7 +215,7 @@ export default {
         confirm: (p) => {
           const num = self.globalSunWeb.mainchain.toSun(p.num);
           const feeLimit = self.globalSunWeb.mainchain.toSun(p.feeLimit);
-          self.globalSunWeb.withdrawTrx(num, feeLimit).then(txId => {
+          self.globalSunWeb.withdrawTrx(num, interfaceData.withdrawFee, feeLimit).then(txId => {
              this.$message({
               type: "success",
               message: self.$t("operationWithdraw"),
@@ -247,7 +248,7 @@ export default {
         confirm: (p) => {
           const num = self.globalSunWeb.mainchain.toSun(p.num);
           const feeLimit = self.globalSunWeb.mainchain.toSun(p.feeLimit);
-          self.globalSunWeb.depositTrx(num, feeLimit).then(txId => {
+          self.globalSunWeb.depositTrx(num, interfaceData.depositFee, feeLimit).then(txId => {
             this.$message({
               type: "success",
               message: self.$t("operationDeposit"),
@@ -255,6 +256,7 @@ export default {
             });
             return;
           }).catch(ex => {
+            console.log(ex)
             this.$message({
               type: "error",
               message: ex.message || 'error',

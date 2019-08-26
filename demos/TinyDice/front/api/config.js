@@ -6,18 +6,18 @@ let interfaceData = {
 switch (env) {
   case "pro":
     interfaceData = {
-        mainOptions: {
-            fullNode: 'http://47.252.84.158:50052/mf',
-            solidityNode: 'http://47.252.84.158:50052/ms',
-            eventServer: 'http://47.252.84.158:50052/mf'
-          },
-          sideOptions: {
-            fullNode: 'http://47.252.84.158:50052/sf',
-            solidityNode: 'http://47.252.84.158:50052/ss',
-            eventServer: 'http://47.252.84.141:8080'  
-          },
-      mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
-      sideGatewayAddress: 'TJ4apMhB5fhmAwqPcgX9i43SUJZuK6eZj4',
+      mainOptions: {
+        fullNode: 'http://47.252.84.158:50052/mf',
+        solidityNode: 'http://47.252.84.158:50052/ms',
+        eventServer: 'http://47.252.84.158:50052/mf'
+      },
+      sideOptions: {
+        fullNode: 'http://47.252.84.158:50052/sf',
+        solidityNode: 'http://47.252.84.158:50052/ss',
+        eventServer: 'http://47.252.84.141:8080'  
+      },
+      mainGatewayAddress: 'TEaRKX1nazX7EiCu3XwaHjLZeCrHRLXoRa',
+      sideGatewayAddress: 'TDdo671JXH5S74iVvXEDyUXSgADYtg5ns7',
       chainId: '410A6DBD0780EA9B136E3E9F04EBE80C6C288B80EE',
 
       SERVER_API: 'https://api.trondice.org', // 邀请 历史排行
@@ -28,6 +28,8 @@ switch (env) {
       contractAddress: "TXK6pbKRV7i6fPNdTfAHY7AsTs4URJruhV",
       // 代币合约
       trx20ContractAddress: 'THvZvKPLHKLJhEFYKiyqj6j8G8nGgfg7ur',
+      depositFee: 0,
+      withdrawFee: 0,
       privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F'
       
     }
@@ -44,8 +46,8 @@ switch (env) {
         solidityNode: 'http://solidity.sun.network',
         eventServer: 'http://47.252.84.141:8080',
       },
-      mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
-      sideGatewayAddress: 'TJ4apMhB5fhmAwqPcgX9i43SUJZuK6eZj4',
+      mainGatewayAddress: 'TEaRKX1nazX7EiCu3XwaHjLZeCrHRLXoRa',
+      sideGatewayAddress: 'TDdo671JXH5S74iVvXEDyUXSgADYtg5ns7',
       chainId: '410A6DBD0780EA9B136E3E9F04EBE80C6C288B80EE',
       
       SERVER_API: 'https://api.trondice.org', // 邀请 历史排行
@@ -56,6 +58,8 @@ switch (env) {
       contractAddress: "TXK6pbKRV7i6fPNdTfAHY7AsTs4URJruhV",
       // 代币合约
       trx20ContractAddress: 'THvZvKPLHKLJhEFYKiyqj6j8G8nGgfg7ur',
+      depositFee: 0,
+      withdrawFee: 0,
       privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F'
 
     }
@@ -72,8 +76,8 @@ switch (env) {
             solidityNode: 'http://47.252.84.158:50052/ss',
             eventServer: 'http://47.252.84.141:8080'  
           },
-        mainGatewayAddress: 'TAvMDjZpb3MNUJNjXmnYo17MHkLChAu5nT',
-        sideGatewayAddress: 'TJ4apMhB5fhmAwqPcgX9i43SUJZuK6eZj4',
+        mainGatewayAddress: 'TEaRKX1nazX7EiCu3XwaHjLZeCrHRLXoRa',
+        sideGatewayAddress: 'TDdo671JXH5S74iVvXEDyUXSgADYtg5ns7',
         chainId: '410A6DBD0780EA9B136E3E9F04EBE80C6C288B80EE',
 
         SERVER_API: 'https://api.trondice.org', // 邀请 历史排行
@@ -84,6 +88,8 @@ switch (env) {
         contractAddress: "TXK6pbKRV7i6fPNdTfAHY7AsTs4URJruhV",
         // 代币合约
         trx20ContractAddress: 'THvZvKPLHKLJhEFYKiyqj6j8G8nGgfg7ur',
+        depositFee: 0,
+        withdrawFee: 0,
         privateKey: '3AB9813D96EBCAC2B678AC01DB766D1CB063115C0AE4A0E3AFF11DFA0DDB144F'
 
     }
