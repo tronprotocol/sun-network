@@ -1558,7 +1558,8 @@ public class RetryTrx001 {
     byte[] depositAddress2 = ecKey2.getAddress();
     String testKeyFordeposit2 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
     Assert.assertTrue(PublicMethed
-        .sendcoin(depositAddress2, 2000000000L, testDepositAddress, testDepositTrx,
+        .sendcoinForSidechain(depositAddress2, 2000000000L, testDepositAddress, testDepositTrx,
+            chainIdAddressKey,
             blockingSideStubFull));
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
@@ -1569,10 +1570,13 @@ public class RetryTrx001 {
     byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
 
     String txid1 = PublicMethed
-        .triggerContract(WalletClient.decodeFromBase58Check(sideGatewayAddress),
+        .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideGatewayAddress),
+            WalletClient.decodeFromBase58Check(chainIdAddress),
             0,
             input1,
             maxFeeLimit, 0, "", depositAddress2, testKeyFordeposit2, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
@@ -1656,6 +1660,7 @@ public class RetryTrx001 {
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
 
   }
+
 
   /**
    * constructor.

@@ -92,6 +92,13 @@ public class WithdrawMinTrc20001 {
         .usePlaintext(true)
         .build();
     blockingSideStubFull = WalletGrpc.newBlockingStub(channelFull1);
+    parame2 = "0";
+    byte[] input3 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc20(uint256)", parame2, false));
+    String ownerTrx = PublicMethed
+        .triggerContractSideChain(sideChainAddressKey,
+            WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input3,
+            1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
   }
 
   @Test(enabled = true, description = "WithdrawTrc20")
@@ -413,7 +420,9 @@ public class WithdrawMinTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById4.get().getResultValue());
 
-    parame2 = "-9223372036854775808";
+    // parame2 = "-9223372036854775808";
+    long setWithdrawMinTrc201 = Long.MIN_VALUE;
+    parame2 = String.valueOf(setWithdrawMinTrc201);
     input3 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc20(uint256)", parame2, false));
     ownerTrx = PublicMethed
         .triggerContractSideChain(sideChainAddressKey,
@@ -427,7 +436,10 @@ public class WithdrawMinTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById4.get().getResultValue());
 
-    parame2 = "9223372036854775807";
+    //parame2 = "9223372036854775807";
+
+    setWithdrawMinTrc201 = Long.MAX_VALUE;
+    parame2 = String.valueOf(setWithdrawMinTrc201);
     input3 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc20(uint256)", parame2, false));
     ownerTrx = PublicMethed
         .triggerContractSideChain(sideChainAddressKey,
@@ -441,7 +453,35 @@ public class WithdrawMinTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById4.get().getResultValue());
 
+    setWithdrawMinTrc201 = Long.MAX_VALUE + 1;
+    parame2 = String.valueOf(setWithdrawMinTrc201);
+    input3 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc20(uint256)", parame2, false));
+    ownerTrx = PublicMethed
+        .triggerContractSideChain(sideChainAddressKey,
+            WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input3,
+            1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
+    logger.info("ownerTrx : " + ownerTrx);
+    infoById4 = PublicMethed
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Assert.assertEquals(0, infoById4.get().getResultValue());
 
+    setWithdrawMinTrc201 = Long.MIN_VALUE - 1;
+    parame2 = String.valueOf(setWithdrawMinTrc201);
+    input3 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc20(uint256)", parame2, false));
+    ownerTrx = PublicMethed
+        .triggerContractSideChain(sideChainAddressKey,
+            WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input3,
+            1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
+    logger.info("ownerTrx : " + ownerTrx);
+    infoById4 = PublicMethed
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Assert.assertEquals(0, infoById4.get().getResultValue());
   }
 
   /**
@@ -450,8 +490,8 @@ public class WithdrawMinTrc20001 {
   @AfterClass
   public void shutdown() throws InterruptedException {
     parame2 = "0";
-    byte[] input3 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc10(uint256)", parame2, false));
-    String ownerTrx = PublicMethed
+    byte[] input3 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc20(uint256)", parame2, false));
+    PublicMethed
         .triggerContractSideChain(sideChainAddressKey,
             WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input3,
             1000000000,
