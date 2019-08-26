@@ -35,7 +35,7 @@ public class RetryTransactionTask {
         AlertUtil.sendAlert(msg);
       } else {
         Manager.getInstance().setProcessRetry(newActuator.getNonceKey(), nonceMsg);
-        CreateTransactionTask.getInstance().submitCreate(newActuator, getDelay(retryTimes));
+        CreateTransactionTask.getInstance().submitCreate(newActuator, getDelay(retryTimes ));
       }
     } catch (Exception e) {
       logger.error("parse pb error", e);
@@ -46,7 +46,7 @@ public class RetryTransactionTask {
   private long getDelay(int retryTimes) {
     // retryTimes in [0, 4]
     // delay = (2 ^ retryTimes - 1) * 10 * 60 seconds
-    return (Double.valueOf(Math.pow(2, retryTimes)).longValue() - 1) * 10 * 60;
+    return (Double.valueOf(Math.pow(2, retryTimes % SystemSetting.RETRY_TIMES_EPOCH_OFFSET)).longValue() - 1) * 10 * 60;
   }
 
 }
