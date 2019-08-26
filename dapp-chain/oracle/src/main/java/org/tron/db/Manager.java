@@ -95,15 +95,11 @@ public class Manager {
         .putData(nonceKeyBytes, nonceMsg.toByteArray());
   }
 
-  public void setProcessRetry(byte[] nonceKeyBytes, int retryTimes) {
+  public void setProcessRetry(byte[] nonceKeyBytes, NonceMsg nonceMsg) {
     // set order:
     // 1. delete tx store
     // 2. set nonce store
     TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
-    NonceMsg nonceMsg = NonceMsg.newBuilder()
-        .setStatus(NonceStatus.FAIL)
-        .setRetryTimes(retryTimes)
-        .build();
-    NonceStore.getInstance().putData(nonceKeyBytes, nonceMsg.toByteArray());
+    NonceStore.getInstance().putData(nonceKeyBytes, nonceMsg.toBuilder().setStatus(NonceStatus.FAIL).build().toByteArray());
   }
 }

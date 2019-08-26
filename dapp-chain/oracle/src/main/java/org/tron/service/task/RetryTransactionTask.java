@@ -34,7 +34,7 @@ public class RetryTransactionTask {
         Manager.getInstance().setProcessFail(newActuator.getNonceKey(), retryTimes - 1);
         AlertUtil.sendAlert(msg);
       } else {
-        Manager.getInstance().setProcessRetry(newActuator.getNonceKey(), retryTimes - 1);
+        Manager.getInstance().setProcessRetry(newActuator.getNonceKey(), nonceMsg);
         CreateTransactionTask.getInstance().submitCreate(newActuator, getDelay(retryTimes));
       }
     } catch (Exception e) {
