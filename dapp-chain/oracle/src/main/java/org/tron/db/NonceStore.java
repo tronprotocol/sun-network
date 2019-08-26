@@ -26,21 +26,20 @@ public class NonceStore extends OracleStore {
     resetDbLock.readLock().lock();
     try {
       byte[] nonceByteInStore = database.get(key);
-
       if (nonceByteInStore == null) {
         database.put(key, nonceMsg.toByteArray());
-        logger.info("putDataIfIdle nonce = {}, status = {}, retryTimes = {}",
+        logger.info("putDataIfIdle firstly nonce = {}, status = {}, retryTimes = {}",
             ByteArray.toStr(key), nonceMsg.getStatus(), nonceMsg.getRetryTimes());
         return true;
       } else {
         NonceMsg nonceMsgInStore = NonceMsg.parseFrom(nonceByteInStore);
         if (nonceMsgInStore.getStatus() == NonceStatus.FAIL) {
-          logger.info("putDataIfIdle nonce = {}, status = {}, retryTimes = {}; InStore status = {}, retryTimes = {}",
-              ByteArray.toStr(key), nonceMsg.getStatus(), nonceMsg.getRetryTimes(),
-              nonceMsgInStore.getStatus(), nonceMsgInStore.getRetryTimes());
           if (nonceMsg.getRetryTimes() == nonceMsgInStore.getRetryTimes() + 1 || nonceMsg.getRetryTimes() / SystemSetting.RETRY_TIMES_EPOCH_OFFSET
               == nonceMsgInStore.getRetryTimes() / SystemSetting.RETRY_TIMES_EPOCH_OFFSET + 1) {
             database.put(key, nonceMsg.toByteArray());
+            logger.info("putDataIfIdle retry nonce = {}, status = {}, retryTimes = {}; InStore status = {}, retryTimes = {}",
+                ByteArray.toStr(key), nonceMsg.getStatus(), nonceMsg.getRetryTimes(),
+                nonceMsgInStore.getStatus(), nonceMsgInStore.getRetryTimes());
             return true;
           } else {
             logger.info("putDataIfIdle fail! nonce = {}, nonceMsg retry = {}, nonceInStore retry = {}",

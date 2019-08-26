@@ -44,8 +44,6 @@ public class Manager {
             SystemSetting.RETRY_PROCESSING_INTERVAL).build();
 
     // not processing nor broadcasted
-    logger.info("putDataIfIdle nonce = {}, nonce status = {}, nonce retryTimes = {}",
-        ByteArray.toStr(nonceKeyBytes), nonceMsg.getStatus(), nonceMsg.getRetryTimes());
     if (!NonceStore.getInstance().putDataIfIdle(nonceKeyBytes, nonceMsg)) {
       return false;
     }
@@ -66,8 +64,18 @@ public class Manager {
     }
   }
 
-  public void setProcessFail(byte[] nonceKeyBytes) {
-    setProcessStatus(nonceKeyBytes, NonceStatus.FAIL);
+  public void setProcessFail(byte[] nonceKeyBytes, int retryTimes) {
+    TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
+    EventStore.getInstance().deleteData(nonceKeyBytes);
+    NonceMsg nonceMsg = NonceMsg.newBuilder()
+        .setStatus(NonceStatus.FAIL)
+        .setRetryTimes(retryTimes)
+        .setNextProcessTimestamp(0)
+        .build();//todo how to init if crash
+    logger.info("putDataIfIdle nonce = {}, nonce status = {}, nonce retryTimes = {}",
+        ByteArray.toStr(nonceKeyBytes), nonceMsg.getStatus(), nonceMsg.getRetryTimes());
+    NonceStore.getInstance()
+        .putData(nonceKeyBytes, nonceMsg.toByteArray());
   }
 
   public void setProcessSuccess(byte[] nonceKeyBytes) {
@@ -87,12 +95,15 @@ public class Manager {
         .putData(nonceKeyBytes, nonceMsg.toByteArray());
   }
 
-  public void setProcessRetry(byte[] nonceKeyBytes) {
+  public void setProcessRetry(byte[] nonceKeyBytes, int retryTimes) {
     // set order:
     // 1. delete tx store
     // 2. set nonce store
     TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
-    NonceMsg nonceMsg = NonceMsg.newBuilder().setStatus(NonceStatus.FAIL).build();
+    NonceMsg nonceMsg = NonceMsg.newBuilder()
+        .setStatus(NonceStatus.FAIL)
+        .setRetryTimes(retryTimes)
+        .build();
     NonceStore.getInstance().putData(nonceKeyBytes, nonceMsg.toByteArray());
   }
 }

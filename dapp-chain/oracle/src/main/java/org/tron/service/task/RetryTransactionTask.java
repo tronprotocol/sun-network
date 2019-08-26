@@ -31,10 +31,10 @@ public class RetryTransactionTask {
       newActuator.setRetryTimes(retryTimes);
       logger.info("RetryTransactionTask processAndSubmit! msg = {}, retryTimes = {}", msg, retryTimes);
       if (retryTimes % SystemSetting.RETRY_TIMES_EPOCH_OFFSET >= Args.getInstance().getOracleRetryTimes()) {
-        Manager.getInstance().setProcessFail(newActuator.getNonceKey());
+        Manager.getInstance().setProcessFail(newActuator.getNonceKey(), retryTimes - 1);
         AlertUtil.sendAlert(msg);
       } else {
-        Manager.getInstance().setProcessRetry(newActuator.getNonceKey());
+        Manager.getInstance().setProcessRetry(newActuator.getNonceKey(), retryTimes - 1);
         CreateTransactionTask.getInstance().submitCreate(newActuator, getDelay(retryTimes));
       }
     } catch (Exception e) {
