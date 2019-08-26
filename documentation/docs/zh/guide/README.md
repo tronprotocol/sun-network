@@ -749,19 +749,20 @@ const sunWeb = new SunWeb(
 
 ```javascript
 // Format
-sunWeb.depostiTrx(callValue, feeLimit, options);
+sunWeb.depositTrx(callValue, depositFee, feeLimit, options);
 
 // example
-sunWeb.depositTrx(100000000, 1000000);
+sunWeb.depositTrx(100000000, 10000, 1000000);
 ```
 
 ##### Arguments
 
-| Parameter | Description                             | Type                   | Options  |
-| --------- | --------------------------------------- | ---------------------- | -------- |
-| callValue | Amount of TRX (Units in SUN) to deposit | Integer (Units in SUN) | Required |
-| feeLimit  | Cost limit                              | Integer, long          | Required |
-| options   | The permissions Id                      | Object                 | Optional |
+| Parameter  | Description                             | Type                   | Options  |
+| ---------- | --------------------------------------- | ---------------------- | -------- |
+| callValue  | Amount of TRX (Units in SUN) to deposit | Integer (Units in SUN) | Required |
+| depositFee | Deposit fee                             | Integer (Units in SUN) | Required |
+| feeLimit   | Cost limit                              | Integer, long          | Required |
+| options    | The permissions Id                      | Object                 | Optional |
 
 #### depositTrc10
 
@@ -769,10 +770,10 @@ sunWeb.depositTrx(100000000, 1000000);
 
 ```javascript
 // format
-sunWeb.depositTrc10(tokenId, tokenValue, feeLimit, options);
+sunWeb.depositTrc10(tokenId, tokenValue, depositFee, feeLimit, options);
 
 // example
-sunWeb.depositTrc10(100059, 10000000, 100000);
+sunWeb.depositTrc10(100059, 10000000, 10000, 100000);
 ```
 
 ##### Arguments
@@ -781,6 +782,7 @@ sunWeb.depositTrc10(100059, 10000000, 100000);
 | ---------- | ----------------------------------------------- | ---------------------- | -------- |
 | tokenId    | Token Id of trc10                               | Integer                | Required |
 | tokenValue | Amount of trc10 token (Units in SUN) to deposit | Integer (Units in SUN) | Required |
+| depositFee | Deposit fee                                     | Integer (Units in SUN) | Required |
 | feeLimit   | Cost limit                                      | Integer, long          | Required |
 | options    | The permissions Id                              | Object                 | Optional |
 
@@ -792,20 +794,21 @@ sunWeb.depositTrc10(100059, 10000000, 100000);
 
 ```javascript
 // format
-sunWeb.depositTrc10(num, feeLimit, contractAddress, options);
+sunWeb.depositTrc10(num, depositFee, feeLimit, contractAddress, options);
 
 // example
-sunWeb.depositTrc10(1000000, 1000000, 'TD9Jrm546pGkzRu7K5nitMxk8nn75wXNkQ');
+sunWeb.depositTrc10(1000000, 10000, 1000000, 'TD9Jrm546pGkzRu7K5nitMxk8nn75wXNkQ');
 ```
 
 ##### Arguments
 
-| Parameter       | Description                               | Type          | Options  |
-| --------------- | ----------------------------------------- | ------------- | -------- |
-| num             | Amount of TRC20 (Units in SUN) to deposit | Integer       | Required |
-| feeLimit        | Cost limit                                | Integer, long | Required |
-| contractAddress | Main-chain TRC20 Contract Address         | String        | Required |
-| options         | The permissions Id                        | Object        | Optional |
+| Parameter       | Description                               | Type                   | Options  |
+| --------------- | ----------------------------------------- | ---------------------- | -------- |
+| num             | Amount of TRC20 (Units in SUN) to deposit | Integer                | Required |
+| depositFee      | Deposit fee                               | Integer (Units in SUN) | Required |
+| feeLimit        | Cost limit                                | Integer, long          | Required |
+| contractAddress | Main-chain TRC20 Contract Address         | String                 | Required |
+| options         | The permissions Id                        | Object                 | Optional |
 
 #### depositTrc721
 
@@ -815,20 +818,21 @@ sunWeb.depositTrc10(1000000, 1000000, 'TD9Jrm546pGkzRu7K5nitMxk8nn75wXNkQ');
 
 ```javascript
 // format
-sunWeb.depositTrc721(id, feeLimit, contractAddress, options);
+sunWeb.depositTrc721(id, depositFee, feeLimit, contractAddress, options);
 
 // example
-sunWeb.depositTrc10(1000000, 1000000, 'TCLRqK6aP2xsCZWhE2smkYzdRHf9uvyz5P');
+sunWeb.depositTrc10(1000000, 10000, 1000000, 'TCLRqK6aP2xsCZWhE2smkYzdRHf9uvyz5P');
 ```
 
 ##### Arguments
 
-| Parameter       | Description                        | Type          | Options  |
-| --------------- | ---------------------------------- | ------------- | -------- |
-| id              | Id of TRC721 to deposit            | Integer       | Required |
-| feeLimit        | cost limit                         | Integer, long | Required |
-| contractAddress | Main-chain TRC721 Contract Address | String        | Required |
-| options         | The permissions Id                 | Object        | Optional |
+| Parameter       | Description                        | Type                   | Options  |
+| --------------- | ---------------------------------- | ---------------------- | -------- |
+| id              | Id of TRC721 to deposit            | Integer                | Required |
+| depositFee      | Deposit fee                        | Integer (Units in SUN) | Required |
+| feeLimit        | cost limit                         | Integer, long          | Required |
+| contractAddress | Main-chain TRC721 Contract Address | String                 | Required |
+| options         | The permissions Id                 | Object                 | Optional |
 
 ### 资产授权
 
@@ -987,8 +991,8 @@ sunWeb.withdrawTrc20(10000, 10000, 10000000, 'TWzXQmDoASGodMss7uPD6vUgLHnkQFX7ok
 | --------------- | ----------------------------------------------- | --------------------- | -------- |
 | Num             | Num of TRC20                                    | Integer               | Required |
 | withdrawFee     | Withdraw Fee                                    | Integer(units in SUN) | Required |
-| contractAddress | Side-chain TRC20 Contract Address after mapping | Integer               | Required |
 | feeLimit        | Cost limit                                      | Integer, long         | Required |
+| contractAddress | Side-chain TRC20 Contract Address after mapping | Integer               | Required |
 | options         | The permissions Id                              | Object                | Optional |
 
 #### withdrawTrc721
@@ -1008,9 +1012,9 @@ sunWeb.withdrawTrc721(101, 1000, 10000000, 'TA2xrVESq2UcEtDtgPzxNJEiLgxmMVdtFR')
 | Parameter       | Description                                     | Type                  | Options  |
 | --------------- | ----------------------------------------------- | --------------------- | -------- |
 | id              | Id of TRC721                                    | Integer               | Required |
-| contractAddress | Side-chain TRC20 Contract Address after mapping | Integer               | Required |
 | withdrawFee     | Withdraw Fee                                    | Integer(units in SUN) | Required |
 | feeLimit        | Cost limit                                      | Integer, long         | Required |
+| contractAddress | Side-chain TRC20 Contract Address after mapping | Integer               | Required |
 | options         | The permissions Id                              | Object                | Optional |
 
 ### 注资
@@ -1041,7 +1045,7 @@ sunWeb.injectFund(1000, 10000000);
 
 ```javascript
 // format
-sunWeb.retryDeposit(nonce, feeLimit, options);
+sunWeb.retryDeposit(nonce, retryDepositFee, feeLimit, options);
 
 // example
 sunWeb.retryDeposit(1000, 10000000);
@@ -1049,47 +1053,50 @@ sunWeb.retryDeposit(1000, 10000000);
 
 #### Arguments
 
-| Parameter | Description                  | Type          | Options  |
-| --------- | ---------------------------- | ------------- | -------- |
-| nonce     | Nonce value of asset deposit | Integer       | Required |
-| feeLimit  | Cost limit                   | Integer, long | Required |
-| options   | The permissions Id           | Object        | Optional |
+| Parameter       | Description                    | Type                  | Options  |
+| --------------- | ------------------------------ | --------------------- | -------- |
+| nonce           | Nonce value of asset deposit   | Integer               | Required |
+| retryDepositFee | Fee of retry deposit operation | Integer(units in SUN) | Required |
+| feeLimit        | Cost limit                     | Integer, long         | Required |
+| options         | The permissions Id             | Object                | Optional |
 
 #### retryMapping
 
 ```javascript
 // format
-sunWeb.retryMapping(nonce, feeLimit, options);
+sunWeb.retryMapping(nonce, retryMappingFee, feeLimit, options);
 
 // example
-sunWeb.retryMapping(1000, 10000000);
+sunWeb.retryMapping(1000, 10000, 10000000);
 ```
 
 #### Arguments
 
-| Parameter | Description                  | Type          | Options  |
-| --------- | ---------------------------- | ------------- | -------- |
-| nonce     | Nonce value of asset deposit | Integer       | Required |
-| feeLimit  | Cost limit                   | Integer, long | Required |
-| options   | The permissions Id           | Object        | Optional |
+| Parameter       | Description                    | Type                  | Options  |
+| --------------- | ------------------------------ | --------------------- | -------- |
+| nonce           | Nonce value of asset deposit   | Integer               | Required |
+| retryMappingFee | Fee of retry mapping operation | Integer(units in SUN) | Required |
+| feeLimit        | Cost limit                     | Integer, long         | Required |
+| options         | The permissions Id             | Object                | Optional |
 
 #### retryWithdraw
 
 ```javascript
 // format
-sunWeb.retryWithdraw(nonce, feeLimit, options);
+sunWeb.retryWithdraw(nonce, retryWithdrawFee, feeLimit, options);
 
 // example
-sunWeb.retryWithdraw(1000, 10000000);
+sunWeb.retryWithdraw(1000, 10000, 10000000);
 ```
 
 #### Arguments
 
-| Parameter | Description                  | Type          | Options  |
-| --------- | ---------------------------- | ------------- | -------- |
-| nonce     | Nonce value of asset deposit | Integer       | Required |
-| feeLimit  | Cost limit                   | Integer, long | Required |
-| options   | The permissions Id           | Object        | Optional |
+| Parameter        | Description                     | Type                  | Options  |
+| ---------------- | ------------------------------- | --------------------- | -------- |
+| nonce            | Nonce value of asset deposit    | Integer               | Required |
+| retryWithdrawFee | Fee of retry withdraw operation | Integer(units in SUN) | Required |
+| feeLimit         | Cost limit                      | Integer, long         | Required |
+| options          | The permissions Id              | Object                | Optional |
 
 ### 签名
 
