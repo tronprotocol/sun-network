@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.MessageCode;
 import org.tron.common.config.SystemSetting;
+import org.tron.common.utils.ByteArray;
 import org.tron.db.Manager;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.Actuator.BroadcastRet;
@@ -59,8 +60,8 @@ public class BroadcastTransactionTask {
         }
       }
     } catch (Exception e) {
-      logger.error("broadcastTransaction catch error! nouce = {}", eventActuator.getNonceKey(), e);
-      Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
+      logger.error("broadcastTransaction catch error! nouce = {}", ByteArray.toStr(eventActuator.getNonceKey()), e);
+      Manager.getInstance().setProcessFail(eventActuator.getNonceKey(), eventActuator.getRetryTimes());
     }
 
 

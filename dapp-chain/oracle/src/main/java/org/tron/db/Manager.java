@@ -3,6 +3,7 @@ package org.tron.db;
 import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.SystemSetting;
+import org.tron.common.utils.ByteArray;
 import org.tron.protos.Sidechain.NonceMsg;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 
@@ -63,8 +64,18 @@ public class Manager {
     }
   }
 
-  public void setProcessFail(byte[] nonceKeyBytes) {
-    setProcessStatus(nonceKeyBytes, NonceStatus.FAIL);
+  public void setProcessFail(byte[] nonceKeyBytes, int retryTimes) {
+    TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
+    EventStore.getInstance().deleteData(nonceKeyBytes);
+    NonceMsg nonceMsg = NonceMsg.newBuilder()
+        .setStatus(NonceStatus.FAIL)
+        .setRetryTimes(retryTimes)
+        .setNextProcessTimestamp(0)
+        .build();//todo how to init if crash
+    logger.info("putDataIfIdle nonce = {}, nonce status = {}, nonce retryTimes = {}",
+        ByteArray.toStr(nonceKeyBytes), nonceMsg.getStatus(), nonceMsg.getRetryTimes());
+    NonceStore.getInstance()
+        .putData(nonceKeyBytes, nonceMsg.toByteArray());
   }
 
   public void setProcessSuccess(byte[] nonceKeyBytes) {
@@ -84,12 +95,11 @@ public class Manager {
         .putData(nonceKeyBytes, nonceMsg.toByteArray());
   }
 
-  public void setProcessRetry(byte[] nonceKeyBytes) {
+  public void setProcessRetry(byte[] nonceKeyBytes, NonceMsg nonceMsg) {
     // set order:
     // 1. delete tx store
     // 2. set nonce store
     TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
-    NonceMsg nonceMsg = NonceMsg.newBuilder().setStatus(NonceStatus.FAIL).build();
-    NonceStore.getInstance().putData(nonceKeyBytes, nonceMsg.toByteArray());
+    NonceStore.getInstance().putData(nonceKeyBytes, nonceMsg.toBuilder().setStatus(NonceStatus.FAIL).build().toByteArray());
   }
 }
