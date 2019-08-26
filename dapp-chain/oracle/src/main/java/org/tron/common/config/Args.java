@@ -23,7 +23,7 @@ import org.tron.keystore.CipherException;
 import org.tron.keystore.Credentials;
 
 
-@Slf4j
+@Slf4j(topic = "args")
 @Component
 public class Args {
 
@@ -142,7 +142,7 @@ public class Args {
         .decodeFromBase58Check(sidechainGatewayStr);
 
     this.oracleRetryTimes = config.getInt("oracle.retryTimes");
-    if (oracleRetryTimes >= SystemSetting.RETRY_TIMES_EPOCH_OFFSET && oracleRetryTimes >= 1) {
+    if (oracleRetryTimes >= SystemSetting.RETRY_TIMES_EPOCH_OFFSET || oracleRetryTimes < 1) {
       logger.error("oracle retryTimes should < " + SystemSetting.RETRY_TIMES_EPOCH_OFFSET + "and >= 1");
       exit(-1);
     }

@@ -69,6 +69,8 @@
   <logger name="nonceStore" level="INFO"/>
   <logger name="manager" level="INFO"/>
   <logger name="retryTransactionTask" level="INFO"/>
+  <logger name="args" level="INFO"/>
+
 
 </configuration>
 
