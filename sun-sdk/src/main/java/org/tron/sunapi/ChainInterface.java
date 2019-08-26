@@ -31,6 +31,7 @@ import org.tron.sunapi.request.AssertIssueRequest;
 import org.tron.sunapi.request.DeployContractRequest;
 import org.tron.sunapi.request.ExchangeCreateRequest;
 import org.tron.sunapi.request.ExchangeTransactionRequest;
+import org.tron.sunapi.request.TriggerConstantContractRequest;
 import org.tron.sunapi.request.TriggerContractRequest;
 import org.tron.sunapi.response.TransactionResponse;
 
@@ -41,6 +42,9 @@ public interface ChainInterface {
   SunNetworkResponse<TransactionResponse> deployContract(DeployContractRequest request);
 
   SunNetworkResponse<TransactionResponse> triggerContract(TriggerContractRequest request);
+
+  SunNetworkResponse<TransactionResponse> triggerConstantContract(
+      TriggerConstantContractRequest request);
 
   SunNetworkResponse<TransactionResponse> updateSetting(String address,
       long consumeUserResourcePercent);

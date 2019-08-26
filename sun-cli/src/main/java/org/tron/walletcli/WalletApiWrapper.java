@@ -51,6 +51,7 @@ import org.tron.sunapi.request.AssertIssueRequest;
 import org.tron.sunapi.request.DeployContractRequest;
 import org.tron.sunapi.request.ExchangeCreateRequest;
 import org.tron.sunapi.request.ExchangeTransactionRequest;
+import org.tron.sunapi.request.TriggerConstantContractRequest;
 import org.tron.sunapi.request.TriggerContractRequest;
 import org.tron.sunapi.response.TransactionResponse;
 import org.tron.sunapi.response.TransactionResponse.ResponseType;
@@ -960,6 +961,32 @@ public class WalletApiWrapper {
     return false;
   }
 
+  public boolean callConstantContract(String contractAddress, String methodStr,
+      String argsStr, boolean isHex, long feeLimit) {
+    if (wallet == null || !wallet.isLoginState()) {
+      logger.warn("Warning: callConstantContract failed,  Please login first !!");
+      return false;
+    }
+
+    TriggerConstantContractRequest request = new TriggerConstantContractRequest();
+    request.setContractAddrStr(contractAddress);
+    request.setMethodStr(methodStr);
+    request.setArgsStr(argsStr);
+    request.setHex(isHex);
+    request.setFeeLimit(feeLimit);
+    SunNetworkResponse<TransactionResponse> sunNetworkresp = getChainInterface()
+        .triggerConstantContract(request);
+    logger.info("sun network response code is: " + sunNetworkresp.getDesc());
+
+    TransactionResponse resp = sunNetworkresp.getData();
+    printResponseInfo(resp);
+    if (resp != null) {
+      return resp.getResult();
+    }
+
+    return false;
+  }
+
   public boolean callContractAndCheck(String contractAddress, long callValue, String methodStr,
       String argsStr,
       boolean isHex, long feeLimit, long tokenValue, String tokenId) {
@@ -1184,7 +1211,8 @@ public class WalletApiWrapper {
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> retryDeposit(String nonce, long retryFee, long feeLimit) {
+  public SunNetworkResponse<TransactionResponse> retryDeposit(String nonce, long retryFee,
+      long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: retry deposit failed,  Please login first !!");
       return null;
@@ -1197,7 +1225,8 @@ public class WalletApiWrapper {
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> retryWithdraw(String nonce, long retryFee, long feeLimit) {
+  public SunNetworkResponse<TransactionResponse> retryWithdraw(String nonce, long retryFee,
+      long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: retry withdraw failed,  Please login first !!");
       return null;
@@ -1210,7 +1239,8 @@ public class WalletApiWrapper {
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> retryMapping(String nonce, long retryFee, long feeLimit) {
+  public SunNetworkResponse<TransactionResponse> retryMapping(String nonce, long retryFee,
+      long feeLimit) {
     if (wallet == null || !wallet.isLoginState()) {
       logger.warn("Warning: retry mapping failed,  Please login first !!");
       return null;
