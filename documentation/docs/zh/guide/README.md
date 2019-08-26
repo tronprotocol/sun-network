@@ -94,6 +94,8 @@ mineToken 函数：precompile 新增函数，用于在侧链上生成从主链 d
 
 标准 trc20/trc721 合约
 
+由于侧链上生成的合约是通过系统自动生成的，所以合约中并没有关于abi的描述。因此当需要调用查询类的方法时，需要调用者调用提供的triggerconstantcontract方法以避免生成真正的交易造成扣费。
+
 #### 3.2 主链 gateway 合约与侧链 gateway 合约
 
 ##### 3.2.1 trc20/trc721 合约映射操作：
@@ -326,15 +328,20 @@ Http 接口
 
 RPC 接口
 
-- 47.252.85.90:50061
-- 47.252.80.185:50061
-- 47.252.84.141:50061
+- 47.252.85.90:50060
+- 47.252.80.185:50060
+- 47.252.84.141:5006
 
-### 3. 测试币申请
+### 3. DAppChain testnet gateway合约 address
+
+- 主链gateway合约地址: TEaRKX1nazX7EiCu3XwaHjLZeCrHRLXoRa
+- 侧链gateway合约地址: TDdo671JXH5S74iVvXEDyUXSgADYtg5ns7
+
+### 4. 测试币申请
 
 <token/>
 
-### 4. 链接方式
+### 5. 链接方式
 
 用户可以使用多种方式链接到 DAppChain
 
