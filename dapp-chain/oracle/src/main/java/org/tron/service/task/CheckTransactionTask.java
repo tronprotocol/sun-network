@@ -53,7 +53,7 @@ public class CheckTransactionTask {
       }
     } catch (Exception e) {
       logger.error("checkTransaction catch error! nouce = {}", ByteArray.toStr(eventActuator.getNonceKey()), e);
-      Manager.getInstance().setProcessFail(eventActuator.getNonceKey());
+      Manager.getInstance().setProcessFail(eventActuator.getNonceKey(), eventActuator.getRetryTimes());
     }
   }
 }
