@@ -143,7 +143,7 @@ public class Args {
 
     this.oracleRetryTimes = config.getInt("oracle.retryTimes");
     if (oracleRetryTimes >= SystemSetting.RETRY_TIMES_EPOCH_OFFSET || oracleRetryTimes < 1) {
-      logger.error("oracle retryTimes should < " + SystemSetting.RETRY_TIMES_EPOCH_OFFSET + "and >= 1");
+      logger.error("oracle retryTimes should < " + SystemSetting.RETRY_TIMES_EPOCH_OFFSET + " and >= 1");
       exit(-1);
     }
 
