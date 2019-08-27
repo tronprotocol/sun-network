@@ -98,6 +98,17 @@ public class DepositMinTrc10001 {
         .usePlaintext(true)
         .build();
     blockingSideStubFull = WalletGrpc.newBlockingStub(channelFull1);
+    parame1 = "0";
+    methodStr1 = "setDepositMinTrc10(uint256)";
+
+    byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
+
+    PublicMethed
+        .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
+            0,
+            input1,
+            maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+
   }
 
   @Test(enabled = true, description = "DepositMinTrc10 normal.")
@@ -324,31 +335,8 @@ public class DepositMinTrc10001 {
         .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
     Assert.assertEquals(MinTrx, Long.valueOf(parame1));
 
-    parame1 = "-9223372036854775808";
-    input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
-
-    txid1 = PublicMethed
-        .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
-            0,
-            input1,
-            maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    infoById1 = PublicMethed
-        .getTransactionInfoById(txid1, blockingStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() == 0);
-    fee1 = infoById1.get().getFee();
-    logger.info("fee1:" + fee1);
-
-    return1 = PublicMethed
-        .triggerContractForTransactionExtention(
-            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0L, input2, 1000000000,
-            0L, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
-    MinTrx = ByteArray.toLong(ByteArray
-        .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
-    Assert.assertEquals(MinTrx, Long.valueOf(parame1));
-
-    parame1 = "9223372036854775807";
+    long setDepositMinTrc101 = Long.MIN_VALUE;
+    parame1 = String.valueOf(setDepositMinTrc101);
 
     input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
 
@@ -373,7 +361,80 @@ public class DepositMinTrc10001 {
         .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
     Assert.assertEquals(MinTrx, Long.valueOf(parame1));
 
+    setDepositMinTrc101 = Long.MAX_VALUE;
+    parame1 = String.valueOf(setDepositMinTrc101);
+    input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
 
+    txid1 = PublicMethed
+        .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
+            0,
+            input1,
+            maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    infoById1 = PublicMethed
+        .getTransactionInfoById(txid1, blockingStubFull);
+    Assert.assertTrue(infoById1.get().getResultValue() == 0);
+    fee1 = infoById1.get().getFee();
+    logger.info("fee1:" + fee1);
+
+    return1 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0L, input2, 1000000000,
+            0L, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    MinTrx = ByteArray.toLong(ByteArray
+        .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
+    Assert.assertEquals(MinTrx, Long.valueOf(parame1));
+
+    setDepositMinTrc101 = Long.MAX_VALUE + 1;
+    parame1 = String.valueOf(setDepositMinTrc101);
+    input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
+
+    txid1 = PublicMethed
+        .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
+            0,
+            input1,
+            maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    infoById1 = PublicMethed
+        .getTransactionInfoById(txid1, blockingStubFull);
+    Assert.assertTrue(infoById1.get().getResultValue() == 0);
+    fee1 = infoById1.get().getFee();
+    logger.info("fee1:" + fee1);
+
+    return1 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0L, input2, 1000000000,
+            0L, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    MinTrx = ByteArray.toLong(ByteArray
+        .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
+    Assert.assertEquals(MinTrx, Long.valueOf(parame1));
+
+    setDepositMinTrc101 = Long.MIN_VALUE - 1;
+    parame1 = String.valueOf(setDepositMinTrc101);
+    input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
+
+    txid1 = PublicMethed
+        .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
+            0,
+            input1,
+            maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    infoById1 = PublicMethed
+        .getTransactionInfoById(txid1, blockingStubFull);
+    Assert.assertTrue(infoById1.get().getResultValue() == 0);
+    fee1 = infoById1.get().getFee();
+    logger.info("fee1:" + fee1);
+
+    return1 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0L, input2, 1000000000,
+            0L, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    MinTrx = ByteArray.toLong(ByteArray
+        .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
+    Assert.assertEquals(MinTrx, Long.valueOf(parame1));
   }
 
   /**

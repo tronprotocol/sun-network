@@ -97,6 +97,13 @@ public class WithdrawMinTrc10001 {
         .usePlaintext(true)
         .build();
     blockingSideStubFull = WalletGrpc.newBlockingStub(channelFull1);
+    parame1 = "0";
+    byte[] input2 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc10(uint256)", parame1, false));
+    PublicMethed
+        .triggerContractSideChain(sideGatewayAddressey,
+            WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input2,
+            1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
   }
 
   @Test(enabled = true, description = "WithdrawMinTrc10 normal.")
@@ -284,7 +291,10 @@ public class WithdrawMinTrc10001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById3.get().getResultValue());
 
-    parame1 = "-9223372036854775808";
+//    parame1 = "-9223372036854775808";
+
+    long setWithdrawMinTrc101 = Long.MIN_VALUE;
+    parame1 = String.valueOf(setWithdrawMinTrc101);
 
     input2 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc10(uint256)", parame1, false));
     ownerTrx = PublicMethed
@@ -299,7 +309,39 @@ public class WithdrawMinTrc10001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById3.get().getResultValue());
 
-    parame1 = "9223372036854775807";
+    //parame1 = "9223372036854775807";
+    setWithdrawMinTrc101 = Long.MAX_VALUE;
+    parame1 = String.valueOf(setWithdrawMinTrc101);
+    input2 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc10(uint256)", parame1, false));
+    ownerTrx = PublicMethed
+        .triggerContractSideChain(sideGatewayAddressey,
+            WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input2,
+            1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
+    logger.info("ownerTrx : " + ownerTrx);
+    infoById3 = PublicMethed
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Assert.assertEquals(0, infoById3.get().getResultValue());
+
+    setWithdrawMinTrc101 = Long.MAX_VALUE + 1;
+    parame1 = String.valueOf(setWithdrawMinTrc101);
+    input2 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc10(uint256)", parame1, false));
+    ownerTrx = PublicMethed
+        .triggerContractSideChain(sideGatewayAddressey,
+            WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input2,
+            1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
+    logger.info("ownerTrx : " + ownerTrx);
+    infoById3 = PublicMethed
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Assert.assertEquals(0, infoById3.get().getResultValue());
+
+    setWithdrawMinTrc101 = Long.MIN_VALUE - 1;
+    parame1 = String.valueOf(setWithdrawMinTrc101);
     input2 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc10(uint256)", parame1, false));
     ownerTrx = PublicMethed
         .triggerContractSideChain(sideGatewayAddressey,
