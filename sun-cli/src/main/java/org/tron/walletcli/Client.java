@@ -782,9 +782,10 @@ public class Client {
 
   private void getTransactionCountByBlockNum(String[] parameters) {
     if (parameters == null || parameters.length != 1) {
-      System.out.println("Too many parameters !!!");
+      System.out.println("Parameters error!!!");
       System.out.println("You need input number with the following syntax:");
       System.out.println("GetTransactionCountByBlockNum number");
+      return;
     }
     long blockNum = Long.parseLong(parameters[0]);
     long count = walletApiWrapper.getTransactionCountByBlockNum(blockNum);
