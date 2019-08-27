@@ -196,7 +196,11 @@ public class RetryMapping20001 {
     trc20Contract = infoById.get().getContractAddress().toByteArray();
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertNotNull(trc20Contract);
-
+    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(testOracleAddress, 10000000,
+        0, 0, testOracle, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account oracleMainBeforeSend = PublicMethed.queryAccount(testOracleAddress, blockingStubFull);
     oracleMainBeforeSendBalance = oracleMainBeforeSend.getBalance();
 
