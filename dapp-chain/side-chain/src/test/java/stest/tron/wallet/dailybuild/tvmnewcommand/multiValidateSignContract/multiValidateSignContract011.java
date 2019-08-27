@@ -127,9 +127,6 @@ public class multiValidateSignContract011 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
-    Assert.assertEquals(0, infoById.get().getResultValue());
-    Assert.assertEquals("11111111111111111111111111111111", PublicMethedForDailybuild
-        .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -153,16 +150,25 @@ public class multiValidateSignContract011 {
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
     logger.info("afterFreeNetUsed:" + afterFreeNetUsed);
-    Assert.assertTrue(afterBalance + fee == beforeBalance);
+
+    if (infoById.get().getResultValue() == 0) {
+      Assert.assertEquals("11111111111111111111111111111111", PublicMethedForDailybuild
+          .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
+      Assert.assertTrue(afterBalance + fee == beforeBalance);
+    } else {
+      Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
+          .equals(infoById.get().getResMessage().toStringUtf8())
+          || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
+      Assert.assertTrue(afterBalance == 0);
+      txid = PublicMethedForDailybuild
+          .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
+              testNetAccountKey,
+              blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    }
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    /*if (infoById.get().getResultValue() == 0) {
-      Assert.assertEquals("11111111111111111111111111111111", PublicMethedForDailybuild
-          .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
-    } else if (infoById.get().getResultValue() == 1) {
-
-    }*/
   }
 
   @Test(enabled = true, description = "33 signatures with 1st incorrect signatures test multivalidatesign")
@@ -471,9 +477,7 @@ public class multiValidateSignContract011 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
-    Assert.assertEquals(0, infoById.get().getResultValue());
-    Assert.assertEquals("10111111111111111111111111111110", PublicMethedForDailybuild
-        .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
+
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -497,7 +501,22 @@ public class multiValidateSignContract011 {
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
     logger.info("afterFreeNetUsed:" + afterFreeNetUsed);
-    Assert.assertTrue(afterBalance + fee == beforeBalance);
+
+    if (infoById.get().getResultValue() == 0) {
+      Assert.assertEquals("10111111111111111111111111111110", PublicMethedForDailybuild
+          .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
+      Assert.assertTrue(afterBalance + fee == beforeBalance);
+    } else {
+      Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
+          .equals(infoById.get().getResMessage().toStringUtf8())
+          || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
+      Assert.assertTrue(afterBalance == 0);
+      txid = PublicMethedForDailybuild
+          .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
+              testNetAccountKey,
+              blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    }
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
@@ -540,9 +559,6 @@ public class multiValidateSignContract011 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
-    Assert.assertEquals(0, infoById.get().getResultValue());
-    Assert.assertEquals("11111111010111111111111111101110", PublicMethedForDailybuild
-        .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -566,7 +582,22 @@ public class multiValidateSignContract011 {
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
     logger.info("afterFreeNetUsed:" + afterFreeNetUsed);
-    Assert.assertTrue(afterBalance + fee == beforeBalance);
+
+    if (infoById.get().getResultValue() == 0) {
+      Assert.assertEquals("11111111010111111111111111101110", PublicMethedForDailybuild
+          .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
+      Assert.assertTrue(afterBalance + fee == beforeBalance);
+    } else {
+      Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
+          .equals(infoById.get().getResMessage().toStringUtf8())
+          || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
+      Assert.assertTrue(afterBalance == 0);
+      txid = PublicMethedForDailybuild
+          .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
+              testNetAccountKey,
+              blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    }
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
@@ -611,9 +642,6 @@ public class multiValidateSignContract011 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
-    Assert.assertEquals(0, infoById.get().getResultValue());
-    Assert.assertEquals("00000000000000000000000000000000", PublicMethedForDailybuild
-        .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -637,7 +665,22 @@ public class multiValidateSignContract011 {
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
     logger.info("afterFreeNetUsed:" + afterFreeNetUsed);
-    Assert.assertTrue(afterBalance + fee == beforeBalance);
+
+    if (infoById.get().getResultValue() == 0) {
+      Assert.assertEquals("00000000000000000000000000000000", PublicMethedForDailybuild
+          .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
+      Assert.assertTrue(afterBalance + fee == beforeBalance);
+    } else {
+      Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
+          .equals(infoById.get().getResMessage().toStringUtf8())
+          || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
+      Assert.assertTrue(afterBalance == 0);
+      txid = PublicMethedForDailybuild
+          .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
+              testNetAccountKey,
+              blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    }
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);

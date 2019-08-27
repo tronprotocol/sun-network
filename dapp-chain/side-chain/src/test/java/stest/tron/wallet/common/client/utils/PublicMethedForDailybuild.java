@@ -2627,6 +2627,7 @@ public class PublicMethedForDailybuild {
 
     byte[] owner = ownerAddress;
     byte[] input = Hex.decode(AbiUtilForDailyBuild.parseMethod(method, argsStr, isHex));
+    logger.info("input:" + Hex.toHexString(input));
 
     Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
