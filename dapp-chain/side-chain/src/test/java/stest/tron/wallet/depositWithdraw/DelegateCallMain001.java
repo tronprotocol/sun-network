@@ -60,6 +60,8 @@ public class DelegateCallMain001 {
   String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   final String mainGateWayAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key1");
+  final byte[] mainGateWayAddressKey = WalletClient.decodeFromBase58Check(mainGateWayAddress);
+
   final String sideGatewayAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key2");
   final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideGatewayAddress);
