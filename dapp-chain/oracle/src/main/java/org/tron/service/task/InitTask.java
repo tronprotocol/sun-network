@@ -35,6 +35,7 @@ public class InitTask {
 
     // process txs
     Set<ByteBuffer> allTxKeys = TransactionExtensionStore.getInstance().allKeys();
+    logger.info("TX Store task numbers = {}", (allTxKeys == null ? 0 : allTxKeys.size()));
     for (ByteBuffer TxKey : allTxKeys) {
       byte[] event = EventStore.getInstance().getData(TxKey.array());
       byte[] tx = TransactionExtensionStore.getInstance().getData(TxKey.array());
@@ -64,6 +65,7 @@ public class InitTask {
 
     // process events
     Set<byte[]> allEvents = EventStore.getInstance().allValues();
+    logger.info("Event Store task numbers = {}", (allEvents == null ? 0 : allEvents.size()));
     for (byte[] event : allEvents) {
       try {
         Actuator actuator = getActuatorByEventMsg(event);
