@@ -1022,7 +1022,12 @@ public class RetryTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     int beforerDepositSideChain = ByteArray
         .toInt(infoById.get().getContractResult(0).toByteArray());
-
+    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(testOracleAddress, 100000000,
+        0, 0, testOracle, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Account oracleMainBeforeSend = PublicMethed.queryAccount(testOracleAddress, blockingStubFull);
     long oracleMainBeforeSendBalance = oracleMainBeforeSend.getBalance();
 
@@ -1187,7 +1192,10 @@ public class RetryTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     int beforerDepositSideChain = ByteArray
         .toInt(infoById.get().getContractResult(0).toByteArray());
-
+    Assert.assertTrue(PublicMethed.freezeBalanceSideChainGetEnergy(testOracleAddress, 100000000,
+        3, 0, testOracle, chainIdAddressKey, blockingSideStubFull));
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Account oracleSideBeforeSend = PublicMethed
         .queryAccount(testOracleAddress, blockingSideStubFull);
     long oracleSideBeforeSendBalance = oracleSideBeforeSend.getBalance();

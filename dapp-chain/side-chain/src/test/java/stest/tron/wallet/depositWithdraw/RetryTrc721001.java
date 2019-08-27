@@ -918,7 +918,11 @@ public class RetryTrc721001 {
         .encode58Check(ByteArray.fromHexString("41" + ContractRestule.substring(24)));
     logger.info("address_final: " + addressFinal);
     Assert.assertEquals(Base58.encode58Check(testAddress001), addressFinal);
-
+    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(testOracleAddress, 10000000,
+        0, 0, testOracle, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account oracleMainBeforeSend = PublicMethed.queryAccount(testOracleAddress, blockingStubFull);
     long oracleMainBeforeSendBalance = oracleMainBeforeSend.getBalance();
 
@@ -1062,7 +1066,11 @@ public class RetryTrc721001 {
 
   @Test(enabled = true, description = "Retry Deposit and Withdraw Trc721 with sideOralce value is 0 ")
   public void test4RetryTrc721004() {
+    Assert.assertTrue(PublicMethed.freezeBalanceSideChainGetEnergy(testOracleAddress, 100000000,
+        3, 0, testOracle, chainIdAddressKey, blockingSideStubFull));
 
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Account oracleSideBeforeSend = PublicMethed
         .queryAccount(testOracleAddress, blockingSideStubFull);
     long oracleSideBeforeSendBalance = oracleSideBeforeSend.getBalance();

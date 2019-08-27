@@ -848,6 +848,12 @@ public class RetryTrc10001 {
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
     Long depositSideTokenBefore = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
+    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(testOracleAddress, 100000000,
+        0, 0, testOracle, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Account oracleMainBeforeSend = PublicMethed.queryAccount(testOracleAddress, blockingStubFull);
     long oracleMainBeforeSendBalance = oracleMainBeforeSend.getBalance();
 
