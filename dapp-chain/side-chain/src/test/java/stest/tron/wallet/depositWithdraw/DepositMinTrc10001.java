@@ -442,7 +442,7 @@ public class DepositMinTrc10001 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    parame1 = "0";
+    parame1 = "1";
 
     byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
 

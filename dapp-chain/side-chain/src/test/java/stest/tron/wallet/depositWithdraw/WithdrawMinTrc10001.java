@@ -363,7 +363,7 @@ public class WithdrawMinTrc10001 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    parame1 = "0";
+    parame1 = "1";
     byte[] input2 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc10(uint256)", parame1, false));
     String ownerTrx = PublicMethed
         .triggerContractSideChain(sideGatewayAddressey,

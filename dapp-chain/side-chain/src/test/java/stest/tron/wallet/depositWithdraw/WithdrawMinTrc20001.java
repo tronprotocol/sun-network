@@ -489,7 +489,7 @@ public class WithdrawMinTrc20001 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    parame2 = "0";
+    parame2 = "1";
     byte[] input3 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc20(uint256)", parame2, false));
     PublicMethed
         .triggerContractSideChain(sideChainAddressKey,

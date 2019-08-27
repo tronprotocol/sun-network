@@ -524,7 +524,7 @@ public class DelegateCallSide001 {
   @AfterClass
   public void shutdown() throws InterruptedException {
 
-    parame1 = "0";
+    parame1 = "1";
     byte[] input1 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrx(uint256)", parame1, false));
     PublicMethed
         .triggerContractSideChain(sideChainAddressKey,

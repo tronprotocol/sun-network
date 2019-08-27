@@ -637,7 +637,7 @@ public class DelegateCallMain001 {
   public void shutdown() throws InterruptedException {
 
     methodStr1 = "setDepositMinTrx(uint256)";
-    parame1 = "0";
+    parame1 = "1";
     byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
 
     String txid1 = PublicMethed
