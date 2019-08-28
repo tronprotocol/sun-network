@@ -185,6 +185,8 @@ public class DepositMinTrx001 {
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(txid2, blockingStubFull);
     Assert.assertTrue(infoById2.get().getResultValue() == 0);
@@ -226,6 +228,8 @@ public class DepositMinTrx001 {
             callValue,
             input,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById5 = PublicMethed
