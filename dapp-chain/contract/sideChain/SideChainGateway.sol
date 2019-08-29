@@ -398,7 +398,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
         bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.valueOrUid, nonce));
-        bytes32 ret = multivalidatesign(dataHash, withdrawSigns[nonce].signs, withdrawSigns[nonce].signOracles);
         bool firstEnoughSuccess = countMultiSignForWithdraw(nonce, dataHash);
         if (firstEnoughSuccess) {
             emit MultiSignForWithdrawTRX(withdrawMsg.user, withdrawMsg.valueOrUid, nonce);
