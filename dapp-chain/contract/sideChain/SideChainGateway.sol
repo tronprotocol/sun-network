@@ -133,19 +133,19 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         return (withdrawSigns[nonce].signs, withdrawSigns[nonce].signOracles);
     }
 
-    function addOracle(address _oracle) public onlyOwner {
+    function addOracle(address _oracle) public goDelegateCall onlyOwner {
         require(!oracles[_oracle], "_oracle is oracle");
         oracles[_oracle] = true;
         oracleCnt++;
     }
 
-    function delOracle(address _oracle) public onlyOwner {
+    function delOracle(address _oracle) public goDelegateCall onlyOwner {
         require(oracles[_oracle], "_oracle is not oracle");
         oracles[_oracle] = false;
         oracleCnt--;
     }
 
-    function setSunTokenAddress(address _sunTokenAddress) public onlyOwner {
+    function setSunTokenAddress(address _sunTokenAddress) public goDelegateCall onlyOwner {
         require(_sunTokenAddress != address(0), "_sunTokenAddress == address(0)");
         sunTokenAddress = _sunTokenAddress;
     }
