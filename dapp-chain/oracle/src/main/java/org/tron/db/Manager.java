@@ -3,6 +3,7 @@ package org.tron.db;
 import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.SystemSetting;
+import org.tron.common.utils.ByteArray;
 import org.tron.protos.Sidechain.NonceMsg;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 
@@ -18,22 +19,38 @@ public class Manager {
   private Manager() {
   }
 
-  public void setProcessProcessing(byte[] nonceKeyBytes, byte[] msgBytes, int retryTimes) {
+  public void setProcessProcessingInit(byte[] nonceKeyBytes, int retryTimes) {
     // insert or set order:
     // 1. set nonce
     // 2. insert event
     // 3. insert tx (in other thread)
-    setProcessProcessing(nonceKeyBytes, retryTimes);
-    EventStore.getInstance().putData(nonceKeyBytes, msgBytes);
-  }
-
-  public void setProcessProcessing(byte[] nonceKeyBytes, int retryTimes) {
     NonceMsg nonceMsg = NonceMsg.newBuilder()
         .setRetryTimes(retryTimes)
         .setStatus(NonceStatus.PROCESSING)
         .setNextProcessTimestamp(System.currentTimeMillis() / 1000 +
             SystemSetting.RETRY_PROCESSING_INTERVAL).build();
     NonceStore.getInstance().putData(nonceKeyBytes, nonceMsg.toByteArray());
+  }
+
+  public boolean setProcessProcessing(byte[] nonceKeyBytes, byte[] msgBytes, int retryTimes) {
+    // insert or set order:
+    // 1. set nonce
+    // 2. insert event
+    // 3. insert tx (in other thread)
+    NonceMsg nonceMsg = NonceMsg.newBuilder()
+        .setRetryTimes(retryTimes)
+        .setStatus(NonceStatus.PROCESSING)
+        .setNextProcessTimestamp(System.currentTimeMillis() / 1000 +
+            SystemSetting.RETRY_PROCESSING_INTERVAL).build();
+
+    // not processing nor broadcasted
+    if (!NonceStore.getInstance().putDataIfIdle(nonceKeyBytes, nonceMsg)) {
+      return false;
+    }
+    if (msgBytes != null) {
+      EventStore.getInstance().putData(nonceKeyBytes, msgBytes);
+    }
+    return true;
   }
 
   public void setProcessBroadcasted(byte[] nonceKeyBytes) {
@@ -47,8 +64,18 @@ public class Manager {
     }
   }
 
-  public void setProcessFail(byte[] nonceKeyBytes) {
-    setProcessStatus(nonceKeyBytes, NonceStatus.FAIL);
+  public void setProcessFail(byte[] nonceKeyBytes, int retryTimes) {
+    TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
+    EventStore.getInstance().deleteData(nonceKeyBytes);
+    NonceMsg nonceMsg = NonceMsg.newBuilder()
+        .setStatus(NonceStatus.FAIL)
+        .setRetryTimes(retryTimes)
+        .setNextProcessTimestamp(0)
+        .build();//todo how to init if crash
+    logger.info("putDataIfIdle nonce = {}, nonce status = {}, nonce retryTimes = {}",
+        ByteArray.toStr(nonceKeyBytes), nonceMsg.getStatus(), nonceMsg.getRetryTimes());
+    NonceStore.getInstance()
+        .putData(nonceKeyBytes, nonceMsg.toByteArray());
   }
 
   public void setProcessSuccess(byte[] nonceKeyBytes) {
@@ -63,16 +90,16 @@ public class Manager {
     TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
     EventStore.getInstance().deleteData(nonceKeyBytes);
     NonceMsg nonceMsg = NonceMsg.newBuilder().setStatus(nonceStatus)
-        .setNextProcessTimestamp(0).build();
+        .setNextProcessTimestamp(0).build();//todo how to init if crash
     NonceStore.getInstance()
         .putData(nonceKeyBytes, nonceMsg.toByteArray());
   }
 
-  public void setProcessRetry(byte[] nonceKeyBytes, int retryTimes) {
+  public void setProcessRetry(byte[] nonceKeyBytes, NonceMsg nonceMsg) {
     // set order:
     // 1. delete tx store
     // 2. set nonce store
     TransactionExtensionStore.getInstance().deleteData(nonceKeyBytes);
-    setProcessProcessing(nonceKeyBytes, retryTimes);
+    NonceStore.getInstance().putData(nonceKeyBytes, nonceMsg.toBuilder().setStatus(NonceStatus.FAIL).build().toByteArray());
   }
 }

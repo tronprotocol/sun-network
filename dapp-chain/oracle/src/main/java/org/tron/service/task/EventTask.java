@@ -8,8 +8,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.tron.common.MessageCode;
 import org.tron.common.config.Args;
+import org.tron.common.config.SystemSetting;
 import org.tron.common.utils.ByteArray;
-import org.tron.db.Manager;
 import org.tron.db.NonceStore;
 import org.tron.protos.Sidechain.NonceMsg;
 import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
@@ -56,10 +56,12 @@ public class EventTask {
                   logger.info(msg);
                 }
               } else if (nonceMsg.getStatus() == NonceStatus.FAIL) {
+                setRetryTimesForUserRetry(eventActuator);
                 processAndSubmit(eventActuator);
               } else {
                 // processing or broadcasted
                 if (System.currentTimeMillis() / 1000 >= nonceMsg.getNextProcessTimestamp()) {
+                  setRetryTimesForUserRetry(eventActuator);
                   processAndSubmit(eventActuator);
                 } else {
                   if (logger.isInfoEnabled()) {
@@ -82,8 +84,19 @@ public class EventTask {
   }
 
   private void processAndSubmit(Actuator eventActuator) {
-    Manager.getInstance().setProcessProcessing(eventActuator.getNonceKey(),
-        eventActuator.getMessage().toByteArray(), 0);
     CreateTransactionTask.getInstance().submitCreate(eventActuator, 0);
+  }
+
+  private void setRetryTimesForUserRetry(Actuator actuator) throws InvalidProtocolBufferException {
+    try {
+      int retryTimesInStore = NonceMsg.parseFrom(NonceStore.getInstance().getData(actuator.getNonceKey())).getRetryTimes();
+      int retryNew = (retryTimesInStore / SystemSetting.RETRY_TIMES_EPOCH_OFFSET
+          + 1) * SystemSetting.RETRY_TIMES_EPOCH_OFFSET;
+      actuator.setRetryTimes(retryNew);
+    } catch (Exception e) {
+      logger.error("setRetryTimesForUserRetry catch error! nouce = {}", actuator.getNonceKey(), e);
+      throw e;
+    }
+
   }
 }

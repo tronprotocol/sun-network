@@ -133,19 +133,19 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         return (withdrawSigns[nonce].signs, withdrawSigns[nonce].signOracles);
     }
 
-    function addOracle(address _oracle) public onlyOwner {
+    function addOracle(address _oracle) public goDelegateCall onlyOwner {
         require(!oracles[_oracle], "_oracle is oracle");
         oracles[_oracle] = true;
         oracleCnt++;
     }
 
-    function delOracle(address _oracle) public onlyOwner {
+    function delOracle(address _oracle) public goDelegateCall onlyOwner {
         require(oracles[_oracle], "_oracle is not oracle");
         oracles[_oracle] = false;
         oracleCnt--;
     }
 
-    function setSunTokenAddress(address _sunTokenAddress) public onlyOwner {
+    function setSunTokenAddress(address _sunTokenAddress) public goDelegateCall onlyOwner {
         require(_sunTokenAddress != address(0), "_sunTokenAddress == address(0)");
         sunTokenAddress = _sunTokenAddress;
     }
@@ -283,7 +283,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 7. withdrawTRC10
-    function withdrawTRC10(uint256 tokenId, uint256 tokenValue) payable public goDelegateCall onlyNotPause onlyNotStop isHuman checkForTrc10(tokenId, tokenValue) goDelegateCall returns (uint256 r) {
+    function withdrawTRC10(uint256 tokenId, uint256 tokenValue) payable public goDelegateCall onlyNotPause onlyNotStop isHuman checkForTrc10(tokenId, tokenValue) returns (uint256 r) {
         require(tokenIdMap[uint256(msg.tokenid)], "tokenIdMap[msg.tokenid] == false");
         require(msg.tokenvalue >= withdrawMinTrc10, "tokenvalue must be >= withdrawMinTrc10");
         require(msg.value >= withdrawFee, "value must be >= withdrawFee");
@@ -315,7 +315,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 8. withdrawTRC20
-    function onTRC20Received(address from, uint256 value) payable public goDelegateCall onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
+    function onTRC20Received(address from, uint256 value) payable public goDelegateCall onlyNotPause onlyNotStop returns (uint256 r) {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "mainChainAddress == address(0)");
@@ -346,7 +346,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 9. withdrawTRC721
-    function onTRC721Received(address from, uint256 uId) payable public goDelegateCall onlyNotPause onlyNotStop goDelegateCall returns (uint256 r) {
+    function onTRC721Received(address from, uint256 uId) payable public goDelegateCall onlyNotPause onlyNotStop returns (uint256 r) {
         address sideChainAddress = msg.sender;
         address mainChainAddress = sideToMainContractMap[sideChainAddress];
         require(mainChainAddress != address(0), "mainChainAddress == address(0)");
@@ -377,7 +377,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     }
 
     // 10. withdrawTRX
-    function withdrawTRX() payable public goDelegateCall onlyNotPause onlyNotStop isHuman goDelegateCall returns (uint256 r) {
+    function withdrawTRX() payable public goDelegateCall onlyNotPause onlyNotStop isHuman returns (uint256 r) {
         require(msg.value >= withdrawMinTrx + withdrawFee, "value must be >= withdrawMinTrx+withdrawFee");
         if (msg.value > 0) {
             bonus += withdrawFee;
@@ -398,7 +398,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
         WithdrawMsg storage withdrawMsg = userWithdrawList[nonce];
         bytes32 dataHash = keccak256(abi.encodePacked(withdrawMsg.user, withdrawMsg.valueOrUid, nonce));
-        bytes32 ret = multivalidatesign(dataHash, withdrawSigns[nonce].signs, withdrawSigns[nonce].signOracles);
         bool firstEnoughSuccess = countMultiSignForWithdraw(nonce, dataHash);
         if (firstEnoughSuccess) {
             emit MultiSignForWithdrawTRX(withdrawMsg.user, withdrawMsg.valueOrUid, nonce);
@@ -501,7 +500,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         return count;
     }
 
-    function() goDelegateCall onlyNotPause onlyNotStop goDelegateCall payable external {
+    function() goDelegateCall onlyNotPause onlyNotStop payable external {
         revert("not allow function fallback");
     }
 
