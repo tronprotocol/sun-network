@@ -595,14 +595,14 @@ public class DelegateCallSide001 {
     Account accountAfter = PublicMethed.queryAccount(depositAddress, blockingStubFull);
     long accountAfterBalance = accountAfter.getBalance();
     logger.info("accountAfterBalance:" + accountAfterBalance);
-    Assert.assertEquals(accountAfterBalance, 100000000 - fee - 1);
+    Assert.assertEquals(accountAfterBalance, accountBeforeBalance - fee - 1);
     Account accountSideAfter = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
     long accountSideAfterBalance = accountSideAfter.getBalance();
     ByteString addressAfter = accountSideAfter.getAddress();
     String accountSideAfterAddress = Base58.encode58Check(addressAfter.toByteArray());
     logger.info("accountSideAfterAddress:" + accountSideAfterAddress);
     Assert.assertEquals(Base58.encode58Check(depositAddress), accountSideAfterAddress);
-    Assert.assertEquals(2, accountSideAfterBalance);
+    Assert.assertEquals(accountSideBeforeBalance+2, accountSideAfterBalance);
 
   }
 
