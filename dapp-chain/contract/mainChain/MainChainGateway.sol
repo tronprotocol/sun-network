@@ -135,7 +135,6 @@ contract MainChainGateway is OracleManagerContract {
         emit TRC20Received(msg.sender, contractAddress, value, userDepositList.length - 1);
         return userDepositList.length - 1;
     }
-    // TODO: 增加一个 userDepositList 的查询函数
     struct DepositMsg {
         address user;
         uint64 value;
