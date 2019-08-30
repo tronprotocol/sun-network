@@ -8,7 +8,7 @@
         "build": "npm run clean && webpack --config webpack.config.js --progress --colors",
         "build:dev": "NODE_ENV=development npm run build",
         "clean": "rimraf dist",
-        "test": "npx mocha 'test/**/*.test.js' --timeout 10000",
+        "test": "npx mocha 'test/**/*.test.js' --timeout 200000",
         "test:browser": "npx karma start --single-run --browsers ChromeHeadless",
         "coverage": "npm run-script test:browser && npm run-script test",
         "btest": "npm run build:dev && npm run test"
