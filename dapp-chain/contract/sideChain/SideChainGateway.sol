@@ -6,8 +6,9 @@ import "./DAppTRC20.sol";
 import "./DAppTRC721.sol";
 import "../common/ECVerify.sol";
 import "../common/DataModel.sol";
+import "../common/ownership/Ownable.sol";
 
-contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
+contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
     using ECVerify for bytes32;
 
     // 1. deployDAppTRC20AndMapping
@@ -39,11 +40,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
     event MultiSignForWithdrawTRC20(address from, address mainChainAddress, uint256 value, uint256 nonce);
     event MultiSignForWithdrawTRC721(address from, address mainChainAddress, uint256 uId, uint256 nonce);
     event MultiSignForWithdrawTRX(address from, uint256 value, uint256 nonce);
-    event LogicAddressChanged(address from, address to);
 
-    address public logicAddress;
-    uint256 public oracleCnt;
-    address public owner;
+    uint256 public numOracles;
     address public sunTokenAddress;
     address mintTRXContract = address(0x10000);
     address mintTRC10Contract = address(0x10001);
@@ -86,30 +84,13 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         DataModel.Status status;
     }
 
-    constructor () public {
-        owner = msg.sender;
-    }
-
     modifier onlyOracle {
         require(oracles[msg.sender], "oracles[msg.sender] is false");
         _;
     }
 
-    modifier onlyOwner {
-        require(msg.sender == owner, "msg.sender != owner");
-        _;
-    }
-
     modifier isHuman() {
         require(msg.sender == tx.origin, "not allow contract");
-        _;
-    }
-
-    modifier goDelegateCall {
-        if (logicAddress != address(0)) {
-            logicAddress.delegatecall(msg.data);
-            return;
-        }
         _;
     }
 
@@ -137,13 +118,13 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         require(_oracle != address(0), "this address cannot be zero");
         require(!oracles[_oracle], "_oracle is oracle");
         oracles[_oracle] = true;
-        oracleCnt++;
+        numOracles++;
     }
 
     function delOracle(address _oracle) public goDelegateCall onlyOwner {
         require(oracles[_oracle], "_oracle is not oracle");
         oracles[_oracle] = false;
-        oracleCnt--;
+        numOracles--;
     }
 
     function setSunTokenAddress(address _sunTokenAddress) public goDelegateCall onlyOwner {
@@ -206,7 +187,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         // mappingToSideSigns[nonce].signs.push(oracleSign);
         _signMsg.signCnt += 1;
 
-        if (!_signMsg.success && _signMsg.signCnt > oracleCnt * 2 / 3) {
+        if (!_signMsg.success && _signMsg.signCnt > numOracles * 2 / 3) {
             _signMsg.success = true;
             return true;
         }
@@ -294,7 +275,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         // depositSigns[nonce].signs.push(oracleSign);
         _signMsg.signCnt += 1;
 
-        if (!_signMsg.success && _signMsg.signCnt > oracleCnt * 2 / 3) {
+        if (!_signMsg.success && _signMsg.signCnt > numOracles * 2 / 3) {
             _signMsg.success = true;
             return true;
         }
@@ -431,7 +412,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         _signMsg.signs.push(oracleSign);
         _signMsg.signOracles.push(msg.sender);
         _signMsg.signCnt += 1;
-        if (!_signMsg.success && _signMsg.signCnt > oracleCnt * 2 / 3) {
+        if (!_signMsg.success && _signMsg.signCnt > numOracles * 2 / 3) {
             return true;
         }
         return false;
@@ -474,10 +455,9 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         }
     }
 
-    function changeLogicAddress(address _logicAddress) public onlyOracle {
+    function setLogicAddress(address _logicAddress) public onlyOracle {
         if (multiSignForChangeLogicAddress(_logicAddress)) {
-            emit LogicAddressChanged(logicAddress, _logicAddress);
-            logicAddress = _logicAddress;
+            changeLogicAddress(_logicAddress);
         }
     }
 
@@ -488,10 +468,9 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
             return false;
         }
         changeLogicSign.oracleSigned[msg.sender] = true;
-        // changeLogicSign.signs.push(oracleSign);
         changeLogicSign.signCnt += 1;
 
-        if (!changeLogicSign.success && changeLogicSign.signCnt > oracleCnt * 2 / 3) {
+        if (!changeLogicSign.success && changeLogicSign.signCnt > numOracles * 2 / 3) {
             changeLogicSign.success = true;
             return true;
         }
@@ -505,7 +484,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         }
         bytes32 ret = multivalidatesign(dataHash, _signMsg.signs, _signMsg.signOracles);
         uint256 count = countSuccess(ret);
-        if (count > oracleCnt * 2 / 3) {
+        if (count > numOracles * 2 / 3) {
             _signMsg.success = true;
             return true;
         }
@@ -520,11 +499,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     function() goDelegateCall onlyNotPause onlyNotStop payable external {
         revert("not allow function fallback");
-    }
-
-    function transferOwnership(address _newOwner) external goDelegateCall onlyOwner {
-        require(_newOwner != address(0));
-        owner = _newOwner;
     }
 
     function setPause(bool isPause) external goDelegateCall onlyOwner {
@@ -582,5 +556,9 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
 
     function depositDone(uint256 nonce) view external returns (bool r) {
         r = depositSigns[nonce].success;
+    }
+
+    function isOracle(address _oracle) view public returns (bool) {
+        return oracles[_oracle];
     }
 }

@@ -1,4 +1,4 @@
-import "./ownership/Ownable.sol";
+import "../common/ownership/Ownable.sol";
 import "../common/ECVerify.sol";
 
 
@@ -11,7 +11,6 @@ contract OracleManagerContract is Ownable {
     mapping(address => SignMsg)  delegateSigns;
     mapping(uint256 => mapping(bytes32 => SignMsg)) withdrawMultiSignList;
 
-    address public logicAddress;
     bool public multivalidatesignSwitch = false;
     bool public pause;
     bool public stop;
@@ -23,7 +22,6 @@ contract OracleManagerContract is Ownable {
     }
 
     event NewOracles(address oracle);
-    event LogicAddressChanged(address oldAddress, address newAddress);
 
     modifier onlyOracle() {require(oracleIndex[msg.sender] > 0, "not oracle");
         _;}
@@ -33,14 +31,6 @@ contract OracleManagerContract is Ownable {
         _;}
     modifier onlyNotStop() {require(!stop, "is stop");
         _;}
-
-    modifier goDelegateCall() {
-        if (logicAddress != address(0)) {
-            logicAddress.delegatecall(msg.data);
-            return;
-        }
-        _;
-    }
 
     modifier checkForTrc10(uint64 tokenId, uint64 tokenValue) {
         require(tokenId == uint64(msg.tokenid), "tokenId != msg.tokenid");
@@ -141,10 +131,9 @@ contract OracleManagerContract is Ownable {
         numOracles--;
     }
 
-    function setDelegateAddress(address newAddress) public onlyOracle {
-        if (multiSignForDelegate(newAddress)) {
-            emit LogicAddressChanged(logicAddress, newAddress);
-            logicAddress = newAddress;
+    function setLogicAddress(address _logicAddress) public onlyOracle {
+        if (multiSignForDelegate(_logicAddress)) {
+            changeLogicAddress(_logicAddress);
         }
     }
 
