@@ -147,6 +147,7 @@ public class HttpTestMutiSign001 {
 
     response = HttpMethed.accountPermissionUpdate(httpnode, ownerAddress, ownerObject,
         witnessObject, activeObject, ownerKey);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     Assert.assertTrue(HttpMethed.verificationResult(response));
   }
 
@@ -166,22 +167,28 @@ public class HttpTestMutiSign001 {
     permissionKeyActive[1] = manager4Key;
 
     response = HttpMethed.sendCoin(httpnode, ownerAddress, fromAddress, 10L, 0,permissionKeyString);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     Assert.assertTrue(HttpMethed.verificationResult(response));
 
     response = HttpMethed.sendCoin(httpnode, ownerAddress, fromAddress, 10L, 2,permissionKeyString);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     Assert.assertFalse(HttpMethed.verificationResult(response));
 
     logger.info("start permission id 2");
     response = HttpMethed.sendCoin(httpnode, ownerAddress, fromAddress, 12L, 2,permissionKeyActive);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     Assert.assertTrue(HttpMethed.verificationResult(response));
 
     response = HttpMethed.sendCoin(httpnode, ownerAddress, fromAddress, 12L, 0,permissionKeyActive);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     Assert.assertFalse(HttpMethed.verificationResult(response));
 
     response = HttpMethed.sendCoin(httpnode, ownerAddress, fromAddress, 11L, 1,permissionKeyActive);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     Assert.assertFalse(HttpMethed.verificationResult(response));
 
     response = HttpMethed.sendCoin(httpnode, ownerAddress, fromAddress, 11L, 3,permissionKeyString);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     Assert.assertFalse(HttpMethed.verificationResult(response));
   }
 
