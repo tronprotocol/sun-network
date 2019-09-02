@@ -121,13 +121,11 @@ public class WithdrawTrc10001 {
     ByteString address = accountSideBefore.getAddress();
     String accountSideBeforeAddress = Base58.encode58Check(address.toByteArray());
     logger.info("accountSideBeforeAddress:" + accountSideBeforeAddress);
-    Assert.assertEquals("3QJmnh", accountSideBeforeAddress);
 
     logger.info("accountBeforeBalance:" + accountMainBalance);
     logger.info("accountSideBeforeBalance:" + accountSideBeforeBalance);
     logger.info("depositMainTokenBefore:" + depositMainTokenBefore);
     logger.info("depositSideAddressTokenBefore:" + depositSideTokenBefore);
-    Assert.assertTrue(depositSideTokenBefore == 0);
 
     String methodStr = "depositTRC10(uint64,uint64)";
 
@@ -160,16 +158,14 @@ public class WithdrawTrc10001 {
     String accountSideAfterAddress = Base58.encode58Check(addressSideAfter.toByteArray());
     logger.info("accountSideAfterAddress:" + accountSideAfterAddress);
     Assert.assertEquals(Base58.encode58Check(depositAddress), accountSideAfterAddress);
-    Assert.assertEquals(0, accountSideAfterBalance);
     Long depositSideTokenAfter = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
-    Assert.assertTrue(inputTokenValue == depositSideTokenAfter);
     Long depositMainTokenAfter = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
     Assert.assertTrue(depositMainTokenBefore - inputTokenValue == depositMainTokenAfter);
     logger.info("depositMainTokenAfter:" + depositMainTokenAfter);
     logger.info("depositSideTokenAfter:" + depositSideTokenAfter);
-    Assert.assertTrue(depositSideTokenAfter == inputTokenValue);
+    Assert.assertTrue(depositSideTokenAfter == depositSideTokenBefore + inputTokenValue);
 
     String methodStr1 = "depositTRX()";
     byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, "", false));
@@ -184,6 +180,9 @@ public class WithdrawTrc10001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     //withdrawTrc10
+    Account accountSideAfterDeposit = PublicMethed
+        .queryAccount(depositAddress, blockingSideStubFull);
+    long accountSideAfterDepositBalance = accountSideAfterDeposit.getBalance();
     String withdrawToken = Long.toString(inputTokenValue - 1);
     String txid2 = PublicMethed
         .withdrawTrc10(inputTokenID, withdrawToken, ChainIdAddress,
@@ -207,7 +206,8 @@ public class WithdrawTrc10001 {
         .encode58Check(addressWithdrawSideAfter.toByteArray());
     logger.info("addressWithdrawSideAfterAddress:" + addressWithdrawSideAfterAddress);
     Assert.assertEquals(Base58.encode58Check(depositAddress), addressWithdrawSideAfterAddress);
-    Assert.assertEquals(callValue1, accountWithdrawSideAfterBalance);
+    Assert
+        .assertEquals(accountSideAfterDepositBalance - fee2, accountWithdrawSideAfterBalance);
     Long withdrawSideTokenAfter = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
 
@@ -215,7 +215,7 @@ public class WithdrawTrc10001 {
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
     logger.info("withdrawSideTokenAfter:" + withdrawSideTokenAfter);
     logger.info("withdrawMainTokenAfter:" + withdrawMainTokenAfter);
-    Assert.assertTrue(1 == withdrawSideTokenAfter);
+    Assert.assertTrue(depositSideTokenAfter - inputTokenValue + 1 == withdrawSideTokenAfter);
     Assert.assertTrue(depositMainTokenAfter + inputTokenValue - 1 == withdrawMainTokenAfter);
 
     //address is not exist
@@ -249,7 +249,6 @@ public class WithdrawTrc10001 {
         .encode58Check(addressWithdrawSideAfter1.toByteArray());
     logger.info("addressWithdrawSideAfterAddress:" + addressWithdrawSideAfterAddress1);
     Assert.assertEquals(Base58.encode58Check(depositAddress), addressWithdrawSideAfterAddress1);
-    Assert.assertEquals(callValue1, accountWithdrawSideAfterBalance);
     Long withdrawSideTokenAfter1 = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
 
@@ -272,8 +271,6 @@ public class WithdrawTrc10001 {
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
     Long depositSideTokenBefore = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
-
-    Assert.assertTrue(depositSideTokenBefore == 1);
 
     Account accountMainBefore = PublicMethed.queryAccount(depositAddress, blockingStubFull);
     long accountMainBalance = accountMainBefore.getBalance();
@@ -527,7 +524,7 @@ public class WithdrawTrc10001 {
         .withdrawTrc10(inputTokenID, withdrawToken, ChainIdAddress,
             sideGatewayAddress,
             0,
-            1, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
+            0, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

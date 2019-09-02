@@ -24,7 +24,6 @@ import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
@@ -113,8 +112,9 @@ public class WalletTestMutiSign004 {
     long needcoin = updateAccountPermissionFee + multiSignFee * 3;
 
     Assert.assertTrue(
-        PublicMethedForDailybuild.sendcoin(ownerAddress, needcoin + 100000000L, fromAddress, testKey002,
-            blockingStubFull));
+        PublicMethedForDailybuild
+            .sendcoin(ownerAddress, needcoin + 100000000L, fromAddress, testKey002,
+                blockingStubFull));
     Assert.assertTrue(PublicMethedForDailybuild
         .freezeBalanceForReceiver(fromAddress, 1000000000, 0, 0, ByteString.copyFrom(ownerAddress),
             testKey002, blockingStubFull));
@@ -135,14 +135,17 @@ public class WalletTestMutiSign004 {
     ownerKeyString[1] = manager1Key;
     accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":2,\"keys\":["
-            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager1Key) + "\",\"weight\":1},"
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager1Key)
+            + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(ownerKey)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":2,"
-            + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
+            + "\"operations\":\"3f3d1ec0032001000000000000000000000000000000000000000000000000c0\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager2Key) + "\",\"weight\":1}"
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager1Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager2Key)
+            + "\",\"weight\":1}"
             + "]}]}";
     logger.info(accountPermissionJson);
     PublicMethedForMutiSign.accountPermissionUpdate(accountPermissionJson, ownerAddress, ownerKey,
@@ -165,7 +168,8 @@ public class WalletTestMutiSign004 {
         0L, 100, null, ownerKey, ownerAddress, blockingStubFull, ownerKeyString);
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getAbi().toString() != null);
     String txid;
     String initParmes = "\"" + "930" + "\"";
@@ -182,15 +186,18 @@ public class WalletTestMutiSign004 {
         ownerAddress, 0, blockingStubFull, ownerKeyString);
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    long balanceAfter = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull).getBalance();
+    long balanceAfter = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull)
+        .getBalance();
     logger.info("balanceAfter: " + balanceAfter);
 
     Assert.assertEquals(balanceBefore - balanceAfter, needcoin);
 
     Assert.assertTrue(
-        PublicMethedForDailybuild.unFreezeBalance(fromAddress, testKey002, 0, ownerAddress, blockingStubFull));
+        PublicMethedForDailybuild
+            .unFreezeBalance(fromAddress, testKey002, 0, ownerAddress, blockingStubFull));
     Assert.assertTrue(
-        PublicMethedForDailybuild.unFreezeBalance(fromAddress, testKey002, 1, ownerAddress, blockingStubFull));
+        PublicMethedForDailybuild
+            .unFreezeBalance(fromAddress, testKey002, 1, ownerAddress, blockingStubFull));
   }
 
   /**

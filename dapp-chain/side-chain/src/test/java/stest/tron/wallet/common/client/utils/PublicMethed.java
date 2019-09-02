@@ -732,6 +732,106 @@ public class PublicMethed {
         .setTxid(txid).build();
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     if (response.getResult() == true) {
+      logger.info("txid:" + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
+      return ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
+    }
+
+    return null;
+  }
+
+
+  public static String triggerContractSideChainfee(byte[] contractAddress, byte[] sideChainId,
+      long withdrawfee, byte[] data, long feeLimit,
+      long tokenValue, String tokenId, byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+    byte[] owner = ownerAddress;
+
+    Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
+    builder.setOwnerAddress(ByteString.copyFrom(owner));
+    builder.setContractAddress(ByteString.copyFrom(contractAddress));
+    builder.setData(ByteString.copyFrom(data));
+    builder.setCallValue(withdrawfee);
+    if (tokenId != null && tokenId != "") {
+      builder.setCallTokenValue(tokenValue);
+      builder.setTokenId(Long.parseLong(tokenId));
+    }
+    Contract.TriggerSmartContract triggerContract = builder.build();
+
+    TransactionExtention transactionExtention = blockingStubFull.triggerContract(triggerContract);
+    if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
+      System.out.println("RPC create call trx failed!");
+      System.out.println("Code = " + transactionExtention.getResult().getCode());
+      System.out
+          .println("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
+      return null;
+    }
+
+    Transaction transaction = transactionExtention.getTransaction();
+    if (transaction.getRetCount() != 0 &&
+        transactionExtention.getConstantResult(0) != null &&
+        transactionExtention.getResult() != null) {
+      byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+      System.out.println("message:" + transaction.getRet(0).getRet());
+      System.out.println(":" + ByteArray
+          .toStr(transactionExtention.getResult().getMessage().toByteArray()));
+      System.out.println("Result:" + Hex.toHexString(result));
+      return ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
+    }
+
+    TransactionExtention.Builder texBuilder = TransactionExtention.newBuilder();
+    Transaction.Builder transBuilder = Transaction.newBuilder();
+    Transaction.raw.Builder rawBuilder = transactionExtention.getTransaction().getRawData()
+        .toBuilder();
+    rawBuilder.setFeeLimit(feeLimit);
+    transBuilder.setRawData(rawBuilder);
+    for (int i = 0; i < transactionExtention.getTransaction().getSignatureCount(); i++) {
+      ByteString s = transactionExtention.getTransaction().getSignature(i);
+      transBuilder.setSignature(i, s);
+    }
+    for (int i = 0; i < transactionExtention.getTransaction().getRetCount(); i++) {
+      Result r = transactionExtention.getTransaction().getRet(i);
+      transBuilder.setRet(i, r);
+    }
+    texBuilder.setTransaction(transBuilder);
+    texBuilder.setResult(transactionExtention.getResult());
+    texBuilder.setTxid(transactionExtention.getTxid());
+    transactionExtention = texBuilder.build();
+
+    if (transactionExtention == null) {
+      return null;
+    }
+    Return ret = transactionExtention.getResult();
+    if (!ret.getResult()) {
+      System.out.println("Code = " + ret.getCode());
+      System.out.println("Message = " + ret.getMessage().toStringUtf8());
+      return null;
+    }
+    transaction = transactionExtention.getTransaction();
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      System.out.println("Transaction is empty");
+      return null;
+    }
+    System.out.println(
+        "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
+//    System.out.println("transaction hex string is " + Utils.printTransaction(transaction));
+//    System.out.println(Utils.printTransaction(transactionExtention));
+    transaction = signTransaction(ecKey, transaction, sideChainId, false);
+
+    ByteString txid = ByteString.copyFrom(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+    transactionExtention = transactionExtention.toBuilder().setTransaction(transaction)
+        .setTxid(txid).build();
+    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+    if (response.getResult() == true) {
+      logger.info("txid:" + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
       return ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
     }
 
@@ -1172,25 +1272,25 @@ public class PublicMethed {
     return trxid;
   }
 
-    /**
-     * constructor.
-     */
-    public static String mappingTrc20fee(byte[] mainGatewayAddress,
-                                         String trxHash, long mappingfee,long feeLimit,
-                                         byte[] ownerAddress,
-                                         String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+  /**
+   * constructor.
+   */
+  public static String mappingTrc20fee(byte[] mainGatewayAddress,
+      String trxHash, long mappingfee, long feeLimit,
+      byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
 
-        String methodStr = "mappingTRC20(bytes)";
-        String argsStr = "\"" + trxHash + "\""+","+mappingfee;
+    String methodStr = "mappingTRC20(bytes)";
+    String argsStr = "\"" + trxHash + "\"";
 
-        String trxid = triggerContract(mainGatewayAddress, methodStr, argsStr, false, 0, feeLimit,
-                ownerAddress, priKey, blockingStubFull);
-        return trxid;
-    }
+    String trxid = triggerContract(mainGatewayAddress, methodStr, argsStr, false, mappingfee,
+        feeLimit,
+        ownerAddress, priKey, blockingStubFull);
+    return trxid;
+  }
 
 
-
-    /**
+  /**
    * constructor.
    */
   public static String mappingTrc721(byte[] mainGatewayAddress,
@@ -1668,31 +1768,31 @@ public class PublicMethed {
     return txid1;
   }
 
-    /**
-     * constructor.
-     */
-    public static String withdrawTrxfee(
-            String mainGatewayAddr, String sideGatewayAddress,
-            long callvalue,long withdrawfee, long feeLimit,byte[] ownerAddress,
-            String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
-            WalletGrpc.WalletBlockingStub blockingsideStubFull) {
-        long tokenCallValue = 0;
-        String tokenId = "0";
-        String methodStr1 = "withdrawTRX()";
-        long callValue=callvalue+withdrawfee;
-        byte[] input1 = Hex
-                .decode(AbiUtil.parseMethod(methodStr1, "", false));
+  /**
+   * constructor.
+   */
+  public static String withdrawTrxfee(
+      String mainGatewayAddr, String sideGatewayAddress,
+      long callvalue, long withdrawfee, long feeLimit, byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
+      WalletGrpc.WalletBlockingStub blockingsideStubFull) {
+    long tokenCallValue = 0;
+    String tokenId = "0";
+    String methodStr1 = "withdrawTRX()";
+    long callValue = callvalue + withdrawfee;
+    byte[] input1 = Hex
+        .decode(AbiUtil.parseMethod(methodStr1, "", false));
 
-        String txid1 = PublicMethed
-                .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideGatewayAddress),
-                        WalletClient.decodeFromBase58Check(mainGatewayAddr),
-                        callValue,
-                        input1,
+    String txid1 = PublicMethed
+        .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideGatewayAddress),
+            WalletClient.decodeFromBase58Check(mainGatewayAddr),
+            callValue,
+            input1,
 
-                        feeLimit, tokenCallValue, tokenId, ownerAddress, priKey, blockingsideStubFull);
-        logger.info("txid:" + txid1);
-        return txid1;
-    }
+            feeLimit, tokenCallValue, tokenId, ownerAddress, priKey, blockingsideStubFull);
+    logger.info("txid:" + txid1);
+    return txid1;
+  }
 
   /**
    * constructor.
@@ -2006,31 +2106,30 @@ public class PublicMethed {
     return txid1;
   }
 
-    /**
-     * constructor.
-     */
-    public static String withdrawtrc20fee(
-            String mainGatewayAddr, String sideTokenAddress,
-            String value, String tokenAddress, long feeLimit, byte[] ownerAddress,long callValue,
-            String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
-            WalletGrpc.WalletBlockingStub blockingsideStubFull) {
+  /**
+   * constructor.
+   */
+  public static String withdrawtrc20fee(
+      String mainGatewayAddr, String sideTokenAddress,
+      String value, String tokenAddress, long feeLimit, byte[] ownerAddress, long callValue,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
+      WalletGrpc.WalletBlockingStub blockingsideStubFull) {
 
-        String methodStr1 = "withdrawal(uint256)";
-        byte[] input1 = Hex
-                .decode(AbiUtil
-                        .parseMethod(methodStr1, value, false));
-        String txid1 = PublicMethed
-                .triggerContractSideChain(WalletClient.decodeFromBase58Check(tokenAddress),
-                        WalletClient.decodeFromBase58Check(mainGatewayAddr),
-                        callValue,
-                        input1,
-                        feeLimit, 0, "0", ownerAddress, priKey, blockingsideStubFull);
-        return txid1;
-    }
+    String methodStr1 = "withdrawal(uint256)";
+    byte[] input1 = Hex
+        .decode(AbiUtil
+            .parseMethod(methodStr1, value, false));
+    String txid1 = PublicMethed
+        .triggerContractSideChain(WalletClient.decodeFromBase58Check(tokenAddress),
+            WalletClient.decodeFromBase58Check(mainGatewayAddr),
+            callValue,
+            input1,
+            feeLimit, 0, "0", ownerAddress, priKey, blockingsideStubFull);
+    return txid1;
+  }
 
 
-
-    /**
+  /**
    * constructor.
    */
 
@@ -2682,7 +2781,9 @@ public class PublicMethed {
     }
     Transaction transaction = transactionExtention.getTransaction();
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey, getMaingatewayByteAddr(), false);
+//    transaction = TransactionUtils.sign(transaction, ecKey, getMaingatewayByteAddr(), false);
+    transaction = signTransaction(ecKey, transaction);
+
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }
@@ -4318,6 +4419,29 @@ public class PublicMethed {
     return txid1;
   }
 
+  public static String withdrawTrc10fee(
+      String tokenId, String tokenValue, String mainGatewayAddr, String sideGatewayAddress,
+      long callValue, long withdrawfee, long feeLimit, byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
+      WalletGrpc.WalletBlockingStub blockingsideStubFull) {
+    long callValue1 = callValue + withdrawfee;
+//    byte[] txData1 = PublicMethed.sideSignTrc10Data(trc10, tokenValue, ownerAddress, priKey,
+//        WalletClient.decodeFromBase58Check(mainGatewayAddr), blockingStubFull, 0);
+    String methodStr = "withdrawTRC10(uint256,uint256)";
+    long tokenValue1 = Long.parseLong(tokenValue);
+    String inputParam = tokenId + "," + tokenValue;
+
+    byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr, inputParam, false));
+    String txid1 = PublicMethed
+        .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideGatewayAddress),
+            WalletClient.decodeFromBase58Check(mainGatewayAddr),
+            callValue1,
+            input1,
+            feeLimit, tokenValue1, tokenId, ownerAddress, priKey, blockingsideStubFull);
+    logger.info("txid1:" + txid1);
+    return txid1;
+  }
+
 
   /**
    * constructor.
@@ -5014,4 +5138,375 @@ public class PublicMethed {
 
   }
 
+
+  /**
+   * constructor.
+   */
+  public static String depositTrc20ForDepositFee(String trc20ContractAddress,
+      String mainGatewayAddress,
+      long tokenValue, long callValue,
+      long feeLimit, byte[] ownerAddress, String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+    String contractAddrStr = trc20ContractAddress;  //main trc20 contract address
+    String methodStr = "approve(address,uint256)";
+    String mainGatewayAddr = mainGatewayAddress; //main gateway contract address
+    String num = Long.toString(tokenValue);
+    String depositMethodStr = "depositTRC20(address,uint64)";
+
+    return depositTrcForDepositFee(contractAddrStr, mainGatewayAddr, methodStr, depositMethodStr,
+        num, callValue, feeLimit,
+        ownerAddress, priKey, blockingStubFull);
+  }
+
+  /**
+   * constructor.
+   */
+  public static String depositTrcForDepositFee(
+      String contractAddrStr, String mainGatewayAddr, String methodStr,
+      String depositMethodStr, String num, long callValue, long feeLimit, byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    long tokenCallValue = 0;
+    String tokenId = "";
+    String argsStr = "\"" + mainGatewayAddr + "\",\"" + num + "\"";
+
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, false));
+    byte[] contractAddress = WalletClient.decodeFromBase58Check(contractAddrStr);
+
+    String trxId = triggerContract(contractAddress, 0, input, feeLimit, tokenCallValue,
+        tokenId, ownerAddress, priKey, blockingStubFull);
+    boolean result = org.apache.commons.lang3.StringUtils.isNoneEmpty(trxId);
+    if (result) {
+      System.out.println("approve successfully.\n");
+
+      byte[] depositContractAddr = WalletClient.decodeFromBase58Check(mainGatewayAddr);
+//      String depositArgStr = num + ",\"" + contractAddrStr + "\"";
+      String depositArgStr = "\"" + contractAddrStr + "\",\"" + num + "\"";
+
+      byte[] depositInput = Hex.decode(AbiUtil.parseMethod(depositMethodStr, depositArgStr, false));
+
+      String Trxid = triggerContract(depositContractAddr, callValue, depositInput, feeLimit,
+          tokenCallValue,
+          tokenId, ownerAddress, priKey, blockingStubFull);
+      return Trxid;
+    } else {
+      logger.info("approve failed.\n");
+      return null;
+    }
+  }
+
+  /**
+   * constructor.
+   */
+
+  public static String depositTrc721ForDepositFee(String trc20ContractAddress,
+      String mainGatewayAddress,
+      long tokenValue, long callValue,
+      long feeLimit, byte[] ownerAddress, String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+    String contractAddrStr = trc20ContractAddress;  //main trc20 contract address
+    String methodStr = "approve(address,uint256)";
+    String mainGatewayAddr = mainGatewayAddress; //main gateway contract address
+    String num = Long.toString(tokenValue);
+    String depositMethodStr = "depositTRC721(address,uint256)";
+
+    return depositTrcForDepositFee(contractAddrStr, mainGatewayAddr, methodStr, depositMethodStr,
+        num, callValue, feeLimit,
+        ownerAddress, priKey, blockingStubFull);
+
+  }
+
+
+  public static String retryDepositForRetryFee(
+      String mainGatewayAddr,
+      String nonce, long callValue, long feeLimit, byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    String retryMethodStr = "retryDeposit(uint256)";
+    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
+
+    String txid = PublicMethed
+        .triggerContract(WalletClient.decodeFromBase58Check(mainGatewayAddr),
+            callValue,
+            input,
+            feeLimit, 0, null, ownerAddress, priKey, blockingStubFull);
+    return txid;
+
+  }
+
+
+  /**
+   * constructor.
+   */
+  public static String retryMappingForRetryFee(
+      String mainGatewayAddr, String nonce, long callValue, long feeLimit,
+      byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    String retryMethodStr = "retryMapping(uint256)";
+
+    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
+
+    String txid = PublicMethed
+        .triggerContract(WalletClient.decodeFromBase58Check(mainGatewayAddr),
+            callValue,
+            input,
+            feeLimit, 0, null, ownerAddress, priKey, blockingStubFull);
+    return txid;
+  }
+
+
+  /**
+   * constructor.
+   */
+  public static String retryWithdrawForRetryFee(
+      String ChainIdAddress, String sideGatewayAddress, String nonce, long callValue, long feeLimit,
+      byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingsideStubFull) {
+    String retryMethodStr = "retryWithdraw(uint256)";
+    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
+
+    String txid1 = PublicMethed
+        .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideGatewayAddress),
+            WalletClient.decodeFromBase58Check(ChainIdAddress),
+            callValue,
+            input,
+            feeLimit, 0, null, ownerAddress, priKey, blockingsideStubFull);
+    logger.info("txid1:" + txid1);
+    return txid1;
+
+  }
+
+  /**
+   * constructor.
+   */
+  public static byte[] deployContractForMain(String contractName, String abiString, String code,
+      String data, Long feeLimit, long value,
+      long consumeUserResourcePercent, long originEnergyLimit, String tokenId, long tokenValue,
+      String libraryAddress, String priKey, byte[] ownerAddress,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+
+    byte[] owner = ownerAddress;
+    SmartContract.ABI abi = jsonStr2Abi(abiString);
+    if (abi == null) {
+      logger.error("abi is null");
+      return null;
+    }
+    //byte[] codeBytes = Hex.decode(code);
+    SmartContract.Builder builder = SmartContract.newBuilder();
+    builder.setName(contractName);
+    builder.setOriginAddress(ByteString.copyFrom(owner));
+    builder.setAbi(abi);
+    builder.setConsumeUserResourcePercent(consumeUserResourcePercent);
+    builder.setOriginEnergyLimit(originEnergyLimit);
+
+    if (value != 0) {
+
+      builder.setCallValue(value);
+    }
+
+    byte[] byteCode;
+    if (null != libraryAddress) {
+      byteCode = replaceLibraryAddress(code, libraryAddress);
+    } else {
+      byteCode = Hex.decode(code);
+    }
+    builder.setBytecode(ByteString.copyFrom(byteCode));
+
+    Builder contractBuilder = CreateSmartContract.newBuilder();
+    contractBuilder.setOwnerAddress(ByteString.copyFrom(owner));
+    contractBuilder.setCallTokenValue(tokenValue);
+    contractBuilder.setTokenId(Long.parseLong(tokenId));
+    CreateSmartContract contractDeployContract = contractBuilder
+        .setNewContract(builder.build()).build();
+
+    TransactionExtention transactionExtention = blockingStubFull
+        .deployContract(contractDeployContract);
+    if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
+      System.out.println("RPC create trx failed!");
+      if (transactionExtention != null) {
+        System.out.println("Code = " + transactionExtention.getResult().getCode());
+        System.out
+            .println("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
+      }
+      return null;
+    }
+
+    final TransactionExtention.Builder texBuilder = TransactionExtention.newBuilder();
+    Transaction.Builder transBuilder = Transaction.newBuilder();
+    Transaction.raw.Builder rawBuilder = transactionExtention.getTransaction().getRawData()
+        .toBuilder();
+    rawBuilder.setFeeLimit(feeLimit);
+    transBuilder.setRawData(rawBuilder);
+    for (int i = 0; i < transactionExtention.getTransaction().getSignatureCount(); i++) {
+      ByteString s = transactionExtention.getTransaction().getSignature(i);
+      transBuilder.setSignature(i, s);
+    }
+    for (int i = 0; i < transactionExtention.getTransaction().getRetCount(); i++) {
+      Result r = transactionExtention.getTransaction().getRet(i);
+      transBuilder.setRet(i, r);
+    }
+    texBuilder.setTransaction(transBuilder);
+    texBuilder.setResult(transactionExtention.getResult());
+    texBuilder.setTxid(transactionExtention.getTxid());
+    transactionExtention = texBuilder.build();
+
+    byte[] contractAddress = generateContractAddress(transactionExtention.getTransaction(), owner);
+    System.out.println(
+        "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
+    if (transactionExtention == null) {
+      return null;
+    }
+    Return ret = transactionExtention.getResult();
+    if (!ret.getResult()) {
+      System.out.println("Code = " + ret.getCode());
+      System.out.println("Message = " + ret.getMessage().toStringUtf8());
+      return null;
+    }
+    Transaction transaction = transactionExtention.getTransaction();
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      System.out.println("Transaction is empty");
+      return null;
+    }
+    transaction = signTransaction(ecKey, transaction);
+    System.out.println(
+        "txid = " + ByteArray.toHexString(stest.tron.wallet.common.client.utils.Sha256Hash
+            .hash(transaction.getRawData().toByteArray())));
+    contractAddress = generateContractAddress(transaction, owner);
+    System.out.println(
+        "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
+
+    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+    if (response.getResult() == false) {
+      return null;
+    } else {
+      //logger.info("brodacast succesfully");
+      return contractAddress;
+    }
+  }
+
+  /**
+   * constructor.
+   */
+  public static byte[] deployContractForSide(String contractName, String abiString, String code,
+      String data, Long feeLimit, long value,
+      long consumeUserResourcePercent, long originEnergyLimit, String tokenId, long tokenValue,
+      String libraryAddress, String priKey, byte[] ownerAddress, byte[] sideChainId,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+
+    byte[] owner = ownerAddress;
+    SmartContract.ABI abi = jsonStr2Abi(abiString);
+    if (abi == null) {
+      logger.error("abi is null");
+      return null;
+    }
+    //byte[] codeBytes = Hex.decode(code);
+    SmartContract.Builder builder = SmartContract.newBuilder();
+    builder.setName(contractName);
+    builder.setOriginAddress(ByteString.copyFrom(owner));
+    builder.setAbi(abi);
+    builder.setConsumeUserResourcePercent(consumeUserResourcePercent);
+    builder.setOriginEnergyLimit(originEnergyLimit);
+
+    if (value != 0) {
+
+      builder.setCallValue(value);
+    }
+
+    byte[] byteCode;
+    if (null != libraryAddress) {
+      byteCode = replaceLibraryAddress(code, libraryAddress);
+    } else {
+      byteCode = Hex.decode(code);
+    }
+    builder.setBytecode(ByteString.copyFrom(byteCode));
+
+    Builder contractBuilder = CreateSmartContract.newBuilder();
+    contractBuilder.setOwnerAddress(ByteString.copyFrom(owner));
+    contractBuilder.setCallTokenValue(tokenValue);
+    contractBuilder.setTokenId(Long.parseLong(tokenId));
+    CreateSmartContract contractDeployContract = contractBuilder
+        .setNewContract(builder.build()).build();
+
+    TransactionExtention transactionExtention = blockingStubFull
+        .deployContract(contractDeployContract);
+    if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
+      System.out.println("RPC create trx failed!");
+      if (transactionExtention != null) {
+        System.out.println("Code = " + transactionExtention.getResult().getCode());
+        System.out
+            .println("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
+      }
+      return null;
+    }
+
+    final TransactionExtention.Builder texBuilder = TransactionExtention.newBuilder();
+    Transaction.Builder transBuilder = Transaction.newBuilder();
+    Transaction.raw.Builder rawBuilder = transactionExtention.getTransaction().getRawData()
+        .toBuilder();
+    rawBuilder.setFeeLimit(feeLimit);
+    transBuilder.setRawData(rawBuilder);
+    for (int i = 0; i < transactionExtention.getTransaction().getSignatureCount(); i++) {
+      ByteString s = transactionExtention.getTransaction().getSignature(i);
+      transBuilder.setSignature(i, s);
+    }
+    for (int i = 0; i < transactionExtention.getTransaction().getRetCount(); i++) {
+      Result r = transactionExtention.getTransaction().getRet(i);
+      transBuilder.setRet(i, r);
+    }
+    texBuilder.setTransaction(transBuilder);
+    texBuilder.setResult(transactionExtention.getResult());
+    texBuilder.setTxid(transactionExtention.getTxid());
+    transactionExtention = texBuilder.build();
+
+    byte[] contractAddress = generateContractAddress(transactionExtention.getTransaction(), owner);
+    System.out.println(
+        "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
+    if (transactionExtention == null) {
+      return null;
+    }
+    Return ret = transactionExtention.getResult();
+    if (!ret.getResult()) {
+      System.out.println("Code = " + ret.getCode());
+      System.out.println("Message = " + ret.getMessage().toStringUtf8());
+      return null;
+    }
+    Transaction transaction = transactionExtention.getTransaction();
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      System.out.println("Transaction is empty");
+      return null;
+    }
+    transaction = signTransaction(ecKey, transaction, sideChainId, false);
+    System.out.println(
+        "txid = " + ByteArray.toHexString(stest.tron.wallet.common.client.utils.Sha256Hash
+            .hash(transaction.getRawData().toByteArray())));
+    contractAddress = generateContractAddress(transaction, owner);
+    System.out.println(
+        "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
+
+    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+    if (response.getResult() == false) {
+      return null;
+    } else {
+      //logger.info("brodacast succesfully");
+      return contractAddress;
+    }
+  }
 }

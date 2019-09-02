@@ -6,9 +6,7 @@ import com.google.common.primitives.Longs;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
-import io.netty.util.internal.StringUtil;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -23,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -36,15 +33,12 @@ import org.tron.api.GrpcAPI.AccountNetMessage;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.GrpcAPI.BytesMessage;
-
 import org.tron.api.GrpcAPI.DelegatedResourceList;
 import org.tron.api.GrpcAPI.DelegatedResourceMessage;
 import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.ExchangeList;
-
 import org.tron.api.GrpcAPI.Return;
 import org.tron.api.GrpcAPI.Return.response_code;
-
 import org.tron.api.GrpcAPI.TransactionApprovedList;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.WalletGrpc;
@@ -54,12 +48,10 @@ import org.tron.common.crypto.Hash;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ByteUtil;
 import org.tron.core.Wallet;
-
 import org.tron.keystore.WalletFile;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.CreateSmartContract.Builder;
-
 import org.tron.protos.Contract.UpdateEnergyLimitContract;
 import org.tron.protos.Contract.UpdateSettingContract;
 import org.tron.protos.Protocol;
@@ -71,7 +63,6 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
-import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
@@ -89,6 +80,9 @@ public class PublicMethedForDailybuild {
   public static final String mainGateWay = Configuration.getByPath("testng.conf")
       .getString("gateway_address.chainIdAddress");
 
+  /**
+   * constructor.
+   */
 
   /**
    * constructor.
@@ -98,13 +92,7 @@ public class PublicMethedForDailybuild {
   /**
    * constructor.
    */
-
-
-
-  /**
-   * constructor.
-   */
-  public static String getMaingatewayAddr(){
+  public static String getMaingatewayAddr() {
     return Configuration.getByPath("testng.conf")
         .getString("gateway_address.chainIdAddress");
   }
@@ -113,10 +101,11 @@ public class PublicMethedForDailybuild {
    * constructor.
    */
 
-  public static byte[] getMaingatewayByteAddr(){
-    return  WalletClient.decodeFromBase58Check(getMaingatewayAddr());
+  public static byte[] getMaingatewayByteAddr() {
+    return WalletClient.decodeFromBase58Check(getMaingatewayAddr());
 
   }
+
   /**
    * constructor.
    */
@@ -263,11 +252,9 @@ public class PublicMethedForDailybuild {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-
   /**
    * constructor.
    */
-
 
   /**
    * constructor.
@@ -803,7 +790,6 @@ public class PublicMethedForDailybuild {
    */
 
 
-
   /**
    * constructor.
    */
@@ -926,12 +912,9 @@ public class PublicMethedForDailybuild {
     return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
   }
 
-
   /**
    * constructor.
    */
-
-
 
 
   /**
@@ -1150,7 +1133,6 @@ public class PublicMethedForDailybuild {
   /**
    * constructor.
    */
-
 
   /**
    * constructor.
@@ -1432,7 +1414,6 @@ public class PublicMethedForDailybuild {
   /**
    * constructor.
    */
-
 
 
   /**
@@ -2646,6 +2627,7 @@ public class PublicMethedForDailybuild {
 
     byte[] owner = ownerAddress;
     byte[] input = Hex.decode(AbiUtilForDailyBuild.parseMethod(method, argsStr, isHex));
+    logger.info("input:" + Hex.toHexString(input));
 
     Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
@@ -2821,7 +2803,6 @@ public class PublicMethedForDailybuild {
   /**
    * constructor.
    */
-
 
 
   public static Optional<ExchangeList> getExchangeList(WalletGrpc.WalletBlockingStub
@@ -4193,13 +4174,44 @@ public class PublicMethedForDailybuild {
     return create2Address;
   }
 
+  public static String parametersString(List<Object> parameters) {
+    String[] inputArr = new String[parameters.size()];
+    int i = 0;
+    for (Object parameter : parameters) {
+      if (parameter instanceof List) {
+        StringBuilder sb = new StringBuilder();
+        for (Object item : (List) parameter) {
+          if (sb.length() != 0) {
+            sb.append(",");
+          }
+          sb.append("\"").append(item).append("\"");
+        }
+        inputArr[i++] = "[" + sb.toString() + "]";
+      } else {
+        inputArr[i++] =
+            (parameter instanceof String) ? ("\"" + parameter + "\"") : ("" + parameter);
+      }
+    }
+    String input = StringUtils.join(inputArr, ',');
+    return input;
+  }
 
-  /**
-   * constructor.
-   */
+  public static String bytes32ToString(byte[] bytes) {
+    if (bytes == null) {
+      return "null";
+    }
+    int iMax = bytes.length - 1;
+    if (iMax == -1) {
+      return "";
+    }
 
-
-
-
+    StringBuilder b = new StringBuilder();
+    for (int i = 0; ; i++) {
+      b.append(bytes[i]);
+      if (i == iMax) {
+        return b.toString();
+      }
+    }
+  }
 
 }
