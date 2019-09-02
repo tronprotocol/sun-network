@@ -560,6 +560,13 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver {
         return mainContractList;
     }
 
+    function getWithdrawMsg(uint256 nonce) view public returns (address, address, uint256, uint256, uint256, uint256){
+        WithdrawMsg memory _withdrawMsg = userWithdrawList[nonce];
+        return (_withdrawMsg.user, _withdrawMsg.mainChainAddress, uint256(_withdrawMsg.tokenId), _withdrawMsg.valueOrUid,
+        uint256(_withdrawMsg._type), uint256(_withdrawMsg.status));
+
+    }
+
     function mappingDone(uint256 nonce) view public returns (bool) {
         return mappingSigns[nonce].success;
     }

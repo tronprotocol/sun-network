@@ -143,6 +143,11 @@ contract MainChainGateway is OracleManagerContract {
 
     }
 
+    function getMappingMsg(uint256 nonce) view public returns (address, uint256, uint256){
+        MappingMsg memory _mappingMsg = userMappingList[nonce];
+        return (_mappingMsg.mainChainAddress, uint256(_mappingMsg._type), uint256(_mappingMsg.status));
+    }
+
     function depositTRC721(address contractAddress, uint256 uid) payable
     public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(mainToSideContractMap[contractAddress] == 1, "not an allowed token");
