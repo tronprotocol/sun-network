@@ -85,7 +85,7 @@ dependencies {
 
 run {
     standardInput = System.in
-    mainClassName = 'org.tron.walletcli.Client'
+    mainClassName = 'org.tron.walletcli.Main'
 }
 
 
