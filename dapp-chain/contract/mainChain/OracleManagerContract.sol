@@ -71,7 +71,7 @@ contract OracleManagerContract is Ownable {
 
         SignMsg storage signMsg = withdrawMultiSignList[nonce][dataHash];
         uint256 _signedOracleFlag = signMsg.signedOracleFlag;
-        uint256 _countSign = signMsg.countSign;
+        uint64 _countSign = signMsg.countSign;
 
         for (uint256 i = 0; i < sigList.length; i++) {
             address _oracle = dataHash.recover(sigList[i]);
@@ -109,7 +109,7 @@ contract OracleManagerContract is Ownable {
         return false;
     }
 
-    function countSuccess(bytes32 ret) internal returns (uint256 count) {
+    function countSuccess(bytes32 ret) internal returns (uint64 count) {
         uint256 _num = uint256(ret);
         for (; _num > 0; ++count) {_num &= (_num - 1);}
         return count;

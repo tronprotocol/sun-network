@@ -59,12 +59,12 @@ contract MainChainGateway is OracleManagerContract {
 
     // Withdrawal functions
     function withdrawTRC10(address payable _to, trcToken tokenId, uint256 value,
-                           uint256 nonce, bytes[] memory oracleSigns, address[] memory signOracles)
+        uint256 nonce, bytes[] memory oracleSigns, address[] memory signOracles)
     public goDelegateCall onlyNotStop onlyOracle
     {
         require(oracleSigns.length <= numOracles, "withdraw TRC10 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, tokenId, value, nonce));
-        require(!withdrawMultiSignList[nonce][dataHash].success,"has successfully withdraw");
+        require(!withdrawMultiSignList[nonce][dataHash].success, "has successfully withdraw");
         bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
         if (needWithdraw) {
             _to.transferToken(value, tokenId);
@@ -73,12 +73,12 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function withdrawTRC20(address _to, address contractAddress, uint256 value,
-                           uint256 nonce, bytes[] memory oracleSigns, address[] memory signOracles)
+        uint256 nonce, bytes[] memory oracleSigns, address[] memory signOracles)
     public goDelegateCall onlyNotStop onlyOracle
     {
         require(oracleSigns.length <= numOracles, "withdraw TRC20 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, value, nonce));
-        require(!withdrawMultiSignList[nonce][dataHash].success,"has successfully withdraw");
+        require(!withdrawMultiSignList[nonce][dataHash].success, "has successfully withdraw");
 
         bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
         if (needWithdraw) {
@@ -88,12 +88,12 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function withdrawTRC721(address _to, address contractAddress, uint256 uid,
-                            uint256 nonce, bytes[] memory oracleSigns, address[] memory signOracles)
+        uint256 nonce, bytes[] memory oracleSigns, address[] memory signOracles)
     public goDelegateCall onlyNotStop onlyOracle
     {
         require(oracleSigns.length <= numOracles, "withdraw TRC721 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, uid, nonce));
-        require(!withdrawMultiSignList[nonce][dataHash].success,"has successfully withdraw");
+        require(!withdrawMultiSignList[nonce][dataHash].success, "has successfully withdraw");
 
         bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
         if (needWithdraw) {
@@ -103,12 +103,12 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function withdrawTRX(address payable _to, uint256 value,
-                         uint256 nonce, bytes[] memory oracleSigns, address[] memory signOracles)
+        uint256 nonce, bytes[] memory oracleSigns, address[] memory signOracles)
     public goDelegateCall onlyNotStop onlyOracle
     {
         require(oracleSigns.length <= numOracles, "withdraw TRX signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, value, nonce));
-        require(!withdrawMultiSignList[nonce][dataHash].success,"has successfully withdraw");
+        require(!withdrawMultiSignList[nonce][dataHash].success, "has successfully withdraw");
 
         bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
         if (needWithdraw) {
@@ -135,21 +135,14 @@ contract MainChainGateway is OracleManagerContract {
         emit TRC20Received(msg.sender, contractAddress, value, userDepositList.length - 1);
         return userDepositList.length - 1;
     }
-    struct DepositMsg {
-        address user;
-        uint64 value;
-        uint32 _type;
-        address mainChainAddress;
-        uint64 tokenId;
-        uint32 status;
-        uint256 uId;
-    }
-    function getDepositMsg(uint256 nonce) view public returns(address,uint256,uint256,address,uint256,uint256,uint256){
-    DepositMsg _depositMsg=userDepositList[nonce];
-        return (_depositMsg.user,uint256(_depositMsg.value),uint256(_depositMsg._type),_depositMsg.mainChainAddress,
-                uint256(_depositMsg.tokenId),uint256(_depositMsg.status),uint256(_depositMsg.uId));
 
-}
+    function getDepositMsg(uint256 nonce) view public returns (address, uint256, uint256, address, uint256, uint256, uint256){
+        DepositMsg memory _depositMsg = userDepositList[nonce];
+        return (_depositMsg.user, uint256(_depositMsg.value), uint256(_depositMsg._type), _depositMsg.mainChainAddress,
+        uint256(_depositMsg.tokenId), uint256(_depositMsg.status), uint256(_depositMsg.uId));
+
+    }
+
     function depositTRC721(address contractAddress, uint256 uid) payable
     public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(mainToSideContractMap[contractAddress] == 1, "not an allowed token");
