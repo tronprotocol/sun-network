@@ -148,6 +148,7 @@ public class HttpTestMutiSign001 {
     response = HttpMethed.accountPermissionUpdate(httpnode, ownerAddress, ownerObject,
         witnessObject, activeObject, ownerKey);
     HttpMethed.waitToProduceOneBlock(httpnode);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     logger.info("response code:" + response.getStatusLine().getStatusCode());
     Assert.assertTrue(HttpMethed.verificationResult(response));
   }
