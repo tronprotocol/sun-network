@@ -148,6 +148,7 @@ public class HttpTestMutiSign001 {
     response = HttpMethed.accountPermissionUpdate(httpnode, ownerAddress, ownerObject,
         witnessObject, activeObject, ownerKey);
     HttpMethed.waitToProduceOneBlock(httpnode);
+    logger.info("response code:" + response.getStatusLine().getStatusCode());
     Assert.assertTrue(HttpMethed.verificationResult(response));
   }
 
@@ -168,6 +169,7 @@ public class HttpTestMutiSign001 {
 
     response = HttpMethed.sendCoin(httpnode, ownerAddress, fromAddress, 10L, 0,permissionKeyString);
     HttpMethed.waitToProduceOneBlock(httpnode);
+    logger.info("response code:" + response.getStatusLine().getStatusCode());
     Assert.assertTrue(HttpMethed.verificationResult(response));
 
     response = HttpMethed.sendCoin(httpnode, ownerAddress, fromAddress, 10L, 2,permissionKeyString);
