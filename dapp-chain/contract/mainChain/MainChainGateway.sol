@@ -353,7 +353,7 @@ contract MainChainGateway is OracleManagerContract {
         depositMinTrc20 = minValue;
     }
 
-    function getCodeVersion() public goDelegateCall returns (string) {
+    function getCodeVersion() public goDelegateCall returns (string memory) {
         return "1.0.1";
     }
 }

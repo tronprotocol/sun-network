@@ -560,7 +560,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         return oracles[_oracle];
     }
 
-    function getCodeVersion() public goDelegateCall returns (string) {
+    function getCodeVersion() public goDelegateCall returns (string memory) {
         return "1.0.1";
     }
 }
