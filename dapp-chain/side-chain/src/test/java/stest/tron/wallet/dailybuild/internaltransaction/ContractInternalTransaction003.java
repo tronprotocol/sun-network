@@ -516,7 +516,7 @@ public class ContractInternalTransaction003 {
     logger.info("InfoById:" + infoById);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     int transactionsCount = infoById.get().getInternalTransactionsCount();
-    Assert.assertEquals(184, transactionsCount);
+    Assert.assertEquals(160, transactionsCount);
     for (int i = 0; i < transactionsCount; i++) {
       Assert.assertFalse(infoById.get().getInternalTransactions(i).getRejected());
     }

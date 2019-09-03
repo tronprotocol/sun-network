@@ -11,14 +11,8 @@ import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.WalletGrpc;
-import org.tron.api.WalletSolidityGrpc;
-import org.tron.common.crypto.ECKey;
-import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.Utils;
-import org.tron.core.Wallet;
 import org.tron.protos.Protocol.SideChainParameters;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 
@@ -112,7 +106,7 @@ public class deployFundInject {
         }
       }
       int count = 0;
-      while (count<150){
+      while (count++<150){
         proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
         if(proposalList.getProposalsList().get(0).getState().name() == "APPROVED"){
           break;
@@ -125,7 +119,7 @@ public class deployFundInject {
           }
         }
       }
-      if (count++>=150){ continue;}
+      if (count>=150){ continue;}
 
       proposalMap.clear();
       proposalMap.put(1000008L, "1");
@@ -158,7 +152,7 @@ public class deployFundInject {
         }
       }
       count = 0;
-      while (count<150){
+      while (count++<150){
         proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
         if(proposalList.getProposalsList().get(0).getState().name() == "APPROVED"){
           break;
@@ -170,8 +164,10 @@ public class deployFundInject {
           }
         }
       }
-      if (count++>=150){ continue; }else { break; }
+      if (count>=150){ continue; }else { break; }
+
     }
+
 
   }
 
