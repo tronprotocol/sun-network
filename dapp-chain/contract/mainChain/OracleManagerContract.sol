@@ -11,7 +11,7 @@ contract OracleManagerContract is Ownable {
     mapping(address => SignMsg)  delegateSigns;
     mapping(uint256 => mapping(bytes32 => SignMsg)) withdrawMultiSignList;
 
-    bool public multivalidatesignSwitch = false;
+    bool public multivalidatesignSwitch;
     bool public pause;
     bool public stop;
 

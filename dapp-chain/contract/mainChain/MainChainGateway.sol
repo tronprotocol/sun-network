@@ -64,7 +64,10 @@ contract MainChainGateway is OracleManagerContract {
     {
         require(oracleSigns.length <= numOracles, "withdraw TRC10 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, tokenId, value, nonce));
-        require(!withdrawMultiSignList[nonce][dataHash].success, "has successfully withdraw");
+        if (withdrawMultiSignList[nonce][dataHash].success) {
+            return;
+        }
+
         bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
         if (needWithdraw) {
             _to.transferToken(value, tokenId);
@@ -78,7 +81,9 @@ contract MainChainGateway is OracleManagerContract {
     {
         require(oracleSigns.length <= numOracles, "withdraw TRC20 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, value, nonce));
-        require(!withdrawMultiSignList[nonce][dataHash].success, "has successfully withdraw");
+        if (withdrawMultiSignList[nonce][dataHash].success) {
+            return;
+        }
 
         bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
         if (needWithdraw) {
@@ -93,7 +98,9 @@ contract MainChainGateway is OracleManagerContract {
     {
         require(oracleSigns.length <= numOracles, "withdraw TRC721 signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, contractAddress, uid, nonce));
-        require(!withdrawMultiSignList[nonce][dataHash].success, "has successfully withdraw");
+        if (withdrawMultiSignList[nonce][dataHash].success) {
+            return;
+        }
 
         bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
         if (needWithdraw) {
@@ -108,12 +115,13 @@ contract MainChainGateway is OracleManagerContract {
     {
         require(oracleSigns.length <= numOracles, "withdraw TRX signs num > oracles num");
         bytes32 dataHash = keccak256(abi.encodePacked(_to, value, nonce));
-        require(!withdrawMultiSignList[nonce][dataHash].success, "has successfully withdraw");
+        if (withdrawMultiSignList[nonce][dataHash].success) {
+            return;
+        }
 
         bool needWithdraw = checkOracles(dataHash, nonce, oracleSigns, signOracles);
         if (needWithdraw) {
             _to.transfer(value);
-            // ensure it's not reentrant
             emit TRXWithdraw(_to, value, nonce);
         }
     }
@@ -130,10 +138,13 @@ contract MainChainGateway is OracleManagerContract {
         }
         bonus += depositFee;
 
-        TRC20(contractAddress).transferFrom(msg.sender, address(this), value);
+        if (!TRC20(contractAddress).transferFrom(msg.sender, address(this), value)) {
+            revert("TRC20 transferFrom error");
+        }
         userDepositList.push(DepositMsg(msg.sender, value, 2, contractAddress, 0, 0, 0));
         emit TRC20Received(msg.sender, contractAddress, value, userDepositList.length - 1);
         return userDepositList.length - 1;
+
     }
 
     function getDepositMsg(uint256 nonce) view public returns (address, uint256, uint256, address, uint256, uint256, uint256){
@@ -174,8 +185,8 @@ contract MainChainGateway is OracleManagerContract {
         return userDepositList.length - 1;
     }
 
-    function depositTRC10(uint64 tokenId, uint64 tokenValue) payable public
-    goDelegateCall onlyNotStop onlyNotPause isHuman checkForTrc10(tokenId, tokenValue) returns (uint256) {
+    function depositTRC10(uint64 tokenId, uint64 tokenValue) payable public checkForTrc10(tokenId, tokenValue)
+    goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(msg.value >= depositFee, "msg.value need  >= depositFee");
         if (msg.value > depositFee) {
             msg.sender.transfer(msg.value - depositFee);
