@@ -62,7 +62,7 @@ public class AccountTask extends SideChainTask {
         if (resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
           String info = resp.getData().getAddress() + "," + resp.getData().getPrivateKey();
 
-          sdk.getSideChainService().sendCoin(resp.getData().getAddress(), ConfigInfo.contractDepositValue);
+          sdk.getSideChainService().sendCoin(resp.getData().getAddress(), ConfigInfo.accountFreezeBalance * 2);
 
           sdk.setPrivateKey(resp.getData().getPrivateKey());
           sdk.getSideChainService().freezeBalance(ConfigInfo.accountFreezeBalance, 3, 0, null);
