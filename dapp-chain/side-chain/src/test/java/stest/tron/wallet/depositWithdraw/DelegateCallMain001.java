@@ -722,6 +722,86 @@ public class DelegateCallMain001 {
   /**
    * constructor.
    */
+  @Test(enabled = true, description = "numOracles in mainChain")
+  public void test1DelegateCallMain005() {
+
+    String methodStr1 = "numOracles()";
+    byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, "", false));
+
+    TransactionExtention return1 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input1, 1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    Long numOracles = ByteArray.toLong(ByteArray
+        .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
+    Assert.assertTrue(1L == Long.valueOf(numOracles));
+
+//not exist account trigger numOracles
+    ECKey ecKey = new ECKey(Utils.getRandom());
+    byte[] testAddress = ecKey.getAddress();
+    String testKeyFortest = ByteArray.toHexString(ecKey.getPrivKeyBytes());
+
+    return1 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input1, 1000000000,
+            0l, "0", testAddress, testKeyFortest, blockingStubFull);
+    numOracles = ByteArray.toLong(ByteArray
+        .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
+    Assert.assertTrue(1L == Long.valueOf(numOracles));
+
+    String methodStr2 = "isOracle(address)";
+    String parame2 = "\"" + Base58.encode58Check(testOracleAddress) + "\"";
+
+    byte[] input2 = Hex.decode(AbiUtil.parseMethod(methodStr2, parame2, false));
+
+    TransactionExtention return2 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input2, 1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    Long isOracle = ByteArray.toLong(ByteArray
+        .fromHexString(Hex.toHexString(return2.getConstantResult(0).toByteArray())));
+    Assert.assertTrue(1L == Long.valueOf(isOracle));
+
+    //not exist account trigger isOracle(address)
+    return2 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input2, 1000000000,
+            0l, "0", testAddress, testKeyFortest, blockingStubFull);
+    isOracle = ByteArray.toLong(ByteArray
+        .fromHexString(Hex.toHexString(return2.getConstantResult(0).toByteArray())));
+    Assert.assertTrue(1L == Long.valueOf(isOracle));
+
+    // is not Oracle address
+    String parame3 = "\"" + Base58.encode58Check(mainGateWayAddressKey) + "\"";
+    byte[] input3 = Hex.decode(AbiUtil.parseMethod(methodStr2, parame3, false));
+
+    TransactionExtention return3 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input3, 1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    Long isOracle1 = ByteArray.toLong(ByteArray
+        .fromHexString(Hex.toHexString(return3.getConstantResult(0).toByteArray())));
+    Assert.assertTrue(0L == Long.valueOf(isOracle1));
+
+    // is not legal address
+    String parame4 = "\"" + "T11dff" + "\"";
+    byte[] input4 = Hex.decode(AbiUtil.parseMethod(methodStr2, parame4, false));
+
+    TransactionExtention return4 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input4, 1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    Long isOracle2 = ByteArray.toLong(ByteArray
+        .fromHexString(Hex.toHexString(return4.getConstantResult(0).toByteArray())));
+    Assert.assertTrue(0L == Long.valueOf(isOracle2));
+
+
+  }
+
+
+  /**
+   * constructor.
+   */
   @AfterClass
   public void shutdown() throws InterruptedException {
 //    String parame2 = "\"T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb\"";
