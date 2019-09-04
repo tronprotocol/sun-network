@@ -18,6 +18,7 @@ public class Main {
     SunNetworkResponse<Integer> ret = sdk.init("config.conf", new MultiSignTransactionImpl());
     if (ret.getData() != 0) {
       logger.info("Failed to init sdk");
+      System.exit(-1);
     }
 
     logger.info("sdk inited !");
