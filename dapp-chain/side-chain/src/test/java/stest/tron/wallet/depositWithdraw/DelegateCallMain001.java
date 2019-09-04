@@ -493,9 +493,9 @@ public class DelegateCallMain001 {
             WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input6, 1000000000,
             0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
 
-    String ContractRestule1 = Hex.toHexString(return2.getConstantResult(0).toByteArray());
+    String ContractResult1 = Hex.toHexString(return2.getConstantResult(0).toByteArray());
 
-    String tmpAddress2 = ContractRestule1.substring(24);
+    String tmpAddress2 = ContractResult1.substring(24);
     logger.info(tmpAddress2);
     String addressHex2 = "41" + tmpAddress2;
     logger.info("address_hex1: " + addressHex2);
@@ -515,8 +515,8 @@ public class DelegateCallMain001 {
             0l, "0", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
 
     Optional<TransactionInfo> infoById1 = PublicMethed
-        .getTransactionInfoById(txid1, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+        .getTransactionInfoById(txid1, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertEquals(0, infoById1.get().getResultValue());
 
     String parame5 = "true";
@@ -527,8 +527,8 @@ public class DelegateCallMain001 {
             1000000000,
             0l, "0", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
     Optional<TransactionInfo> infoById2 = PublicMethed
-        .getTransactionInfoById(txid2, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+        .getTransactionInfoById(txid2, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     String hex = infoById2.get().getContractAddress().toStringUtf8();
     logger.info("result:" + hex);
 
@@ -548,6 +548,25 @@ public class DelegateCallMain001 {
         .getTransactionInfoById(ownerTrx7, blockingStubFull);
     Assert.assertEquals(0, infoOwnerTrx7.get().getResultValue());
 
+    input6 = Hex.decode(AbiUtil.parseMethod("logicAddress()", "", false));
+    return2 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input6, 1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+
+    ContractResult1 = Hex.toHexString(return2.getConstantResult(0).toByteArray());
+
+    tmpAddress2 = ContractResult1.substring(24);
+    logger.info(tmpAddress2);
+    addressHex2 = "41" + tmpAddress2;
+    logger.info("address_hex1: " + addressHex2);
+    addressFinal2 = Base58.encode58Check(ByteArray.fromHexString(addressHex2));
+    logger.info("address_final2: " + addressFinal2);
+
+    sideContractAddress1 = WalletClient.decodeFromBase58Check(addressFinal2);
+    Assert.assertNotNull(sideContractAddress1);
+    Assert.assertEquals(Base58.encode58Check(contractAddress2), addressFinal2);
+
     String parame3 = "false";
     byte[] input3 = Hex.decode(AbiUtil.parseMethod("setPause(bool)", parame3, false));
 
@@ -556,8 +575,8 @@ public class DelegateCallMain001 {
             1000000000,
             0l, "0", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
     Optional<TransactionInfo> infoById3 = PublicMethed
-        .getTransactionInfoById(txid3, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+        .getTransactionInfoById(txid3, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     String hex3 = infoById3.get().getContractAddress().toStringUtf8();
     logger.info("result:" + hex3);
 
@@ -602,7 +621,18 @@ public class DelegateCallMain001 {
             WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input6, 1000000000,
             0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
 
-    String ContractRestule1 = Hex.toHexString(return2.getConstantResult(0).toByteArray());
+    String ContractResult1 = Hex.toHexString(return2.getConstantResult(0).toByteArray());
+
+    String tmpAddress2 = ContractResult1.substring(24);
+    logger.info(tmpAddress2);
+    String addressHex2 = "41" + tmpAddress2;
+    logger.info("address_hex1: " + addressHex2);
+    String addressFinal2 = Base58.encode58Check(ByteArray.fromHexString(addressHex2));
+    logger.info("address_final2: " + addressFinal2);
+
+    byte[] sideContractAddress1 = WalletClient.decodeFromBase58Check(addressFinal2);
+    Assert.assertNotNull(sideContractAddress1);
+    Assert.assertEquals(Base58.encode58Check(contractAddress2), addressFinal2);
 
     Assert.assertTrue(PublicMethed
         .sendcoin(depositAddress, 2000000000L, testDepositAddress, testDepositTrx,
@@ -687,34 +717,6 @@ public class DelegateCallMain001 {
     logger.info("accountAfterWithdrawBalance:" + accountMainAfterWithdrawBalance);
     Assert.assertEquals(accountMainAfterWithdrawBalance,
         accountMainAfterBalance + 2 * withdrawValue);
-
-    byte[] contractAddress3 = PublicMethed.deployContractForMain(contractName, abi, code, "",
-        maxFeeLimit, 0L, 0, 10000,
-        "0", 0, null, gateWatOwnerAddressKey,
-        gateWatOwnerAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    String parame3 = "\"" + Base58.encode58Check(contractAddress3) + "\"";
-
-    byte[] input3 = Hex.decode(AbiUtil.parseMethod("setLogicAddress(address)", parame3, false));
-    String ownerTrx3 = PublicMethed
-        .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input3,
-            1000000000,
-            0l, "0", testOracleAddress, testOracle, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    Optional<TransactionInfo> infoOwnerTrx3 = PublicMethed
-        .getTransactionInfoById(ownerTrx3, blockingStubFull);
-    Assert.assertEquals(0, infoOwnerTrx3.get().getResultValue());
-
-    byte[] input4 = Hex.decode(AbiUtil.parseMethod("logicAddress()", "", false));
-    TransactionExtention return4 = PublicMethed
-        .triggerContractForTransactionExtention(
-            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input4, 1000000000,
-            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
-
 
   }
 
