@@ -29,7 +29,7 @@ public abstract class SideChainTask {
 
     SunNetworkResponse<TransactionResponse> sunNetworkResponse =  sdk.getSideChainService().triggerContract(request);
 
-    logger.info("sun network response code is: {}", sunNetworkResponse.getDesc());
+    logger.info("sun network response txid = {}", sunNetworkResponse.getData().getTrxId());
   }
 
   public abstract void runTask(SunNetwork sdk);

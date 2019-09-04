@@ -11,6 +11,7 @@ import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
 import org.tron.sunapi.ErrorCodeEnum;
 import org.tron.sunapi.SunNetwork;
 import org.tron.sunapi.SunNetworkResponse;
+import org.tron.sunapi.response.TransactionResponse;
 import org.tron.walletcli.config.ConfigInfo;
 
 public class AccountTask extends SideChainTask {
@@ -31,7 +32,9 @@ public class AccountTask extends SideChainTask {
     while (true) {
       sdk.setPrivateKey(ConfigInfo.privateKey);
       accountList.forEach(account -> {
-        sdk.getSideChainService().sendCoin(account.split(",")[0], ConfigInfo.contractDepositValue);
+        SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
+            .sendCoin(account.split(",")[0], ConfigInfo.contractDepositValue);
+        logger.info("sendcoin txid = {}", sunNetworkResponse.getData().getTrxId());
         try {
           Thread.sleep(ConfigInfo.interval);
         } catch (InterruptedException e) {
@@ -63,7 +66,9 @@ public class AccountTask extends SideChainTask {
         if (resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
           String info = resp.getData().getAddress() + "," + resp.getData().getPrivateKey();
           sdk.getSideChainService().createAccount(resp.getData().getAddress());
-          sdk.getSideChainService().freezeBalance(ConfigInfo.accountFreezeBalance, 3, 1, resp.getData().getAddress());
+          SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
+              .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 1, resp.getData().getAddress());
+          logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
           accountList.add(info);
           out.write(info);
           out.newLine();
