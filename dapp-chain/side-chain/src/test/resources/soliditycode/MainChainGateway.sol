@@ -1,11 +1,11 @@
 pragma experimental ABIEncoderV2;
 
-import "../common/token/TRC721/TRC721.sol";
-import "../common/token/TRC20/TRC20.sol";
-import "../common/math/SafeMath.sol";
-import "../common/DataModel.sol";
-import "../common/token/TRC721/ITRC721Receiver.sol";
-import "../common/token/TRC20/ITRC20Receiver.sol";
+import "./TRC721.sol";
+import "./TRC20.sol";
+import "./SafeMath.sol";
+import "./DataModel.sol";
+import "./ITRC721Receiver.sol";
+import "./ITRC20Receiver.sol";
 import "./OracleManagerContract.sol";
 
 contract MainChainGateway is OracleManagerContract {

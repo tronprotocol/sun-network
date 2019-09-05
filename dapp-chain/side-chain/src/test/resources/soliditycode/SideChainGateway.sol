@@ -1,12 +1,12 @@
 pragma experimental ABIEncoderV2;
 
-import "../common/token/TRC20/ITRC20Receiver.sol";
-import "../common/token/TRC721/ITRC721Receiver.sol";
+import "./ITRC20Receiver.sol";
+import "./ITRC721Receiver.sol";
 import "./DAppTRC20.sol";
 import "./DAppTRC721.sol";
-import "../common/ECVerify.sol";
-import "../common/DataModel.sol";
-import "../common/ownership/Ownable.sol";
+import "./ECVerify.sol";
+import "./DataModel.sol";
+import "./Ownable.sol";
 
 contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
     using ECVerify for bytes32;
