@@ -1,4 +1,4 @@
-import "./Versionable.sol";
+import "./VersionableForCodeVersion.sol";
 
 contract Delegatecallable is Versionable {
     address public logicAddress;
