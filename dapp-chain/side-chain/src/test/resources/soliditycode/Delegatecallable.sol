@@ -13,11 +13,16 @@ contract Delegatecallable is Versionable {
         }
         _;
     }
-    function changeLogicAddress(address newLoginAddress) internal {
-        string memory newVersion = Versionable(newLoginAddress).getCodeVersion();
+    function changeLogicAddress(address newLogicAddress) internal {
+        string memory newVersion;
+        if (newLogicAddress == address(0)) {
+            newVersion = initVersion;
+        } else {
+            newVersion = Versionable(newLogicAddress).getCodeVersion();
+        }
         emit ChangeVersion(codeVersion, newVersion);
-        emit LogicAddressChanged(logicAddress, newLoginAddress);
+        emit LogicAddressChanged(logicAddress, newLogicAddress);
         codeVersion = newVersion;
-        logicAddress = newLoginAddress;
+        logicAddress = newLogicAddress;
     }
 }

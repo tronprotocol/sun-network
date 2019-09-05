@@ -1,5 +1,7 @@
 contract Versionable {
 
+    string public initVersion = "1.0.1";//do not modify
+
     string public codeVersion = "1.0.2";
 
     event ChangeVersion(string oldVersion, string newVersion);

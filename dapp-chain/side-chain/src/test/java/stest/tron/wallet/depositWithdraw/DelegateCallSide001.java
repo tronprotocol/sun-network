@@ -423,14 +423,14 @@ public class DelegateCallSide001 {
             WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input3,
             1000000000,
             0l, "0", testOracleAddress, testOracle, blockingSideStubFull);
-    logger.info("ownerTrx : " + txid2);
+    logger.info("txid2 : " + txid2);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById3 = PublicMethed
         .getTransactionInfoById(txid2, blockingSideStubFull);
     Assert.assertEquals(0, infoById3.get().getResultValue());
-    Assert.assertTrue(infoById3.get().getInternalTransactionsList().get(0).getRejected());
+//    Assert.assertTrue(infoById3.get().getInternalTransactionsList().get(0).getRejected());
 
     TransactionExtention extention2 = PublicMethed
         .triggerContractForTransactionExtention(
@@ -447,7 +447,6 @@ public class DelegateCallSide001 {
     Assert.assertTrue(oracleIndexResult == oracleIndexResultAfter);
   }
 
-
   @Test(enabled = true, description = "DelegateCall in sideChain")
   public void test1DelegateCall003() {
     String parame5 = "true";
@@ -456,6 +455,13 @@ public class DelegateCallSide001 {
         .triggerContractSideChain(sideChainAddressKey,
             ChainIdAddressKey, 0l, input5, 1000000000,
             0l, "0", sideGateWayOwnerAddress, sideGateWayOwner, blockingSideStubFull);
+
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById5 = PublicMethed
+        .getTransactionInfoById(txid5, blockingSideStubFull);
+    Assert.assertTrue(infoById5.get().getResultValue() == 0);
+    Assert.assertFalse(infoById5.get().getInternalTransactionsList().get(0).getRejected());
+
     // deploy Contract
     String contractName = "SideChainGateway";
     String filePath = "src/test/resources/soliditycode/SideChainGatewaym003.sol";
@@ -510,6 +516,7 @@ public class DelegateCallSide001 {
         .getTransactionInfoById(txid6, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById6.get().getResultValue());
+    Assert.assertFalse(infoById6.get().getInternalTransactionsList().get(0).getRejected());
 
     String parame2 = "true";
     byte[] input7 = Hex.decode(AbiUtil.parseMethod("setPause(bool)", parame2, false));
@@ -522,6 +529,7 @@ public class DelegateCallSide001 {
         .getTransactionInfoById(txid7, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById7.get().getResultValue());
+    Assert.assertFalse(infoById7.get().getInternalTransactionsList().get(0).getRejected());
 
     byte[] contractAddress2 = PublicMethed.deployContractForSide(contractName, abi, code, "",
         maxFeeLimit, 0L, 0, 10000,
@@ -570,6 +578,7 @@ public class DelegateCallSide001 {
         .getTransactionInfoById(txid8, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById8.get().getResultValue());
+    Assert.assertFalse(infoById8.get().getInternalTransactionsList().get(0).getRejected());
   }
 
 
@@ -651,10 +660,11 @@ public class DelegateCallSide001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingSideStubFull);
-    Assert.assertEquals(1, infoById.get().getResultValue());
-    logger.info(
-        "getContractResult:" + ByteArray
-            .toHexString(infoById.get().getContractResult(0).toByteArray()));
+    Assert.assertEquals(0, infoById.get().getResultValue());
+    Assert.assertEquals(
+        "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000006408c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000136d73672e73656e64657220213d206f776e65720000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        ByteArray.toHexString(infoById.get().getLogList().get(0).getData().toByteArray()));
+    Assert.assertTrue(infoById.get().getInternalTransactionsList().get(0).getRejected());
 
     String parame2 = "\"" + Base58.encode58Check(ownerAddress1) + "\"";
 
@@ -679,10 +689,11 @@ public class DelegateCallSide001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById3 = PublicMethed
         .getTransactionInfoById(txid3, blockingSideStubFull);
-    Assert.assertEquals(1, infoById3.get().getResultValue());
-    logger.info(
-        "getContractResult:" + ByteArray
-            .toHexString(infoById3.get().getContractResult(0).toByteArray()));
+    Assert.assertEquals(0, infoById3.get().getResultValue());
+    Assert.assertEquals(
+        "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000006408c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000136d73672e73656e64657220213d206f776e65720000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        ByteArray.toHexString(infoById3.get().getLogList().get(0).getData().toByteArray()));
+    Assert.assertTrue(infoById3.get().getInternalTransactionsList().get(0).getRejected());
 
     String txid4 = PublicMethed
         .triggerContractSideChain(sideChainAddressKey,
@@ -761,11 +772,12 @@ public class DelegateCallSide001 {
         .triggerContractSideChain(sideChainAddressKey,
             WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input7,
             1000000000,
-            0l, "0", testOracleAddress, testOracle, blockingSideStubFull);
+            0l, "0", ownerAddress1, ownerKey1, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById7 = PublicMethed
         .getTransactionInfoById(txid7, blockingSideStubFull);
     Assert.assertEquals(0, infoById7.get().getResultValue());
+    Assert.assertFalse(infoById7.get().getInternalTransactionsList().get(0).getRejected());
 
     String parame8 = "true";
     byte[] input8 = Hex.decode(AbiUtil.parseMethod("setStop(bool)", parame8, false));
@@ -777,10 +789,11 @@ public class DelegateCallSide001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById8 = PublicMethed
         .getTransactionInfoById(txid8, blockingSideStubFull);
-    Assert.assertEquals(1, infoById8.get().getResultValue());
-    logger.info(
-        "getContractResult:" + ByteArray
-            .toHexString(infoById8.get().getContractResult(0).toByteArray()));
+    Assert.assertEquals(0, infoById8.get().getResultValue());
+    Assert.assertEquals(
+        "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000006408c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000136d73672e73656e64657220213d206f776e65720000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        ByteArray.toHexString(infoById8.get().getLogList().get(0).getData().toByteArray()));
+    Assert.assertTrue(infoById8.get().getInternalTransactionsList().get(0).getRejected());
 
     String txid9 = PublicMethed
         .triggerContractSideChain(sideChainAddressKey,
@@ -791,6 +804,7 @@ public class DelegateCallSide001 {
     Optional<TransactionInfo> infoById9 = PublicMethed
         .getTransactionInfoById(txid9, blockingSideStubFull);
     Assert.assertEquals(0, infoById9.get().getResultValue());
+    Assert.assertFalse(infoById9.get().getInternalTransactionsList().get(0).getRejected());
 
     String parame10 = "false";
     byte[] input10 = Hex.decode(AbiUtil.parseMethod("setStop(bool)", parame10, false));
@@ -803,6 +817,21 @@ public class DelegateCallSide001 {
     Optional<TransactionInfo> infoById10 = PublicMethed
         .getTransactionInfoById(txid10, blockingSideStubFull);
     Assert.assertEquals(0, infoById10.get().getResultValue());
+    Assert.assertFalse(infoById10.get().getInternalTransactionsList().get(0).getRejected());
+
+    String parame11 = "\"" + Base58.encode58Check(gateWatOwnerAddress) + "\"";
+
+    byte[] input11 = Hex.decode(AbiUtil.parseMethod("transferOwnership(address)", parame11, false));
+    String txid11 = PublicMethed
+        .triggerContractSideChain(sideChainAddressKey,
+            WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input11,
+            1000000000,
+            0l, "0", ownerAddress2, ownerKey2, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById11 = PublicMethed
+        .getTransactionInfoById(txid11, blockingSideStubFull);
+    Assert.assertEquals(0, infoById11.get().getResultValue());
+    Assert.assertFalse(infoById11.get().getInternalTransactionsList().get(0).getRejected());
   }
 
   /**
@@ -810,37 +839,37 @@ public class DelegateCallSide001 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-//    parame1 = "\"T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb\"";
-//
-//    byte[] input1 = Hex.decode(AbiUtil.parseMethod("changeLogicAddress(address)", parame1, false));
-//    String ownerTrx = PublicMethed
-//        .triggerContractSideChain(sideChainAddressKey,
-//            WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input1,
-//            1000000000,
-//            0l, "0", testOracleAddress, testOracle, blockingSideStubFull);
-//    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-//    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-//    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-//    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-//
-//    input1 = Hex.decode(AbiUtil.parseMethod("logicAddress()", "", false));
-//    TransactionExtention return1 = PublicMethed
-//        .triggerContractForTransactionExtention(
-//            sideChainAddressKey, 0l, input1, 1000000000,
-//            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
-//
-//    String ContractRestule = Hex.toHexString(return1.getConstantResult(0).toByteArray());
-//
-//    String tmpAddress = ContractRestule.substring(24);
-//    logger.info(tmpAddress);
-//    String addressHex = "41" + tmpAddress;
-//    logger.info("address_hex: " + addressHex);
-//    String addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
-//    logger.info("address_final: " + addressFinal);
-//
-//    byte[] sideContractAddress = WalletClient.decodeFromBase58Check(addressFinal);
-//    Assert.assertNotNull(sideContractAddress);
-//    Assert.assertEquals("T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb", addressFinal);
+    parame1 = "\"T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb\"";
+
+    byte[] input1 = Hex.decode(AbiUtil.parseMethod("setLogicAddress(address)", parame1, false));
+    String ownerTrx = PublicMethed
+        .triggerContractSideChain(sideChainAddressKey,
+            WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input1,
+            1000000000,
+            0l, "0", testOracleAddress, testOracle, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+
+    input1 = Hex.decode(AbiUtil.parseMethod("logicAddress()", "", false));
+    TransactionExtention return1 = PublicMethed
+        .triggerContractForTransactionExtention(
+            sideChainAddressKey, 0l, input1, 1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
+
+    String ContractRestule = Hex.toHexString(return1.getConstantResult(0).toByteArray());
+
+    String tmpAddress = ContractRestule.substring(24);
+    logger.info(tmpAddress);
+    String addressHex = "41" + tmpAddress;
+    logger.info("address_hex: " + addressHex);
+    String addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
+    logger.info("address_final: " + addressFinal);
+
+    byte[] sideContractAddress = WalletClient.decodeFromBase58Check(addressFinal);
+    Assert.assertNotNull(sideContractAddress);
+    Assert.assertEquals("T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb", addressFinal);
 
     parame1 = "1";
     byte[] input2 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrx(uint256)", parame1, false));
