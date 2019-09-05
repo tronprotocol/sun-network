@@ -1,4 +1,6 @@
-contract Delegatecallable {
+import "../versionable/Versionable.sol";
+
+contract Delegatecallable is Versionable {
     address public logicAddress;
 
     event DelegateResult(bool result, bytes msg);
@@ -12,7 +14,10 @@ contract Delegatecallable {
         _;
     }
     function changeLogicAddress(address newLoginAddress) internal {
+        string memory newVersion = Versionable(newLoginAddress).getCodeVersion();
+        emit ChangeVersion(codeVersion, newVersion);
         emit LogicAddressChanged(logicAddress, newLoginAddress);
+        codeVersion = newVersion;
         logicAddress = newLoginAddress;
     }
 }
