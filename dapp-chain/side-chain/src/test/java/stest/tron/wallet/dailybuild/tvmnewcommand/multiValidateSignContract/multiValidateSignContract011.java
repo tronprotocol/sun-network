@@ -510,7 +510,7 @@ public class multiValidateSignContract011 {
       Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
           .equals(infoById.get().getResMessage().toStringUtf8())
           || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
-      Assert.assertTrue(afterBalance == 0);
+      Assert.assertEquals(afterBalance.longValue() , 0);
       txid = PublicMethedForDailybuild
           .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
               testNetAccountKey,

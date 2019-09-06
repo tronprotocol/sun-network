@@ -415,6 +415,7 @@ public class Mappingfee001 {
 
     Optional<TransactionInfo> infoById4 = PublicMethed
         .getTransactionInfoById(mapTxid2, blockingStubFull);
+    Assert.assertNotNull(mapTxid2);
     Assert.assertEquals("SUCESS", infoById4.get().getResult().name());
     Assert.assertEquals(0, infoById4.get().getResultValue());
 
@@ -473,7 +474,6 @@ public class Mappingfee001 {
     Assert.assertEquals(0, infoById9.get().getResultValue());
   }
 
-
   @Test(enabled = true, description = "Deposit Trc721")
   public void mappingfeetrc20003() {
 
@@ -510,9 +510,6 @@ public class Mappingfee001 {
     Account accountSideBefore = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
     long accountSideBeforeBalance = accountSideBefore.getBalance();
 
-//        Assert.assertEquals(0, infoById.get().getResultValue());
-//        Assert.assertEquals(10000_000_000L - fee, accountBeforeBalance);
-//        Assert.assertEquals(callValue, accountSideBeforeBalance);
 
     String contractName = "trc721";
     String code = Configuration.getByPath("testng.conf")
@@ -575,6 +572,38 @@ public class Mappingfee001 {
     Assert.assertEquals("FAILED", infoById20.get().getResult().name());
     Assert.assertEquals(1, infoById16.get().getResultValue());
 
+    byte[] input20 = Hex.decode(AbiUtil.parseMethod(
+        "setMappingFee(uint256)", "1000000001", false));
+    String txid10 = PublicMethed
+        .triggerContract(mainChainAddressKey, 0l, input20,
+            maxFeeLimit, 0, "", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+
+    Optional<TransactionInfo> infoById10 = PublicMethed
+        .getTransactionInfoById(txid10, blockingStubFull);
+    Assert.assertEquals("FAILED", infoById10.get().getResult().name());
+    Assert.assertEquals(1, infoById10.get().getResultValue());
+    String msg = Hex.toHexString(infoById10.get().getContractResult(0).toByteArray());
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135,172)));
+    Assert.assertEquals("\u0002less than 1000 TRX", msg);
+
+    byte[] input21 = Hex.decode(AbiUtil.parseMethod(
+        "setMappingFee(uint256)", "999999999", false));
+    String txid11 = PublicMethed
+        .triggerContract(mainChainAddressKey, 0l, input21,
+            maxFeeLimit, 0, "", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+
+    Optional<TransactionInfo> infoById11 = PublicMethed
+        .getTransactionInfoById(txid11, blockingStubFull);
+    Assert.assertNotNull(txid11);
+    Assert.assertEquals("SUCESS", infoById11.get().getResult().name());
+    Assert.assertEquals(0, infoById11.get().getResultValue());
+
     byte[] input19 = Hex.decode(AbiUtil.parseMethod("setMappingFee(uint256)", "200", false));
     String txid9 = PublicMethed
         .triggerContract(mainChainAddressKey, 0l, input19,
@@ -584,7 +613,7 @@ public class Mappingfee001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById9 = PublicMethed
-        .getTransactionInfoById(txid9, blockingSideStubFull);
+        .getTransactionInfoById(txid9, blockingStubFull);
     Assert.assertEquals("SUCESS", infoById9.get().getResult().name());
     Assert.assertEquals(0, infoById9.get().getResultValue());
 
