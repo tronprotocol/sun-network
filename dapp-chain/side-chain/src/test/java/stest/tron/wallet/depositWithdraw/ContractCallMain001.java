@@ -162,8 +162,8 @@ public class ContractCallMain001 {
     String contractResult = ByteArray
         .toHexString(infoById.get().getContractResult(0).toByteArray());
     logger.info("contractResult:" + contractResult);
-    String expectContractResult="00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000006408c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000126e6f7420616c6c6f7720636f6e7472616374000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-    Assert.assertEquals(expectContractResult,contractResult);
+    String expectContractResult = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000006408c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000126e6f7420616c6c6f7720636f6e7472616374000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+    Assert.assertEquals(expectContractResult, contractResult);
     String inputTokenID = "1000001";
     long inputTokenValue = 1;
     String methodStr2 = "callDepositTRC10(uint64,uint64)";
@@ -185,7 +185,9 @@ public class ContractCallMain001 {
     contractResult = ByteArray
         .toHexString(infoById.get().getContractResult(0).toByteArray());
     logger.info("contractResult:" + contractResult);
-    Assert.assertEquals(expectContractResult,contractResult);
+    Assert.assertEquals(
+        "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000006408c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000016746f6b656e496420213d206d73672e746f6b656e69640000000000000000000000000000000000000000000000000000000000000000000000000000",
+        contractResult);
 
     String methodStr3 = "callDepositTRC721(uint256)";
     String parame3 = "1";
@@ -206,7 +208,7 @@ public class ContractCallMain001 {
     contractResult = ByteArray
         .toHexString(infoById.get().getContractResult(0).toByteArray());
     logger.info("contractResult:" + contractResult);
-    Assert.assertEquals(expectContractResult,contractResult);
+    Assert.assertEquals(expectContractResult, contractResult);
 
     String methodStr4 = "callDepositTRC721(uint256)";
     String parame4 = "1";
@@ -227,7 +229,7 @@ public class ContractCallMain001 {
     contractResult = ByteArray
         .toHexString(infoById.get().getContractResult(0).toByteArray());
     logger.info("contractResult:" + contractResult);
-    Assert.assertEquals(expectContractResult,contractResult);
+    Assert.assertEquals(expectContractResult, contractResult);
 
     String methodStr5 = "callMappingTRC20(bytes)";
     String parame5 = "\"" + txid + "\"";
@@ -248,7 +250,7 @@ public class ContractCallMain001 {
     contractResult = ByteArray
         .toHexString(infoById.get().getContractResult(0).toByteArray());
     logger.info("contractResult:" + contractResult);
-    Assert.assertEquals(expectContractResult,contractResult);
+    Assert.assertEquals(expectContractResult, contractResult);
 
     String methodStr6 = "callMappingTRC721(bytes)";
     String parame6 = "\"" + txid + "\"";
@@ -269,7 +271,7 @@ public class ContractCallMain001 {
     contractResult = ByteArray
         .toHexString(infoById.get().getContractResult(0).toByteArray());
     logger.info("contractResult:" + contractResult);
-    Assert.assertEquals(expectContractResult,contractResult);
+    Assert.assertEquals(expectContractResult, contractResult);
 
     String methodStr7 = "callRetryDeposit(uint256)";
     String parame7 = "1";
@@ -290,7 +292,7 @@ public class ContractCallMain001 {
     contractResult = ByteArray
         .toHexString(infoById.get().getContractResult(0).toByteArray());
     logger.info("contractResult:" + contractResult);
-    Assert.assertEquals(expectContractResult,contractResult);
+    Assert.assertEquals(expectContractResult, contractResult);
 
     String methodStr8 = "callRetryMapping(uint256)";
     String parame8 = "1";
@@ -311,7 +313,7 @@ public class ContractCallMain001 {
     contractResult = ByteArray
         .toHexString(infoById.get().getContractResult(0).toByteArray());
     logger.info("contractResult:" + contractResult);
-    Assert.assertEquals(expectContractResult,contractResult);
+    Assert.assertEquals(expectContractResult, contractResult);
   }
 
   /**

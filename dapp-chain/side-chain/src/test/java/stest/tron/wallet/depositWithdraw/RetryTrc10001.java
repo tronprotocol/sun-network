@@ -89,6 +89,9 @@ public class RetryTrc10001 {
       .getFinalAddress(gateWatOwnerSideAddressKey);
   private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
 
+  private int depositNonce;
+  private int withdrawNonce;
+
   @BeforeSuite
   public void beforeSuite() {
     Wallet wallet = new Wallet();
@@ -1102,6 +1105,16 @@ public class RetryTrc10001 {
     Optional<TransactionInfo> infoById;
     infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
+
+  // check Deposit Msg when deposit failed
+  depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+  String[] Msg = {
+      WalletClient.encode58Check(depositAddress), "" + inputTokenValue,
+      "1","0",inputTokenID,"0","0"
+  };
+  Assert.assertTrue(PublicMethed.checkDepositMsg(depositNonce, mainGateWayAddress, depositAddress,
+      testKeyFordeposit, blockingStubFull, Msg));
+
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     long fee = infoById.get().getFee();
     logger.info("fee:" + fee);
@@ -1265,6 +1278,17 @@ public class RetryTrc10001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(txid2, blockingSideStubFull);
+
+  // check Withdraw Msg when withdraw failed
+  withdrawNonce = ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray());
+  String[] MsgWithdraw = {
+      WalletClient.encode58Check(depositAddress),
+      "0", inputTokenID, withdrawToken, "1", "0"
+  };
+  Assert.assertTrue(PublicMethed.checkWithdrawMsg(withdrawNonce, sideGatewayAddress, depositAddress,
+      testKeyFordeposit, blockingSideStubFull, MsgWithdraw));
+
+
     Assert.assertTrue(infoById2.get().getResultValue() == 0);
     long fee2 = infoById2.get().getFee();
     Long nonceWithdrawLong = ByteArray.toLong(ByteArray
