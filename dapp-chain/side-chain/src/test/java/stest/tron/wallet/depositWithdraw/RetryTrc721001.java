@@ -81,7 +81,7 @@ public class RetryTrc721001 {
   String nonceWithdraw = null;
   String nonceMap = null;
   byte[] sideContractAddress = null;
-  byte[] trc20Contract = null;
+  byte[] trc721Contract = null;
   long oracleSideBeforeWithdrawSendBalance = 0;
   String methodStr1 = null;
   String parame3 = null;
@@ -202,14 +202,14 @@ public class RetryTrc721001 {
 
     infoById = PublicMethed
         .getTransactionInfoById(deployTxid, blockingStubFull);
-    trc20Contract = infoById.get().getContractAddress().toByteArray();
+    trc721Contract = infoById.get().getContractAddress().toByteArray();
     Assert.assertEquals(0, infoById.get().getResultValue());
-    Assert.assertNotNull(trc20Contract);
+    Assert.assertNotNull(trc721Contract);
 
     //mint 721
     String parame1 = "\"" + Base58.encode58Check(testAddress001) + "\"," + 1001;
     String mintTxid = PublicMethed
-        .triggerContract(trc20Contract, "mint(address,uint256)", parame1, false, 0, maxFeeLimit,
+        .triggerContract(trc721Contract, "mint(address,uint256)", parame1, false, 0, maxFeeLimit,
             testAddress001, testKey001, blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(mintTxid, blockingStubFull);
     Assert.assertNotNull(mintTxid);
@@ -246,7 +246,7 @@ public class RetryTrc721001 {
     Assert.assertTrue(infoByIdretryMaptxid.get().getResultValue() == 0);
 
     // get 721Contract in sideChain
-    String parame2 = "\"" + Base58.encode58Check(trc20Contract) + "\"";
+    String parame2 = "\"" + Base58.encode58Check(trc721Contract) + "\"";
     byte[] input2 = Hex
         .decode(AbiUtil.parseMethod("mainToSideContractMap(address)", parame2, false));
     TransactionExtention return1 = PublicMethed
@@ -269,7 +269,7 @@ public class RetryTrc721001 {
 
     // deposit TRC721 to sideChain
     String deposittrx = PublicMethed
-        .depositTrc721(WalletClient.encode58Check(trc20Contract), mainGateWayAddress, 1001,
+        .depositTrc721(WalletClient.encode58Check(trc721Contract), mainGateWayAddress, 1001,
             1000000000,
             testAddress001, testKey001, blockingStubFull);
     logger.info(deposittrx);
@@ -307,7 +307,7 @@ public class RetryTrc721001 {
 
     // TRC721`s owner in mainChain should be mainGateway
     TransactionExtention return2 = PublicMethed
-        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+        .triggerContractForTransactionExtention(trc721Contract, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingStubFull);
     ContractRestule = Hex.toHexString(return2.getConstantResult(0).toByteArray());
     tmpAddress = ContractRestule.substring(24);
@@ -328,7 +328,7 @@ public class RetryTrc721001 {
     Assert.assertTrue(infoByIdretryDeposit.get().getResultValue() == 0);
 
     TransactionExtention return3 = PublicMethed
-        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+        .triggerContractForTransactionExtention(trc721Contract, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingStubFull);
     ContractRestule = Hex.toHexString(return3.getConstantResult(0).toByteArray());
     tmpAddress = ContractRestule.substring(24);
@@ -359,7 +359,7 @@ public class RetryTrc721001 {
 
     // TRC721`s owner in mainChain should be Depositor
     return2 = PublicMethed
-        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+        .triggerContractForTransactionExtention(trc721Contract, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingStubFull);
     ContractRestule = Hex.toHexString(return2.getConstantResult(0).toByteArray());
     tmpAddress = ContractRestule.substring(24);
@@ -466,7 +466,7 @@ public class RetryTrc721001 {
 
     // TRC721`s owner in mainChain should be Depositor
     return2 = PublicMethed
-        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+        .triggerContractForTransactionExtention(trc721Contract, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingStubFull);
     ContractRestule = Hex.toHexString(return2.getConstantResult(0).toByteArray());
     tmpAddress = ContractRestule.substring(24);
@@ -509,7 +509,7 @@ public class RetryTrc721001 {
 
     // TRC721`s owner in mainChain should be Depositor
     return2 = PublicMethed
-        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+        .triggerContractForTransactionExtention(trc721Contract, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingStubFull);
     ContractRestule = Hex.toHexString(return2.getConstantResult(0).toByteArray());
     tmpAddress = ContractRestule.substring(24);
@@ -553,7 +553,7 @@ public class RetryTrc721001 {
 
     // TRC721`s owner in mainChain should be Depositor
     return2 = PublicMethed
-        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+        .triggerContractForTransactionExtention(trc721Contract, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingStubFull);
     ContractRestule = Hex.toHexString(return2.getConstantResult(0).toByteArray());
     tmpAddress = ContractRestule.substring(24);
@@ -910,7 +910,7 @@ public class RetryTrc721001 {
     String arg = "1001";
     byte[] input1 = Hex.decode(AbiUtil.parseMethod("ownerOf(uint256)", arg, false));
     TransactionExtention return2 = PublicMethed
-        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+        .triggerContractForTransactionExtention(trc721Contract, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingStubFull);
     String ContractRestule = Hex.toHexString(return2.getConstantResult(0).toByteArray());
 
@@ -946,7 +946,7 @@ public class RetryTrc721001 {
 
     // deposit TRC721 to sideChain
     String deposittrx = PublicMethed
-        .depositTrc721(WalletClient.encode58Check(trc20Contract), mainGateWayAddress, 1001,
+        .depositTrc721(WalletClient.encode58Check(trc721Contract), mainGateWayAddress, 1001,
             1000000000,
             testAddress001, testKey001, blockingStubFull);
     logger.info(deposittrx);
@@ -976,7 +976,7 @@ public class RetryTrc721001 {
 
     // TRC721`s owner in mainChain should be mainGateway
     TransactionExtention return3 = PublicMethed
-        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+        .triggerContractForTransactionExtention(trc721Contract, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingStubFull);
     ContractRestule = Hex.toHexString(return3.getConstantResult(0).toByteArray());
     tmpAddress = ContractRestule.substring(24);
@@ -1005,7 +1005,7 @@ public class RetryTrc721001 {
 
     // TRC721`s owner in mainChain should be mainGateway
     TransactionExtention return4 = PublicMethed
-        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+        .triggerContractForTransactionExtention(trc721Contract, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingStubFull);
     ContractRestule = Hex.toHexString(return4.getConstantResult(0).toByteArray());
     tmpAddress = ContractRestule.substring(24);
@@ -1052,7 +1052,7 @@ public class RetryTrc721001 {
 
     // TRC721`s owner in mainChain should be depositer
     TransactionExtention return5 = PublicMethed
-        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+        .triggerContractForTransactionExtention(trc721Contract, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingStubFull);
     ContractRestule = Hex.toHexString(return5.getConstantResult(0).toByteArray());
 
@@ -1096,7 +1096,7 @@ public class RetryTrc721001 {
 
     // deposit TRC721 to sideChain
     String deposittrx = PublicMethed
-        .depositTrc721(WalletClient.encode58Check(trc20Contract), mainGateWayAddress, 1001,
+        .depositTrc721(WalletClient.encode58Check(trc721Contract), mainGateWayAddress, 1001,
             1000000000,
             testAddress001, testKey001, blockingStubFull);
     logger.info(deposittrx);
@@ -1112,11 +1112,21 @@ public class RetryTrc721001 {
     logger.info("nonce:" + nonceLong);
     nonce = Long.toString(nonceLong);
 
+      // check Deposit Msg when deposit failed
+      int depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+      String[] Msg = {
+          WalletClient.encode58Check(testAddress001), "0",
+          "3",WalletClient.encode58Check(trc721Contract) ,"0","0","1001"
+      };
+     Assert.assertTrue(PublicMethed.checkDepositMsg(depositNonce, mainGateWayAddress, testAddress001,
+          testKey001, blockingStubFull, Msg));
+
+
     // TRC721`s owner in mainChain should be mainGateway
     String arg = "1001";
     byte[] input1 = Hex.decode(AbiUtil.parseMethod("ownerOf(uint256)", arg, false));
     TransactionExtention return2 = PublicMethed
-        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+        .triggerContractForTransactionExtention(trc721Contract, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingStubFull);
     String ContractRestule = Hex.toHexString(return2.getConstantResult(0).toByteArray());
     String tmpAddress = ContractRestule.substring(24);
@@ -1236,7 +1246,7 @@ public class RetryTrc721001 {
 
     // TRC721`s owner in mainChain should be mainGateway
     TransactionExtention return3 = PublicMethed
-        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+        .triggerContractForTransactionExtention(trc721Contract, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingStubFull);
     ContractRestule = Hex.toHexString(return3.getConstantResult(0).toByteArray());
     tmpAddress = ContractRestule.substring(24);
@@ -1298,9 +1308,20 @@ public class RetryTrc721001 {
     Assert.assertNotNull(withdrawTxid1);
     Assert.assertEquals(0, infoById.get().getResultValue());
 
+
+      // check Withdraw Msg when withdraw failed
+      int withdrawNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+      String[] MsgWithdraw = {
+          WalletClient.encode58Check(testAddress001),
+          WalletClient.encode58Check(trc721Contract), "0", "1001", "3", "0"
+      };
+      Assert.assertTrue(PublicMethed.checkWithdrawMsg(withdrawNonce, sideGatewayAddress, testAddress001,
+          testKey001, blockingSideStubFull, MsgWithdraw));
+
+
     // TRC721`s owner in mainChain should be mainGateway
     TransactionExtention return4 = PublicMethed
-        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+        .triggerContractForTransactionExtention(trc721Contract, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingStubFull);
     ContractRestule = Hex.toHexString(return4.getConstantResult(0).toByteArray());
     tmpAddress = ContractRestule.substring(24);
@@ -1405,7 +1426,7 @@ public class RetryTrc721001 {
 
     // TRC721`s owner in mainChain should be depositer
     TransactionExtention return5 = PublicMethed
-        .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
+        .triggerContractForTransactionExtention(trc721Contract, 0l, input1, 1000000000,
             0l, "0", testAddress001, testKey001, blockingStubFull);
     ContractRestule = Hex.toHexString(return5.getConstantResult(0).toByteArray());
 

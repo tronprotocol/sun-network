@@ -273,7 +273,8 @@ public class RetryMapping20001 {
   public void test2RetryMapping20002() {
 
     String parame = "\"" + Base58.encode58Check(depositAddress) + "\"";
-
+    Assert.assertTrue(PublicMethed.freezeBalanceSideChainGetEnergy(testOracleAddress, 100000000,
+        3, 0, testOracle, chainIdAddressKey, blockingSideStubFull));
     String deployTxid = PublicMethed
         .deployContractWithConstantParame(contractName, abi, code, "TronToken(address)",
             parame, "",
@@ -326,6 +327,15 @@ public class RetryMapping20001 {
             ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
     logger.info("nonce:" + nonceMapLong);
     nonceMap = Long.toString(nonceMapLong);
+
+    // check Deposit Msg when deposit failed
+    int mappingNonce = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
+    String[] Msg = {
+        WalletClient.encode58Check(trc20Contract), "2","0"
+    };
+    Assert.assertTrue(PublicMethed.checkMappingMsg(mappingNonce, mainChainAddress, depositAddress,
+        testKeyFordeposit, blockingStubFull, Msg));
+
     String parame1 = "\"" + Base58.encode58Check(trc20Contract) + "\"";
     byte[] input2 = Hex
         .decode(AbiUtil.parseMethod("mainToSideContractMap(address)", parame1, false));

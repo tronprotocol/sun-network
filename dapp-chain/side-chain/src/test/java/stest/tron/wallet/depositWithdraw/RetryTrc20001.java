@@ -96,6 +96,10 @@ public class RetryTrc20001 {
   private final byte[] gateWaySideOwnerAddress = PublicMethed
       .getFinalAddress(gateWatOwnerSideAddressKey);
 
+  private int depositNonce;
+  private int withdrawNonce;
+  private int mappingNonce;
+
   @BeforeSuite
   public void beforeSuite() {
     Wallet wallet = new Wallet();
@@ -643,7 +647,7 @@ public class RetryTrc20001 {
 
     long bonusSideAfter = ByteArray.toLong(response1.getConstantResult(0).toByteArray());
     logger.info("bonusSideBefore:" + bonusSideAfter);
-//<setRetryFeeSide
+    //<setRetryFeeSide
     Account accountSideBeforeWithdraw0 = PublicMethed
         .queryAccount(depositAddress, blockingSideStubFull);
     long accountSideBeforeWithdrawBalance0 = accountSideBeforeWithdraw0.getBalance();
@@ -1226,6 +1230,16 @@ public class RetryTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infodepositTrc20 = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
+
+      // check Deposit Msg when deposit failed
+      depositNonce = ByteArray.toInt(infodepositTrc20.get().getContractResult(0).toByteArray());
+      String[] Msg = {
+          WalletClient.encode58Check(depositAddress), "" + "1000",
+          "2",WalletClient.encode58Check(trc20Contract) ,"0","0","0"
+      };
+      Assert.assertTrue(PublicMethed.checkDepositMsg(depositNonce, mainChainAddress, depositAddress,
+          testKeyFordeposit, blockingStubFull, Msg));
+
     Assert.assertEquals(0, infodepositTrc20.get().getResultValue());
     Long nonceLong = ByteArray.toLong(ByteArray
         .fromHexString(
@@ -1383,6 +1397,17 @@ public class RetryTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoByIdwithdrawTrc20 = PublicMethed
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
+
+      // check Withdraw Msg when withdraw failed
+      withdrawNonce = ByteArray.toInt(infoByIdwithdrawTrc20.get().getContractResult(0).toByteArray());
+      String[] MsgWithdraw = {
+          WalletClient.encode58Check(depositAddress),
+          WalletClient.encode58Check(trc20Contract), "0", "100", "2", "0"
+      };
+      Assert.assertTrue(PublicMethed.checkWithdrawMsg(withdrawNonce, sideChainAddress, depositAddress,
+          testKeyFordeposit, blockingSideStubFull, MsgWithdraw));
+
+
     Assert.assertTrue(infoByIdwithdrawTrc20.get().getResultValue() == 0);
     Long nonceWithdrawLong = ByteArray.toLong(ByteArray
         .fromHexString(
