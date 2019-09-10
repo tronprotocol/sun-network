@@ -82,11 +82,11 @@ public class ContractScenario004 {
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    String txid = PublicMethed
+    String txid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
             0L, 100, null, contract004Key, contract004Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> info = PublicMethed
+    Optional<TransactionInfo> info = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
     System.out.println(info);
     Assert.assertTrue(info.get().getResultValue() == 1);
@@ -94,7 +94,7 @@ public class ContractScenario004 {
 
   @Test(enabled = true)
   public void deployErc20TronTokenWithData() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(contract004Address, 200000000L, fromAddress, testKey002, blockingStubFull));
     Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(contract004Address, 100000000L,
         3, 1, contract004Key, blockingStubFull));
@@ -114,11 +114,11 @@ public class ContractScenario004 {
     String abi = retMap.get("abI").toString();
     String constructorStr = "constructor(address)";
     String data = "\"" + Base58.encode58Check(contract004Address) + "\"";
-    String txid = PublicMethed
+    String txid = PublicMethedForDailybuild
         .deployContractWithConstantParame(contractName, abi, code, constructorStr, data, "",
             maxFeeLimit, 0L, 100, null, contract004Key, contract004Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> info = PublicMethed
+    Optional<TransactionInfo> info = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
     System.out.println(info);
     Assert.assertTrue(info.get().getResultValue() == 0);
