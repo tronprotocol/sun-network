@@ -47,7 +47,7 @@ public class SunNetworkTest {
     System.out.println("\r\n===================== deposit 124 trx ===============================");
     {
       SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService()
-          .depositTrx(124, 1000000);
+          .depositTrx(124, 0,1000000);
 
       System.out.println("Error code desc: " + resp.getDesc());
       System.out.println("transaction result: " + resp.getData().getResult());

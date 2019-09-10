@@ -48,15 +48,16 @@ public class DepositTrx001 {
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
 
   private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
+      .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+      .getStringList("fullnode.ip.list").get(0);
 
 
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] depositAddress = ecKey1.getAddress();
   String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
+  final String mainGateWayAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key1");
 
   @BeforeSuite
   public void beforeSuite() {
@@ -100,15 +101,14 @@ public class DepositTrx001 {
 
     logger.info("accountBeforeBalance:" + accountBeforeBalance);
     logger.info("accountSideBeforeBalance:" + accountSideBeforeBalance);
-    final String transferTokenContractAddress = Configuration.getByPath("testng.conf")
-        .getString("gateway_address.key1");
-    logger.info("transferTokenContractAddress:" + transferTokenContractAddress);
+
+    logger.info("mainGateWayAddress:" + mainGateWayAddress);
     String methodStr = "depositTRX()";
     byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
 
     long callValue = 1;
     String txid = PublicMethed
-        .triggerContract(WalletClient.decodeFromBase58Check(transferTokenContractAddress),
+        .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
             callValue,
             input,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);

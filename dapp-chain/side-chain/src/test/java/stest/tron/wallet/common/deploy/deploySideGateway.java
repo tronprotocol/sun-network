@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.encoders.Hex;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
@@ -29,14 +30,15 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 public class deploySideGateway {
 
 
-  private final String testDepositTrx = "324a2052e491e99026442d81df4d2777292840c1b3949e20696c49096c6bacb7";
-  private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
+  private final String oracleKey = Configuration.getByPath("testng.conf")
+      .getString("oralceAccountKey.key1");
+  private final byte[] oracleAddress = PublicMethed.getFinalAddress(oracleKey);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
-  private String description = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetDescription");
-  private String url = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetUrl");
+  private final String foundationKey003 = Configuration.getByPath("testng.conf")
+      .getString("foundationAccount.key3");
+  private final byte[] foundationAddress003 = PublicMethed.getFinalAddress(foundationKey003);
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
 
@@ -67,7 +69,7 @@ public class deploySideGateway {
   @Test(enabled = true, description = "deploy Side Chain Gateway")
   public void test1DepositTrc20001() {
     String mainChainAddress = Configuration.getByPath("testng.conf")
-        .getString("gateway_address.sideChainIdAddress");
+        .getString("gateway_address.chainIdAddress");
     /*try {
       File mainChainFile = new File("/home/mainChainGatewayAddress");
       FileReader reader = new FileReader(mainChainFile);
@@ -82,23 +84,27 @@ public class deploySideGateway {
     int count = 0;
     String sideChainGatewayAddress = null;
     while (count < 3) {
-      Account accountOralce = PublicMethed.queryAccount(testDepositAddress, blockingStubFull);
+      Account accountOralce = PublicMethed.queryAccount(oracleAddress, blockingStubFull);
       long OralceBalance = accountOralce.getBalance();
       logger.info("OralceBalance: " + OralceBalance);
 
       String contractName = "gateWaysidechainContract";
-      String code = Configuration.getByPath("testng.conf")
-          .getString("code.code_SideGateway");
-      String abi = Configuration.getByPath("testng.conf")
-          .getString("abi.abi_SideGateway");
-      String parame = "\"" + Base58.encode58Check(testDepositAddress) + "\"";
+      String code = null;
+      String abi = null;
+      String parame = "\"" + Base58.encode58Check(oracleAddress) + "\"";
+
+      try {
+        code = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.bin",false);
+        abi = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.abi",false);
+      } catch (Exception e) {
+        Assert.fail("Read ABI Failed");
+        return;
+      }
 
       String deployTxid = PublicMethed
           .deploySideContractWithConstantParame(contractName, abi, code, "#",
-              "#", "",
-              maxFeeLimit,
-              0L, 100, null, testDepositTrx, testDepositAddress, mainChainAddress
-              , blockingStubFull);
+              "#", "", maxFeeLimit, 0L, 100,
+              null, foundationKey003, foundationAddress003, mainChainAddress, blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -112,10 +118,9 @@ public class deploySideGateway {
         continue;
       } else {
         byte[] input = Hex.decode(AbiUtil.parseMethod("addOracle(address)", parame, false));
-        String triggerTxid1 = PublicMethed
-            .triggerContractSideChain(sideChainGateway,
-                WalletClient.decodeFromBase58Check(mainChainAddress), 0, input, maxFeeLimit, 0, "0",
-                testDepositAddress, testDepositTrx, blockingStubFull);
+        String triggerTxid1 = PublicMethed.triggerContractSideChain(sideChainGateway,
+            WalletClient.decodeFromBase58Check(mainChainAddress), 0, input, maxFeeLimit,
+            0, "0", foundationAddress003, foundationKey003, blockingStubFull);
         PublicMethed.waitProduceNextBlock(blockingStubFull);
         Optional<TransactionInfo> infoById1 = PublicMethed
             .getTransactionInfoById(triggerTxid1, blockingStubFull);

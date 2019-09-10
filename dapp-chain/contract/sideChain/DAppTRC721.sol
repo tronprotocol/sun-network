@@ -1,5 +1,3 @@
-pragma solidity ^0.4.24;
-
 import "../common/token/TRC721/TRC721.sol";
 import "../common/token/TRC721/ITRC721Receiver.sol";
 import "./IDApp.sol";
@@ -20,7 +18,7 @@ contract DAppTRC721 is TRC721, IDApp {
       * @dev Constructor function
       */
 
-    constructor (address _gateway, string _name, string _symbol) public {
+    constructor (address _gateway, string memory _name, string memory _symbol) public {
         gateway = _gateway;
         name = _name;
         symbol = _symbol;
@@ -48,7 +46,12 @@ contract DAppTRC721 is TRC721, IDApp {
     }
 
     function withdrawal(uint256 tokenId) payable external returns (uint256 r) {
+        uint256 withdrawFee = ITRC721Receiver(gateway).getWithdrawFee();
+        require(msg.value >= withdrawFee, "value must be >= withdrawFee");
+        if (msg.value > withdrawFee) {
+            msg.sender.transfer(msg.value - withdrawFee);
+        }
         transfer(gateway, tokenId);
-        r = ITRC721Receiver(gateway).onTRC721Received.value(msg.value)(msg.sender, tokenId);
+        r = ITRC721Receiver(gateway).onTRC721Received.value(withdrawFee)(msg.sender, tokenId);
     }
 }

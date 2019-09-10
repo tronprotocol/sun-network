@@ -395,6 +395,31 @@ public class AbiUtil {
     return parseMethod(methodSign, params, false);
   }
 
+  public static String parseParameters(String methodSign, List<Object> parameters) {
+    String[] inputArr = new String[parameters.size()];
+    int i = 0;
+    for (Object parameter: parameters) {
+      if (parameter instanceof  List) {
+        StringBuilder sb = new StringBuilder();
+        for (Object item: (List) parameter) {
+          if (sb.length() != 0) {
+            sb.append(",");
+          }
+          sb.append("\"").append(item).append("\"");
+        }
+        inputArr[i++] = "[" + sb.toString() + "]";
+      } else {
+        inputArr[i++] = (parameter instanceof String) ? ("\"" + parameter + "\"") : ("" + parameter);
+      }
+    }
+    String input = StringUtils.join(inputArr, ',');
+    return parseParameters(methodSign, input);
+  }
+
+  public static String parseParameters(String methodSign, String input) {
+    byte[] encodedParms = encodeInput(methodSign, input);
+    return Hex.toHexString(encodedParms);
+  }
   /**
    * constructor.
    */
@@ -457,6 +482,8 @@ public class AbiUtil {
     }
     return parseMethod(methodSign, StringUtils.join(inputArr, ','));
   }
+
+
 
   /**
    * constructor.

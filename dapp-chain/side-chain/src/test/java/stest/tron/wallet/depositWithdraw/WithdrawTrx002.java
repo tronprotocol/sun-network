@@ -52,9 +52,9 @@ public class WithdrawTrx002 {
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
 
   private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
+      .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+      .getStringList("fullnode.ip.list").get(0);
 
 
   ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -63,6 +63,11 @@ public class WithdrawTrx002 {
 
   final String mainGateWayAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key1");
+  final String sideGatewayAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key2");
+
+  final String ChainIdAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.chainIdAddress");
 
   @BeforeSuite
   public void beforeSuite() {
@@ -138,8 +143,6 @@ public class WithdrawTrx002 {
     Assert.assertEquals(Base58.encode58Check(depositAddress), accountSideAfterAddress);
     Assert.assertEquals(callValue, accountSideAfterBalance);
 
-    final String sideGatewayAddress = Configuration.getByPath("testng.conf")
-        .getString("gateway_address.key2");
     logger.info("sideGatewayAddress:" + sideGatewayAddress);
     //address is not exist
 
@@ -152,7 +155,7 @@ public class WithdrawTrx002 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     String txid1 = PublicMethed
-        .withdrawTrx(mainGateWayAddress,
+        .withdrawTrx(ChainIdAddress,
             sideGatewayAddress,
             callValue,
             maxFeeLimit, withdrawAddress, withdrawAddressKey, blockingStubFull,
@@ -190,14 +193,10 @@ public class WithdrawTrx002 {
     long accountSideBeforeBalance = accountSideBefore.getBalance();
     Assert.assertEquals(1500000000, accountSideBeforeBalance);
 
-    final String sideGatewayAddress = Configuration.getByPath("testng.conf")
-        .getString("gateway_address.key2");
-    logger.info("sideGatewayAddress:" + sideGatewayAddress);
-
     //balance<value
     long callValue1 = accountSideBeforeBalance + 1;
     Return response = PublicMethed
-        .withdrawTrxForReturn(mainGateWayAddress,
+        .withdrawTrxForReturn(ChainIdAddress,
             sideGatewayAddress,
             callValue1,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
@@ -212,7 +211,7 @@ public class WithdrawTrx002 {
     long callValue2 = -1;
 
     Return response1 = PublicMethed
-        .withdrawTrxForReturn(mainGateWayAddress,
+        .withdrawTrxForReturn(ChainIdAddress,
             sideGatewayAddress,
             callValue2,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
@@ -226,7 +225,7 @@ public class WithdrawTrx002 {
     // value is 0
     long callValue3 = 0;
     String txidn = PublicMethed
-        .withdrawTrx(mainGateWayAddress,
+        .withdrawTrx(ChainIdAddress,
             sideGatewayAddress,
             callValue3,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
@@ -242,7 +241,7 @@ public class WithdrawTrx002 {
     // value is Long.MAX_VALUE+1
     long callValue4 = Long.MAX_VALUE + 1;
     Return response3 = PublicMethed
-        .withdrawTrxForReturn(mainGateWayAddress,
+        .withdrawTrxForReturn(ChainIdAddress,
             sideGatewayAddress,
             callValue4,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
@@ -256,7 +255,7 @@ public class WithdrawTrx002 {
     // value is Long.MIN_VALUE - 1
     long callValue5 = Long.MIN_VALUE - 1;
     Return response4 = PublicMethed
-        .withdrawTrxForReturn(mainGateWayAddress,
+        .withdrawTrxForReturn(ChainIdAddress,
             sideGatewayAddress,
             callValue5,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
@@ -293,18 +292,14 @@ public class WithdrawTrx002 {
     long accountSideBeforeBalance = accountSideBefore.getBalance();
     logger.info("accountSideBeforeBalance:" + accountSideBeforeBalance);
 
-    final String sideGatewayAddress = Configuration.getByPath("testng.conf")
-        .getString("gateway_address.key2");
-    logger.info("sideGatewayAddress:" + sideGatewayAddress);
-
     //feelimit is 1
     long callValue1 = accountSideBeforeBalance;
     long fee_limit = 1;
     String txid = PublicMethed
-        .withdrawTrx(mainGateWayAddress,
+        .withdrawTrx(ChainIdAddress,
             sideGatewayAddress,
             callValue1,
-            maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
+            fee_limit, depositAddress, testKeyFordeposit, blockingStubFull,
             blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);

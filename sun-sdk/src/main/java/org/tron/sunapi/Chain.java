@@ -26,6 +26,7 @@ import org.tron.api.GrpcAPI.TransactionApprovedList;
 import org.tron.api.GrpcAPI.TransactionListExtention;
 import org.tron.api.GrpcAPI.TransactionSignWeight;
 import org.tron.api.GrpcAPI.WitnessList;
+import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.AddressUtil;
 import org.tron.common.utils.ByteArray;
@@ -49,6 +50,7 @@ import org.tron.sunapi.request.AssertIssueRequest;
 import org.tron.sunapi.request.DeployContractRequest;
 import org.tron.sunapi.request.ExchangeCreateRequest;
 import org.tron.sunapi.request.ExchangeTransactionRequest;
+import org.tron.sunapi.request.TriggerConstantContractRequest;
 import org.tron.sunapi.request.TriggerContractRequest;
 import org.tron.sunapi.response.TransactionResponse;
 import org.tron.sunserver.IMultiTransactionSign;
@@ -192,6 +194,44 @@ public class Chain implements ChainInterface {
 
       TransactionResponse result = serverApi
           .triggerContract(contractAddress, callValue, input, feeLimit, tokenCallValue, tokenId);
+      resp.setData(result);
+      if (StringUtils.isEmpty(result.getTrxId())) {
+        resp.failed(ErrorCodeEnum.FAILED);
+      } else {
+        resp.success(result);
+      }
+    } catch (EncodingException e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_ENCODING);
+    } catch (Exception e) {
+      resp.failed(ErrorCodeEnum.EXCEPTION_UNKNOWN);
+    }
+
+    return resp;
+  }
+
+  /**
+   * @param request request of trigger contract
+   * @return the response of trigger contract which contains the id of transaction
+   * @author sun-network
+   */
+  public SunNetworkResponse<TransactionResponse> triggerConstantContract(
+      TriggerConstantContractRequest request) {
+    SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
+
+    String contractAddrStr = request.getContractAddrStr();
+    String methodStr = request.getMethodStr();
+    String argsStr = request.getArgsStr();
+    boolean isHex = request.isHex();
+    long feeLimit = request.getFeeLimit();
+    if (StringUtils.isEmpty(argsStr) || argsStr.equalsIgnoreCase("#")) {
+      argsStr = "";
+    }
+    try {
+      byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, isHex));
+      byte[] contractAddress = AddressUtil.decodeFromBase58Check(contractAddrStr);
+
+      TransactionResponse result = serverApi
+          .triggerConstantContract(contractAddress, input, feeLimit);
       resp.setData(result);
       if (StringUtils.isEmpty(result.getTrxId())) {
         resp.failed(ErrorCodeEnum.FAILED);
@@ -1676,6 +1716,20 @@ public class Chain implements ChainInterface {
     }
 
     return resp;
+  }
+
+  /**
+   * @return the address pair offline
+   * @author sun-network
+   */
+  public AddressPrKeyPairMessage generateAddressOffline() {
+    ECKey ecKey = new ECKey(Utils.getRandom());
+    byte[] priKey = ecKey.getPrivKeyBytes();
+    byte[] address = ecKey.getAddress();
+    String priKeyStr = org.apache.commons.codec.binary.Hex.encodeHexString(priKey);
+    String base58check = AddressUtil.encode58Check(address);
+    return AddressPrKeyPairMessage.newBuilder().setAddress(base58check).setPrivateKey(priKeyStr)
+        .build();
   }
 
   /**

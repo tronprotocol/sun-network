@@ -1378,6 +1378,15 @@ public class ServerApi {
     return builder.build();
   }
 
+  public static Contract.TriggerSmartContract triggerCallConstantContract(byte[] address,
+      byte[] contractAddress, byte[] data) {
+    Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
+    builder.setOwnerAddress(ByteString.copyFrom(address));
+    builder.setContractAddress(ByteString.copyFrom(contractAddress));
+    builder.setData(ByteString.copyFrom(data));
+    return builder.build();
+  }
+
   public byte[] generateContractAddress(Transaction trx) {
 
     // get owner address
@@ -1529,6 +1538,41 @@ public class ServerApi {
     transactionExtention = texBuilder.build();
 
     return processTransactionExt2(transactionExtention);
+  }
+
+  public TransactionResponse triggerConstantContract(byte[] contractAddress, byte[] data,
+      long feeLimit) {
+    byte[] owner = getAddress();
+    Contract.TriggerSmartContract triggerContract = triggerCallConstantContract(owner,
+        contractAddress,
+        data);
+    TransactionExtention transactionExtention = rpcCli.triggerConstantContract(triggerContract);
+    if (transactionExtention == null) {
+      return new TransactionResponse("RPC create trx failed!");
+    }
+
+    if (!transactionExtention.getResult().getResult()) {
+      return new TransactionResponse(transactionExtention.getResult());
+    }
+
+    Transaction transaction = transactionExtention.getTransaction();
+    if (transaction.getRetCount() != 0 &&
+        transactionExtention.getConstantResult(0) != null &&
+        transactionExtention.getResult() != null) {
+      byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+
+      logger.info("message:" + transaction.getRet(0).getRet());
+      logger.info(":" + ByteArray
+          .toStr(transactionExtention.getResult().getMessage().toByteArray()));
+      logger.info("Result:" + Hex.toHexString(result));
+      String trxId = ByteArray.toHexString(transactionExtention.getTxid().toByteArray());
+
+      return new TransactionResponse(true, transaction.getRet(0).getRet(), trxId,
+          Hex.toHexString(result));
+
+    } else {
+      return new TransactionResponse("constant result is null");
+    }
   }
 
   public boolean checkTxInfo(String txId) {

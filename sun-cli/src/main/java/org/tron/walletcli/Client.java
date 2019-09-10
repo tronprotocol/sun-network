@@ -1474,7 +1474,7 @@ public class Client {
   private void triggerContract(String[] parameters) {
     if (parameters == null ||
         parameters.length < 8) {
-      System.out.println("TriggerContract needs 6 parameters like following: ");
+      System.out.println("TriggerContract needs 8 parameters like following: ");
       System.out.println(
           "TriggerContract contractAddress method args isHex fee_limit value token_value token_id(e.g: TRXTOKEN, use # if don't provided)");
       // System.out.println("example:\nTriggerContract password contractAddress method args value");
@@ -1504,6 +1504,34 @@ public class Client {
           + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
     } else {
       System.out.println("Broadcast the triggerContract failed");
+    }
+  }
+
+  private void triggerConstantContract(String[] parameters) {
+    if (parameters == null ||
+        parameters.length < 5) {
+      System.out.println("TriggerConstantContract needs 5 parameters like following: ");
+      System.out.println(
+          "TriggerConstantContract contractAddress method args isHex fee_limit");
+      // System.out.println("example:\nTriggerContract password contractAddress method args value");
+      return;
+    }
+
+    String contractAddrStr = parameters[0];
+    String methodStr = parameters[1];
+    String argsStr = parameters[2];
+    boolean isHex = Boolean.valueOf(parameters[3]);
+    long feeLimit = Long.valueOf(parameters[4]);
+    if (argsStr.equalsIgnoreCase("#")) {
+      argsStr = "";
+    }
+
+    boolean result = walletApiWrapper
+        .callConstantContract(contractAddrStr, methodStr, argsStr, isHex, feeLimit);
+    if (result) {
+      System.out.println("Broadcast the TriggerConstantContract successfully.");
+    } else {
+      System.out.println("Broadcast the TriggerConstantContract failed");
     }
   }
 
@@ -1540,6 +1568,18 @@ public class Client {
       logger.info("GenerateAddress " + " failed !!");
     }
   }
+
+  private void generateAddressOffline() {
+    AddressPrKeyPairMessage result = walletApiWrapper.generateAddressOffline();
+    if (null != result) {
+      System.out.println("Address: " + result.getAddress());
+      System.out.println("PrivateKey: " + result.getPrivateKey());
+      logger.info("GenerateAddress " + " successful !!");
+    } else {
+      logger.info("GenerateAddress " + " failed !!");
+    }
+  }
+
 
   private void updateAccountPermission(String[] parameters)
       throws CipherException, IOException, CancelException {
@@ -1667,17 +1707,18 @@ public class Client {
   }
 
   private void depositTrx(String[] parameters) {
-    if (parameters == null || parameters.length != 3) {
-      System.out.println("deposit trx needs 2 parameters like following: ");
-      System.out.println("deposit trx num feeLimit");
+    if (parameters == null || parameters.length != 4) {
+      System.out.println("deposit trx needs 3 parameters like following: ");
+      System.out.println("deposit trx num depositFee feeLimit");
       return;
     }
 
     long callValue = Long.valueOf(parameters[1]);
-    long feeLimit = Long.valueOf(parameters[2]);
+    long depositFee = Long.valueOf(parameters[2]);
+    long feeLimit = Long.valueOf(parameters[3]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .depositTrx(callValue, feeLimit);
+        .depositTrx(callValue, depositFee, feeLimit);
     if (checkResult(resp)) {
       System.out.println("deposit trx success");
       System.out.println(
@@ -1689,19 +1730,20 @@ public class Client {
   }
 
   private void depositTrc10(String[] parameters) {
-    if (parameters == null || parameters.length != 4) {
-      System.out.println("deposit trc10 needs 3 parameters like following: ");
-      System.out.println("deposit trc10 trc10id num feeLimit");
+    if (parameters == null || parameters.length != 5) {
+      System.out.println("deposit trc10 needs 4 parameters like following: ");
+      System.out.println("deposit trc10 trc10id num depositFee feeLimit");
       return;
     }
 
     String tokenId = parameters[1];
 
     long tokenCallValue = Long.valueOf(parameters[2]);
-    long feeLimit = Long.valueOf(parameters[3]);
+    long depositFee = Long.valueOf(parameters[3]);
+    long feeLimit = Long.valueOf(parameters[4]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .depositTrc10(tokenId, tokenCallValue, feeLimit);
+        .depositTrc10(tokenId, tokenCallValue, depositFee, feeLimit);
     if (checkResult(resp)) {
       System.out.println("deposit trc10 success");
       System.out.println(
@@ -1713,19 +1755,19 @@ public class Client {
   }
 
   private void depositTrc20(String[] parameters) {
-    if (parameters == null || parameters.length != 4) {
-      System.out.println("deposit trc20 needs 3 parameters like following: ");
-      System.out.println("deposit trc20 trc20ContractAddress num feeLimit");
+    if (parameters == null || parameters.length != 5) {
+      System.out.println("deposit trc20 needs 4 parameters like following: ");
+      System.out.println("deposit trc20 trc20ContractAddress num depositFee feeLimit");
       return;
     }
 
     String contractAddrStr = parameters[1];  //main trc20 contract address
     String num = parameters[2];
-
-    long feeLimit = Long.valueOf(parameters[3]);
+    long depositFee = Long.valueOf(parameters[3]);
+    long feeLimit = Long.valueOf(parameters[4]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .depositTrc20(contractAddrStr, num, feeLimit);
+        .depositTrc20(contractAddrStr, num, depositFee, feeLimit);
     if (checkResult(resp)) {
       System.out.println("deposit trc20 success");
       System.out.println(
@@ -1736,18 +1778,18 @@ public class Client {
   }
 
   private void depositTrc721(String[] parameters) {
-    if (parameters == null || parameters.length != 4) {
-      System.out.println("deposit trc721 needs 3 parameters like following: ");
-      System.out.println("deposit trc721 trc721ContractAddress tokenId feeLimit");
+    if (parameters == null || parameters.length != 5) {
+      System.out.println("deposit trc721 needs 4 parameters like following: ");
+      System.out.println("deposit trc721 trc721ContractAddress tokenId depositFee feeLimit");
       return;
     }
 
     String contractAddrStr = parameters[1];  //main trc20 contract address
     String num = parameters[2];
-
-    long feeLimit = Long.valueOf(parameters[3]);
+    long depositFee = Long.valueOf(parameters[3]);
+    long feeLimit = Long.valueOf(parameters[4]);
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .depositTrc721(contractAddrStr, num, feeLimit);
+        .depositTrc721(contractAddrStr, num, depositFee, feeLimit);
     if (checkResult(resp)) {
       System.out.println("deposit trc20 success");
       System.out.println(
@@ -1911,8 +1953,10 @@ public class Client {
     allCmds.add("updateenergylimit");
     allCmds.add("deploycontract");
     allCmds.add("triggercontract");
+    allCmds.add("triggerconstantcontract");
     allCmds.add("getcontract");
     allCmds.add("generateaddress");
+    allCmds.add("generateaddressoffline");
     allCmds.add("updateaccountpermission");
     allCmds.add("gettransactionsignweight");
     allCmds.add("gettransactionapprovedlist");
@@ -1943,6 +1987,8 @@ public class Client {
   private List<String> getAllSideCmds() {
     List<String> allCmds = new ArrayList<String>();
     allCmds.add("help");
+    allCmds.add("importwallet");
+    allCmds.add("importwalletbybase64");
     allCmds.add("switchtomain");
     allCmds.add("sm");
     allCmds.add("login");
@@ -1951,6 +1997,7 @@ public class Client {
     allCmds.add("getbalance");
     allCmds.add("getaccount");
     allCmds.add("updateaccount");
+    allCmds.add("gettransactioncountbyblocknum");
     allCmds.add("getaccountresource");
     allCmds.add("getassetissuebyid");
     allCmds.add("sendcoin");
@@ -1979,6 +2026,7 @@ public class Client {
     allCmds.add("updateenergylimit");
     allCmds.add("getcontract");
     allCmds.add("triggercontract");
+    allCmds.add("triggerconstantcontract");
     allCmds.add("deploycontract");
     allCmds.add("approveproposal");
     allCmds.add("deleteproposal");
@@ -1992,6 +2040,7 @@ public class Client {
     allCmds.add("gettransactionapprovedlist");
     allCmds.add("addtransactionsign");
     allCmds.add("broadcasttransaction");
+    allCmds.add("generateaddressoffline");
     allCmds.add("exit");
     allCmds.add("quit");
 
@@ -2013,6 +2062,7 @@ public class Client {
   private String[] getCmd(String cmdLine) {
     if (cmdLine.indexOf("\"") < 0 || cmdLine.toLowerCase().startsWith("deploycontract")
         || cmdLine.toLowerCase().startsWith("triggercontract")
+        || cmdLine.toLowerCase().startsWith("triggerconstantcontract")
         || cmdLine.toLowerCase().startsWith("updateaccountpermission")) {
       return cmdLine.split("\\s+");
     }
@@ -2340,12 +2390,20 @@ public class Client {
           triggerContract(parameters);
           break;
         }
+        case "triggerconstantcontract": {
+          triggerConstantContract(parameters);
+          break;
+        }
         case "getcontract": {
           getContract(parameters);
           break;
         }
         case "generateaddress": {
           generateAddress();
+          break;
+        }
+        case "generateaddressoffline": {
+          generateAddressOffline();
           break;
         }
         case "updateaccountpermission": {
@@ -2559,17 +2617,18 @@ public class Client {
   }
 
   private void retryDeposit(String[] parameters) {
-    if (parameters == null || parameters.length != 3) {
-      System.out.println("retry deposit needs 2 parameters like following: ");
-      System.out.println("retry deposit nonce fee_limit ");
+    if (parameters == null || parameters.length != 4) {
+      System.out.println("retry deposit needs 3 parameters like following: ");
+      System.out.println("retry deposit nonce retryFee fee_limit ");
       return;
     }
 
     String nonce = parameters[1];
-    long feeLimit = Long.parseLong(parameters[2]);
+    long retryFee = Long.parseLong(parameters[2]);
+    long feeLimit = Long.parseLong(parameters[3]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .retryDeposit(nonce, feeLimit);
+        .retryDeposit(nonce, retryFee, feeLimit);
     if (checkResult(resp)) {
       System.out.println("retry deposit success");
       System.out.println(
@@ -2583,17 +2642,18 @@ public class Client {
   }
 
   private void retryWithdraw(String[] parameters) {
-    if (parameters == null || parameters.length != 3) {
-      System.out.println("retry withdraw needs 2 parameters like following: ");
-      System.out.println("retry withdraw nonce fee_limit ");
+    if (parameters == null || parameters.length != 4) {
+      System.out.println("retry withdraw needs 3 parameters like following: ");
+      System.out.println("retry withdraw nonce retryFee fee_limit ");
       return;
     }
 
     String nonce = parameters[1];
-    long feeLimit = Long.parseLong(parameters[2]);
+    long retryFee = Long.parseLong(parameters[2]);
+    long feeLimit = Long.parseLong(parameters[3]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .retryWithdraw(nonce, feeLimit);
+        .retryWithdraw(nonce, retryFee, feeLimit);
     if (checkResult(resp)) {
       System.out.println("retry withdraw success");
       System.out.println(
@@ -2607,17 +2667,18 @@ public class Client {
   }
 
   private void retryMapping(String[] parameters) {
-    if (parameters == null || parameters.length != 3) {
-      System.out.println("retry mapping needs 2 parameters like following: ");
-      System.out.println("retry mapping nonce fee_limit ");
+    if (parameters == null || parameters.length != 4) {
+      System.out.println("retry mapping needs 3 parameters like following: ");
+      System.out.println("retry mapping nonce retryFee, fee_limit ");
       return;
     }
 
     String nonce = parameters[1];
-    long feeLimit = Long.parseLong(parameters[2]);
+    long retryFee = Long.parseLong(parameters[2]);
+    long feeLimit = Long.parseLong(parameters[3]);
 
     SunNetworkResponse<TransactionResponse> resp = walletApiWrapper
-        .retryMapping(nonce, feeLimit);
+        .retryMapping(nonce, retryFee, feeLimit);
     if (checkResult(resp)) {
       System.out.println("retry mapping success");
       System.out.println(
@@ -2765,6 +2826,14 @@ public class Client {
           switch2Main();
           break;
         }
+        case "importwallet": {
+          importWallet();
+          break;
+        }
+        case "importwalletbybase64": {
+          importwalletByBase64();
+          break;
+        }
         case "help": {
           sideHelp();
           break;
@@ -2869,6 +2938,10 @@ public class Client {
           getBlock(parameters);
           break;
         }
+        case "gettransactioncountbyblocknum": {
+          getTransactionCountByBlockNum(parameters);
+          break;
+        }
         case "gettransactionbyid": {
           getTransactionById(parameters);
           break;
@@ -2903,6 +2976,10 @@ public class Client {
         }
         case "triggercontract": {
           triggerContract(parameters);
+          break;
+        }
+        case "triggerconstantcontract": {
+          triggerConstantContract(parameters);
           break;
         }
         case "deploycontract": {
@@ -2957,6 +3034,10 @@ public class Client {
         }
         case "broadcasttransaction": {
           broadcastTransaction(parameters);
+          break;
+        }
+        case "generateaddressoffline": {
+          generateAddressOffline();
           break;
         }
         case "exit":

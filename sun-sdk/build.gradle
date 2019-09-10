@@ -4,7 +4,6 @@ version '1.0-SNAPSHOT'
 apply plugin: 'java'
 apply plugin: 'com.google.protobuf'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'application'
 apply plugin: "jacoco"
 
 sourceCompatibility = 1.8
@@ -140,14 +139,8 @@ test {
     }
 }
 
-run {
-    standardInput = System.in
-    mainClassName = 'org.tron.walletcli.Client'
-}
-
-
 shadowJar {
-    baseName = 'sun-cli'
+    baseName = 'sun-sdk'
     classifier = null
     version = null
 }
