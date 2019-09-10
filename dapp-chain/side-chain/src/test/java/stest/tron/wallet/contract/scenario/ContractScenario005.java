@@ -21,6 +21,7 @@ import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
+import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
@@ -84,27 +85,20 @@ public class ContractScenario005 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    String txid = PublicMethedForDailybuild
+    String txid = PublicMethed
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
             0L, 100, null, contract005Key, contract005Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById = PublicMethedForDailybuild
+    Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
     logger.info("Txid is " + txid);
     logger.info("Deploy energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
-    byte[] contractAddress = null;
-    contractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
-
-    Assert.assertFalse(smartContract.getAbi().toString().isEmpty());
-    Assert.assertTrue(smartContract.getName().equalsIgnoreCase(contractName));
-    Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
+    Assert.assertEquals(1, infoById.get().getResultValue());
     accountResource = PublicMethedForDailybuild.getAccountResource(contract005Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
     Assert.assertTrue(energyLimit > 0);
     Assert.assertTrue(energyUsage > 0);
-
     logger.info("after energy limit is " + Long.toString(energyLimit));
     logger.info("after energy usage is " + Long.toString(energyUsage));
   }

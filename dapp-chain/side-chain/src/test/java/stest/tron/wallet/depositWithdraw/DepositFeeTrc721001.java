@@ -563,6 +563,7 @@ public class DepositFeeTrc721001 {
   @AfterClass
   public void shutdown() throws InterruptedException {
     parame2 = "0";
+    methodStr1 = "setDepositFee(uint256)";
 
     byte[] input3 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame2, false));
 
