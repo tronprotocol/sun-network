@@ -1072,6 +1072,17 @@ Signature of main-chain is the same as TronWeb, you can use tronWeb.trx.sign(…
 // format
 sign((transaction = false), (privateKey = this.sidechain.defaultPrivateKey), (useTronHeader = true), (multisig = false));
 ```
+
+#### 5. How to _withdrawTRX_
+* use account A2 and trigger withdrawTRX function in gateway contract on side-chain
+  * sun-cli command: `withdraw trx $trx_num $fee_limit`
+* wait for sometimes and check trx balance on main-chain.
+ 
+#### 6. How to _withdrawTRC10_
+* use account A3，than trigger withdrawTRC10 function in gateway contract on side-chain
+  * sun-cli command: `withdraw trc10 $trc10Id $value $fee_limit`
+* wait for sometimes and check trc10 balance on main-chain.
+
 #### 7. withdraw TRC20 token process
 * use A4 account on side-chain and trigger the withdrawal function for target trc20 contract on side-chain.
 	* sun-cli cmd: `withdraw Trc20 $side_trc20_address $value $fee_limit`
