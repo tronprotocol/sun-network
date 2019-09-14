@@ -1074,7 +1074,7 @@ sign((transaction = false), (privateKey = this.sidechain.defaultPrivateKey), (us
 ```
 
 ## VII. Deploy your own side-chain
-### Get start
+### Get started
 #### 1. Start _kafka_
 
  * follow this: `https://github.com/tronprotocol/event-plugin`
