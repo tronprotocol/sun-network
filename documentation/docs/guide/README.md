@@ -1072,7 +1072,41 @@ Signature of main-chain is the same as TronWeb, you can use tronWeb.trx.sign(…
 // format
 sign((transaction = false), (privateKey = this.sidechain.defaultPrivateKey), (useTronHeader = true), (multisig = false));
 ```
+#### 7. withdraw TRC20 token process
+* use A4 account on side-chain and trigger the withdrawal function for target trc20 contract on side-chain.
+	* sun-cli cmd: `withdraw Trc20 $side_trc20_address $value $fee_limit`
+* wait for sometimes and check trc20 token balance on main-chain.
 
+#### 8. withdraw TRC721 token process
+* use A5 account on side-chain and trigger the withdrawal function for target trc721 contract on side-chain.
+	* sun-cli cmd: `withdraw Trc721 $sideTrc721Address $trc721_tokenId $fee_limit`
+* wait for sometimes and check specific trc721 tokenid ownership on main-chain.
+
+#### 9. retryWithdraw token process
+* use nonce on side-chain to trigger retry action
+	* sun-cli cmd: `triggercontract $sidechaingateway retryWithdraw(uint256) $nonce false 1000000000 0 0 0`
+
+#### 10. the preparation before creating charging fee proposal
+ * gateway contract deployer should deposit proper amount of trx to side-chain and freeze trx for bandwidth/energy.
+ 	* sun-cli cmd: `deposit trx $mainGatewayAddress $num $feelmit`
+   * freeze cmd is the same as main-net.
+
+ 
+  * Oracle need to deposit proper amount of trx to side-chain，and freeze trx for bandwidth/energy, for cross chain actions。
+ 	* sun-cli cmd （same as gateway contract deployer）: `deposit trx $mainGatewayAddress $num $feelmit`
+ 	* freeze cmd is the same as main-net.
+
+ 
+ 
+  * One wintess create proposal for energyChargingSwitchOn == 1
+ 	* witnesses create proposal
+ 		* sun-cli cmd: `createproposal 1000000 1 //eg. createproposal 1000000 1`
+ 	* approve and wait proposal to be available
+ 		* sun-cli cmd: `approveproposal 1 true`
+
+  #### 11. Test if everything works as expected under charging fee proposal is approved
+ * test cmd 1-9 again.
+ 
 ## VII. RoadMap
 
 As part of the TRON expansion plan, DAppChain is committed to decentralizing and prospering the TRON ecosystem. For all builders of the entire ecology, it will be accompanied by the development of DAppChain through the three stages of L1, L2 and L3. We will open up more roles for the community as the plan progresses and the development work is completed, allowing the community to participate in the entire ecosystem in different forms.
