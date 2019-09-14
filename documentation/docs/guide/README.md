@@ -1204,9 +1204,9 @@ event.subscribe = {
   
 * iv. A4 calls the depositTRC20 of the main-chain gateway contract
 
-* After a while, check the TRC20 mapping relationship in the mainchainSideContractMap(address) in the side-chain gateway (A4 account will not be created) 
+* v. After a while, check the TRC20 mapping relationship in the mainchainSideContractMap(address) in the side-chain gateway (A4 account will not be created) 
 
-* Call balanceOf(address) of the corresponding TRC20 contract to check whether the account balance is correctly increased.
+* vi. Call balanceOf(address) of the corresponding TRC20 contract to check whether the account balance is correctly increased.
   
 #### 4. How to _depositTRC721_
 * i. Deploy a TRC721 contract on the main-chain
@@ -1218,53 +1218,53 @@ event.subscribe = {
 	* sun-cli command: `triggercontract $main_chain_gateway mappingTRC721(bytes) $deployed_transaction_id false 1000000000 0 0 #`
 
 * iv. A5 calls the depositTRC721 of the main-chain gateway contract
-* After a while, check the TRC721 mapping relationship in the mainToSideContractMap(address) in the side-chain gateway (A5 account will not be created) 
+* v. After a while, check the TRC721 mapping relationship in the mainToSideContractMap(address) in the side-chain gateway (A5 account will not be created) 
 
-* Call balanceOf(address) of the corresponding TRC721 contract to check the ownership of the corresponding tokenId.
+* vi. Call balanceOf(address) of the corresponding TRC721 contract to check the ownership of the corresponding tokenId.
 
 #### 5. How to _withdrawTRX_
-* use account A2 and trigger withdrawTRX function in gateway contract on side-chain
+* i. use account A2 and trigger withdrawTRX function in gateway contract on side-chain
   * sun-cli command: `withdraw trx $trx_num $fee_limit`
-* wait for sometimes and check trx balance on main-chain.
+* ii. wait for sometimes and check trx balance on main-chain.
  
 #### 6. How to _withdrawTRC10_
-* use account A3，than trigger withdrawTRC10 function in gateway contract on side-chain
+* i. use account A3，than trigger withdrawTRC10 function in gateway contract on side-chain
   * sun-cli command: `withdraw trc10 $trc10Id $value $fee_limit`
-* wait for sometimes and check trc10 balance on main-chain.
+* ii. wait for sometimes and check trc10 balance on main-chain.
 
 #### 7. withdraw TRC20 token process
-* use A4 account on side-chain and trigger the withdrawal function for target trc20 contract on side-chain.
+* i. use A4 account on side-chain and trigger the withdrawal function for target trc20 contract on side-chain.
 	* sun-cli cmd: `withdraw Trc20 $side_trc20_address $value $fee_limit`
-* wait for sometimes and check trc20 token balance on main-chain.
+* ii. wait for sometimes and check trc20 token balance on main-chain.
 
 #### 8. withdraw TRC721 token process
-* use A5 account on side-chain and trigger the withdrawal function for target trc721 contract on side-chain.
+* i. use A5 account on side-chain and trigger the withdrawal function for target trc721 contract on side-chain.
 	* sun-cli cmd: `withdraw Trc721 $sideTrc721Address $trc721_tokenId $fee_limit`
-* wait for sometimes and check specific trc721 tokenid ownership on main-chain.
+* ii. wait for sometimes and check specific trc721 tokenid ownership on main-chain.
 
 #### 9. retryWithdraw token process
 * use nonce on side-chain to trigger retry action
 	* sun-cli cmd: `triggercontract $sidechaingateway retryWithdraw(uint256) $nonce false 1000000000 0 0 0`
 
 #### 10. the preparation before creating charging fee proposal
- * gateway contract deployer should deposit proper amount of trx to side-chain and freeze trx for bandwidth/energy.
+ * i. gateway contract deployer should deposit proper amount of trx to side-chain and freeze trx for bandwidth/energy.
  	* sun-cli cmd: `deposit trx $mainGatewayAddress $num $feelmit`
-   * freeze cmd is the same as main-net.
+ 	* freeze cmd is the same as main-net.
 
  
-  * Oracle need to deposit proper amount of trx to side-chain，and freeze trx for bandwidth/energy, for cross chain actions。
+  * ii. Oracle need to deposit proper amount of trx to side-chain，and freeze trx for bandwidth/energy, for cross chain actions。
  	* sun-cli cmd （same as gateway contract deployer）: `deposit trx $mainGatewayAddress $num $feelmit`
  	* freeze cmd is the same as main-net.
 
  
  
-  * One wintess create proposal for energyChargingSwitchOn == 1
+  * iii. One wintess create proposal for energyChargingSwitchOn == 1
  	* witnesses create proposal
  		* sun-cli cmd: `createproposal 1000000 1 //eg. createproposal 1000000 1`
  	* approve and wait proposal to be available
  		* sun-cli cmd: `approveproposal 1 true`
 
-  #### 11. Test if everything works as expected under charging fee proposal is approved
+#### 11. Test if everything works as expected under charging fee proposal is approved
  * test cmd 1-9 again.
  
 ## VII. RoadMap
