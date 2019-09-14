@@ -1107,11 +1107,12 @@ Sun-network 的签名有一些改变，主链的签名逻辑和 TronWeb 的保�
 sign((transaction = false), (privateKey = this.sidechain.defaultPrivateKey), (useTronHeader = true), (multisig = false));
 ```
 ## VII. 如何部署自己的侧链
- ### 开始部署
+### 开始部署
 #### 1. 启动kafka
 
- 启动命令: https://github.com/tronprotocol/event-plugin
- kafka 请配置好读写权限控制
+ * 启动命令: `https://github.com/tronprotocol/event-plugin`
+ 
+ * kafka 请配置好读写权限控制
 
 #### 2. 配置主链 (部署和配置主链合约)
 
@@ -1130,15 +1131,16 @@ sign((transaction = false), (privateKey = this.sidechain.defaultPrivateKey), (us
 
 * 1.配置文件中写上主链、侧链node，主链gateway地址
 
-* 注意mainChainGateWayList写上主链地址\
-`mainChainGateWayList = ["TAcLUguLig3n6zCC5BQQxwSJbFwJseAxQB"]`
+* 注意mainChainGateWayList写上主链地址
+	* `mainChainGateWayList = ["TAcLUguLig3n6zCC5BQQxwSJbFwJseAxQB"]`
 
 * 2.启动 Sun-cli
 
 #### 4. 配置侧链
+
 * 1.启动侧链witness节点，将A1作为一个GR，账户资金为0
 
->配置文件:
+> 配置文件:
 
 ```
 block = {
@@ -1195,6 +1197,7 @@ event.subscribe = {
 
 #### 6. 配置 Oracle 
 * 启动oracle(如果有多个oracle的话，一一启动)
+
 > 配置文件:
 
 ```
@@ -1218,7 +1221,7 @@ event.subscribe = {
 #### 2. depositTRC10流程
 * 主链上某个账号A3，发行TRC10
 	* 发行 TRC10 的 sun-cli 命令: `assetissue nmbb 10000000000 1 1 0 2019-10-13 2019-12-31 abc abc.com 1000 10000`
-	* 参考所有 TRC10 token: `ListAssetIssue`
+	* 查看所有 TRC10 token: `ListAssetIssue`
   
 * 调用主链gateway合约的depositTRC10或者fallback函数充值TRC10
 	* sun-cli 命令: `deposit trc10 $main_gateway $trc10Id $num $feelmit`
