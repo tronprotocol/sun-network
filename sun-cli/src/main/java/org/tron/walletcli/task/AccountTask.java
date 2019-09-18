@@ -80,9 +80,9 @@ public class AccountTask extends SideChainTask {
     sdk.setPrivateKey(ConfigInfo.privateKey);
     if (accountList.size() > 0) {
       accountList.forEach(account -> {
-        SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
-            .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 1, account.split(",")[0]);
-        logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
+//        SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
+//            .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 1, account.split(",")[0]);
+//        logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
       });
     } else {
       BufferedWriter out = null;
@@ -95,9 +95,9 @@ public class AccountTask extends SideChainTask {
           if (resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
             String info = resp.getData().getAddress() + "," + resp.getData().getPrivateKey();
             sdk.getSideChainService().createAccount(resp.getData().getAddress());
-            SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
-                .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 1, resp.getData().getAddress());
-            logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
+//            SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
+//                .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 1, resp.getData().getAddress());
+//            logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
             accountList.add(info);
             out.write(info);
             out.newLine();

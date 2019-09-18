@@ -24,12 +24,12 @@ public class Main {
 
     logger.info("sdk inited !");
     sdk.setPrivateKey(ConfigInfo.privateKey);
-    SunNetworkResponse<TransactionResponse> bandwidthResponse = sdk.getSideChainService()
-        .freezeBalance(ConfigInfo.basicFreezeBalance, 3, 0, null);
-    SunNetworkResponse<TransactionResponse> energyResponse = sdk.getSideChainService()
-        .freezeBalance(ConfigInfo.basicFreezeBalance, 3, 1, null);
+//    SunNetworkResponse<TransactionResponse> bandwidthResponse = sdk.getSideChainService()
+//        .freezeBalance(ConfigInfo.basicFreezeBalance, 3, 0, null);
+//    SunNetworkResponse<TransactionResponse> energyResponse = sdk.getSideChainService()
+//        .freezeBalance(ConfigInfo.basicFreezeBalance, 3, 1, null);
 
-    logger.info("bandwidth txid = {}, energy txid = {}", bandwidthResponse.getData().getTrxId(), energyResponse.getData().getTrxId());
+//    logger.info("bandwidth txid = {}, energy txid = {}", bandwidthResponse.getData().getTrxId(), energyResponse.getData().getTrxId());
 
     new WithdrawTask().runTask(sdk);
 

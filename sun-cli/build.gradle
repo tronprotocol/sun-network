@@ -100,7 +100,7 @@ jar {
 }
 
 shadowJar {
-    baseName = 'sun-cli'
+    baseName = 'trigger-cli'
     classifier = null
     version = null
 }
