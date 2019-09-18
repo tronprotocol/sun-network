@@ -4,6 +4,8 @@ package org.tron.walletcli;
 import com.typesafe.config.Config;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -35,6 +37,12 @@ public class Monitor{
 
   public void checkOracleResources(String chainName){
     oracleAddress.stream().forEach(address-> {
+      Date minute = new Date();
+      Calendar calendar = Calendar.getInstance();
+      calendar.setTime(minute);
+      int min = calendar.get(Calendar.MINUTE);
+
+      boolean needPrint = ((min % 60) < 6) ;
       Account account = walletApiWrapper.getAccount(address).getData();
       long balance = account.getBalance();
       AccountResourceMessage resource = walletApiWrapper.getAccountResource(address);
@@ -45,8 +53,11 @@ public class Monitor{
       String msg = chainName + " Oracle " + address + " balance " + balance + " bandwidthLimit "
           + bandwidthLimit + " bandwidthUsed " + bandwidthUsed + " energyLimit " +  energyLimit +
           " energyUsed " + energyUsed;
-      logger.info(msg);
-      sendAlert(msg);
+
+      if(needPrint) {
+        logger.info(msg);
+        sendAlert(msg);
+      }
       if(bandwidthLimit - bandwidthUsed < 2000) {
         msg = chainName + " Oracle " + address + "low bandwidth";
         sendAlert(msg);
