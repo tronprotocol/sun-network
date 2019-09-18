@@ -107,3 +107,27 @@ shadowJar {
     classifier = null
     version = null
 }
+
+def binaryRelease(taskName, jarName, mainClass) {
+    return tasks.create("${taskName}", Jar) {
+        baseName = jarName
+        version = null
+        from(sourceSets.main.output) {
+            include "/**"
+        }
+
+        from {
+            configurations.compile.collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+
+        manifest {
+            attributes "Main-Class": "${mainClass}"
+        }
+    }
+}
+
+artifacts {
+    archives(binaryRelease('buildMonitorJar', 'Monitor', 'org.tron.walletcli.Monitor'))
+}
