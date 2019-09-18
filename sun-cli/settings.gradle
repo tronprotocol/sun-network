@@ -1,2 +1,2 @@
 rootProject.name = 'sun-cli'
-includeFlat 'sun-sdk'
+includeFlat 'trigger-sdk'
