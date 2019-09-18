@@ -16,7 +16,7 @@ public class Main {
   public static void main(String[] args) {
 
     SunNetwork sdk = new SunNetwork();
-    SunNetworkResponse<Integer> ret = sdk.init("config.conf", new MultiSignTransactionImpl());
+    SunNetworkResponse<Integer> ret = sdk.init("config-trigger.conf", new MultiSignTransactionImpl());
     if (ret.getData() != 0) {
       logger.info("Failed to init sdk");
       System.exit(-1);
