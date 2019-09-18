@@ -85,7 +85,7 @@ dependencies {
 
 run {
     standardInput = System.in
-    mainClassName = 'org.tron.walletcli.Client'
+    mainClassName = 'org.tron.walletcli.Monitor'
 }
 
 jar {
@@ -98,7 +98,7 @@ jar {
         }
     }
     manifest {
-        attributes 'Main-Class': 'org.tron.walletcli.Client'
+        attributes 'Main-Class': 'org.tron.walletcli.Monitor'
     }
 }
 
@@ -106,28 +106,4 @@ shadowJar {
     baseName = 'sun-cli'
     classifier = null
     version = null
-}
-
-def binaryRelease(taskName, jarName, mainClass) {
-    return tasks.create("${taskName}", Jar) {
-        baseName = jarName
-        version = null
-        from(sourceSets.main.output) {
-            include "/**"
-        }
-
-        from {
-            configurations.compile.collect {
-                it.isDirectory() ? it : zipTree(it)
-            }
-        }
-
-        manifest {
-            attributes "Main-Class": "${mainClass}"
-        }
-    }
-}
-
-artifacts {
-    archives(binaryRelease('buildMonitorJar', 'Monitor', 'org.tron.walletcli.Monitor'))
 }
