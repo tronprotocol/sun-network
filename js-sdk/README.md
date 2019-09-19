@@ -1,19 +1,19 @@
 # What is SunWeb
 
-SunWeb inherits from TronWeb and services for Sun-network. We  encapsulated two objects (mainchain and sidechain) based on TronWeb. The methods and attributes in mainchain or sidechain are exactly the same as the tronweb instance. For example, users can use sunweb.mainchain.trx.getBalance() to get balance from the mainchain. Futhermore, we add some new methods which are as follows in SunWeb class so that users can use them to contact between the main chain and the side chain. 
+SunWeb inherits from TronWeb and services for Sun-network. We  encapsulated two objects (mainchain and sidechain) based on TronWeb. The methods and attributes in mainchain or sidechain are exactly the same as the tronweb instance. For example, users can use sunweb.mainchain.trx.getBalance() to get balance from the mainchain. Futhermore, we add some new methods which are as follows in SunWeb class so that users can use them to contact between the main chain and the side chain.
 
 # Installation
 
 <strong>Node.js</strong>
 
 ```javascript
-npm install sunweb
+npm install tronweb sunweb
 ```
 
 or
 
 ```javascript
-yarn add sunweb
+yarn add tronweb sunweb
 ```
 
 <strong>Browser</strong>
@@ -21,6 +21,7 @@ yarn add sunweb
 Then easiest way to use SunWeb in a browser is to install it as above and copy the dist file to your working folder. For example:
 
 ```javascript
+cp node_modules/tronweb/dist/TronWeb.js ./js/TronWeb.js
 cp node_modules/sunweb/dist/SunWeb.js ./js/SunWeb.js
 ```
 
@@ -29,6 +30,21 @@ so that you can call it in your HTML page as
 ```javascript
 <script src="./js/SunWeb.js"><script>
 ```
+
+Usage
+
+```
+    var sunWeb = new SunWeb(
+        TronWeb,
+        mainOptions, 
+        sideOptions, 
+        mainGatewayAddress, 
+        sideGatewayAddress, 
+        sideChainId, 
+        privateKey
+    ) 
+```
+
 # Test cases
 
 ```javascript
