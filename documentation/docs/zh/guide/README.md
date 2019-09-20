@@ -380,26 +380,28 @@ sdk.getCrossChainService();
 
 ```java
 // Called by the deployer of the TRC20 contract on the main-chain to complete the mapping of the TRC20 contract from the main-chain to the side-chain, the standard 20 contract deployed in the side-chain corresponds to the main-chain TRC20 contract.
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().mappingTrc20(trxHash, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().mappingTrc20(trxHash, mappingFee, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this mapping operation.
 ```
 
 | Parameter | Description                                                                   |
 | --------- | ----------------------------------------------------------------------------- |
 | trxHash   | deployContract transaction for deploying TRC20 contracts on the main-chain id |
+| mappingFee| Mapping Fee               					            |
 | feeLimit  | Maximum energy consumption when triggering a contract                         |
 
 2. TRC721 映射
 
 ```java
 // Called by the deployer of the TRC721 contract on the main-chain to complete the mapping of the TRC721 contract from the main-chain to the side-chain, the standard TRC721 contract will be deployed in the side-chain corresponding to the main-chain TRC721 contract.
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().mappingTrc721(trxHash, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().mappingTrc721(trxHash, mappingFee, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this mapping operation.
 ```
 
 | Parameter | Description                                                         |
 | --------- | ------------------------------------------------------------------- |
 | trxHash   | deployContract transaction id for TRC721 contract on the main-chain |
+| mappingFee| Mapping Fee               					  |
 | feeLimit  | Maximum energy consumption when triggering a contract               |
 
 #### 资产转入（Deposit）
@@ -408,20 +410,21 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().mappin
 
 ```java
 //Pledge a certain number of TRX from the main-chain to the side-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrx(num, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrx(num, depositFee, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this deposit operation.
 ```
 
 | Parameter | Description                                           |
 | --------- | ----------------------------------------------------- |
 | num       | TRX Quantity (Unit SUN)                               |
+| depositFee| Deposit fee					    |
 | feeLimit  | Maximum energy consumption when triggering a contract |
 
 2. TRC10 资产转入
 
 ```java
 //Pledge a certain number of designated TRC10 from the main-chain to the side-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrc10(tokenId, tokenValue, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrc10(tokenId, tokenValue, depositFee, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this deposit operation.
 ```
 
@@ -429,13 +432,14 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().deposi
 | ---------- | ----------------------------------------------------- |
 | tokenId    | Token ID of TRC10                                     |
 | tokenValue | TRC10 Quantity of Assets                              |
+| depositFee | Deposit fee				    	     |
 | feeLimit   | Maximum energy consumption when triggering a contract |
 
 3. TRC20 资产转入
 
 ```java
 //Pledge a certain number of designated TRC20 from the main-chain to the side-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrc20(contractAddrStr, num, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrc20(contractAddrStr, num, depositFee, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this deposit operation.
 ```
 
@@ -443,13 +447,14 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().deposi
 | --------------- | ----------------------------------------------------- |
 | contractAddrStr | Main-chain TRC20 Contract Address                     |
 | num             | TRC20 Asset Quantity                                  |
+| depositFee	  | Deposit fee						  |
 | feeLimit        | Maximum energy consumption when triggering a contract |
 
 4. TRC721 资产转入
 
 ```java
 //Pledge a certain number of designated TRC721 from the main-chain to the side-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrc721(contractAddrStr, num, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrc721(contractAddrStr, num, depositFee, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this deposit operation.
 ```
 
@@ -457,6 +462,7 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().deposi
 | --------------- | ----------------------------------------------------- |
 | ContractAddrStr | Main-chain TRC721 Contract Address                    |
 | num             | TRC721 Asset Quantity                                 |
+| depositFee	  | Deposit fee						  |
 | feeLimit        | Maximum energy consumption when triggering a contract |
 
 #### 资产转出（Withdraw）
@@ -465,20 +471,21 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().deposi
 
 ```java
 //Exit a certain number of TRX from the side-chain to the main-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrx(num, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrx(num, withdrawFee, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this withdraw operation.
 ```
 
-| Parameter | Description                                           |
-| --------- | ----------------------------------------------------- |
-| num       | TRX Quantity (Unit SUN)                               |
-| feeLimit  | Maximum energy consumption when triggering a contract |
+| Parameter  | Description                                           |
+| ---------- | ----------------------------------------------------- |
+| num        | TRX Quantity (Unit SUN)                               |
+| withdrawFee| Withdraw fee  		                             |
+| feeLimit   | Maximum energy consumption when triggering a contract |
 
 2. TRC10 资产转出
 
 ```java
 //Pledge a certain number of designated TRC10 from the side-chain to the main-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrc10(tokenId, tokenValue, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrc10(tokenId, tokenValue, withdrawFee, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this withdraw operation.
 ```
 
@@ -486,13 +493,14 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdr
 | ---------- | ----------------------------------------------------- |
 | tokenId    | Token ID of TRC10                                     |
 | tokenValue | TRC10 Quantity of Assets                              |
+| withdrawFee| Withdraw fee  		                             |
 | feeLimit   | Maximum energy consumption when triggering a contract |
 
 3. TRC20 资产转出
 
 ```java
 //Pledge a certain number of designated TRC20 from the side-chain to the main-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrc20(contractAddrStr, num, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrc20(contractAddrStr, num, withdrawFee, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this withdraw operation.
 ```
 
@@ -500,13 +508,14 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdr
 | --------------- | ----------------------------------------------------- |
 | contractAddrStr | Sidechain TRC20 Contract Address                      |
 | num             | TRC20 Asset Quantity                                  |
+| withdrawFee	  | Withdraw fee  		                          |
 | feeLimit        | Maximum energy consumption when triggering a contract |
 
 4. TRC721 资产转出
 
 ```java
 //Pledge a certain number of designated TRC721 from the side-chain to the main-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrc721(contractAddrStr, num, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrc721(contractAddrStr, num, withdrawFee, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this withdraw operation.
 ```
 
@@ -514,6 +523,7 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdr
 | --------------- | ----------------------------------------------------- |
 | contractAddrStr | Sidechain TRC721 Contract Address                     |
 | num             | TRC721 Asset Quantity                                 |
+| withdrawFee	  | Withdraw fee  		                          |
 | feeLimit        | Maximum energy consumption when triggering a contract |
 
 #### 重试（Retry）
@@ -522,36 +532,39 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdr
 
 ```java
 //Retry the unsuccessful main-chain deposit operation
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().retryDeposit(nonce, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().retryDeposit(nonce, retryFee, feeLimit);
 ```
 
 | Parameter | Description                                           |
 | --------- | ----------------------------------------------------- |
-| nonce     | deposit operation nonce value                         |
+| nonce     | Deposit operation nonce value                         |
+| retryFee  | Retry fee						    |
 | feeLimit  | Maximum energy consumption when triggering a contract |
 
 2. 资产转出重试
 
 ```java
 //Retry the unsuccessful side-chain withdraw operation
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().retryWithdraw(nonce, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().retryWithdraw(nonce, retryFee, feeLimit);
 ```
 
 | Parameter | Description                                           |
 | --------- | ----------------------------------------------------- |
-| nonce     | withdraw operation nonce value                        |
+| nonce     | Withdraw operation nonce value                        |
+| retryFee  | Retry fee						    |
 | feeLimit  | Maximum energy consumption when triggering a contract |
 
 3. 资产映射重试
 
 ```java
 //Retry the unsuccessful main-chain mapping operation
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().retryMapping(nonce, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().retryMapping(nonce, retryFee, feeLimit);
 ```
 
 | Parameter | Description                                           |
 | --------- | ----------------------------------------------------- |
-| nonce     | mapping operation's nonce value                       |
+| nonce     | Mapping operation's nonce value                       |
+| retryFee  | Retry fee						    |
 | feeLimit  | Maximum energy consumption when triggering a contract |
 
 ### 侧链接口介绍
