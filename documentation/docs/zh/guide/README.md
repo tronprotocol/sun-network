@@ -1106,8 +1106,213 @@ Sun-network 的签名有一些改变，主链的签名逻辑和 TronWeb 的保�
 // format
 sign((transaction = false), (privateKey = this.sidechain.defaultPrivateKey), (useTronHeader = true), (multisig = false));
 ```
+## VII. 如何部署自己的侧链
+### 开始部署
+#### 1. 启动kafka
 
-## VII. RoadMap
+ * 启动命令: `https://github.com/tronprotocol/event-plugin`
+ 
+ * kafka 请配置好读写权限控制
+
+#### 2. 配置主链 (部署和配置主链合约)
+
+* 1.启动主链的fullnode，配置kafka，连接java-tron主链(主网 或 测试网 或 用于测试的私网)
+	* 配置kafka命令同上，见 https://github.com/tronprotocol/event-plugin
+* 2.至少一个账号 A1 余额充足
+* 3.使用主链上一个账号 O1 作为Oracle
+* 4.使用wallet-cli，A1 在主链部署主链gateway合约，获得合约地址 C1，oracle地址 O1 作为参数
+	* wallet-cli命令: `deploycontract ...`
+* 5.如果是多个oracle的话，调用主链gateway合约的addOracle(address)方法一个一个的添加oracle
+	* wallet-cli命令: `triggercontract $main_gateway addOracle(address) $new_oracle false 1000000000 0 0 #`
+* 6.在主链激活每个oracle，并且保证每个oracle余额充足，比如10000TRX。
+	 * wallet-cli命令: `sendcoin $oracle_address value`
+
+#### 3. Sun-cli
+
+* 1.配置文件中写上主链、侧链node，主链gateway地址
+
+* 注意mainChainGateWayList写上主链地址
+	* `mainChainGateWayList = ["TAcLUguLig3n6zCC5BQQxwSJbFwJseAxQB"]`
+
+* 2.启动 Sun-cli
+
+#### 4. 配置侧链
+
+* 1.启动侧链witness节点，将A1作为一个GR，账户资金为0
+
+> 配置文件:
+
+```
+block = {
+  needSyncCheck = false
+  maintenanceTimeInterval = 20000 # 测试的时候，时间改短
+  proposalExpireTime = 240000 # 测试的时候，时间改短
+}
+  
+...
+{
+  accountName = "Blackhole"
+   accountType = "AssetIssue"
+  address = "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"  # 注意黑洞地址和主链不同
+  balance = "-9223372036854775808"
+}
+...
+ 
+committee = {
+  allowMultiSign=1
+  chargingSwitchOn = 0 # 填0
+}
+ 
+sidechain = {
+  chargingType = 0   # 填0
+  chargingBandwidth = 1   # 0:off, 1:on  if committee.chargingSwitchOn == 0, chargingBandwidth is always off
+  energyFee = 1 #  1 sun per energy
+  totalEnergyLimit = 100000000000 # 100_000_000_000 frozen energy limit
+}
+ 
+gateWayList = []
+mainChainGateWayList = ["TAcLUguLig3n6zCC5BQQxwSJbFwJseAxQB"]  # 填主链gateway地址
+ 
+event.subscribe = {
+  path = "/Users/tron/code/event-plugin/build/plugins/plugin-kafka-1.0.0.zip" # absolute path of plugin
+  server = "172.16.20.52:9092" # kafka地址
+}
+```
+
+* 2.启动侧链的fullnode，配置kafka，连接侧链
+	* 配置kafka命令同上，见 https://github.com/tronprotocol/event-plugin
+* 3.使用sun-cli，A1 在侧链上部署侧链gateway合约（设置合约部署者付全部费用），获得合约地址 C2，oracle地址 O1 作为参数
+	* sun-cli的deploycontract命令(不能使用wallet-cli)
+* 4.如果是多个oracle的话，调用侧链gateway合约的modifyOracle(address)方法一个一个的添加oracle
+	* sun-cli命令: `triggercontract $sidechain_gateway addOracle(address) "$oracel_address" false 1000000000 0 0 0`
+* 5.如果有oracle在侧链上没有账号，则一一创建账号
+	* sun-cli 命令: `createaccount $oracle_address`
+* 6.A1 提proposal让侧链节点记录gateway地址, createproposal之后approveproposal
+	* sun-cli 命令: `createproposal 1000001 $sidechain_gateway`
+	* sun-cli 命令: `approveproposal 1 true`
+
+#### 5. 重启 sun-cli
+
+* 将侧链gateway地址C2，配置进sun-cli的配置文件，重启sun-cli
+
+#### 6. 配置 Oracle 
+* 启动oracle(如果有多个oracle的话，一一启动)
+
+> 配置文件:
+
+```
+// oracle config here
+```
+ 
+ 
+### 测试是否部署成功
+#### 1. depositTRX流程
+* 主链上某个账号A2，调用主链gateway合约的depositTRX或者fallback函数充值TRX
+	* sun-cli 命令: `deposit trx $main_gateway $num $feelmit`
+  
+* 等待一段时间之后，在侧链上查看账户余额(查看账号被创建、查看余额)
+	* sun-cli 命令: `getAccount $address`
+
+* 主链上再次使用账号A2，调用主链gateway合约的depositTRX或者fallback函数充值TRX
+
+* 等待一段时间之后，在侧链上查看账户余额是否增加正确
+  
+  
+#### 2. depositTRC10流程
+* 主链上某个账号A3，发行TRC10
+	* 发行 TRC10 的 sun-cli 命令: `assetissue nmbb 10000000000 1 1 0 2019-10-13 2019-12-31 abc abc.com 1000 10000`
+	* 查看所有 TRC10 token: `ListAssetIssue`
+  
+* 调用主链gateway合约的depositTRC10或者fallback函数充值TRC10
+	* sun-cli 命令: `deposit trc10 $main_gateway $trc10Id $num $feelmit`
+ 
+* 等待一段时间之后，在侧链上查看TRC10余额(A3账号被创建，对应TRC10也被创建)
+	* sun-cli 命令: `getAccount $address`
+* 主链上再次使用账号A3，调用主链 gateway 合约的 depositTRC10 或者fallback函数充值 TRC10
+* 等待一段时间之后，在侧链上查看TRC10余额是否正确
+	* sun-cli 命令: `getAccount $address`
+ 
+  
+#### 3. depositTRC20流程
+* 主链部署TRC20合约
+  
+* A4 调用主链gateway合约的 depositTRC20，查看交易是否失败，失败是正确的预期
+	 * sun-cli 命令: `deposit trc20 mainchainTrc20ContractAddress mainGatewayAddress num feelmit
+`
+  
+* TRC20开发者在主链上调用主链gateway的mappingTRC20，完成主链和侧链TRC20的映射，侧链上对应TRC20合约被创建
+	* sun-cli 命令: `triggercontract $main_chain_gateway mappingTRC20(bytes) $deployed_transaction_id false 1000000000 0 0 #`
+  
+* A4调用主链gateway合约的depositTRC20
+
+* 等待一段时间之后，在侧链gateway里mainToSideContractMap(address)查看TRC20映射关系(A4账号不会被创建)
+
+* 调用对应的TRC20合约的balanceOf(address)查看账户余额是否正确增加
+  
+#### 4. depositTRC721流程
+* 主链部署TRC721合约
+  
+* 主链上某个账号A5，调用主链gateway合约的depositTRC721，查看交易是否失败，失败是正确的预期
+	* sun-cli 命令: `deposit trc721 $mainchain_trc721_contract $main_chain_gateway $trc721_tokenId $feelmit`
+  
+* TRC721开发者在主链上调用主链gateway的mappingTRC721，完成主链和侧链TRC721的映射，对应TRC721合约被创建
+	* sun-cli 命令: `triggercontract $main_chain_gateway mappingTRC721(bytes) $deployed_transaction_id false 1000000000 0 0 #`
+
+* A5调用主链gateway合约的depositTRC721
+* 等待一段时间之后，在侧链gateway里mainToSideContractMap(address)查看TRC721映射关系(A5账号不会被创建)
+* 调用对应的TRC721合约的balanceOf(address)查看对应tokenId的所属关系
+  
+#### 5. withdrawTRX流程
+* 侧链上账号A2，调用侧链gateway合约的withdrawTRX
+	* sun-cli 命令: `withdraw trx $trx_num $fee_limit`
+* 等待一段时间之后，在主链上查看账户余额
+ 
+ 
+#### 6. withdrawTRC10流程
+* 侧链上账号A3，调用侧链对应TRC20合约的withdrawal
+	* sun-cli 命令: `withdraw trc10 $trc10Id $value $fee_limit`
+* 等待一段时间之后，在主链上查看账户TRC10余额
+  
+  
+#### 7. withdrawTRC20流程
+* 侧链上账号A4，调用侧链对应TRC20合约的withdrawal
+	* sun-cli 命令: `withdraw Trc20 $side_trc20_address $value $fee_limit`
+* 等待一段时间之后，在主链上查看主链对应TRC20的余额
+  
+  
+#### 8. withdrawTRC721流程
+* 侧链上账号A5，调用侧链对应TRC721合约的withdrawal
+	* sun-cli 命令: `withdraw Trc721 $sideTrc721Address $trc721_tokenId $fee_limit`
+* 等待一段时间之后，在主链上查看对应TRC721账户的tokenId的所属关系
+ 
+ 
+#### 9. retryWithdraw流程
+* 侧链上按照nonce值来重试
+	* sun-cli 命令: `triggercontract $sidechaingateway retryWithdraw(uint256) $nonce false 1000000000 0 0 0`
+  
+  
+#### 10. 提出开启能量消耗提案前的准备
+* gateway合约部署者从主链deposit一大笔trx进侧链，并freeze 带宽，energy
+	* sun-cli 命令: `deposit trx $mainGatewayAddress $num $feelmit`
+  * freeze同主网一致
+ 
+ 
+* Oracle 从主链deposit一大笔trx进入侧链，并freeze 带宽，energy，供gateway部署者能量不足时的deposit调用。
+	* sun-cli 命令 （和1相同）: `deposit trx $mainGatewayAddress $num $feelmit`
+	* freeze同主网一致
+ 
+ 
+ 
+* 某一个witness提出 energyChargingSwitchOn == 1的proposal
+	* witnesses通过proposal
+		* sun-cli 命令: `createproposal 1000000 1 //eg. createproposal 1000000 1`
+	* 等待proposal生效
+		* sun-cli 命令: `approveproposal 1 true`
+ 
+#### 11. 测试能量消耗下的质押，提款是否符合预期
+* 请在开启 能量收费开关之后, 测试 前述1~9的命令.
+
+## VIII. RoadMap
 
 DAppChain 作为 TRON 扩容计划的一部分，肩负着去中心化，繁荣 TRON 生态的使命。对于整个生态的所有建设者而言，将会伴随 DAppChain 的发展度过 L1，L2，L3 三个阶段。我们将会随着计划地开展以及开发工作的进一步完成，为社区开放更多的角色，让社区可以以不同的形式参与到整个生态体系中来。
 

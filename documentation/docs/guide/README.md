@@ -1073,6 +1073,200 @@ Signature of main-chain is the same as TronWeb, you can use tronWeb.trx.sign(…
 sign((transaction = false), (privateKey = this.sidechain.defaultPrivateKey), (useTronHeader = true), (multisig = false));
 ```
 
+## VII. Deploy your own side-chain
+### Get started
+#### 1. Start _kafka_
+
+ * follow this: `https://github.com/tronprotocol/event-plugin`
+ * Please configure read and write permission control for _kafka_
+
+#### 2. Deploying and configuring the _main-chain_ contracts
+
+* i. Start the _fullnode_ of the _main-chain_, configure _kafka_, connect to the _java-tron's_ _main-chain_ (_main-network_ or _test-network_ or private network for testing)
+	* Configure the kafka command as above, see: `https://github.com/tronprotocol/event-plugin`
+* ii. At least get an account (as A1) who has sufficient balance
+* iii. Use an account (as O1) on the main-chain as Oracle
+* iv. A1 deploys the main-chain-gateway contract in the main-chain with wallet-cli, get the contract address C1, using oracle address O1 as a parameter
+	* wallet-cli command: `deploycontract ...`
+* v. If it is more than one oracle, call the addOracle (address) method of the main-chain gateway contract to add oracle one by one.
+	* wallet-cli command: `triggercontract $main_gateway addOracle(address) $new_oracle false 1000000000 0 0 #`
+* vi. Activate each oracle in the main-chain and ensure that each oracle gets sufficient balance, such as 10000TRX.
+	 * wallet-cli command: `sendcoin $oracle_address value`
+
+#### 3. Sun-cli
+
+* i. Write the main-chain, side-chain nodes list, main-chain gateway address in the configuration file
+
+* ii. Note that the main chain-address is written in mainChainGateWayList
+	* `mainChainGateWayList = ["TAcLUguLig3n6zCC5BQQxwSJbFwJseAxQB"]`
+
+* iii. start Sun-cli now
+
+#### 4. Configuration the side-chain
+* i. Start the side-chain witness node, use A1 as a GR, and the account has zero TRX balance.
+
+> configuration file:
+
+```
+block = {
+  needSyncCheck = false
+  maintenanceTimeInterval = 20000 # When testing, time is shortened
+  proposalExpireTime = 240000 # When testing, time is shortened
+}
+  
+...
+{
+  accountName = "Blackhole"
+   accountType = "AssetIssue"
+  address = "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"  
+  balance = "-9223372036854775808"
+}
+...
+ 
+committee = {
+  allowMultiSign=1
+  chargingSwitchOn = 0 # default 0 here
+}
+ 
+sidechain = {
+  chargingType = 0   # default 0 here
+  chargingBandwidth = 1   # 0:off, 1:on  if committee.chargingSwitchOn == 0, chargingBandwidth is always off
+  energyFee = 1 #  1 sun per energy
+  totalEnergyLimit = 100000000000 # 100_000_000_000 frozen energy limit
+}
+ 
+gateWayList = []
+mainChainGateWayList = ["TAcLUguLig3n6zCC5BQQxwSJbFwJseAxQB"]  # the main-chain gateway address
+ 
+event.subscribe = {
+  path = "/Users/tron/code/event-plugin/build/plugins/plugin-kafka-1.0.0.zip" # absolute path of plugin
+  server = "172.16.20.52:9092" # kafka IP address
+}
+```
+
+* ii. Start the side-chain fullnode, configure _kafka_, connect the side-chain
+	* Configure the kafka command as above, see: `https://github.com/tronprotocol/event-plugin`
+* iii. A1 deploys a side-chain gateway contract on the side-chain (set the contract deployer to pay all the energy cost), gets the contract address C2, using oracle address O1 as a parameter.
+	* using sun-cli's deploycontract command (cannot use wallet-cli)
+* iv. If it is more than one oracle, call the modifyOracle(address) method of the side-chain gateway contract to add oracle one by one.
+	* sun-cli command: `triggercontract $sidechain_gateway addOracle(address) "$oracel_address" false 1000000000 0 0 0`
+* v. If all oracles have not been activated in the side-chain yet, then active them one by one.
+	* sun-cli command: `createaccount $oracle_address`
+* vi. A1 makes the proposal to let the side-chain node know the address of side-chain's gateway, using `approveproposal` after `createproposal`
+	* sun-cli command: `createproposal 1000001 $sidechain_gateway`
+	* sun-cli command: `approveproposal 1 true`
+
+#### 5. Restart sun-cli
+
+* Configure the side-chain gateway address C2 into the sun-cli configuration file and restart sun-cli.
+
+#### 6. Config Oracle 
+* start oracle (If there are multiple oracles, start them one by one)
+> configuration file:
+
+```
+// oracle config here
+```
+ 
+ 
+### Test whether is successful
+#### 1. How to _depositTRX_
+* i. An account (as A2) on the main-chain, calls the main-chain gateway contract's depositTRX or fallback function to pip TRX into side-chain
+	* sun-cli command: `deposit trx $main_gateway $num $feelmit`
+  
+* ii. After a while, check the account balance on the side-chain (check whether the account is created, and check it's balance)
+	* sun-cli command: `getAccount $address`
+
+* iii. Repeat _i_ and _ii_ if needed.
+  
+#### 2. How to _depositTRC10_
+* i. An account (as A3) issues a TRC10 on the main-chain
+	* sun-cli command to issue a TRC10 Token: `assetissue nmbb 10000000000 1 1 0 2019-10-13 2019-12-31 abc abc.com 1000 10000`
+	* list all TRC10 tokens: `ListAssetIssue`
+  
+* ii. Call the main-chain gateway contract's depositTRC10 or fallback function to pip TRC10 into side-chain.
+	* sun-cli command: `deposit trc10 $main_gateway $trc10Id $num $feelmit`
+ 
+* iii. After a while, check the TRC10 balance on the side-chain (A3 account is created, corresponding TRC10 token should be also created)
+	* sun-cli command: `getAccount $address`
+
+* iv. Repeat _ii_ and _iii_ if needed.
+ 
+  
+#### 3. How to _depositTRC20_
+* i. Deploy a TRC20 contract on the main-chain
+  
+* ii. A4 calls the depositTRC20 of the main-chain gateway contract to see if the transaction is failed, and the failure is correct.
+	 * sun-cli command: `deposit trc20 mainchainTrc20ContractAddress mainGatewayAddress num feelmit`
+
+* iii. The TRC20 developer calls the mappingTRC20 of the main-chain gateway on the main-chain to complete the mapping between the main-chain and the side-chain, then the corresponding TRC20 contract on the side-chain is created.
+	* sun-cli command: `triggercontract $main_chain_gateway mappingTRC20(bytes) $deployed_transaction_id false 1000000000 0 0 #`
+  
+* iv. A4 calls the depositTRC20 of the main-chain gateway contract
+
+* v. After a while, check the TRC20 mapping relationship in the mainchainSideContractMap(address) in the side-chain gateway (A4 account will not be created) 
+
+* vi. Call balanceOf(address) of the corresponding TRC20 contract to check whether the account balance is correctly increased.
+  
+#### 4. How to _depositTRC721_
+* i. Deploy a TRC721 contract on the main-chain
+  
+* ii. An account (as A5) calls the depositTRC721 of the main-chain gateway contract, to see if the transaction failed, the failure is the correct expectation
+	* sun-cli command: `deposit trc721 $mainchain_trc721_contract $main_chain_gateway $trc721_tokenId $feelmit`
+  
+* iii. The TRC721 developer calls the mappingTRC721 of the main-chain gateway on the main-chain to complete the mapping between the main-chain and the side-chain, then the corresponding TRC721 contract on the side-chain is created.
+	* sun-cli command: `triggercontract $main_chain_gateway mappingTRC721(bytes) $deployed_transaction_id false 1000000000 0 0 #`
+
+* iv. A5 calls the depositTRC721 of the main-chain gateway contract
+* v. After a while, check the TRC721 mapping relationship in the mainToSideContractMap(address) in the side-chain gateway (A5 account will not be created) 
+
+* vi. Call balanceOf(address) of the corresponding TRC721 contract to check the ownership of the corresponding tokenId.
+
+#### 5. How to _withdrawTRX_
+* i. use account A2 and trigger withdrawTRX function in gateway contract on side-chain
+  * sun-cli command: `withdraw trx $trx_num $fee_limit`
+* ii. wait for sometimes and check trx balance on main-chain.
+ 
+#### 6. How to _withdrawTRC10_
+* i. use account A3，than trigger withdrawTRC10 function in gateway contract on side-chain
+  * sun-cli command: `withdraw trc10 $trc10Id $value $fee_limit`
+* ii. wait for sometimes and check trc10 balance on main-chain.
+
+#### 7. withdraw TRC20 token process
+* i. use A4 account on side-chain and trigger the withdrawal function for target trc20 contract on side-chain.
+	* sun-cli cmd: `withdraw Trc20 $side_trc20_address $value $fee_limit`
+* ii. wait for sometimes and check trc20 token balance on main-chain.
+
+#### 8. withdraw TRC721 token process
+* i. use A5 account on side-chain and trigger the withdrawal function for target trc721 contract on side-chain.
+	* sun-cli cmd: `withdraw Trc721 $sideTrc721Address $trc721_tokenId $fee_limit`
+* ii. wait for sometimes and check specific trc721 tokenid ownership on main-chain.
+
+#### 9. retryWithdraw token process
+* use nonce on side-chain to trigger retry action
+	* sun-cli cmd: `triggercontract $sidechaingateway retryWithdraw(uint256) $nonce false 1000000000 0 0 0`
+
+#### 10. the preparation before creating charging fee proposal
+ * i. gateway contract deployer should deposit proper amount of trx to side-chain and freeze trx for bandwidth/energy.
+ 	* sun-cli cmd: `deposit trx $mainGatewayAddress $num $feelmit`
+ 	* freeze cmd is the same as main-net.
+
+ 
+  * ii. Oracle need to deposit proper amount of trx to side-chain，and freeze trx for bandwidth/energy, for cross chain actions。
+ 	* sun-cli cmd （same as gateway contract deployer）: `deposit trx $mainGatewayAddress $num $feelmit`
+ 	* freeze cmd is the same as main-net.
+
+ 
+ 
+  * iii. One wintess create proposal for energyChargingSwitchOn == 1
+ 	* witnesses create proposal
+ 		* sun-cli cmd: `createproposal 1000000 1 //eg. createproposal 1000000 1`
+ 	* approve and wait proposal to be available
+ 		* sun-cli cmd: `approveproposal 1 true`
+
+#### 11. Test if everything works as expected under charging fee proposal is approved
+ * test cmd 1-9 again.
+ 
 ## VII. RoadMap
 
 As part of the TRON expansion plan, DAppChain is committed to decentralizing and prospering the TRON ecosystem. For all builders of the entire ecology, it will be accompanied by the development of DAppChain through the three stages of L1, L2 and L3. We will open up more roles for the community as the plan progresses and the development work is completed, allowing the community to participate in the entire ecosystem in different forms.
