@@ -380,28 +380,26 @@ sdk.getCrossChainService();
 
 ```java
 // Called by the deployer of the TRC20 contract on the main-chain to complete the mapping of the TRC20 contract from the main-chain to the side-chain, the standard 20 contract deployed in the side-chain corresponds to the main-chain TRC20 contract.
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().mappingTrc20(trxHash, mappingFee, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().mappingTrc20(trxHash, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this mapping operation.
 ```
 
 | Parameter | Description                                                                   |
 | --------- | ----------------------------------------------------------------------------- |
 | trxHash   | deployContract transaction for deploying TRC20 contracts on the main-chain id |
-| mappingFee| Mapping Fee               					            |
 | feeLimit  | Maximum energy consumption when triggering a contract                         |
 
 2. TRC721 映射
 
 ```java
 // Called by the deployer of the TRC721 contract on the main-chain to complete the mapping of the TRC721 contract from the main-chain to the side-chain, the standard TRC721 contract will be deployed in the side-chain corresponding to the main-chain TRC721 contract.
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().mappingTrc721(trxHash, mappingFee, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().mappingTrc721(trxHash, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this mapping operation.
 ```
 
 | Parameter | Description                                                         |
 | --------- | ------------------------------------------------------------------- |
 | trxHash   | deployContract transaction id for TRC721 contract on the main-chain |
-| mappingFee| Mapping Fee               					  |
 | feeLimit  | Maximum energy consumption when triggering a contract               |
 
 #### 资产转入（Deposit）
@@ -410,21 +408,20 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().mappin
 
 ```java
 //Pledge a certain number of TRX from the main-chain to the side-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrx(num, depositFee, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrx(num, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this deposit operation.
 ```
 
 | Parameter | Description                                           |
 | --------- | ----------------------------------------------------- |
 | num       | TRX Quantity (Unit SUN)                               |
-| depositFee| Deposit fee					    |
 | feeLimit  | Maximum energy consumption when triggering a contract |
 
 2. TRC10 资产转入
 
 ```java
 //Pledge a certain number of designated TRC10 from the main-chain to the side-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrc10(tokenId, tokenValue, depositFee, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrc10(tokenId, tokenValue, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this deposit operation.
 ```
 
@@ -432,14 +429,13 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().deposi
 | ---------- | ----------------------------------------------------- |
 | tokenId    | Token ID of TRC10                                     |
 | tokenValue | TRC10 Quantity of Assets                              |
-| depositFee | Deposit fee				    	     |
 | feeLimit   | Maximum energy consumption when triggering a contract |
 
 3. TRC20 资产转入
 
 ```java
 //Pledge a certain number of designated TRC20 from the main-chain to the side-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrc20(contractAddrStr, num, depositFee, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrc20(contractAddrStr, num, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this deposit operation.
 ```
 
@@ -447,14 +443,13 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().deposi
 | --------------- | ----------------------------------------------------- |
 | contractAddrStr | Main-chain TRC20 Contract Address                     |
 | num             | TRC20 Asset Quantity                                  |
-| depositFee	  | Deposit fee						  |
 | feeLimit        | Maximum energy consumption when triggering a contract |
 
 4. TRC721 资产转入
 
 ```java
 //Pledge a certain number of designated TRC721 from the main-chain to the side-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrc721(contractAddrStr, num, depositFee, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().depositTrc721(contractAddrStr, num, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this deposit operation.
 ```
 
@@ -462,7 +457,6 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().deposi
 | --------------- | ----------------------------------------------------- |
 | ContractAddrStr | Main-chain TRC721 Contract Address                    |
 | num             | TRC721 Asset Quantity                                 |
-| depositFee	  | Deposit fee						  |
 | feeLimit        | Maximum energy consumption when triggering a contract |
 
 #### 资产转出（Withdraw）
@@ -471,21 +465,20 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().deposi
 
 ```java
 //Exit a certain number of TRX from the side-chain to the main-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrx(num, withdrawFee, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrx(num, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this withdraw operation.
 ```
 
-| Parameter  | Description                                           |
-| ---------- | ----------------------------------------------------- |
-| num        | TRX Quantity (Unit SUN)                               |
-| withdrawFee| Withdraw fee  		                             |
-| feeLimit   | Maximum energy consumption when triggering a contract |
+| Parameter | Description                                           |
+| --------- | ----------------------------------------------------- |
+| num       | TRX Quantity (Unit SUN)                               |
+| feeLimit  | Maximum energy consumption when triggering a contract |
 
 2. TRC10 资产转出
 
 ```java
 //Pledge a certain number of designated TRC10 from the side-chain to the main-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrc10(tokenId, tokenValue, withdrawFee, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrc10(tokenId, tokenValue, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this withdraw operation.
 ```
 
@@ -493,14 +486,13 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdr
 | ---------- | ----------------------------------------------------- |
 | tokenId    | Token ID of TRC10                                     |
 | tokenValue | TRC10 Quantity of Assets                              |
-| withdrawFee| Withdraw fee  		                             |
 | feeLimit   | Maximum energy consumption when triggering a contract |
 
 3. TRC20 资产转出
 
 ```java
 //Pledge a certain number of designated TRC20 from the side-chain to the main-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrc20(contractAddrStr, num, withdrawFee, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrc20(contractAddrStr, num, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this withdraw operation.
 ```
 
@@ -508,14 +500,13 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdr
 | --------------- | ----------------------------------------------------- |
 | contractAddrStr | Sidechain TRC20 Contract Address                      |
 | num             | TRC20 Asset Quantity                                  |
-| withdrawFee	  | Withdraw fee  		                          |
 | feeLimit        | Maximum energy consumption when triggering a contract |
 
 4. TRC721 资产转出
 
 ```java
 //Pledge a certain number of designated TRC721 from the side-chain to the main-chain
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrc721(contractAddrStr, num, withdrawFee, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdrawTrc721(contractAddrStr, num, feeLimit);
 //Return value: Use sdk.getSideChainService().getTransactionInfoById(txid) to query resp.getData().getTrxId() to get the nonce value of this withdraw operation.
 ```
 
@@ -523,7 +514,6 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdr
 | --------------- | ----------------------------------------------------- |
 | contractAddrStr | Sidechain TRC721 Contract Address                     |
 | num             | TRC721 Asset Quantity                                 |
-| withdrawFee	  | Withdraw fee  		                          |
 | feeLimit        | Maximum energy consumption when triggering a contract |
 
 #### 重试（Retry）
@@ -532,39 +522,36 @@ SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().withdr
 
 ```java
 //Retry the unsuccessful main-chain deposit operation
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().retryDeposit(nonce, retryFee, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().retryDeposit(nonce, feeLimit);
 ```
 
 | Parameter | Description                                           |
 | --------- | ----------------------------------------------------- |
-| nonce     | Deposit operation nonce value                         |
-| retryFee  | Retry fee						    |
+| nonce     | deposit operation nonce value                         |
 | feeLimit  | Maximum energy consumption when triggering a contract |
 
 2. 资产转出重试
 
 ```java
 //Retry the unsuccessful side-chain withdraw operation
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().retryWithdraw(nonce, retryFee, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().retryWithdraw(nonce, feeLimit);
 ```
 
 | Parameter | Description                                           |
 | --------- | ----------------------------------------------------- |
-| nonce     | Withdraw operation nonce value                        |
-| retryFee  | Retry fee						    |
+| nonce     | withdraw operation nonce value                        |
 | feeLimit  | Maximum energy consumption when triggering a contract |
 
 3. 资产映射重试
 
 ```java
 //Retry the unsuccessful main-chain mapping operation
-SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().retryMapping(nonce, retryFee, feeLimit);
+SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService().retryMapping(nonce, feeLimit);
 ```
 
 | Parameter | Description                                           |
 | --------- | ----------------------------------------------------- |
-| nonce     | Mapping operation's nonce value                       |
-| retryFee  | Retry fee						    |
+| nonce     | mapping operation's nonce value                       |
 | feeLimit  | Maximum energy consumption when triggering a contract |
 
 ### 侧链接口介绍
@@ -794,7 +781,7 @@ sunWeb.depositTrc10(100059, 10000000, 10000, 100000);
 | Parameter  | Description                                     | Type                   | Options  |
 | ---------- | ----------------------------------------------- | ---------------------- | -------- |
 | tokenId    | Token Id of trc10                               | Integer                | Required |
-| tokenValue | Amount of trc10 token to deposit                | Integer                | Required |
+| tokenValue | Amount of trc10 token (Units in SUN) to deposit | Integer (Units in SUN) | Required |
 | depositFee | Deposit fee                                     | Integer (Units in SUN) | Required |
 | feeLimit   | Cost limit                                      | Integer, long          | Required |
 | options    | The permissions Id                              | Object                 | Optional |
@@ -807,17 +794,17 @@ sunWeb.depositTrc10(100059, 10000000, 10000, 100000);
 
 ```javascript
 // format
-sunWeb.depositTrc20(num, depositFee, feeLimit, contractAddress, options);
+sunWeb.depositTrc10(num, depositFee, feeLimit, contractAddress, options);
 
 // example
-sunWeb.depositTrc20(1000000, 10000, 1000000, 'TD9Jrm546pGkzRu7K5nitMxk8nn75wXNkQ');
+sunWeb.depositTrc10(1000000, 10000, 1000000, 'TD9Jrm546pGkzRu7K5nitMxk8nn75wXNkQ');
 ```
 
 ##### Arguments
 
 | Parameter       | Description                               | Type                   | Options  |
 | --------------- | ----------------------------------------- | ---------------------- | -------- |
-| num             | Amount of TRC20 to deposit                | Integer                | Required |
+| num             | Amount of TRC20 (Units in SUN) to deposit | Integer                | Required |
 | depositFee      | Deposit fee                               | Integer (Units in SUN) | Required |
 | feeLimit        | Cost limit                                | Integer, long          | Required |
 | contractAddress | Main-chain TRC20 Contract Address         | String                 | Required |
@@ -1121,92 +1108,404 @@ sign((transaction = false), (privateKey = this.sidechain.defaultPrivateKey), (us
 ```
 ## VII. 如何部署自己的侧链
 ### 开始部署
-#### 1. 启动kafka
-
- * 启动命令: `https://github.com/tronprotocol/event-plugin`
- 
- * kafka 请配置好读写权限控制
-
-#### 2. 配置主链 (部署和配置主链合约)
-
-* 1.启动主链的fullnode，配置kafka，连接java-tron主链(主网 或 测试网 或 用于测试的私网)
-	* 配置kafka命令同上，见 https://github.com/tronprotocol/event-plugin
-* 2.至少一个账号 A1 余额充足
-* 3.使用主链上一个账号 O1 作为Oracle
-* 4.使用wallet-cli，A1 在主链部署主链gateway合约，获得合约地址 C1，oracle地址 O1 作为参数
+#### 1. 部署主链gateway合约，生成相应账户，并配置主链fullnode
+* 1.生成一个账号 Owner 并且给予充足余额, 作为主网gateway合约的部署者以及侧链的初始拥有者。
+* 2.在主链上生成多个账号 O1-On 作为创世Oracle群组
+* 3.使用wallet-cli，Owner 在主链部署主链gateway合约，获得合约地址 C1
 	* wallet-cli命令: `deploycontract ...`
-* 5.如果是多个oracle的话，调用主链gateway合约的addOracle(address)方法一个一个的添加oracle
+* 4.通过C1生成侧链id
+* 5.对多个oracle地址，使用Owner账户调用主链gateway合约的addOracle(address)方法一个一个的添加oracle
 	* wallet-cli命令: `triggercontract $main_gateway addOracle(address) $new_oracle false 1000000000 0 0 #`
-* 6.在主链激活每个oracle，并且保证每个oracle余额充足，比如10000TRX。
+* 6.在主链激活每个oracle，并且保证每个oracle余额充足。
 	 * wallet-cli命令: `sendcoin $oracle_address value`
+* 7.启动主链的fullnode，配置kafka，连接TRON主链
+        * 下载event-plugin 见 https://github.com/tronprotocol/event-plugin
+	* 配置kafka命令见 https://github.com/tronprotocol/event-plugin
+	* 使用event.subscribe相关的配置启动fullnode：
+> 配置文件：
+```
+event.subscribe = {
+    path = "zip absolute path" // absolute path of plugin
+    server = "kafka ip:kafka port" // target server address to receive event triggers
+    dbconfig="" // dbname|username|password
+    topics = [
+        {
+          triggerName = "block" // block trigger, the value can't be modified
+          enable = false
+          topic = "block" // plugin topic, the value could be modified
+        },
+        {
+          triggerName = "transaction"
+          enable = false
+          topic = "transaction"
+        },
+        {
+          triggerName = "contractevent"
+          enable = true
+          topic = "contractevent"
+        },
+        {
+          triggerName = "contractlog"
+          enable = true
+          topic = "contractlog"
+        }
+    ]
+ 
+    filter = {
+       fromblock = "" // the value could be "", "earliest" or a specified block number as the beginning of the queried range
+       toblock = "" // the value could be "", "latest" or a specified block number as end of the queried range
+       contractAddress = [
+           "" // contract address you want to subscribe, if it's set to "", you will receive contract logs/events with any contract address.
+       ]
+ 
+       contractTopic = [
+           "" // contract topic you want to subscribe, if it's set to "", you will receive contract logs/events with any contract topic.
+       ]
+    }
+}
+```
 
-#### 3. Sun-cli
+#### 2. Sun-cli配置
 
 * 1.配置文件中写上主链、侧链node，主链gateway地址
+> 初始配置文件：
+```
+mainchain {
+  net {
+    type = mainnet
+  }
 
-* 注意mainChainGateWayList写上主链地址
-	* `mainChainGateWayList = ["TAcLUguLig3n6zCC5BQQxwSJbFwJseAxQB"]`
+  fullnode = {
+    ip.list = [
+      ""
+    ]
+  }
+
+  RPC_version = 2
+
+  gateway_address = ""
+}
+
+sidechain {
+  net {
+    type = mainnet
+  }
+
+  fullnode = {
+    ip.list = [
+    ]
+  }
+
+
+  RPC_version = 2
+  gateway_address = ""
+
+  sideChainId = ""
+}
+```
+
+* 注意`mainchain.gateway_address`写上主链地址，例如：
+	* `gateway_address = "TAcLUguLig3n6zCC5BQQxwSJbFwJseAxQB"`
 
 * 2.启动 Sun-cli
 
-#### 4. 配置侧链
 
-* 1.启动侧链witness节点，将A1作为一个GR，账户资金为0
+#### 3. 配置侧链
 
-> 配置文件:
+* 1.为侧链生成若干创世见证者地址，注意保留私钥。
+* 2.启动侧链witness节点, 注意在下面的配置文件中填写相应的Owner，GR账户，GO账户，节点信息列表等。
+
+> 配置文件: 
 
 ```
+net {
+  type = mainnet
+  # type = testnet
+}
+
+storage {
+  # Directory for storing persistent data
+
+  db.directory = "database",
+  index.directory = "index",
+
+  # You can custom these 14 databases' configs:
+
+  # account, account-index, asset-issue, block, block-index,
+  # block_KDB, peers, properties, recent-block, trans,
+  # utxo, votes, witness, witness_schedule.
+
+  # Otherwise, db configs will remain defualt and data will be stored in
+  # the path of "output-directory" or which is set by "-d" ("--output-directory").
+
+  # Attention: name is a required field that must be set !!!
+  properties = [
+    //    {
+    //      name = "account",
+    //      path = "storage_directory_test",
+    //      createIfMissing = true,
+    //      paranoidChecks = true,
+    //      verifyChecksums = true,
+    //      compressionType = 1,        // compressed with snappy
+    //      blockSize = 4096,           // 4  KB =         4 * 1024 B
+    //      writeBufferSize = 10485760, // 10 MB = 10 * 1024 * 1024 B
+    //      cacheSize = 10485760,       // 10 MB = 10 * 1024 * 1024 B
+    //      maxOpenFiles = 100
+    //    },
+    //    {
+    //      name = "account-index",
+    //      path = "storage_directory_test",
+    //      createIfMissing = true,
+    //      paranoidChecks = true,
+    //      verifyChecksums = true,
+    //      compressionType = 1,        // compressed with snappy
+    //      blockSize = 4096,           // 4  KB =         4 * 1024 B
+    //      writeBufferSize = 10485760, // 10 MB = 10 * 1024 * 1024 B
+    //      cacheSize = 10485760,       // 10 MB = 10 * 1024 * 1024 B
+    //      maxOpenFiles = 100
+    //    },
+  ]
+
+}
+
+node.discovery = {
+  enable = true
+  persist = true
+  bind.ip = ""
+  external.ip = null
+}
+
+node.backup {
+  port = 10001
+  priority = 8
+  members = [
+  ]
+}
+
+node {
+  # trust node for solidity node
+  # trustNode = "ip:port"
+  trustNode = "127.0.0.1:50051"
+
+  # expose extension api to public or not
+  walletExtensionApi = true
+
+  listen.port = 18888
+
+  connection.timeout = 2
+
+  tcpNettyWorkThreadNum = 0
+
+  udpNettyWorkThreadNum = 1
+
+  # Number of validate sign thread, default availableProcessors / 2
+  # validateSignThreadNum = 16
+
+  maxActiveNodes = 30
+
+  maxActiveNodesWithSameIp = 2
+
+  minParticipationRate = 0
+
+  p2p {
+    version = 201909101 # 201909101: sunnet;
+  }
+
+  active = [
+    # Active establish connection in any case
+    # Sample entries:
+    # "ip:port",
+    # "ip:port"
+
+  ]
+
+  passive = [
+    # Passive accept connection in any case
+    # Sample entries:
+    # "ip:port",
+    # "ip:port"
+  ]
+
+  http {
+    fullNodePort = 8090
+    solidityPort = 8091
+  }
+
+  rpc {
+    port = 50051
+
+    # Number of gRPC thread, default availableProcessors / 2
+    # thread = 16
+
+    # The maximum number of concurrent calls permitted for each incoming connection
+    # maxConcurrentCallsPerConnection =
+
+    # The HTTP/2 flow control window, default 1MB
+    # flowControlWindow =
+
+    # Connection being idle for longer than which will be gracefully terminated
+    maxConnectionIdleInMillis = 60000
+
+    # Connection lasting longer than which will be gracefully terminated
+    # maxConnectionAgeInMillis =
+
+    # The maximum message size allowed to be received on the server, default 4MB
+    # maxMessageSize =
+
+    # The maximum size of header list allowed to be received, default 8192
+    # maxHeaderListSize =
+
+    # Transactions can only be broadcast if the number of effective connections is reached.
+    minEffectiveConnection = 0
+  }
+
+}
+
+
+seed.node = {
+  # List of the seed nodes
+  # Seed nodes are stable full nodes
+  # example:
+  # ip.list = [
+  #   "ip:port",
+  #   "ip:port"
+  # ]
+  ip.list = [
+
+  ]
+}
+
+genesis.block = {
+  # Reserve balance
+  assets = [
+    {
+      accountName = "Owner"
+      accountType = "AssetIssue"
+      address = ""
+      balance = "0"
+    },
+    {
+      accountName = "GenesisOracle1"
+      accountType = "AssetIssue"
+      address = ""
+      balance = "0"
+    },
+    {
+      accountName = "GenesisOracle2"
+      accountType = "AssetIssue"
+      address = ""
+      balance = "0"
+    },
+    {
+      accountName = "GenesisOracle3"
+      accountType = "AssetIssue"
+      address = ""
+      balance = "0"
+    },
+    {
+      accountName = "GenesisOracle4"
+      accountType = "AssetIssue"
+      address = ""
+      balance = "0"
+    },
+    {
+      accountName = "Blackhole"
+      accountType = "AssetIssue"
+      address = "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
+      balance = "-9223372036854775808"
+    }
+  ]
+
+  witnesses = [
+    {
+      address: ,
+      url = "http://GR1.com",
+      voteCount = 100000004
+    },
+    {
+      address: ,
+      url = "http://GR2.com",
+      voteCount = 100000003
+    },
+    {
+      address: ,
+      url = "http://GR3.com",
+      voteCount = 100000002
+    },
+    {
+      address: ,
+      url = "http://GR4.com",
+      voteCount = 100000001
+    },
+    {
+      address: ,
+      url = "http://GR5.com",
+      voteCount = 100000000
+    }
+  ]
+
+  timestamp = "0" #2017-8-26 12:00:00
+
+  # mandatory to have sideChainId
+  sideChainId = ""
+}
+
+#localwitness = [
+#]
+
+localwitnesskeystore = [
+   "localwitnesskeystore.json"
+]
+
 block = {
-  needSyncCheck = false
-  maintenanceTimeInterval = 20000 # 测试的时候，时间改短
-  proposalExpireTime = 240000 # 测试的时候，时间改短
+  needSyncCheck = true
+  maintenanceTimeInterval = 21600000 // 6 hours: 21600000(ms)
+  proposalExpireTime = 64800000 // 18 hours: 64800000(ms)
 }
-  
-...
-{
-  accountName = "Blackhole"
-   accountType = "AssetIssue"
-  address = "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"  # 注意黑洞地址和主链不同
-  balance = "-9223372036854775808"
+
+trx.reference.block = "solid" //head;solid
+
+vm = {
+  supportConstant = true
+  minTimeRatio = 0.0
+  maxTimeRatio = 10.0
+  saveInternalTx = true
+
+  # In rare cases, transactions that will be within the specified maximum execution time (default 10(ms)) are re-executed and packaged
+  # longRunningTime = 10
 }
-...
- 
+
 committee = {
-  allowMultiSign=1
-  chargingSwitchOn = 0 # 填0
+  chargingSwitchOn = 0
+  # voteSwitch = 0 // for test only
 }
- 
+
 sidechain = {
-  chargingType = 0   # 填0
-  chargingBandwidth = 1   # 0:off, 1:on  if committee.chargingSwitchOn == 0, chargingBandwidth is always off
-  energyFee = 1 #  1 sun per energy
-  totalEnergyLimit = 100000000000 # 100_000_000_000 frozen energy limit
+  chargingType = 0   //0:trx, 1:sun_token
+  //chargingBandwidth = 1   //0:off, 1:on  if committee.chargingSwitchOn == 0, chargingBandwidth is always off
+  energyFee = 5 // 1 sun per energy, can not be 0    proposal 11
+  totalEnergyLimit = 100000000000 // 100_000_000_000 frozen energy limit
+  maxCpuTimeOfOneTx = 50 // max cpu time to execute single smart contract transaction. default 50ms. proposal 13
+  witnessMaxActiveNum = 5 // max witness number
 }
- 
-gateWayList = []
-mainChainGateWayList = ["TAcLUguLig3n6zCC5BQQxwSJbFwJseAxQB"]  # 填主链gateway地址
- 
-event.subscribe = {
-  path = "/Users/tron/code/event-plugin/build/plugins/plugin-kafka-1.0.0.zip" # absolute path of plugin
-  server = "172.16.20.52:9092" # kafka地址
+
+log.level = {
+  root = "INFO" // TRACE;DEBUG;INFO;WARN;ERROR
 }
 ```
 
 * 2.启动侧链的fullnode，配置kafka，连接侧链
-	* 配置kafka命令同上，见 https://github.com/tronprotocol/event-plugin
-* 3.使用sun-cli，A1 在侧链上部署侧链gateway合约（设置合约部署者付全部费用），获得合约地址 C2，oracle地址 O1 作为参数
+* 3.使用sun-cli，Owner 在侧链上部署侧链gateway合约（设置合约部署者付全部费用），获得合约地址 C2
 	* sun-cli的deploycontract命令(不能使用wallet-cli)
-* 4.如果是多个oracle的话，调用侧链gateway合约的modifyOracle(address)方法一个一个的添加oracle
+* 4.如果是多个oracle的话，调用侧链gateway合约的addOracle(address)方法一个一个的添加oracle
 	* sun-cli命令: `triggercontract $sidechain_gateway addOracle(address) "$oracel_address" false 1000000000 0 0 0`
-* 5.如果有oracle在侧链上没有账号，则一一创建账号
-	* sun-cli 命令: `createaccount $oracle_address`
-* 6.A1 提proposal让侧链节点记录gateway地址, createproposal之后approveproposal
+* 5.某个GR 提proposal让侧链节点更改侧链gateway地址, createproposal之后其他2/3的GR approveproposal
 	* sun-cli 命令: `createproposal 1000001 $sidechain_gateway`
 	* sun-cli 命令: `approveproposal 1 true`
 
 #### 5. 重启 sun-cli
-
 * 将侧链gateway地址C2，配置进sun-cli的配置文件，重启sun-cli
+
 
 #### 6. 配置 Oracle 
 * 启动oracle(如果有多个oracle的话，一一启动)
@@ -1214,9 +1513,67 @@ event.subscribe = {
 > 配置文件:
 
 ```
-// oracle config here
+mainchain {
+  fullnode {
+    ip.list = [
+      ""
+    ]
+  }
+
+  solidity {
+    ip.list = [
+      ""
+    ]
+  }
+}
+
+sidechain {
+  fullnode {
+    ip.list = [
+      ""
+    ]
+  }
+
+  solidity {
+    ip.list = [
+      ""
+    ]
+  }
+
+  chain.id = 
+}
+
+kafka {
+  server = ""
+  # group.id = 
+  authorization {
+    user = 
+    passwd = 
+  }
+}
+
+gateway {
+  mainchain.address = 
+  sidechain.address = 
+}
+
+oracle {
+  # private.key = 
+  keystore=""
+  retryTimes = 3
+}
+
+initTaskSwitch = true
+
 ```
- 
+#### 7. 设置主侧链合约属性
+* Owner账户更具部署需求分别在主侧链修改合约的最小质押值，手续费等属性。
+
+#### 8. Owner所有者向侧链的GO账户注入初始资金以供侧链跨链交易运行
+* 每个oracle建议值（100 trx）
+
+#### 9. 提出开启收费开关的提案
+* 某个GR创建proposal，`createproposal 1000000 1` 。之后等待2/3的GR通过提案。
  
 ### 测试是否部署成功
 #### 1. depositTRX流程
