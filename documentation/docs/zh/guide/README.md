@@ -781,7 +781,7 @@ sunWeb.depositTrc10(100059, 10000000, 10000, 100000);
 | Parameter  | Description                                     | Type                   | Options  |
 | ---------- | ----------------------------------------------- | ---------------------- | -------- |
 | tokenId    | Token Id of trc10                               | Integer                | Required |
-| tokenValue | Amount of trc10 token (Units in SUN) to deposit | Integer (Units in SUN) | Required |
+| tokenValue | Amount of trc10 token to deposit                | Integer                | Required |
 | depositFee | Deposit fee                                     | Integer (Units in SUN) | Required |
 | feeLimit   | Cost limit                                      | Integer, long          | Required |
 | options    | The permissions Id                              | Object                 | Optional |
@@ -794,17 +794,17 @@ sunWeb.depositTrc10(100059, 10000000, 10000, 100000);
 
 ```javascript
 // format
-sunWeb.depositTrc10(num, depositFee, feeLimit, contractAddress, options);
+sunWeb.depositTrc20(num, depositFee, feeLimit, contractAddress, options);
 
 // example
-sunWeb.depositTrc10(1000000, 10000, 1000000, 'TD9Jrm546pGkzRu7K5nitMxk8nn75wXNkQ');
+sunWeb.depositTrc20(1000000, 10000, 1000000, 'TD9Jrm546pGkzRu7K5nitMxk8nn75wXNkQ');
 ```
 
 ##### Arguments
 
 | Parameter       | Description                               | Type                   | Options  |
 | --------------- | ----------------------------------------- | ---------------------- | -------- |
-| num             | Amount of TRC20 (Units in SUN) to deposit | Integer                | Required |
+| num             | Amount of TRC20 to deposit                | Integer                | Required |
 | depositFee      | Deposit fee                               | Integer (Units in SUN) | Required |
 | feeLimit        | Cost limit                                | Integer, long          | Required |
 | contractAddress | Main-chain TRC20 Contract Address         | String                 | Required |
