@@ -1075,84 +1075,396 @@ sign((transaction = false), (privateKey = this.sidechain.defaultPrivateKey), (us
 
 ## VII. Deploy your own side-chain
 ### Get started
-#### 1. Start _kafka_
-
- * follow this: `https://github.com/tronprotocol/event-plugin`
- * Please configure read and write permission control for _kafka_
-
-#### 2. Deploying and configuring the _main-chain_ contracts
-
-* i. Start the _fullnode_ of the _main-chain_, configure _kafka_, connect to the _java-tron's_ _main-chain_ (_main-network_ or _test-network_ or private network for testing)
-	* Configure the kafka command as above, see: `https://github.com/tronprotocol/event-plugin`
-* ii. At least get an account (as A1) who has sufficient balance
-* iii. Use an account (as O1) on the main-chain as Oracle
-* iv. A1 deploys the main-chain-gateway contract in the main-chain with wallet-cli, get the contract address C1, using oracle address O1 as a parameter
+#### 1. Deloy _main-chain_ gateway contract. Create related Accounts. Configurate fullnode on _main-chain_.
+* i. create an account Onwer as _main-chain_ gateway contract deployer and _side-chain_ owner. Give sufficient balance to Onwer.
+* ii. create multiple account O1-On as Genesis Oracle group.
+* iii. Owner deploys the main-chain-gateway contract in the main-chain with wallet-cli, get the contract address C1
 	* wallet-cli command: `deploycontract ...`
-* v. If it is more than one oracle, call the addOracle (address) method of the main-chain gateway contract to add oracle one by one.
+* iv. Use C1 to generate _side-chain_ id
+* v. Add oracles by calling addOracle (address) method in the _main-chain_ gateway contract.
 	* wallet-cli command: `triggercontract $main_gateway addOracle(address) $new_oracle false 1000000000 0 0 #`
-* vi. Activate each oracle in the main-chain and ensure that each oracle gets sufficient balance, such as 10000TRX.
+* vi. Activate each oracle on the main-chain and ensure that each oracle gets sufficient balance.
 	 * wallet-cli command: `sendcoin $oracle_address value`
+* vii. Start the _fullnode_ of the _main-chain_, configure _kafka_, connect to the _java-tron's_ _main-chain_ (_main-network_ or _test-network_ or private network for testing)
+        * Download event-plugin, check: `https://github.com/tronprotocol/event-plugin`
+	* Configure kafka, check: `https://github.com/tronprotocol/event-plugin`
+	* Configure event.subscribe and start fullnode:
+> Configuration file:
+```
+event.subscribe = {
+    path = "zip absolute path" // absolute path of plugin
+    server = "kafka ip:kafka port" // target server address to receive event triggers
+    dbconfig="" // dbname|username|password
+    topics = [
+        {
+          triggerName = "block" // block trigger, the value can't be modified
+          enable = false
+          topic = "block" // plugin topic, the value could be modified
+        },
+        {
+          triggerName = "transaction"
+          enable = false
+          topic = "transaction"
+        },
+        {
+          triggerName = "contractevent"
+          enable = true
+          topic = "contractevent"
+        },
+        {
+          triggerName = "contractlog"
+          enable = true
+          topic = "contractlog"
+        }
+    ]
+ 
+    filter = {
+       fromblock = "" // the value could be "", "earliest" or a specified block number as the beginning of the queried range
+       toblock = "" // the value could be "", "latest" or a specified block number as end of the queried range
+       contractAddress = [
+           "" // contract address you want to subscribe, if it's set to "", you will receive contract logs/events with any contract address.
+       ]
+ 
+       contractTopic = [
+           "" // contract topic you want to subscribe, if it's set to "", you will receive contract logs/events with any contract topic.
+       ]
+    }
+}
+```
+	
 
-#### 3. Sun-cli
+#### 2. Sun-cli
 
 * i. Write the main-chain, side-chain nodes list, main-chain gateway address in the configuration file
+> configuration file:
+```
+mainchain {
+  net {
+    type = mainnet
+  }
 
-* ii. Note that the main chain-address is written in mainChainGateWayList
-	* `mainChainGateWayList = ["TAcLUguLig3n6zCC5BQQxwSJbFwJseAxQB"]`
+  fullnode = {
+    ip.list = [
+      ""
+    ]
+  }
+
+  RPC_version = 2
+
+  gateway_address = ""
+}
+
+sidechain {
+  net {
+    type = mainnet
+  }
+
+  fullnode = {
+    ip.list = [
+    ]
+  }
+
+
+  RPC_version = 2
+  gateway_address = ""
+
+  sideChainId = ""
+}
+```
+* ii. Note `mainchain.gateway_address` should be set.
+	* `gateway_address = "TAcLUguLig3n6zCC5BQQxwSJbFwJseAxQB"`
 
 * iii. start Sun-cli now
 
-#### 4. Configuration the side-chain
-* i. Start the side-chain witness node, use A1 as a GR, and the account has zero TRX balance.
+#### 3. Configuration the side-chain
+* i. Create several GR for _side-chain_. Save the generated private key for the new addresses.
+* ii. Start the side-chain witness node. Set Owner, GR, GO, and node list in configuration file.
 
 > configuration file:
 
 ```
+net {
+  type = mainnet
+  # type = testnet
+}
+
+storage {
+  # Directory for storing persistent data
+
+  db.directory = "database",
+  index.directory = "index",
+
+  # You can custom these 14 databases' configs:
+
+  # account, account-index, asset-issue, block, block-index,
+  # block_KDB, peers, properties, recent-block, trans,
+  # utxo, votes, witness, witness_schedule.
+
+  # Otherwise, db configs will remain defualt and data will be stored in
+  # the path of "output-directory" or which is set by "-d" ("--output-directory").
+
+  # Attention: name is a required field that must be set !!!
+  properties = [
+    //    {
+    //      name = "account",
+    //      path = "storage_directory_test",
+    //      createIfMissing = true,
+    //      paranoidChecks = true,
+    //      verifyChecksums = true,
+    //      compressionType = 1,        // compressed with snappy
+    //      blockSize = 4096,           // 4  KB =         4 * 1024 B
+    //      writeBufferSize = 10485760, // 10 MB = 10 * 1024 * 1024 B
+    //      cacheSize = 10485760,       // 10 MB = 10 * 1024 * 1024 B
+    //      maxOpenFiles = 100
+    //    },
+    //    {
+    //      name = "account-index",
+    //      path = "storage_directory_test",
+    //      createIfMissing = true,
+    //      paranoidChecks = true,
+    //      verifyChecksums = true,
+    //      compressionType = 1,        // compressed with snappy
+    //      blockSize = 4096,           // 4  KB =         4 * 1024 B
+    //      writeBufferSize = 10485760, // 10 MB = 10 * 1024 * 1024 B
+    //      cacheSize = 10485760,       // 10 MB = 10 * 1024 * 1024 B
+    //      maxOpenFiles = 100
+    //    },
+  ]
+
+}
+
+node.discovery = {
+  enable = true
+  persist = true
+  bind.ip = ""
+  external.ip = null
+}
+
+node.backup {
+  port = 10001
+  priority = 8
+  members = [
+  ]
+}
+
+node {
+  # trust node for solidity node
+  # trustNode = "ip:port"
+  trustNode = "127.0.0.1:50051"
+
+  # expose extension api to public or not
+  walletExtensionApi = true
+
+  listen.port = 18888
+
+  connection.timeout = 2
+
+  tcpNettyWorkThreadNum = 0
+
+  udpNettyWorkThreadNum = 1
+
+  # Number of validate sign thread, default availableProcessors / 2
+  # validateSignThreadNum = 16
+
+  maxActiveNodes = 30
+
+  maxActiveNodesWithSameIp = 2
+
+  minParticipationRate = 0
+
+  p2p {
+    version = 201909101 # 201909101: sunnet;
+  }
+
+  active = [
+    # Active establish connection in any case
+    # Sample entries:
+    # "ip:port",
+    # "ip:port"
+
+  ]
+
+  passive = [
+    # Passive accept connection in any case
+    # Sample entries:
+    # "ip:port",
+    # "ip:port"
+  ]
+
+  http {
+    fullNodePort = 8090
+    solidityPort = 8091
+  }
+
+  rpc {
+    port = 50051
+
+    # Number of gRPC thread, default availableProcessors / 2
+    # thread = 16
+
+    # The maximum number of concurrent calls permitted for each incoming connection
+    # maxConcurrentCallsPerConnection =
+
+    # The HTTP/2 flow control window, default 1MB
+    # flowControlWindow =
+
+    # Connection being idle for longer than which will be gracefully terminated
+    maxConnectionIdleInMillis = 60000
+
+    # Connection lasting longer than which will be gracefully terminated
+    # maxConnectionAgeInMillis =
+
+    # The maximum message size allowed to be received on the server, default 4MB
+    # maxMessageSize =
+
+    # The maximum size of header list allowed to be received, default 8192
+    # maxHeaderListSize =
+
+    # Transactions can only be broadcast if the number of effective connections is reached.
+    minEffectiveConnection = 0
+  }
+
+}
+
+
+seed.node = {
+  # List of the seed nodes
+  # Seed nodes are stable full nodes
+  # example:
+  # ip.list = [
+  #   "ip:port",
+  #   "ip:port"
+  # ]
+  ip.list = [
+
+  ]
+}
+
+genesis.block = {
+  # Reserve balance
+  assets = [
+    {
+      accountName = "Owner"
+      accountType = "AssetIssue"
+      address = ""
+      balance = "0"
+    },
+    {
+      accountName = "GenesisOracle1"
+      accountType = "AssetIssue"
+      address = ""
+      balance = "0"
+    },
+    {
+      accountName = "GenesisOracle2"
+      accountType = "AssetIssue"
+      address = ""
+      balance = "0"
+    },
+    {
+      accountName = "GenesisOracle3"
+      accountType = "AssetIssue"
+      address = ""
+      balance = "0"
+    },
+    {
+      accountName = "GenesisOracle4"
+      accountType = "AssetIssue"
+      address = ""
+      balance = "0"
+    },
+    {
+      accountName = "Blackhole"
+      accountType = "AssetIssue"
+      address = "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
+      balance = "-9223372036854775808"
+    }
+  ]
+
+  witnesses = [
+    {
+      address: ,
+      url = "http://GR1.com",
+      voteCount = 100000004
+    },
+    {
+      address: ,
+      url = "http://GR2.com",
+      voteCount = 100000003
+    },
+    {
+      address: ,
+      url = "http://GR3.com",
+      voteCount = 100000002
+    },
+    {
+      address: ,
+      url = "http://GR4.com",
+      voteCount = 100000001
+    },
+    {
+      address: ,
+      url = "http://GR5.com",
+      voteCount = 100000000
+    }
+  ]
+
+  timestamp = "0" #2017-8-26 12:00:00
+
+  # mandatory to have sideChainId
+  sideChainId = ""
+}
+
+#localwitness = [
+#]
+
+localwitnesskeystore = [
+   "localwitnesskeystore.json"
+]
+
 block = {
-  needSyncCheck = false
-  maintenanceTimeInterval = 20000 # When testing, time is shortened
-  proposalExpireTime = 240000 # When testing, time is shortened
+  needSyncCheck = true
+  maintenanceTimeInterval = 21600000 // 6 hours: 21600000(ms)
+  proposalExpireTime = 64800000 // 18 hours: 64800000(ms)
 }
-  
-...
-{
-  accountName = "Blackhole"
-   accountType = "AssetIssue"
-  address = "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"  
-  balance = "-9223372036854775808"
+
+trx.reference.block = "solid" //head;solid
+
+vm = {
+  supportConstant = true
+  minTimeRatio = 0.0
+  maxTimeRatio = 10.0
+  saveInternalTx = true
+
+  # In rare cases, transactions that will be within the specified maximum execution time (default 10(ms)) are re-executed and packaged
+  # longRunningTime = 10
 }
-...
- 
+
 committee = {
-  allowMultiSign=1
-  chargingSwitchOn = 0 # default 0 here
+  chargingSwitchOn = 0
+  # voteSwitch = 0 // for test only
 }
- 
+
 sidechain = {
-  chargingType = 0   # default 0 here
-  chargingBandwidth = 1   # 0:off, 1:on  if committee.chargingSwitchOn == 0, chargingBandwidth is always off
-  energyFee = 1 #  1 sun per energy
-  totalEnergyLimit = 100000000000 # 100_000_000_000 frozen energy limit
+  chargingType = 0   //0:trx, 1:sun_token
+  //chargingBandwidth = 1   //0:off, 1:on  if committee.chargingSwitchOn == 0, chargingBandwidth is always off
+  energyFee = 5 // 1 sun per energy, can not be 0    proposal 11
+  totalEnergyLimit = 100000000000 // 100_000_000_000 frozen energy limit
+  maxCpuTimeOfOneTx = 50 // max cpu time to execute single smart contract transaction. default 50ms. proposal 13
+  witnessMaxActiveNum = 5 // max witness number
 }
- 
-gateWayList = []
-mainChainGateWayList = ["TAcLUguLig3n6zCC5BQQxwSJbFwJseAxQB"]  # the main-chain gateway address
- 
-event.subscribe = {
-  path = "/Users/tron/code/event-plugin/build/plugins/plugin-kafka-1.0.0.zip" # absolute path of plugin
-  server = "172.16.20.52:9092" # kafka IP address
+
+log.level = {
+  root = "INFO" // TRACE;DEBUG;INFO;WARN;ERROR
 }
 ```
 
-* ii. Start the side-chain fullnode, configure _kafka_, connect the side-chain
-	* Configure the kafka command as above, see: `https://github.com/tronprotocol/event-plugin`
-* iii. A1 deploys a side-chain gateway contract on the side-chain (set the contract deployer to pay all the energy cost), gets the contract address C2, using oracle address O1 as a parameter.
+* iii. Start the side-chain fullnode, configure _kafka_, connect the side-chain
+* v. Owner deploys a _side-chain_ gateway contract on _side-chain_ (set the contract deployer to pay all the energy cost), gets the contract address C2.
 	* using sun-cli's deploycontract command (cannot use wallet-cli)
-* iv. If it is more than one oracle, call the modifyOracle(address) method of the side-chain gateway contract to add oracle one by one.
+* iv. Add oracles by calling the addOracle(address) method of the side-chain gateway contract.
 	* sun-cli command: `triggercontract $sidechain_gateway addOracle(address) "$oracel_address" false 1000000000 0 0 0`
-* v. If all oracles have not been activated in the side-chain yet, then active them one by one.
-	* sun-cli command: `createaccount $oracle_address`
-* vi. A1 makes the proposal to let the side-chain node know the address of side-chain's gateway, using `approveproposal` after `createproposal`
+* v. login as GR to creates the proposal to let the side-chain node know the address of side-chain's gateway, using `approveproposal` after `createproposal`
 	* sun-cli command: `createproposal 1000001 $sidechain_gateway`
 	* sun-cli command: `approveproposal 1 true`
 
@@ -1165,9 +1477,68 @@ event.subscribe = {
 > configuration file:
 
 ```
-// oracle config here
+mainchain {
+  fullnode {
+    ip.list = [
+      ""
+    ]
+  }
+
+  solidity {
+    ip.list = [
+      ""
+    ]
+  }
+}
+
+sidechain {
+  fullnode {
+    ip.list = [
+      ""
+    ]
+  }
+
+  solidity {
+    ip.list = [
+      ""
+    ]
+  }
+
+  chain.id = 
+}
+
+kafka {
+  server = ""
+  # group.id = 
+  authorization {
+    user = 
+    passwd = 
+  }
+}
+
+gateway {
+  mainchain.address = 
+  sidechain.address = 
+}
+
+oracle {
+  # private.key = 
+  keystore=""
+  retryTimes = 3
+}
+
+initTaskSwitch = true
+
 ```
- 
+#### 7. set gateway contract properties on _main-chain_ and _side-chain_
+* Owner need to set minimal deposit fee, charging fee on gateway contract.
+
+#### 8. Owner send GO initial fund for cross-chain transaction on _side-chain_
+* recommand 100 TRX for each oracle.
+
+#### 9. create proposal to kick off resource charging.
+* login as a GR to create proposal: `createproposal 1000000 1`.
+* Wait 2/3 of GRs to approved the proposal.
  
 ### Test whether is successful
 #### 1. How to _depositTRX_
