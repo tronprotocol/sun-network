@@ -310,11 +310,11 @@ RPC Interface
 
 main chain
 
-- 47.252.81.14:8070
+- 47.252.81.14:8070(CORS Enabled)
 
 side chain
 
-- 47.252.87.129:8070
+- 47.252.87.129:8070(CORS Enabled)
 
 ####  testnet gateway contract information
 
