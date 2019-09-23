@@ -306,6 +306,30 @@ RPC Interface
 - 47.252.80.185:50060
 - 47.252.84.141:50060
 
+##### Event Server
+
+main chain
+
+- 47.252.81.14:8070
+
+side chain
+
+- 47.252.87.129:8070
+
+####  testnet gateway contract message
+
+sidechainid
+
+- 413AF23F37DA0D48234FDD43D89931E98E1144481B
+
+main chain gateway contract address
+
+- TFLtPoEtVJBMcj6kZPrQrwEdM3W3shxsBU
+
+side chain gateway contract address
+
+- TRDepx5KoQ8oNbFVZ5sogwUxtdYmATDRgX
+
 ### 3. Apply for test coins
 
 <token/>
