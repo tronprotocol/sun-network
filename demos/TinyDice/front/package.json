@@ -6,9 +6,9 @@
   "private": true,
   "scripts": {
     "dev:test": "PATH_TYPE=test nuxt",
-    "dev": "PATH_TYPE=pro nuxt",
+    "dev": "PATH_TYPE=dev nuxt build",
     "local": "PATH_TYPE=local nuxt",
-    "start": "nuxt start -p $PORT",
+    "start": "PATH_TYPE=pro nuxt start -p $PORT",
     "build": "nuxt build && PORT=3001 npm start",
     "generate": "nuxt generate",
     "generate:test": "PATH_TYPE=test nuxt  generate",

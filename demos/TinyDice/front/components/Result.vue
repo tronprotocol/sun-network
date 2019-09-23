@@ -393,7 +393,6 @@ export default {
         limit: 30,
         eventName: 'UserLose'
       };
-      console.log(111111111)
       doBet(p1).then(res => {
         this.promiseData = this.promiseData.concat(res);
         const p2 = {

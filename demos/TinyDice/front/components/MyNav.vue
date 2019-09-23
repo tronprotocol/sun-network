@@ -492,7 +492,7 @@ export default {
      * 账号地址更新，重新获取数据
      */
     async getData() {
-      if (!this.globalSunWeb.mainchain.defaultPrivateKey) {
+      if (!this.globalSunWeb.sidechain.defaultAddress) {
         return;
       }
       let balance = await getBalance(this.address.hex);

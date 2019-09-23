@@ -14,7 +14,7 @@ switch (env) {
       sideOptions: {
         fullNode: 'http://47.252.85.90:8070',
         solidityNode: 'http://47.252.85.90:8071',
-        eventServer: 'http://47.252.87.129:8070'  
+        eventServer: 'http://47.252.87.129:8080'  
       },
       mainGatewayAddress: 'TFLtPoEtVJBMcj6kZPrQrwEdM3W3shxsBU',
       sideGatewayAddress: 'TRDepx5KoQ8oNbFVZ5sogwUxtdYmATDRgX',
@@ -39,12 +39,12 @@ switch (env) {
       mainOptions: {
         fullNode: 'http://47.252.84.158:8070',
         solidityNode: 'http://47.252.84.158:8071',
-        eventServer: 'http://47.252.81.14:8070'
+        eventServer: 'http://47.252.81.14:8080'
       },
       sideOptions: {
         fullNode: 'http://47.252.85.90:8070',
         solidityNode: 'http://47.252.85.90:8071',
-        eventServer: 'http://47.252.87.129:8070'  
+        eventServer: 'http://47.252.87.129:8080'  
       },
       mainGatewayAddress: 'TFLtPoEtVJBMcj6kZPrQrwEdM3W3shxsBU',
       sideGatewayAddress: 'TRDepx5KoQ8oNbFVZ5sogwUxtdYmATDRgX',
@@ -69,12 +69,12 @@ switch (env) {
       mainOptions: {
         fullNode: 'http://47.252.84.158:8070',
         solidityNode: 'http://47.252.84.158:8071',
-        eventServer: 'http://47.252.81.14:8070'
+        eventServer: 'http://47.252.81.14:8080'
       },
       sideOptions: {
         fullNode: 'http://47.252.85.90:8070',
         solidityNode: 'http://47.252.85.90:8071',
-        eventServer: 'http://47.252.87.129:8070'  
+        eventServer: 'http://47.252.87.129:8080'  
       },
       mainGatewayAddress: 'TFLtPoEtVJBMcj6kZPrQrwEdM3W3shxsBU',
       sideGatewayAddress: 'TRDepx5KoQ8oNbFVZ5sogwUxtdYmATDRgX',
