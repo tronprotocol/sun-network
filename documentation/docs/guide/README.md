@@ -316,7 +316,7 @@ side chain
 
 - 47.252.87.129:8070
 
-####  testnet gateway contract message
+####  testnet gateway contract information
 
 sidechainid
 
