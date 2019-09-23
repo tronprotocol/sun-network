@@ -300,9 +300,11 @@ payForFounderPerBlock = payPerBlock - payForWitnessPerBlock
 
 (即将发布......)
 
-### 2. DAppChain 测试网节点列表
+### 2. DAppChain 测试网信息汇总
 
-#### Full Nodes
+####  测试网节点列表
+
+##### Full Nodes
 
 Http 接口
 
@@ -316,7 +318,7 @@ RPC 接口
 - 47.252.80.185:50051
 - 47.252.84.141:50051
 
-#### Solidity Nodes
+##### Solidity Nodes
 
 Http 接口
 
@@ -329,6 +331,30 @@ RPC 接口
 - 47.252.85.90:50060
 - 47.252.80.185:50060
 - 47.252.84.141:50060
+
+##### Event Server
+
+main chain
+
+- 47.252.81.14:8070
+
+side chain
+
+- 47.252.87.129:8070
+
+####  测试网gateway合约相关信息
+
+sidechainid
+
+- 413AF23F37DA0D48234FDD43D89931E98E1144481B
+
+主链合约
+
+- TFLtPoEtVJBMcj6kZPrQrwEdM3W3shxsBU
+
+侧链合约
+
+- TRDepx5KoQ8oNbFVZ5sogwUxtdYmATDRgX
 
 ### 3. 测试币申请
 
