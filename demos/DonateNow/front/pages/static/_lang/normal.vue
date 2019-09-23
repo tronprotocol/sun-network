@@ -62,11 +62,17 @@ import { getTransactionInfoById } from "@/assets/js/common";
 import { getBalance, getaccount } from "~/assets/js/common";
 import bus from "~/assets/js/bus";
 import interfaceData from "@/api/config";
-// import SunWeb2 from 'sunweb';
-import SunWeb2 from '../../../../../../js-sdk/src/index';
+import SunWeb2 from 'sunweb';
+// import SunWeb2 from '../../../../../../js-sdk/src/index';
 import { clearInterval, setInterval, setTimeout } from 'timers';
 
 let contractAddress = interfaceData.contractAddress;
+const decodeOutput = (abi, output) => {
+    const names = abi.map(({name}) => name).filter(name => !!name);
+    const types = abi.map(({type}) => type);
+
+    return utils.abi.decodeParams(names, types, output);
+};
 
 export default {
   components: {
@@ -95,10 +101,11 @@ export default {
         {
           _isConstant: true
         }
-      ]
+      ],
+      contractInstance2: null,
     };
   },
-  created() {
+  async created() {
     // const sunWeb = new SunWeb(interfaceData.mainOptions, interfaceData.sideOptions, interfaceData.mainGatewayAddress, interfaceData.sideGatewayAddress, interfaceData.chainId, interfaceData.privateKey);
 
   //  this.$store.commit('SET_SUNWEB', sunWeb);
@@ -107,6 +114,9 @@ export default {
     sunWeb2.mainchain.setAddress(interfaceData.ownAddr);
     sunWeb2.sidechain.setAddress(interfaceData.ownAddr);
     this.$store.commit('SET_SUNWEB2', sunWeb2);
+    this.contractInstance2 = await sunWeb2.sidechain
+                .contract()
+                .at(contractAddress);
   },
   watch: {
     // "globalSunWeb.mainchain.defaultAddress": {
@@ -174,9 +184,7 @@ export default {
       let tmpTimer1 = setInterval(()=>{
         if (window.sunWeb) {
           clearInterval(tmpTimer1);
-          // sunWeb = window.sunWeb;
-      sunWeb = new SunWeb2(interfaceData.mainOptions, interfaceData.sideOptions, interfaceData.mainGatewayAddress, interfaceData.sideGatewayAddress, interfaceData.chainId, '317AB3AB710EFB364F7629E46A096321B1B9E419E39553CB38E99BE7649E80BE');
-      
+          sunWeb = window.sunWeb;
           if(tmpTimer2) clearInterval(tmpTimer2);
           //1s检测钱包是否登录
           let tmpTimer2 = setInterval(async ()=>{
@@ -187,8 +195,6 @@ export default {
                 .contract()
                 .at(contractAddress);
               this.contractInstance = contractInstance;
-              // walletAddress = tronWeb.defaultAddress.base58;
-              // window.myAddress = walletAddress;
             }
           }, 1000);
 
@@ -201,16 +207,6 @@ export default {
       // }
 
       const self = this;
-      // let result = await this.contractInstance
-      //   .totalDonation()
-      //   .call()
-      //   .catch(err => {
-      //     console.log(err)
-      //     if (err == 'callerAddress account does not exist') {
-      //     }
-      //     // self.$message.error(err);
-      //     return;
-      //   });
       let contractAddress = interfaceData.contractAddress;
       let functionSelector = 'totalDonation()';
       let options = {
@@ -267,36 +263,26 @@ export default {
       while(donateIndex > 0) {
         num++;
         if (num > 100) break;
-        // let record = await this.contractInstance
-        //   .check(donateIndex)
-        //   .call()
-        //   .catch(err => {
-        //     console.log(err)
-        //      if (err == 'callerAddress account does not exist') {
-
-        //      }
-        //     // self.$message.error(err);
-        //     return;
-        //   });
-          let record = await this.globalSunWeb2.sidechain.transactionBuilder.triggerSmartContract(
-            contractAddress,
-            'check(uint256)',
-            options,
-            [{type:'uint256',value:donateIndex}],
-            issuerAddress
-          )
-          if (!record) {
+        let transaction = await this.contractInstance2
+          .check(donateIndex)
+          .call()
+          .catch(err => {
+            console.log(err);
+            // self.$message.error(err);
+            return;
+          });
+          if (!transaction) {
             return;
           }
-          console.log(record)
-          if (record) {
+          console.log(transaction)
+          if (transaction) {
             const temp = {
-              address: self.globalSunWeb.sidechain.address.fromHex(record[0]),
-              amount: parseInt(record[1]._hex.replace('/^0x/', '') || 0, 16),
-              story: record[2],
+              address: self.globalSunWeb2.sidechain.address.fromHex(transaction[0]),
+              amount: parseInt(transaction[1]._hex.replace('/^0x/', '') || 0, 16),
+              story: transaction[2],
               index: donateIndex
             }
-            temp.amount = this.globalSunWeb.sidechain.fromSun(temp.amount);
+            temp.amount = this.globalSunWeb2.sidechain.fromSun(temp.amount);
             const filter = self.allDonations.filter(item => {
               return item.index == donateIndex;
             });
@@ -346,7 +332,6 @@ export default {
       }
       // const story = this.story.trim();
       const self = this;
-      console.log(this.contractInstance)
       let transactionId = await this.contractInstance
         .donate(this.story)
         .send({
@@ -358,10 +343,8 @@ export default {
           self.$message.error(err);
           return;
         });
-      console.log(transactionId)
       if (!transactionId) return;
       this.checkResult(transactionId);
-
     },
     checkResult(transactionId) {
       const self = this;

@@ -38,8 +38,8 @@ import Mining from "~/components/Mining.vue";
 import bus from "~/assets/js/bus";
 import interfaceData from "@/api/config";
 
-// import SunWeb2 from 'sunweb';
-import SunWeb2 from '../../../../../../js-sdk/src/index';
+import SunWeb2 from 'sunweb';
+// import SunWeb2 from '../../../../../../js-sdk/src/index';
 let contractAddress = interfaceData.contractAddress;
 
 export default {
