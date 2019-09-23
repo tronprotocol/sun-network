@@ -130,7 +130,7 @@ r = sideChainAddress;
 
 在主链上，由主链 trc20/trc721 合约的部署者，将部署该合约时的交易 id，传入合约，合约验证该交易 id 是否真实部署合约。在侧链上，接收由多个 Oracle 确认的主网合约映射操作，为主链对应的 trc20/trc721 合约，在侧链部署相应的标准 trc20/trc721 合约。
 
-##### 3.2.2 资产质押操作：
+##### 3.2.2 资产转入操作：
 
 ```Solidity
 //depositTRX 为例
@@ -152,9 +152,9 @@ emit DepositTRX(to, value);
 }
 ```
 
-在主链上，调用合约接收 TRX 和 TRC10 或者已经由开发者进行映射过的 TRC20 与 TRC721 资产，用户将想要质押的主链上的资产冻结在主链 gateway 合约里。在侧链上，与 trc20/trc721 合约映射操作类似，接收由多个 Oracle 确认的主网合约映射操作，侧链 gateway 合约会将对应的资产发给用户对应的侧链账号上。
+在主链上，调用合约接收 TRX 和 TRC10 或者已经由开发者进行映射过的 TRC20 与 TRC721 资产，用户将想要转入的主链上的资产冻结在主链 gateway 合约里。在侧链上，与 trc20/trc721 合约映射操作类似，接收由多个 Oracle 确认的主网合约映射操作，侧链 gateway 合约会将对应的资产发给用户对应的侧链账号上。
 
-##### 3.2.3 资产退出操作：
+##### 3.2.3 资产转出操作：
 
 ```Solidity
 //withdrawTRX 为例
@@ -187,11 +187,11 @@ emit TRXWithdraw(\_to, value, nonce);
 }
 ```
 
-资产退出操作与合约映射操作和资产质押操作不同的是资产退出操作首先发生在在侧链上，与资产质押操作类似，由用户调用合约接收 TRX 和 TRC10 或者已经由开发者进行映射过的 TRC20 与 TRC721 资产，用户将想要退出的侧链上的资产通过侧链 gateway 合约销毁。
+资产转出操作与合约映射操作和资产转入操作不同的是资产转出操作首先发生在在侧链上，与资产转入操作类似，由用户调用合约接收 TRX 和 TRC10 或者已经由开发者进行映射过的 TRC20 与 TRC721 资产，用户将想要转出的侧链上的资产通过侧链 gateway 合约销毁。
 
 #### 3.3 侧链标准
 
-trc20/trc721 合约，仅实现官方标准 trc20/trc721 基本接口，增加只能由侧链 gateway 合约地址调用的在质押资产用到的增发功能资产的方法，和在退出时将资产转至 gateway 合约的方法。
+trc20/trc721 合约，仅实现官方标准 trc20/trc721 基本接口，增加只能由侧链 gateway 合约地址调用的在转入资产用到的增发功能资产的方法，和在转出时将资产转至 gateway 合约的方法。
 
 ```Solidity
 //标准 TRC20 中增加方法
@@ -232,7 +232,7 @@ function mint(address to, uint256 tokenId) external onlyGateway {
 
 其中 Oracle 通过 Kafka 监听来自主链网关合约、侧链网关合约的消息，实现主侧链之间的交互通信。只有当主链与侧链之间的交互被超过 2/3 的 Oracle 共识，才能够被认为有效的交易。
 
-主侧链之间交互动作主要分为三类：TRC20/TRC721 合约映射、存款功能、取款功能。
+主侧链之间交互动作主要分为三类：TRC20/TRC721 合约映射、转入功能、转出功能。
 
 ![crosschain](./../../.vuepress/img/crosschain.png)
 
@@ -249,9 +249,9 @@ function mint(address to, uint256 tokenId) external onlyGateway {
 3. oracle 监听侧链 Deploy 事件
 4. oracle 调用侧链 Gateway 合约在侧链创建基础功能的 TRC20/TRC721 合约，并将主链与侧链的合约进行映射。
 
-#### 4.3 存款功能(Deposit)
+#### 4.3 转入功能(Deposit)
 
-当用户需要将主链上的资产转移到侧链时，需要调用主链网关合约的存款功能。
+当用户需要将主链上的资产转移到侧链时，需要调用主链网关合约的转入功能。
 
 ![deposit.png](./../../.vuepress/img/deposit.png)
 
@@ -263,17 +263,17 @@ function mint(address to, uint256 tokenId) external onlyGateway {
 4. Oracle 调用侧链网关合约进行资产转移操作
 5. 如果使用 TRC20/TRC721 代币，需要在侧链上 mint 相应数量的代币；如果使用 TRX 直接增加账户余额
 
-#### 4.4 取款功能(Withdraw)
+#### 4.4 转出功能(Withdraw)
 
-当用户需要将侧链上的资产转移到主链时，需要调用侧链网关合约的取款功能。
+当用户需要将侧链上的资产转移到主链时，需要调用侧链网关合约的转出功能。
 
 ![withdraw](./../../.vuepress/img/withdraw.png)
 
 具体流程为：
 
-1. 如果使用 TRC20/TRC721 合约，调用合约的 withdraw 方法，合约会再去调用网关合约。如果使用 TRX，直接调用侧链网关合约进行取款操作。
-2. Oracle 监听取款事件
-3. 调用主链网关合约的取款方法
+1. 如果使用 TRC20/TRC721 合约，调用合约的 withdraw 方法，合约会再去调用网关合约。如果使用 TRX，直接调用侧链网关合约进行转出操作。
+2. Oracle 监听转出事件
+3. 调用主链网关合约的转出方法
 4. 如果使用 TRC20/TRC721 合约，则网关合约会再调用合约方法；如果使用 TRX，直接调整账户余额
 
 ### 5. 激励
@@ -336,11 +336,11 @@ RPC 接口
 
 main chain
 
-- 47.252.81.14:8070
+- 47.252.81.14:8070（支持http跨域）
 
 side chain
 
-- 47.252.87.129:8070
+- 47.252.87.129:8070（支持http跨域）
 
 ####  测试网gateway合约相关信息
 
@@ -778,13 +778,13 @@ const sunWeb = new SunWeb(
 );
 ```
 
-### 质押资产
+### 转入资产
 
-资产质押的作用是将主链资产质押到侧链。
+资产转入的作用是将主链资产转入到侧链。
 
 #### depositTrx
 
-##### 质押 TRX
+##### 转入 TRX
 
 ```javascript
 // Format
@@ -805,7 +805,7 @@ sunWeb.depositTrx(100000000, 10000, 1000000);
 
 #### depositTrc10
 
-##### 质押 TRC10
+##### 转入 TRC10
 
 ```javascript
 // format
@@ -827,9 +827,9 @@ sunWeb.depositTrc10(100059, 10000000, 10000, 100000);
 
 #### depositTrc20
 
-##### 质押 TRC20
+##### 转入 TRC20
 
-在质押 TRC20 之前，必须先 mapping TRC20 合约到侧链，即调用 sunWeb.mappingTrc20(…) 函数。Mapping 合约后，再 approve TRC20, 即调用 sunWeb.approveTrc20(…) 函数。这两步都成功后，才能成功完成 depositTrc20 操作。
+在转入 TRC20 之前，必须先 mapping TRC20 合约到侧链，即调用 sunWeb.mappingTrc20(…) 函数。Mapping 合约后，再 approve TRC20, 即调用 sunWeb.approveTrc20(…) 函数。这两步都成功后，才能成功完成 depositTrc20 操作。
 
 ```javascript
 // format
@@ -851,9 +851,9 @@ sunWeb.depositTrc10(1000000, 10000, 1000000, 'TD9Jrm546pGkzRu7K5nitMxk8nn75wXNkQ
 
 #### depositTrc721
 
-##### 质押 TRC721
+##### 转入 TRC721
 
-与质押 TRC20 类似，先需要 mappingTrc721 和 approveTrc721。
+与转入 TRC20 类似，先需要 mappingTrc721 和 approveTrc721。
 
 ```javascript
 // format
@@ -875,7 +875,7 @@ sunWeb.depositTrc10(1000000, 10000, 1000000, 'TCLRqK6aP2xsCZWhE2smkYzdRHf9uvyz5P
 
 ### 资产授权
 
-在质押 TRC20 和 TRC721 之前，需要先调用 approveTrc20 和 approveTrc721 获得相应资产授权。
+在转入 TRC20 和 TRC721 之前，需要先调用 approveTrc20 和 approveTrc721 获得相应资产授权。
 
 #### approveTrc20
 
@@ -921,7 +921,7 @@ sunWeb.approveTrc721(100, 10000000, 'TUxDmFbEceGgjWCb6rLVcrFgnsWwofPdPq');
 
 ### 资产映射
 
-用户必须先将主链合约资产 TRC20/TRC721 映射到侧链以后，才能将合约资产质押到侧链。
+用户必须先将主链合约资产 TRC20/TRC721 映射到侧链以后，才能将合约资产转入到侧链。
 
 #### mappingTrc20
 
@@ -965,13 +965,13 @@ mappingTrc721('548442d9080605a60adf1d30cc126a2b9c6308cbe9ec224f8c67a6c2590fa299'
 | feeLimit   | cost limit                                                                      | Integer, long         | Required |
 | options    | The permissions Id                                                              | Object                | Optional |
 
-### 提取资产
+### 转出资产
 
-用户可将资产从侧链提取回主链，提取资产操作由 SunWeb 向侧链发送命令。
+用户可将资产从侧链转出回主链，转出资产操作由 SunWeb 向侧链发送命令。
 
 #### withdrawTrx
 
-##### 提取 TRX
+##### 转出 TRX
 
 ```javascript
 // Format
@@ -992,7 +992,7 @@ sunWeb.withdrawTrx(100000000, 10000, 1000000);
 
 #### withdrawTrc10
 
-##### 提取 TRC10
+##### 转出 TRC10
 
 ```javascript
 // format
@@ -1014,7 +1014,7 @@ sunWeb.withdrawTrc10(100059, 10000000, 10000, 100000);
 
 #### withdrawTrc20
 
-##### 提取 TRC20
+##### 转出 TRC20
 
 ```javascript
 // format
@@ -1036,7 +1036,7 @@ sunWeb.withdrawTrc20(10000, 10000, 10000000, 'TWzXQmDoASGodMss7uPD6vUgLHnkQFX7ok
 
 #### withdrawTrc721
 
-##### 提取 TRC721
+##### 转出 TRC721
 
 ```javascript
 // format
@@ -1606,12 +1606,12 @@ initTaskSwitch = true
 
 ```
 #### 7. 设置主侧链合约属性
-* Owner账户更具部署需求分别在主侧链修改合约的最小质押值，手续费等属性。
+* Owner账户更具部署需求分别在主侧链修改合约的最小转入值，手续费等属性。
 
 #### 8. Owner所有者向侧链的GO账户注入初始资金以供侧链跨链交易运行
 * 每个oracle建议值（100 trx）
 
-#### 9. 提出开启收费开关的提案
+#### 9. 转出开启收费开关的提案
 * 某个GR创建proposal，`createproposal 1000000 1` 。之后等待2/3的GR通过提案。
  
 ### 测试是否部署成功
@@ -1718,7 +1718,7 @@ initTaskSwitch = true
 	* 等待proposal生效
 		* sun-cli 命令: `approveproposal 1 true`
  
-#### 11. 测试能量消耗下的质押，提款是否符合预期
+#### 11. 测试能量消耗下的转入，提款是否符合预期
 * 请在开启 能量收费开关之后, 测试 前述1~9的命令.
 
 ## VIII. RoadMap
