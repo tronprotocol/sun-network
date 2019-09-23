@@ -296,7 +296,7 @@ payForFounderPerBlock = payPerBlock - payForWitnessPerBlock
 
 ## III. 如何连接并使用 DAppChain
 
-### 1. DAppChain 主网节点列表
+### 1. DAppChain 正式网节点列表
 
 (即将发布......)
 
