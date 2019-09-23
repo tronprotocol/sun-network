@@ -17,7 +17,7 @@
             >{{gap>0?'+':''}}{{gap}}</i>
           </span>&nbsp;
           <strong ref="balance">
-            <span v-if="!(address && address.base58) || !loginState">--</span>
+            <span v-if="!(address && address.base58)">--</span>
           </strong>&nbsp;TRX
         </div>
       </el-col>
@@ -383,6 +383,7 @@ export default {
       "platForm",
       "trx20Account",
       "globalSunWeb",
+      "globalSunWeb2",
       "loginState"
     ]),
     /**
@@ -507,10 +508,10 @@ export default {
      * ROLL 摇色子事件
      */
     async roll() {
-      if (!this.address.base58 || !this.loginState) {
+      if (!this.address.base58) {
         this.$message({
           type: "warn",
-          message: this.$t("noLogin"),
+          message: 'Please Login',
           showClose: true
         });
         return;

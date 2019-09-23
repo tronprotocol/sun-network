@@ -4268,7 +4268,7 @@ var mutations = {
   SET_SUNWEB: function SET_SUNWEB(state, obj) {
     state.globalSunWeb = obj;
     state.address = obj.mainchain.defaultAddress;
-    window.sunWeb = obj;
+    // window.sunWeb = obj;
   },
   SET_DIVIEND: function SET_DIVIEND(state, obj) {
     state.diviend = obj;

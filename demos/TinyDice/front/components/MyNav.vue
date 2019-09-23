@@ -10,15 +10,15 @@
           <img :src="require('../assets/images/logo.png')">
         </a>
         <div class="nav">
-          <a
+          <!-- <a
             class="test nav-menu-item"
             type="text"
             href="https://tron.network/sunnetwork/doc"
             target="_blank"
             style="text-decoration: none;"
-          >{{$t('ApplyTestCoin')}}</a>
+          >{{$t('ApplyTestCoin')}}</a> -->
 
-          <el-button
+          <!-- <el-button
             class="deposit nav-menu-item"
             type="text"
             @click="depositTrx()"
@@ -28,7 +28,7 @@
             class="withdraw nav-menu-item"
             type="text"
             @click="withdrawTrx()"
-          >{{$t('WithdrawText')}}</el-button>
+          >{{$t('WithdrawText')}}</el-button> -->
 
           <!-- 游戏介绍 -->
           <el-dropdown
@@ -51,7 +51,7 @@
           ></how-to-play>
           <!--  账户-->
           <div
-            v-if="address && address.base58 && loginState"
+            v-if="address && address.base58"
             class="account"
           >
             <el-tooltip
@@ -80,10 +80,10 @@
             type="text"
             @click="login()"
           >{{$t('Login')}}</el-button>
-          <login-dg
+          <!-- <login-dg
             :params="loginDgParams"
             v-if="loginDgParams.show"
-          ></login-dg>
+          ></login-dg> -->
 
           <!-- 国际化 -->
           <div class="language">
@@ -106,15 +106,20 @@
         </div>
       </div>
     </div>
-
-    <deposit-trx-dg
+    <el-dialog
+      title=""
+      :visible.sync="dialogVisible"
+      width="40%">
+      <p style="font-size: 16px; font-faily: 'roboto';color:#000;" v-html="loginWallet"></p>
+    </el-dialog>
+    <!-- <deposit-trx-dg
       :params="depositTrxDgParams"
       v-if="depositTrxDgParams.show"
     ></deposit-trx-dg>
     <withdraw-trx-dg
       :params="withdrawTrxDgParams"
       v-if="withdrawTrxDgParams.show"
-    ></withdraw-trx-dg>
+    ></withdraw-trx-dg> -->
    <!-- <deposit-trc10-dg
       :params="depositTrc10DgParams"
       v-if="depositTrc10DgParams.show"
@@ -180,6 +185,9 @@ export default {
   },
   data() {
     return {
+      dialogVisible: false,
+      loginInfo: '',
+      loginWallet: '',
       loginDgParams: {
         show: false
       },
@@ -280,21 +288,24 @@ export default {
   },
   methods: {
     async login() {
-      let self = this;
-      this.loginDgParams = {
-        show: true,
-        confirm: async (privateKey) => {
-          self.globalSunWeb.mainchain.setPrivateKey(privateKey.privateKey);
-          self.globalSunWeb.sidechain.setPrivateKey(privateKey.privateKey);
-          // window.sunWeb = self.globalSunWeb; /////
-          self.$store.commit('SET_SUNWEB', self.globalSunWeb);
-          self.$store.commit('SET_LOGINSTATE', true);
-          self.getBalance();
-        }
-      }
+      this.loginWallet = this.$t('loginWallet');
+
+      this.dialogVisible = true;
+      // let self = this;
+      // this.loginDgParams = {
+      //   show: true,
+      //   confirm: async (privateKey) => {
+      //     self.globalSunWeb.mainchain.setPrivateKey(privateKey.privateKey);
+      //     self.globalSunWeb.sidechain.setPrivateKey(privateKey.privateKey);
+      //     // window.sunWeb = self.globalSunWeb; /////
+      //     self.$store.commit('SET_SUNWEB', self.globalSunWeb);
+      //     self.$store.commit('SET_LOGINSTATE', true);
+      //     self.getBalance();
+      //   }
+      // }
     },
     async getBalance() {
-      if (!this.loginState) {
+      if (!this.address.base58) {
         return;
       }
       const balance = await this.globalSunWeb.sidechain.trx.getBalance();

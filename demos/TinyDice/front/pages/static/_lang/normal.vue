@@ -37,8 +37,9 @@ import { getBalance, getWeeklyRank, getaccount } from "~/assets/js/common";
 import Mining from "~/components/Mining.vue";
 import bus from "~/assets/js/bus";
 import interfaceData from "@/api/config";
-import SunWeb from 'sunweb';
 
+// import SunWeb2 from 'sunweb';
+import SunWeb2 from '../../../../../../js-sdk/src/index';
 let contractAddress = interfaceData.contractAddress;
 
 export default {
@@ -67,8 +68,11 @@ export default {
     };
   },
   created() {
-      this.sunWeb = new SunWeb(interfaceData.mainOptions, interfaceData.sideOptions, interfaceData.mainGatewayAddress, interfaceData.sideGatewayAddress, interfaceData.chainId, interfaceData.privateKey);
-      this.$store.commit('SET_SUNWEB', this.sunWeb);
+    this.initTronLink();
+    const sunWeb2 = new SunWeb2(interfaceData.mainOptions, interfaceData.sideOptions, interfaceData.mainGatewayAddress, interfaceData.sideGatewayAddress, interfaceData.chainId);
+    sunWeb2.mainchain.setAddress(interfaceData.ownAddr);
+    sunWeb2.sidechain.setAddress(interfaceData.ownAddr);
+    this.$store.commit('SET_SUNWEB2', sunWeb2);
   },
   watch: {
     address: {
@@ -98,24 +102,49 @@ export default {
     // }
   },
   computed: {
-    ...mapState(["dapp", "globalSunWeb", "address"])
+    ...mapState(["dapp", "globalSunWeb", "globalSunWeb2", "address"])
+  },
+  methods: {
+    initTronLink(){
+      let sunWeb = {};
+      let tmpTimer1 = setInterval(()=>{
+        if (window.sunWeb) {
+          clearInterval(tmpTimer1);
+          sunWeb = window.sunWeb;
+          if(tmpTimer2) clearInterval(tmpTimer2);
+          //1s检测钱包是否登录
+          let tmpTimer2 = setInterval(async ()=>{
+            if (sunWeb.mainchain.defaultAddress.base58 != false) {
+              clearInterval(tmpTimer2);
+              this.$store.commit('SET_SUNWEB', sunWeb);
+              const contractInstance = await sunWeb.sidechain
+                .contract()
+                .at(contractAddress);
+              this.contractInstance = contractInstance;
+              this.$store.commit("SET_CONTRACT_INSTANCE", contractInstance);
+            }
+          }, 1000);
+
+        }
+      }, 1000);
+    },
   },
   async mounted() {
       /**
        * 游戏合约初始化
        */
-      const contractInstance = await this.globalSunWeb.sidechain
-        .contract()
-        .at(contractAddress);
-      this.contractInstance = contractInstance;
-      this.$store.commit("SET_CONTRACT_INSTANCE", contractInstance);
-      setTimeout(() => {
-        this.$message({
-          type: "warn",
-          message: this.$t("noLogin"),
-          showClose: true
-        });
-      }, 1000)
+      // const contractInstance = await this.globalSunWeb.sidechain
+      //   .contract()
+      //   .at(contractAddress);
+      // this.contractInstance = contractInstance;
+      // this.$store.commit("SET_CONTRACT_INSTANCE", contractInstance);
+      // setTimeout(() => {
+      //   this.$message({
+      //     type: "warn",
+      //     message: this.$t("noLogin"),
+      //     showClose: true
+      //   });
+      // }, 1000)
   }
 };
 </script>

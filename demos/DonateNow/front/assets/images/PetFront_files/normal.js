@@ -847,7 +847,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
                             case 0:
                               self.globalSunWeb.mainchain.setPrivateKey(privateKey.privateKey);
                               self.globalSunWeb.sidechain.setPrivateKey(privateKey.privateKey);
-                              window.sunWeb = self.globalSunWeb; /////
+                              // window.sunWeb = self.globalSunWeb; /////
 
                               self.$store.commit('SET_SUNWEB', self.globalSunWeb);
                               self.getBalance();

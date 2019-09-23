@@ -166,7 +166,6 @@ export default {
       maxNum: 30, // 存储的最大条数
       timers: null,
       i: 0,
-      noTronweb: false, // 判断是否有tronweb
       limitAmount: 500,
       promiseData: [] // 每次获取到的数组数据
     };
@@ -182,6 +181,7 @@ export default {
       "autoBet",
       "platForm",
       "globalSunWeb",
+      "globalSunWeb2",
       "loginState"
     ])
   },
@@ -210,9 +210,9 @@ export default {
   },
   async mounted() {
     let timer = setInterval(() => {
-      if (!this.address.base58) {
-        return;
-      }
+      // if (!this.address.base58) {
+      //   return;
+      // }
       this.getAllData();
     }, 3000);
   },
@@ -222,11 +222,11 @@ export default {
      */
     tab(index) {
       if (index == 1) {
-        if (!this.loginState) {
+        if (!this.address.base58) {
           this.$message({
             type: "warn",
-          message: this.$t("noLogin"),
-          showClose: true
+            message: 'Please Login',
+            showClose: true
           });
           return;
         }
@@ -312,8 +312,8 @@ export default {
           event
         });
       });
-  this.all = needAllTable;
-  this.my = myBetsTable;
+      this.all = needAllTable;
+      this.my = myBetsTable;
       // // 筛选出成功的，且投注数大于500，猜小于80的
       // this.filterSuccess(needAllTable);
       // this.all = needAllTable;
@@ -393,6 +393,7 @@ export default {
         limit: 30,
         eventName: 'UserLose'
       };
+      console.log(111111111)
       doBet(p1).then(res => {
         this.promiseData = this.promiseData.concat(res);
         const p2 = {
@@ -405,7 +406,9 @@ export default {
            this.transData();
         });
        
-      });
+      }).catch(err => {
+        console.log(err)
+      })
       
     }
   }

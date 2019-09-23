@@ -288,7 +288,8 @@
   "diceTip": "* dice挖矿到账时间为5min左右",
   "withDrawSuccess": "提取成功",
   "cancel": "取消",
-  "noLogin": "TronLink即将支持，请先使用测试账号私钥登陆.",
+  "noLogin": "请登录",
+  "loginWallet":"请登录您的TRON钱包。如果您没有安装TRON钱包，请访问<a href='https://chrome.google.com/webstore/detail/tronlink%EF%BC%88%E6%B3%A2%E5%AE%9D%E9%92%B1%E5%8C%85%EF%BC%89/ibnejdfjmmkpcnlpebklmnkoeoihofec' target='_blank'>http://u6.gg/gmc5D</a>并下载chrome扩展程序。",
   "exchange": "交易所",
   "timeOut": "因事件服务器卡顿，获取智能合约投注结果超时，但并不影响您的投注结果，您可在钱包里查看余额变化。",
   "Dividend": {

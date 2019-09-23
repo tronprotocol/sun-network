@@ -1,4 +1,5 @@
-import TronWeb from 'tronweb';
+// import TronWeb from 'tronweb';
+import TronWeb from '../../demos/tronweb/src/index';
 import {sha256} from './helper/ethersUtils';
 
 export default class SunWeb {
@@ -148,7 +149,7 @@ export default class SunWeb {
                 type: 'integer',
                 value: feeLimit,
                 gt: 0,
-                lte: 1_000_000_000
+                lte: 1000000000
             }
         ], callback)) {
             return;
@@ -197,7 +198,7 @@ export default class SunWeb {
                 type: 'integer',
                 value: feeLimit,
                 gt: 0,
-                lte: 1_000_000_000
+                lte: 1000000000
             },
             {
                 name: 'tokenId',
@@ -260,7 +261,7 @@ export default class SunWeb {
                 type: 'integer',
                 value: feeLimit,
                 gt: 0,
-                lte: 1_000_000_000
+                lte: 1000000000
             },
             {
                 name: 'contractAddress',
@@ -409,7 +410,7 @@ export default class SunWeb {
                 type: 'integer',
                 value: feeLimit,
                 gt: 0,
-                lte: 1_000_000_000
+                lte: 1000000000
             }
         ], callback)) {
             return;
@@ -503,7 +504,7 @@ export default class SunWeb {
                 type: 'integer',
                 value: feeLimit,
                 gt: 0,
-                lte: 1_000_000_000
+                lte: 1000000000
             }
         ], callback)) {
             return;
@@ -559,7 +560,7 @@ export default class SunWeb {
                 type: 'integer',
                 value: feeLimit,
                 gt: 0,
-                lte: 1_000_000_000
+                lte: 1000000000
             }
         ], callback)) {
             return;
@@ -611,7 +612,7 @@ export default class SunWeb {
                 type: 'integer',
                 value: feeLimit,
                 gt: 0,
-                lte: 1_000_000_000
+                lte: 1000000000
             },
             {
                 name: 'contractAddress',
@@ -785,7 +786,7 @@ export default class SunWeb {
                 type: 'integer',
                 value: feeLimit,
                 gt: 0,
-                lte: 1_000_000_000
+                lte: 1000000000
             }
         ], callback)) {
             return;

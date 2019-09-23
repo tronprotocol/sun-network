@@ -25,7 +25,7 @@ export const state = () => ({
   successRecord: [],
   globalSunWeb: {},
   diviend: {}, //分红
-
+  globalSunWeb2: {}
 });
 
 export const mutations = {
@@ -87,8 +87,11 @@ export const mutations = {
   },
   SET_SUNWEB(state, obj) {
     state.globalSunWeb = obj;
-    state.address = obj.mainchain.defaultAddress;
-    window.sunWeb = obj;
+    state.address = obj.sidechain.defaultAddress;
+  },
+  SET_SUNWEB2(state, obj) {
+    state.globalSunWeb2 = obj;
+    // window.sunWeb2 = obj;
   },
   SET_DIVIEND(state, obj) {
     state.diviend = obj;

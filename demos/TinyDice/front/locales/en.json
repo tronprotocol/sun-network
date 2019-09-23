@@ -307,7 +307,8 @@
   "diceTip": "* dices gained through mining will arrive in your account in about 5 minutes.",
   "withDrawSuccess": "Withdraw Successfully",
   "cancel": "Cancel",
-  "noLogin": "Tronlink will support this soon. Right now, please login with your test-address's private key.", 
+  "noLogin": "Please Login",
+  "loginWallet": "Please login to your TRONLink wallet. If you do not have TRONLink wallet installed please visit <a href='https://chrome.google.com/webstore/detail/tronlink%EF%BC%88%E6%B3%A2%E5%AE%9D%E9%92%B1%E5%8C%85%EF%BC%89/ibnejdfjmmkpcnlpebklmnkoeoihofec' target='_blank'>http://u6.gg/gmc5D</a> and download the chrome extension.",
   "exchange": "Exchange",
   "timeOut": "Because of event services log, we can't load the smart contract betting result. This will not affect your betting result, you can check balance in your TRON wallet.",
   "Dividend": {
