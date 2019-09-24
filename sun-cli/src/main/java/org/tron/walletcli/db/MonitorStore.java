@@ -25,7 +25,7 @@ public class MonitorStore {
   private static final JniDBFactory factory = new JniDBFactory();
 
   protected String dataBaseName;
-  protected DB database;
+  public DB database;
   protected String parentName;
   private boolean alive;
   protected ReadWriteLock resetDbLock = new ReentrantReadWriteLock();

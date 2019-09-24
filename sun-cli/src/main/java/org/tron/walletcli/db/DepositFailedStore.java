@@ -12,7 +12,7 @@ public class DepositFailedStore extends MonitorStore {
   }
 
   private DepositFailedStore() {
-    this.dataBaseName = "deposit";
+    this.dataBaseName = "depositFailed";
     this.parentName = "database";
     initDB();
   }
