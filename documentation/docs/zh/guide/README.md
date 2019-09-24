@@ -298,7 +298,62 @@ payForFounderPerBlock = payPerBlock - payForWitnessPerBlock
 
 ### 1. DAppChain 正式网节点列表
 
-(即将发布......)
+##### Full Nodes
+
+Http 接口
+
+- sun.tronex.io/wallet  (支持http跨域)
+- 47.90.245.159:8090
+- 47.90.211.50:8090
+- 47.252.6.19:8090
+- 47.89.185.14:8090
+                  
+
+RPC 接口
+
+- 47.90.245.159:50051
+- 47.90.211.50:50051
+- 47.252.6.19:50051
+- 47.89.185.14:50051
+
+##### Solidity Nodes
+
+Http 接口
+
+- sun.tronex.io/walletsolidity  (支持http跨域)
+- 47.90.245.159:8091
+- 47.90.211.50:8091
+- 47.252.6.19:8091
+- 47.89.185.14:8091
+
+RPC 接口
+
+- 47.90.245.159:50061
+- 47.90.211.50:50061
+- 47.252.6.19:50061
+- 47.89.185.14:50061
+
+##### Event Server
+
+side chain
+
+- sun.tronex.io/event  
+
+
+####  测试网gateway合约相关信息
+
+SideChainID
+
+- 41E209E4DE650F0150788E8EC5CAFA240A23EB8EB7
+
+TRON Network主网gateway合约地址
+
+- TWaPZru6PR5VjgT4sJrrZ481Zgp3iJ8Rfo
+
+SUN Network DAppChain侧链 gateway合约地址
+
+- TGKotco6YoULzbYisTBuP6DWXDjEgJSpYz
+
 
 ### 2. DAppChain 测试网信息汇总
 
@@ -346,7 +401,7 @@ side chain
 
 ####  测试网gateway合约相关信息
 
-sidechainid
+SideChainID
 
 - 413AF23F37DA0D48234FDD43D89931E98E1144481B
 
