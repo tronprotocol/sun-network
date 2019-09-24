@@ -8,6 +8,8 @@ import java.io.FileReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import org.apache.tomcat.jni.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
@@ -23,7 +25,7 @@ public class AccountTask extends SideChainTask {
 
   private List<String> accountList = new ArrayList<>();
 
-  public AccountTask () {
+  public AccountTask() {
     File file = new File(ConfigInfo.privateKeyAddressFile);
     if (file.exists()) {
       BufferedReader reader = null;
@@ -52,9 +54,16 @@ public class AccountTask extends SideChainTask {
 
     while (true) {
       sdk.setPrivateKey(ConfigInfo.privateKey);
+      new WithdrawTask().runTask(sdk);
+      Random r = new Random(Time.now());
       accountList.forEach(account -> {
+        if (getBalance(sdk, account.split(",")[0]) > 0) {
+          return;
+        }
+
+        long amount = r.nextLong() % ConfigInfo.contractDepositValue + 1;
         SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
-            .sendCoin(account.split(",")[0], ConfigInfo.contractDepositValue);
+            .sendCoin(account.split(",")[0], amount);
         logger.info("sendcoin txid = {}", sunNetworkResponse.getData().getTrxId());
         try {
           Thread.sleep(ConfigInfo.interval);
@@ -64,7 +73,9 @@ public class AccountTask extends SideChainTask {
       });
       accountList.forEach(account -> {
         sdk.setPrivateKey(account.split(",")[1]);
-        triggerContract(sdk, ConfigInfo.contractDepositValue, ConfigInfo.contractDeposit);
+
+        long balance = getBalance(sdk, account.split(",")[0]);
+        triggerContract(sdk, balance, ConfigInfo.contractDeposit);
         try {
           Thread.sleep(ConfigInfo.interval);
         } catch (InterruptedException e) {
@@ -74,7 +85,7 @@ public class AccountTask extends SideChainTask {
     }
   }
 
-  public void initAccounts (SunNetwork sdk) {
+  public void initAccounts(SunNetwork sdk) {
 
     logger.info("init accounts !");
     sdk.setPrivateKey(ConfigInfo.privateKey);
@@ -87,11 +98,13 @@ public class AccountTask extends SideChainTask {
     } else {
       BufferedWriter out = null;
       try {
-        out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(ConfigInfo.privateKeyAddressFile, true)));
-        for (int i = 0; i < ConfigInfo.accountNum; i ++ ) {
+        out = new BufferedWriter(
+            new OutputStreamWriter(new FileOutputStream(ConfigInfo.privateKeyAddressFile, true)));
+        for (int i = 0; i < ConfigInfo.accountNum; i++) {
 
           sdk.setPrivateKey(ConfigInfo.privateKey);
-          SunNetworkResponse<AddressPrKeyPairMessage> resp = sdk.getMainChainService().generateAddress();
+          SunNetworkResponse<AddressPrKeyPairMessage> resp = sdk.getMainChainService()
+              .generateAddress();
           if (resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
             String info = resp.getData().getAddress() + "," + resp.getData().getPrivateKey();
             sdk.getSideChainService().createAccount(resp.getData().getAddress());

@@ -31,7 +31,6 @@ public class Main {
 
 //    logger.info("bandwidth txid = {}, energy txid = {}", bandwidthResponse.getData().getTrxId(), energyResponse.getData().getTrxId());
 
-    new WithdrawTask().runTask(sdk);
 
     AccountTask accountTask = new AccountTask();
     accountTask.initAccounts(sdk);
