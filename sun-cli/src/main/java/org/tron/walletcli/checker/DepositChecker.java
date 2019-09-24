@@ -1,5 +1,7 @@
 package org.tron.walletcli.checker;
 
+import java.util.Map;
+import org.iq80.leveldb.DBIterator;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.ByteArray;
 import org.tron.sunapi.response.TransactionResponse;
@@ -29,7 +31,7 @@ public class DepositChecker extends ContractChecker {
               ByteArray.fromHexString(response.getConstantResult()));
           walletApiWrapper.switch2Side();
           response = walletApiWrapper
-              .callConstantContractRet(mainChainGateway, "depositDone(uint256)",
+              .callConstantContractRet(sideChainGateway, "depositDone(uint256)",
                   String.valueOf(nextNonce), false, 10000000);
           byte[] resp = ByteArray.fromHexString(response.getConstantResult());
           boolean result = AbiUtil.unpackBoolean(resp);
@@ -47,5 +49,28 @@ public class DepositChecker extends ContractChecker {
       }
     }
   }
+
+  public void checkFailedDeposit(){
+    DBIterator iterator = failedStore.database.iterator();
+    while(iterator.hasNext()) {
+      Map.Entry<byte[], byte[]> entry = iterator.next();
+      byte[] targetNonce = entry.getKey();
+      walletApiWrapper.switch2Side();
+      TransactionResponse response = walletApiWrapper
+          .callConstantContractRet(sideChainGateway, "depositDone(uint256)",
+              String.valueOf(targetNonce), false, 10000000);
+      byte[] resp = ByteArray.fromHexString(response.getConstantResult());
+      boolean result = AbiUtil.unpackBoolean(resp);
+      if (!result) {
+        failedStore
+            .putData(targetNonce,
+                ByteArray.fromLong(System.currentTimeMillis()));
+      } else {
+        failedStore.deleteData(targetNonce);
+      }
+    }
+  }
+
+
 
 }
