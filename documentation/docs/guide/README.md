@@ -274,7 +274,61 @@ Steps:
 
 ### 1. DAppChain node list
 
-(coming soon…)
+#### Full Nodes
+
+Http Interface
+
+- sun.tronex.io/wallet  (CORS enabled)
+- 47.90.245.159:8090
+- 47.90.211.50:8090
+- 47.252.6.19:8090
+- 47.89.185.14:8090
+
+RPC Interface
+
+- 47.90.245.159:50051
+- 47.90.211.50:50051
+- 47.252.6.19:50051
+- 47.89.185.14:50051
+
+#### Solidity Nodes
+
+Http Interface
+
+- sun.tronex.io/walletsolidity  (CORS enabled)
+- 47.90.245.159:8091
+- 47.90.211.50:8091
+- 47.252.6.19:8091
+- 47.89.185.14:8091
+
+RPC Interface
+
+- 47.90.245.159:50061
+- 47.90.211.50:50061
+- 47.252.6.19:50061
+- 47.89.185.14:50061
+
+##### Event Server
+
+side chain
+
+- sun.tronex.io/event  
+
+####  testnet gateway contract information
+
+
+SideChainID
+
+- 41E209E4DE650F0150788E8EC5CAFA240A23EB8EB7
+
+TRON Network MainChain gateway contract address
+
+- TWaPZru6PR5VjgT4sJrrZ481Zgp3iJ8Rfo
+
+SUN Network DAppChain(SideChain) gateway contract address
+
+- TGKotco6YoULzbYisTBuP6DWXDjEgJSpYz
+
 
 ### 2. DAppChain testnet node list
 
