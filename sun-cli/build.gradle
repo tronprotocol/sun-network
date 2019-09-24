@@ -65,6 +65,12 @@ dependencies {
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     compile 'com.maxmind.geoip2:geoip2:2.10.0'
 
+    // https://mvnrepository.com/artifact/org.fusesource.leveldbjni/leveldbjni-all
+    compile group: 'org.fusesource.leveldbjni', name: 'leveldbjni-all', version: '1.8'
+
+    // https://mvnrepository.com/artifact/org.iq80.leveldb/leveldb
+    compile group: 'org.iq80.leveldb', name: 'leveldb', version: '0.7'
+
     // google grpc
     compile group: 'io.grpc', name: 'grpc-netty', version: '1.9.0'
     compile group: 'io.grpc', name: 'grpc-protobuf', version: '1.9.0'
