@@ -6,7 +6,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     homeUrl: '/sunnetwork',
-    mainNetsUrl: '/sunnetwork',
+    mainNetsUrl: 'https://dappchain.tronscan.org/',
     testNetsUrl: '/sunnetwork/doc/',
     docUrl: '/sunnetwork/doc/guide/',
     resourcesUrl: 'https://github.com/tronprotocol/sun-network',

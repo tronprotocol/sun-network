@@ -28,9 +28,7 @@
           <a :href="$store.state.testNetsUrl">TestNets</a>
         </li>
         <li class="nav-menu">
-          <div @click="mainNet">
-            <a>MainNets</a>
-          </div>
+          <a :href="$store.state.mainNetsUrl">MainNets</a>
         </li>
       </section>
     </ul>
