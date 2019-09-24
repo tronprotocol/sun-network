@@ -314,7 +314,7 @@ side chain
 
 - sun.tronex.io/event  
 
-####  testnet gateway contract information
+####  DAppChain gateway contract information
 
 
 SideChainID
