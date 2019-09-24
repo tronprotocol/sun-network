@@ -109,8 +109,9 @@
     <el-dialog
       title=""
       :visible.sync="dialogVisible"
-      width="40%">
-      <p style="font-size: 16px; font-faily: 'roboto';color:#000;" v-html="loginWallet"></p>
+      width="5.8rem"
+      custom-class="how-dialog play-dialog">
+      <p style="padding-bottom:20px;" v-html="loginWallet"></p>
     </el-dialog>
     <!-- <deposit-trx-dg
       :params="depositTrxDgParams"
@@ -492,7 +493,7 @@ export default {
      * 账号地址更新，重新获取数据
      */
     async getData() {
-      if (!this.globalSunWeb.sidechain.defaultAddress) {
+      if (!this.address.base58) {
         return;
       }
       let balance = await getBalance(this.address.hex);

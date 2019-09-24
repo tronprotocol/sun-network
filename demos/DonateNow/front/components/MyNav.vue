@@ -11,11 +11,11 @@
         </a>
         <span class="sun-network">Sun Network</span>
         <div class="nav">
-           <el-button
+           <!-- <el-button
             class="test nav-menu-item"
             type="text"
             @click="openDoc()"
-          >Apply for test coin</el-button>
+          >Apply for test coin</el-button> -->
 
           <!-- <el-button
             class="deposit nav-menu-item"

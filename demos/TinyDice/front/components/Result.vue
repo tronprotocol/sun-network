@@ -278,7 +278,7 @@ export default {
         const player = d["_addr"]; // 用户地址
         const select = Number(d["_point"]); // 下注的数
         const result = d["_random"]; // 获得的随机数
-        const input = this.globalSunWeb.sidechain.fromSun(d["_amount"]); // 下注的金额
+        const input = this.globalSunWeb2.sidechain.fromSun(d["_amount"]); // 下注的金额
         // const output = item["_W"] // 赢取的金额
         //   ? this.globalSunWeb.fromSun(item["_W"])
         //   : "0";

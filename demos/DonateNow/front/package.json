@@ -5,11 +5,11 @@
   "author": "Cathy",
   "private": true,
   "scripts": {
-    "dev": "nuxt",
+    "dev:test": "PATH_TYPE=test nuxt",
+    "dev": "PATH_TYPE=dev nuxt build",
     "local": "PATH_TYPE=local nuxt",
-    "build": "nuxt build",
-    "start": "nuxt start",
-    "generate": "nuxt generate"
+    "start": "PATH_TYPE=pro nuxt start -p $PORT",
+    "build": "nuxt build && PORT=50055 npm start"
   },
   "config": {
     "nuxt": {

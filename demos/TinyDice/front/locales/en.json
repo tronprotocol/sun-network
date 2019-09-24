@@ -88,7 +88,7 @@
   "ServiceItem": "Terms of Service",
   "Telegram": "Telegram",
   "Rule": {
-    "p1": "1. Make sure you have some asset in the side chain. If not you can use the deposit in the header to deposit some TRX to the side chain, and withdraw support withdraw TRX from the side chain to the main chain.",
+    "p1": "1. Make sure you have some asset in the side chain. If not you can download TronLink wallet and deposit some TRX to the side chain.",
     "p2": "2. Set your bet amount, that is the number of TRX you want to bet on.",
     "p3": "3. You can adjust the slider to the predicted number range you want. At the same time most amount you can win, win rate, odds will be automatically adjusted.",
     "p4": "4. Click the 'ROLL' to start the game. The smart contract will randomly generate a lucky number from 1 to 100. If the lucky number is within your range, you win!"
