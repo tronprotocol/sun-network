@@ -308,7 +308,7 @@ RPC Interface
 - 47.252.6.19:50061
 - 47.89.185.14:50061
 
-##### Event Server
+#### Event Server
 
 side chain
 
@@ -362,7 +362,7 @@ RPC Interface
 - 47.252.80.185:50060
 - 47.252.84.141:50060
 
-##### Event Server
+#### Event Server
 
 main chain
 
