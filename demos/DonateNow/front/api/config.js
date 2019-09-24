@@ -7,22 +7,22 @@ switch (env) {
   case "pro":
     interfaceData = {
       mainOptions: {
-        fullNode: 'http://47.252.84.158:8070',
-        solidityNode: 'http://47.252.84.158:8071',
-        eventServer: 'http://47.252.81.14:8070'
+        fullNode: 'https://api.trongrid.io',
+        solidityNode: 'https://api.trongrid.io',
+        eventServer: 'https://api.trongrid.io'
       },
       sideOptions: {
-        fullNode: 'http://47.252.85.90:8070',
-        solidityNode: 'http://47.252.85.90:8071',
-        eventServer: 'http://47.252.87.129:8070'  
+        fullNode: 'https://sun.tronex.io',
+        solidityNode: 'https://sun.tronex.io',
+        eventServer: 'https://sun.tronex.io'  
       },
-      mainGatewayAddress: 'TEaRKX1nazX7EiCu3XwaHjLZeCrHRLXoRa',
-      sideGatewayAddress: 'TDdo671JXH5S74iVvXEDyUXSgADYtg5ns7',
-      chainId: '410A6DBD0780EA9B136E3E9F04EBE80C6C288B80EE',
+      mainGatewayAddress: 'TWaPZru6PR5VjgT4sJrrZ481Zgp3iJ8Rfo',
+      sideGatewayAddress: 'TGKotco6YoULzbYisTBuP6DWXDjEgJSpYz',
+      chainId: '41E209E4DE650F0150788E8EC5CAFA240A23EB8EB7',
 
-      contractAddress: "TG1uvkjpZdT1969wqokcDYiQ7gGUMQTvqK",
+      contractAddress: "TFiuRoT2nKTKFJ5Ls7tgSXoikqRqmMatyY",
       privateKey: '',
-      ownAddr: 'TNR8HtC7FHB9QSjpR5sc736cYJZpYXEYz5',
+      ownAddr: 'TCvLPwVZUeDA5SDAdFXgPCxTcsLCTQ7FuM',
       depositFee: 0,
       withdrawFee: 10,
     }
