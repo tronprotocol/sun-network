@@ -1,10 +1,10 @@
 package org.tron.walletcli.checker;
 
-import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.ByteArray;
 import org.tron.sunapi.response.TransactionResponse;
 import org.tron.walletcli.db.DepositFailedStore;
 import org.tron.walletcli.db.DepositStore;
+import org.tron.walletcli.utils.GatewayUtils;
 
 public class DepositChecker extends ContractChecker {
 
@@ -32,7 +32,7 @@ public class DepositChecker extends ContractChecker {
               .callConstantContractRet(mainChainGateway, "depositDone(uint256)",
                   String.valueOf(nextNonce), false, 10000000);
           byte[] resp = ByteArray.fromHexString(response.getConstantResult());
-          boolean result = AbiUtil.unpackBoolean(resp);
+          boolean result = GatewayUtils.unpackBoolean(resp);
           if (!result) {
             failedStore
                 .putData(ByteArray.fromLong(nextNonce),
