@@ -340,7 +340,7 @@ side chain
 - sun.tronex.io/event  
 
 
-####  测试网gateway合约相关信息
+####  DAppChain正式网gateway合约相关信息
 
 SideChainID
 
