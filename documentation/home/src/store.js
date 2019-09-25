@@ -12,8 +12,8 @@ export default new Vuex.Store({
     resourcesUrl: 'https://github.com/tronprotocol/sun-network',
     githubUrl: 'https://github.com/tronprotocol/sun-network',
     telegramUrl: 'https://t.me/sun_network',
-    demo1Url: 'http://47.90.206.231:50057/demos/donate/static',
-    demo2Url: 'http://47.90.206.231:50058/demos/tinydice/static',
+    demo1Url: 'https://sun.tronex.io/demos/donate/static',
+    demo2Url: 'https://sun.tronex.io/demos/tinydice/static',
     donateUrl: 'https://tron.network/donation?lng=en',
     faqUrl: 'https://gitter.im/tronprotocol/sun-network',
     discordUrl: 'https://discordapp.com/invite/Anun6b7'
