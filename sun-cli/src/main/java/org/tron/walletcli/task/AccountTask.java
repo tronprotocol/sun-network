@@ -105,6 +105,7 @@ public class AccountTask extends SideChainTask {
           sdk.setPrivateKey(ConfigInfo.privateKey);
           SunNetworkResponse<AddressPrKeyPairMessage> resp = sdk.getMainChainService()
               .generateAddress();
+
           if (resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
             String info = resp.getData().getAddress() + "," + resp.getData().getPrivateKey();
             sdk.getSideChainService().createAccount(resp.getData().getAddress());
@@ -116,7 +117,7 @@ public class AccountTask extends SideChainTask {
             out.newLine();
             out.flush();
             try {
-              Thread.sleep(10);
+              Thread.sleep(2000);
             } catch (Exception e) {
               e.printStackTrace();
             }
