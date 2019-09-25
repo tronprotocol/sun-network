@@ -1166,7 +1166,16 @@ Signature of main-chain is the same as TronWeb, you can use tronWeb.trx.sign(…
 sign((transaction = false), (privateKey = this.sidechain.defaultPrivateKey), (useTronHeader = true), (multisig = false));
 ```
 
-## VII. Deploy your own side-chain
+## VII. Register as a Super Representative (Witness).
+Community is welcomed to join DAppChain ecosystem. Due to the incentive mechanism difference between SideChain and TRON network, SUN Network will support Community SR step by step. 
+
+SideChain SR use a reward pool concept for chain rewarding, all the income from SideChain will be inject to reward pool and distribute most of the reward to SRs.
+
+**Since the lacking of user on SideChain when the SideChain is set up, all the reward will be accumulated to reward pool and SR will not get block generated reward.** When SideChain ecosystem reach a larger level, we will allow Community to become SR through a proposal. This would guarantee SR to get steady and considerable income, and also make SideChain more decentralized.
+
+SR reward is a floating number. In theory, the richer the ecosystem (high TPS), the more TRX SR will gain. 
+
+## VIII. Deploy your own side-chain
 ### Get started
 #### 1. Deloy _main-chain_ gateway contract. Create related Accounts. Configurate fullnode on _main-chain_.
 * i. create an account Onwer as _main-chain_ gateway contract deployer and _side-chain_ owner. Give sufficient balance to Onwer.
@@ -1731,7 +1740,7 @@ initTaskSwitch = true
 #### 11. Test if everything works as expected under charging fee proposal is approved
  * test cmd 1-9 again.
  
-## VII. RoadMap
+## IX. RoadMap
 
 As part of the TRON expansion plan, DAppChain is committed to decentralizing and prospering the TRON ecosystem. For all builders of the entire ecology, it will be accompanied by the development of DAppChain through the three stages of L1, L2 and L3. We will open up more roles for the community as the plan progresses and the development work is completed, allowing the community to participate in the entire ecosystem in different forms.
 
