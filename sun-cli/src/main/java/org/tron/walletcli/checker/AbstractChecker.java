@@ -16,13 +16,14 @@ import org.tron.core.config.Configuration;
 import org.tron.walletcli.WalletApiWrapper;
 
 public class AbstractChecker implements Checkable {
+
   protected static final Logger logger = LoggerFactory.getLogger("monitor");
   protected static com.typesafe.config.Config config = Configuration.getByPath("config.conf");
   public static String alertUrl = config.getString("alert.webhook.url");
 
-  protected WalletApiWrapper walletApiWrapper = new WalletApiWrapper();
+  protected WalletApiWrapper walletApiWrapper = new WalletApiWrapper(true);
 
-  public  void sendAlert(String msg) {
+  public void sendAlert(String msg) {
     if (StringUtils.isEmpty(alertUrl)) {
       return;
     }

@@ -1,7 +1,6 @@
 package org.tron.common.utils;
 
 import static com.google.common.primitives.Bytes.concat;
-import static org.tron.common.utils.DataWord.WORD_LENGTH;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -401,13 +400,5 @@ public class AbiUtil {
     }
 
     return pack(coders, items);
-  }
-
-  public static boolean unpackBoolean(byte[] data) {
-    if (data.length % WORD_LENGTH != 0 || data.length < 3) {
-      throw new IllegalArgumentException("Illegal array data length:" + data.length);
-    }
-    DataWord dataWord = DataWord.getDataWord(data, 0);
-    return !dataWord.isZero();
   }
 }

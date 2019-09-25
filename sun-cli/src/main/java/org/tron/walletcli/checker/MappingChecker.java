@@ -1,48 +1,59 @@
 package org.tron.walletcli.checker;
 
-import java.util.Map;
-import org.iq80.leveldb.DBIterator;
-import org.tron.common.utils.AbiUtil;
+import java.nio.ByteBuffer;
+import java.util.Set;
 import org.tron.common.utils.ByteArray;
 import org.tron.sunapi.response.TransactionResponse;
 import org.tron.walletcli.db.MappingFailedStore;
 import org.tron.walletcli.db.MappingStore;
-import org.tron.walletcli.db.WithdrawFailedStore;
-import org.tron.walletcli.db.WithdrawStore;
+import org.tron.walletcli.utils.GatewayUtils;
 
 public class MappingChecker extends ContractChecker {
+
   private MappingStore store;
   private MappingFailedStore failedStore;
 
   public MappingChecker() {
     this.store = MappingStore.getInstance();
+    this.failedStore = MappingFailedStore.getInstance();
   }
 
   public void checkMapping() {
-    byte[] data = store.getData("next_nonce".getBytes());
-    long nextNonce = ByteArray.toLong(data);
     while (true) {
       try {
-        walletApiWrapper.switch2Side();
+        byte[] data = store.getData("next_nonce".getBytes());
+        long nextNonce = ByteArray.toLong(data);
+        walletApiWrapper.switch2Main();
         TransactionResponse response = walletApiWrapper
-            .callConstantContractRet(sideChainGateway, "getMappingMsg(uint256)",
+            .callConstantContractRet(mainChainGateway, "getMappingMsg(uint256)",
                 String.valueOf(nextNonce), false, 10000000);
-        if (response.result == true) {
+        if (response.result) {
           store.putData(ByteArray.fromLong(nextNonce),
               ByteArray.fromHexString(response.getConstantResult()));
-          walletApiWrapper.switch2Main();
+          walletApiWrapper.switch2Side();
           response = walletApiWrapper
-              .callConstantContractRet(mainChainGateway, "mappingDone(uint256)",
+              .callConstantContractRet(sideChainGateway, "mappingDone(uint256)",
                   String.valueOf(nextNonce), false, 10000000);
-          byte[] resp = ByteArray.fromHexString(response.getConstantResult());
-          boolean result = AbiUtil.unpackBoolean(resp);
-          if (!result) {
+          if (!response.result) {
             failedStore
                 .putData(ByteArray.fromLong(nextNonce),
                     ByteArray.fromLong(System.currentTimeMillis()));
+          } else {
+            byte[] resp = ByteArray.fromHexString(response.getConstantResult());
+            boolean result = GatewayUtils.unpackBoolean(resp);
+            if (!result) {
+              failedStore
+                  .putData(ByteArray.fromLong(nextNonce),
+                      ByteArray.fromLong(System.currentTimeMillis()));
+            }
           }
+
           store.putData("next_nonce".getBytes(), ByteArray.fromLong(++nextNonce));
+          logger.info("next mapping nonce is {}", nextNonce);
+          Thread.sleep(1 * 1000);
+
         } else {
+          logger.info("check mapping sleep 5 minutes. next is {}.", nextNonce);
           Thread.sleep(5 * 60 * 1000);
         }
       } catch (Exception e) {
@@ -51,17 +62,18 @@ public class MappingChecker extends ContractChecker {
     }
   }
 
-  public void checkFailedMapping(){
-    DBIterator iterator = failedStore.database.iterator();
-    while(iterator.hasNext()) {
-      Map.Entry<byte[], byte[]> entry = iterator.next();
-      byte[] targetNonce = entry.getKey();
+  public void checkFailedMapping() {
+
+    Set<ByteBuffer> allFailed = failedStore.allKeys();
+    logger.info("check fail mapping size is {}.", allFailed.size());
+    allFailed.forEach(nonceBuffer -> {
+      byte[] targetNonce = nonceBuffer.array();
       walletApiWrapper.switch2Side();
       TransactionResponse response = walletApiWrapper
           .callConstantContractRet(mainChainGateway, "mappingDone(uint256)",
               String.valueOf(targetNonce), false, 10000000);
       byte[] resp = ByteArray.fromHexString(response.getConstantResult());
-      boolean result = AbiUtil.unpackBoolean(resp);
+      boolean result = GatewayUtils.unpackBoolean(resp);
       if (!result) {
         failedStore
             .putData(targetNonce,
@@ -69,6 +81,24 @@ public class MappingChecker extends ContractChecker {
       } else {
         failedStore.deleteData(targetNonce);
       }
-    }
+      try {
+        Thread.sleep(5 * 1000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    });
+  }
+
+
+  public void println() {
+    Set<ByteBuffer> allFailed = failedStore.allKeys();
+    logger.info("print fail mapping size is {}.", allFailed.size());
+    StringBuilder str = new StringBuilder("fail mapping nonce is ");
+    allFailed.forEach(nonceBuffer -> {
+      byte[] targetNonce = nonceBuffer.array();
+      str.append(ByteArray.toLong(targetNonce)).append(" ");
+    });
+    str.append(".");
+    System.out.println(str);
   }
 }

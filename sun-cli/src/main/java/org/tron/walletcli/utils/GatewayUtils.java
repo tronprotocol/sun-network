@@ -87,9 +87,7 @@ public class GatewayUtils {
     byte[] mainChainAddressBytes = withdrawMsg.getContractAddress().getLast20Bytes();
     byte[] valueBytes = withdrawMsg.getValue().getData();
     byte[] nonceBytes = new DataWord(ByteArray.fromLong(nonce)).getData();
-    byte[] data = ByteUtil.merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length),
-        Arrays.copyOfRange(mainChainAddressBytes, 1, mainChainAddressBytes.length), valueBytes,
-        nonceBytes);
+    byte[] data = ByteUtil.merge(fromBytes, mainChainAddressBytes, valueBytes, nonceBytes);
     return ByteArray.toHexString(Hash.sha3(data));
   }
 
@@ -97,8 +95,7 @@ public class GatewayUtils {
     byte[] fromBytes = withdrawMsg.getFromAddress().getLast20Bytes();
     byte[] valueBytes = withdrawMsg.getValue().getData();
     byte[] nonceBytes = new DataWord(ByteArray.fromLong(nonce)).getData();
-    byte[] data = ByteUtil
-        .merge(Arrays.copyOfRange(fromBytes, 1, fromBytes.length), valueBytes, nonceBytes);
+    byte[] data = ByteUtil.merge(fromBytes, valueBytes, nonceBytes);
     return ByteArray.toHexString(Hash.sha3(data));
   }
 }

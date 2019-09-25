@@ -80,6 +80,19 @@ public class WalletApiWrapper {
 
   }
 
+  public WalletApiWrapper(boolean flag) {
+    sdk = new SunNetwork();
+    SunNetworkResponse<Integer> ret = sdk
+        .init(new ServerConfigImpl("config.conf"), new MultiSignTransactionImpl());
+    if (ret.getData() != 0) {
+      System.out.println("Failed to init sdk");
+    }
+    sdk.setPrivateKey("0000000000000000000000000000000000000000000000000000000000000001");
+    wallet = new WalletApi();
+
+    wallet.setLogin();
+  }
+
   public ChainInterface getChainInterface() {
     if (isMainChain) {
       return sdk.getMainChainService();

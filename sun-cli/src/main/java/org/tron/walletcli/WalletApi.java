@@ -28,6 +28,9 @@ public class WalletApi {
   private boolean loginState = false;
   private byte[] address;
 
+  public WalletApi() {
+  }
+
   public static boolean passwordValid(char[] password) {
     if (ArrayUtils.isEmpty(password)) {
       throw new IllegalArgumentException("password is empty");
