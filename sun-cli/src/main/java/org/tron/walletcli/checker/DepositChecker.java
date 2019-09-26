@@ -89,12 +89,13 @@ public class DepositChecker extends ContractChecker {
   public void println() {
     Set<ByteBuffer> allFailed = failedStore.allKeys();
     logger.info("print fail deposit size is {}.", allFailed.size());
-    StringBuilder str = new StringBuilder("fail deposit nonce is ");
+    StringBuilder str = new StringBuilder("Failed deposit nonces are ");
     allFailed.forEach(nonceBuffer -> {
       byte[] targetNonce = nonceBuffer.array();
       str.append(ByteArray.toLong(targetNonce)).append(" ");
     });
     str.append(".");
     System.out.println(str);
+    sendAlert(str.toString());
   }
 }

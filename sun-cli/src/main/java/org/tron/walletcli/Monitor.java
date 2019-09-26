@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.tron.walletcli.checker.DepositChecker;
 import org.tron.walletcli.checker.MappingChecker;
 import org.tron.walletcli.checker.OracleChecker;
+import org.tron.walletcli.checker.SideChainChecker;
 import org.tron.walletcli.checker.WithdrawChecker;
 
 public class Monitor {
@@ -29,17 +30,29 @@ public class Monitor {
       withdrawChecker.println();
     };
 
-    OracleChecker oc = new OracleChecker();
+
+    OracleChecker oracleChecker= new OracleChecker();
+    Runnable oracleRunnable = () ->{
+      oracleChecker.checkOracleResourcesTask();
+    };
+
+    SideChainChecker sideChainChecker = new SideChainChecker();
+    Runnable sideChainRunnable = () ->{
+      sideChainChecker.checkFund();
+    };
+
+
     ScheduledExecutorService service = Executors
         .newScheduledThreadPool(10);
-    //service.scheduleAtFixedRate(oc::checkOracleResourcesTask, 0, oc.checkTimeInterval, TimeUnit.SECONDS);
-    service.scheduleWithFixedDelay(depositChecker::checkFailedDeposit, 0, oc.checkTimeInterval,
+    service.scheduleAtFixedRate(oracleRunnable, 0, oracleChecker.checkTimeInterval, TimeUnit.SECONDS);
+    service.scheduleWithFixedDelay(depositChecker::checkFailedDeposit, 0, oracleChecker.checkTimeInterval,
         TimeUnit.SECONDS);
-    service.scheduleWithFixedDelay(mappingChecker::checkFailedMapping, 0, oc.checkTimeInterval,
+    service.scheduleWithFixedDelay(mappingChecker::checkFailedMapping, 0, oracleChecker.checkTimeInterval,
         TimeUnit.SECONDS);
-    service.scheduleWithFixedDelay(withdrawChecker::checkFailedWithdraw, 0, oc.checkTimeInterval,
+    service.scheduleWithFixedDelay(withdrawChecker::checkFailedWithdraw, 0, oracleChecker.checkTimeInterval,
         TimeUnit.SECONDS);
-    service.scheduleWithFixedDelay(runnable7, 0, 10, TimeUnit.SECONDS);
+    service.scheduleWithFixedDelay(runnable7, 0, 60, TimeUnit.MINUTES);
+    service.scheduleAtFixedRate(sideChainRunnable, 0, 60, TimeUnit.MINUTES);
 
     System.out.println("complete...");
 

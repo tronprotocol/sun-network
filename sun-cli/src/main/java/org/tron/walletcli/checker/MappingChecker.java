@@ -93,12 +93,13 @@ public class MappingChecker extends ContractChecker {
   public void println() {
     Set<ByteBuffer> allFailed = failedStore.allKeys();
     logger.info("print fail mapping size is {}.", allFailed.size());
-    StringBuilder str = new StringBuilder("fail mapping nonce is ");
+    StringBuilder str = new StringBuilder("Failed mapping nonces are ");
     allFailed.forEach(nonceBuffer -> {
       byte[] targetNonce = nonceBuffer.array();
       str.append(ByteArray.toLong(targetNonce)).append(" ");
     });
     str.append(".");
     System.out.println(str);
+    sendAlert(str.toString());
   }
 }
