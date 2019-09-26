@@ -13,7 +13,7 @@ public class SideChainChecker extends AbstractChecker {
     SideChainParameters sideChainParameters = walletApiWrapper.getSideChainParameters().get();
     for(SideChainParameter para : sideChainParameters.getChainParameterList()){
       if(para.getKey().toLowerCase().contains("getfund")) {
-        sendAlert(para.getValue() + " sun");
+        sendAlert("Current Fund: " + para.getValue() + " sun");
         return para.getValue() + " sun";
       }
     }
