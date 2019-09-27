@@ -31,6 +31,7 @@ public class WithdrawChecker extends ContractChecker {
           byte[] msgBytes = ByteArray.fromHexString(response.getConstantResult());
           store.putData(ByteArray.fromLong(nextNonce),
               ByteArray.fromHexString(response.getConstantResult()));
+
           walletApiWrapper.switch2Main();
           String argsStr =
               "\"" + GatewayUtils.getWithdrawMsgHash(msgBytes, nextNonce) + "\"," + nextNonce;
@@ -77,9 +78,10 @@ public class WithdrawChecker extends ContractChecker {
       byte[] targetNonce = nonceBuffer.array();
       byte[] msgData = store.getData(targetNonce);
       long nonce = ByteArray.toLong(targetNonce);
-      walletApiWrapper.switch2Side();
+      walletApiWrapper.switch2Main();
       String argsStr =
           "\"" + GatewayUtils.getWithdrawMsgHash(msgData, nonce) + "\"," + nonce;
+      logger.info("check failed withdraw is {} .", argsStr);
       TransactionResponse response = walletApiWrapper
           .callConstantContractRet(mainChainGateway, "withdrawDone(bytes32,uint256)",
               argsStr, false, 10000000);
