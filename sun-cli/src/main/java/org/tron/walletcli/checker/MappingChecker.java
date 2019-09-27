@@ -71,7 +71,7 @@ public class MappingChecker extends ContractChecker {
       walletApiWrapper.switch2Side();
       TransactionResponse response = walletApiWrapper
           .callConstantContractRet(mainChainGateway, "mappingDone(uint256)",
-              String.valueOf(targetNonce), false, 10000000);
+              String.valueOf(ByteArray.toLong(targetNonce)), false, 10000000);
       byte[] resp = ByteArray.fromHexString(response.getConstantResult());
       boolean result = GatewayUtils.unpackBoolean(resp);
       if (!result) {
