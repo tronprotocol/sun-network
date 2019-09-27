@@ -1,2 +1,2 @@
-rootProject.name = 'sun-cli'
+rootProject.name = 'monitor-cli'
 includeFlat 'sun-sdk'

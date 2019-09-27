@@ -104,6 +104,10 @@ public class WithdrawChecker extends ContractChecker {
   public void println() {
     Set<ByteBuffer> allFailed = failedStore.allKeys();
     logger.info("print fail withdraw size is {}.", allFailed.size());
+    if (allFailed.isEmpty()) {
+      sendAlert("All withdraw succeed.");
+      return;
+    }
     StringBuilder str = new StringBuilder("Failed withdraw nonces are ");
     allFailed.forEach(nonceBuffer -> {
       byte[] targetNonce = nonceBuffer.array();

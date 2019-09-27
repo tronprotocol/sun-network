@@ -109,7 +109,7 @@ jar {
 }
 
 shadowJar {
-    baseName = 'sun-cli'
+    baseName = 'monitor-cli'
     classifier = null
     version = null
 }
