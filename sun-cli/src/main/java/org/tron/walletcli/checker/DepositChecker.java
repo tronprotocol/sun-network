@@ -88,20 +88,7 @@ public class DepositChecker extends ContractChecker {
   }
 
   public void println() {
-    Set<ByteBuffer> allFailed = failedStore.allKeys();
-    logger.info("print fail deposit size is {}.", allFailed.size());
-    if (allFailed.isEmpty()) {
-      sendAlert("All deposit succeed.");
-      return;
-    }
-    StringBuilder str = new StringBuilder("Failed deposit nonces are ");
-    allFailed.forEach(nonceBuffer -> {
-      byte[] targetNonce = nonceBuffer.array();
-      str.append(ByteArray.toLong(targetNonce)).append(" ");
-    });
-    str.append(".");
-    System.out.println(str);
-
+    StringBuilder str = new StringBuilder();
     // nonce
     String currentNonce = Long.toString(ByteArray.toLong(store.getData("next_nonce".getBytes())));
     str.append("\nCurrent Deposit count: " + currentNonce);
@@ -119,6 +106,21 @@ public class DepositChecker extends ContractChecker {
     long bonus = ByteArray.toLong(ByteArray.fromHexString(response.constantResult));
     logger.info("bonus is {}", bonus);
     str.append("\nBonus is " + bonus);
+
+    // deposit success check
+    Set<ByteBuffer> allFailed = failedStore.allKeys();
+    logger.info("print fail deposit size is {}.", allFailed.size());
+    if (allFailed.isEmpty()) {
+      sendAlert(str.append("\nAll deposit succeed.").toString());
+      return;
+    }
+    str.append("\nFailed deposit nonces are ");
+    allFailed.forEach(nonceBuffer -> {
+      byte[] targetNonce = nonceBuffer.array();
+      str.append(ByteArray.toLong(targetNonce)).append(" ");
+    });
+    str.append(".");
+    System.out.println(str);
 
     sendAlert(str.toString());
   }

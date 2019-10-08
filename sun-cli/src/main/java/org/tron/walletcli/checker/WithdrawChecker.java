@@ -102,19 +102,7 @@ public class WithdrawChecker extends ContractChecker {
   }
 
   public void println() {
-    Set<ByteBuffer> allFailed = failedStore.allKeys();
-    logger.info("print fail withdraw size is {}.", allFailed.size());
-    if (allFailed.isEmpty()) {
-      sendAlert("All withdraw succeed.");
-      return;
-    }
-    StringBuilder str = new StringBuilder("Failed withdraw nonces are ");
-    allFailed.forEach(nonceBuffer -> {
-      byte[] targetNonce = nonceBuffer.array();
-      str.append(ByteArray.toLong(targetNonce)).append(" ");
-    });
-    str.append(".");
-    System.out.println(str);
+    StringBuilder str = new StringBuilder();
 
     // nonce
     String currentNonce = Long.toString(ByteArray.toLong(store.getData("next_nonce".getBytes())));
@@ -133,6 +121,20 @@ public class WithdrawChecker extends ContractChecker {
     long bonus = ByteArray.toLong(ByteArray.fromHexString(response.constantResult));
     logger.info("bonus is {}", bonus);
     str.append("\nBonus is " + bonus);
+
+    Set<ByteBuffer> allFailed = failedStore.allKeys();
+    logger.info("print fail withdraw size is {}.", allFailed.size());
+    if (allFailed.isEmpty()) {
+      sendAlert(str.append("\nAll withdraw succeed.").toString());
+      return;
+    }
+    str.append("\nFailed withdraw nonces are ");
+    allFailed.forEach(nonceBuffer -> {
+      byte[] targetNonce = nonceBuffer.array();
+      str.append(ByteArray.toLong(targetNonce)).append(" ");
+    });
+    str.append(".");
+    System.out.println(str);
 
     sendAlert(str.toString());
   }
