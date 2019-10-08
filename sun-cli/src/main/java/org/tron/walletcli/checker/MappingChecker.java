@@ -93,7 +93,7 @@ public class MappingChecker extends ContractChecker {
   public void println() {
     StringBuilder str = new StringBuilder();
     String currentNonce = Long.toString(ByteArray.toLong(store.getData("next_nonce".getBytes())));
-    str.append("\nCurrent Mapping count: " + currentNonce);
+    str.append("Current Mapping count: " + currentNonce);
     Set<ByteBuffer> allFailed = failedStore.allKeys();
     logger.info("print fail mapping size is {}.", allFailed.size());
     if (allFailed.isEmpty()) {

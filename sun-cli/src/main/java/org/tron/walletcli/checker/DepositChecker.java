@@ -91,7 +91,7 @@ public class DepositChecker extends ContractChecker {
     StringBuilder str = new StringBuilder();
     // nonce
     String currentNonce = Long.toString(ByteArray.toLong(store.getData("next_nonce".getBytes())));
-    str.append("\nCurrent Deposit count: " + currentNonce);
+    str.append("Current Deposit count: " + currentNonce);
 
     walletApiWrapper.switch2Main();
 

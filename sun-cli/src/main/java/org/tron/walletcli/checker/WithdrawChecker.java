@@ -106,7 +106,7 @@ public class WithdrawChecker extends ContractChecker {
 
     // nonce
     String currentNonce = Long.toString(ByteArray.toLong(store.getData("next_nonce".getBytes())));
-    str.append("\nCurrent Withdraw count: " + currentNonce);
+    str.append("Current Withdraw count: " + currentNonce);
 
     walletApiWrapper.switch2Side();
 
