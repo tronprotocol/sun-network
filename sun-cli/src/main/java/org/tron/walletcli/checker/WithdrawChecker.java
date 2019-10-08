@@ -115,6 +115,25 @@ public class WithdrawChecker extends ContractChecker {
     });
     str.append(".");
     System.out.println(str);
+
+    // nonce
+    String currentNonce = Long.toString(ByteArray.toLong(store.getData("next_nonce".getBytes())));
+    str.append("\nCurrent Withdraw count: " + currentNonce);
+
+    walletApiWrapper.switch2Side();
+
+    // Gate way balance
+    long sideGatewayBalance = walletApiWrapper.getAccount(sideChainGateway).getData().getBalance();
+    logger.info("SideChain Gate way balance is {}", sideGatewayBalance);
+    str.append("\nSideChain Gateway balance is " + sideGatewayBalance);
+
+    // bonus
+    TransactionResponse response = walletApiWrapper.callConstantContractRet(sideChainGateway, "bonus()",
+        null, false, 10000000);
+    long bonus = ByteArray.toLong(ByteArray.fromHexString(response.constantResult));
+    logger.info("bonus is {}", bonus);
+    str.append("\nBonus is " + bonus);
+
     sendAlert(str.toString());
   }
 }

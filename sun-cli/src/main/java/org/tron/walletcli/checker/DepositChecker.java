@@ -21,6 +21,7 @@ public class DepositChecker extends ContractChecker {
   public void checkDeposit() {
     while (true) {
       try {
+        // loop nonce
         byte[] data = store.getData("next_nonce".getBytes());
         long nextNonce = ByteArray.toLong(data);
         walletApiWrapper.switch2Main();
@@ -100,6 +101,25 @@ public class DepositChecker extends ContractChecker {
     });
     str.append(".");
     System.out.println(str);
+
+    // nonce
+    String currentNonce = Long.toString(ByteArray.toLong(store.getData("next_nonce".getBytes())));
+    str.append("\nCurrent Deposit count: " + currentNonce);
+
+    walletApiWrapper.switch2Main();
+
+    // Gate way balance
+    long mainChainGatewayBalance = walletApiWrapper.getAccount(mainChainGateway).getData().getBalance();
+    logger.info("MainChain Gate way balance is {}", mainChainGatewayBalance);
+    str.append("\nMainChain Gateway balance is " + mainChainGatewayBalance);
+
+    // bonus
+    TransactionResponse response = walletApiWrapper.callConstantContractRet(mainChainGateway, "bonus()",
+        null, false, 10000000);
+    long bonus = ByteArray.toLong(ByteArray.fromHexString(response.constantResult));
+    logger.info("bonus is {}", bonus);
+    str.append("\nBonus is " + bonus);
+
     sendAlert(str.toString());
   }
 }

@@ -104,6 +104,9 @@ public class MappingChecker extends ContractChecker {
     });
     str.append(".");
     System.out.println(str);
+
+    String currentNonce = Long.toString(ByteArray.toLong(store.getData("next_nonce".getBytes())));
+    str.append("\nCurrent Mapping count: " + currentNonce);
     sendAlert(str.toString());
   }
 }
