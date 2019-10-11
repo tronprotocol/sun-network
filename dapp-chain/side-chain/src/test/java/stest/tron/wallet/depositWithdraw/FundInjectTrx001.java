@@ -157,12 +157,12 @@ public class FundInjectTrx001 {
     SideChainParameters sideChainParameters = blockingSideStubFull
         .getSideChainParameters(EmptyMessage.newBuilder().build());
     Optional<SideChainParameters> getChainParameters = Optional.ofNullable(sideChainParameters);
-    long fund = Long.valueOf(getChainParameters.get().getChainParameter(32).getValue());
-    String fundAddress = getChainParameters.get().getChainParameter(33).getValue();
+    long fund = Long.valueOf(getChainParameters.get().getChainParameter(33).getValue());
+    String fundAddress = getChainParameters.get().getChainParameter(34).getValue();
     long dayToSustainByFund = Long
-        .valueOf(getChainParameters.get().getChainParameter(35).getValue());
-    long percentToPayWitness = Long
         .valueOf(getChainParameters.get().getChainParameter(36).getValue());
+    long percentToPayWitness = Long
+        .valueOf(getChainParameters.get().getChainParameter(37).getValue());
     Assert.assertTrue(PublicMethed.fundInject(depositAddress, testKeyFordeposit, 1000000,
         WalletClient.decodeFromBase58Check(ChainIdAddress),
         blockingSideStubFull));

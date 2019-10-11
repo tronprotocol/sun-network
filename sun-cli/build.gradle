@@ -88,6 +88,19 @@ run {
     mainClassName = 'org.tron.walletcli.Client'
 }
 
+jar {
+    from(sourceSets.main.output) {
+        include "/**"
+    }
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes 'Main-Class': 'org.tron.walletcli.Client'
+    }
+}
 
 shadowJar {
     baseName = 'sun-cli'

@@ -1,9 +1,10 @@
+import "./Delegatecallable.sol";
 /**
  * @title Ownable
  * @dev The Ownable contract has an owner address, and provides basic authorization control
  * functions, this simplifies the implementation of "user permissions".
  */
-contract Ownable {
+contract Ownable is Delegatecallable {
     address public owner;
 
     event OwnershipTransferred(
@@ -32,7 +33,7 @@ contract Ownable {
      * @dev Allows the current owner to transfer control of the contract to a newOwner.
      * @param _newOwner The address to transfer ownership to.
      */
-    function transferOwnership(address _newOwner) public onlyOwner {
+    function transferOwnership(address _newOwner) public goDelegateCall onlyOwner {
         _transferOwnership(_newOwner);
     }
 

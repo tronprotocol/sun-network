@@ -96,6 +96,18 @@ public class DepositMinTrc20001 {
         .usePlaintext(true)
         .build();
     blockingSideStubFull = WalletGrpc.newBlockingStub(channelFull1);
+
+    parame2 = "0";
+    methodStr1 = "setDepositMinTrc20(uint256)";
+
+    byte[] input3 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame2, false));
+
+    PublicMethed
+        .triggerContract(WalletClient.decodeFromBase58Check(mainChainAddress),
+            0,
+            input3,
+            maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+
   }
 
   @Test(enabled = true, description = "DepositMinTrc20 normal.")
@@ -379,7 +391,8 @@ public class DepositMinTrc20001 {
     logger.info("MinTrc20:" + Long.valueOf(parame2));
     Assert.assertEquals(MinTrx, Long.valueOf(parame2));
 
-    parame2 = "-9223372036854775808";
+    long setDepositMinTrc201 = Long.MIN_VALUE;
+    parame2 = String.valueOf(setDepositMinTrc201);
     input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame2, false));
     txid3 = PublicMethed
         .triggerContract(WalletClient.decodeFromBase58Check(mainChainAddress),
@@ -402,7 +415,8 @@ public class DepositMinTrc20001 {
     logger.info("MinTrc20:" + Long.valueOf(parame2));
     Assert.assertEquals(MinTrx, Long.valueOf(parame2));
 
-    parame2 = "9223372036854775807";
+    setDepositMinTrc201 = Long.MAX_VALUE;
+    parame2 = String.valueOf(setDepositMinTrc201);
     input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame2, false));
     txid3 = PublicMethed
         .triggerContract(WalletClient.decodeFromBase58Check(mainChainAddress),
@@ -425,6 +439,53 @@ public class DepositMinTrc20001 {
     logger.info("MinTrc20:" + Long.valueOf(parame2));
     Assert.assertEquals(MinTrx, Long.valueOf(parame2));
 
+    setDepositMinTrc201 = Long.MAX_VALUE + 1;
+    parame2 = String.valueOf(setDepositMinTrc201);
+    input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame2, false));
+    txid3 = PublicMethed
+        .triggerContract(WalletClient.decodeFromBase58Check(mainChainAddress),
+            0,
+            input1,
+            maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    infoById3 = PublicMethed
+        .getTransactionInfoById(txid3, blockingStubFull);
+    Assert.assertTrue(infoById3.get().getResultValue() == 0);
+    input5 = Hex.decode(AbiUtil.parseMethod(methodStr3, "", false));
+
+    return5 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainChainAddress), 0l, input5, 1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    MinTrx = ByteArray.toLong(ByteArray
+        .fromHexString(Hex.toHexString(return5.getConstantResult(0).toByteArray())));
+    logger.info("MinTrc20:" + Long.valueOf(parame2));
+    Assert.assertEquals(MinTrx, Long.valueOf(parame2));
+
+    setDepositMinTrc201 = Long.MIN_VALUE - 1;
+    parame2 = String.valueOf(setDepositMinTrc201);
+    input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame2, false));
+    txid3 = PublicMethed
+        .triggerContract(WalletClient.decodeFromBase58Check(mainChainAddress),
+            0,
+            input1,
+            maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    infoById3 = PublicMethed
+        .getTransactionInfoById(txid3, blockingStubFull);
+    Assert.assertTrue(infoById3.get().getResultValue() == 0);
+    input5 = Hex.decode(AbiUtil.parseMethod(methodStr3, "", false));
+
+    return5 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainChainAddress), 0l, input5, 1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    MinTrx = ByteArray.toLong(ByteArray
+        .fromHexString(Hex.toHexString(return5.getConstantResult(0).toByteArray())));
+    logger.info("MinTrc20:" + Long.valueOf(parame2));
+    Assert.assertEquals(MinTrx, Long.valueOf(parame2));
 
   }
 
@@ -433,7 +494,7 @@ public class DepositMinTrc20001 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    parame2 = "0";
+    parame2 = "1";
 
     byte[] input3 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame2, false));
 

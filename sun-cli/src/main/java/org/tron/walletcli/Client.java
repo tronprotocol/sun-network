@@ -1474,7 +1474,7 @@ public class Client {
   private void triggerContract(String[] parameters) {
     if (parameters == null ||
         parameters.length < 8) {
-      System.out.println("TriggerContract needs 6 parameters like following: ");
+      System.out.println("TriggerContract needs 8 parameters like following: ");
       System.out.println(
           "TriggerContract contractAddress method args isHex fee_limit value token_value token_id(e.g: TRXTOKEN, use # if don't provided)");
       // System.out.println("example:\nTriggerContract password contractAddress method args value");
@@ -1504,6 +1504,34 @@ public class Client {
           + "Please check the given transaction id to get the result on blockchain using getTransactionInfoById command");
     } else {
       System.out.println("Broadcast the triggerContract failed");
+    }
+  }
+
+  private void triggerConstantContract(String[] parameters) {
+    if (parameters == null ||
+        parameters.length < 5) {
+      System.out.println("TriggerConstantContract needs 5 parameters like following: ");
+      System.out.println(
+          "TriggerConstantContract contractAddress method args isHex fee_limit");
+      // System.out.println("example:\nTriggerContract password contractAddress method args value");
+      return;
+    }
+
+    String contractAddrStr = parameters[0];
+    String methodStr = parameters[1];
+    String argsStr = parameters[2];
+    boolean isHex = Boolean.valueOf(parameters[3]);
+    long feeLimit = Long.valueOf(parameters[4]);
+    if (argsStr.equalsIgnoreCase("#")) {
+      argsStr = "";
+    }
+
+    boolean result = walletApiWrapper
+        .callConstantContract(contractAddrStr, methodStr, argsStr, isHex, feeLimit);
+    if (result) {
+      System.out.println("Broadcast the TriggerConstantContract successfully.");
+    } else {
+      System.out.println("Broadcast the TriggerConstantContract failed");
     }
   }
 
@@ -1925,6 +1953,7 @@ public class Client {
     allCmds.add("updateenergylimit");
     allCmds.add("deploycontract");
     allCmds.add("triggercontract");
+    allCmds.add("triggerconstantcontract");
     allCmds.add("getcontract");
     allCmds.add("generateaddress");
     allCmds.add("generateaddressoffline");
@@ -1997,6 +2026,7 @@ public class Client {
     allCmds.add("updateenergylimit");
     allCmds.add("getcontract");
     allCmds.add("triggercontract");
+    allCmds.add("triggerconstantcontract");
     allCmds.add("deploycontract");
     allCmds.add("approveproposal");
     allCmds.add("deleteproposal");
@@ -2032,6 +2062,7 @@ public class Client {
   private String[] getCmd(String cmdLine) {
     if (cmdLine.indexOf("\"") < 0 || cmdLine.toLowerCase().startsWith("deploycontract")
         || cmdLine.toLowerCase().startsWith("triggercontract")
+        || cmdLine.toLowerCase().startsWith("triggerconstantcontract")
         || cmdLine.toLowerCase().startsWith("updateaccountpermission")) {
       return cmdLine.split("\\s+");
     }
@@ -2357,6 +2388,10 @@ public class Client {
         }
         case "triggercontract": {
           triggerContract(parameters);
+          break;
+        }
+        case "triggerconstantcontract": {
+          triggerConstantContract(parameters);
           break;
         }
         case "getcontract": {
@@ -2941,6 +2976,10 @@ public class Client {
         }
         case "triggercontract": {
           triggerContract(parameters);
+          break;
+        }
+        case "triggerconstantcontract": {
+          triggerConstantContract(parameters);
           break;
         }
         case "deploycontract": {

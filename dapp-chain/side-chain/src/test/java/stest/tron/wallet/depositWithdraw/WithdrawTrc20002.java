@@ -126,7 +126,7 @@ public class WithdrawTrc20002 {
     Assert.assertEquals(10000_000_000L - fee, accountBeforeBalance);
     Assert.assertEquals(callValue, accountSideBeforeBalance);
 
-    String contractName = "trc20Contract";
+    String contractName = "trc721Contract";
     String code = Configuration.getByPath("testng.conf")
         .getString("code.code_ContractTRC20");
     String abi = Configuration.getByPath("testng.conf")

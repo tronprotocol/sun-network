@@ -21,7 +21,6 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
-
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
@@ -105,8 +104,9 @@ public class WalletTestMutiSign003 {
     long needCoin = updateAccountPermissionFee * 1 + multiSignFee * 9;
 
     Assert.assertTrue(
-        PublicMethedForDailybuild.sendcoin(ownerAddress, needCoin + 100000000L, fromAddress, testKey002,
-            blockingStubFull));
+        PublicMethedForDailybuild
+            .sendcoin(ownerAddress, needCoin + 100000000L, fromAddress, testKey002,
+                blockingStubFull));
 
     Assert.assertTrue(PublicMethedForDailybuild
         .freezeBalanceForReceiver(fromAddress, 1000000000, 0, 0, ByteString.copyFrom(ownerAddress),
@@ -125,15 +125,19 @@ public class WalletTestMutiSign003 {
     ownerKeyString[2] = manager2Key;
     accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":3,\"keys\":["
-            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager2Key) + "\",\"weight\":1},"
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager1Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager2Key)
+            + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(ownerKey)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":2,"
-            + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
+            + "\"operations\":\"3f3d1ec0032001000000000000000000000000000000000000000000000000c0\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager2Key) + "\",\"weight\":1}"
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager1Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(manager2Key)
+            + "\",\"weight\":1}"
             + "]}]}";
     logger.info(accountPermissionJson);
     String txid = PublicMethedForMutiSign
@@ -146,7 +150,8 @@ public class WalletTestMutiSign003 {
 
     Optional<TransactionInfo> infoById = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
-    long balanceAfter = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull).getBalance();
+    long balanceAfter = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull)
+        .getBalance();
     long energyFee = infoById.get().getReceipt().getEnergyFee();
     long netFee = infoById.get().getReceipt().getNetFee();
     long fee = infoById.get().getFee();
@@ -188,12 +193,14 @@ public class WalletTestMutiSign003 {
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    balanceAfter = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull).getBalance();
+    balanceAfter = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull)
+        .getBalance();
     logger.info("balanceAfter: " + balanceAfter);
     Assert.assertEquals(balanceBefore - balanceAfter, multiSignFee * 9 + 1000000 + 100);
 
     Assert.assertTrue(
-        PublicMethedForDailybuild.unFreezeBalance(fromAddress, testKey002, 0, ownerAddress, blockingStubFull));
+        PublicMethedForDailybuild
+            .unFreezeBalance(fromAddress, testKey002, 0, ownerAddress, blockingStubFull));
 
   }
 

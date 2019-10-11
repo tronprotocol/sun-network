@@ -8,11 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
+import org.tron.core.Wallet;
 import stest.tron.wallet.common.client.Configuration;
+import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
@@ -55,6 +58,10 @@ public class HttpTestAccount003 {
   JsonObject voteElement = new JsonObject();
 
 
+  @BeforeSuite
+  public void beforeSuite() {
+
+  }
   /**
    * constructor.
    */

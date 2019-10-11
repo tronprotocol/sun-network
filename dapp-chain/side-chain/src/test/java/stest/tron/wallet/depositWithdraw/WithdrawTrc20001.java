@@ -65,6 +65,11 @@ public class WithdrawTrc20001 {
 
   final String ChainIdAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.chainIdAddress");
+  byte[] trc20Contract = null;
+
+  private int depositNonce;
+  private int withdrawNonce;
+  private int mappingNonce;
 
   @BeforeSuite
   public void beforeSuite() {
@@ -145,7 +150,7 @@ public class WithdrawTrc20001 {
 
     infoById = PublicMethed
         .getTransactionInfoById(deployTxid, blockingStubFull);
-    byte[] trc20Contract = infoById.get().getContractAddress().toByteArray();
+    trc20Contract = infoById.get().getContractAddress().toByteArray();
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertNotNull(trc20Contract);
 
@@ -156,7 +161,8 @@ public class WithdrawTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById1 = PublicMethed
-        .getTransactionInfoById(mapTxid, blockingSideStubFull);
+        .getTransactionInfoById(mapTxid, blockingStubFull);
+    mappingNonce = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
     Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
     Assert.assertEquals(0, infoById1.get().getResultValue());
 
@@ -201,6 +207,7 @@ public class WithdrawTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infodeposittrx = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
+    depositNonce = ByteArray.toInt(infodeposittrx.get().getContractResult(0).toByteArray());
     Assert.assertEquals(0, infodeposittrx.get().getResultValue());
 
     String sideChainTxid = PublicMethed
@@ -237,6 +244,8 @@ public class WithdrawTrc20001 {
 
     Optional<TransactionInfo> infoByIdwithdrawTrc20 = PublicMethed
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
+    withdrawNonce = ByteArray.toInt(infoByIdwithdrawTrc20.get().getContractResult(0).toByteArray());
+
     Assert.assertEquals(0, infoByIdwithdrawTrc20.get().getResultValue());
     logger.info("infoByIdwithdrawTrc20Fee:" + infoByIdwithdrawTrc20.get().getFee());
 
@@ -268,6 +277,120 @@ public class WithdrawTrc20001 {
 
   }
 
+  @Test(enabled = true, description = "get DepositTrc20Msg MappingTrc20Msg and WithdrawTrc20Msg")
+  public void test2getDepositAndWithdrawMsg() {
+
+    // get DepositMsg
+    String methodStr = "getDepositMsg(uint256)";
+    String parame = depositNonce + "";
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    TransactionExtention return1 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainChainAddress), 0, input,
+            maxFeeLimit, 0, "0",
+            depositAddress, testKeyFordeposit, blockingStubFull);
+    logger.info("return1: " + return1);
+    logger.info(Hex.toHexString(return1.getConstantResult(0).toByteArray()));
+    String ContractRestule = Hex.toHexString(return1.getConstantResult(0).toByteArray());
+
+    String ownerAddress = ContractRestule.substring(24,64);
+    logger.info(ownerAddress);
+    String addressHex = "41" + ownerAddress;
+    logger.info("address_hex: " + addressHex);
+    String addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
+    logger.info("address_final: " + addressFinal);
+    Assert.assertEquals(WalletClient.encode58Check(depositAddress), addressFinal);
+
+    String depositValue = ContractRestule.substring(1+64*1,64*2);
+    Assert.assertEquals(1000,Integer.parseInt(depositValue,16));
+
+    String value1 = ContractRestule.substring(1+64*2,64*3);
+    Assert.assertEquals(2,Integer.parseInt(value1,16));
+
+    String value2 = ContractRestule.substring(1+64*3+23,64*4);
+    addressHex = "41" + value2;
+    logger.info("address_hex: " + addressHex);
+    addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
+    logger.info("address_final: " + addressFinal);
+    Assert.assertEquals(WalletClient.encode58Check(trc20Contract), addressFinal);
+
+    String value3 = ContractRestule.substring(1+64*4,64*5);
+    Assert.assertEquals(0,  Integer.parseInt(value3,16));
+
+    String value4 = ContractRestule.substring(1+64*5,64*6);
+    Assert.assertEquals(0,Integer.parseInt(value4,16));
+
+    String value5 = ContractRestule.substring(1+64*6,64*7);
+    Assert.assertEquals(0,Integer.parseInt(value5,16));
+
+    // get WithdrawMsg
+    methodStr = "getWithdrawMsg(uint256)";
+    parame = withdrawNonce + "";
+    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    TransactionExtention return2 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(sideChainAddress), 0, input,
+            maxFeeLimit, 0, "0",
+            depositAddress, testKeyFordeposit, blockingSideStubFull);
+    logger.info("return1: " + return2);
+    logger.info(Hex.toHexString(return2.getConstantResult(0).toByteArray()));
+    ContractRestule = Hex.toHexString(return2.getConstantResult(0).toByteArray());
+
+    ownerAddress = ContractRestule.substring(24,64);
+    logger.info(ownerAddress);
+    addressHex = "41" + ownerAddress;
+    logger.info("address_hex: " + addressHex);
+    addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
+    logger.info("address_final: " + addressFinal);
+    Assert.assertEquals(WalletClient.encode58Check(depositAddress), addressFinal);
+
+    value1 = ContractRestule.substring(1+64*1+23,64*2);
+    addressHex = "41" + value1;
+    logger.info("address_hex: " + addressHex);
+    addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
+    logger.info("address_final: " + addressFinal);
+    Assert.assertEquals(WalletClient.encode58Check(trc20Contract), addressFinal);
+
+    value2 = ContractRestule.substring(1+64*2,64*3);
+    Assert.assertEquals(0, Integer.parseInt(value2,16));
+
+    value3 = ContractRestule.substring(1+64*3,64*4);
+    Assert.assertEquals(100,Integer.parseInt(value3,16));
+
+    value4 = ContractRestule.substring(1+64*4,64*5);
+    Assert.assertEquals(2,Integer.parseInt(value4,16));
+
+    value5 = ContractRestule.substring(1+64*5,64*6);
+    Assert.assertEquals(0,Integer.parseInt(value5,16));
+
+
+    // get DepositMsg
+    methodStr = "getMappingMsg(uint256)";
+    parame = mappingNonce + "";
+    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    return1 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainChainAddress), 0, input,
+            maxFeeLimit, 0, "0",
+            depositAddress, testKeyFordeposit, blockingStubFull);
+    logger.info("return1: " + return1);
+    logger.info(Hex.toHexString(return1.getConstantResult(0).toByteArray()));
+    ContractRestule = Hex.toHexString(return1.getConstantResult(0).toByteArray());
+
+    ownerAddress = ContractRestule.substring(24,64);
+    logger.info(ownerAddress);
+    addressHex = "41" + ownerAddress;
+    logger.info("address_hex: " + addressHex);
+    addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
+    logger.info("address_final: " + addressFinal);
+    Assert.assertEquals(WalletClient.encode58Check(trc20Contract), addressFinal);
+
+    depositValue = ContractRestule.substring(1+64*1,64*2);
+    Assert.assertEquals(2,Integer.parseInt(depositValue,16));
+
+    value1 = ContractRestule.substring(1+64*2,64*3);
+    Assert.assertEquals(0,Integer.parseInt(value1,16));
+  }
 
   /**
    * constructor.
