@@ -123,7 +123,7 @@ describe('SunWeb Instance', function() {
             //
             // console.log({g1: g1})
 
-            assert.equal(mdeposittrc721address2,MAIN_GATEWAY_ADDRESS_HEX)
+            assert.equal(mdeposittrc721address2.toLocaleString().toUpperCase(),MAIN_GATEWAY_ADDRESS_HEX)
             // alert(sdeposittrc721inforesult.substring(4))
 
 

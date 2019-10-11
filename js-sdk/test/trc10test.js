@@ -97,12 +97,13 @@ describe('SunWeb Instance', function() {
                 const mtokenvalueafter= maccountafterinfo[0].value;
                 console.log(mtokenvalueafter)
                 console.log(maccountafter);
-                const  saccountafterinfo = saccountafter.assetV2.filter(function(item) {
-                    return item.key == TOKEN_ID;
-                });
-                const stokenvalueafter= saccountafterinfo[0].value;
+                //const  saccountafterinfo = saccountafter.assetV2.filter(function(item) {
+                //    return item.key == TOKEN_ID;
+                //});
+                //const stokenvalueafter= saccountafterinfo[0].value;
+                const  stokenvalueafter = 0;
                 console.log(stokenvalueafter)
-                console.log(saccountafter);
+                //console.log(saccountafter);
 
                 const tokenValue = 1000;
 

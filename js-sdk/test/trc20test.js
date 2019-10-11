@@ -6,6 +6,25 @@ const SunWeb = sunBuilder.SunWeb;
 const chai = require('chai');
 const assert = chai.assert;
 const assertThrow = require('./helpers/assertThrow');
+function accAdd(arg1,arg2){
+    var r1,r2,m;
+    try{r1=arg1.toString().split(".")[1].length}catch(e){r1=0}
+    try{r2=arg2.toString().split(".")[1].length}catch(e){r2=0}
+    m=Math.pow(10,Math.max(r1,r2))
+    return (arg1*m+arg2*m)/m
+}
+function sumBigNumber(a, b) {
+    var res = '',
+        temp = 0;
+    a = a.toString().split('');
+    b = b.toString().split('');
+    while (a.length || b.length || temp) {
+        temp += ~~a.pop() + ~~b.pop();
+        res = (temp % 10) + res;
+        temp = temp > 9;
+    }
+    return res.replace(/^0+/, '');
+}
 
 describe('SunWeb Instance', function() {
     describe('#constructor', function() {
@@ -81,10 +100,11 @@ describe('SunWeb Instance', function() {
     describe('#depositTrc20', function () {
         const sunWeb = sunBuilder.createInstance();
         it('deposit trc20 from main chain to side chain', async function () {
-            mdeposittrc20beforeinfo = await sunWeb.mainchain.contract().at(CONTRACT_ADDRESS20);
-            mdeposittrc20before = await mdeposittrc20beforeinfo.balanceOf(ACCOUNTADDRESS).call();
+            //
+            m20Contract = await sunWeb.mainchain.contract().at(CONTRACT_ADDRESS20);
+            mBeforeBalance = await m20Contract.balanceOf(ACCOUNTADDRESS).call();
 
-            console.log("mdeposittrc20before："+mdeposittrc20before);
+            console.log("mBeforeBalance："+mBeforeBalance);
 
 
 
@@ -112,6 +132,7 @@ describe('SunWeb Instance', function() {
             const txID = await sunWeb.depositTrc20(num, 0,FEE_LIMIT, CONTRACT_ADDRESS20);
             await  TIMEOUT(80000);
             assert.equal(txID.length, 64);
+            console.log("txID:"+txID);
             mdeposittrc20afterinfo = await sunWeb.mainchain.contract().at(CONTRACT_ADDRESS20);
             mdeposittrc20after = await mdeposittrc20afterinfo.balanceOf(ACCOUNTADDRESS).call();
             console.log("mdeposittrc20after："+mdeposittrc20after);
@@ -121,7 +142,8 @@ describe('SunWeb Instance', function() {
 
             indobyid2after=await sunWeb.sidechain.trx.sign(indobyid1after.transaction)
 
-            indobyid3after=await sunWeb.sidechain.trx.sendRawTransaction(indobyid2after)
+            indobyid3after=await sunWeb.sidechain.trx.sendRawTransaction(indobyid2after);
+            await  TIMEOUT(60000);
             sdepositTXIDafter=indobyid3after.transaction.txID;
 
             await TIMEOUT(30000)
@@ -131,8 +153,8 @@ describe('SunWeb Instance', function() {
 
             sdeposittrc20after = parseInt(infobyidinfoafter, 16)
             console.log({sdeposittrc20after:sdeposittrc20after})
-            assert.equal(mdeposittrc20before-num,mdeposittrc20after);
-            assert.equal(mdeposittrc20before-num,mdeposittrc20after);
+            const mdeposittrc20after1 = mBeforeBalance-num;
+            assert.equal(mdeposittrc20after1,mdeposittrc20after);
 
             assert.equal(sdeposittrc20before+num,sdeposittrc20after);
         });
@@ -168,6 +190,10 @@ describe('SunWeb Instance', function() {
                 mwithdraw20beforeinfo = await sunWeb.mainchain.contract().at(CONTRACT_ADDRESS20);
                 mwithdrawtrc20before = await mwithdraw20beforeinfo.balanceOf(ACCOUNTADDRESS).call();
                 console.log("mwithdrawtrc20before："+mwithdrawtrc20before);
+                //const c= parseInt(mwithdrawtrc20before)+parseInt(10);
+                const c = sumBigNumber(mwithdrawtrc20before,10);
+                //const c = Number(mwithdrawtrc20before)+Number(10);
+                console.log("c:"+c);
 
 
                 indobyidwithdrawbefore1=await sunWeb.sidechain.transactionBuilder.triggerSmartContract(ADDRESS20_MAPPING, 'balanceOf(address)'
@@ -215,8 +241,9 @@ describe('SunWeb Instance', function() {
                 swithdrawtrc20after = parseInt(infowithdrawbyidinfoafter, 16)
                 console.log({swithdrawtrc20after:swithdrawtrc20after})
                 assert.equal(swithdrawtrc20before-num,swithdrawtrc20after);
-                const c= parseInt(mwithdrawtrc20before)+parseInt(10);
-                console.log("c："+c);
+
+                const mwithdrawtrc20after1 = mBeforeBalance-num;
+                console.log("c:"+c+",mwithdrawtrc20after:"+mwithdrawtrc20after);
                 assert.equal(c,mwithdrawtrc20after);
 
 
