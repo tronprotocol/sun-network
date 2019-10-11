@@ -722,7 +722,7 @@ SunNetworkResponse<TransactionResponse> = getChainService().transferAsset(toAddr
 
 ## VI. SunWeb
 
-SunWeb inherits from [TronWeb](https://developers.tron.network/docs/tron-web-intro) and services for Sun-network. We encapsulated two objects (main-chain and sidechain) based on TronWeb. The methods and attributes in main-chain or side-chain are exactly the same as the tronweb instance. For example, users can use sunweb.mainchain.trx.getBalance() to get balance from the mainchain. Futhermore, we add some new methods which are as follows in SunWeb class so that users can use them to contact between the main-chain and the side-chain. And users can visit the source code from [github](https://github.com/tronprotocol/sun-network/tree/develop/js-sdk).
+SunWeb inherits from [TronWeb](https://developers.tron.network/docs/tron-web-intro) and services for Sun-network. We encapsulated two objects (main-chain and sidechain) based on TronWeb. The methods and attributes in main-chain or side-chain are exactly the same as the tronweb instance. For example, users can use sunWeb.mainchain.trx.getBalance() to get balance from the mainchain. Futhermore, we add some new methods which are as follows in SunWeb class so that users can use them to contact between the main-chain and the side-chain. And users can visit the source code from [github](https://github.com/tronprotocol/sun-network/tree/develop/js-sdk).
 
 ### SunWeb class
 
@@ -730,81 +730,46 @@ SunWeb inherits from [TronWeb](https://developers.tron.network/docs/tron-web-int
 
 To use the SunWeb library in your App, you need to instantiate Sunweb.
 
-You can define two objects mainOptions and sideOptions which respectively contains the following key:
-
-- fullNode
-- solidityNode
-- eventServer
-
-You can also set a:
-
-- fullHost
-
-which works as a jolly. If you do so, though, the more precise specification has priority.
-
-And besides, you may also need to set gateway address:
-
-- mainGatewayAddress
-- sideGatewayAddress
-- sideChainId
-- privateKey (optional)
-
-Supposing you are using a server which provides everything, like TronGrid, you can instantiate SunWeb as:
-
-```javascript
-cconst sunWeb = new SunWeb({
-  fullHost: 'https://mainapi.trongrid.io'
-  }, {
-  fullHost: 'https://sideapi.trongrid.io'
-  },
-  mainGatewayAddress,
-  sideGatewayAddress,
-  sideChainId,
-  privateKey: '...');
-```
-
-If you are using different servers for anything, you can instantiate like:
-
-```javascript
-const sunWeb = new SunWeb({
-  fullNode: 'http://fullnode.tron.network',
-  solidityNode: 'http://solidity.tron.network',
-  eventServer: 'http://mainapi.trongrid.io'
-  }, {
-  fullNode: 'http://fullnode.sun.network',
-  solidityNode: 'http://solidity.sun.network',
-  eventServer: 'http://sideapi.trongrid.io'
-  },
-  mainGatewayAddress,
-  sideGatewayAddress,
-  sideChainId,
-  privateKey: '...');
-```
-
-For example, you can create a sunWeb instance connected to out sun network test-net like:
+You can instantiate SunWeb like this:
 
 ```javascript
 const sunWeb = new SunWeb(
-  {
+  mainchain,
+  sidechain,
+  mainGatewayAddress,
+  sideGatewayAddress,
+  sideChainId);
+```
+Among them, mainchain and sidechain are the instance of TronWeb. Mainchain is used to connect with the main network, sidechain is used to connect with the DApp Chain. Reference of TronWeb instantiation is [here](https://developers.tron.network/reference#tronwebapi).
+
+For example, you can create a SunWeb instance connected to sun network test-net like:
+
+```javascript
+const mainchain = new TronWeb( {
     fullNode: 'http://47.252.84.158:8090',
     solidityNode: 'http://47.252.84.158:8090',
-    eventServer: 'http://47.252.84.141:8080'
-  },
-  {
+    eventServer: 'http://47.252.84.141:8080',
+    privateKey
+});
+const sidechain = new TronWeb({
     fullNode: 'http://47.252.85.90:8090',
     solidityNode: 'http://47.252.85.90:8091',
-    eventServer: 'http://47.252.85.90:8090'
-  },
+    eventServer: 'http://47.252.85.90:8090',
+    privateKey
+})
+const sunWeb = new SunWeb(
+  mainchain,
+  sidechain,
   'TGHxhFu4jV4XqMGmk3tEQdSeihWVHE9kBP',
   'TBHr5KpbA7oACUysTKxHiAD7c6X6nkZii1',
-  '41455CB714D762DC46D490EAB37BBA67B0BA910A59',
-  privateKey
+  '41455CB714D762DC46D490EAB37BBA67B0BA910A59'
 );
 ```
+After instantiation, you may use sunWeb to connect between main-chain and side-chain.
 
 ### Asset deposit
 
-deposit asset from main-chain to sidechain
+deposit asset from main-chain to side-chain
 
 #### depositTrx
 

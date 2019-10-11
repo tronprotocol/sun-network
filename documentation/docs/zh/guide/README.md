@@ -758,80 +758,40 @@ SunWeb 是为 Tron Sun-Network 开发的一款 js-sdk 工具，并且继承自 [
 
 #### 创建 SubWeb 实例
 
-为了在应用中可以使用 SunWeb，你需要创建一个 sunWeb 实例。你可以定义两个 js 对象，如 mainOptions 和 sideOptions，他们分别包含以下属性：
-
-- fullNode
-
-- solidityNode
-
-- eventServer
-
-为了兼容 TronWeb，我们也可以只设置一个 fullHost 属性，
-
-- fullHost
-
-但是相比于第二种，第一种具有更高的优先级。
-
-除此之外，你还需要提供主网和侧链的 Gateway 地址和侧链 ID：
-
-- mainGatewayAddress
-
-- sideGatewayAddress
-
-- sideChainId
-
-- privateKey (optional)
-
-例如只提供 fullHost 属性创建 SunWeb 实例
+为了在应用中可以使用 SunWeb，你需要像下面这样创建一个 SunWeb 实例。
 
 ```javascript
-const sunWeb = new SunWeb({
-  fullHost: 'https://mainapi.trongrid.io'
-  }, {
-  fullHost: 'https://sideapi.trongrid.io'
-  },
+const sunWeb = new SunWeb(
+  mainchain,
+  sidechain,
   mainGatewayAddress,
   sideGatewayAddress,
-  sideChainId,
-  privateKey: '...');
+  sideChainId);
 ```
 
-下面是提供不同服务器来创建 SunWeb 实例
-
-```javascript
-const sunWeb = new SunWeb({
-  fullNode: 'http://fullnode.tron.network',
-  solidityNode: 'http://solidity.tron.network',
-  eventServer: 'http://mainapi.trongrid.io'
-  }, {
-  fullNode: 'http://fullnode.sun.network',
-  solidityNode: 'http://solidity.sun.network',
-  eventServer: 'http://sideapi.trongrid.io'
-  },
-  mainGatewayAddress,
-  sideGatewayAddress,
-  sideChainId,
-  privateKey: '...');
-```
+其中 mainchain 和 sidechain 分别是主网和侧链的 TronWeb 实例。 TronWeb 实例化参考[链接](https://developers.tron.network/reference#tronwebapi)。
 
 如果需要连接 Sun-Network 测试网，可以创建如下的 SunWeb 实例
 
 ```javascript
-const sunWeb = new SunWeb(
-  {
+const mainchain = new TronWeb( {
     fullNode: 'http://47.252.84.158:8090',
     solidityNode: 'http://47.252.84.158:8090',
-    eventServer: 'http://47.252.84.141:8080'
-  },
-  {
+    eventServer: 'http://47.252.84.141:8080',
+    privateKey
+});
+const sidechain = new TronWeb({
     fullNode: 'http://47.252.85.90:8090',
     solidityNode: 'http://47.252.85.90:8091',
-    eventServer: 'http://47.252.85.90:8090'
-  },
+    eventServer: 'http://47.252.85.90:8090',
+    privateKey
+})
+const sunWeb = new SunWeb(
+  mainchain,
+  sidechain,
   'TGHxhFu4jV4XqMGmk3tEQdSeihWVHE9kBP',
   'TBHr5KpbA7oACUysTKxHiAD7c6X6nkZii1',
-  '41455CB714D762DC46D490EAB37BBA67B0BA910A59',
-  privateKey
+  '41455CB714D762DC46D490EAB37BBA67B0BA910A59'
 );
 ```
 
