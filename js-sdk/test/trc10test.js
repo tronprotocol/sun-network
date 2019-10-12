@@ -6,6 +6,7 @@ const SunWeb = sunBuilder.SunWeb;
 const chai = require('chai');
 const assert = chai.assert;
 const assertThrow = require('./helpers/assertThrow');
+const TronWeb = require('tronweb');
 
 describe('SunWeb Instance', function() {
     describe('#constructor', function() {
@@ -17,19 +18,19 @@ describe('SunWeb Instance', function() {
         });
 
         it('should create an instance using an options object without private key', function() {
-            const mainOptions = {
+            const mainchain = new TronWeb({
                 fullNode: MAIN_FULL_NODE_API,
                 solidityNode: MAIN_SOLIDITY_NODE_API,
-                eventServer: MAIN_EVENT_API
-            };
-            const sideOptions = {
+                eventServer: MAIN_EVENT_API,
+            });
+            const sidechain = new TronWeb({
                 fullNode: SIDE_FULL_NODE_API,
                 solidityNode: SIDE_SOLIDITY_NODE_API,
-                eventServer: SIDE_EVENT_API
-            };
-            const sunWeb = new SunWeb(
-                mainOptions,
-                sideOptions,
+                eventServer: SIDE_EVENT_API,
+            });
+            return new SunWeb(
+                mainchain,
+                sidechain,
                 MAIN_GATEWAY_ADDRESS,
                 SIDE_GATEWAY_ADDRESS,
                 SIDE_CHAIN_ID
@@ -39,15 +40,15 @@ describe('SunWeb Instance', function() {
         });
 
         it('should create an instance using an options object which only constains a fullhost without private key', function() {
-            const mainOptions = {
+            const mainchain = new TronWeb({
                 fullHost: MAIN_FULL_NODE_API
-            };
-            const sideOptions = {
+            });
+            const sidechain = new TronWeb({
                 fullHost: SIDE_FULL_NODE_API
-            };
+            });
             const sunWeb = new SunWeb(
-                mainOptions,
-                sideOptions,
+                mainchain,
+                sidechain,
                 MAIN_GATEWAY_ADDRESS,
                 SIDE_GATEWAY_ADDRESS,
                 SIDE_CHAIN_ID
@@ -58,19 +59,20 @@ describe('SunWeb Instance', function() {
         });
 
         it('should create an instance using an options object which only constains a fullhost with private key', function() {
-            const mainOptions = {
-                fullHost: MAIN_FULL_NODE_API
-            };
-            const sideOptions = {
-                fullHost: SIDE_FULL_NODE_API
-            };
+            const mainchain = new TronWeb({
+                fullHost: MAIN_FULL_NODE_API,
+                privateKey: PRIVATE_KEY
+            });
+            const sidechain = new TronWeb({
+                fullHost: SIDE_FULL_NODE_API,
+                privateKey: PRIVATE_KEY
+            });
             const sunWeb = new SunWeb(
-                mainOptions,
-                sideOptions,
+                mainchain,
+                sidechain,
                 MAIN_GATEWAY_ADDRESS,
                 SIDE_GATEWAY_ADDRESS,
-                SIDE_CHAIN_ID,
-                PRIVATE_KEY
+                SIDE_CHAIN_ID
             );
             assert.instanceOf(sunWeb, SunWeb);
             assert.equal(sunWeb.mainchain.defaultPrivateKey, PRIVATE_KEY);
@@ -97,13 +99,13 @@ describe('SunWeb Instance', function() {
                 const mtokenvalueafter= maccountafterinfo[0].value;
                 console.log(mtokenvalueafter)
                 console.log(maccountafter);
-                //const  saccountafterinfo = saccountafter.assetV2.filter(function(item) {
-                //    return item.key == TOKEN_ID;
-                //});
-                //const stokenvalueafter= saccountafterinfo[0].value;
-                const  stokenvalueafter = 0;
+                const  saccountafterinfo = saccountafter.assetV2.filter(function(item) {
+                   return item.key == TOKEN_ID;
+                });
+                const stokenvalueafter= saccountafterinfo[0].value;
+                // const  stokenvalueafter = 0;
                 console.log(stokenvalueafter)
-                //console.log(saccountafter);
+                console.log(saccountafter);
 
                 const tokenValue = 1000;
 

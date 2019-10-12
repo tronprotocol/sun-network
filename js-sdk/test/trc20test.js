@@ -6,6 +6,7 @@ const SunWeb = sunBuilder.SunWeb;
 const chai = require('chai');
 const assert = chai.assert;
 const assertThrow = require('./helpers/assertThrow');
+const TronWeb = require('tronweb');
 function accAdd(arg1,arg2){
     var r1,r2,m;
     try{r1=arg1.toString().split(".")[1].length}catch(e){r1=0}
@@ -36,19 +37,19 @@ describe('SunWeb Instance', function() {
         });
 
         it('should create an instance using an options object without private key', function() {
-            const mainOptions = {
+            const mainchain = new TronWeb({
                 fullNode: MAIN_FULL_NODE_API,
                 solidityNode: MAIN_SOLIDITY_NODE_API,
-                eventServer: MAIN_EVENT_API
-            };
-            const sideOptions = {
+                eventServer: MAIN_EVENT_API,
+            });
+            const sidechain = new TronWeb({
                 fullNode: SIDE_FULL_NODE_API,
                 solidityNode: SIDE_SOLIDITY_NODE_API,
-                eventServer: SIDE_EVENT_API
-            };
-            const sunWeb = new SunWeb(
-                mainOptions,
-                sideOptions,
+                eventServer: SIDE_EVENT_API,
+            });
+            return new SunWeb(
+                mainchain,
+                sidechain,
                 MAIN_GATEWAY_ADDRESS,
                 SIDE_GATEWAY_ADDRESS,
                 SIDE_CHAIN_ID
@@ -58,15 +59,15 @@ describe('SunWeb Instance', function() {
         });
 
         it('should create an instance using an options object which only constains a fullhost without private key', function() {
-            const mainOptions = {
+            const mainchain = new TronWeb({
                 fullHost: MAIN_FULL_NODE_API
-            };
-            const sideOptions = {
+            });
+            const sidechain = new TronWeb({
                 fullHost: SIDE_FULL_NODE_API
-            };
+            });
             const sunWeb = new SunWeb(
-                mainOptions,
-                sideOptions,
+                mainchain,
+                sidechain,
                 MAIN_GATEWAY_ADDRESS,
                 SIDE_GATEWAY_ADDRESS,
                 SIDE_CHAIN_ID
@@ -77,19 +78,20 @@ describe('SunWeb Instance', function() {
         });
 
         it('should create an instance using an options object which only constains a fullhost with private key', function() {
-            const mainOptions = {
-                fullHost: MAIN_FULL_NODE_API
-            };
-            const sideOptions = {
-                fullHost: SIDE_FULL_NODE_API
-            };
+            const mainchain = new TronWeb({
+                fullHost: MAIN_FULL_NODE_API,
+                privateKey: PRIVATE_KEY
+            });
+            const sidechain = new TronWeb({
+                fullHost: SIDE_FULL_NODE_API,
+                privateKey: PRIVATE_KEY
+            });
             const sunWeb = new SunWeb(
-                mainOptions,
-                sideOptions,
+                mainchain,
+                sidechain,
                 MAIN_GATEWAY_ADDRESS,
                 SIDE_GATEWAY_ADDRESS,
-                SIDE_CHAIN_ID,
-                PRIVATE_KEY
+                SIDE_CHAIN_ID
             );
             assert.instanceOf(sunWeb, SunWeb);
             assert.equal(sunWeb.mainchain.defaultPrivateKey, PRIVATE_KEY);
