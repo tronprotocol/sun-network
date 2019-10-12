@@ -370,6 +370,12 @@ message Transaction {
   repeated Result ret = 5;
 }
 
+message TransactionRet {
+  int64 blockNumber = 1;
+  int64 blockTimeStamp = 2;
+  repeated TransactionInfo transactioninfo = 3;
+}
+
 message TransactionInfo {
   enum code {
     SUCESS = 0;

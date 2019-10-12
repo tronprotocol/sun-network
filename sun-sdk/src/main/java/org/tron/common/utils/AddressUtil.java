@@ -1,5 +1,6 @@
 package org.tron.common.utils;
 
+import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +35,10 @@ public class AddressUtil {
 
   public static boolean addressValid(String check58Address) {
     return addressValid(decodeFromBase58Check(check58Address));
+  }
+
+  public static String encode58Check(ByteString input) {
+    return encode58Check(input.toByteArray());
   }
 
   public static String encode58Check(byte[] input) {
