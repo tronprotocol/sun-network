@@ -500,7 +500,7 @@ export default class SunWeb {
                 name: 'mappingFee',
                 type: 'integer',
                 value: mappingFee,
-                gt: 0
+                gte: 0
             },
             {
                 name: 'feeLimit',
