@@ -918,11 +918,11 @@ public class RetryTrc721001 {
         .encode58Check(ByteArray.fromHexString("41" + ContractRestule.substring(24)));
     logger.info("address_final: " + addressFinal);
     Assert.assertEquals(Base58.encode58Check(testAddress001), addressFinal);
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(testOracleAddress, 10000000,
+    /*Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(testOracleAddress, 10000000,
         0, 0, testOracle, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);*/
     Account oracleMainBeforeSend = PublicMethed.queryAccount(testOracleAddress, blockingStubFull);
     long oracleMainBeforeSendBalance = oracleMainBeforeSend.getBalance();
 
@@ -1112,15 +1112,14 @@ public class RetryTrc721001 {
     logger.info("nonce:" + nonceLong);
     nonce = Long.toString(nonceLong);
 
-      // check Deposit Msg when deposit failed
-      int depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
-      String[] Msg = {
-          WalletClient.encode58Check(testAddress001), "0",
-          "3",WalletClient.encode58Check(trc721Contract) ,"0","0","1001"
-      };
-     Assert.assertTrue(PublicMethed.checkDepositMsg(depositNonce, mainGateWayAddress, testAddress001,
-          testKey001, blockingStubFull, Msg));
-
+    // check Deposit Msg when deposit failed
+    int depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    String[] Msg = {
+        WalletClient.encode58Check(testAddress001), "0",
+        "3", WalletClient.encode58Check(trc721Contract), "0", "0", "1001"
+    };
+    Assert.assertTrue(PublicMethed.checkDepositMsg(depositNonce, mainGateWayAddress, testAddress001,
+        testKey001, blockingStubFull, Msg));
 
     // TRC721`s owner in mainChain should be mainGateway
     String arg = "1001";
@@ -1308,16 +1307,15 @@ public class RetryTrc721001 {
     Assert.assertNotNull(withdrawTxid1);
     Assert.assertEquals(0, infoById.get().getResultValue());
 
-
-      // check Withdraw Msg when withdraw failed
-      int withdrawNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
-      String[] MsgWithdraw = {
-          WalletClient.encode58Check(testAddress001),
-          WalletClient.encode58Check(trc721Contract), "0", "1001", "3", "0"
-      };
-      Assert.assertTrue(PublicMethed.checkWithdrawMsg(withdrawNonce, sideGatewayAddress, testAddress001,
-          testKey001, blockingSideStubFull, MsgWithdraw));
-
+    // check Withdraw Msg when withdraw failed
+    int withdrawNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    String[] MsgWithdraw = {
+        WalletClient.encode58Check(testAddress001),
+        WalletClient.encode58Check(trc721Contract), "0", "1001", "3", "0"
+    };
+    Assert
+        .assertTrue(PublicMethed.checkWithdrawMsg(withdrawNonce, sideGatewayAddress, testAddress001,
+            testKey001, blockingSideStubFull, MsgWithdraw));
 
     // TRC721`s owner in mainChain should be mainGateway
     TransactionExtention return4 = PublicMethed
@@ -1454,6 +1452,27 @@ public class RetryTrc721001 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
+    Account depositAddress2MainAccount = PublicMethed
+        .queryAccount(depositAddress2, blockingStubFull);
+    long depositAddress2MainBalance = depositAddress2MainAccount.getBalance();
+    logger.info("depositAddress2MainBalance:" + depositAddress2MainBalance);
+    if (depositAddress2MainBalance > 2000000) {
+      Assert.assertTrue(PublicMethed
+          .sendcoin(testOracleAddress, depositAddress2MainBalance - 1000000, depositAddress2,
+              testKeyFordeposit2,
+              blockingStubFull));
+    }
+    Account depositAddress2SideAccount = PublicMethed
+        .queryAccount(depositAddress2, blockingSideStubFull);
+    long depositAddress2SideBalance = depositAddress2SideAccount.getBalance();
+    logger.info("depositAddress2SideBalance:" + depositAddress2SideBalance);
+    if (depositAddress2SideBalance > 2000000) {
+      Assert.assertTrue(PublicMethed
+          .sendcoinForSidechain(testOracleAddress, depositAddress2SideBalance - 1000000,
+              depositAddress2,
+              testKeyFordeposit2, chainIdAddressKey, blockingSideStubFull));
+    }
+
     methodStr1 = "setRetryFee(uint256)";
     long setRetryFee = 0;
     parame3 = String.valueOf(setRetryFee);
