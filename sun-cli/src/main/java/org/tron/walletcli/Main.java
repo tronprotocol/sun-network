@@ -4,10 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tron.sunapi.SunNetwork;
 import org.tron.sunapi.SunNetworkResponse;
-import org.tron.sunapi.response.TransactionResponse;
 import org.tron.walletcli.config.ConfigInfo;
 import org.tron.walletcli.task.AccountTask;
-import org.tron.walletcli.task.WithdrawTask;
 
 public class Main {
 
@@ -16,7 +14,8 @@ public class Main {
   public static void main(String[] args) {
 
     SunNetwork sdk = new SunNetwork();
-    SunNetworkResponse<Integer> ret = sdk.init("config-trigger.conf", new MultiSignTransactionImpl());
+    SunNetworkResponse<Integer> ret = sdk
+        .init("config-trigger.conf", new MultiSignTransactionImpl());
     if (ret.getData() != 0) {
       logger.info("Failed to init sdk");
       System.exit(-1);
@@ -30,7 +29,6 @@ public class Main {
 //        .freezeBalance(ConfigInfo.basicFreezeBalance, 3, 1, null);
 
 //    logger.info("bandwidth txid = {}, energy txid = {}", bandwidthResponse.getData().getTrxId(), energyResponse.getData().getTrxId());
-
 
     AccountTask accountTask = new AccountTask();
     accountTask.initAccounts(sdk);

@@ -13,6 +13,7 @@ import org.apache.tomcat.jni.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
+import org.tron.protos.Protocol.Account;
 import org.tron.sunapi.ErrorCodeEnum;
 import org.tron.sunapi.SunNetwork;
 import org.tron.sunapi.SunNetworkResponse;
@@ -89,18 +90,28 @@ public class AccountTask extends SideChainTask {
 
     logger.info("init accounts !");
     sdk.setPrivateKey(ConfigInfo.privateKey);
-    if (accountList.size() > 0) {
+    if (accountList.size() >= ConfigInfo.accountNum) {
       accountList.forEach(account -> {
-//        SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
-//            .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 1, account.split(",")[0]);
-//        logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
+        SunNetworkResponse<Account> account1 = sdk.getSideChainService()
+            .getAccount(account.split(",")[0]);
+        if (account1.getData().getAcquiredDelegatedFrozenBalanceForBandwidth() < 0) {
+          SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
+              .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 0, account.split(",")[0]);
+          logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
+          try {
+            Thread.sleep(1000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        }
       });
     } else {
       BufferedWriter out = null;
       try {
         out = new BufferedWriter(
             new OutputStreamWriter(new FileOutputStream(ConfigInfo.privateKeyAddressFile, true)));
-        for (int i = 0; i < ConfigInfo.accountNum; i++) {
+        long addnum = ConfigInfo.accountNum - accountList.size();
+        for (int i = 0; i < addnum; i++) {
 
           sdk.setPrivateKey(ConfigInfo.privateKey);
           SunNetworkResponse<AddressPrKeyPairMessage> resp = sdk.getMainChainService()
@@ -112,6 +123,10 @@ public class AccountTask extends SideChainTask {
 //            SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
 //                .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 1, resp.getData().getAddress());
 //            logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
+            SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
+                .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 0, info.split(",")[0]);
+            logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
+
             accountList.add(info);
             out.write(info);
             out.newLine();
