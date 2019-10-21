@@ -143,6 +143,18 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
             deployDAppTRC20AndMapping(mainChainAddress, name, symbol, decimals, nonce);
         }
     }
+    // deployDAppTRC20AndMapping functions 2
+    function multiSignForDeployDAppTRC20AndMapping(address mainChainAddress,
+        string memory name, string memory symbol, uint8 decimals, uint256 nonce,
+        bytes[] memory oracleSigns, address[] memory signOracles)
+    public goDelegateCall onlyNotStop onlyOracle
+    {
+        require(oracleSigns.length <= numOracles, "mapping trc20 signs num > oracles num");
+        bytes32 dataHash = keccak256(abi.encodePacked(mainChainAddress, name, symbol, decimals, nonce));
+        if (countSuccessSign(mappingSigns[nonce], dataHash, oracleSigns, signOracles)) {
+            deployDAppTRC20AndMapping(mainChainAddress, name, symbol, decimals, nonce);
+        }
+    }
 
     function deployDAppTRC20AndMapping(address mainChainAddress, string memory name,
         string memory symbol, uint8 decimals, uint256 nonce) internal
@@ -163,6 +175,18 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
         bool needMapping = multiSignForMapping(nonce);
         if (needMapping) {
+            deployDAppTRC721AndMapping(mainChainAddress, name, symbol, nonce);
+        }
+    }
+    // deployDAppTRC20AndMapping functions 2
+    function multiSignForDeployDAppTRC721AndMapping(address mainChainAddress,
+        string memory name, string memory symbol, uint256 nonce,
+        bytes[] memory oracleSigns, address[] memory signOracles)
+    public goDelegateCall onlyNotStop onlyOracle
+    {
+        require(oracleSigns.length <= numOracles, "mapping trc721 signs num > oracles num");
+        bytes32 dataHash = keccak256(abi.encodePacked(mainChainAddress, name, symbol, nonce));
+        if (countSuccessSign(mappingSigns[nonce], dataHash, oracleSigns, signOracles)) {
             deployDAppTRC721AndMapping(mainChainAddress, name, symbol, nonce);
         }
     }
@@ -205,6 +229,19 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         }
     }
 
+    // Deposit functions 2
+    function multiSignForDepositTRC10(address payable to, trcToken tokenId,
+        uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, uint256 nonce,
+        bytes[] memory oracleSigns, address[] memory signOracles)
+    public goDelegateCall onlyNotStop onlyOracle
+    {
+        require(oracleSigns.length <= numOracles, "deposit TRC10 signs num > oracles num");
+        bytes32 dataHash = keccak256(abi.encodePacked(to, tokenId, value, name, symbol, decimals, nonce));
+        if (countSuccessSign(depositSigns[nonce], dataHash, oracleSigns, signOracles)) {
+            depositTRC10(to, tokenId, value, name, symbol, decimals, nonce);
+        }
+    }
+
     function depositTRC10(address payable to, trcToken _tokenId,
         uint256 value, bytes32 name, bytes32 symbol, uint8 decimals, uint256 nonce) internal
     {
@@ -230,6 +267,19 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         }
     }
 
+    // Deposit functions 2
+    function multiSignForDepositTRC20(address to, address mainChainAddress,
+        uint256 value, uint256 nonce, bytes[] memory oracleSigns, address[] memory signOracles)
+    public goDelegateCall onlyNotStop onlyOracle
+    {
+        require(oracleSigns.length <= numOracles, "deposit TRC20 signs num > oracles num");
+        bytes32 dataHash = keccak256(abi.encodePacked(to, mainChainAddress, value, nonce));
+        if (countSuccessSign(depositSigns[nonce], dataHash, oracleSigns, signOracles)) {
+            address sideChainAddress = mainToSideContractMap[mainChainAddress];
+            depositTRC20(to, sideChainAddress, value, nonce);
+        }
+    }
+
     function depositTRC20(address to, address sideChainAddress, uint256 value, uint256 nonce) internal {
         IDApp(sideChainAddress).mint(to, value);
         emit DepositTRC20(to, sideChainAddress, value, nonce);
@@ -245,6 +295,18 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
             depositTRC721(to, sideChainAddress, uId, nonce);
         }
     }
+    // Deposit functions 2
+    function multiSignForDepositTRC721(address to, address mainChainAddress, uint256 uId,
+        uint256 nonce, bytes[] memory oracleSigns, address[] memory signOracles)
+    public goDelegateCall onlyNotStop onlyOracle
+    {
+        require(oracleSigns.length <= numOracles, "deposit TRC721 signs num > oracles num");
+        bytes32 dataHash = keccak256(abi.encodePacked(to, mainChainAddress, uId, nonce));
+        if (countSuccessSign(depositSigns[nonce], dataHash, oracleSigns, signOracles)) {
+            address sideChainAddress = mainToSideContractMap[mainChainAddress];
+            depositTRC721(to, sideChainAddress, uId, nonce);
+        }
+    }
 
     function depositTRC721(address to, address sideChainAddress, uint256 uId, uint256 nonce) internal {
         IDApp(sideChainAddress).mint(to, uId);
@@ -255,6 +317,17 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
     function multiSignForDepositTRX(address payable to, uint256 value, uint256 nonce) public goDelegateCall onlyNotStop onlyOracle {
         bool needDeposit = multiSignForDeposit(nonce);
         if (needDeposit) {
+            depositTRX(to, value, nonce);
+        }
+    }
+    // Deposit functions 2
+    function multiSignForDepositTRX(address payable to, uint256 value, uint256 nonce,
+        bytes[] memory oracleSigns, address[] memory signOracles)
+    public goDelegateCall onlyNotStop onlyOracle
+    {
+        require(oracleSigns.length <= numOracles, "deposit TRX signs num > oracles num");
+        bytes32 dataHash = keccak256(abi.encodePacked(to, value, nonce));
+        if (countSuccessSign(depositSigns[nonce], dataHash, oracleSigns, signOracles)) {
             depositTRX(to, value, nonce);
         }
     }
@@ -483,6 +556,28 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         bytes32 ret = multivalidatesign(dataHash, _signMsg.signs, _signMsg.signOracles);
         uint256 count = countSuccess(ret);
         if (count > numOracles * 2 / 3) {
+            _signMsg.success = true;
+            return true;
+        }
+        return false;
+    }
+
+    function countSuccessSign(SignMsg storage _signMsg, bytes32 dataHash, bytes[] memory sigList, address[] memory signOracles) internal returns (bool) {
+        if (_signMsg.success) {
+            return false;
+        }
+        for (uint256 i = 0; i < sigList.length; i++) {
+            if (isOracle(signOracles[i]) || _signMsg.oracleSigned[signOracles[i]]) {
+                signOracles[i] = address(0);
+                continue;
+            }
+            _signMsg.oracleSigned[signOracles[i]] = true;
+        }
+        bytes32 ret = multivalidatesign(dataHash, sigList, signOracles);
+        uint256 count = countSuccess(ret);
+        if (count > numOracles * 2 / 3) {
+            _signMsg.signs = sigList;
+            _signMsg.signOracles = signOracles;
             _signMsg.success = true;
             return true;
         }
