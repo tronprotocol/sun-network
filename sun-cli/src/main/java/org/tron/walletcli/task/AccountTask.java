@@ -111,6 +111,7 @@ public class AccountTask extends SideChainTask {
         out = new BufferedWriter(
             new OutputStreamWriter(new FileOutputStream(ConfigInfo.privateKeyAddressFile, true)));
         long addnum = ConfigInfo.accountNum - accountList.size();
+        logger.info("add account num is {}", addnum);
         for (int i = 0; i < addnum; i++) {
 
           sdk.setPrivateKey(ConfigInfo.privateKey);
