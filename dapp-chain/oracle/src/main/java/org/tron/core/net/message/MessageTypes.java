@@ -33,6 +33,8 @@ public enum MessageTypes {
 
   TRX_INVENTORY(0x13),
 
+  EVENT(0x14),
+
   P2P_HELLO(0x20),
 
   P2P_DISCONNECT(0x21),

@@ -4,6 +4,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
+import org.tron.core.net.message.EventNetMessage;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.EventMsg.TaskEnum;
@@ -89,5 +90,11 @@ public abstract class Actuator {
     SUCCESS,
     FAIL
   }
+
+  //TODO: override this. Set timestamp and signature
+  public EventNetMessage generateSignedEventMsg(){
+    return null;
+  };
+
 
 }
