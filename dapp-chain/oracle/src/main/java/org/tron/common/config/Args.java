@@ -213,6 +213,11 @@ public class Args {
   @Parameter(names = {"--validate-sign-thread"}, description = "Num of validate thread")
   private int validateSignThreadNum;
 
+
+  @Getter
+  @Setter
+  private int minEffectiveConnection;
+
   /**
    * set parameters.
    */
@@ -377,6 +382,9 @@ public class Args {
     } else {
       kafkaGroupId = "Oracle_" + getOracleAddress();
     }
+
+    minEffectiveConnection = config.hasPath("node.rpc.minEffectiveConnection") ?
+        config.getInt("node.rpc.minEffectiveConnection") : 1;
   }
 
   public String getOracleAddress() {
