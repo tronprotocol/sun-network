@@ -9,7 +9,6 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import org.apache.tomcat.jni.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
@@ -56,7 +55,7 @@ public class AccountTask extends SideChainTask {
     while (true) {
       sdk.setPrivateKey(ConfigInfo.privateKey);
       new WithdrawTask().runTask(sdk);
-      Random r = new Random(Time.now());
+      Random r = new Random(System.currentTimeMillis());
       accountList.forEach(account -> {
         if (getBalance(sdk, account.split(",")[0]) > 0) {
           return;
@@ -141,7 +140,7 @@ public class AccountTask extends SideChainTask {
         }
         out.close();
       } catch (Exception e) {
-
+        logger.error(e.getMessage());
       }
     }
   }
