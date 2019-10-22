@@ -1,24 +1,15 @@
 package org.tron.core.net.message;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.tron.protos.Sidechain.EventMsg;
+import org.tron.protos.Sidechain.EventNetMsg;
 
 public class EventNetMessage extends TronMessage {
 
-  protected EventMsg eventMsg;
-  @Getter
-  @Setter
-  private long timestamp;
-
-  @Getter
-  @Setter
-  private byte[] signature;
+  protected EventNetMsg eventNetMsg;
 
   public EventNetMessage(byte[] data) throws Exception {
     super(data);
     this.type = MessageTypes.EVENT.asByte();
-    this.eventMsg = EventMsg.parseFrom(data);
+    this.eventNetMsg = EventNetMsg.parseFrom(data);
   }
 
   @Override

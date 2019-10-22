@@ -149,3 +149,14 @@ message MultiSignForWithdrawTRXEvent {
   bytes value = 2;
   bytes nonce = 3;
 }
+
+message EventNetMsg {
+  message Raw {
+    EventMsg eventMsg = 1;
+    bytes eventSigature = 2;
+    uint64 timestamp = 3;
+  }
+
+  Raw raw = 1;
+  bytes rawSignature = 2;
+}
