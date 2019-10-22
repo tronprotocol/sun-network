@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
+import org.tron.core.net.message.EventNetMessage;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
@@ -81,6 +82,18 @@ public class WithdrawTRC721Actuator extends Actuator {
   @Override
   public byte[] getNonce() {
     return event.getNonce().toByteArray();
+  }
+
+  @Override
+  public EventNetMessage generateSignedEventMsg() {
+
+    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+    String mainchainAddressStr = WalletUtil
+        .encode58Check(event.getMainchainAddress().toByteArray());
+    String valueStr = event.getUId().toStringUtf8();
+    String nonceStr = event.getNonce().toStringUtf8();
+    return SideChainGatewayApi
+        .getTRCSignMsg(fromStr, mainchainAddressStr, valueStr, nonceStr, getMessage());
   }
 
 }

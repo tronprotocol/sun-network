@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
+import org.tron.core.net.message.EventNetMessage;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.DepositTRC20Event;
 import org.tron.protos.Sidechain.EventMsg;
@@ -83,6 +84,18 @@ public class DepositTRC20Actuator extends Actuator {
   @Override
   public byte[] getNonce() {
     return event.getNonce().toByteArray();
+  }
+
+  @Override
+  public EventNetMessage generateSignedEventMsg() {
+
+    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+    String contractAddressStr = WalletUtil
+        .encode58Check(event.getContractAddress().toByteArray());
+    String valueStr = event.getValue().toStringUtf8();
+    String nonceStr = event.getNonce().toStringUtf8();
+    return SideChainGatewayApi
+        .getTRCSignMsg(fromStr, contractAddressStr, valueStr, nonceStr, getMessage());
   }
 
 }

@@ -92,9 +92,6 @@ public abstract class Actuator {
   }
 
   //TODO: override this. Set timestamp and signature
-  public EventNetMessage generateSignedEventMsg(){
-    return null;
-  };
-
+  public abstract EventNetMessage generateSignedEventMsg();
 
 }

@@ -2,6 +2,7 @@ package org.tron.client;
 
 import static org.tron.client.SideChainGatewayApi.GatewayApi.GATEWAY_API;
 
+import com.google.protobuf.ByteString;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,10 +17,14 @@ import org.tron.common.exception.TxFailException;
 import org.tron.common.exception.TxRollbackException;
 import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AbiUtil;
+import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.DataWord;
 import org.tron.common.utils.WalletUtil;
+import org.tron.core.net.message.EventNetMessage;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.Sidechain.EventMsg;
+import org.tron.protos.Sidechain.EventNetMsg.Raw;
 import org.tron.service.eventactuator.SignListParam;
 
 @Slf4j(topic = "sideApi")
@@ -83,14 +88,13 @@ public class SideChainGatewayApi {
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
-
   public static String getWithdrawTRC10Sign(String from, String tokenId, String value,
       String nonce) {
     return Hex.toHexString(GATEWAY_API.getInstance()
-        .signDigest(getWithdrawTRC10DataHash(from, tokenId, value, nonce)));
+        .signDigest(getTRC10DataHash(from, tokenId, value, nonce)));
   }
 
-  public static byte[] getWithdrawTRC10DataHash(String from, String tokenId, String value,
+  public static byte[] getTRC10DataHash(String from, String tokenId, String value,
       String nonce) {
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
     byte[] tokenIdBytes = new DataWord((new BigInteger(tokenId, 10)).toByteArray()).getData();
@@ -117,12 +121,11 @@ public class SideChainGatewayApi {
   public static String getWithdrawTRCTokenSign(String from, String mainChainAddress, String value,
       String nonce) {
     return Hex.toHexString(GATEWAY_API.getInstance()
-        .signDigest(getWithdrawTRCTokenDataHash(from, mainChainAddress, value, nonce)));
+        .signDigest(getTRCTokenDataHash(from, mainChainAddress, value, nonce)));
   }
 
-  public static byte[] getWithdrawTRCTokenDataHash(String from, String mainChainAddress,
-      String value,
-      String nonce) {
+  public static byte[] getTRCTokenDataHash(String from, String mainChainAddress,
+      String value, String nonce) {
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
     byte[] mainChainAddressBytes = WalletUtil.decodeFromBase58Check(mainChainAddress);
     byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
@@ -157,10 +160,10 @@ public class SideChainGatewayApi {
 
   public static String getWithdrawTRXSign(String from, String value, String nonce) {
     return Hex.toHexString(
-        GATEWAY_API.getInstance().signDigest(getWithdrawTRXDataHash(from, value, nonce)));
+        GATEWAY_API.getInstance().signDigest(getTRXDataHash(from, value, nonce)));
   }
 
-  public static byte[] getWithdrawTRXDataHash(String from, String value, String nonce) {
+  public static byte[] getTRXDataHash(String from, String value, String nonce) {
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
     byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
     byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
@@ -207,6 +210,85 @@ public class SideChainGatewayApi {
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
+
+  public static EventNetMessage getMappingTRC20SignMsg(String contractAddressStr, String trcName,
+      String trcSymbol, long trcDecimals, String nonce, EventMsg message) {
+    byte[] sign = GATEWAY_API.getInstance().signDigest(
+        getMappingTRC20DataHash(contractAddressStr, trcName, trcSymbol, trcDecimals, nonce));
+    Raw raw = Raw.newBuilder().setEventMsg(message).setEventSigature(ByteString.copyFrom(sign))
+        .setTimestamp(System.currentTimeMillis()).build();
+    return new EventNetMessage(message, raw, GATEWAY_API.getInstance()
+        .signDigest(raw.toByteArray()));
+  }
+
+  public static byte[] getMappingTRC20DataHash(String contractAddressStr, String trcName,
+      String trcSymbol, long trcDecimals, String nonce) {
+    byte[] contractAddressBytes = WalletUtil.decodeFromBase58Check(contractAddressStr);
+    byte[] trcNameBytes = ByteArray.fromString(trcName);
+    byte[] trcSymbolBytes = ByteArray.fromString(trcSymbol);
+    byte[] trcDecimalsBytes = new DataWord(trcDecimals).getData();
+    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
+    byte[] data = ByteUtil
+        .merge(Arrays.copyOfRange(contractAddressBytes, 1, contractAddressBytes.length),
+            trcNameBytes, trcSymbolBytes, trcDecimalsBytes, nonceBytes);
+    return Hash.sha3(data);
+  }
+
+  public static EventNetMessage getMappingTRC721SignMsg(String contractAddressStr, String trcName,
+      String trcSymbol, String nonce, EventMsg message) {
+
+    byte[] sign = GATEWAY_API.getInstance()
+        .signDigest(getMappingTRC721DataHash(contractAddressStr, trcName, trcSymbol, nonce));
+    Raw raw = Raw.newBuilder().setEventMsg(message).setEventSigature(ByteString.copyFrom(sign))
+        .setTimestamp(System.currentTimeMillis()).build();
+    return new EventNetMessage(message, raw, GATEWAY_API.getInstance()
+        .signDigest(raw.toByteArray()));
+  }
+
+  public static byte[] getMappingTRC721DataHash(String contractAddressStr, String trcName,
+      String trcSymbol, String nonce) {
+    byte[] contractAddressBytes = WalletUtil.decodeFromBase58Check(contractAddressStr);
+    byte[] trcNameBytes = ByteArray.fromString(trcName);
+    byte[] trcSymbolBytes = ByteArray.fromString(trcSymbol);
+    byte[] nonceBytes = new DataWord((new BigInteger(nonce, 10)).toByteArray()).getData();
+    byte[] data = ByteUtil
+        .merge(Arrays.copyOfRange(contractAddressBytes, 1, contractAddressBytes.length),
+            trcNameBytes, trcSymbolBytes, nonceBytes);
+    return Hash.sha3(data);
+  }
+
+  // deposit sign
+  public static EventNetMessage getTRXSignMsg(String from, String value, String nonce,
+      EventMsg message) {
+    byte[] sign = GATEWAY_API.getInstance().signDigest(getTRXDataHash(from, value, nonce));
+    Raw raw = Raw.newBuilder().setEventMsg(message).setEventSigature(ByteString.copyFrom(sign))
+        .setTimestamp(System.currentTimeMillis()).build();
+    return new EventNetMessage(message, raw, GATEWAY_API.getInstance()
+        .signDigest(raw.toByteArray()));
+  }
+
+  public static EventNetMessage getTRC10SignMsg(String from, String tokenId, String value,
+      String nonce, EventMsg message) {
+    byte[] sign = GATEWAY_API.getInstance()
+        .signDigest(getTRC10DataHash(from, tokenId, value, nonce));
+    Raw raw = Raw.newBuilder().setEventMsg(message).setEventSigature(ByteString.copyFrom(sign))
+        .setTimestamp(System.currentTimeMillis()).build();
+    return new EventNetMessage(message, raw, GATEWAY_API.getInstance()
+        .signDigest(raw.toByteArray()));
+  }
+
+
+  public static EventNetMessage getTRCSignMsg(String from, String mainChainAddress,
+      String value,
+      String nonce, EventMsg message) {
+    byte[] sign = GATEWAY_API.getInstance()
+        .signDigest(getTRCTokenDataHash(from, mainChainAddress, value, nonce));
+    Raw raw = Raw.newBuilder().setEventMsg(message).setEventSigature(ByteString.copyFrom(sign))
+        .setTimestamp(System.currentTimeMillis()).build();
+    return new EventNetMessage(message, raw, GATEWAY_API.getInstance()
+        .signDigest(raw.toByteArray()));
+  }
+
 
   // Singleton
   enum GatewayApi {

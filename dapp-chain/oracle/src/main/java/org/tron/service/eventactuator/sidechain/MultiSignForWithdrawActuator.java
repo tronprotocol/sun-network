@@ -3,6 +3,7 @@ package org.tron.service.eventactuator.sidechain;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.common.utils.ByteArray;
+import org.tron.core.net.message.EventNetMessage;
 import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "sideChainTask")
@@ -27,4 +28,10 @@ public abstract class MultiSignForWithdrawActuator extends Actuator {
   }
 
   public abstract String getWithdrawDataHash();
+
+
+  @Override
+  public EventNetMessage generateSignedEventMsg() {
+    return null;
+  }
 }

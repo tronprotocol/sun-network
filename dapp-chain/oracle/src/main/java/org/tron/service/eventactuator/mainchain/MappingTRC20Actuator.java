@@ -10,6 +10,7 @@ import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
+import org.tron.core.net.message.EventNetMessage;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
@@ -83,6 +84,22 @@ public class MappingTRC20Actuator extends Actuator {
   @Override
   public byte[] getNonce() {
     return event.getNonce().toByteArray();
+  }
+
+  @Override
+  public EventNetMessage generateSignedEventMsg() {
+
+    String contractAddressStr = WalletUtil
+        .encode58Check(event.getContractAddress().toByteArray());
+    String nonceStr = event.getNonce().toStringUtf8();
+
+    long trcDecimals = MainChainGatewayApi.getTRCDecimals(contractAddressStr);
+    String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
+    String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
+    return SideChainGatewayApi
+        .getMappingTRC20SignMsg(contractAddressStr, trcName, trcSymbol, trcDecimals, nonceStr,
+            getMessage());
+
   }
 
 }

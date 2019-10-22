@@ -10,6 +10,7 @@ import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
+import org.tron.core.net.message.EventNetMessage;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.DepositTRC10Event;
@@ -93,6 +94,17 @@ public class DepositTRC10Actuator extends Actuator {
   @Override
   public byte[] getNonce() {
     return event.getNonce().toByteArray();
+  }
+
+  @Override
+  public EventNetMessage generateSignedEventMsg() {
+
+    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+    String tokenIdStr = event.getTokenId().toStringUtf8();
+    String valueStr = event.getValue().toStringUtf8();
+    String nonceStr = event.getNonce().toStringUtf8();
+    return SideChainGatewayApi
+        .getTRC10SignMsg(fromStr, tokenIdStr, valueStr, nonceStr, getMessage());
   }
 
 }
