@@ -1019,38 +1019,38 @@ public class DelegateCallMain001 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-//    String parame2 = "\"T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb\"";
-//
-//    byte[] input1 = Hex.decode(AbiUtil.parseMethod("setLogicAddress(address)", parame2, false));
-//    String ownerTrx1 = PublicMethed
-//        .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input1,
-//            1000000000,
-//            0l, "0", testOracleAddress, testOracle, blockingStubFull);
-//    PublicMethed.waitProduceNextBlock(blockingStubFull);
-//    PublicMethed.waitProduceNextBlock(blockingStubFull);
-//
-//    Optional<TransactionInfo> infoOwnerTrx1 = PublicMethed
-//        .getTransactionInfoById(ownerTrx1, blockingStubFull);
-//    Assert.assertEquals(0, infoOwnerTrx1.get().getResultValue());
-//
-//    input1 = Hex.decode(AbiUtil.parseMethod("logicAddress()", "", false));
-//    TransactionExtention return1 = PublicMethed
-//        .triggerContractForTransactionExtention(
-//            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input1, 1000000000,
-//            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
-//
-//    String ContractRestule1 = Hex.toHexString(return1.getConstantResult(0).toByteArray());
-//
-//    String tmpAddress1 = ContractRestule1.substring(24);
-//    logger.info(tmpAddress1);
-//    String addressHex1 = "41" + tmpAddress1;
-//    logger.info("address_hex1: " + addressHex1);
-//    String addressFinal1 = Base58.encode58Check(ByteArray.fromHexString(addressHex1));
-//    logger.info("address_final1: " + addressFinal1);
-//
-//    byte[] sideContractAddress1 = WalletClient.decodeFromBase58Check(addressFinal1);
-//    Assert.assertNotNull(sideContractAddress1);
-//    Assert.assertEquals("T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb", addressFinal1);
+    String parame2 = "\"T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb\"";
+
+    byte[] input1 = Hex.decode(AbiUtil.parseMethod("setLogicAddress(address)", parame2, false));
+    String ownerTrx1 = PublicMethed
+        .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input1,
+            1000000000,
+            0l, "0", testOracleAddress, testOracle, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Optional<TransactionInfo> infoOwnerTrx1 = PublicMethed
+        .getTransactionInfoById(ownerTrx1, blockingStubFull);
+    Assert.assertEquals(0, infoOwnerTrx1.get().getResultValue());
+
+    input1 = Hex.decode(AbiUtil.parseMethod("logicAddress()", "", false));
+    TransactionExtention return1 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input1, 1000000000,
+            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+
+    String ContractRestule1 = Hex.toHexString(return1.getConstantResult(0).toByteArray());
+
+    String tmpAddress1 = ContractRestule1.substring(24);
+    logger.info(tmpAddress1);
+    String addressHex1 = "41" + tmpAddress1;
+    logger.info("address_hex1: " + addressHex1);
+    String addressFinal1 = Base58.encode58Check(ByteArray.fromHexString(addressHex1));
+    logger.info("address_final1: " + addressFinal1);
+
+    byte[] sideContractAddress1 = WalletClient.decodeFromBase58Check(addressFinal1);
+    Assert.assertNotNull(sideContractAddress1);
+    Assert.assertEquals("T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb", addressFinal1);
 
     methodStr1 = "setDepositMinTrx(uint256)";
     parame1 = "1";

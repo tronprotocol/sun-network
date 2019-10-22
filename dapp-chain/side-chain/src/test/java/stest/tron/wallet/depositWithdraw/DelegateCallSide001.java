@@ -372,6 +372,12 @@ public class DelegateCallSide001 {
         "0", 0, null, gateWatOwnerAddressKey,
         gateWatOwnerAddress, chainIdAddressKey, blockingSideStubFull);
 
+    Account contractAddressAccount = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
+    ByteString contractAddressStr = contractAddressAccount.getAddress();
+    String contractSideAddress = Base58.encode58Check(contractAddressStr.toByteArray());
+    logger.info("contractSideAddress:" + contractSideAddress);
+    Assert.assertNotEquals("3QJmnh", contractSideAddress);
+
     String parameN = "\"" + Base58.encode58Check(testOracleAddress) + "\"";
 
     byte[] inputN = Hex.decode(AbiUtil.parseMethod("isOracle(address)", parameN, false));

@@ -167,6 +167,8 @@ public class RetryTrc721001 {
     String txid = PublicMethed.triggerContract(mainGateWayAddressKey, callValue, input,
         maxFeeLimit, 0, "", testAddress001, testKey001, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
@@ -178,6 +180,7 @@ public class RetryTrc721001 {
     long accountBeforeBalance = accountBefore.getBalance();
     Account accountSideBefore = PublicMethed.queryAccount(testAddress001, blockingSideStubFull);
     long accountSideBeforeBalance = accountSideBefore.getBalance();
+    logger.info("accountSideBeforeBalance:"+accountSideBeforeBalance);
 
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertEquals(10000_000_000L - fee, accountBeforeBalance);
@@ -918,11 +921,9 @@ public class RetryTrc721001 {
         .encode58Check(ByteArray.fromHexString("41" + ContractRestule.substring(24)));
     logger.info("address_final: " + addressFinal);
     Assert.assertEquals(Base58.encode58Check(testAddress001), addressFinal);
-    /*Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(testOracleAddress, 10000000,
+    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(testOracleAddress, 10000000,
         0, 0, testOracle, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);*/
     Account oracleMainBeforeSend = PublicMethed.queryAccount(testOracleAddress, blockingStubFull);
     long oracleMainBeforeSendBalance = oracleMainBeforeSend.getBalance();
 
