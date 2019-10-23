@@ -119,7 +119,6 @@ public class Withdrawfee001 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    //    PublicMethed.printAddress(testKeyFordeposit);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
             .usePlaintext(true)
             .build();
@@ -133,12 +132,14 @@ public class Withdrawfee001 {
             .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideGatewayAddress),
                     ChainIdAddressKey, 0l, input, 1000000000,
                     0l, "0", sideGateWayOwnerAddress, sideGateWayOwner, blockingSideStubFull);
+    Optional<TransactionInfo> infoById = PublicMethed
+        .getTransactionInfoById(txid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getResultValue() == 0);
   }
 
 
   @Test(enabled = true, description = "withdrawfee001")
   public void withdraw01fee001() {
-
     PublicMethed.printAddress(testKeyFordeposit);
 
     Assert.assertTrue(PublicMethed
@@ -146,35 +147,45 @@ public class Withdrawfee001 {
                     blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
+    Account accountMainBefore = PublicMethed.queryAccount(depositAddress, blockingStubFull);
+    long accountMainBeforeBalance = accountMainBefore.getBalance();
+    Assert.assertTrue(accountMainBeforeBalance == 11000_000_000L);
+    Account accountSideBefore = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
+    long accountSideBeforeBalance = accountSideBefore.getBalance();
+    ByteString address = accountSideBefore.getAddress();
+    String accountSideBeforeAddress = Base58.encode58Check(address.toByteArray());
+    logger.info("accountSideBeforeAddress:" + accountSideBeforeAddress);
+    Assert.assertEquals("3QJmnh", accountSideBeforeAddress);
+
+    logger.info("accountBeforeBalance:" + accountMainBeforeBalance);
+    logger.info("accountSideBeforeBalance:" + accountSideBeforeBalance);
+
     String methodStr = "depositTRX()";
     byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
-
-    Account accountAfter = PublicMethed.queryAccount(depositAddress, blockingStubFull);
-    long accountAfterBalance = accountAfter.getBalance();
-    logger.info("accountAfterBalance:" + accountAfterBalance);
-    Account accountSideAfter = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
-    long accountSideAfterBalance = accountSideAfter.getBalance();
-    logger.info("accountSideAfterBalance:" + accountSideAfterBalance);
 
     long callValue = 1000_000_000L;
     String txid = PublicMethed.triggerContract(mainChainAddressKey, callValue, input,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
             .getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(0, infoById.get().getResultValue());
     long fee = infoById.get().getFee();
-
-    Account accountBefore = PublicMethed.queryAccount(depositAddress, blockingStubFull);
-    long accountBeforeBalance = accountBefore.getBalance();
-    Account accountSideBefore = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
-    long accountSideBeforeBalance = accountSideBefore.getBalance();
-
-//        Assert.assertEquals(0, infoById.get().getResultValue());
-//        Assert.assertEquals(10000_000_000L - fee, accountBeforeBalance);
-//        Assert.assertEquals(callValue, accountSideBeforeBalance);
+    Account accountMainAfter = PublicMethed.queryAccount(depositAddress, blockingStubFull);
+    long accountMainAfterBalance = accountMainAfter.getBalance();
+    logger.info("accountAfterBalance:" + accountMainAfterBalance);
+    Assert.assertEquals(accountMainAfterBalance, accountMainBeforeBalance - fee - callValue);
+    Account accountSideAfter = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
+    long accountSideAfterBalance = accountSideAfter.getBalance();
+    ByteString addressSideAfter = accountSideAfter.getAddress();
+    String accountSideAfterAddress = Base58.encode58Check(addressSideAfter.toByteArray());
+    logger.info("accountSideAfterAddress:" + accountSideAfterAddress);
+    Assert.assertEquals(Base58.encode58Check(depositAddress), accountSideAfterAddress);
+    Assert.assertEquals(callValue, accountSideAfterBalance);
 
     String contractName = "trc20Contract";
     String code = Configuration.getByPath("testng.conf")
@@ -892,6 +903,7 @@ public class Withdrawfee001 {
             .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideGatewayAddress),
                     ChainIdAddressKey, 0l, input15, 1000000000,
                     0l, "0", depositAddress1, testKeyFordeposit1, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById8 = PublicMethed
             .getTransactionInfoById(txid8, blockingSideStubFull);
     logger.info("txid8:" + txid8);

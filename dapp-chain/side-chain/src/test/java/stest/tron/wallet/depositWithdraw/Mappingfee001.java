@@ -131,6 +131,8 @@ public class Mappingfee001 {
         maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
@@ -739,7 +741,7 @@ public class Mappingfee001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() == 0);
+    Assert.assertTrue(infoById1.get().getResultValue() == 1);
     TransactionExtention return3 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress), 0l, input4, 1000000000,
@@ -765,7 +767,7 @@ public class Mappingfee001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() == 0);
+    Assert.assertTrue(infoById1.get().getResultValue() == 1);
     return3 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress), 0l, input4, 1000000000,
@@ -791,7 +793,7 @@ public class Mappingfee001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() == 0);
+    Assert.assertTrue(infoById1.get().getResultValue() == 1);
     return3 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress), 0l, input4, 1000000000,
@@ -817,7 +819,7 @@ public class Mappingfee001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() == 0);
+    Assert.assertTrue(infoById1.get().getResultValue() == 1);
     return3 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress), 0l, input4, 1000000000,
