@@ -92,13 +92,11 @@ public class EventTask {
           logger
               .warn("Broadcast event {} has failed, no connection.", signedEvent.getMessageId());
           return builder.setResult(false).setCode(response_code.NO_CONNECTION)
-              .setMessage(ByteString.copyFromUtf8("no connection"))
-              .build();
+              .setMessage(ByteString.copyFromUtf8("no connection")).build();
         }
 
         int count = (int) tronNetDelegate.getActivePeer().stream()
-            .filter(p -> !p.isNeedSyncFromUs() && !p.isNeedSyncFromPeer())
-            .count();
+            .filter(p -> !p.isNeedSyncFromUs() && !p.isNeedSyncFromPeer()).count();
 
         if (count < minEffectiveConnection) {
           String info = "effective connection:" + count + " lt minEffectiveConnection:"
@@ -116,8 +114,7 @@ public class EventTask {
       logger.error("Broadcast transaction {} failed, {}.", signedEvent.getMessageId(),
           e.getMessage());
       return builder.setResult(false).setCode(response_code.OTHER_ERROR)
-          .setMessage(ByteString.copyFromUtf8("other error : " + e.getMessage()))
-          .build();
+          .setMessage(ByteString.copyFromUtf8("other error : " + e.getMessage())).build();
     }
   }
 
@@ -185,8 +182,8 @@ public class EventTask {
     try {
       int retryTimesInStore = NonceMsg
           .parseFrom(NonceStore.getInstance().getData(actuator.getNonceKey())).getRetryTimes();
-      int retryNew = (retryTimesInStore / SystemSetting.RETRY_TIMES_EPOCH_OFFSET
-          + 1) * SystemSetting.RETRY_TIMES_EPOCH_OFFSET;
+      int retryNew = (retryTimesInStore / SystemSetting.RETRY_TIMES_EPOCH_OFFSET + 1)
+          * SystemSetting.RETRY_TIMES_EPOCH_OFFSET;
       actuator.setRetryTimes(retryNew);
     } catch (Exception e) {
       logger.error("setRetryTimesForUserRetry catch error! nouce = {}", actuator.getNonceKey(), e);
