@@ -348,8 +348,10 @@ public class WitnessController {
       });
 
       sortWitness(newWitnessAddressList);
-      if (newWitnessAddressList.size() > Args.getInstance().getWitnessMaxActiveNum()) {
-        setActiveWitnesses(newWitnessAddressList.subList(0, Args.getInstance().getWitnessMaxActiveNum()));
+      Integer witnessMaxActiveNum = manager.getDynamicPropertiesStore().getWitnessMaxActiveNum();
+      if (newWitnessAddressList.size() > witnessMaxActiveNum) {
+        setActiveWitnesses(newWitnessAddressList.subList(0,
+            witnessMaxActiveNum));
       } else {
         setActiveWitnesses(newWitnessAddressList);
       }

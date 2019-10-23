@@ -93,7 +93,8 @@ public class ProposalCreateActuator extends AbstractActuator {
     }
     if (!this.contract.is(SideChainProposalCreateContract.class)) {
       throw new ContractValidateException(
-          "contract type error,expected type [SideChainProposalCreateContract],real type[" + contract
+          "contract type error,expected type [SideChainProposalCreateContract],real type["
+              + contract
               .getClass() + "]");
     }
     final SideChainProposalCreateContract contract;
@@ -148,7 +149,8 @@ public class ProposalCreateActuator extends AbstractActuator {
 
     switch (entry.getKey().intValue()) {
       case (0): {
-        if (Long.valueOf(entry.getValue()) < 3 * Args.getInstance().getWitnessMaxActiveNum() * 1000
+        if (Long.valueOf(entry.getValue()) < 3 * dbManager.getDynamicPropertiesStore()
+            .getWitnessMaxActiveNum() * 1000
             || Long.valueOf(entry.getValue()) > 24 * 3600 * 1000) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [3 * 27 * 1000,24 * 3600 * 1000]");
@@ -337,7 +339,7 @@ public class ProposalCreateActuator extends AbstractActuator {
 //        }
 //        break;
 //      }
-      case (1_000_007):{
+      case (1_000_007): {
         try {
           byte[] address = Wallet.decodeFromBase58Check(entry.getValue());
           if (!Wallet.addressValid(address)) {
@@ -358,20 +360,21 @@ public class ProposalCreateActuator extends AbstractActuator {
             throw new ContractValidateException("target Fund Inject Address should not "
                 + "be a contract");
           }
-        } catch (Exception e){
+        } catch (Exception e) {
           throw new ContractValidateException(
               "Invalid Fund Inject Address");
         }
 
         break;
       }
-      case (1_000_008):{
+      case (1_000_008): {
         if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid value is {0,1}");
         }
-        if (Long.valueOf(entry.getValue()) == 1 && ByteUtil.equals(this.dbManager.getDynamicPropertiesStore().getFundInjectAddress(),
-            Hex.decode(Constant.TRON_ZERO_ADDRESS_HEX))) {
+        if (Long.valueOf(entry.getValue()) == 1 && ByteUtil
+            .equals(this.dbManager.getDynamicPropertiesStore().getFundInjectAddress(),
+                Hex.decode(Constant.TRON_ZERO_ADDRESS_HEX))) {
           throw new ContractValidateException(
               "Fund Inject Address should not be default T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
                   + " to enable Fund distribution switch"
@@ -390,6 +393,17 @@ public class ProposalCreateActuator extends AbstractActuator {
         if (Integer.valueOf(entry.getValue()) < 0 || Integer.valueOf(entry.getValue()) > 100) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100]");
+        }
+        break;
+      }
+      case (1_000_011): {
+        if (Integer.parseInt(entry.getValue()) < 5 || Integer.parseInt(entry.getValue()) > 27) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid range is [5,27]");
+        } else if (Integer.parseInt(entry.getValue()) > Args.getInstance().getGenesisBlock()
+            .getWitnesses().size()) {
+          throw new ContractValidateException(
+              "size of witness in genesis block must greater than value");
         }
         break;
       }

@@ -76,7 +76,8 @@ public class WitnessService implements Service {
   private AtomicInteger dupBlockCount = new AtomicInteger(0);
   private AtomicLong dupBlockTime = new AtomicLong(0);
   private long blockCycle =
-      ChainConstant.BLOCK_PRODUCED_INTERVAL * Args.getInstance().getWitnessMaxActiveNum();
+      ChainConstant.BLOCK_PRODUCED_INTERVAL * manager.getDynamicPropertiesStore()
+          .getWitnessMaxActiveNum();
 
   /**
    * Construction method.

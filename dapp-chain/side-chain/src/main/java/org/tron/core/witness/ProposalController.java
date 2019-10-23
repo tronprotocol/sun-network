@@ -9,8 +9,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.core.Wallet;
+import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.ProposalCapsule;
+import org.tron.core.capsule.WitnessCapsule;
+import org.tron.core.config.args.Args;
+import org.tron.core.config.args.Witness;
 import org.tron.core.db.Manager;
+import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.SideChainProposal.State;
 
 @Slf4j(topic = "witness")
@@ -173,7 +178,8 @@ public class ProposalController {
           break;
         }
         case (14): {
-          manager.getDynamicPropertiesStore().saveAllowUpdateAccountName(Long.valueOf(entry.getValue()));
+          manager.getDynamicPropertiesStore()
+              .saveAllowUpdateAccountName(Long.valueOf(entry.getValue()));
           break;
         }
         // default to allow same token
@@ -225,11 +231,13 @@ public class ProposalController {
           break;
         }
         case (24): {
-          manager.getDynamicPropertiesStore().saveAllowProtoFilterNum(Long.valueOf(entry.getValue()));
+          manager.getDynamicPropertiesStore()
+              .saveAllowProtoFilterNum(Long.valueOf(entry.getValue()));
           break;
         }
         case (25): {
-          manager.getDynamicPropertiesStore().saveAllowAccountStateRoot(Long.valueOf(entry.getValue()));
+          manager.getDynamicPropertiesStore()
+              .saveAllowAccountStateRoot(Long.valueOf(entry.getValue()));
           break;
         }
 //        case (26): {
@@ -261,7 +269,7 @@ public class ProposalController {
         case (1_000_003): {
           // replace all side chain proposal expire time
           manager.getDynamicPropertiesStore()
-                  .saveProposalExpireTime(Long.valueOf(entry.getValue()));
+              .saveProposalExpireTime(Long.valueOf(entry.getValue()));
           break;
         }
         case (1_000_004): {
@@ -298,6 +306,39 @@ public class ProposalController {
         case (1_000_010): {
           manager.getDynamicPropertiesStore()
               .savePercentToPayWitness(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (1_000_011): {
+          int oldNum = manager.getDynamicPropertiesStore().getWitnessMaxActiveNum();
+          int newNum = Integer.parseInt(entry.getValue());
+          List<Witness> witnessList = Args.getInstance().getGenesisBlock().getWitnesses();
+          if (witnessList.size() < newNum) {
+            logger.error("size of witness in genesis block : {} must greater than value : {}",
+                witnessList.size(), newNum);
+            System.exit(1);
+          }
+          List<Witness> subWitnessList = witnessList.subList(oldNum, newNum);
+          subWitnessList.forEach(key -> {
+            byte[] keyAddress = key.getAddress();
+            ByteString address = ByteString.copyFrom(keyAddress);
+
+            final AccountCapsule accountCapsule;
+            if (!manager.getAccountStore().has(keyAddress)) {
+              accountCapsule = new AccountCapsule(ByteString.EMPTY,
+                  address, AccountType.AssetIssue, 0L);
+            } else {
+              accountCapsule = manager.getAccountStore().getUnchecked(keyAddress);
+            }
+            accountCapsule.setIsWitness(true);
+            manager.getAccountStore().put(keyAddress, accountCapsule);
+
+            final WitnessCapsule witnessCapsule =
+                new WitnessCapsule(address, key.getVoteCount(), key.getUrl());
+            witnessCapsule.setIsJobs(true);
+            manager.getWitnessStore().put(keyAddress, witnessCapsule);
+          });
+          manager.getDynamicPropertiesStore()
+              .saveWitnessMaxActiveNum(Integer.parseInt(entry.getValue()));
           break;
         }
         default:
