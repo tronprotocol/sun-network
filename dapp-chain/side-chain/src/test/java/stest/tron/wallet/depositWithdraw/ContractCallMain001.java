@@ -2,6 +2,7 @@ package stest.tron.wallet.depositWithdraw;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.AbiUtil;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractCallMain001 {
@@ -124,7 +126,8 @@ public class ContractCallMain001 {
         testDepositAddress, blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    logger.info("contractAddress:"+Base58.encode58Check(contractAddress));
     Assert.assertNotNull(contractAddress);
     Assert.assertTrue(PublicMethed
         .sendcoin(contractAddress, 10000000000L, testDepositAddress, testDepositTrx,
