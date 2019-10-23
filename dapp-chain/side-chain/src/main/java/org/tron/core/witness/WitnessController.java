@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
@@ -316,7 +317,7 @@ public class WitnessController {
 
     //Only possible during the initialization phase
     if (countWitness.isEmpty()
-        && manager.getDynamicPropertiesStore().getWitnessMaxActiveNum() != getActiveWitnesses()
+        && manager.getDynamicPropertiesStore().getWitnessMaxActiveNum() == getActiveWitnesses()
         .size()) {
       logger.info("No vote, no change to witness.");
     } else {
@@ -392,10 +393,12 @@ public class WitnessController {
 
       Args.getInstance().getGenesisBlock().getWitnesses().forEach(witnessInGenesisBlock -> {
         WitnessCapsule witnessCapsule = witnessStore.get(witnessInGenesisBlock.getAddress());
-        witnessCapsule
-            .setVoteCount(witnessCapsule.getVoteCount() - witnessInGenesisBlock.getVoteCount());
+        if (Objects.nonNull(witnessCapsule)) {
+          witnessCapsule
+              .setVoteCount(witnessCapsule.getVoteCount() - witnessInGenesisBlock.getVoteCount());
 
-        witnessStore.put(witnessCapsule.createDbKey(), witnessCapsule);
+          witnessStore.put(witnessCapsule.createDbKey(), witnessCapsule);
+        }
       });
 
       manager.getDynamicPropertiesStore().saveRemoveThePowerOfTheGr(-1);
