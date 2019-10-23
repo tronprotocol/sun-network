@@ -76,6 +76,57 @@ public class SideChainGatewayApi {
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
+  // deposit function 2
+  public static Transaction multiSignForDepositTRX(String to, String value, String nonce,
+      SignListParam signParam) throws RpcConnectException {
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+
+    String method = "multiSignForDepositTRX(address,uint256,uint256,bytes[],address[])";
+    List params = Arrays.asList(to, value, nonce, signParam.getOracleSigns(),
+        signParam.getOracleAddresses());
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
+  }
+
+  public static Transaction multiSignForDepositTRC10(String to, String tokenId, String value,
+      String name, String symbol, int decimals, String nonce, SignListParam signParam)
+      throws RpcConnectException {
+
+    byte[] nameBytes = new DataWord(name.getBytes()).getData();
+    byte[] symbolBytes = new DataWord(symbol.getBytes()).getData();
+
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    String method = "multiSignForDepositTRC10(address,trcToken,uint256,bytes32,bytes32,uint8,uint256,bytes[],address[])";
+    List params = Arrays
+        .asList(to, tokenId, value, Hex.toHexString(nameBytes), Hex.toHexString(symbolBytes),
+            decimals, nonce, signParam.getOracleSigns(), signParam.getOracleAddresses());
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
+  }
+
+  public static Transaction multiSignForDepositTRC20(String to, String mainAddress, String value,
+      String nonce, SignListParam signParam) throws RpcConnectException {
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+
+    String method = "multiSignForDepositTRC20(address,address,uint256,uint256,bytes[],address[])";
+    List params = Arrays.asList(to, mainAddress, value, nonce, signParam.getOracleSigns(),
+        signParam.getOracleAddresses());
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
+  }
+
+  public static Transaction multiSignForDepositTRC721(String to, String mainAddress, String uid,
+      String nonce, SignListParam signParam) throws RpcConnectException {
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+
+    String method = "multiSignForDepositTRC721(address,address,uint256,uint256,bytes[],address[])";
+    List params = Arrays.asList(to, mainAddress, uid, nonce, signParam.getOracleSigns(),
+        signParam.getOracleAddresses());
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
+  }
+
+  //withdraw ...
   public static Transaction withdrawTRC10Transaction(String from, String tokenId, String value,
       String nonce) throws RpcConnectException {
 
@@ -211,6 +262,35 @@ public class SideChainGatewayApi {
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
+  //mapping function 2
+  public static Transaction multiSignForDeployDAppTRC20AndMapping(String contractAddressStr,
+      String trcName,
+      String trcSymbol, long trcDecimals, String nonce, SignListParam signParam)
+      throws RpcConnectException {
+
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    String method = "multiSignForDeployDAppTRC20AndMapping(address,string,string,uint8,uint256,bytes[],address[])";
+    List params = Arrays
+        .asList(contractAddressStr, trcName, trcSymbol, trcDecimals, nonce,
+            signParam.getOracleSigns(), signParam.getOracleAddresses());
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
+  }
+
+  public static Transaction multiSignForDeployDAppTRC721AndMapping(String contractAddressStr,
+      String trcName,
+      String trcSymbol, String nonce, SignListParam signParam) throws RpcConnectException {
+
+    byte[] contractAddress = Args.getInstance().getSidechainGateway();
+    String method = "multiSignForDeployDAppTRC721AndMapping(address,string,string,uint256,bytes[],address[])";
+    List params = Arrays
+        .asList(contractAddressStr, trcName, trcSymbol, nonce, signParam.getOracleSigns(),
+            signParam.getOracleAddresses());
+    return GATEWAY_API.getInstance()
+        .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
+  }
+
+  //getMappingMsg
   public static EventNetMessage getMappingTRC20SignMsg(String contractAddressStr, String trcName,
       String trcSymbol, long trcDecimals, String nonce, EventMsg message) {
     byte[] sign = GATEWAY_API.getInstance().signDigest(
