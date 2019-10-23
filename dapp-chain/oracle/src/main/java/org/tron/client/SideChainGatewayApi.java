@@ -217,8 +217,7 @@ public class SideChainGatewayApi {
         getMappingTRC20DataHash(contractAddressStr, trcName, trcSymbol, trcDecimals, nonce));
     Raw raw = Raw.newBuilder().setEventMsg(message).setEventSigature(ByteString.copyFrom(sign))
         .setTimestamp(System.currentTimeMillis()).build();
-    return new EventNetMessage(message, raw, GATEWAY_API.getInstance()
-        .signDigest(raw.toByteArray()));
+    return new EventNetMessage(raw, GATEWAY_API.getInstance().signDigest(raw.toByteArray()));
   }
 
   public static byte[] getMappingTRC20DataHash(String contractAddressStr, String trcName,
@@ -241,8 +240,7 @@ public class SideChainGatewayApi {
         .signDigest(getMappingTRC721DataHash(contractAddressStr, trcName, trcSymbol, nonce));
     Raw raw = Raw.newBuilder().setEventMsg(message).setEventSigature(ByteString.copyFrom(sign))
         .setTimestamp(System.currentTimeMillis()).build();
-    return new EventNetMessage(message, raw, GATEWAY_API.getInstance()
-        .signDigest(raw.toByteArray()));
+    return new EventNetMessage(raw, GATEWAY_API.getInstance().signDigest(raw.toByteArray()));
   }
 
   public static byte[] getMappingTRC721DataHash(String contractAddressStr, String trcName,
@@ -263,8 +261,7 @@ public class SideChainGatewayApi {
     byte[] sign = GATEWAY_API.getInstance().signDigest(getTRXDataHash(from, value, nonce));
     Raw raw = Raw.newBuilder().setEventMsg(message).setEventSigature(ByteString.copyFrom(sign))
         .setTimestamp(System.currentTimeMillis()).build();
-    return new EventNetMessage(message, raw, GATEWAY_API.getInstance()
-        .signDigest(raw.toByteArray()));
+    return new EventNetMessage(raw, GATEWAY_API.getInstance().signDigest(raw.toByteArray()));
   }
 
   public static EventNetMessage getTRC10SignMsg(String from, String tokenId, String value,
@@ -273,8 +270,7 @@ public class SideChainGatewayApi {
         .signDigest(getTRC10DataHash(from, tokenId, value, nonce));
     Raw raw = Raw.newBuilder().setEventMsg(message).setEventSigature(ByteString.copyFrom(sign))
         .setTimestamp(System.currentTimeMillis()).build();
-    return new EventNetMessage(message, raw, GATEWAY_API.getInstance()
-        .signDigest(raw.toByteArray()));
+    return new EventNetMessage(raw, GATEWAY_API.getInstance().signDigest(raw.toByteArray()));
   }
 
 
@@ -285,8 +281,7 @@ public class SideChainGatewayApi {
         .signDigest(getTRCTokenDataHash(from, mainChainAddress, value, nonce));
     Raw raw = Raw.newBuilder().setEventMsg(message).setEventSigature(ByteString.copyFrom(sign))
         .setTimestamp(System.currentTimeMillis()).build();
-    return new EventNetMessage(message, raw, GATEWAY_API.getInstance()
-        .signDigest(raw.toByteArray()));
+    return new EventNetMessage(raw, GATEWAY_API.getInstance().signDigest(raw.toByteArray()));
   }
 
 

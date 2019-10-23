@@ -21,14 +21,15 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.tron.common.config.Args;
 import org.tron.common.overlay.discover.node.statistics.MessageCount;
 import org.tron.common.overlay.message.Message;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.common.utils.Time;
 import org.tron.core.capsule.BlockCapsule.BlockId;
-import org.tron.common.config.Args;
 import org.tron.core.net.TronNetDelegate;
 import org.tron.core.net.message.BlockMessage;
+import org.tron.core.net.message.EventNetMessage;
 import org.tron.core.net.message.FetchInvDataMessage;
 import org.tron.core.net.message.InventoryMessage;
 import org.tron.core.net.message.TransactionMessage;
@@ -53,6 +54,9 @@ public class AdvService {
   private Cache<Item, Message> trxCache = CacheBuilder.newBuilder()
       .maximumSize(50_000).expireAfterWrite(1, TimeUnit.HOURS).recordStats().build();
 
+  private Cache<Item, Message> eventCache = CacheBuilder.newBuilder()
+      .maximumSize(50_000).expireAfterWrite(1, TimeUnit.HOURS).recordStats().build();
+
   private Cache<Item, Message> blockCache = CacheBuilder.newBuilder()
       .maximumSize(10).expireAfterWrite(1, TimeUnit.MINUTES).recordStats().build();
 
@@ -62,6 +66,8 @@ public class AdvService {
 
   @Getter
   private MessageCount trxCount = new MessageCount();
+  @Getter
+  private MessageCount eventCount = new MessageCount();
 
   private int maxSpreadSize = 1_000;
 
@@ -162,8 +168,13 @@ public class AdvService {
       trxCount.add();
       trxCache.put(item,
           new TransactionMessage(((TransactionMessage) msg).getTransactionCapsule().getInstance()));
+    } else if (msg instanceof EventNetMessage) {
+      EventNetMessage eventMsg = (EventNetMessage) msg;
+      item = new Item(eventMsg.getMessageId(), InventoryType.EVENT);
+      eventCount.add();
+      eventCache.put(item, new EventNetMessage(((EventNetMessage) msg).getEventNetMsg()));
     } else {
-      logger.error("Adv item is neither block nor trx, type: {}", msg.getType());
+      logger.error("Adv item is neither block nor trx nor event, type: {}", msg.getType());
       return;
     }
 

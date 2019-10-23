@@ -63,8 +63,7 @@ public class EventTask {
             // TODO: Implement actuator switch case here
             if (true) {
               signAndBroadcast(eventActuator);
-            }
-            else {
+            } else {
               processAndSubmit(eventActuator);
             }
           } else {
@@ -79,7 +78,7 @@ public class EventTask {
     }
   }
 
-  private void signAndBroadcast(Actuator eventActuator){
+  private void signAndBroadcast(Actuator eventActuator) {
     EventNetMessage netMessage = eventActuator.generateSignedEventMsg();
     broadcastEvent(netMessage);
   }
@@ -106,8 +105,7 @@ public class EventTask {
               + minEffectiveConnection;
           logger.warn("Broadcast event {} has failed, {}.", signedEvent.getMessageId(), info);
           return builder.setResult(false).setCode(response_code.NOT_ENOUGH_EFFECTIVE_CONNECTION)
-              .setMessage(ByteString.copyFromUtf8(info))
-              .build();
+              .setMessage(ByteString.copyFromUtf8(info)).build();
         }
       }
 
@@ -115,7 +113,8 @@ public class EventTask {
       logger.info("Broadcast transaction {} successfully.", signedEvent.getMessageId());
       return builder.setResult(true).setCode(response_code.SUCCESS).build();
     } catch (Exception e) {
-      logger.error("Broadcast transaction {} failed, {}.", signedEvent.getMessageId(), e.getMessage());
+      logger.error("Broadcast transaction {} failed, {}.", signedEvent.getMessageId(),
+          e.getMessage());
       return builder.setResult(false).setCode(response_code.OTHER_ERROR)
           .setMessage(ByteString.copyFromUtf8("other error : " + e.getMessage()))
           .build();
@@ -184,7 +183,8 @@ public class EventTask {
 
   private void setRetryTimesForUserRetry(Actuator actuator) throws InvalidProtocolBufferException {
     try {
-      int retryTimesInStore = NonceMsg.parseFrom(NonceStore.getInstance().getData(actuator.getNonceKey())).getRetryTimes();
+      int retryTimesInStore = NonceMsg
+          .parseFrom(NonceStore.getInstance().getData(actuator.getNonceKey())).getRetryTimes();
       int retryNew = (retryTimesInStore / SystemSetting.RETRY_TIMES_EPOCH_OFFSET
           + 1) * SystemSetting.RETRY_TIMES_EPOCH_OFFSET;
       actuator.setRetryTimes(retryNew);
