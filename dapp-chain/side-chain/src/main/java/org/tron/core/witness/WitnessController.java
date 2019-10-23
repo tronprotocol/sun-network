@@ -315,7 +315,9 @@ public class WitnessController {
     Map<ByteString, Long> countWitness = countVote(votesStore);
 
     //Only possible during the initialization phase
-    if (countWitness.isEmpty()) {
+    if (countWitness.isEmpty()
+        && manager.getDynamicPropertiesStore().getWitnessMaxActiveNum() != getActiveWitnesses()
+        .size()) {
       logger.info("No vote, no change to witness.");
     } else {
       List<ByteString> currentWits = getActiveWitnesses();
