@@ -505,7 +505,7 @@ public class DepositFeeTrc721001 {
             1001, setDepositFee + 1,
             1000000000,
             testAddress001, testKey001, blockingStubFull);
-    logger.info(deposittrx);
+    logger.info("deposittrx："+deposittrx);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(deposittrx, blockingStubFull);

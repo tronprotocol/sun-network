@@ -293,6 +293,7 @@ public class DepositMinTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     int sideTrc20After1 = ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray());
+    logger.info("sideTrc20After1:"+sideTrc20After1);
     Assert.assertEquals(0, infoById2.get().getResultValue());
     Assert.assertEquals(sideTrc20After + 1000, sideTrc20After1);
 
