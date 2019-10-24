@@ -212,10 +212,10 @@ public class DepositTrc20001 {
             1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
-    Optional<TransactionInfo> infoById2 = PublicMethed
-        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById2 = PublicMethed
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
 
     Assert.assertEquals(0, infoById2.get().getResultValue());
     Assert.assertEquals(1000, ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray()));

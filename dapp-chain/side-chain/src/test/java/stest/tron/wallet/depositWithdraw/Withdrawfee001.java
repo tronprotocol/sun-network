@@ -670,6 +670,9 @@ public class Withdrawfee001 {
     logger.info(deposittrx);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(deposittrx, blockingStubFull);
     Assert.assertNotNull(deposittrx);
     Assert.assertEquals(0, infoById.get().getResultValue());
