@@ -53,9 +53,11 @@ public class AccountTask extends SideChainTask {
     logger.info("send coin and deposit");
 
     while (true) {
+      logger.info("withdraw task run!");
       sdk.setPrivateKey(ConfigInfo.privateKey);
-      new WithdrawTask().runTask(sdk);
+      triggerContract(sdk, 0, ConfigInfo.contractWithdraw);
       Random r = new Random(System.currentTimeMillis());
+      logger.info("send coin run!");
       accountList.forEach(account -> {
         if (getBalance(sdk, account.split(",")[0]) > 0) {
           return;
@@ -71,6 +73,7 @@ public class AccountTask extends SideChainTask {
           e.printStackTrace();
         }
       });
+      logger.info("deposit run!");
       accountList.forEach(account -> {
         sdk.setPrivateKey(account.split(",")[1]);
 
