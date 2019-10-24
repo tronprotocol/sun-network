@@ -399,11 +399,15 @@ public class ProposalCreateActuator extends AbstractActuator {
       case (1_000_011): {
         if (Integer.parseInt(entry.getValue()) < 5 || Integer.parseInt(entry.getValue()) > 27) {
           throw new ContractValidateException(
-              "Bad chain parameter value,valid range is [5,27]");
+              "Bad chain parameter value, valid range is [5,27]");
         } else if (Integer.parseInt(entry.getValue()) > Args.getInstance().getGenesisBlock()
             .getWitnesses().size()) {
           throw new ContractValidateException(
-              "size of witness in genesis block must greater than value");
+              "Bad chain parameter value, must greater than value");
+        } else if (Integer.parseInt(entry.getValue()) == dbManager.getDynamicPropertiesStore()
+            .getWitnessMaxActiveNum()) {
+          throw new ContractValidateException(
+              "Bad chain parameter value, same as current value");
         }
         break;
       }

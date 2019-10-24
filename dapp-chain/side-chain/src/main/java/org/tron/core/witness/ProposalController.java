@@ -311,6 +311,10 @@ public class ProposalController {
         case (1_000_011): {
           int oldNum = manager.getDynamicPropertiesStore().getWitnessMaxActiveNum();
           int newNum = Integer.parseInt(entry.getValue());
+          if (newNum <= oldNum) {
+            manager.getDynamicPropertiesStore()
+                .saveWitnessMaxActiveNum(Integer.parseInt(entry.getValue()));
+          }
           List<Witness> witnessList = Args.getInstance().getGenesisBlock().getWitnesses();
           if (witnessList.size() < newNum) {
             logger.error("size of witness in genesis block : {} must greater than value : {}",
