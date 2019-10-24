@@ -1,4 +1,4 @@
-package org.tron.service.eventmsgactuator.eventactuator.sidechain;
+package org.tron.service.eventmsgactuator.sidechain;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
@@ -16,10 +16,10 @@ import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.protos.Sidechain.WithdrawTRC721Event;
 import org.tron.service.capsule.TransactionExtensionCapsule;
-import org.tron.service.eventmsgactuator.eventactuator.Actuator;
+import org.tron.service.eventmsgactuator.MsgActuator;
 
 @Slf4j(topic = "sideChainTask")
-public class WithdrawTRC721Actuator extends Actuator {
+public class WithdrawTRC721MsgActuator extends MsgActuator {
 
   private static final String PREFIX = "withdraw_1_";
   private WithdrawTRC721Event event;
@@ -28,7 +28,7 @@ public class WithdrawTRC721Actuator extends Actuator {
   @Getter
   private TaskEnum taskEnum = TaskEnum.SIDE_CHAIN;
 
-  public WithdrawTRC721Actuator(String from, String mainChainAddress, String uId, String nonce) {
+  public WithdrawTRC721MsgActuator(String from, String mainChainAddress, String uId, String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString mainChainAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(mainChainAddress));
@@ -38,7 +38,7 @@ public class WithdrawTRC721Actuator extends Actuator {
         .setMainchainAddress(mainChainAddressBS).setUId(uIdBS).setNonce(nonceBS).build();
   }
 
-  public WithdrawTRC721Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
+  public WithdrawTRC721MsgActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
     this.event = eventMsg.getParameter().unpack(WithdrawTRC721Event.class);
   }
 

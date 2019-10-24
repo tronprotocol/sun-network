@@ -1,4 +1,4 @@
-package org.tron.service.eventmsgactuator.eventactuator.mainchain;
+package org.tron.service.eventmsgactuator.mainchain;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
@@ -6,40 +6,42 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
 import org.tron.core.net.message.EventNetMessage;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.Sidechain.DepositTRC20Event;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.EventMsg.TaskEnum;
-import org.tron.protos.Sidechain.MappingTRC20Event;
 import org.tron.service.capsule.TransactionExtensionCapsule;
-import org.tron.service.eventmsgactuator.eventactuator.Actuator;
+import org.tron.service.eventmsgactuator.MsgActuator;
 
 @Slf4j(topic = "mainChainTask")
-public class MappingTRC20Actuator extends Actuator {
+public class DepositTRC20MsgActuator extends MsgActuator {
 
-  private static final String NONCE_TAG = "mapping_";
+  private static final String NONCE_TAG = "deposit_";
 
-  private MappingTRC20Event event;
+  private DepositTRC20Event event;
   @Getter
-  private EventType type = EventType.MAPPING_TRC20;
+  private EventType type = EventType.DEPOSIT_TRC20_EVENT;
   @Getter
   private TaskEnum taskEnum = TaskEnum.SIDE_CHAIN;
 
-  public MappingTRC20Actuator(String contractAddress, String nonce) {
+  public DepositTRC20MsgActuator(String from, String contractAddress, String value,
+      String nonce) {
+    ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
+    ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString contractAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(contractAddress));
     ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
-    this.event = MappingTRC20Event.newBuilder().setContractAddress(contractAddressBS)
-        .setNonce(nonceBS).build();
+    this.event = DepositTRC20Event.newBuilder().setFrom(fromBS).setValue(valueBS)
+        .setContractAddress(contractAddressBS).setNonce(nonceBS).build();
   }
 
-  public MappingTRC20Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
-    this.event = eventMsg.getParameter().unpack(MappingTRC20Event.class);
+  public DepositTRC20MsgActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
+    this.event = eventMsg.getParameter().unpack(DepositTRC20Event.class);
   }
 
   @Override
@@ -48,19 +50,17 @@ public class MappingTRC20Actuator extends Actuator {
       return CreateRet.SUCCESS;
     }
     try {
+      String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
       String contractAddressStr = WalletUtil
           .encode58Check(event.getContractAddress().toByteArray());
+      String valueStr = event.getValue().toStringUtf8();
       String nonceStr = event.getNonce().toStringUtf8();
 
-      long trcDecimals = MainChainGatewayApi.getTRCDecimals(contractAddressStr);
-      String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
-      String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
-      logger.info(
-          "MappingTRC20Event, contractAddress: {}, trcName: {}, trcSymbol: {}, trcDecimals: {}, nonce: {}.",
-          contractAddressStr, trcName, trcSymbol, trcDecimals, nonceStr);
+      logger.info("DepositTRC20Actuator, from: {}, value: {}, contractAddress: {}, nonce: {}",
+          fromStr, valueStr, contractAddressStr, nonceStr);
 
       Transaction tx = SideChainGatewayApi
-          .multiSignForMappingTRC20(contractAddressStr, trcName, trcSymbol, trcDecimals, nonceStr);
+          .mintToken20Transaction(fromStr, contractAddressStr, valueStr, nonceStr);
       this.transactionExtensionCapsule = new TransactionExtensionCapsule(NONCE_TAG + nonceStr, tx,
           0);
       return CreateRet.SUCCESS;
@@ -89,17 +89,13 @@ public class MappingTRC20Actuator extends Actuator {
   @Override
   public EventNetMessage generateSignedEventMsg() {
 
+    String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
     String contractAddressStr = WalletUtil
         .encode58Check(event.getContractAddress().toByteArray());
+    String valueStr = event.getValue().toStringUtf8();
     String nonceStr = event.getNonce().toStringUtf8();
-
-    long trcDecimals = MainChainGatewayApi.getTRCDecimals(contractAddressStr);
-    String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
-    String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
     return SideChainGatewayApi
-        .getMappingTRC20SignMsg(contractAddressStr, trcName, trcSymbol, trcDecimals, nonceStr,
-            getMessage());
-
+        .getTRCSignMsg(fromStr, contractAddressStr, valueStr, nonceStr, getMessage());
   }
 
 }

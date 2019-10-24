@@ -1,4 +1,4 @@
-package org.tron.service.eventmsgactuator.eventactuator;
+package org.tron.service.eventmsgactuator;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,7 @@ import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.service.capsule.TransactionExtensionCapsule;
 
 @Slf4j(topic = "actuator")
-public abstract class Actuator {
+public abstract class MsgActuator {
 
   private int retryTimes;
 

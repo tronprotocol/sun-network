@@ -1,48 +1,44 @@
-package org.tron.service.eventmsgactuator.eventactuator.sidechain;
+package org.tron.service.eventmsgactuator.sidechain;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.util.List;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.SignUtils;
 import org.tron.common.utils.WalletUtil;
+import org.tron.core.net.message.EventNetMessage;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.EventMsg.TaskEnum;
-import org.tron.protos.Sidechain.MultiSignForWithdrawTRC10Event;
+import org.tron.protos.Sidechain.WithdrawTRC10Event;
 import org.tron.service.capsule.TransactionExtensionCapsule;
-import org.tron.service.eventmsgactuator.eventactuator.SignListParam;
+import org.tron.service.eventmsgactuator.MsgActuator;
 
 @Slf4j(topic = "sideChainTask")
-public class MultiSignForWithdrawTRC10Actuator extends MultiSignForWithdrawActuator {
+public class WithdrawTRC10MsgActuator extends MsgActuator {
 
-  private static final String PREFIX = "withdraw_2_";
-  private MultiSignForWithdrawTRC10Event event;
+  private static final String PREFIX = "withdraw_1_";
+  private WithdrawTRC10Event event;
   @Getter
-  private EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TRC10_EVENT;
+  private EventType type = EventType.WITHDRAW_TRC10_EVENT;
   @Getter
-  private TaskEnum taskEnum = TaskEnum.MAIN_CHAIN;
+  private TaskEnum taskEnum = TaskEnum.SIDE_CHAIN;
 
-  public MultiSignForWithdrawTRC10Actuator(String from, String tokenId, String value,
-      String nonce) {
+  public WithdrawTRC10MsgActuator(String from, String tokenId, String value, String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString tokenIdBS = ByteString.copyFrom(ByteArray.fromString(tokenId));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
-    this.event = MultiSignForWithdrawTRC10Event.newBuilder().setFrom(fromBS).setTokenId(tokenIdBS)
+    this.event = WithdrawTRC10Event.newBuilder().setFrom(fromBS).setTokenId(tokenIdBS)
         .setValue(valueBS).setNonce(nonceBS).build();
   }
 
-  public MultiSignForWithdrawTRC10Actuator(EventMsg eventMsg)
-      throws InvalidProtocolBufferException {
-    this.event = eventMsg.getParameter().unpack(MultiSignForWithdrawTRC10Event.class);
+  public WithdrawTRC10MsgActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
+    this.event = eventMsg.getParameter().unpack(WithdrawTRC10Event.class);
   }
 
   @Override
@@ -55,27 +51,19 @@ public class MultiSignForWithdrawTRC10Actuator extends MultiSignForWithdrawActua
       String tokenIdStr = event.getTokenId().toStringUtf8();
       String valueStr = event.getValue().toStringUtf8();
       String nonceStr = event.getNonce().toStringUtf8();
-      SignListParam signParam = SideChainGatewayApi.getWithdrawOracleSigns(nonceStr);
 
       logger
-          .info("MultiSignForWithdrawTRC10Actuator, from: {}, tokenId: {}, value: {}, nonce: {}",
-              fromStr, tokenIdStr, valueStr, nonceStr);
-      Transaction tx = MainChainGatewayApi
-          .multiSignForWithdrawTRC10Transaction(fromStr, tokenIdStr, valueStr, nonceStr,
-              signParam);
-      this.transactionExtensionCapsule = new TransactionExtensionCapsule(PREFIX + nonceStr, tx,
-          getDelay(fromStr, tokenIdStr, valueStr, nonceStr, signParam.getOracleSigns()));
+          .info("WithdrawTRC10Actuator, from: {}, tokenId: {}, value: {}, nonce: {}", fromStr,
+              tokenIdStr, valueStr, nonceStr);
+
+      Transaction tx = SideChainGatewayApi
+          .withdrawTRC10Transaction(fromStr, tokenIdStr, valueStr, nonceStr);
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(PREFIX + nonceStr, tx, 0);
       return CreateRet.SUCCESS;
     } catch (Exception e) {
       logger.error("when create transaction extension capsule", e);
       return CreateRet.FAIL;
     }
-  }
-
-  private long getDelay(String from, String tokenId, String value, String nonce,
-      List<String> oracleSigns) {
-    String ownSign = SideChainGatewayApi.getWithdrawTRC10Sign(from, tokenId, value, nonce);
-    return SignUtils.getDelay(ownSign, oracleSigns);
   }
 
   @Override
@@ -95,12 +83,15 @@ public class MultiSignForWithdrawTRC10Actuator extends MultiSignForWithdrawActua
   }
 
   @Override
-  public String getWithdrawDataHash() {
+  public EventNetMessage generateSignedEventMsg() {
+
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
     String tokenIdStr = event.getTokenId().toStringUtf8();
     String valueStr = event.getValue().toStringUtf8();
     String nonceStr = event.getNonce().toStringUtf8();
-    return ByteArray.toHexString(
-        SideChainGatewayApi.getTRC10DataHash(fromStr, tokenIdStr, valueStr, nonceStr));
+    return SideChainGatewayApi
+        .getTRC10SignMsg(fromStr, tokenIdStr, valueStr, nonceStr, getMessage());
   }
+
 }
+

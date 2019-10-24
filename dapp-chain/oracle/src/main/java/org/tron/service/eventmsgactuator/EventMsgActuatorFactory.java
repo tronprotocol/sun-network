@@ -1,4 +1,4 @@
-package org.tron.service.eventmsgactuator.eventactuator;
+package org.tron.service.eventmsgactuator;
 
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
@@ -7,25 +7,21 @@ import org.json.simple.JSONValue;
 import org.tron.common.config.Args;
 import org.tron.service.eventenum.MainEventType;
 import org.tron.service.eventenum.SideEventType;
-import org.tron.service.eventmsgactuator.eventactuator.mainchain.DepositTRC10Actuator;
-import org.tron.service.eventmsgactuator.eventactuator.mainchain.DepositTRC20Actuator;
-import org.tron.service.eventmsgactuator.eventactuator.mainchain.DepositTRC721Actuator;
-import org.tron.service.eventmsgactuator.eventactuator.mainchain.DepositTRXActuator;
-import org.tron.service.eventmsgactuator.eventactuator.mainchain.MappingTRC20Actuator;
-import org.tron.service.eventmsgactuator.eventactuator.mainchain.MappingTRC721Actuator;
-import org.tron.service.eventmsgactuator.eventactuator.sidechain.MultiSignForWithdrawTRC10Actuator;
-import org.tron.service.eventmsgactuator.eventactuator.sidechain.MultiSignForWithdrawTRC20Actuator;
-import org.tron.service.eventmsgactuator.eventactuator.sidechain.MultiSignForWithdrawTRC721Actuator;
-import org.tron.service.eventmsgactuator.eventactuator.sidechain.MultiSignForWithdrawTRXActuator;
-import org.tron.service.eventmsgactuator.eventactuator.sidechain.WithdrawTRC10Actuator;
-import org.tron.service.eventmsgactuator.eventactuator.sidechain.WithdrawTRC20Actuator;
-import org.tron.service.eventmsgactuator.eventactuator.sidechain.WithdrawTRC721Actuator;
-import org.tron.service.eventmsgactuator.eventactuator.sidechain.WithdrawTRXActuator;
+import org.tron.service.eventmsgactuator.mainchain.DepositTRC10Actuator;
+import org.tron.service.eventmsgactuator.mainchain.DepositTRC20Actuator;
+import org.tron.service.eventmsgactuator.mainchain.DepositTRC721Actuator;
+import org.tron.service.eventmsgactuator.mainchain.DepositTRXActuator;
+import org.tron.service.eventmsgactuator.mainchain.MappingTRC20Actuator;
+import org.tron.service.eventmsgactuator.mainchain.MappingTRC721Actuator;
+import org.tron.service.eventmsgactuator.sidechain.WithdrawTRC10Actuator;
+import org.tron.service.eventmsgactuator.sidechain.WithdrawTRC20Actuator;
+import org.tron.service.eventmsgactuator.sidechain.WithdrawTRC721Actuator;
+import org.tron.service.eventmsgactuator.sidechain.WithdrawTRXActuator;
 
 @Slf4j(topic = "task")
-public class EventActuatorFactory {
+public class EventMsgActuatorFactory {
 
-  public static Actuator CreateActuator(String eventStr) {
+  public static MsgActuator CreateActuator(String eventStr) {
     try {
 
       JSONObject obj = (JSONObject) JSONValue.parse(eventStr);
@@ -47,8 +43,8 @@ public class EventActuatorFactory {
     return null;
   }
 
-  private static Actuator createMainChainActuator(JSONObject obj) {
-    Actuator task;
+  private static MsgActuator createMainChainActuator(JSONObject obj) {
+    MsgActuator task;
     MainEventType eventSignature = MainEventType
         .fromSignature(obj.get("eventSignature").toString());
     JSONObject dataMap = (JSONObject) obj.get("dataMap");
@@ -97,8 +93,8 @@ public class EventActuatorFactory {
     return null;
   }
 
-  private static Actuator createSideChainActuator(JSONObject obj) {
-    Actuator task;
+  private static MsgActuator createSideChainActuator(JSONObject obj) {
+    MsgActuator task;
     SideEventType eventType = SideEventType
         .fromMethod(obj.get("eventSignature").toString());
     switch (eventType) {

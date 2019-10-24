@@ -1,4 +1,4 @@
-package org.tron.service.eventmsgactuator.eventactuator.mainchain;
+package org.tron.service.eventmsgactuator.mainchain;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
@@ -17,10 +17,10 @@ import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.protos.Sidechain.MappingTRC721Event;
 import org.tron.service.capsule.TransactionExtensionCapsule;
-import org.tron.service.eventmsgactuator.eventactuator.Actuator;
+import org.tron.service.eventmsgactuator.MsgActuator;
 
 @Slf4j(topic = "mainChainTask")
-public class MappingTRC721Actuator extends Actuator {
+public class MappingTRC721MsgActuator extends MsgActuator {
 
   private static final String NONCE_TAG = "mapping_";
 
@@ -30,7 +30,7 @@ public class MappingTRC721Actuator extends Actuator {
   @Getter
   private TaskEnum taskEnum = TaskEnum.SIDE_CHAIN;
 
-  public MappingTRC721Actuator(String contractAddress, String nonce) {
+  public MappingTRC721MsgActuator(String contractAddress, String nonce) {
     ByteString contractAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(contractAddress));
     ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
@@ -38,7 +38,7 @@ public class MappingTRC721Actuator extends Actuator {
         .setContractAddress(contractAddressBS).setNonce(nonceBS).build();
   }
 
-  public MappingTRC721Actuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
+  public MappingTRC721MsgActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
     this.event = eventMsg.getParameter().unpack(MappingTRC721Event.class);
   }
 

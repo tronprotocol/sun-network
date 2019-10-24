@@ -1,4 +1,4 @@
-package org.tron.service.eventmsgactuator.eventactuator.mainchain;
+package org.tron.service.eventmsgactuator.mainchain;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
@@ -16,10 +16,10 @@ import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.service.capsule.TransactionExtensionCapsule;
-import org.tron.service.eventmsgactuator.eventactuator.Actuator;
+import org.tron.service.eventmsgactuator.MsgActuator;
 
 @Slf4j(topic = "mainChainTask")
-public class DepositTRXActuator extends Actuator {
+public class DepositTRXMsgActuator extends MsgActuator {
 
   private static final String NONCE_TAG = "deposit_";
 
@@ -29,7 +29,7 @@ public class DepositTRXActuator extends Actuator {
   @Getter
   private TaskEnum taskEnum = TaskEnum.SIDE_CHAIN;
 
-  public DepositTRXActuator(String from, String value, String nonce) {
+  public DepositTRXMsgActuator(String from, String value, String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
     ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
@@ -37,7 +37,7 @@ public class DepositTRXActuator extends Actuator {
         .setNonce(nonceBS).build();
   }
 
-  public DepositTRXActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
+  public DepositTRXMsgActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
     this.event = eventMsg.getParameter().unpack(DepositTRXEvent.class);
   }
 

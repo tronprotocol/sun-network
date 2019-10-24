@@ -1,4 +1,4 @@
-package org.tron.service.eventmsgactuator.eventactuator;
+package org.tron.service.eventmsgactuator;
 
 import java.util.List;
 import lombok.Getter;
