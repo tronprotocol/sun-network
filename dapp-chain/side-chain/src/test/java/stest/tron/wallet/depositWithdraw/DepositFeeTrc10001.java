@@ -142,6 +142,7 @@ public class DepositFeeTrc10001 {
             maxFeeLimit, inputTokenValue, inputTokenID, depositAddress, testKeyFordeposit,
             blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -183,7 +184,6 @@ public class DepositFeeTrc10001 {
             input1,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
@@ -251,6 +251,9 @@ public class DepositFeeTrc10001 {
             maxFeeLimit, inputTokenValue2, inputTokenID, depositAddress, testKeyFordeposit,
             blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     infoById = PublicMethed
@@ -294,6 +297,9 @@ public class DepositFeeTrc10001 {
             maxFeeLimit, inputTokenValue2, inputTokenID, depositAddress, testKeyFordeposit,
             blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     infoById = PublicMethed
@@ -362,6 +368,7 @@ public class DepositFeeTrc10001 {
             0,
             input1,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

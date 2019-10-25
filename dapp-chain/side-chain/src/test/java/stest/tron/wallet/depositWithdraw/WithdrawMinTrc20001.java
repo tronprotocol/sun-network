@@ -125,6 +125,7 @@ public class WithdrawMinTrc20001 {
     String txid = PublicMethed.triggerContract(mainChainAddressKey, callValue, input,
         maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -212,9 +213,12 @@ public class WithdrawMinTrc20001 {
         .depositTrc20(WalletClient.encode58Check(trc20Contract), mainChainAddress, depositValue,
             1000000000,
             depositAddress, testKeyFordeposit, blockingStubFull);
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+
     Optional<TransactionInfo> infodeposittrx = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
     Assert.assertEquals(0, infodeposittrx.get().getResultValue());
@@ -225,10 +229,9 @@ public class WithdrawMinTrc20001 {
             1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("sideChainTxid : " + sideChainTxid);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(sideChainTxid, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     int afterDepositSideChain = ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray());
     Assert.assertEquals(0, infoById2.get().getResultValue());
     Assert.assertEquals(1000, afterDepositSideChain);
@@ -249,8 +252,9 @@ public class WithdrawMinTrc20001 {
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
     logger.info("withdrawTrc20Txid:" + withdrawTrc20Txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoByIdwithdrawTrc20 = PublicMethed
@@ -264,9 +268,6 @@ public class WithdrawMinTrc20001 {
             1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("sideChainTxid1 : " + sideChainTxid1);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById3 = PublicMethed
@@ -292,10 +293,9 @@ public class WithdrawMinTrc20001 {
             1000000000,
             0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById4 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById4.get().getResultValue());
 
     withdrawTrc20Txid = PublicMethed.withdrawTrc20(chainIdAddress,
@@ -303,8 +303,9 @@ public class WithdrawMinTrc20001 {
         WalletClient.encode58Check(sideContractAddress),
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoByIdwithdrawTrc20 = PublicMethed
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
@@ -316,10 +317,9 @@ public class WithdrawMinTrc20001 {
             1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("sideChainTxid2 : " + sideChainTxid2);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById2 = PublicMethed
         .getTransactionInfoById(sideChainTxid2, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     int afterDepositSideChain2 = ByteArray
         .toInt(infoById2.get().getContractResult(0).toByteArray());
     Assert.assertEquals(0, infoById2.get().getResultValue());
@@ -341,8 +341,9 @@ public class WithdrawMinTrc20001 {
         WalletClient.encode58Check(sideContractAddress),
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoByIdwithdrawTrc20 = PublicMethed
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
@@ -354,10 +355,9 @@ public class WithdrawMinTrc20001 {
             1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("sideChainTxid2 : " + sideChainTxid2);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById2 = PublicMethed
         .getTransactionInfoById(sideChainTxid2, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     int afterDepositSideChain3 = ByteArray
         .toInt(infoById2.get().getContractResult(0).toByteArray());
     Assert.assertEquals(0, infoById2.get().getResultValue());
@@ -381,7 +381,6 @@ public class WithdrawMinTrc20001 {
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById3 = PublicMethed
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
@@ -402,6 +401,7 @@ public class WithdrawMinTrc20001 {
             1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() != 0);
@@ -416,10 +416,9 @@ public class WithdrawMinTrc20001 {
             1000000000,
             0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById4 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById4.get().getResultValue());
 
     // parame2 = "-9223372036854775808";
@@ -432,10 +431,9 @@ public class WithdrawMinTrc20001 {
             1000000000,
             0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById4 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById4.get().getResultValue());
 
     //parame2 = "9223372036854775807";
@@ -449,10 +447,9 @@ public class WithdrawMinTrc20001 {
             1000000000,
             0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById4 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById4.get().getResultValue());
 
     setWithdrawMinTrc201 = Long.MAX_VALUE + 1;
@@ -464,10 +461,9 @@ public class WithdrawMinTrc20001 {
             1000000000,
             0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById4 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById4.get().getResultValue());
 
     setWithdrawMinTrc201 = Long.MIN_VALUE - 1;
@@ -479,10 +475,9 @@ public class WithdrawMinTrc20001 {
             1000000000,
             0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById4 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById4.get().getResultValue());
   }
 
@@ -498,6 +493,7 @@ public class WithdrawMinTrc20001 {
             WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input3,
             1000000000,
             0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

@@ -119,6 +119,7 @@ public class DepositFeeTrc721001 {
     String txid = PublicMethed.triggerContract(mainChainAddressKey, callValue, input,
         maxFeeLimit, 0, "", testAddress001, testKey001, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -425,6 +426,7 @@ public class DepositFeeTrc721001 {
             1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById2 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     tmpAddress = ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray());
@@ -507,7 +509,6 @@ public class DepositFeeTrc721001 {
             testAddress001, testKey001, blockingStubFull);
     logger.info("deposittrx："+deposittrx);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(deposittrx, blockingStubFull);
     fee2 = infoById.get().getFee();
     Assert.assertNotNull(deposittrx);
@@ -566,7 +567,6 @@ public class DepositFeeTrc721001 {
   public void shutdown() throws InterruptedException {
     parame2 = "0";
     methodStr1 = "setDepositFee(uint256)";
-
     byte[] input3 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame2, false));
 
     PublicMethed
@@ -574,6 +574,7 @@ public class DepositFeeTrc721001 {
             0,
             input3,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

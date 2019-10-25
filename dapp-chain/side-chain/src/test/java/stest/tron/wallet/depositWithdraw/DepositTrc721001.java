@@ -212,6 +212,7 @@ public class DepositTrc721001 {
         .triggerContractSideChain(sideContractAddress, ChainIdAddressKey, 0l, input1, 1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     tmpAddress = ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray());

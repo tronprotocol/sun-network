@@ -121,7 +121,7 @@ public class ContractCallMain001 {
     String abi = "[{\"constant\":true,\"inputs\":[],\"name\":\"gateway\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"callDepositTRX\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"},{\"name\":\"data\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"nonce\",\"type\":\"uint256\"}],\"name\":\"callRetryDeposit\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"},{\"name\":\"data\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"tokenValue\",\"type\":\"uint256\"}],\"name\":\"callDepositTRC721\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"},{\"name\":\"data\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"tokenValue\",\"type\":\"uint64\"}],\"name\":\"callDepositTRC20\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"},{\"name\":\"data\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"tokenId\",\"type\":\"uint64\"},{\"name\":\"tokenValue\",\"type\":\"uint64\"}],\"name\":\"callDepositTRC10\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"},{\"name\":\"data\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_gateway\",\"type\":\"address\"}],\"name\":\"setGatewayAddress\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"txId\",\"type\":\"bytes\"}],\"name\":\"callMappingTRC721\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"},{\"name\":\"data\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"nonce\",\"type\":\"uint256\"}],\"name\":\"callRetryMapping\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"},{\"name\":\"data\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"txId\",\"type\":\"bytes\"}],\"name\":\"callMappingTRC20\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"},{\"name\":\"data\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]\n";
 
     byte[] contractAddress = PublicMethed.deployContractForMain(contractName, abi, code, "",
-        maxFeeLimit, 10000000000L, 0, 10000,
+        maxFeeLimit, 0L, 0, 10000,
         "0", 0, null, testDepositTrx,
         testDepositAddress, blockingStubFull);
 
@@ -144,7 +144,6 @@ public class ContractCallMain001 {
             input,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
@@ -156,7 +155,6 @@ public class ContractCallMain001 {
             callValue,
             input1,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 

@@ -217,7 +217,8 @@ public class DepositTrc20001 {
             1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById3 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);

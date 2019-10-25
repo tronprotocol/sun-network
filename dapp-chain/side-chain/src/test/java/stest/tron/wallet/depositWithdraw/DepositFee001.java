@@ -122,6 +122,9 @@ public class DepositFee001 {
             input,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
@@ -153,7 +156,6 @@ public class DepositFee001 {
             input1,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
@@ -313,7 +315,6 @@ public class DepositFee001 {
             input1,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() != 0);
@@ -330,7 +331,6 @@ public class DepositFee001 {
             input2,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid2, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
@@ -359,7 +359,6 @@ public class DepositFee001 {
             input3,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertNotNull(txid3);
@@ -377,7 +376,6 @@ public class DepositFee001 {
             input3,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
@@ -407,7 +405,6 @@ public class DepositFee001 {
             input3,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
@@ -437,7 +434,6 @@ public class DepositFee001 {
             input3,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
@@ -467,7 +463,6 @@ public class DepositFee001 {
             input3,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
@@ -492,7 +487,6 @@ public class DepositFee001 {
   @AfterClass
   public void shutdown() throws InterruptedException {
     parame1 = "0";
-
     byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
 
     PublicMethed
@@ -500,6 +494,7 @@ public class DepositFee001 {
             0,
             input1,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
