@@ -203,6 +203,11 @@ public class DepositTrc20001 {
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById2 = PublicMethed
+        .getTransactionInfoById(deposittrx, blockingSideStubFull);
+    Assert.assertEquals(0, infoById2.get().getResultValue());
 
     String arg4 = parame;
     byte[] input4 = Hex.decode(AbiUtil.parseMethod("balanceOf(address)", arg, false));
@@ -214,11 +219,11 @@ public class DepositTrc20001 {
     logger.info("ownerTrx : " + ownerTrx);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    Optional<TransactionInfo> infoById2 = PublicMethed
+    Optional<TransactionInfo> infoById3 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
 
-    Assert.assertEquals(0, infoById2.get().getResultValue());
-    Assert.assertEquals(1000, ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray()));
+    Assert.assertEquals(0, infoById3.get().getResultValue());
+    Assert.assertEquals(1000, ByteArray.toInt(infoById3.get().getContractResult(0).toByteArray()));
 
     TransactionExtention return3 = PublicMethed
         .triggerContractForTransactionExtention(trc20Contract, 0l, input4, 1000000000,

@@ -228,10 +228,10 @@ public class DepositMinTrc20001 {
             1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
-    Optional<TransactionInfo> infoById2 = PublicMethed
-        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById2 = PublicMethed
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     int sideTrc20After = ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray());
     Assert.assertEquals(0, infoById2.get().getResultValue());
     Assert.assertEquals(1000, sideTrc20After);
@@ -288,10 +288,10 @@ public class DepositMinTrc20001 {
             1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
-    infoById2 = PublicMethed
-        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    infoById2 = PublicMethed
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     int sideTrc20After1 = ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray());
     logger.info("sideTrc20After1:"+sideTrc20After1);
     Assert.assertEquals(0, infoById2.get().getResultValue());
@@ -320,10 +320,10 @@ public class DepositMinTrc20001 {
             1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
-    infoById2 = PublicMethed
-        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    infoById2 = PublicMethed
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     int sideTrc20After2 = ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray());
     Assert.assertEquals(0, infoById2.get().getResultValue());
     Assert.assertEquals(sideTrc20After1 + 1100, sideTrc20After2);

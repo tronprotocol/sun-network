@@ -203,10 +203,10 @@ public class WithdrawTrc20002 {
             WalletClient.decodeFromBase58Check(ChainIdAddress), 0l, input1,
             1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
-    Optional<TransactionInfo> infoById2 = PublicMethed
-        .getTransactionInfoById(sideChainTxid, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById2 = PublicMethed
+        .getTransactionInfoById(sideChainTxid, blockingSideStubFull);
     int afterDepositSideChain = ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray());
     Assert.assertEquals(0, infoById2.get().getResultValue());
     Assert.assertEquals(1000, afterDepositSideChain);
@@ -237,13 +237,13 @@ public class WithdrawTrc20002 {
             WalletClient.decodeFromBase58Check(ChainIdAddress), 0l, input4,
             1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById3 = PublicMethed
         .getTransactionInfoById(sideChainTxid1, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById3.get().getResultValue());
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     int afterWithdrawsidechain = ByteArray
         .toInt(infoById3.get().getContractResult(0).toByteArray());
     Assert.assertEquals(afterDepositSideChain - 100, afterWithdrawsidechain);
@@ -267,13 +267,11 @@ public class WithdrawTrc20002 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    Optional<TransactionInfo> infoById4;
-    String txd1 = infoById1.get().getResult().name();
-    infoById3 = PublicMethed
-        .getTransactionInfoById(txid2, blockingSideStubFull);
-    Assert.assertEquals(1, infoById3.get().getResultValue());
+//    String txd1 = infoById1.get().getResult().name();
+    Optional<TransactionInfo> infoById4 = PublicMethed.getTransactionInfoById(txid2, blockingSideStubFull);
+    Assert.assertEquals(1, infoById4.get().getResultValue());
     Assert.assertEquals("REVERT opcode executed",
-        ByteArray.toStr(infoById3.get().getResMessage().toByteArray()));
+        ByteArray.toStr(infoById4.get().getResMessage().toByteArray()));
 
     //account not exit
 
@@ -307,14 +305,12 @@ public class WithdrawTrc20002 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    Optional<TransactionInfo> infoById5;
-
-    infoById4 = PublicMethed
+    Optional<TransactionInfo> infoById5 = PublicMethed
         .getTransactionInfoById(txid3, blockingSideStubFull);
-    String txd3 = infoById4.get().getResult().name();
-    Assert.assertEquals(1, infoById4.get().getResultValue());
+//    String txd3 = infoById5.get().getResult().name();
+    Assert.assertEquals(1, infoById5.get().getResultValue());
     Assert.assertEquals("REVERT opcode executed",
-        ByteArray.toStr(infoById4.get().getResMessage().toByteArray()));
+        ByteArray.toStr(infoById5.get().getResMessage().toByteArray()));
 
 //        //value=0
 //        String value2 = Long.toString(1000);
