@@ -69,8 +69,10 @@ public class CreateTransactionTask {
 
       }
     } catch (Exception e) {
-      logger.error("createTransaction catch error! nonce = {}", ByteArray.toStr(eventActuator.getNonceKey()), e);
-      Manager.getInstance().setProcessFail(eventActuator.getNonceKey(), eventActuator.getRetryTimes());
+      logger.error("createTransaction catch error! nonce = {}",
+          ByteArray.toStr(eventActuator.getNonceKey()), e);
+      Manager.getInstance()
+          .setProcessFail(eventActuator.getNonceKey(), eventActuator.getRetryTimes());
     }
   }
 }
