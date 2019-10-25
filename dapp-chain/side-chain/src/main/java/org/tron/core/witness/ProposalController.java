@@ -4,6 +4,7 @@ import com.google.protobuf.ByteString;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
@@ -314,6 +315,7 @@ public class ProposalController {
           if (newNum <= oldNum) {
             manager.getDynamicPropertiesStore()
                 .saveWitnessMaxActiveNum(Integer.parseInt(entry.getValue()));
+            break;
           }
           List<Witness> witnessList = Args.getInstance().getGenesisBlock().getWitnesses();
           if (witnessList.size() < newNum) {
@@ -336,8 +338,12 @@ public class ProposalController {
             accountCapsule.setIsWitness(true);
             manager.getAccountStore().put(keyAddress, accountCapsule);
 
-            final WitnessCapsule witnessCapsule =
-                new WitnessCapsule(address, key.getVoteCount(), key.getUrl());
+            WitnessCapsule witnessCapsule = manager.getWitnessStore().get(keyAddress);
+            if (Objects.isNull(witnessCapsule)) {
+              witnessCapsule = new WitnessCapsule(address, key.getVoteCount(), key.getUrl());
+            } else {
+              witnessCapsule.setVoteCount(witnessCapsule.getVoteCount() + key.getVoteCount());
+            }
             witnessCapsule.setIsJobs(true);
             manager.getWitnessStore().put(keyAddress, witnessCapsule);
           });

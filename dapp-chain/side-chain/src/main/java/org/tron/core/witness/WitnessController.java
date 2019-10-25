@@ -329,16 +329,14 @@ public class WitnessController {
       });
 
       countWitness.forEach((address, voteCount) -> {
-        final WitnessCapsule witnessCapsule = witnessStore
-            .get(StringUtil.createDbKey(address));
+        final WitnessCapsule witnessCapsule = witnessStore.get(StringUtil.createDbKey(address));
         if (null == witnessCapsule) {
           logger.warn("witnessCapsule is null.address is {}",
               StringUtil.createReadableString(address));
           return;
         }
 
-        AccountCapsule witnessAccountCapsule = accountStore
-            .get(StringUtil.createDbKey(address));
+        AccountCapsule witnessAccountCapsule = accountStore.get(StringUtil.createDbKey(address));
         if (witnessAccountCapsule == null) {
           logger.warn(
               "witnessAccount[" + StringUtil.createReadableString(address) + "] not exists");
@@ -390,16 +388,18 @@ public class WitnessController {
     if (manager.getDynamicPropertiesStore().getRemoveThePowerOfTheGr() == 1) {
 
       WitnessStore witnessStore = manager.getWitnessStore();
+      int GrNum = manager.getDynamicPropertiesStore().getWitnessMaxActiveNum();
+      Args.getInstance().getGenesisBlock().getWitnesses().subList(0, GrNum)
+          .forEach(witnessInGenesisBlock -> {
+            WitnessCapsule witnessCapsule = witnessStore.get(witnessInGenesisBlock.getAddress());
+            if (Objects.nonNull(witnessCapsule)) {
+              witnessCapsule
+                  .setVoteCount(
+                      witnessCapsule.getVoteCount() - witnessInGenesisBlock.getVoteCount());
 
-      Args.getInstance().getGenesisBlock().getWitnesses().forEach(witnessInGenesisBlock -> {
-        WitnessCapsule witnessCapsule = witnessStore.get(witnessInGenesisBlock.getAddress());
-        if (Objects.nonNull(witnessCapsule)) {
-          witnessCapsule
-              .setVoteCount(witnessCapsule.getVoteCount() - witnessInGenesisBlock.getVoteCount());
-
-          witnessStore.put(witnessCapsule.createDbKey(), witnessCapsule);
-        }
-      });
+              witnessStore.put(witnessCapsule.createDbKey(), witnessCapsule);
+            }
+          });
 
       manager.getDynamicPropertiesStore().saveRemoveThePowerOfTheGr(-1);
     }

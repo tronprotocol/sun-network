@@ -403,17 +403,16 @@ public class ProposalCreateActuator extends AbstractActuator {
         } else if (Integer.parseInt(entry.getValue()) > Args.getInstance().getGenesisBlock()
             .getWitnesses().size()) {
           throw new ContractValidateException(
-              "Bad chain parameter value, must greater than value");
-        } else if (Integer.parseInt(entry.getValue()) == dbManager.getDynamicPropertiesStore()
+              "Bad chain parameter value, must Less than Genesis Block Witnesses size");
+        } else if (Integer.parseInt(entry.getValue()) <= dbManager.getDynamicPropertiesStore()
             .getWitnessMaxActiveNum()) {
           throw new ContractValidateException(
-              "Bad chain parameter value, same as current value");
+              "Bad chain parameter value, must greater than current value {}");
         }
         break;
       }
       default:
-        throw new ContractValidateException(
-            "non-exist proposal number");
+        throw new ContractValidateException("non-exist proposal number");
     }
   }
 
