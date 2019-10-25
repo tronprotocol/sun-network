@@ -18,10 +18,14 @@ import org.tron.core.net.message.EventNetMessage;
 import org.tron.core.net.message.TronMessage;
 import org.tron.core.net.peer.PeerConnection;
 import org.tron.protos.Sidechain.EventNetMsg;
+import org.tron.service.eventactuator.Actuator;
+import org.tron.service.eventactuator.EventActuatorFactory;
+import org.tron.service.task.CreateTransactionTask;
 
 @Slf4j(topic = "net")
 @Component
 public class EventHandler implements TronMsgHandler {
+  private int oracleNumbers = 4;
 
   private final ExecutorService eventProcessor = Executors.newFixedThreadPool(SystemSetting.CREATE_POOL_SIZE);
 
@@ -31,18 +35,19 @@ public class EventHandler implements TronMsgHandler {
   @Override
   public void processMessage(PeerConnection peer, TronMessage msg) throws P2pException {
     EventNetMessage message = (EventNetMessage) msg;
-    EventNetMsg eventNetMsg = message.getEventNetMsg();
-
-    eventProcessor.submit(() -> checkAndStoreSignedMessage(eventNetMsg));
-
+    eventProcessor.submit(() -> processMessageByThread(message));
   }
 
-  public void checkAndStoreSignedMessage(EventNetMsg eventNetMsg){
+  public void processMessageByThread(EventNetMessage eventNetMessage){
     try {
       if(!validateSignature()){
         return;
       }
-      eventMapManager.addEventNetMessage(eventNetMsg);
+      String key = eventMapManager.addEventNetMessage(eventNetMessage);
+      if (eventMapManager.eventMap.get(key).size() == oracleNumbers * 2 / 3) {
+        Actuator eventActuator = EventActuatorFactory.CreateActuatorByEventMap(eventMapManager.eventMap.get(key));
+        CreateTransactionTask.getInstance().submitCreate(eventActuator, 0);
+      }
     }
     catch (Exception e) {
       //TODO exception handling

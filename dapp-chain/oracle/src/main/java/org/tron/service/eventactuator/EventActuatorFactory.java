@@ -2,11 +2,16 @@ package org.tron.service.eventactuator;
 
 import com.google.protobuf.Any;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.tron.common.config.Args;
+import org.tron.core.net.EventMapManager;
+import org.tron.core.net.message.EventNetMessage;
 import org.tron.service.eventactuator.mainchain.DepositTRC10Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC20Actuator;
 import org.tron.service.eventactuator.mainchain.DepositTRC721Actuator;
@@ -46,6 +51,10 @@ public class EventActuatorFactory {
       logger.error("{}", e);
       return null;
     }
+    return null;
+  }
+
+  public static Actuator CreateActuatorByEventMap(ArrayList<EventNetMessage> list) {
     return null;
   }
 

@@ -31,7 +31,7 @@ public class CreateTransactionTask {
   private final TransactionExtensionStore transactionExtensionStore = TransactionExtensionStore
       .getInstance();
 
-  void submitCreate(Actuator eventActuator, long delay) {
+  public void submitCreate(Actuator eventActuator, long delay) {
     if (logger.isInfoEnabled()) {
       logger.info("create tx task submit check nonceKey is {}  ",
           ByteArray.toStr(eventActuator.getNonceKey()));
@@ -44,7 +44,7 @@ public class CreateTransactionTask {
     try {
       if (!Manager.getInstance().setProcessProcessing(eventActuator.getNonceKey(),
           eventActuator.getMessage().toByteArray(), eventActuator.getRetryTimes())) {
-        logger.info("createTransaction setProcessProcessing fail, return, nouce = {}", ByteArray.toStr(eventActuator.getNonceKey()));
+        logger.info("createTransaction setProcessProcessing fail, return, nonce = {}", ByteArray.toStr(eventActuator.getNonceKey()));
         return;
       }
 
@@ -69,7 +69,7 @@ public class CreateTransactionTask {
 
       }
     } catch (Exception e) {
-      logger.error("createTransaction catch error! nouce = {}", ByteArray.toStr(eventActuator.getNonceKey()), e);
+      logger.error("createTransaction catch error! nonce = {}", ByteArray.toStr(eventActuator.getNonceKey()), e);
       Manager.getInstance().setProcessFail(eventActuator.getNonceKey(), eventActuator.getRetryTimes());
     }
   }
