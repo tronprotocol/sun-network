@@ -1,4 +1,4 @@
-package org.tron.service.eventmsgactuator.mainchain;
+package org.tron.service.eventactuator.msgactuator.mainchain;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
@@ -15,31 +15,31 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.EventMsg.TaskEnum;
-import org.tron.protos.Sidechain.MappingTRC721Event;
+import org.tron.protos.Sidechain.MappingTRC20Event;
 import org.tron.service.capsule.TransactionExtensionCapsule;
-import org.tron.service.eventmsgactuator.MsgActuator;
+import org.tron.service.eventactuator.MsgActuator;
 
 @Slf4j(topic = "mainChainTask")
-public class MappingTRC721MsgActuator extends MsgActuator {
+public class MappingTRC20MsgActuator extends MsgActuator {
 
   private static final String NONCE_TAG = "mapping_";
 
-  private MappingTRC721Event event;
+  private MappingTRC20Event event;
   @Getter
-  private EventType type = EventType.MAPPING_TRC721;
+  private EventType type = EventType.MAPPING_TRC20;
   @Getter
   private TaskEnum taskEnum = TaskEnum.SIDE_CHAIN;
 
-  public MappingTRC721MsgActuator(String contractAddress, String nonce) {
+  public MappingTRC20MsgActuator(String contractAddress, String nonce) {
     ByteString contractAddressBS = ByteString
         .copyFrom(WalletUtil.decodeFromBase58Check(contractAddress));
     ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
-    this.event = MappingTRC721Event.newBuilder().setContractAddress(contractAddressBS)
-        .setContractAddress(contractAddressBS).setNonce(nonceBS).build();
+    this.event = MappingTRC20Event.newBuilder().setContractAddress(contractAddressBS)
+        .setNonce(nonceBS).build();
   }
 
-  public MappingTRC721MsgActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
-    this.event = eventMsg.getParameter().unpack(MappingTRC721Event.class);
+  public MappingTRC20MsgActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
+    this.event = eventMsg.getParameter().unpack(MappingTRC20Event.class);
   }
 
   @Override
@@ -52,15 +52,15 @@ public class MappingTRC721MsgActuator extends MsgActuator {
           .encode58Check(event.getContractAddress().toByteArray());
       String nonceStr = event.getNonce().toStringUtf8();
 
+      long trcDecimals = MainChainGatewayApi.getTRCDecimals(contractAddressStr);
       String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
       String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
       logger.info(
-          "MappingTRC721Event, contractAddress: {}, trcName: {}, trcSymbol: {}, nonce: {}.",
-          contractAddressStr, trcName, trcSymbol, nonceStr);
+          "MappingTRC20Event, contractAddress: {}, trcName: {}, trcSymbol: {}, trcDecimals: {}, nonce: {}.",
+          contractAddressStr, trcName, trcSymbol, trcDecimals, nonceStr);
 
       Transaction tx = SideChainGatewayApi
-          .multiSignForMappingTRC721(contractAddressStr, trcName, trcSymbol,
-              nonceStr);
+          .multiSignForMappingTRC20(contractAddressStr, trcName, trcSymbol, trcDecimals, nonceStr);
       this.transactionExtensionCapsule = new TransactionExtensionCapsule(NONCE_TAG + nonceStr, tx,
           0);
       return CreateRet.SUCCESS;
@@ -86,7 +86,6 @@ public class MappingTRC721MsgActuator extends MsgActuator {
     return event.getNonce().toByteArray();
   }
 
-
   @Override
   public EventNetMessage generateSignedEventMsg() {
 
@@ -94,10 +93,13 @@ public class MappingTRC721MsgActuator extends MsgActuator {
         .encode58Check(event.getContractAddress().toByteArray());
     String nonceStr = event.getNonce().toStringUtf8();
 
+    long trcDecimals = MainChainGatewayApi.getTRCDecimals(contractAddressStr);
     String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
     String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
     return SideChainGatewayApi
-        .getMappingTRC721SignMsg(contractAddressStr, trcName, trcSymbol, nonceStr, getMessage());
+        .getMappingTRC20SignMsg(contractAddressStr, trcName, trcSymbol, trcDecimals, nonceStr,
+            getMessage());
 
   }
+
 }

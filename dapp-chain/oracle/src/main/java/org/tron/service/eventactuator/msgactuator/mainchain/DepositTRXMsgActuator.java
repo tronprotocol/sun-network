@@ -1,4 +1,4 @@
-package org.tron.service.eventmsgactuator.mainchain;
+package org.tron.service.eventactuator.msgactuator.mainchain;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
@@ -16,7 +16,7 @@ import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.service.capsule.TransactionExtensionCapsule;
-import org.tron.service.eventmsgactuator.MsgActuator;
+import org.tron.service.eventactuator.MsgActuator;
 
 @Slf4j(topic = "mainChainTask")
 public class DepositTRXMsgActuator extends MsgActuator {

@@ -1,4 +1,4 @@
-package org.tron.service.eventmsgactuator.sidechain;
+package org.tron.service.eventactuator.msgactuator.sidechain;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
@@ -14,31 +14,32 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.EventMsg.TaskEnum;
-import org.tron.protos.Sidechain.WithdrawTRC10Event;
+import org.tron.protos.Sidechain.WithdrawTRC721Event;
 import org.tron.service.capsule.TransactionExtensionCapsule;
-import org.tron.service.eventmsgactuator.MsgActuator;
+import org.tron.service.eventactuator.MsgActuator;
 
 @Slf4j(topic = "sideChainTask")
-public class WithdrawTRC10MsgActuator extends MsgActuator {
+public class WithdrawTRC721MsgActuator extends MsgActuator {
 
   private static final String PREFIX = "withdraw_1_";
-  private WithdrawTRC10Event event;
+  private WithdrawTRC721Event event;
   @Getter
-  private EventType type = EventType.WITHDRAW_TRC10_EVENT;
+  private EventType type = EventType.WITHDRAW_TRC721_EVENT;
   @Getter
   private TaskEnum taskEnum = TaskEnum.SIDE_CHAIN;
 
-  public WithdrawTRC10MsgActuator(String from, String tokenId, String value, String nonce) {
+  public WithdrawTRC721MsgActuator(String from, String mainChainAddress, String uId, String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
-    ByteString tokenIdBS = ByteString.copyFrom(ByteArray.fromString(tokenId));
-    ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
+    ByteString mainChainAddressBS = ByteString
+        .copyFrom(WalletUtil.decodeFromBase58Check(mainChainAddress));
+    ByteString uIdBS = ByteString.copyFrom(ByteArray.fromString(uId));
     ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
-    this.event = WithdrawTRC10Event.newBuilder().setFrom(fromBS).setTokenId(tokenIdBS)
-        .setValue(valueBS).setNonce(nonceBS).build();
+    this.event = WithdrawTRC721Event.newBuilder().setFrom(fromBS)
+        .setMainchainAddress(mainChainAddressBS).setUId(uIdBS).setNonce(nonceBS).build();
   }
 
-  public WithdrawTRC10MsgActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
-    this.event = eventMsg.getParameter().unpack(WithdrawTRC10Event.class);
+  public WithdrawTRC721MsgActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
+    this.event = eventMsg.getParameter().unpack(WithdrawTRC721Event.class);
   }
 
   @Override
@@ -48,16 +49,17 @@ public class WithdrawTRC10MsgActuator extends MsgActuator {
     }
     try {
       String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
-      String tokenIdStr = event.getTokenId().toStringUtf8();
-      String valueStr = event.getValue().toStringUtf8();
+      String mainChainAddressStr = WalletUtil
+          .encode58Check(event.getMainchainAddress().toByteArray());
+      String uIdStr = event.getUId().toStringUtf8();
       String nonceStr = event.getNonce().toStringUtf8();
 
       logger
-          .info("WithdrawTRC10Actuator, from: {}, tokenId: {}, value: {}, nonce: {}", fromStr,
-              tokenIdStr, valueStr, nonceStr);
-
+          .info("WithdrawTRC721Actuator, from: {}, mainChainAddress: {}, uId: {}, nonce: {}",
+              fromStr,
+              mainChainAddressStr, uIdStr, nonceStr);
       Transaction tx = SideChainGatewayApi
-          .withdrawTRC10Transaction(fromStr, tokenIdStr, valueStr, nonceStr);
+          .withdrawTRC721Transaction(fromStr, mainChainAddressStr, uIdStr, nonceStr);
       this.transactionExtensionCapsule = new TransactionExtensionCapsule(PREFIX + nonceStr, tx, 0);
       return CreateRet.SUCCESS;
     } catch (Exception e) {
@@ -86,12 +88,12 @@ public class WithdrawTRC10MsgActuator extends MsgActuator {
   public EventNetMessage generateSignedEventMsg() {
 
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
-    String tokenIdStr = event.getTokenId().toStringUtf8();
-    String valueStr = event.getValue().toStringUtf8();
+    String mainchainAddressStr = WalletUtil
+        .encode58Check(event.getMainchainAddress().toByteArray());
+    String valueStr = event.getUId().toStringUtf8();
     String nonceStr = event.getNonce().toStringUtf8();
     return SideChainGatewayApi
-        .getTRC10SignMsg(fromStr, tokenIdStr, valueStr, nonceStr, getMessage());
+        .getTRCSignMsg(fromStr, mainchainAddressStr, valueStr, nonceStr, getMessage());
   }
 
 }
-

@@ -1,4 +1,4 @@
-package org.tron.service.eventmsgactuator.sidechain;
+package org.tron.service.eventactuator.msgactuator.mainchain;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
@@ -11,33 +11,37 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
 import org.tron.core.net.message.EventNetMessage;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.Sidechain.DepositTRC20Event;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.EventMsg.TaskEnum;
-import org.tron.protos.Sidechain.WithdrawTRXEvent;
 import org.tron.service.capsule.TransactionExtensionCapsule;
-import org.tron.service.eventmsgactuator.MsgActuator;
+import org.tron.service.eventactuator.MsgActuator;
 
-@Slf4j(topic = "sideChainTask")
-public class WithdrawTRXMsgActuator extends MsgActuator {
+@Slf4j(topic = "mainChainTask")
+public class DepositTRC20MsgActuator extends MsgActuator {
 
-  private static final String PREFIX = "withdraw_1_";
-  private WithdrawTRXEvent event;
+  private static final String NONCE_TAG = "deposit_";
+
+  private DepositTRC20Event event;
   @Getter
-  private EventType type = EventType.WITHDRAW_TRX_EVENT;
+  private EventType type = EventType.DEPOSIT_TRC20_EVENT;
   @Getter
   private TaskEnum taskEnum = TaskEnum.SIDE_CHAIN;
 
-  public WithdrawTRXMsgActuator(String from, String value, String nonce) {
+  public DepositTRC20MsgActuator(String from, String contractAddress, String value,
+      String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
     ByteString valueBS = ByteString.copyFrom(ByteArray.fromString(value));
+    ByteString contractAddressBS = ByteString
+        .copyFrom(WalletUtil.decodeFromBase58Check(contractAddress));
     ByteString nonceBS = ByteString.copyFrom(ByteArray.fromString(nonce));
-    this.event = WithdrawTRXEvent.newBuilder().setFrom(fromBS).setValue(valueBS).setNonce(nonceBS)
-        .build();
+    this.event = DepositTRC20Event.newBuilder().setFrom(fromBS).setValue(valueBS)
+        .setContractAddress(contractAddressBS).setNonce(nonceBS).build();
   }
 
-  public WithdrawTRXMsgActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
-    this.event = eventMsg.getParameter().unpack(WithdrawTRXEvent.class);
+  public DepositTRC20MsgActuator(EventMsg eventMsg) throws InvalidProtocolBufferException {
+    this.event = eventMsg.getParameter().unpack(DepositTRC20Event.class);
   }
 
   @Override
@@ -47,15 +51,18 @@ public class WithdrawTRXMsgActuator extends MsgActuator {
     }
     try {
       String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+      String contractAddressStr = WalletUtil
+          .encode58Check(event.getContractAddress().toByteArray());
       String valueStr = event.getValue().toStringUtf8();
       String nonceStr = event.getNonce().toStringUtf8();
 
-      logger
-          .info("WithdrawTRXActuator, from: {}, value: {}, nonce: {}", fromStr, valueStr, nonceStr);
+      logger.info("DepositTRC20Actuator, from: {}, value: {}, contractAddress: {}, nonce: {}",
+          fromStr, valueStr, contractAddressStr, nonceStr);
 
       Transaction tx = SideChainGatewayApi
-          .withdrawTRXTransaction(fromStr, valueStr, nonceStr);
-      this.transactionExtensionCapsule = new TransactionExtensionCapsule(PREFIX + nonceStr, tx, 0);
+          .mintToken20Transaction(fromStr, contractAddressStr, valueStr, nonceStr);
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(NONCE_TAG + nonceStr, tx,
+          0);
       return CreateRet.SUCCESS;
     } catch (Exception e) {
       logger.error("when create transaction extension capsule", e);
@@ -71,7 +78,7 @@ public class WithdrawTRXMsgActuator extends MsgActuator {
 
   @Override
   public byte[] getNonceKey() {
-    return ByteArray.fromString(PREFIX + event.getNonce().toStringUtf8());
+    return ByteArray.fromString(NONCE_TAG + event.getNonce().toStringUtf8());
   }
 
   @Override
@@ -83,8 +90,12 @@ public class WithdrawTRXMsgActuator extends MsgActuator {
   public EventNetMessage generateSignedEventMsg() {
 
     String fromStr = WalletUtil.encode58Check(event.getFrom().toByteArray());
+    String contractAddressStr = WalletUtil
+        .encode58Check(event.getContractAddress().toByteArray());
     String valueStr = event.getValue().toStringUtf8();
     String nonceStr = event.getNonce().toStringUtf8();
-    return SideChainGatewayApi.getTRXSignMsg(fromStr, valueStr, nonceStr, getMessage());
+    return SideChainGatewayApi
+        .getTRCSignMsg(fromStr, contractAddressStr, valueStr, nonceStr, getMessage());
   }
+
 }
