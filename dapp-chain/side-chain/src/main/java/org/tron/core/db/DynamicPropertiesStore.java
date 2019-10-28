@@ -838,12 +838,6 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     } catch (IllegalArgumentException e) {
       this.savePercentToPayWitness(Args.getInstance().getPercentToPayWitness());
     }
-
-    try {
-      this.getWitnessMaxActiveNum();
-    } catch (IllegalArgumentException e) {
-      this.saveWitnessMaxActiveNum(Args.getInstance().getWitnessMaxActiveNum());
-    }
   }
 
   public String intArrayToString(int[] a) {
@@ -955,8 +949,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     if (!Wallet.addressValid(address)) {
       throw new IllegalArgumentException("given chainId is not valid");
     }
-    this.put(SIDE_CHAIN_ID,
-        new BytesCapsule(address));
+    this.put(SIDE_CHAIN_ID, new BytesCapsule(address));
   }
 
   public long getChargingSwitch() {
@@ -968,8 +961,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public void saveChargingSwitch(long num) {
-    this.put(CHARGING_SWITCH,
-        new BytesCapsule(ByteArray.fromLong(num)));
+    this.put(CHARGING_SWITCH, new BytesCapsule(ByteArray.fromLong(num)));
   }
 
   public int getSideChainChargingType() {
@@ -981,8 +973,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public void saveSideChainChargingType(long num) {
-    this.put(SIDE_CHAIN_CHARGING_TYPE,
-        new BytesCapsule(ByteArray.fromLong(num)));
+    this.put(SIDE_CHAIN_CHARGING_TYPE, new BytesCapsule(ByteArray.fromLong(num)));
   }
 
   public long getSideChainChargingBandwidth() {
@@ -994,8 +985,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public void saveSideChainChargingBandwidth(long num) {
-    this.put(SIDE_CHAIN_CHARGING_BANDWIDTH,
-        new BytesCapsule(ByteArray.fromLong(num)));
+    this.put(SIDE_CHAIN_CHARGING_BANDWIDTH, new BytesCapsule(ByteArray.fromLong(num)));
   }
 
   public int getVoteWitnessSwitch() {
@@ -1007,8 +997,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public void saveVoteWitnessSwitch(long num) {
-    this.put(VOTE_WITNESS_SWITCH,
-        new BytesCapsule(ByteArray.fromLong(num)));
+    this.put(VOTE_WITNESS_SWITCH, new BytesCapsule(ByteArray.fromLong(num)));
   }
 
   public long getMaxGateWayContractSize() {
@@ -1020,8 +1009,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public void saveMaxGateWayContractSize(long num) {
-    this.put(MAX_GATE_WAY_CONTRACT_SIZE,
-        new BytesCapsule(ByteArray.fromLong(num)));
+    this.put(MAX_GATE_WAY_CONTRACT_SIZE, new BytesCapsule(ByteArray.fromLong(num)));
   }
 
   public long getFund() {
@@ -1033,8 +1021,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public void saveFund(long num) {
-    this.put(FUND,
-        new BytesCapsule(ByteArray.fromLong(num)));
+    this.put(FUND, new BytesCapsule(ByteArray.fromLong(num)));
   }
 
   public byte[] getFundInjectAddress() {
@@ -1045,8 +1032,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public void saveFundInjectAddress(byte[] address) {
-    this.put(FUND_INJECT_ADDRESS,
-        new BytesCapsule(address));
+    this.put(FUND_INJECT_ADDRESS, new BytesCapsule(address));
   }
 
 
@@ -1093,8 +1079,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     return Optional.ofNullable(getUnchecked(WITNESS_MAX_ACTIVE_NUM))
         .map(BytesCapsule::getData)
         .map(ByteArray::toInt)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found WITNESS_MAX_ACTIVE_NUM"));
+        .orElse(Args.getInstance().getWitnessMaxActiveNum());
   }
 
   public void saveWitnessMaxActiveNum(int witnessMaxActiveNum) {
