@@ -675,6 +675,7 @@ public class Withdrawfee001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(deposittrx, blockingStubFull);
     Assert.assertNotNull(deposittrx);
+    logger.info("contractResult:"+ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertEquals("SUCESS", infoById.get().getResult().name());
 

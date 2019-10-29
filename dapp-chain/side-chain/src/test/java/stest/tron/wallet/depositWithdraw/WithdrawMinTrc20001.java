@@ -221,6 +221,7 @@ public class WithdrawMinTrc20001 {
 
     Optional<TransactionInfo> infodeposittrx = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
+    logger.info("contractResult:"+ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, infodeposittrx.get().getResultValue());
 
     String sideChainTxid = PublicMethed
