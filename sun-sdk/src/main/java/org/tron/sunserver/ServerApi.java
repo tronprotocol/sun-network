@@ -92,7 +92,7 @@ import org.tron.sunapi.response.TransactionResponse;
 public class ServerApi {
 
   private byte[] address;
-  private static byte addressPreFixByte = CommonConstant.ADD_PRE_FIX_BYTE_TESTNET;
+  private static byte addressPreFixByte = CommonConstant.ADD_PRE_FIX_BYTE_MAINNET;
   private static int rpcVersion = 0;
   private static int sideRpcVersion = 0;
   @Getter

@@ -4,9 +4,11 @@ import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.spongycastle.util.encoders.Hex;
 import org.tron.common.crypto.Sha256Hash;
 import org.tron.core.config.Parameter.CommonConstant;
 import org.tron.sunserver.ServerApi;
+
 
 @Slf4j
 public class AddressUtil {
@@ -35,6 +37,21 @@ public class AddressUtil {
 
   public static boolean addressValid(String check58Address) {
     return addressValid(decodeFromBase58Check(check58Address));
+  }
+
+  public static String toTron58Address(ByteString input){
+    return toTron58Address(input.toByteArray());
+  }
+
+  public static String toTron58Address(byte[] input) {
+    byte[] bytes = new byte[21];
+    bytes[0] = ServerApi.getAddressPreFixByte();
+    if (input.length >= 20){
+      System.arraycopy(input, input.length - 20, bytes, 1, 20);
+    }else{
+      System.arraycopy(input, 0, bytes, 21 - input.length, input.length);
+    }
+    return encode58Check(bytes);
   }
 
   public static String encode58Check(ByteString input) {
@@ -80,4 +97,8 @@ public class AddressUtil {
     return address;
   }
 
+  public static void main(String[] args){
+    System.out.println(toTron58Address(ByteArray.fromHexString("fff11001")));
+    System.out.println(toTron58Address(ByteArray.fromHexString("4100000000000000000000000000000000fff11001")));
+  }
 }
