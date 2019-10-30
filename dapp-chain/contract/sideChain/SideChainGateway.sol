@@ -67,6 +67,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
 
     WithdrawMsg[] userWithdrawList;
 
+    address updateOwnerContract = address(0x10002);
+
     struct SignMsg {
         mapping(address => bool) oracleSigned;
         bytes[] signs;
@@ -144,6 +146,18 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         }
     }
 
+    // 1. deployDAppTRC20AndMapping
+    function multiSignForDeployDAppTRC20AndMapping(address mainChainAddress, string memory name,
+        string memory symbol, uint8 decimals, address contractOwner, uint256 nonce)
+    public goDelegateCall onlyNotStop onlyOracle
+    {
+        require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
+        bool needMapping = multiSignForMapping(nonce);
+        if (needMapping) {
+            deployDAppTRC20AndMapping(mainChainAddress, name, symbol, decimals, contractOwner, nonce);
+        }
+    }
+
     function deployDAppTRC20AndMapping(address mainChainAddress, string memory name,
         string memory symbol, uint8 decimals, uint256 nonce) internal
     {
@@ -155,9 +169,32 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         mainContractList.push(mainChainAddress);
     }
 
+    function deployDAppTRC20AndMapping(address mainChainAddress, string memory name,
+        string memory symbol, uint8 decimals, address contractOwner, uint256 nonce) internal
+    {
+        require(mainToSideContractMap[mainChainAddress] == address(0), "TRC20 contract is mapped");
+        address sideChainAddress = address(new DAppTRC20(address(this), name, symbol, decimals));
+        updateOwnerContract.call(abi.encode(sideChainAddress, contractOwner));
+        mainToSideContractMap[mainChainAddress] = sideChainAddress;
+        sideToMainContractMap[sideChainAddress] = mainChainAddress;
+        emit DeployDAppTRC20AndMapping(mainChainAddress, sideChainAddress, nonce);
+        mainContractList.push(mainChainAddress);
+    }
     // 2. deployDAppTRC721AndMapping
     function multiSignForDeployDAppTRC721AndMapping(address mainChainAddress, string memory name,
         string memory symbol, uint256 nonce)
+    public goDelegateCall onlyNotStop onlyOracle
+    {
+        require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
+        bool needMapping = multiSignForMapping(nonce);
+        if (needMapping) {
+            deployDAppTRC721AndMapping(mainChainAddress, name, symbol, nonce);
+        }
+    }
+
+    // 2. deployDAppTRC721AndMapping
+    function multiSignForDeployDAppTRC721AndMapping(address mainChainAddress, string memory name,
+        string memory symbol, address contractOwner, uint256 nonce)
     public goDelegateCall onlyNotStop onlyOracle
     {
         require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
@@ -172,6 +209,18 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
     {
         require(mainToSideContractMap[mainChainAddress] == address(0), "TRC721 contract is mapped");
         address sideChainAddress = address(new DAppTRC721(address(this), name, symbol));
+        mainToSideContractMap[mainChainAddress] = sideChainAddress;
+        sideToMainContractMap[sideChainAddress] = mainChainAddress;
+        emit DeployDAppTRC721AndMapping(mainChainAddress, sideChainAddress, nonce);
+        mainContractList.push(mainChainAddress);
+    }
+
+    function deployDAppTRC721AndMapping(address mainChainAddress, string memory name,
+        string memory symbol, address contractOwner, uint256 nonce) internal
+    {
+        require(mainToSideContractMap[mainChainAddress] == address(0), "TRC721 contract is mapped");
+        address sideChainAddress = address(new DAppTRC721(address(this), name, symbol));
+        updateOwnerContract.call(abi.encode(sideChainAddress, contractOwner));
         mainToSideContractMap[mainChainAddress] = sideChainAddress;
         sideToMainContractMap[sideChainAddress] = mainChainAddress;
         emit DeployDAppTRC721AndMapping(mainChainAddress, sideChainAddress, nonce);
