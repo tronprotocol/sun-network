@@ -564,6 +564,10 @@ public class Manager {
       logger.error("genesisBlockWitnessesSize must greater than witnessMaxActiveNum");
       System.exit(1);
     }
+    if (args.getWitnessMaxActiveNum() <= 0) {
+      logger.error("getWitnessMaxActiveNum must greater than zero");
+      System.exit(1);
+    }
     List<Witness> witnessList = genesisBlockArgWitnesses.subList(0, args.getWitnessMaxActiveNum());
     witnessList.forEach(key -> {
       byte[] keyAddress = key.getAddress();
