@@ -3,7 +3,6 @@ package org.tron.common.runtime.vm;
 import com.google.protobuf.ByteString;
 import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
 import org.testng.Assert;
@@ -49,13 +48,15 @@ public class UpdateContractOwnerTest extends VMTestBase {
         Wallet.encode58Check(updateOwnerKey.getAddress())
     )));
 
-    Pair<Boolean, byte[]> ret = contract.execute(input);
+    contract.execute(input);
 
     Assert.assertEquals(
         Arrays.equals(rootDeposit.getContract(contractAddressKey.getAddress()).getOriginAddress(),
             updateOwnerKey.getAddress())
         , true
     );
+
+    Assert.assertNotNull(rootDeposit.getAccount(updateOwnerKey.getAddress()));
 
 
   }
