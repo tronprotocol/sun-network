@@ -78,6 +78,7 @@ import org.tron.core.actuator.VoteWitnessActuator;
 import org.tron.core.actuator.WithdrawBalanceActuator;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.AssetIssueCapsule;
+import org.tron.core.capsule.ContractCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.config.args.Args;
 import org.tron.core.exception.ContractExeException;
@@ -109,6 +110,7 @@ public class PrecompiledContracts {
   private static final Mine mine = new Mine();
   private static final MineToken mineToken = new MineToken();
   private static final MultiValidateSign multiValidateSign = new MultiValidateSign();
+  private static final UpdateContractOwner updateContractOwner = new UpdateContractOwner();
 
   private static final ECKey addressCheckECKey = new ECKey();
   private static final String addressCheckECKeyAddress = Wallet
@@ -118,6 +120,8 @@ public class PrecompiledContracts {
       "0000000000000000000000000000000000000000000000000000000000010000");
   private static final DataWord mineTokenAddr = new DataWord(
       "0000000000000000000000000000000000000000000000000000000000010001");
+  private static final DataWord updateContractOwnerAddr = new DataWord(
+      "0000000000000000000000000000000000000000000000000000000000010002");
   private static final DataWord ecRecoverAddr = new DataWord(
       "0000000000000000000000000000000000000000000000000000000000000001");
   private static final DataWord sha256Addr = new DataWord(
@@ -147,6 +151,9 @@ public class PrecompiledContracts {
     }
     if (address.equals(mineTokenAddr)) {
       return mineToken;
+    }
+    if (address.equals(updateContractOwnerAddr)) {
+      return updateContractOwner;
     }
     if (address.equals(ecRecoverAddr)) {
       return ecRecover;
@@ -368,6 +375,43 @@ public class PrecompiledContracts {
       return Pair.of(true, EMPTY_BYTE_ARRAY);
     }
   }
+
+
+  public static class UpdateContractOwner extends PrecompiledContract {
+
+    @Override
+    public long getEnergyForData(byte[] data) {
+      return 0;
+    }
+
+    @Override
+    public Pair<Boolean, byte[]> execute(byte[] data) {
+      List<byte[]> gatewayList = this.getDeposit().getSideChainGateWayList();
+      boolean match = false;
+      for (byte[] gateway: gatewayList) {
+        if (ByteUtil.equals(gateway, this.getCallerAddress())) {
+          match = true;
+          break;
+        }
+      }
+      if (!match) {
+        logger.error("[mine method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
+        throw new PrecompiledContractException("[mine method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
+      }
+      byte[] contractAddress = MUtil.convertToTronAddress(new DataWord(Arrays.copyOf(data, 32)).getLast20Bytes());
+      byte[] ownerAddress = MUtil.convertToTronAddress( new DataWord(Arrays.copyOfRange(data,32,64)).getLast20Bytes());
+      ContractCapsule contract = this.getDeposit().getContract(contractAddress);
+      if(Objects.nonNull(contract)){
+        contract.setOriginAddress(ownerAddress);
+      }
+      this.getDeposit().updateContract(contractAddress,contract);
+
+
+      return Pair.of(true, EMPTY_BYTE_ARRAY);
+    }
+  }
+
+
 
   public static class Identity extends PrecompiledContract {
 
