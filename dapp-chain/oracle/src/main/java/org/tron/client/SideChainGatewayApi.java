@@ -187,23 +187,24 @@ public class SideChainGatewayApi {
   }
 
   public static Transaction multiSignForMappingTRC20(String contractAddressStr, String trcName,
-      String trcSymbol, long trcDecimals, String nonce) throws RpcConnectException {
+      String trcSymbol, long trcDecimals, String contractOwner, String nonce)
+      throws RpcConnectException {
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "multiSignForDeployDAppTRC20AndMapping(address,string,string,uint8,uint256)";
+    String method = "multiSignForDeployDAppTRC20AndMapping(address,string,string,uint8,address,uint256)";
     List params = Arrays
-        .asList(contractAddressStr, trcName, trcSymbol, trcDecimals, nonce);
+        .asList(contractAddressStr, trcName, trcSymbol, trcDecimals, contractOwner, nonce);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
   public static Transaction multiSignForMappingTRC721(String contractAddressStr, String trcName,
-      String trcSymbol, String nonce) throws RpcConnectException {
+      String trcSymbol, String contractOwner, String nonce) throws RpcConnectException {
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "multiSignForDeployDAppTRC721AndMapping(address,string,string,uint256)";
+    String method = "multiSignForDeployDAppTRC721AndMapping(address,string,string,address,uint256)";
     List params = Arrays
-        .asList(contractAddressStr, trcName, trcSymbol, nonce);
+        .asList(contractAddressStr, trcName, trcSymbol, contractOwner, nonce);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
