@@ -395,8 +395,8 @@ public class PrecompiledContracts {
         }
       }
       if (!match) {
-        logger.error("[mine method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
-        throw new PrecompiledContractException("[mine method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
+        logger.error("[updatecontractowner method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
+        throw new PrecompiledContractException("[updatecontractowner method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
       }
       byte[] contractAddress = MUtil.convertToTronAddress(new DataWord(Arrays.copyOf(data, 32)).getLast20Bytes());
       byte[] ownerAddress = MUtil.convertToTronAddress( new DataWord(Arrays.copyOfRange(data,32,64)).getLast20Bytes());
