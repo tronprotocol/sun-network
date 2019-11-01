@@ -90,7 +90,7 @@ public class PrecompiledContracts {
   private static final BN128Pairing altBN128Pairing = new BN128Pairing();
   private static final Mine mine = new Mine();
   private static final MineToken mineToken = new MineToken();
-  private static final MultiValidateSign multiValidateSign = new MultiValidateSign();
+  private static final BatchValidateSign batchValidateSign = new BatchValidateSign();
   private static final UpdateContractOwner updateContractOwner = new UpdateContractOwner();
 
   private static final ECKey addressCheckECKey = new ECKey();
@@ -119,7 +119,7 @@ public class PrecompiledContracts {
       "0000000000000000000000000000000000000000000000000000000000000007");
   private static final DataWord altBN128PairingAddr = new DataWord(
       "0000000000000000000000000000000000000000000000000000000000000008");
-  private static final DataWord multiValidateSignAddr = new DataWord(
+  private static final DataWord batchValidateSignAddr = new DataWord(
       "0000000000000000000000000000000000000000000000000000000000000009");
 
   public static PrecompiledContract getContractForAddress(DataWord address) {
@@ -161,8 +161,8 @@ public class PrecompiledContracts {
     if (address.equals(altBN128PairingAddr)) {
       return altBN128Pairing;
     }
-    if (address.equals(multiValidateSignAddr)) {
-      return multiValidateSign;
+    if (address.equals(batchValidateSignAddr)) {
+      return batchValidateSign;
     }
     return null;
   }
@@ -252,15 +252,7 @@ public class PrecompiledContracts {
       if (data == null || data.length != 5 * DataWord.WORD_SIZE) {
         return Pair.of(false, new DataWord(0).getData());
       }
-      List<byte[]> gatewayList = this.getDeposit().getSideChainGateWayList();
-      boolean match = false;
-      for (byte[] gateway : gatewayList) {
-        if (ByteUtil.equals(gateway, this.getCallerAddress())) {
-          match = true;
-          break;
-        }
-      }
-      if (!match) {
+      if (!checkInGatewayList(this.getCallerAddress(), getDeposit())) {
         logger.error("[mineToken method]caller must be gateway, caller: %s",
             Wallet.encode58Check(this.getCallerAddress()));
         throw new PrecompiledContractException(
@@ -340,15 +332,8 @@ public class PrecompiledContracts {
 
     @Override
     public Pair<Boolean, byte[]> execute(byte[] data) {
-      List<byte[]> gatewayList = this.getDeposit().getSideChainGateWayList();
-      boolean match = false;
-      for (byte[] gateway : gatewayList) {
-        if (ByteUtil.equals(gateway, this.getCallerAddress())) {
-          match = true;
-          break;
-        }
-      }
-      if (!match) {
+
+      if (!checkInGatewayList(this.getCallerAddress(), getDeposit())) {
         logger.error("[mine method]caller must be gateway, caller: %s",
             Wallet.encode58Check(this.getCallerAddress()));
         throw new PrecompiledContractException("[mine method]caller must be gateway, caller: %s",
@@ -376,15 +361,7 @@ public class PrecompiledContracts {
 
     @Override
     public Pair<Boolean, byte[]> execute(byte[] data) {
-      List<byte[]> gatewayList = this.getDeposit().getSideChainGateWayList();
-      boolean match = false;
-      for (byte[] gateway : gatewayList) {
-        if (ByteUtil.equals(gateway, this.getCallerAddress())) {
-          match = true;
-          break;
-        }
-      }
-      if (!match) {
+      if (!checkInGatewayList(this.getCallerAddress(), getDeposit())) {
         logger.error("[updatecontractowner method]caller must be gateway, caller: %s",
             Wallet.encode58Check(this.getCallerAddress()));
         throw new PrecompiledContractException(
@@ -406,6 +383,7 @@ public class PrecompiledContracts {
       //if target account not exists
       AccountCapsule targetAccount = this.getDeposit().getAccount(ownerAddress);
       if (targetAccount == null) {
+        //side chain only mapping Normal account
         this.getDeposit().createAccount(ownerAddress, AccountType.Normal);
       }
       contract.setOriginAddress(ownerAddress);
@@ -837,7 +815,7 @@ public class PrecompiledContracts {
   }
 
 
-  public static class MultiValidateSign extends PrecompiledContract {
+  public static class BatchValidateSign extends PrecompiledContract {
 
     private static final ExecutorService workers;
     private static final int ENGERYPERSIGN = 1500;
@@ -990,5 +968,18 @@ public class PrecompiledContracts {
     private static byte[] extractBytes(byte[] data, int offset, int len) {
       return Arrays.copyOfRange(data, offset, offset + len);
     }
+
   }
+
+  private static boolean checkInGatewayList(byte[] address, Deposit deposit) {
+    List<byte[]> gatewayList = deposit.getSideChainGateWayList();
+
+    for (byte[] gateway : gatewayList) {
+      if (ByteUtil.equals(gateway, address)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
 }
