@@ -14,9 +14,8 @@
 ## What's SunNetwork?
 
 
-Sun Network is a project dedicated to building a trustful decentralized sidechain of TRON Main Chain. 
-It will greatly improving the tps of the main chain, while supporting the execution of smart contract transactions with very low energy cost.
-This will make a lot of sense to the dapp developer and the main chain.
+Sun Network is a project dedicated to building a trustful decentralized sidechain of TRON Blockchain. 
+When completed, this project will greatly increase on-chain TPS rates, while decreasing the energy consumption of smart contract executions, which is very beneficial for both DAPP developers and the on-chain users of the TRON Blockchain.
 
 
 # Developer Community
@@ -45,8 +44,8 @@ This will make a lot of sense to the dapp developer and the main chain.
 # Contributing
 Thank you for all of [our contributors](https://github.com/tronprotocol/sun-network/graphs/contributors); this project wouldn’t be what it is without you! If you want to help out, please see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-If you'd like to contribute to sun-network, please fork, fix, commit and send a pull request for the maintainers to review and merge into the main code base.   
-If you wish to submit more complex changes though, please check up with the core devs first on [our gitter channel](https://gitter.im/tronprotocol/sun-network) to ensure those changes are 
+If you'd like to contribute to sun-network, please fork, fix, commit and send a pull request to the maintainers for them to review and merge into the main code base.   
+If you wish to submit more complex changes though, please communicate with the core devs first on [our gitter channel](https://gitter.im/tronprotocol/sun-network) to ensure those changes are 
 in line with the general philosophy of the project and/or get some early feedback which can make both your efforts much lighter as well as our review and merge procedures quick and simple.
 
 
