@@ -18,7 +18,6 @@
 
 package org.tron.common.runtime.vm;
 
-import static org.tron.common.runtime.utils.MUtil.convertToTronAddress;
 import static org.tron.common.runtime.vm.program.Program.VALIDATE_FOR_SMART_CONTRACT_FAILURE;
 import static org.tron.common.utils.BIUtil.addSafely;
 import static org.tron.common.utils.BIUtil.isLessThan;
@@ -30,14 +29,11 @@ import static org.tron.common.utils.ByteUtil.parseBytes;
 import static org.tron.common.utils.ByteUtil.parseWord;
 import static org.tron.common.utils.ByteUtil.stripLeadingZeroes;
 
-import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -70,25 +66,11 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.core.Wallet;
-import org.tron.core.actuator.Actuator;
-import org.tron.core.actuator.ActuatorFactory;
-import org.tron.core.actuator.ProposalApproveActuator;
-import org.tron.core.actuator.ProposalDeleteActuator;
-import org.tron.core.actuator.VoteWitnessActuator;
-import org.tron.core.actuator.WithdrawBalanceActuator;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.AssetIssueCapsule;
-import org.tron.core.capsule.TransactionCapsule;
-import org.tron.core.config.args.Args;
-import org.tron.core.exception.ContractExeException;
-import org.tron.core.exception.ContractValidateException;
-import org.tron.protos.Contract;
+import org.tron.core.capsule.ContractCapsule;
 import org.tron.protos.Contract.AssetIssueContract;
-import org.tron.protos.Contract.ProposalApproveContract;
-import org.tron.protos.Contract.ProposalDeleteContract;
-import org.tron.protos.Contract.VoteWitnessContract;
-import org.tron.protos.Contract.WithdrawBalanceContract;
-import org.tron.protos.Protocol.Transaction.Contract.ContractType;
+import org.tron.protos.Protocol.AccountType;
 
 /**
  * @author Roman Mandeleil
@@ -108,7 +90,8 @@ public class PrecompiledContracts {
   private static final BN128Pairing altBN128Pairing = new BN128Pairing();
   private static final Mine mine = new Mine();
   private static final MineToken mineToken = new MineToken();
-  private static final MultiValidateSign multiValidateSign = new MultiValidateSign();
+  private static final BatchValidateSign batchValidateSign = new BatchValidateSign();
+  private static final UpdateContractOwner updateContractOwner = new UpdateContractOwner();
 
   private static final ECKey addressCheckECKey = new ECKey();
   private static final String addressCheckECKeyAddress = Wallet
@@ -118,6 +101,8 @@ public class PrecompiledContracts {
       "0000000000000000000000000000000000000000000000000000000000010000");
   private static final DataWord mineTokenAddr = new DataWord(
       "0000000000000000000000000000000000000000000000000000000000010001");
+  private static final DataWord updateContractOwnerAddr = new DataWord(
+      "0000000000000000000000000000000000000000000000000000000000010002");
   private static final DataWord ecRecoverAddr = new DataWord(
       "0000000000000000000000000000000000000000000000000000000000000001");
   private static final DataWord sha256Addr = new DataWord(
@@ -134,7 +119,7 @@ public class PrecompiledContracts {
       "0000000000000000000000000000000000000000000000000000000000000007");
   private static final DataWord altBN128PairingAddr = new DataWord(
       "0000000000000000000000000000000000000000000000000000000000000008");
-  private static final DataWord multiValidateSignAddr = new DataWord(
+  private static final DataWord batchValidateSignAddr = new DataWord(
       "0000000000000000000000000000000000000000000000000000000000000009");
 
   public static PrecompiledContract getContractForAddress(DataWord address) {
@@ -147,6 +132,9 @@ public class PrecompiledContracts {
     }
     if (address.equals(mineTokenAddr)) {
       return mineToken;
+    }
+    if (address.equals(updateContractOwnerAddr)) {
+      return updateContractOwner;
     }
     if (address.equals(ecRecoverAddr)) {
       return ecRecover;
@@ -173,8 +161,8 @@ public class PrecompiledContracts {
     if (address.equals(altBN128PairingAddr)) {
       return altBN128Pairing;
     }
-    if (address.equals(multiValidateSignAddr)) {
-      return multiValidateSign;
+    if (address.equals(batchValidateSignAddr)) {
+      return batchValidateSign;
     }
     return null;
   }
@@ -229,7 +217,6 @@ public class PrecompiledContracts {
     }
 
 
-
     @Getter
     @Setter
     private boolean isStaticCall;
@@ -239,18 +226,19 @@ public class PrecompiledContracts {
     private long vmShouldEndInUs;
 
 
-    public long getCPUTimeLeftInUs(){
+    public long getCPUTimeLeftInUs() {
       long vmNowInUs = System.nanoTime() / 1000;
       long left = getVmShouldEndInUs() - vmNowInUs;
-      if(left <= 0) {
+      if (left <= 0) {
         throw Program.Exception.notEnoughTime("call");
       } else {
-        return  left;
+        return left;
       }
     }
   }
 
-  public static class MineToken extends  PrecompiledContract{
+  public static class MineToken extends PrecompiledContract {
+
     @Override
     public long getEnergyForData(byte[] data) {
       return 0;
@@ -264,27 +252,23 @@ public class PrecompiledContracts {
       if (data == null || data.length != 5 * DataWord.WORD_SIZE) {
         return Pair.of(false, new DataWord(0).getData());
       }
-      List<byte[]> gatewayList = this.getDeposit().getSideChainGateWayList();
-      boolean match = false;
-      for (byte[] gateway: gatewayList) {
-        if (ByteUtil.equals(gateway, this.getCallerAddress())) {
-          match = true;
-          break;
-        }
-      }
-      if (!match) {
-        logger.error("[mineToken method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
-        throw new PrecompiledContractException("[mineToken method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
+      if (!checkInGatewayList(this.getCallerAddress(), getDeposit())) {
+        logger.error("[mineToken method]caller must be gateway, caller: %s",
+            Wallet.encode58Check(this.getCallerAddress()));
+        throw new PrecompiledContractException(
+            "[mineToken method]caller must be gateway, caller: %s",
+            Wallet.encode58Check(this.getCallerAddress()));
       }
 
       long amount = new DataWord(Arrays.copyOf(data, 32)).sValue().longValueExact();
 
-      byte[] tokenId = new DataWord(Arrays.copyOfRange(data,32,64)).getData();
+      byte[] tokenId = new DataWord(Arrays.copyOfRange(data, 32, 64)).getData();
 
       byte[] tokenIdWithoutLeadingZero = ByteUtil.stripLeadingZeroes(tokenId);
-      byte[] tokenIdLongBytes = String.valueOf(Long.parseLong(Hex.toHexString(tokenIdWithoutLeadingZero),16)).getBytes();
+      byte[] tokenIdLongBytes = String
+          .valueOf(Long.parseLong(Hex.toHexString(tokenIdWithoutLeadingZero), 16)).getBytes();
 
-      byte[] tokenName = new DataWord(Arrays.copyOfRange(data, 64,96)).getData();
+      byte[] tokenName = new DataWord(Arrays.copyOfRange(data, 64, 96)).getData();
 
       byte[] symbol = new DataWord(Arrays.copyOfRange(data, 96, 128)).getData();
 
@@ -297,13 +281,15 @@ public class PrecompiledContracts {
       return Pair.of(true, EMPTY_BYTE_ARRAY);
     }
 
-    private void validateMineTokenProcess(long amount, byte[] tokenId, byte[] tokenName, byte[] symbol, int decimals) {
+    private void validateMineTokenProcess(long amount, byte[] tokenId, byte[] tokenName,
+        byte[] symbol, int decimals) {
 
       byte[] tokenNameWithoutLeadingZero = ByteUtil.stripLeadingZeroes(tokenName);
       byte[] tokenSymbol = ByteUtil.stripLeadingZeroes(symbol);
       long tokenIdLong = new DataWord(tokenId).sValue().longValueExact();
       if (amount < 0) {
-        throw new PrecompiledContractException("[mineToken method]amount must be greater than 0: %s", amount);
+        throw new PrecompiledContractException(
+            "[mineToken method]amount must be greater than 0: %s", amount);
       }
       if (tokenIdLong <= VMConstant.MIN_TOKEN_ID) {
         throw new BytecodeExecutionException(
@@ -318,7 +304,7 @@ public class PrecompiledContracts {
             .setAbbr(ByteString.copyFrom(tokenSymbol))
             .setPrecision(decimals);
         AssetIssueCapsule assetIssueCapsuleV2 = new AssetIssueCapsule(assetBuilder.build());
-        getDeposit().putAssetIssue(assetIssueCapsuleV2.createDbV2Key(),assetIssueCapsuleV2);
+        getDeposit().putAssetIssue(assetIssueCapsuleV2.createDbV2Key(), assetIssueCapsuleV2);
       }
 
       AccountCapsule callerAccount = getDeposit().getAccount(this.getCallerAddress());
@@ -346,28 +332,67 @@ public class PrecompiledContracts {
 
     @Override
     public Pair<Boolean, byte[]> execute(byte[] data) {
-      List<byte[]> gatewayList = this.getDeposit().getSideChainGateWayList();
-      boolean match = false;
-      for (byte[] gateway: gatewayList) {
-        if (ByteUtil.equals(gateway, this.getCallerAddress())) {
-          match = true;
-          break;
-        }
-      }
-      if (!match) {
-        logger.error("[mine method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
-        throw new PrecompiledContractException("[mine method]caller must be gateway, caller: %s", Wallet.encode58Check(this.getCallerAddress()));
+
+      if (!checkInGatewayList(this.getCallerAddress(), getDeposit())) {
+        logger.error("[mine method]caller must be gateway, caller: %s",
+            Wallet.encode58Check(this.getCallerAddress()));
+        throw new PrecompiledContractException("[mine method]caller must be gateway, caller: %s",
+            Wallet.encode58Check(this.getCallerAddress()));
       }
 
       long amount = new DataWord(Arrays.copyOf(data, 32)).sValue().longValueExact();
       if (amount <= 0) {
-        throw new PrecompiledContractException("[mine method]amount must be greater than 0: %s", amount);
+        throw new PrecompiledContractException("[mine method]amount must be greater than 0: %s",
+            amount);
       }
       this.getDeposit().addBalance(this.getCallerAddress(), amount);
 
       return Pair.of(true, EMPTY_BYTE_ARRAY);
     }
   }
+
+
+  public static class UpdateContractOwner extends PrecompiledContract {
+
+    @Override
+    public long getEnergyForData(byte[] data) {
+      return 0;
+    }
+
+    @Override
+    public Pair<Boolean, byte[]> execute(byte[] data) {
+      if (!checkInGatewayList(this.getCallerAddress(), getDeposit())) {
+        logger.error("[updatecontractowner method]caller must be gateway, caller: %s",
+            Wallet.encode58Check(this.getCallerAddress()));
+        throw new PrecompiledContractException(
+            "[updatecontractowner method]caller must be gateway, caller: %s",
+            Wallet.encode58Check(this.getCallerAddress()));
+      }
+      byte[] contractAddress = MUtil
+          .convertToTronAddress(new DataWord(Arrays.copyOf(data, 32)).getLast20Bytes());
+      byte[] ownerAddress = MUtil
+          .convertToTronAddress(new DataWord(Arrays.copyOfRange(data, 32, 64)).getLast20Bytes());
+      ContractCapsule contract = this.getDeposit().getContract(contractAddress);
+
+      if (contract == null || !checkInGatewayList(contract.getOriginAddress(), getDeposit())) {
+        throw new PrecompiledContractException(
+            "[updatecontractowner method]target contract not exists or address not in gatewayList: %s",
+            Wallet.encode58Check(contractAddress));
+      }
+
+      //if target account not exists
+      AccountCapsule targetAccount = this.getDeposit().getAccount(ownerAddress);
+      if (targetAccount == null) {
+        //side chain only mapping Normal account
+        this.getDeposit().createAccount(ownerAddress, AccountType.Normal);
+      }
+      contract.setOriginAddress(ownerAddress);
+      this.getDeposit().updateContract(contractAddress, contract);
+
+      return Pair.of(true, EMPTY_BYTE_ARRAY);
+    }
+  }
+
 
   public static class Identity extends PrecompiledContract {
 
@@ -790,7 +815,8 @@ public class PrecompiledContracts {
   }
 
 
-  public static class MultiValidateSign extends PrecompiledContract {
+  public static class BatchValidateSign extends PrecompiledContract {
+
     private static final ExecutorService workers;
     private static final int ENGERYPERSIGN = 1500;
     private static final byte[] ZEROADDR = MUtil.allZero32TronAddress();
@@ -896,8 +922,8 @@ public class PrecompiledContracts {
       byte[] r;
       byte[] s;
       DataWord out = null;
-      if (sign.length < 65 || Arrays.equals(ZEROADDR,address)
-          || Arrays.equals(EMPTYADDR,address)) {
+      if (sign.length < 65 || Arrays.equals(ZEROADDR, address)
+          || Arrays.equals(EMPTYADDR, address)) {
         return false;
       }
       try {
@@ -933,7 +959,7 @@ public class PrecompiledContracts {
       for (int i = 0; i < len; i++) {
         int bytesOffset = words[offset + i + 1].intValueSafe() / DataWord.WORD_SIZE;
         int bytesLen = words[offset + bytesOffset + 1].intValueSafe();
-        bytesArray[i] = extractBytes(data,  (bytesOffset + offset + 2) * DataWord.WORD_SIZE,
+        bytesArray[i] = extractBytes(data, (bytesOffset + offset + 2) * DataWord.WORD_SIZE,
             bytesLen);
       }
       return bytesArray;
@@ -942,5 +968,18 @@ public class PrecompiledContracts {
     private static byte[] extractBytes(byte[] data, int offset, int len) {
       return Arrays.copyOfRange(data, offset, offset + len);
     }
+
   }
+
+  private static boolean checkInGatewayList(byte[] address, Deposit deposit) {
+    List<byte[]> gatewayList = deposit.getSideChainGateWayList();
+
+    for (byte[] gateway : gatewayList) {
+      if (ByteUtil.equals(gateway, address)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
 }
