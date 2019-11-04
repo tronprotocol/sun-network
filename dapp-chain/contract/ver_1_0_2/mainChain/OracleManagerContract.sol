@@ -105,7 +105,7 @@ contract OracleManagerContract is Ownable {
         return count;
     }
 
-    function addOracle(address _oracle) public goDelegateCall onlyOwner {
+    function addOracle(address _oracle) public onlyOwner {
         require(_oracle != address(0), "this address cannot be zero");
         require(oracleIndex[_oracle] == 0, "this address is already oracle");
         require(numOracles < 256, "cannot more than 256 oracles");
@@ -122,7 +122,7 @@ contract OracleManagerContract is Ownable {
         numOracles++;
     }
 
-    function delOracle(address _oracle) public goDelegateCall onlyOwner {
+    function delOracle(address _oracle) public onlyOwner {
         require(oracleIndex[_oracle] > 0, "this address is not oracle");
 
         indexOracle[oracleIndex[_oracle]] = address(0);
@@ -137,12 +137,12 @@ contract OracleManagerContract is Ownable {
         }
     }
 
-    function setPause(bool status) public goDelegateCall onlyOwner {
+    function setPause(bool status) public onlyOwner {
 
         pause = status;
     }
 
-    function setStop(bool status) public goDelegateCall onlyOwner {
+    function setStop(bool status) public onlyOwner {
         stop = status;
     }
 
