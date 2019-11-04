@@ -140,9 +140,35 @@ public class UpdateGatewayTest extends VMTestBase {
     ContractCapsule contractCapsule = manager.getContractStore().get(newAddress);
     Assert.assertNotNull(contractCapsule);
     byte[] originAddress = contractCapsule.getOriginAddress();
-    logger.info("zhangheng{}", Wallet.encode58Check(factoryAddress));
     Assert.assertEquals(Wallet.encode58Check(originAddress), trc20OwnerAddress);
 
+    // mapping new trc20 contract
+    String trc721Address = "27jt151r78fUxpJ95WmK3aAmGgKrkN8B2TL";
+    String trc721Name = "27jt151r78fUxpJ95WmK3aAmGgKrkN8B2TL";
+    String trc721OwnerAddress = "27iTrimoDuW51TBcbFahRSH66khDAQ8VFpe";
+    long trc721Nonce = 5;
+    String mapping721Sign = "multiSignForDeployDAppTRC721AndMapping(address,string,string,address,uint256)";
+
+    hexInput = AbiUtil
+        .parseMethod(mapping721Sign, Arrays
+            .asList(trc721Address, trc721Name, trc20Name, trc721OwnerAddress, trc721Nonce));
+    result = TvmTestUtils
+        .triggerContractAndReturnTvmTestResult(Hex.decode(OWNER_ADDRESS),
+            factoryAddress, Hex.decode(hexInput), 0, fee, manager, null);
+    Assert.assertNull(result.getRuntime().getRuntimeError());
+
+    //check mapped trc owner
+    hexInput = AbiUtil.parseMethod(trcMappingSign, Arrays.asList(trc721Address));
+    result = TvmTestUtils
+        .triggerContractAndReturnTvmTestResult(Hex.decode(OWNER_ADDRESS),
+            factoryAddress, Hex.decode(hexInput), 0, fee, manager, null);
+    Assert.assertNull(result.getRuntime().getRuntimeError());
+    newAddress = MUtil.convertToTronAddress(
+        new DataWord(result.getRuntime().getResult().getHReturn()).getLast20Bytes());
+    contractCapsule = manager.getContractStore().get(newAddress);
+    Assert.assertNotNull(contractCapsule);
+    originAddress = contractCapsule.getOriginAddress();
+    Assert.assertEquals(Wallet.encode58Check(originAddress), trc721OwnerAddress);
 
   }
 
