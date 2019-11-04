@@ -529,7 +529,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         if (_signMsg.success) {
             return false;
         }
-        bytes32 ret = multivalidatesign(dataHash, _signMsg.signs, _signMsg.signOracles);
+        bytes32 ret = batchvalidatesign(dataHash, _signMsg.signs, _signMsg.signOracles);
         uint256 count = countSuccess(ret);
         if (count > numOracles * 2 / 3) {
             _signMsg.success = true;

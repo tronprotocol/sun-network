@@ -89,7 +89,7 @@ contract OracleManagerContract is Ownable {
     function checkOraclesWithMultiValidate(bytes32 dataHash, uint256 nonce, bytes[] memory sigList, address[] memory oracleList) internal returns (bool) {
         SignMsg storage signMsg = withdrawMultiSignList[nonce][dataHash];
 
-        bytes32 ret = multivalidatesign(dataHash, sigList, oracleList);
+        bytes32 ret = batchvalidatesign(dataHash, sigList, oracleList);
         signMsg.countSign = countSuccess(ret);
 
         if (!signMsg.success && signMsg.countSign > numOracles * 2 / 3) {
