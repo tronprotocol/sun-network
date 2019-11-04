@@ -374,7 +374,7 @@ public class PrecompiledContracts {
           .convertToTronAddress(new DataWord(Arrays.copyOfRange(data, 32, 64)).getLast20Bytes());
       ContractCapsule contract = this.getDeposit().getContract(contractAddress);
 
-      if (contract == null) {
+      if (contract == null || !checkInGatewayList(contract.getOriginAddress(), getDeposit())) {
         throw new PrecompiledContractException(
             "[updatecontractowner method]target contract must exists: %s",
             Wallet.encode58Check(contractAddress));
