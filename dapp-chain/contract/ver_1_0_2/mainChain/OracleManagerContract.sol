@@ -138,6 +138,7 @@ contract OracleManagerContract is Ownable {
     }
 
     function setPause(bool status) public goDelegateCall onlyOwner {
+
         pause = status;
     }
 
