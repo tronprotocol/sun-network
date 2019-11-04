@@ -30,11 +30,10 @@ public class UpdateContractOwnerTest extends VMTestBase {
         .saveSideChainGateWayList(Arrays.asList(fakeGateWayKey.getAddress()));
 
     ECKey contractAddressKey = new ECKey();
-    ECKey previousOwnerKey = new ECKey();
     ECKey updateOwnerKey = new ECKey();
     Builder builder = SmartContract.newBuilder();
     builder.setContractAddress(ByteString.copyFrom(contractAddressKey.getAddress()))
-        .setOriginAddress(ByteString.copyFrom(previousOwnerKey.getAddress()));
+        .setOriginAddress(ByteString.copyFrom(fakeGateWayKey.getAddress()));
     SmartContract newSmartContract = builder.build();
     rootDeposit
         .createContract(contractAddressKey.getAddress(), new ContractCapsule(newSmartContract));

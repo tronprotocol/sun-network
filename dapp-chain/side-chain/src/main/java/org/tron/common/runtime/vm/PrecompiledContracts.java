@@ -376,7 +376,7 @@ public class PrecompiledContracts {
 
       if (contract == null || !checkInGatewayList(contract.getOriginAddress(), getDeposit())) {
         throw new PrecompiledContractException(
-            "[updatecontractowner method]target contract must exists: %s",
+            "[updatecontractowner method]target contract not exists or address not in gatewayList: %s",
             Wallet.encode58Check(contractAddress));
       }
 
