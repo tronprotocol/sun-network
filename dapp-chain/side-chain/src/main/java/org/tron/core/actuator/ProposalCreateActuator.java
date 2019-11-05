@@ -147,13 +147,15 @@ public class ProposalCreateActuator extends AbstractActuator {
 
   private void validateValue(Map.Entry<Long, String> entry) throws ContractValidateException {
 
+    Integer witnessMaxActiveNum = dbManager.getDynamicPropertiesStore()
+        .getWitnessMaxActiveNum();
     switch (entry.getKey().intValue()) {
       case (0): {
-        if (Long.valueOf(entry.getValue()) < 3 * dbManager.getDynamicPropertiesStore()
-            .getWitnessMaxActiveNum() * 1000
+        if (Long.valueOf(entry.getValue()) < 3 * witnessMaxActiveNum * 1000
             || Long.valueOf(entry.getValue()) > 24 * 3600 * 1000) {
           throw new ContractValidateException(
-              "Bad chain parameter value,valid range is [3 * 27 * 1000,24 * 3600 * 1000]");
+              "Bad chain parameter value,valid range is [3 * " + witnessMaxActiveNum
+                  + " * 1000,24 * 3600 * 1000]");
         }
         return;
       }
@@ -404,10 +406,9 @@ public class ProposalCreateActuator extends AbstractActuator {
             .getWitnesses().size()) {
           throw new ContractValidateException(
               "Bad chain parameter value, must Less than Genesis Block Witnesses size");
-        } else if (Integer.parseInt(entry.getValue()) <= dbManager.getDynamicPropertiesStore()
-            .getWitnessMaxActiveNum()) {
+        } else if (Integer.parseInt(entry.getValue()) <= witnessMaxActiveNum) {
           throw new ContractValidateException(
-              "Bad chain parameter value, must greater than current value {}");
+              "Bad chain parameter value, must greater than current value " + witnessMaxActiveNum);
         }
         break;
       }
