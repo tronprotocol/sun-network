@@ -10,9 +10,11 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.core.Wallet;
+import org.tron.protos.Protocol.SideChainParameters.SideChainParameter;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
@@ -92,11 +94,20 @@ public class WalletTestCommittee002 {
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
     Assert.assertTrue(PublicMethedForDailybuild.sendcoin(witness001Address, 10000000L,
         toAddress, testKey003, blockingStubFull));
-
-    //0:MAINTENANCE_TIME_INTERVAL,[3*27s,24h]
+    int WitnessMaxActiveNum = 0;
+    for (SideChainParameter para : blockingStubFull
+        .getSideChainParameters(EmptyMessage.newBuilder().build())
+        .getChainParameterList()) {
+      if (para.getKey().equals("getWitnessMaxActiveNum")) {
+        logger.info(para.getValue());
+        WitnessMaxActiveNum = Integer.parseInt(para.getValue());
+        break;
+      }
+    }
+    //0:MAINTENANCE_TIME_INTERVAL,[3*WitnessMaxActiveNum s,24h]
     //Minimum interval
     HashMap<Long, String> proposalMap = new HashMap<Long, String>();
-    proposalMap.put(0L, "81000");
+    proposalMap.put(0L, Integer.toString(3 * WitnessMaxActiveNum * 1000));
     Assert.assertTrue(PublicMethed.sideChainProposalCreate(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
@@ -106,7 +117,7 @@ public class WalletTestCommittee002 {
         proposalMap, blockingStubFull));
 
     //Minimum -1 interval, create failed.
-    proposalMap.put(0L, "80000");
+    proposalMap.put(0L, Integer.toString(3 * WitnessMaxActiveNum * 1000 - 1));
     Assert.assertFalse(PublicMethed.sideChainProposalCreate(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
