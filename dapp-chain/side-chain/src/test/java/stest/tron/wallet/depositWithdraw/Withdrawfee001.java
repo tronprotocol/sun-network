@@ -318,6 +318,9 @@ public class Withdrawfee001 {
             blockingSideStubFull);
     logger.info("withdrawTrc20Txid1:" + withdrawTrc20Txid1);
 
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoByIdwithdrawTrc21 = PublicMethed
@@ -674,7 +677,7 @@ public class Withdrawfee001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(deposittrx, blockingStubFull);
-    Assert.assertNotNull(deposittrx);
+    Assert.assertNotNull(infoById);
     logger.info("contractResult:"+ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertEquals("SUCESS", infoById.get().getResult().name());

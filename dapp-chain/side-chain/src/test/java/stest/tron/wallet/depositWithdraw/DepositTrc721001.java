@@ -208,6 +208,8 @@ public class DepositTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(deposittrx, blockingStubFull);
+    logger.info("infoById:"+infoById);
+    logger.info("contractResult:"+ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, infoById.get().getResultValue());
 
     String arg = "1001";

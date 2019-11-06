@@ -206,6 +206,9 @@ public class WithdrawTrc20001 {
             depositAddress, testKeyFordeposit, blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infodeposittrx = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
