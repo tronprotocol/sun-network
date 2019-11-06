@@ -536,9 +536,11 @@ public class DepositFeeTrc721001 {
             1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    Assert.assertNotNull(ownerTrx);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById2 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
+    Assert.assertEquals(0, infoById2.get().getResultValue());
     tmpAddress = ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray());
     tmpAddress = tmpAddress.substring(24);
     addressHex = "41" + tmpAddress;

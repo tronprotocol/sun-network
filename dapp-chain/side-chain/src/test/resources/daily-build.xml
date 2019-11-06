@@ -12,18 +12,9 @@
   </test>
 
   <test name="stest">
-    <classes>
-      <class name="stest.tron.wallet.depositWithdraw.DepositFeeTrc721001"></class>
-      <class name="stest.tron.wallet.depositWithdraw.DepositMinTrc10001"></class>
-      <class name="stest.tron.wallet.depositWithdraw.DepositMinTrc20001"></class>
-      <class name="stest.tron.wallet.depositWithdraw.RetryTrc20001"></class>
-      <class name="stest.tron.wallet.depositWithdraw.RetryTrc721001"></class>
-      <class name="stest.tron.wallet.depositWithdraw.RetryTrc721001"></class>
-      <class name="stest.tron.wallet.depositWithdraw.DelegateCallSide001"></class>
-    </classes>
-    <!--<packages>-->
-      <!--<package name="stest.tron.wallet.depositWithdraw"></package>-->
-      <!--<package name="stest.tron.wallet.dailybuild.*"></package>-->
-    <!--</packages>-->
+    <packages>
+      <package name="stest.tron.wallet.depositWithdraw"></package>
+      <package name="stest.tron.wallet.dailybuild.*"></package>
+    </packages>
   </test>
 </suite>
