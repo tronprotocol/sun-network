@@ -43,7 +43,7 @@ public class VMConfig {
 
   @Getter
   @Setter
-  public static boolean isTVMSolidity059On = false;
+  public static boolean isDAppChainSolidity059On = false;
 
   private VMConfig() {
   }
@@ -55,7 +55,7 @@ public class VMConfig {
 
   public static void handleProposalInVM(Manager dbManager) {
     isVmResourceChargingOn = isChargingResourceProposalOn(dbManager);
-    isTVMSolidity059On = isDAppChain059ProposalOn(dbManager);
+    isDAppChainSolidity059On = isDAppChain059ProposalOn(dbManager);
   }
 
 
