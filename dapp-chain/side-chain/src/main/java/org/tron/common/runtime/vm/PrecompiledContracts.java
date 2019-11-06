@@ -55,6 +55,7 @@ import org.tron.common.crypto.zksnark.BN128G1;
 import org.tron.common.crypto.zksnark.BN128G2;
 import org.tron.common.crypto.zksnark.Fp;
 import org.tron.common.crypto.zksnark.PairingCheck;
+import org.tron.common.runtime.config.VMConfig;
 import org.tron.common.runtime.utils.MUtil;
 import org.tron.common.runtime.vm.program.Program;
 import org.tron.common.runtime.vm.program.Program.BytecodeExecutionException;
@@ -133,8 +134,10 @@ public class PrecompiledContracts {
     if (address.equals(mineTokenAddr)) {
       return mineToken;
     }
-    if (address.equals(updateContractOwnerAddr)) {
-      return updateContractOwner;
+    if (VMConfig.isTVMSolidity059On()) {
+      if (address.equals(updateContractOwnerAddr)) {
+        return updateContractOwner;
+      }
     }
     if (address.equals(ecRecoverAddr)) {
       return ecRecover;

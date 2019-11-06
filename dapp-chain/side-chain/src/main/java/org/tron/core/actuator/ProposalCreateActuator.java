@@ -416,6 +416,17 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       }
+      case (1_000_012): {
+        if (!dbManager.getForkController().pass(ForkBlockVersionEnum.DAPP_CHAIN_1_0_2)) {
+          throw new ContractValidateException("Bad chain parameter id [ALLOW_TVM_SOLIDITY_059]");
+        }
+
+        if (Integer.parseInt(entry.getValue()) != 1) {
+          throw new ContractValidateException(
+              "ALLOW_TVM_SOLIDITY_059 is only allowed to be 1");
+        }
+        break;
+      }
       default:
         throw new ContractValidateException("non-exist proposal number");
     }
