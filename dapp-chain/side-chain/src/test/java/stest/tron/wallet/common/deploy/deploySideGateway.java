@@ -33,6 +33,9 @@ public class deploySideGateway {
   private final String oracleKey = Configuration.getByPath("testng.conf")
       .getString("oralceAccountKey.key1");
   private final byte[] oracleAddress = PublicMethed.getFinalAddress(oracleKey);
+  private final String oracleKey002 = Configuration.getByPath("testng.conf")
+      .getString("oralceAccountKey.key2");
+  private final byte[] oracleAddress002 = PublicMethed.getFinalAddress(oracleKey002);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private final String foundationKey003 = Configuration.getByPath("testng.conf")
@@ -94,8 +97,8 @@ public class deploySideGateway {
       String parame = "\"" + Base58.encode58Check(oracleAddress) + "\"";
 
       try {
-        code = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.bin",false);
-        abi = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.abi",false);
+        code = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.bin", false);
+        abi = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.abi", false);
       } catch (Exception e) {
         Assert.fail("Read ABI Failed");
         return;
@@ -125,6 +128,19 @@ public class deploySideGateway {
         Optional<TransactionInfo> infoById1 = PublicMethed
             .getTransactionInfoById(triggerTxid1, blockingStubFull);
         if (triggerTxid1 == null || infoById1.get().getResultValue() == 1) {
+          count += 1;
+          continue;
+        }
+
+        parame = "\"" + Base58.encode58Check(oracleAddress002) + "\"";
+        byte[] input2 = Hex.decode(AbiUtil.parseMethod("addOracle(address)", parame, false));
+        String triggerTxid2 = PublicMethed.triggerContractSideChain(sideChainGateway,
+            WalletClient.decodeFromBase58Check(mainChainAddress), 0, input2, maxFeeLimit,
+            0, "0", foundationAddress003, foundationKey003, blockingStubFull);
+        PublicMethed.waitProduceNextBlock(blockingStubFull);
+        Optional<TransactionInfo> infoById2 = PublicMethed
+            .getTransactionInfoById(triggerTxid2, blockingStubFull);
+        if (triggerTxid2 == null || infoById2.get().getResultValue() == 1) {
           count += 1;
           continue;
         } else {
