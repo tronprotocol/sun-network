@@ -272,7 +272,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   private static final byte[] WITNESS_MAX_ACTIVE_NUM = "WITNESS_MAX_ACTIVE_NUM".getBytes();
 
   //for 1_000_012 proposal
-  private static final byte[] ALLOW_TVM_SOLIDITY_059 = "ALLOW_TVM_SOLIDITY_059".getBytes();
+  private static final byte[] ALLOW_DAPPCHAIN_SOLIDITY_059 = "ALLOW_DAPPCHAIN_SOLIDITY_059"
+      .getBytes();
 
 
   @Autowired
@@ -845,9 +846,9 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
-      this.getAllowTvmSolidity059();
+      this.getAllowDAppChainSolidity059();
     } catch (IllegalArgumentException e) {
-      this.saveAllowTvmSolidity059(Args.getInstance().getAllowTvmSolidity059());
+      this.saveAllowDAppChainSolidity059(Args.getInstance().getAllowDAppChainSolidity059());
     }
 
   }
@@ -2282,13 +2283,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     return getAllowAccountStateRoot() == 1;
   }
 
-  public void saveAllowTvmSolidity059(long value) {
-    this.put(ALLOW_TVM_SOLIDITY_059,
+  public void saveAllowDAppChainSolidity059(long value) {
+    this.put(ALLOW_DAPPCHAIN_SOLIDITY_059,
         new BytesCapsule(ByteArray.fromLong(value)));
   }
 
-  public long getAllowTvmSolidity059() {
-    return Optional.ofNullable(getUnchecked(ALLOW_TVM_SOLIDITY_059))
+  public long getAllowDAppChainSolidity059() {
+    return Optional.ofNullable(getUnchecked(ALLOW_DAPPCHAIN_SOLIDITY_059))
         .map(BytesCapsule::getData)
         .map(ByteArray::toLong)
         .orElseThrow(() -> new IllegalArgumentException("not found ALLOW_TVM_SOLIDITY_059"));

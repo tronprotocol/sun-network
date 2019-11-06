@@ -533,7 +533,7 @@ public class Args {
 
   @Getter
   @Setter
-  private long allowTvmSolidity059; //committee parameter
+  private long allowDAppChainSolidity059; //committee parameter
 
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
@@ -622,7 +622,7 @@ public class Args {
     INSTANCE.percentToPayWitness = 80;
     INSTANCE.voteSwitch = 0;
     INSTANCE.witnessMaxActiveNum = 27;
-    INSTANCE.allowTvmSolidity059 = 0;
+    INSTANCE.allowDAppChainSolidity059 = 0;
   }
 
   /**
@@ -725,8 +725,8 @@ public class Args {
       INSTANCE.supportConstant = config.getBoolean("vm.supportConstant");
     }
 
-    if (config.hasPath("vm.allowTvmSolidity059")) {
-      INSTANCE.allowTvmSolidity059 = config.getInt("vm.allowTvmSolidity059");
+    if (config.hasPath("vm.allowDAppChainSolidity059")) {
+      INSTANCE.allowDAppChainSolidity059 = config.getInt("vm.allowTvmSolidity059");
     }
 
     if (config.hasPath("vm.minTimeRatio")) {

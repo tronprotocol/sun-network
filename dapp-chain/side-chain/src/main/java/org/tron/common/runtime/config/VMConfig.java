@@ -55,7 +55,7 @@ public class VMConfig {
 
   public static void handleProposalInVM(Manager dbManager) {
     isVmResourceChargingOn = isChargingResourceProposalOn(dbManager);
-    isTVMSolidity059On = isTVM059ProposalOn(dbManager);
+    isTVMSolidity059On = isDAppChain059ProposalOn(dbManager);
   }
 
 
@@ -75,8 +75,8 @@ public class VMConfig {
     return dbManger.getDynamicPropertiesStore().getChargingSwitch() == 1;
   }
 
-  private static boolean isTVM059ProposalOn(Manager dbManger) {
-    return dbManger.getDynamicPropertiesStore().getAllowTvmSolidity059() == 1;
+  private static boolean isDAppChain059ProposalOn(Manager dbManger) {
+    return dbManger.getDynamicPropertiesStore().getAllowDAppChainSolidity059() == 1;
   }
 
 }

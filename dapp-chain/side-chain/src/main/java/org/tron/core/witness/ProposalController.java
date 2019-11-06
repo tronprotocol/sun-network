@@ -353,7 +353,7 @@ public class ProposalController {
         }
         case (1_000_012): {
           manager.getDynamicPropertiesStore()
-              .saveAllowTvmSolidity059(Long.valueOf(entry.getValue()));
+              .saveAllowDAppChainSolidity059(Long.valueOf(entry.getValue()));
           break;
         }
         default:
