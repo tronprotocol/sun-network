@@ -213,6 +213,9 @@ public class DepositFeeTrc721001 {
             testAddress001, testKey001, blockingStubFull);
     logger.info(deposittrx);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(deposittrx, blockingStubFull);
     Assert.assertNotNull(deposittrx);

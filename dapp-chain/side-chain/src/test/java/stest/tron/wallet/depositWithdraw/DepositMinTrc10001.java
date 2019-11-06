@@ -249,6 +249,9 @@ public class DepositMinTrc10001 {
             maxFeeLimit, inputTokenValue2, inputTokenID, depositAddress, testKeyFordeposit,
             blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     infoById = PublicMethed

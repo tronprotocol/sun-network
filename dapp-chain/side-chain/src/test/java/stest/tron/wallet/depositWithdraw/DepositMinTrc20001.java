@@ -311,8 +311,9 @@ public class DepositMinTrc20001 {
             depositAddress, testKeyFordeposit, blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     ownerTrx = PublicMethed
         .triggerContractSideChain(sideContractAddress,

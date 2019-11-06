@@ -215,6 +215,7 @@ public class RetryTrc721001 {
     String mintTxid = PublicMethed
         .triggerContract(trc721Contract, "mint(address,uint256)", parame1, false, 0, maxFeeLimit,
             testAddress001, testKey001, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(mintTxid, blockingStubFull);
     Assert.assertNotNull(mintTxid);
     Assert.assertEquals(0, infoById.get().getResultValue());
@@ -296,6 +297,7 @@ public class RetryTrc721001 {
             1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     tmpAddress = ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray());
@@ -628,6 +630,10 @@ public class RetryTrc721001 {
         nonce,
         maxFeeLimit, depositAddress2, testKeyFordeposit2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     logger.info("retryDepositTxid:" + retryDepositTxid1);
     Optional<TransactionInfo> infoByIdretryDeposit = PublicMethed
         .getTransactionInfoById(retryDepositTxid1, blockingStubFull);
@@ -668,6 +674,11 @@ public class RetryTrc721001 {
         nonceWithdraw,
         maxFeeLimit, depositAddress2, testKeyFordeposit2, blockingSideStubFull);
     logger.info("retryWithdrawTxid:" + retryWithdrawTxid);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoByIdWithdrawDeposit = PublicMethed
         .getTransactionInfoById(retryWithdrawTxid, blockingSideStubFull);
     Assert.assertTrue(infoByIdWithdrawDeposit.get().getResultValue() == 0);
@@ -678,6 +689,10 @@ public class RetryTrc721001 {
         bigNonce,
         maxFeeLimit, foundationAddress001, foundationKey001, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     logger.info("retryDepositTxid2:" + retryDepositTxid2);
     Optional<TransactionInfo> infoByIdretryDepositTxid2 = PublicMethed
@@ -953,6 +968,9 @@ public class RetryTrc721001 {
             testAddress001, testKey001, blockingStubFull);
     logger.info(deposittrx);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(deposittrx, blockingStubFull);
@@ -965,6 +983,7 @@ public class RetryTrc721001 {
         .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1,
             1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
     Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
@@ -1237,6 +1256,7 @@ public class RetryTrc721001 {
         .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1,
             1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
     Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
