@@ -151,7 +151,6 @@ public class HttpTestBlock001 {
   }
 
 
-
   /**
    * constructor.
    */
@@ -266,10 +265,6 @@ public class HttpTestBlock001 {
     logger.info("Total duration  : " + duration);
     logger.info("Average duration: " + duration / times);
   }
-
-
-
-
 
 
   /**

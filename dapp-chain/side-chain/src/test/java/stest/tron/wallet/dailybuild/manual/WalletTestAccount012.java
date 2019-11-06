@@ -41,7 +41,14 @@ public class WalletTestAccount012 {
   private final String testKey004 = Configuration.getByPath("testng.conf")
       .getString("mainWitness.key3");
   private final byte[] testAddress004 = PublicMethedForDailybuild.getFinalAddress(testKey004);
-
+  ArrayList<String> txidList = new ArrayList<String>();
+  Optional<TransactionInfo> infoById = null;
+  Long beforeTime;
+  Long afterTime;
+  Long beforeBlockNum;
+  Long afterBlockNum;
+  Block currentBlock;
+  Long currentBlockNum;
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private ManagedChannel channelFull1 = null;
@@ -50,18 +57,8 @@ public class WalletTestAccount012 {
       .getStringList("fullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
-  ArrayList<String> txidList = new ArrayList<String>();
-
-  Optional<TransactionInfo> infoById = null;
-  Long beforeTime;
-  Long afterTime;
-  Long beforeBlockNum;
-  Long afterBlockNum;
-  Block currentBlock;
-  Long currentBlockNum;
 
   //get account
-
 
   /**
    * constructor.
@@ -120,18 +117,21 @@ public class WalletTestAccount012 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(contractAddress, blockingStubFull);
     String txid;
 
     Integer i = 1;
-    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(asset011Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(asset011Address,
+            blockingStubFull);
     accountResource = PublicMethedForDailybuild.getAccountResource(asset011Address,
         blockingStubFull);
     Long beforeEnergyLimit = accountResource.getEnergyLimit();
     Long afterEnergyLimit;
     Long beforeTotalEnergyLimit = accountResource.getTotalEnergyLimit();
-    Account account = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue011, blockingStubFull);
+    Account account = PublicMethedForDailybuild
+        .queryAccount(testKeyForAssetIssue011, blockingStubFull);
     Long afterTotalEnergyLimit;
     while (i++ < 20000) {
       accountResource = PublicMethedForDailybuild.getAccountResource(asset011Address,

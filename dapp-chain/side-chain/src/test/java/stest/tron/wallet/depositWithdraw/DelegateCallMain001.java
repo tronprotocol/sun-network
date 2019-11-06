@@ -36,61 +36,49 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 public class DelegateCallMain001 {
 
 
+  final String mainGateWayAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key1");
+  final byte[] mainGateWayAddressKey = WalletClient.decodeFromBase58Check(mainGateWayAddress);
+  final String sideGatewayAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key2");
+  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideGatewayAddress);
+  final String chainIdAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.chainIdAddress");
+  final byte[] chainIdAddressKey = WalletClient.decodeFromBase58Check(chainIdAddress);
+  final String gateWatOwnerAddressKey = Configuration.getByPath("testng.conf")
+      .getString("gateWatOwnerAddressKey.key1");
+  final String ChainIdAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.chainIdAddress");
   private final String testDepositTrx = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
+  private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
+  private final String testOracle = Configuration.getByPath("testng.conf")
+      .getString("oralceAccountKey.key1");
+  private final byte[] testOracleAddress = PublicMethed.getFinalAddress(testOracle);
+  private final String mainGateWayOwner = Configuration.getByPath("testng.conf")
+      .getString("gateWatOwnerAddressKey.key1");
+  private final byte[] mainGateWayOwnerAddress = PublicMethed.getFinalAddress(mainGateWayOwner);
+  private final String sideGateWayOwner = Configuration.getByPath("testng.conf")
+      .getString("gateWatOwnerAddressKey.key2");
+  private final byte[] sideGateWayOwnerAddress = PublicMethed.getFinalAddress(sideGateWayOwner);
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] depositAddress = ecKey1.getAddress();
+  String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  String parame1 = null;
+  String methodStr1 = null;
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
-
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
-
-
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] depositAddress = ecKey1.getAddress();
-  String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  final String mainGateWayAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key1");
-  final byte[] mainGateWayAddressKey = WalletClient.decodeFromBase58Check(mainGateWayAddress);
-
-  final String sideGatewayAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key2");
-  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideGatewayAddress);
-
-  final String chainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.chainIdAddress");
-  final byte[] chainIdAddressKey = WalletClient.decodeFromBase58Check(chainIdAddress);
-
-  final String gateWatOwnerAddressKey = Configuration.getByPath("testng.conf")
-      .getString("gateWatOwnerAddressKey.key1");
-
-  private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
-
-  private final String testOracle = Configuration.getByPath("testng.conf")
-      .getString("oralceAccountKey.key1");
-  private final byte[] testOracleAddress = PublicMethed.getFinalAddress(testOracle);
-  String parame1 = null;
-  String methodStr1 = null;
-
-  private final String mainGateWayOwner = Configuration.getByPath("testng.conf")
-      .getString("gateWatOwnerAddressKey.key1");
-  private final byte[] mainGateWayOwnerAddress = PublicMethed.getFinalAddress(mainGateWayOwner);
-
-  private final String sideGateWayOwner = Configuration.getByPath("testng.conf")
-      .getString("gateWatOwnerAddressKey.key2");
-  private final byte[] sideGateWayOwnerAddress = PublicMethed.getFinalAddress(sideGateWayOwner);
-  final String ChainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.chainIdAddress");
 
   @BeforeSuite
   public void beforeSuite() {
@@ -128,10 +116,10 @@ public class DelegateCallMain001 {
             input1,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     logger.info("ownerTrx : " + txid1);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(txid1, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertEquals(0, infoById2.get().getResultValue());
 
     String methodStr2 = "depositMinTrx()";
@@ -298,6 +286,8 @@ public class DelegateCallMain001 {
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
@@ -353,8 +343,7 @@ public class DelegateCallMain001 {
         accountMainAfterBalance + withdrawValue);
   }
 
-
-  @Test(enabled = false, description = "DelegateCall in mainChain")
+  @Test(enabled = true, description = "DelegateCall in mainChain")
   public void test1DelegateCallMain002() {
     byte[] input = Hex.decode(AbiUtil.parseMethod("getCodeVersion()", "", false));
     TransactionExtention extention = PublicMethed
@@ -456,10 +445,6 @@ public class DelegateCallMain001 {
     Assert.assertTrue(oracleIndexResult == oracleIndexResultAfter);
   }
 
-
-  /**
-   * constructor.
-   */
   @Test(enabled = true, description = "DelegateCall in mainChain")
   public void test1DelegateCallMain003() {
 
@@ -471,9 +456,9 @@ public class DelegateCallMain001 {
             1000000000,
             0l, "0", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
 
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById.get().getResultValue());
 
     // deploy testMainContract
@@ -528,9 +513,9 @@ public class DelegateCallMain001 {
             1000000000,
             0l, "0", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
 
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertEquals(0, infoById1.get().getResultValue());
 
     String parame5 = "true";
@@ -540,9 +525,9 @@ public class DelegateCallMain001 {
         .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input2,
             1000000000,
             0l, "0", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(txid2, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     String hex = infoById2.get().getContractAddress().toStringUtf8();
     logger.info("result:" + hex);
 
@@ -595,9 +580,9 @@ public class DelegateCallMain001 {
         .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input3,
             1000000000,
             0l, "0", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById3 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     String hex3 = infoById3.get().getContractAddress().toStringUtf8();
     logger.info("result:" + hex3);
 
@@ -605,9 +590,6 @@ public class DelegateCallMain001 {
 
   }
 
-  /**
-   * constructor.
-   */
   @Test(enabled = true, description = "DelegateCall in mainChain")
   public void test1DelegateCallMain004() {
 
@@ -685,6 +667,8 @@ public class DelegateCallMain001 {
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
@@ -741,10 +725,6 @@ public class DelegateCallMain001 {
 
   }
 
-
-  /**
-   * constructor.
-   */
   @Test(enabled = true, description = "numOracles in mainChain")
   public void test1DelegateCallMain005() {
 
@@ -1061,6 +1041,8 @@ public class DelegateCallMain001 {
             0,
             input2,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

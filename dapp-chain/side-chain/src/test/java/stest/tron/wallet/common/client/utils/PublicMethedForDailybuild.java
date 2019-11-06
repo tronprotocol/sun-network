@@ -71,14 +71,13 @@ import stest.tron.wallet.common.client.WalletClient;
 
 public class PublicMethedForDailybuild {
 
-  Wallet wallet = new Wallet();
-  //Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
-  private static final String FilePath = "Wallet";
-  private static List<WalletFile> walletFile = new ArrayList<>();
-  private static final Logger logger = LoggerFactory.getLogger("TestLogger");
-
   public static final String mainGateWay = Configuration.getByPath("testng.conf")
       .getString("gateway_address.chainIdAddress");
+  //Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+  private static final String FilePath = "Wallet";
+  private static final Logger logger = LoggerFactory.getLogger("TestLogger");
+  private static List<WalletFile> walletFile = new ArrayList<>();
+  Wallet wallet = new Wallet();
 
   /**
    * constructor.
@@ -87,7 +86,6 @@ public class PublicMethedForDailybuild {
   /**
    * constructor.
    */
-
 
   /**
    * constructor.

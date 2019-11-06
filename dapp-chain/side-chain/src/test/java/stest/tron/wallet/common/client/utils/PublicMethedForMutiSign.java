@@ -35,7 +35,6 @@ import org.tron.common.crypto.ECKey.ECDSASignature;
 import org.tron.common.crypto.Hash;
 import org.tron.common.utils.Base58;
 import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.ByteUtil;
 import org.tron.core.Wallet;
 import org.tron.core.exception.CancelException;
 import org.tron.protos.Contract;
@@ -60,22 +59,18 @@ import stest.tron.wallet.common.client.WalletClient;
 
 public class PublicMethedForMutiSign {
 
-  Wallet wallet = new Wallet();
-  private static final Logger logger = LoggerFactory.getLogger("TestLogger");
   public static final String mainGateWay = Configuration.getByPath("testng.conf")
       .getString("gateway_address.chainIdAddress");
+  private static final Logger logger = LoggerFactory.getLogger("TestLogger");
+  Wallet wallet = new Wallet();
 
   /**
    * constructor.
    */
 
-
   /**
    * constructor.
    */
-
-
-
 
   /**
    * constructor.
@@ -250,11 +245,9 @@ public class PublicMethedForMutiSign {
     return transaction;
   }
 
-
   /**
    * constructor.
    */
-
 
   /**
    * constructor.
@@ -519,8 +512,6 @@ public class PublicMethedForMutiSign {
 
   }
 
-
-
   /**
    * constructor.
    */
@@ -777,7 +768,7 @@ public class PublicMethedForMutiSign {
 
   public static boolean createAccountWhtiPermissionId(byte[] ownerAddress,
       byte[] newAddress, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
-      int permissionId,String[] permissionKeyString) {
+      int permissionId, String[] permissionKeyString) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     ECKey temKey = null;
     try {
@@ -824,7 +815,6 @@ public class PublicMethedForMutiSign {
   /**
    * constructor.
    */
-
 
   /**
    * constructor.
@@ -1845,7 +1835,6 @@ public class PublicMethedForMutiSign {
   /**
    * constructor.
    */
-
 
   /**
    * constructor.
@@ -3817,22 +3806,17 @@ public class PublicMethedForMutiSign {
    * constructor.
    */
 
+  /**
+   * constructor.
+   */
 
   /**
    * constructor.
    */
 
-
   /**
    * constructor.
    */
-
-
-
-  /**
-   * constructor.
-   */
-
 
   /**
    * constructor.
@@ -3980,7 +3964,7 @@ public class PublicMethedForMutiSign {
   /**
    * constructor.
    */
-  public static boolean createWitness(String url, byte[] owner, String priKey,int permissionId,
+  public static boolean createWitness(String url, byte[] owner, String priKey, int permissionId,
       String[] permissionKeyString, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
@@ -3996,7 +3980,6 @@ public class PublicMethedForMutiSign {
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setUrl(ByteString.copyFrom(byteurl));
     Contract.WitnessCreateContract contract = builder.build();
-
 
     TransactionExtention transactionExtention = blockingStubFull.createWitness2(contract);
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
@@ -4031,7 +4014,7 @@ public class PublicMethedForMutiSign {
         "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
 
     transaction = signTransaction(transaction, blockingStubFull, permissionKeyString);
-    return broadcastTransaction(transaction,blockingStubFull);
+    return broadcastTransaction(transaction, blockingStubFull);
   }
 
   /**

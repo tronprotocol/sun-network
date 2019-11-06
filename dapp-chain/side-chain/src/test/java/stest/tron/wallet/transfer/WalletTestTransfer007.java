@@ -86,29 +86,34 @@ public class WalletTestTransfer007 {
 
   @Test
   public void testSendCoin() {
-    String transactionId = PublicMethedForDailybuild.sendcoinGetTransactionId(sendAccountAddress, 90000000000L,
-        fromAddress, testKey002, blockingStubFull);
+    String transactionId = PublicMethedForDailybuild
+        .sendcoinGetTransactionId(sendAccountAddress, 90000000000L,
+            fromAddress, testKey002, blockingStubFull);
     Optional<Transaction> infoById = PublicMethedForDailybuild
         .getTransactionById(transactionId, blockingStubFull);
     Long timestamptis = PublicMethedForDailybuild.printTransactionRow(infoById.get().getRawData());
-    Long timestamptispBlockOne = PublicMethedForDailybuild.getBlock(1, blockingStubFull).getBlockHeader()
+    Long timestamptispBlockOne = PublicMethedForDailybuild.getBlock(1, blockingStubFull)
+        .getBlockHeader()
         .getRawData().getTimestamp();
     Assert.assertTrue(timestamptis >= timestamptispBlockOne);
   }
 
   @Test
   public void testSendCoin2() {
-    String transactionId = PublicMethedForDailybuild.sendcoinGetTransactionId(sendAccountAddress, 90000000000L,
-        fromAddress, testKey002, blockingStubFull);
+    String transactionId = PublicMethedForDailybuild
+        .sendcoinGetTransactionId(sendAccountAddress, 90000000000L,
+            fromAddress, testKey002, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<Transaction> infoById = PublicMethedForDailybuild
         .getTransactionById(transactionId, blockingStubFull);
     Long timestamptis = PublicMethedForDailybuild.printTransactionRow(infoById.get().getRawData());
-    Long timestampBlockOne = PublicMethedForDailybuild.getBlock(1, blockingStubFull).getBlockHeader()
+    Long timestampBlockOne = PublicMethedForDailybuild.getBlock(1, blockingStubFull)
+        .getBlockHeader()
         .getRawData().getTimestamp();
     Assert.assertTrue(timestamptis >= timestampBlockOne);
-    PublicMethedForDailybuild.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
+    PublicMethedForDailybuild
+        .waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
 
     infoById = PublicMethedForDailybuild.getTransactionById(transactionId, blockingStubSolidity);
     timestamptis = PublicMethedForDailybuild.printTransactionRow(infoById.get().getRawData());

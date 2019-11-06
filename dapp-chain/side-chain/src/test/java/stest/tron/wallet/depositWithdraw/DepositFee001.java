@@ -32,40 +32,31 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 public class DepositFee001 {
 
 
+  final String mainGateWayAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key1");
+  final String gateWatOwnerAddressKey = Configuration.getByPath("testng.conf")
+      .getString("gateWatOwnerAddressKey.key1");
   private final String testDepositTrx = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
+  private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] depositAddress = ecKey1.getAddress();
+  String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  String methodStr1 = "setDepositFee(uint256)";
+  String parame1 = "2";
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
-
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
-
-
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] depositAddress = ecKey1.getAddress();
-  String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  final String mainGateWayAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key1");
-
-  final String gateWatOwnerAddressKey = Configuration.getByPath("testng.conf")
-      .getString("gateWatOwnerAddressKey.key1");
-
-  private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
-  String methodStr1 = "setDepositFee(uint256)";
-  String parame1 = "2";
 
   @BeforeSuite
   public void beforeSuite() {
@@ -122,6 +113,9 @@ public class DepositFee001 {
             input,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
@@ -153,7 +147,6 @@ public class DepositFee001 {
             input1,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
@@ -301,8 +294,8 @@ public class DepositFee001 {
   @Test(enabled = true, description = "DepositMinTrx with triggerAccount exception and "
       + "minTrx Value range")
   public void test2DepositFee002() {
-    PublicMethed.sendcoin(depositAddress,1000000000,
-        testDepositAddress,testDepositTrx,blockingStubFull);
+    PublicMethed.sendcoin(depositAddress, 1000000000,
+        testDepositAddress, testDepositTrx, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     //not gateWay owner trigger setDepositMinTrx method
     byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
@@ -313,7 +306,6 @@ public class DepositFee001 {
             input1,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() != 0);
@@ -330,12 +322,11 @@ public class DepositFee001 {
             input2,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid2, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
     String msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135,170)));
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
     Assert.assertEquals("\u0001less than 100 TRX", msg);
 
     String methodStr2 = "depositFee()";
@@ -359,7 +350,6 @@ public class DepositFee001 {
             input3,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertNotNull(txid3);
@@ -377,12 +367,11 @@ public class DepositFee001 {
             input3,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
     msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135,170)));
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
     Assert.assertEquals("\u0001less than 100 TRX", msg);
 
     return3 = PublicMethed
@@ -407,12 +396,11 @@ public class DepositFee001 {
             input3,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
     msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135,170)));
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
     Assert.assertEquals("\u0001less than 100 TRX", msg);
 
     return3 = PublicMethed
@@ -437,12 +425,11 @@ public class DepositFee001 {
             input3,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
     msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135,170)));
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
     Assert.assertEquals("\u0001less than 100 TRX", msg);
 
     return3 = PublicMethed
@@ -467,12 +454,11 @@ public class DepositFee001 {
             input3,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
     msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135,170)));
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
     Assert.assertEquals("\u0001less than 100 TRX", msg);
 
     return3 = PublicMethed
@@ -492,7 +478,6 @@ public class DepositFee001 {
   @AfterClass
   public void shutdown() throws InterruptedException {
     parame1 = "0";
-
     byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
 
     PublicMethed
@@ -500,6 +485,7 @@ public class DepositFee001 {
             0,
             input1,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

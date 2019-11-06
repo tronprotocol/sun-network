@@ -27,30 +27,23 @@ public class ContractOriginEnergyLimit001 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] grammarAddress3 = ecKey1.getAddress();
+  String testKeyForGrammarAddress3 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
-
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-
-
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
-
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] grammarAddress3 = ecKey1.getAddress();
-  String testKeyForGrammarAddress3 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
 
   @BeforeSuite
   public void beforeSuite() {
@@ -115,28 +108,33 @@ public class ContractOriginEnergyLimit001 {
 
     Assert.assertFalse(PublicMethedForDailybuild.updateEnergyLimit(contractAddress2, -1L,
         testKeyForGrammarAddress3, grammarAddress3, blockingStubFull));
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress2, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(contractAddress2, blockingStubFull);
     Assert.assertTrue(smartContract.getOriginEnergyLimit() == 9223372036854775807L);
 
     Assert.assertFalse(PublicMethedForDailybuild.updateEnergyLimit(contractAddress2, 0L,
         testKeyForGrammarAddress3, grammarAddress3, blockingStubFull));
-    SmartContract smartContract1 = PublicMethedForDailybuild.getContract(contractAddress2, blockingStubFull);
+    SmartContract smartContract1 = PublicMethedForDailybuild
+        .getContract(contractAddress2, blockingStubFull);
     Assert.assertTrue(smartContract1.getOriginEnergyLimit() == 9223372036854775807L);
 
     Assert.assertTrue(PublicMethedForDailybuild.updateEnergyLimit(contractAddress2,
         9223372036854775807L, testKeyForGrammarAddress3,
         grammarAddress3, blockingStubFull));
-    SmartContract smartContract2 = PublicMethedForDailybuild.getContract(contractAddress2, blockingStubFull);
+    SmartContract smartContract2 = PublicMethedForDailybuild
+        .getContract(contractAddress2, blockingStubFull);
     Assert.assertTrue(smartContract2.getOriginEnergyLimit() == 9223372036854775807L);
 
     Assert.assertTrue(PublicMethedForDailybuild.updateEnergyLimit(contractAddress2, 'c',
         testKeyForGrammarAddress3, grammarAddress3, blockingStubFull));
-    SmartContract smartContract3 = PublicMethedForDailybuild.getContract(contractAddress2, blockingStubFull);
+    SmartContract smartContract3 = PublicMethedForDailybuild
+        .getContract(contractAddress2, blockingStubFull);
     Assert.assertEquals(smartContract3.getOriginEnergyLimit(), 99);
 
     Assert.assertFalse(PublicMethedForDailybuild.updateEnergyLimit(contractAddress2, 1L,
         testNetAccountKey, testNetAccountAddress, blockingStubFull));
-    SmartContract smartContract4 = PublicMethedForDailybuild.getContract(contractAddress2, blockingStubFull);
+    SmartContract smartContract4 = PublicMethedForDailybuild
+        .getContract(contractAddress2, blockingStubFull);
     Assert.assertEquals(smartContract4.getOriginEnergyLimit(), 99);
   }
 

@@ -4,7 +4,6 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
 import java.util.Random;
-//import java.io.FileWriter;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.AfterClass;
@@ -21,9 +20,10 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
-//import java.io.BufferedWriter;
-
 import stest.tron.wallet.common.client.utils.PublicMethed;
+
+//import java.io.FileWriter;
+//import java.io.BufferedWriter;
 
 
 @Slf4j
@@ -36,13 +36,6 @@ public class TestMapBigLongAndNumbers {
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
 
   //private final String testAddress41 = ByteArray.toHexString(fromAddress);
-
-  private ManagedChannel channelFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-
-
   String kittyCoreAddressAndCut = "";
   byte[] kittyCoreContractAddress = null;
   byte[] saleClockAuctionContractAddress = null;
@@ -52,12 +45,13 @@ public class TestMapBigLongAndNumbers {
   Integer consumeUserResourcePercent = 100;
   String txid = "";
   Optional<TransactionInfo> infoById = null;
-
-
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] triggerAddress = ecKey2.getAddress();
   String triggerKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-
+  private ManagedChannel channelFull = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+  private String fullnode = Configuration.getByPath("testng.conf")
+      .getStringList("fullnode.ip.list").get(0);
 
   @BeforeSuite
   public void beforeSuite() {
@@ -143,8 +137,9 @@ public class TestMapBigLongAndNumbers {
 
       System.out.println("long string address:" + addresstest);
 
-      txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress, "update2(string,address)",
-          saleContractString, false, 0, 1000000000L, fromAddress, testKey002, blockingStubFull);
+      txid = PublicMethed
+          .triggerContractSideChain(kittyCoreContractAddress, "update2(string,address)",
+              saleContractString, false, 0, 1000000000L, fromAddress, testKey002, blockingStubFull);
       logger.info(txid);
 
       String saleContractString1 = "\"" + data5 + "\"" + "," + "\""
@@ -152,8 +147,10 @@ public class TestMapBigLongAndNumbers {
 
       System.out.println("short string address:" + addresstest);
 
-      txid = PublicMethed.triggerContractSideChain(kittyCoreContractAddress, "update2(string,address)",
-          saleContractString1, false, 0, 1000000000L, fromAddress, testKey002, blockingStubFull);
+      txid = PublicMethed
+          .triggerContractSideChain(kittyCoreContractAddress, "update2(string,address)",
+              saleContractString1, false, 0, 1000000000L, fromAddress, testKey002,
+              blockingStubFull);
       logger.info(txid);
 
       System.out.println("time out");
