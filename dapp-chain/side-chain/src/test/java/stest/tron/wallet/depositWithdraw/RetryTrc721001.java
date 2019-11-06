@@ -2,6 +2,7 @@ package stest.tron.wallet.depositWithdraw;
 
 import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
 
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
@@ -34,25 +35,22 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 public class RetryTrc721001 {
 
 
+  final String chainIdAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.chainIdAddress");
+  final byte[] chainIdAddressKey = WalletClient.decodeFromBase58Check(chainIdAddress);
+  final String gateWatOwnerAddressKey = Configuration.getByPath("testng.conf")
+      .getString("gateWatOwnerAddressKey.key1");
+  final String gateWatOwnerSideAddressKey = Configuration.getByPath("testng.conf")
+      .getString("gateWatOwnerAddressKey.key2");
   private final String foundationKey001 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] foundationAddress001 = PublicMethed.getFinalAddress(foundationKey001);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
-  private ManagedChannel channelFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
-  private ManagedChannel channelFull1 = null;
-  private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
-
-
-  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("mainfullnode.ip.list").get(0);
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-
+  private final String testOracle = Configuration.getByPath("testng.conf")
+      .getString("oralceAccountKey.key1");
+  private final byte[] testOracleAddress = PublicMethed.getFinalAddress(testOracle);
+  private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
+  private final byte[] gateWaySideOwnerAddress = PublicMethed
+      .getFinalAddress(gateWatOwnerSideAddressKey);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] testAddress001 = ecKey1.getAddress();
   String testKey001 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -64,19 +62,9 @@ public class RetryTrc721001 {
   String sideGatewayAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key2");
   final byte[] sideGatewayAddressKey = WalletClient.decodeFromBase58Check(sideGatewayAddress);
-
-  final String chainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.chainIdAddress");
-  final byte[] chainIdAddressKey = WalletClient.decodeFromBase58Check(chainIdAddress);
-
-  private final String testOracle = Configuration.getByPath("testng.conf")
-      .getString("oralceAccountKey.key1");
-  private final byte[] testOracleAddress = PublicMethed.getFinalAddress(testOracle);
-
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] depositAddress2 = ecKey2.getAddress();
   String testKeyFordeposit2 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-
   String nonce = null;
   String nonceWithdraw = null;
   String nonceMap = null;
@@ -85,19 +73,19 @@ public class RetryTrc721001 {
   long oracleSideBeforeWithdrawSendBalance = 0;
   String methodStr1 = null;
   String parame3 = null;
-  final String gateWatOwnerAddressKey = Configuration.getByPath("testng.conf")
-      .getString("gateWatOwnerAddressKey.key1");
-
-  private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
-
-  final String gateWatOwnerSideAddressKey = Configuration.getByPath("testng.conf")
-      .getString("gateWatOwnerAddressKey.key2");
-
-  private final byte[] gateWaySideOwnerAddress = PublicMethed
-      .getFinalAddress(gateWatOwnerSideAddressKey);
-
   String methodStrSide = null;
   String parameSide1 = null;
+  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
+      .getLong("defaultParameter.maxFeeLimit");
+  private ManagedChannel channelFull = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+  private ManagedChannel channelFull1 = null;
+  private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+  private String fullnode = Configuration.getByPath("testng.conf")
+      .getStringList("mainfullnode.ip.list").get(0);
+  private String fullnode1 = Configuration.getByPath("testng.conf")
+      .getStringList("fullnode.ip.list").get(0);
 
   @BeforeSuite
   public void beforeSuite() {
@@ -181,7 +169,7 @@ public class RetryTrc721001 {
     long accountBeforeBalance = accountBefore.getBalance();
     Account accountSideBefore = PublicMethed.queryAccount(testAddress001, blockingSideStubFull);
     long accountSideBeforeBalance = accountSideBefore.getBalance();
-    logger.info("accountSideBeforeBalance:"+accountSideBeforeBalance);
+    logger.info("accountSideBeforeBalance:" + accountSideBeforeBalance);
 
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertEquals(10000_000_000L - fee, accountBeforeBalance);

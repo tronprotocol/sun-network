@@ -19,19 +19,6 @@ public class AbiUtil {
   static Pattern paramTypeArray = Pattern.compile("^(.*)\\[([0-9]*)\\]$");
   //
 
-  abstract static class Coder {
-
-    boolean dynamic = false;
-    String name;
-    String type;
-
-    //    DataWord[] encode
-    abstract byte[] encode(String value);
-
-    abstract byte[] decode();
-
-  }
-
   /**
    * constructor.
    */
@@ -88,6 +75,299 @@ public class AbiUtil {
       return new CoderArray(arrayType, length);
     }
     return null;
+  }
+
+  public static byte[] encodeString(String value) {
+    byte[] data = value.getBytes();
+    List<DataWord> ret = new ArrayList<>();
+    ret.add(new DataWord(data.length));
+
+    int readInx = 0;
+    int len = value.getBytes().length;
+    while (readInx < value.getBytes().length) {
+      byte[] wordData = new byte[32];
+      int readLen = len - readInx >= 32 ? 32 : (len - readInx);
+      System.arraycopy(data, readInx, wordData, 0, readLen);
+      DataWord word = new DataWord(wordData);
+      ret.add(word);
+      readInx += 32;
+    }
+
+    byte[] retBytes = new byte[ret.size() * 32];
+    int retIndex = 0;
+
+    for (DataWord w : ret) {
+      System.arraycopy(w.getData(), 0, retBytes, retIndex, 32);
+      retIndex += 32;
+    }
+
+    return retBytes;
+  }
+
+  /**
+   * constructor.
+   */
+
+  public static byte[] encodeDynamicBytes(String value) {
+    byte[] data = ByteArray.fromHexString(value);
+    List<DataWord> ret = new ArrayList<>();
+    ret.add(new DataWord(data.length));
+
+    int readInx = 0;
+    int len = data.length;
+    while (readInx < data.length) {
+      byte[] wordData = new byte[32];
+      int readLen = len - readInx >= 32 ? 32 : (len - readInx);
+      System.arraycopy(data, readInx, wordData, 0, readLen);
+      DataWord word = new DataWord(wordData);
+      ret.add(word);
+      readInx += 32;
+    }
+
+    byte[] retBytes = new byte[ret.size() * 32];
+    int retIndex = 0;
+
+    for (DataWord w : ret) {
+      System.arraycopy(w.getData(), 0, retBytes, retIndex, 32);
+      retIndex += 32;
+    }
+
+    return retBytes;
+  }
+
+  /**
+   * constructor.
+   */
+
+  public static byte[] pack(List<Coder> codes, List<Object> values) {
+
+    int staticSize = 0;
+    int dynamicSize = 0;
+
+    List<byte[]> encodedList = new ArrayList<>();
+
+    for (int idx = 0; idx < codes.size(); idx++) {
+      Coder coder = codes.get(idx);
+      Object parameter = values.get(idx);
+      String value;
+      if (parameter instanceof List) {
+        StringBuilder sb = new StringBuilder();
+        for (Object item : (List) parameter) {
+          if (sb.length() != 0) {
+            sb.append(",");
+          }
+          sb.append("\"").append(item).append("\"");
+        }
+        value = "[" + sb.toString() + "]";
+      } else {
+        value = parameter.toString();
+      }
+
+      byte[] encoded = coder.encode(value);
+
+      encodedList.add(encoded);
+
+      if (coder.dynamic) {
+        staticSize += 32;
+        dynamicSize += encoded.length;
+      } else {
+        staticSize += encoded.length;
+      }
+    }
+
+    int offset = 0;
+    int dynamicOffset = staticSize;
+
+    byte[] data = new byte[staticSize + dynamicSize];
+
+    for (int idx = 0; idx < codes.size(); idx++) {
+      Coder coder = codes.get(idx);
+
+      if (coder.dynamic) {
+        System.arraycopy(new DataWord(dynamicOffset).getData(), 0, data, offset, 32);
+        offset += 32;
+
+        System.arraycopy(encodedList.get(idx), 0, data, dynamicOffset, encodedList.get(idx).length);
+        dynamicOffset += encodedList.get(idx).length;
+      } else {
+        System.arraycopy(encodedList.get(idx), 0, data, offset, encodedList.get(idx).length);
+        offset += encodedList.get(idx).length;
+      }
+    }
+
+    return data;
+  }
+
+  /**
+   * constructor.
+   */
+
+  public static String parseMethod(String methodSign, String params) {
+    return parseMethod(methodSign, params, false);
+  }
+
+  public static String parseParameters(String methodSign, List<Object> parameters) {
+    String[] inputArr = new String[parameters.size()];
+    int i = 0;
+    for (Object parameter : parameters) {
+      if (parameter instanceof List) {
+        StringBuilder sb = new StringBuilder();
+        for (Object item : (List) parameter) {
+          if (sb.length() != 0) {
+            sb.append(",");
+          }
+          sb.append("\"").append(item).append("\"");
+        }
+        inputArr[i++] = "[" + sb.toString() + "]";
+      } else {
+        inputArr[i++] =
+            (parameter instanceof String) ? ("\"" + parameter + "\"") : ("" + parameter);
+      }
+    }
+    String input = StringUtils.join(inputArr, ',');
+    return parseParameters(methodSign, input);
+  }
+
+  public static String parseParameters(String methodSign, String input) {
+    byte[] encodedParms = encodeInput(methodSign, input);
+    return Hex.toHexString(encodedParms);
+  }
+
+  /**
+   * constructor.
+   */
+
+  public static String parseMethod(String methodSign, String input, boolean isHex) {
+    byte[] selector = new byte[4];
+    System.arraycopy(Hash.sha3(methodSign.getBytes()), 0, selector, 0, 4);
+    System.out.println(methodSign + ":" + Hex.toHexString(selector));
+    if (input.length() == 0) {
+      return Hex.toHexString(selector);
+    }
+    if (isHex) {
+      return Hex.toHexString(selector) + input;
+    }
+    byte[] encodedParms = encodeInput(methodSign, input);
+
+    return Hex.toHexString(selector) + Hex.toHexString(encodedParms);
+  }
+
+  /**
+   * constructor.
+   */
+
+  public static byte[] encodeInput(String methodSign, String input) {
+    ObjectMapper mapper = new ObjectMapper();
+    input = "[" + input + "]";
+    List<Object> items = null;
+    try {
+      items = mapper.readValue(input, List.class);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    List<Coder> coders = new ArrayList<>();
+    for (String s : getTypes(methodSign)) {
+      Coder c = getParamCoder(s);
+      coders.add(c);
+    }
+
+    return pack(coders, items);
+  }
+
+  public static String parseMethod(String methodSign, List<Object> parameters) {
+    String[] inputArr = new String[parameters.size()];
+    int i = 0;
+    for (Object parameter : parameters) {
+      if (parameter instanceof List) {
+        StringBuilder sb = new StringBuilder();
+        for (Object item : (List) parameter) {
+          if (sb.length() != 0) {
+            sb.append(",");
+          }
+          sb.append("\"").append(item).append("\"");
+        }
+        inputArr[i++] = "[" + sb.toString() + "]";
+      } else {
+        inputArr[i++] =
+            (parameter instanceof String) ? ("\"" + parameter + "\"") : ("" + parameter);
+      }
+    }
+    return parseMethod(methodSign, StringUtils.join(inputArr, ','));
+  }
+
+  /**
+   * constructor.
+   */
+
+  public static void main(String[] args) {
+    //    String method = "test(address,string,int)";
+    String method = "test(string,int2,string)";
+    String params = "asdf,3123,adf";
+
+    String arrayMethod1 = "test(uint,uint256[3])";
+    String arrayMethod2 = "test(uint,uint256[])";
+    String arrayMethod3 = "test(uint,address[])";
+    String byteMethod1 = "test(bytes32,bytes11)";
+    String tokenMethod = "test(trcToken,uint256)";
+    String tokenParams = "\"nmb\",111";
+
+    System.out.println("token:" + parseMethod(tokenMethod, tokenParams));
+
+    String method1 = "test(uint256,string,string,uint256[])";
+    String expected1 = "db103cf3000000000000000000000000000000000000000000000000000000000000000500"
+        + "0000000000000000000000000000000000000000000000000000000000008000000000000000000000000000"
+        + "000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000"
+        + "0000000000010000000000000000000000000000000000000000000000000000000000000000014200000000"
+        + "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        + "0000000000000000000000000000014300000000000000000000000000000000000000000000000000000000"
+        + "0000000000000000000000000000000000000000000000000000000000000000000003000000000000000000"
+        + "0000000000000000000000000000000000000000000001000000000000000000000000000000000000000000"
+        + "00000000000000000000020000000000000000000000000000000000000000000000000000000000000003";
+    String method2 = "test(uint256,string,string,uint256[3])";
+    String expected2 = "000000000000000000000000000000000000000000000000000000000000000100000000000"
+        + "0000000000000000000000000000000000000000000000000000200000000000000000000000000000000000"
+        + "00000000000000000000000000003";
+    String listString = "1 ,\"B\",\"C\", [1, 2, 3]";
+    System.out.println(parseMethod(method1, listString));
+    System.out.println(parseMethod(method2, listString));
+
+    String bytesValue1 = "\"0112313\",112313";
+    String bytesValue2 = "123123123";
+
+    System.out.println(parseMethod(byteMethod1, bytesValue1));
+
+  }
+
+  /**
+   * constructor.
+   */
+
+  public static byte[] concat(byte[]... bytesArray) {
+    int length = 0;
+    for (byte[] bytes : bytesArray) {
+      length += bytes.length;
+    }
+    byte[] ret = new byte[length];
+    int index = 0;
+    for (byte[] bytes : bytesArray) {
+      System.arraycopy(bytes, 0, ret, index, bytes.length);
+      index += bytes.length;
+    }
+    return ret;
+  }
+
+  abstract static class Coder {
+
+    boolean dynamic = false;
+    String name;
+    String type;
+
+    //    DataWord[] encode
+    abstract byte[] encode(String value);
+
+    abstract byte[] decode();
+
   }
 
   static class CoderArray extends Coder {
@@ -264,286 +544,6 @@ public class AbiUtil {
     byte[] decode() {
       return new byte[0];
     }
-  }
-
-  public static byte[] encodeString(String value) {
-    byte[] data = value.getBytes();
-    List<DataWord> ret = new ArrayList<>();
-    ret.add(new DataWord(data.length));
-
-    int readInx = 0;
-    int len = value.getBytes().length;
-    while (readInx < value.getBytes().length) {
-      byte[] wordData = new byte[32];
-      int readLen = len - readInx >= 32 ? 32 : (len - readInx);
-      System.arraycopy(data, readInx, wordData, 0, readLen);
-      DataWord word = new DataWord(wordData);
-      ret.add(word);
-      readInx += 32;
-    }
-
-    byte[] retBytes = new byte[ret.size() * 32];
-    int retIndex = 0;
-
-    for (DataWord w : ret) {
-      System.arraycopy(w.getData(), 0, retBytes, retIndex, 32);
-      retIndex += 32;
-    }
-
-    return retBytes;
-  }
-
-  /**
-   * constructor.
-   */
-
-  public static byte[] encodeDynamicBytes(String value) {
-    byte[] data = ByteArray.fromHexString(value);
-    List<DataWord> ret = new ArrayList<>();
-    ret.add(new DataWord(data.length));
-
-    int readInx = 0;
-    int len = data.length;
-    while (readInx < data.length) {
-      byte[] wordData = new byte[32];
-      int readLen = len - readInx >= 32 ? 32 : (len - readInx);
-      System.arraycopy(data, readInx, wordData, 0, readLen);
-      DataWord word = new DataWord(wordData);
-      ret.add(word);
-      readInx += 32;
-    }
-
-    byte[] retBytes = new byte[ret.size() * 32];
-    int retIndex = 0;
-
-    for (DataWord w : ret) {
-      System.arraycopy(w.getData(), 0, retBytes, retIndex, 32);
-      retIndex += 32;
-    }
-
-    return retBytes;
-  }
-
-  /**
-   * constructor.
-   */
-
-  public static byte[] pack(List<Coder> codes, List<Object> values) {
-
-    int staticSize = 0;
-    int dynamicSize = 0;
-
-    List<byte[]> encodedList = new ArrayList<>();
-
-    for (int idx = 0; idx < codes.size(); idx++) {
-      Coder coder = codes.get(idx);
-      Object parameter = values.get(idx);
-      String value;
-      if (parameter instanceof List) {
-        StringBuilder sb = new StringBuilder();
-        for (Object item : (List) parameter) {
-          if (sb.length() != 0) {
-            sb.append(",");
-          }
-          sb.append("\"").append(item).append("\"");
-        }
-        value = "[" + sb.toString() + "]";
-      } else {
-        value = parameter.toString();
-      }
-
-      byte[] encoded = coder.encode(value);
-
-      encodedList.add(encoded);
-
-      if (coder.dynamic) {
-        staticSize += 32;
-        dynamicSize += encoded.length;
-      } else {
-        staticSize += encoded.length;
-      }
-    }
-
-    int offset = 0;
-    int dynamicOffset = staticSize;
-
-    byte[] data = new byte[staticSize + dynamicSize];
-
-    for (int idx = 0; idx < codes.size(); idx++) {
-      Coder coder = codes.get(idx);
-
-      if (coder.dynamic) {
-        System.arraycopy(new DataWord(dynamicOffset).getData(), 0, data, offset, 32);
-        offset += 32;
-
-        System.arraycopy(encodedList.get(idx), 0, data, dynamicOffset, encodedList.get(idx).length);
-        dynamicOffset += encodedList.get(idx).length;
-      } else {
-        System.arraycopy(encodedList.get(idx), 0, data, offset, encodedList.get(idx).length);
-        offset += encodedList.get(idx).length;
-      }
-    }
-
-    return data;
-  }
-
-  /**
-   * constructor.
-   */
-
-  public static String parseMethod(String methodSign, String params) {
-    return parseMethod(methodSign, params, false);
-  }
-
-  public static String parseParameters(String methodSign, List<Object> parameters) {
-    String[] inputArr = new String[parameters.size()];
-    int i = 0;
-    for (Object parameter: parameters) {
-      if (parameter instanceof  List) {
-        StringBuilder sb = new StringBuilder();
-        for (Object item: (List) parameter) {
-          if (sb.length() != 0) {
-            sb.append(",");
-          }
-          sb.append("\"").append(item).append("\"");
-        }
-        inputArr[i++] = "[" + sb.toString() + "]";
-      } else {
-        inputArr[i++] = (parameter instanceof String) ? ("\"" + parameter + "\"") : ("" + parameter);
-      }
-    }
-    String input = StringUtils.join(inputArr, ',');
-    return parseParameters(methodSign, input);
-  }
-
-  public static String parseParameters(String methodSign, String input) {
-    byte[] encodedParms = encodeInput(methodSign, input);
-    return Hex.toHexString(encodedParms);
-  }
-  /**
-   * constructor.
-   */
-
-  public static String parseMethod(String methodSign, String input, boolean isHex) {
-    byte[] selector = new byte[4];
-    System.arraycopy(Hash.sha3(methodSign.getBytes()), 0, selector, 0, 4);
-    System.out.println(methodSign + ":" + Hex.toHexString(selector));
-    if (input.length() == 0) {
-      return Hex.toHexString(selector);
-    }
-    if (isHex) {
-      return Hex.toHexString(selector) + input;
-    }
-    byte[] encodedParms = encodeInput(methodSign, input);
-
-    return Hex.toHexString(selector) + Hex.toHexString(encodedParms);
-  }
-
-  /**
-   * constructor.
-   */
-
-  public static byte[] encodeInput(String methodSign, String input) {
-    ObjectMapper mapper = new ObjectMapper();
-    input = "[" + input + "]";
-    List<Object> items = null;
-    try {
-      items = mapper.readValue(input, List.class);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-    List<Coder> coders = new ArrayList<>();
-    for (String s : getTypes(methodSign)) {
-      Coder c = getParamCoder(s);
-      coders.add(c);
-    }
-
-    return pack(coders, items);
-  }
-
-  public static String parseMethod(String methodSign, List<Object> parameters) {
-    String[] inputArr = new String[parameters.size()];
-    int i = 0;
-    for (Object parameter : parameters) {
-      if (parameter instanceof List) {
-        StringBuilder sb = new StringBuilder();
-        for (Object item : (List) parameter) {
-          if (sb.length() != 0) {
-            sb.append(",");
-          }
-          sb.append("\"").append(item).append("\"");
-        }
-        inputArr[i++] = "[" + sb.toString() + "]";
-      } else {
-        inputArr[i++] =
-            (parameter instanceof String) ? ("\"" + parameter + "\"") : ("" + parameter);
-      }
-    }
-    return parseMethod(methodSign, StringUtils.join(inputArr, ','));
-  }
-
-
-
-  /**
-   * constructor.
-   */
-
-  public static void main(String[] args) {
-    //    String method = "test(address,string,int)";
-    String method = "test(string,int2,string)";
-    String params = "asdf,3123,adf";
-
-    String arrayMethod1 = "test(uint,uint256[3])";
-    String arrayMethod2 = "test(uint,uint256[])";
-    String arrayMethod3 = "test(uint,address[])";
-    String byteMethod1 = "test(bytes32,bytes11)";
-    String tokenMethod = "test(trcToken,uint256)";
-    String tokenParams = "\"nmb\",111";
-
-    System.out.println("token:" + parseMethod(tokenMethod, tokenParams));
-
-    String method1 = "test(uint256,string,string,uint256[])";
-    String expected1 = "db103cf3000000000000000000000000000000000000000000000000000000000000000500"
-        + "0000000000000000000000000000000000000000000000000000000000008000000000000000000000000000"
-        + "000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000"
-        + "0000000000010000000000000000000000000000000000000000000000000000000000000000014200000000"
-        + "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-        + "0000000000000000000000000000014300000000000000000000000000000000000000000000000000000000"
-        + "0000000000000000000000000000000000000000000000000000000000000000000003000000000000000000"
-        + "0000000000000000000000000000000000000000000001000000000000000000000000000000000000000000"
-        + "00000000000000000000020000000000000000000000000000000000000000000000000000000000000003";
-    String method2 = "test(uint256,string,string,uint256[3])";
-    String expected2 = "000000000000000000000000000000000000000000000000000000000000000100000000000"
-        + "0000000000000000000000000000000000000000000000000000200000000000000000000000000000000000"
-        + "00000000000000000000000000003";
-    String listString = "1 ,\"B\",\"C\", [1, 2, 3]";
-    System.out.println(parseMethod(method1, listString));
-    System.out.println(parseMethod(method2, listString));
-
-    String bytesValue1 = "\"0112313\",112313";
-    String bytesValue2 = "123123123";
-
-    System.out.println(parseMethod(byteMethod1, bytesValue1));
-
-  }
-
-  /**
-   * constructor.
-   */
-
-  public static byte[] concat(byte[]... bytesArray) {
-    int length = 0;
-    for (byte[] bytes : bytesArray) {
-      length += bytes.length;
-    }
-    byte[] ret = new byte[length];
-    int index = 0;
-    for (byte[] bytes : bytesArray) {
-      System.arraycopy(bytes, 0, ret, index, bytes.length);
-      index += bytes.length;
-    }
-    return ret;
   }
 
 

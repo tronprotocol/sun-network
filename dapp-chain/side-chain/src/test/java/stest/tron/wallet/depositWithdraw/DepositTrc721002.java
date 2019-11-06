@@ -2,6 +2,7 @@ package stest.tron.wallet.depositWithdraw;
 
 import static org.hamcrest.core.StringContains.containsString;
 
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
@@ -32,45 +33,35 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 @Slf4j
 public class DepositTrc721002 {
 
+  final String ChainIdAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.chainIdAddress");
+  final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
   private final String foundationKey001 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] foundationAddress001 = PublicMethed.getFinalAddress(foundationKey001);
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] depositAddress001 = ecKey1.getAddress();
+  String depositKey001 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  String mainChainAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key1");
+  final byte[] mainChainAddressKey = WalletClient.decodeFromBase58Check(mainChainAddress);
+  String sideChainAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key2");
+  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
+  String deployTxid = null;
+  byte[] trc20Contract = null;
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
-
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
-
-
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] depositAddress001 = ecKey1.getAddress();
-  String depositKey001 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
-  String mainChainAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key1");
-  final byte[] mainChainAddressKey = WalletClient.decodeFromBase58Check(mainChainAddress);
-
-  String sideChainAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key2");
-  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
-
-  final String ChainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.chainIdAddress");
-  final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
-
-  String deployTxid = null;
-  byte[] trc20Contract = null;
 
   @BeforeSuite
   public void beforeSuite() {

@@ -38,6 +38,13 @@ import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 @Slf4j
 public class WalletTestWitness003 {
 
+  private static final byte[] INVAILD_ADDRESS = Base58
+      .decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
+  private static final Long costForCreateWitness = 9999000000L;
+  private static final String tooLongUrl = "qagwqaswqaswqaswqaswqaswqaswqaswqaswqaswqaswqas"
+      + "wqaswqasw1qazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazx"
+      + "swedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedc"
+      + "vqazxswedcvqazxswedcvqazxswedcvqazxswedcv";
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
@@ -46,11 +53,8 @@ public class WalletTestWitness003 {
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   private final String testUpdateWitnessKey = Configuration.getByPath("testng.conf")
       .getString("witness.key1");
-  private final byte[] updateAddress = PublicMethedForDailybuild.getFinalAddress(testUpdateWitnessKey);
-  private static final byte[] INVAILD_ADDRESS = Base58
-      .decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
-
-  private static final Long costForCreateWitness = 9999000000L;
+  private final byte[] updateAddress = PublicMethedForDailybuild
+      .getFinalAddress(testUpdateWitnessKey);
   String createWitnessUrl = "http://www.createwitnessurl.com";
   String updateWitnessUrl = "http://www.updatewitnessurl.com";
   String nullUrl = "";
@@ -59,19 +63,19 @@ public class WalletTestWitness003 {
   byte[] updateUrl = updateWitnessUrl.getBytes();
   byte[] wrongUrl = nullUrl.getBytes();
   byte[] updateSpaceUrl = spaceUrl.getBytes();
-  private static final String tooLongUrl = "qagwqaswqaswqaswqaswqaswqaswqaswqaswqaswqaswqas"
-      + "wqaswqasw1qazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazx"
-      + "swedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedc"
-      + "vqazxswedcvqazxswedcvqazxswedcvqazxswedcv";
+  //get account
+  ECKey ecKey = new ECKey(Utils.getRandom());
+  byte[] lowBalAddress = ecKey.getAddress();
+  String lowBalTest = ByteArray.toHexString(ecKey.getPrivKeyBytes());
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
 
-  //get account
-  ECKey ecKey = new ECKey(Utils.getRandom());
-  byte[] lowBalAddress = ecKey.getAddress();
-  String lowBalTest = ByteArray.toHexString(ecKey.getPrivKeyBytes());
+  public static String loadPubKey() {
+    char[] buf = new char[0x100];
+    return String.valueOf(buf, 32, 130);
+  }
 
   @BeforeSuite
   public void beforeSuite() {
@@ -213,7 +217,8 @@ public class WalletTestWitness003 {
       return false;
     }
     transaction = PublicMethedForDailybuild.signTransaction(ecKey, transaction);
-    GrpcAPI.Return response = PublicMethedForDailybuild.broadcastTransaction(transaction, blockingStubFull);
+    GrpcAPI.Return response = PublicMethedForDailybuild
+        .broadcastTransaction(transaction, blockingStubFull);
     if (response.getResult() == false) {
       logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
       logger.info("response.getRestult() == false");
@@ -287,11 +292,6 @@ public class WalletTestWitness003 {
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
-  }
-
-  public static String loadPubKey() {
-    char[] buf = new char[0x100];
-    return String.valueOf(buf, 32, 130);
   }
 
   public byte[] getAddress(ECKey ecKey) {

@@ -13,55 +13,49 @@ import org.testng.annotations.Test;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
-import org.tron.core.Wallet;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class HttpTestAccount003 {
 
+  private static String updateAccountName = "updateAccount_"
+      + Long.toString(System.currentTimeMillis());
+  private static String updateUrl =
+      "http://www.update.url" + Long.toString(System.currentTimeMillis());
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
-  private JSONObject responseContent;
-  private HttpResponse response;
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(0);
-  private String httpSoliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
   private final String witnessKey001 = Configuration.getByPath("testng.conf")
       .getString("witness.key1");
   private final byte[] witness1Address = PublicMethedForDailybuild.getFinalAddress(witnessKey001);
   private final String witnessKey002 = Configuration.getByPath("testng.conf")
       .getString("witness.key2");
   private final byte[] witness2Address = PublicMethedForDailybuild.getFinalAddress(witnessKey002);
-
+  private final Long createWitnessAmount = Configuration.getByPath("testng.conf")
+      .getLong("defaultParameter.createWitnessAmount");
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] newAccountAddress = ecKey1.getAddress();
   String newAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
-
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] updateAccountAddress = ecKey2.getAddress();
   String updateAccountKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-  private final Long createWitnessAmount = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.createWitnessAmount");
   Long amount = 50000000L;
-  private static String updateAccountName = "updateAccount_"
-      + Long.toString(System.currentTimeMillis());
-  private static String updateUrl =
-      "http://www.update.url" + Long.toString(System.currentTimeMillis());
-
   JsonArray voteKeys = new JsonArray();
   JsonObject voteElement = new JsonObject();
-
+  private JSONObject responseContent;
+  private HttpResponse response;
+  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
+      .get(0);
+  private String httpSoliditynode = Configuration.getByPath("testng.conf")
+      .getStringList("httpnode.ip.list").get(2);
 
   @BeforeSuite
   public void beforeSuite() {
 
   }
+
   /**
    * constructor.
    */

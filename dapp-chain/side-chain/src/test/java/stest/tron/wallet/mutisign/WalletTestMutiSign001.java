@@ -77,8 +77,16 @@ public class WalletTestMutiSign001 {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *//*
 
 
   @BeforeClass(enabled = true)
@@ -185,8 +193,8 @@ public class WalletTestMutiSign001 {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   @Test(enabled = true)
@@ -225,8 +233,8 @@ public class WalletTestMutiSign001 {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   @Test(enabled = true)
@@ -311,8 +319,8 @@ public class WalletTestMutiSign001 {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   @Test(enabled = true)
@@ -350,8 +358,8 @@ public class WalletTestMutiSign001 {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {

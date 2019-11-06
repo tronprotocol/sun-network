@@ -17,7 +17,6 @@ import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
-import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
@@ -33,17 +32,15 @@ public class ContractScenario005 {
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
-
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] contract005Address = ecKey1.getAddress();
+  String contract005Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] contract005Address = ecKey1.getAddress();
-  String contract005Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -66,12 +63,15 @@ public class ContractScenario005 {
 
   @Test(enabled = true)
   public void deployIcoContract() {
-    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contract005Address, 200000000L, fromAddress,
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(contract005Address, 10000000L,
-        3, 1, contract005Key, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(contract005Address,
-        blockingStubFull);
+    Assert
+        .assertTrue(PublicMethedForDailybuild.sendcoin(contract005Address, 200000000L, fromAddress,
+            testKey002, blockingStubFull));
+    Assert
+        .assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(contract005Address, 10000000L,
+            3, 1, contract005Key, blockingStubFull));
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(contract005Address,
+            blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
 
@@ -94,7 +94,8 @@ public class ContractScenario005 {
     logger.info("Txid is " + txid);
     logger.info("Deploy energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
     Assert.assertEquals(1, infoById.get().getResultValue());
-    accountResource = PublicMethedForDailybuild.getAccountResource(contract005Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild
+        .getAccountResource(contract005Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
     Assert.assertTrue(energyLimit > 0);

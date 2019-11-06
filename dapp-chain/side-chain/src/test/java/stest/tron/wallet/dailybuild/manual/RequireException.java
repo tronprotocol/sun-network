@@ -28,37 +28,28 @@ public class RequireException {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
+  byte[] contractAddress = null;
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] asset016Address = ecKey1.getAddress();
+  String testKeyForAssetIssue016 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
-
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-
   private ManagedChannel channelFull2 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull2 = null;
-
-
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
-
   private String soliditynode = Configuration.getByPath("testng.conf")
       .getStringList("solidityNode.ip.list").get(0);
-
-  byte[] contractAddress = null;
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] asset016Address = ecKey1.getAddress();
-  String testKeyForAssetIssue016 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
 
   @BeforeSuite
   public void beforeSuite() {
@@ -93,8 +84,9 @@ public class RequireException {
     ecKey1 = new ECKey(Utils.getRandom());
     asset016Address = ecKey1.getAddress();
     testKeyForAssetIssue016 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-    logger.info(Long.toString(PublicMethedForDailybuild.queryAccount(testNetAccountKey, blockingStubFull)
-        .getBalance()));
+    logger.info(
+        Long.toString(PublicMethedForDailybuild.queryAccount(testNetAccountKey, blockingStubFull)
+            .getBalance()));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(asset016Address, 1000000000L, testNetAccountAddress, testNetAccountKey,
@@ -106,15 +98,17 @@ public class RequireException {
     HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            0L, 100, null, testKeyForAssetIssue016,
+            asset016Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -143,9 +137,11 @@ public class RequireException {
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
-    Account infoafter = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    Account infoafter = PublicMethedForDailybuild
+        .queryAccount(testKeyForAssetIssue016, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -172,15 +168,17 @@ public class RequireException {
     HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            0L, 100, null, testKeyForAssetIssue016,
+            asset016Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -208,9 +206,11 @@ public class RequireException {
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
-    Account infoafter = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    Account infoafter = PublicMethedForDailybuild
+        .queryAccount(testKeyForAssetIssue016, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -238,15 +238,17 @@ public class RequireException {
     HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            0L, 100, null, testKeyForAssetIssue016,
+            asset016Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -275,9 +277,11 @@ public class RequireException {
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
-    Account infoafter = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    Account infoafter = PublicMethedForDailybuild
+        .queryAccount(testKeyForAssetIssue016, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -304,16 +308,18 @@ public class RequireException {
     HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            0L, 100, null, testKeyForAssetIssue016,
+            asset016Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -340,9 +346,11 @@ public class RequireException {
     logger.info("fee:" + fee);
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
-    Account infoafter = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    Account infoafter = PublicMethedForDailybuild
+        .queryAccount(testKeyForAssetIssue016, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -365,8 +373,9 @@ public class RequireException {
   public void test5noPayableConstructor() {
 
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -400,9 +409,11 @@ public class RequireException {
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
-    Account infoafter = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    Account infoafter = PublicMethedForDailybuild
+        .queryAccount(testKeyForAssetIssue016, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -430,15 +441,17 @@ public class RequireException {
     HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            0L, 100, null, testKeyForAssetIssue016,
+            asset016Address, blockingStubFull);
     final Account info;
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -469,9 +482,11 @@ public class RequireException {
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
-    Account infoafter = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull1);
+    Account infoafter = PublicMethedForDailybuild
+        .queryAccount(testKeyForAssetIssue016, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -499,9 +514,10 @@ public class RequireException {
     HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            0L, 100, null, testKeyForAssetIssue016,
+            asset016Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
@@ -518,8 +534,9 @@ public class RequireException {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     Account info;
     info = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
     Long beforeBalance = info.getBalance();
@@ -549,9 +566,11 @@ public class RequireException {
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
-    Account infoafter = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    Account infoafter = PublicMethedForDailybuild
+        .queryAccount(testKeyForAssetIssue016, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -578,9 +597,10 @@ public class RequireException {
     HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            0L, 100, null, testKeyForAssetIssue016,
+            asset016Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
@@ -598,8 +618,9 @@ public class RequireException {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -626,9 +647,11 @@ public class RequireException {
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
-    Account infoafter = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    Account infoafter = PublicMethedForDailybuild
+        .queryAccount(testKeyForAssetIssue016, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -655,9 +678,10 @@ public class RequireException {
     HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            0L, 100, null, testKeyForAssetIssue016,
+            asset016Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
@@ -676,8 +700,9 @@ public class RequireException {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -704,9 +729,11 @@ public class RequireException {
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
-    Account infoafter = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull1);
+    Account infoafter = PublicMethedForDailybuild
+        .queryAccount(testKeyForAssetIssue016, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -732,9 +759,10 @@ public class RequireException {
     HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            0L, 100, null, testKeyForAssetIssue016,
+            asset016Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
@@ -753,8 +781,9 @@ public class RequireException {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -782,9 +811,11 @@ public class RequireException {
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
-    Account infoafter = PublicMethedForDailybuild.queryAccount(testKeyForAssetIssue016, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(asset016Address,
-        blockingStubFull1);
+    Account infoafter = PublicMethedForDailybuild
+        .queryAccount(testKeyForAssetIssue016, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
+        .getAccountResource(asset016Address,
+            blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();

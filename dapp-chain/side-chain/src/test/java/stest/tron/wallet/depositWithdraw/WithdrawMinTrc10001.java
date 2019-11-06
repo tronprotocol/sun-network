@@ -29,52 +29,40 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 public class WithdrawMinTrc10001 {
 
 
+  final String sideGatewayAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key2");
+  final byte[] sideGatewayAddressey = WalletClient.decodeFromBase58Check(sideGatewayAddress);
+  final String mainGateWayAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key1");
+  final String chainIdAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.chainIdAddress");
+  final byte[] chainIdAddressKey = WalletClient.decodeFromBase58Check(chainIdAddress);
+  final String gateWatOwnerAddressKey = Configuration.getByPath("testng.conf")
+      .getString("gateWatOwnerAddressKey.key2");
   private final String testDepositTrx = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
+  private final String testKeyFordeposit = Configuration.getByPath("testng.conf")
+      .getString("mainNetAssetAccountKey.key3");
+  private final byte[] depositAddress = PublicMethed.getFinalAddress(testKeyFordeposit);
+  private final String testKeyFordeposit2 = Configuration.getByPath("testng.conf")
+      .getString("mainNetAssetAccountKey.key4");
+  private final byte[] depositAddress2 = PublicMethed.getFinalAddress(testKeyFordeposit2);
+  private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
+  ByteString assetAccountId;
+  String parame1 = null;
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
-
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
-  ByteString assetAccountId;
-
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-
-  private final String testKeyFordeposit = Configuration.getByPath("testng.conf")
-      .getString("mainNetAssetAccountKey.key3");
-
-  private final byte[] depositAddress = PublicMethed.getFinalAddress(testKeyFordeposit);
-
-
-  private final String testKeyFordeposit2 = Configuration.getByPath("testng.conf")
-      .getString("mainNetAssetAccountKey.key4");
-
-  private final byte[] depositAddress2 = PublicMethed.getFinalAddress(testKeyFordeposit2);
-  final String sideGatewayAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key2");
-  final byte[] sideGatewayAddressey = WalletClient.decodeFromBase58Check(sideGatewayAddress);
-
-  final String mainGateWayAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key1");
-
-  final String chainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.chainIdAddress");
-  final byte[] chainIdAddressKey = WalletClient.decodeFromBase58Check(chainIdAddress);
-  String parame1 = null;
-  final String gateWatOwnerAddressKey = Configuration.getByPath("testng.conf")
-      .getString("gateWatOwnerAddressKey.key2");
-
-  private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
 
   @BeforeSuite
   public void beforeSuite() {

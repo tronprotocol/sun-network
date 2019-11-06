@@ -29,7 +29,13 @@ public class ContractLinkage007 {
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
-
+  String contractName;
+  String code;
+  String abi;
+  byte[] contractAddress;
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] linkage007Address = ecKey1.getAddress();
+  String linkage007Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf")
@@ -40,15 +46,6 @@ public class ContractLinkage007 {
       .getStringList("fullnode.ip.list").get(1);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
-
-  String contractName;
-  String code;
-  String abi;
-  byte[] contractAddress;
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] linkage007Address = ecKey1.getAddress();
-  String linkage007Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -78,11 +75,13 @@ public class ContractLinkage007 {
   public void testRangeOfFeeLimit() {
 
     //Now the feelimit range is 0-1000000000,including 0 and 1000000000
-    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(linkage007Address, 2000000000L, fromAddress,
-        testKey002, blockingStubFull));
+    Assert
+        .assertTrue(PublicMethedForDailybuild.sendcoin(linkage007Address, 2000000000L, fromAddress,
+            testKey002, blockingStubFull));
 
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(linkage007Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(linkage007Address,
+            blockingStubFull);
     Account info;
     info = PublicMethedForDailybuild.queryAccount(linkage007Address, blockingStubFull);
     Long beforeBalance = info.getBalance();
@@ -109,13 +108,16 @@ public class ContractLinkage007 {
     String abi = retMap.get("abI").toString();
 
     String txid;
-    txid = PublicMethedForDailybuild.deployContractAndGetTransactionInfoById(contractName, abi, code,
-        "", maxFeeLimit + 1, 0L, 100, null, linkage007Key,
-        linkage007Address, blockingStubFull);
+    txid = PublicMethedForDailybuild
+        .deployContractAndGetTransactionInfoById(contractName, abi, code,
+            "", maxFeeLimit + 1, 0L, 100, null, linkage007Key,
+            linkage007Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    Account infoafter = PublicMethedForDailybuild.queryAccount(linkage007Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(linkage007Address,
-        blockingStubFull1);
+    Account infoafter = PublicMethedForDailybuild
+        .queryAccount(linkage007Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
+        .getAccountResource(linkage007Address,
+            blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyLimit = resourceInfoafter.getEnergyLimit();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -136,8 +138,9 @@ public class ContractLinkage007 {
     Assert.assertTrue(afterFreeNetUsed == 0);
 
     Assert.assertTrue(txid == null);
-    AccountResourceMessage resourceInfo1 = PublicMethedForDailybuild.getAccountResource(linkage007Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo1 = PublicMethedForDailybuild
+        .getAccountResource(linkage007Address,
+            blockingStubFull);
     Account info1 = PublicMethedForDailybuild.queryAccount(linkage007Address, blockingStubFull);
     Long beforeBalance1 = info1.getBalance();
     Long beforeEnergyLimit1 = resourceInfo1.getEnergyLimit();
@@ -154,13 +157,16 @@ public class ContractLinkage007 {
     logger.info("beforeNetUsed1:" + beforeNetUsed1);
     logger.info("beforeFreeNetUsed1:" + beforeFreeNetUsed1);
     //When the feelimit is 0, the deploy will be failed.Only use FreeNet,balance not change.
-    txid = PublicMethedForDailybuild.deployContractAndGetTransactionInfoById(contractName, abi, code,
-        "", 0L, 0L, 100, null, linkage007Key,
-        linkage007Address, blockingStubFull);
+    txid = PublicMethedForDailybuild
+        .deployContractAndGetTransactionInfoById(contractName, abi, code,
+            "", 0L, 0L, 100, null, linkage007Key,
+            linkage007Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    Account infoafter1 = PublicMethedForDailybuild.queryAccount(linkage007Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter1 = PublicMethedForDailybuild.getAccountResource(linkage007Address,
-        blockingStubFull1);
+    Account infoafter1 = PublicMethedForDailybuild
+        .queryAccount(linkage007Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter1 = PublicMethedForDailybuild
+        .getAccountResource(linkage007Address,
+            blockingStubFull1);
     Long afterBalance1 = infoafter1.getBalance();
     Long afterEnergyLimit1 = resourceInfoafter1.getEnergyLimit();
     Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
@@ -186,8 +192,9 @@ public class ContractLinkage007 {
     Assert.assertTrue(infoById.get().getResultValue() == 1);
 
     //Deploy the contract.success.use FreeNet,EnergyFee.balcne change
-    AccountResourceMessage resourceInfo2 = PublicMethedForDailybuild.getAccountResource(linkage007Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo2 = PublicMethedForDailybuild
+        .getAccountResource(linkage007Address,
+            blockingStubFull);
     Account info2 = PublicMethedForDailybuild.queryAccount(linkage007Address, blockingStubFull);
     Long beforeBalance2 = info2.getBalance();
     Long beforeEnergyLimit2 = resourceInfo2.getEnergyLimit();
@@ -203,9 +210,10 @@ public class ContractLinkage007 {
     logger.info("beforeNetLimit2:" + beforeNetLimit2);
     logger.info("beforeNetUsed2:" + beforeNetUsed2);
     logger.info("beforeFreeNetUsed2:" + beforeFreeNetUsed2);
-    txid = PublicMethedForDailybuild.deployContractAndGetTransactionInfoById(contractName, abi, code,
-        "", maxFeeLimit, 0L, 100, null, linkage007Key,
-        linkage007Address, blockingStubFull);
+    txid = PublicMethedForDailybuild
+        .deployContractAndGetTransactionInfoById(contractName, abi, code,
+            "", maxFeeLimit, 0L, 100, null, linkage007Key,
+            linkage007Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById2 = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
@@ -221,9 +229,11 @@ public class ContractLinkage007 {
     logger.info("netUsed2:" + netUsed2);
     logger.info("energyUsed2:" + energyUsed2);
     logger.info("netFee2:" + netFee2);
-    Account infoafter2 = PublicMethedForDailybuild.queryAccount(linkage007Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter2 = PublicMethedForDailybuild.getAccountResource(linkage007Address,
-        blockingStubFull1);
+    Account infoafter2 = PublicMethedForDailybuild
+        .queryAccount(linkage007Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter2 = PublicMethedForDailybuild
+        .getAccountResource(linkage007Address,
+            blockingStubFull1);
     Long afterBalance2 = infoafter2.getBalance();
     Long afterEnergyLimit2 = resourceInfoafter2.getEnergyLimit();
     Long afterEnergyUsed2 = resourceInfoafter2.getEnergyUsed();
@@ -246,8 +256,9 @@ public class ContractLinkage007 {
     contractAddress = infoById2.get().getContractAddress().toByteArray();
 
     //When the feelimit is large, the trigger will be failed.Only use FreeNetUsed,Balance not change
-    AccountResourceMessage resourceInfo3 = PublicMethedForDailybuild.getAccountResource(linkage007Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo3 = PublicMethedForDailybuild
+        .getAccountResource(linkage007Address,
+            blockingStubFull);
     Account info3 = PublicMethedForDailybuild.queryAccount(linkage007Address, blockingStubFull);
     Long beforeBalance3 = info3.getBalance();
     Long beforeEnergyLimit3 = resourceInfo3.getEnergyLimit();
@@ -268,10 +279,12 @@ public class ContractLinkage007 {
     txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "divideIHaveArgsReturn(int256,int256)", num, false,
         1000, maxFeeLimit + 1, linkage007Address, linkage007Key, blockingStubFull);
-    Account infoafter3 = PublicMethedForDailybuild.queryAccount(linkage007Address, blockingStubFull1);
+    Account infoafter3 = PublicMethedForDailybuild
+        .queryAccount(linkage007Address, blockingStubFull1);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    AccountResourceMessage resourceInfoafter3 = PublicMethedForDailybuild.getAccountResource(linkage007Address,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter3 = PublicMethedForDailybuild
+        .getAccountResource(linkage007Address,
+            blockingStubFull1);
     Long afterBalance3 = infoafter3.getBalance();
     Long afterEnergyLimit3 = resourceInfoafter3.getEnergyLimit();
     Long afterEnergyUsed3 = resourceInfoafter3.getEnergyUsed();
@@ -293,8 +306,9 @@ public class ContractLinkage007 {
     Assert.assertTrue(afterNetUsed3 == 0);
     Assert.assertTrue(afterEnergyUsed3 == 0);
     //When the feelimit is 0, the trigger will be failed.Only use FreeNetUsed,Balance not change
-    AccountResourceMessage resourceInfo4 = PublicMethedForDailybuild.getAccountResource(linkage007Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo4 = PublicMethedForDailybuild
+        .getAccountResource(linkage007Address,
+            blockingStubFull);
     Account info4 = PublicMethedForDailybuild.queryAccount(linkage007Address, blockingStubFull);
     Long beforeBalance4 = info4.getBalance();
     Long beforeEnergyLimit4 = resourceInfo4.getEnergyLimit();
@@ -313,9 +327,11 @@ public class ContractLinkage007 {
     txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "divideIHaveArgsReturn(int256,int256)", num, false,
         1000, maxFeeLimit + 1, linkage007Address, linkage007Key, blockingStubFull);
-    Account infoafter4 = PublicMethedForDailybuild.queryAccount(linkage007Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter4 = PublicMethedForDailybuild.getAccountResource(linkage007Address,
-        blockingStubFull1);
+    Account infoafter4 = PublicMethedForDailybuild
+        .queryAccount(linkage007Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter4 = PublicMethedForDailybuild
+        .getAccountResource(linkage007Address,
+            blockingStubFull1);
     Long afterBalance4 = infoafter4.getBalance();
     Long afterEnergyLimit4 = resourceInfoafter4.getEnergyLimit();
     Long afterEnergyUsed4 = resourceInfoafter4.getEnergyUsed();
