@@ -94,7 +94,6 @@ public class deploySideGateway {
       String contractName = "gateWaysidechainContract";
       String code = null;
       String abi = null;
-      String parame = "\"" + Base58.encode58Check(oracleAddress) + "\"";
 
       try {
         code = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.bin", false);
@@ -120,6 +119,7 @@ public class deploySideGateway {
         count += 1;
         continue;
       } else {
+        String parame = "\"" + Base58.encode58Check(oracleAddress) + "\"";
         byte[] input = Hex.decode(AbiUtil.parseMethod("addOracle(address)", parame, false));
         String triggerTxid1 = PublicMethed.triggerContractSideChain(sideChainGateway,
             WalletClient.decodeFromBase58Check(mainChainAddress), 0, input, maxFeeLimit,
