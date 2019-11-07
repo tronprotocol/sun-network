@@ -1,4 +1,4 @@
-import "./OwnableForCodeVersion.sol";
+import "./OwnableForMainOwnership.sol";
 import "./ECVerify.sol";
 
 
