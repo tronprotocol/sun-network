@@ -1025,6 +1025,12 @@ public class Wallet {
             .setValue(String
                 .valueOf(dbManager.getDynamicPropertiesStore().getWitnessMaxActiveNum()))
             .build());
+    builder.addChainParameter(
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getAllowDAppChainSolidity059")
+            .setValue(String
+                .valueOf(dbManager.getDynamicPropertiesStore().getAllowDAppChainSolidity059()))
+            .build());
     return builder.build();
   }
 
