@@ -6,7 +6,7 @@ import "./DAppTRC20.sol";
 import "./DAppTRC721.sol";
 import "./ECVerify.sol";
 import "./DataModel.sol";
-import "./OwnableForSidechain1.sol";
+import "./Ownable.sol";
 
 contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
     using ECVerify for bytes32;
@@ -40,6 +40,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
     event MultiSignForWithdrawTRC20(address from, address mainChainAddress, uint256 value, uint256 nonce);
     event MultiSignForWithdrawTRC721(address from, address mainChainAddress, uint256 uId, uint256 nonce);
     event MultiSignForWithdrawTRX(address from, uint256 value, uint256 nonce);
+    event ea(uint256 it);
+    event MapKetValue(uint256 i);
 
     uint256 public numOracles;
     address public sunTokenAddress;
@@ -66,6 +68,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
     mapping(address => SignMsg) public changeLogicSigns;
 
     WithdrawMsg[] userWithdrawList;
+    uint256 public it=1;
+    mapping(address => uint256) public xc;
 
     struct SignMsg {
         mapping(address => bool) oracleSigned;
@@ -610,5 +614,14 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
     function isOracle(address _oracle) view public returns (bool) {
         return oracles[_oracle];
     }
-
+    function setIt(uint256 setIt) public   {
+        it=setIt;
+        emit ea(it);
+    }
+    function setXc(address key,uint256 setValue) public   {
+        xc[key]=setValue;
+    }
+    function getXc(address key) public   {
+        emit MapKetValue(xc[key]);
+    }
 }

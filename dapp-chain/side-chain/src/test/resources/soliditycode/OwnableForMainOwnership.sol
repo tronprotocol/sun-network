@@ -1,4 +1,4 @@
-import "./DelegatecallableForCodeVersion.sol";
+import "./Delegatecallable.sol";
 /**
  * @title Ownable
  * @dev The Ownable contract has an owner address, and provides basic authorization control
@@ -11,7 +11,7 @@ contract Ownable is Delegatecallable {
         address indexed previousOwner,
         address indexed newOwner
     );
-
+    event eq(uint256 it);
 
     /**
      * @dev The Ownable constructor sets the original `owner` of the contract to the sender
@@ -43,7 +43,7 @@ contract Ownable is Delegatecallable {
      */
     function _transferOwnership(address _newOwner) internal {
         require(_newOwner != address(0));
-        emit OwnershipTransferred(owner, _newOwner);
+        emit eq(1);
         owner = _newOwner;
     }
 }
