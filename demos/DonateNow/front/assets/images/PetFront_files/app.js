@@ -38,7 +38,7 @@ var layouts = {
     }, {
       "hid": "description",
       "name": "description",
-      "content": "Pet Demo for Sun Network"
+      "content": "Pet Demo for SUN Network"
     }],
     "link": [{
       "rel": "icon",
