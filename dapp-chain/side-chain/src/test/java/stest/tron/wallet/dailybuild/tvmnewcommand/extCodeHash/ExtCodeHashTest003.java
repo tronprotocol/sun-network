@@ -97,11 +97,13 @@ public class ExtCodeHashTest003 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(dev001Address,
+            blockingStubFull);
     long energyLimit = accountResource.getEnergyLimit();
     long energyUsage = accountResource.getEnergyUsed();
-    long balanceBefore = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull).getBalance();
+    long balanceBefore = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull)
+        .getBalance();
     logger.info("before energyLimit is " + Long.toString(energyLimit));
     logger.info("before energyUsage is " + Long.toString(energyUsage));
     logger.info("before balanceBefore is " + Long.toString(balanceBefore));
@@ -123,7 +125,8 @@ public class ExtCodeHashTest003 {
     accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
-    long balanceAfter = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull).getBalance();
+    long balanceAfter = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull)
+        .getBalance();
 
     logger.info("after energyLimit is " + Long.toString(energyLimit));
     logger.info("after energyUsage is " + Long.toString(energyUsage));
@@ -153,20 +156,24 @@ public class ExtCodeHashTest003 {
             blockingStubFull), 0, 1,
         ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
 
-    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(dev001Address,
+            blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
-    long devBalanceBefore = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull).getBalance();
+    long devBalanceBefore = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull)
+        .getBalance();
 
     logger.info("before trigger, devEnergyLimitBefore is " + Long.toString(devEnergyLimitBefore));
     logger.info("before trigger, devEnergyUsageBefore is " + Long.toString(devEnergyUsageBefore));
     logger.info("before trigger, devBalanceBefore is " + Long.toString(devBalanceBefore));
 
-    accountResource = PublicMethedForDailybuild.getAccountResource(user001Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild
+        .getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethedForDailybuild.queryAccount(user001Address, blockingStubFull)
+    long userBalanceBefore = PublicMethedForDailybuild
+        .queryAccount(user001Address, blockingStubFull)
         .getBalance();
 
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
@@ -186,13 +193,15 @@ public class ExtCodeHashTest003 {
     accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitAfter = accountResource.getEnergyLimit();
     long devEnergyUsageAfter = accountResource.getEnergyUsed();
-    long devBalanceAfter = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull).getBalance();
+    long devBalanceAfter = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull)
+        .getBalance();
 
     logger.info("after trigger, devEnergyLimitAfter is " + Long.toString(devEnergyLimitAfter));
     logger.info("after trigger, devEnergyUsageAfter is " + Long.toString(devEnergyUsageAfter));
     logger.info("after trigger, devBalanceAfter is " + Long.toString(devBalanceAfter));
 
-    accountResource = PublicMethedForDailybuild.getAccountResource(user001Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild
+        .getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
     long userBalanceAfter = PublicMethedForDailybuild.queryAccount(user001Address, blockingStubFull)
@@ -239,20 +248,24 @@ public class ExtCodeHashTest003 {
             blockingStubFull), 0, 1,
         ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
 
-    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(dev001Address,
+            blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
-    long devBalanceBefore = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull).getBalance();
+    long devBalanceBefore = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull)
+        .getBalance();
 
     logger.info("before trigger, devEnergyLimitBefore is " + Long.toString(devEnergyLimitBefore));
     logger.info("before trigger, devEnergyUsageBefore is " + Long.toString(devEnergyUsageBefore));
     logger.info("before trigger, devBalanceBefore is " + Long.toString(devBalanceBefore));
 
-    accountResource = PublicMethedForDailybuild.getAccountResource(user001Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild
+        .getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethedForDailybuild.queryAccount(user001Address, blockingStubFull)
+    long userBalanceBefore = PublicMethedForDailybuild
+        .queryAccount(user001Address, blockingStubFull)
         .getBalance();
 
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
@@ -272,13 +285,15 @@ public class ExtCodeHashTest003 {
     accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitAfter = accountResource.getEnergyLimit();
     long devEnergyUsageAfter = accountResource.getEnergyUsed();
-    long devBalanceAfter = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull).getBalance();
+    long devBalanceAfter = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull)
+        .getBalance();
 
     logger.info("after trigger, devEnergyLimitAfter is " + Long.toString(devEnergyLimitAfter));
     logger.info("after trigger, devEnergyUsageAfter is " + Long.toString(devEnergyUsageAfter));
     logger.info("after trigger, devBalanceAfter is " + Long.toString(devBalanceAfter));
 
-    accountResource = PublicMethedForDailybuild.getAccountResource(user001Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild
+        .getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
     long userBalanceAfter = PublicMethedForDailybuild.queryAccount(user001Address, blockingStubFull)

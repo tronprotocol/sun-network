@@ -64,14 +64,13 @@ import stest.tron.wallet.common.client.WalletClient;
 
 public class PublicMethed {
 
-  Wallet wallet = new Wallet();
   //Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   private static final String FilePath = "Wallet";
-  private static List<WalletFile> walletFile = new ArrayList<>();
   private static final Logger logger = LoggerFactory.getLogger("TestLogger");
+  private static List<WalletFile> walletFile = new ArrayList<>();
+  Wallet wallet = new Wallet();
   //private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   //private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
 
   /**
    * constructor.
@@ -1365,7 +1364,7 @@ public class PublicMethed {
 
       if (address.length == 20) {
         byte[] newAddress = new byte[21];
-        byte[] temp = new byte[]{0x41};
+        byte[] temp = new byte[] {0x41};
         System.arraycopy(temp, 0, newAddress, 0, temp.length);
         System.arraycopy(address, 0, newAddress, temp.length, address.length);
         address = newAddress;

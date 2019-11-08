@@ -2,6 +2,7 @@ package stest.tron.wallet.dailybuild.multisign;
 
 import static org.hamcrest.core.StringContains.containsString;
 
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
@@ -96,7 +97,8 @@ public class MultiSign26 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
     Permission ownerPermission = test001AddressAccount.getOwnerPermission();
     Permission witnessPermission = test001AddressAccount.getWitnessPermission();
@@ -116,7 +118,8 @@ public class MultiSign26 {
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
             + "\"active0\",\"threshold\":1,\"operations\""
             + ":\"0100000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey2)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey2)
             + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
@@ -127,7 +130,8 @@ public class MultiSign26 {
             permissionKeyString));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount1 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount1 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
     Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
     Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
@@ -150,7 +154,8 @@ public class MultiSign26 {
         .assertThat(transactionSignWeight.getResult().getMessage(),
             containsString("Permission denied"));
     logger.info("transactionSignWeight:" + transactionSignWeight);
-    Account test001AddressAccount2 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount2 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     long balance2 = test001AddressAccount2.getBalance();
     Assert.assertEquals(balance1, balance2);
     String accountPermissionJson2 =
@@ -160,7 +165,8 @@ public class MultiSign26 {
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
             + "\"active0\",\"threshold\":1,\"operations\""
             + ":\"0100000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey4)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey4)
             + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
@@ -169,7 +175,8 @@ public class MultiSign26 {
             blockingStubFull, 0,
             permissionKeyString));
 
-    Account test001AddressAccount3 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount3 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList3 = test001AddressAccount3.getActivePermissionList();
     Permission ownerPermission3 = test001AddressAccount3.getOwnerPermission();
     Permission witnessPermission3 = test001AddressAccount3.getWitnessPermission();
@@ -204,7 +211,8 @@ public class MultiSign26 {
             blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
     Permission ownerPermission = test001AddressAccount.getOwnerPermission();
     Permission witnessPermission = test001AddressAccount.getWitnessPermission();
@@ -224,7 +232,8 @@ public class MultiSign26 {
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
             + "\"active0\",\"threshold\":1,\"operations\""
             + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey2)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey2)
             + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
@@ -235,7 +244,8 @@ public class MultiSign26 {
             permissionKeyString));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount1 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount1 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
     Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
     Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
@@ -257,7 +267,8 @@ public class MultiSign26 {
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
             + "\"active0\",\"threshold\":1,\"operations\""
             + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey4)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey4)
             + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
@@ -278,7 +289,8 @@ public class MultiSign26 {
     final Return returnResult = PublicMethedForMutiSign
         .broadcastTransaction1(transaction1, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    Account test001AddressAccount2 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount2 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList2 = test001AddressAccount2.getActivePermissionList();
     Permission ownerPermission2 = test001AddressAccount2.getOwnerPermission();
     Permission witnessPermission2 = test001AddressAccount2.getWitnessPermission();
@@ -308,7 +320,8 @@ public class MultiSign26 {
             blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
     Permission ownerPermission = test001AddressAccount.getOwnerPermission();
     Permission witnessPermission = test001AddressAccount.getWitnessPermission();
@@ -325,13 +338,15 @@ public class MultiSign26 {
     String accountPermissionJson1 =
         "{\"owner_permission\":{\"type\":0,\"permission_name"
             + "\":\"owner\",\"threshold\":1,\"keys\":[{"
-            + "\"address\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key) + "\",\"weight\":1},"
+            + "\"address\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key)
+            + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey2)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
             + "\"threshold\":1,\"operations\""
             + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
 
     Assert.assertTrue(PublicMethedForMutiSign
@@ -340,7 +355,8 @@ public class MultiSign26 {
             permissionKeyString));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount1 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount1 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
     Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
     Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
@@ -358,11 +374,13 @@ public class MultiSign26 {
     String accountPermissionJson2 =
         "{\"owner_permission\":{\"type\":0,\"permission_name\""
             + ":\"owner\",\"threshold\":1,\"keys\":[{\"address"
-            + "\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key) + "\",\"weight\":1}]},"
+            + "\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key)
+            + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\""
             + "active0\",\"threshold\":1,\"operations\":"
             + "\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
     String[] permissionKeyString1 = new String[1];
     permissionKeyString1[0] = dev001Key;
@@ -372,7 +390,8 @@ public class MultiSign26 {
             permissionKeyString1));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount2 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount2 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList2 = test001AddressAccount2.getActivePermissionList();
     Permission ownerPermission2 = test001AddressAccount2.getOwnerPermission();
     final Permission witnessPermission2 = test001AddressAccount2.getWitnessPermission();
@@ -399,7 +418,8 @@ public class MultiSign26 {
     Assert
         .assertThat(returnResult.getMessage().toStringUtf8(),
             containsString("but it is not contained of permission"));
-    Account test001AddressAccount3 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount3 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     long balance3 = test001AddressAccount3.getBalance();
     Assert.assertEquals(balance2 - balance3, 0);
   }
@@ -417,7 +437,8 @@ public class MultiSign26 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
     Permission ownerPermission = test001AddressAccount.getOwnerPermission();
     Permission witnessPermission = test001AddressAccount.getWitnessPermission();
@@ -434,13 +455,15 @@ public class MultiSign26 {
     String accountPermissionJson1 =
         "{\"owner_permission\":{\"type\":0,\"permission_name"
             + "\":\"owner\",\"threshold\":1,\"keys\":[{"
-            + "\"address\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key) + "\",\"weight\":1},"
+            + "\"address\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key)
+            + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey2)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
             + "\"threshold\":1,\"operations\""
             + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
 
     Assert.assertTrue(PublicMethedForMutiSign
@@ -449,7 +472,8 @@ public class MultiSign26 {
             permissionKeyString));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount1 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount1 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
     Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
     Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
@@ -461,13 +485,15 @@ public class MultiSign26 {
     String accountPermissionJson3 =
         "{\"owner_permission\":{\"type\":0,\"permission_name"
             + "\":\"owner\",\"threshold\":1,\"keys\":[{"
-            + "\"address\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key) + "\",\"weight\":1},"
+            + "\"address\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key)
+            + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey2)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
             + "\"threshold\":1,\"operations\""
             + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey4)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey4)
             + "\",\"weight\":1}]}]} ";
 
     Transaction transaction = PublicMethedForMutiSign
@@ -479,11 +505,13 @@ public class MultiSign26 {
     String accountPermissionJson2 =
         "{\"owner_permission\":{\"type\":0,\"permission_name\""
             + ":\"owner\",\"threshold\":1,\"keys\":[{\"address"
-            + "\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key) + "\",\"weight\":1}]},"
+            + "\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key)
+            + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\""
             + "active0\",\"threshold\":1,\"operations\":"
             + "\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
     String[] permissionKeyString1 = new String[1];
     permissionKeyString1[0] = dev001Key;
@@ -493,7 +521,8 @@ public class MultiSign26 {
             permissionKeyString1));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount2 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount2 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList2 = test001AddressAccount2.getActivePermissionList();
     Permission ownerPermission2 = test001AddressAccount2.getOwnerPermission();
     Permission witnessPermission2 = test001AddressAccount2.getWitnessPermission();
@@ -521,7 +550,8 @@ public class MultiSign26 {
         .assertThat(returnResult.getMessage().toStringUtf8(),
             containsString("but it is not contained of permission"));
 
-    Account test001AddressAccount3 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount3 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     long balance3 = test001AddressAccount3.getBalance();
     Assert.assertEquals(balance2 - balance3, 0);
   }
@@ -539,7 +569,8 @@ public class MultiSign26 {
             blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
     Permission ownerPermission = test001AddressAccount.getOwnerPermission();
     Permission witnessPermission = test001AddressAccount.getWitnessPermission();
@@ -559,7 +590,8 @@ public class MultiSign26 {
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
             + "\"active0\",\"threshold\":1,\"operations\""
             + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey4)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey4)
             + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
@@ -570,7 +602,8 @@ public class MultiSign26 {
             permissionKeyString));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount1 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount1 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
     Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
     Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
@@ -587,13 +620,15 @@ public class MultiSign26 {
     String accountPermissionJson2 =
         "{\"owner_permission\":{\"type\":0,\"permission_name"
             + "\":\"owner\",\"threshold\":1,\"keys\":[{"
-            + "\"address\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key) + "\",\"weight\":1},"
+            + "\"address\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key)
+            + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey2)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
             + "\"threshold\":1,\"operations\""
             + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
     String[] permissionKeyString1 = new String[1];
     permissionKeyString1[0] = dev001Key;
@@ -602,7 +637,8 @@ public class MultiSign26 {
             blockingStubFull, 0,
             permissionKeyString1));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    Account test001AddressAccount2 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount2 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList2 = test001AddressAccount2.getActivePermissionList();
     Permission ownerPermission2 = test001AddressAccount2.getOwnerPermission();
     Permission witnessPermission2 = test001AddressAccount2.getWitnessPermission();
@@ -631,7 +667,8 @@ public class MultiSign26 {
     Assert
         .assertThat(returnResult.getMessage().toStringUtf8(),
             containsString("but it is not contained of permission"));
-    Account test001AddressAccount3 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount3 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     long balance3 = test001AddressAccount3.getBalance();
     Assert.assertEquals(balance2 - balance3, 0);
   }
@@ -650,7 +687,8 @@ public class MultiSign26 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
     Permission ownerPermission = test001AddressAccount.getOwnerPermission();
     Permission witnessPermission = test001AddressAccount.getWitnessPermission();
@@ -671,7 +709,8 @@ public class MultiSign26 {
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
             + "\"active0\",\"threshold\":1,\"operations\""
             + ":\"0100000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey4)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey4)
             + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
@@ -682,7 +721,8 @@ public class MultiSign26 {
             permissionKeyString));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount1 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount1 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
     Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
     Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
@@ -699,13 +739,15 @@ public class MultiSign26 {
     String accountPermissionJson2 =
         "{\"owner_permission\":{\"type\":0,\"permission_name"
             + "\":\"owner\",\"threshold\":1,\"keys\":[{"
-            + "\"address\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key) + "\",\"weight\":1},"
+            + "\"address\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key)
+            + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey2)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
             + "\"threshold\":1,\"operations\""
             + ":\"0100000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
     String[] permissionKeyString1 = new String[1];
     permissionKeyString1[0] = dev001Key;
@@ -715,7 +757,8 @@ public class MultiSign26 {
             permissionKeyString1));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount2 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount2 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList2 = test001AddressAccount2.getActivePermissionList();
     Permission ownerPermission2 = test001AddressAccount2.getOwnerPermission();
     final Permission witnessPermission2 = test001AddressAccount2.getWitnessPermission();
@@ -744,7 +787,8 @@ public class MultiSign26 {
     Assert
         .assertThat(returnResult.getMessage().toStringUtf8(),
             containsString("Permission denied"));
-    Account test001AddressAccount3 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount3 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     long balance3 = test001AddressAccount3.getBalance();
     Assert.assertEquals(balance2 - balance3, 0);
   }
@@ -761,7 +805,8 @@ public class MultiSign26 {
             blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
     Permission ownerPermission = test001AddressAccount.getOwnerPermission();
     Permission witnessPermission = test001AddressAccount.getWitnessPermission();
@@ -781,7 +826,8 @@ public class MultiSign26 {
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
             + "\"active0\",\"threshold\":1,\"operations\""
             + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey2)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey2)
             + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
@@ -792,7 +838,8 @@ public class MultiSign26 {
             permissionKeyString));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount1 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount1 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
     Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
     PublicMethedForMutiSign.printPermissionList(permissionsList1);
@@ -810,11 +857,13 @@ public class MultiSign26 {
     String accountPermissionJson2 =
         "{\"owner_permission\":{\"type\":0,\"permission_name\""
             + ":\"owner\",\"threshold\":1,\"keys\":[{\"address\""
-            + ":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey2) + "\",\"weight\":1}]},"
+            + ":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey2)
+            + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
             + "\"active0\",\"threshold\":1,\"operations\""
             + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey4)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey4)
             + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
@@ -823,7 +872,8 @@ public class MultiSign26 {
             blockingStubFull, 0,
             permissionKeyString));
 
-    Account test001AddressAccount2 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount2 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList2 = test001AddressAccount2.getActivePermissionList();
     Permission ownerPermission2 = test001AddressAccount2.getOwnerPermission();
     PublicMethedForMutiSign.printPermissionList(permissionsList2);
@@ -845,7 +895,8 @@ public class MultiSign26 {
             containsString("but it is not contained of permission"));
     Assert
         .assertFalse(PublicMethedForMutiSign.broadcastTransaction(transaction1, blockingStubFull));
-    Account test001AddressAccount3 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount3 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     long balance3 = test001AddressAccount3.getBalance();
     Assert.assertEquals(balance2 - balance3, 0);
 
@@ -863,7 +914,8 @@ public class MultiSign26 {
             blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
     Permission ownerPermission = test001AddressAccount.getOwnerPermission();
     Permission witnessPermission = test001AddressAccount.getWitnessPermission();
@@ -883,7 +935,8 @@ public class MultiSign26 {
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
             + "\"active0\",\"threshold\":1,\"operations\""
             + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey2)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey2)
             + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
@@ -894,7 +947,8 @@ public class MultiSign26 {
             permissionKeyString));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account test001AddressAccount1 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount1 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
     Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
     PublicMethedForMutiSign.printPermissionList(permissionsList1);
@@ -907,13 +961,15 @@ public class MultiSign26 {
     String accountPermissionJson3 =
         "{\"owner_permission\":{\"type\":0,\"permission_name"
             + "\":\"owner\",\"threshold\":1,\"keys\":[{"
-            + "\"address\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key) + "\",\"weight\":1},"
+            + "\"address\":\"" + PublicMethedForDailybuild.getAddressString(dev001Key)
+            + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey2)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
             + "\"threshold\":1,\"operations\""
             + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey4)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey4)
             + "\",\"weight\":1}]}]} ";
 
     final Transaction transaction = PublicMethedForMutiSign
@@ -924,11 +980,13 @@ public class MultiSign26 {
     String accountPermissionJson2 =
         "{\"owner_permission\":{\"type\":0,\"permission_name\""
             + ":\"owner\",\"threshold\":1,\"keys\":[{\"address\""
-            + ":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey2) + "\",\"weight\":1}]},"
+            + ":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey2)
+            + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
             + "\"active0\",\"threshold\":1,\"operations\""
             + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey4)
+            + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
+            .getAddressString(sendAccountKey4)
             + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethedForDailybuild.getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
@@ -937,7 +995,8 @@ public class MultiSign26 {
             blockingStubFull, 0,
             permissionKeyString));
 
-    Account test001AddressAccount2 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount2 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList2 = test001AddressAccount2.getActivePermissionList();
     Permission ownerPermission2 = test001AddressAccount2.getOwnerPermission();
     PublicMethedForMutiSign.printPermissionList(permissionsList2);
@@ -960,7 +1019,8 @@ public class MultiSign26 {
     Assert
         .assertFalse(PublicMethedForMutiSign.broadcastTransaction(transaction1, blockingStubFull));
 
-    Account test001AddressAccount3 = PublicMethedForDailybuild.queryAccount(test001Address, blockingStubFull);
+    Account test001AddressAccount3 = PublicMethedForDailybuild
+        .queryAccount(test001Address, blockingStubFull);
     long balance3 = test001AddressAccount3.getBalance();
     Assert.assertEquals(balance2 - balance3, 0);
   }

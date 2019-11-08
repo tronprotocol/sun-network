@@ -29,29 +29,25 @@ public class ContractScenario014 {
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
-
-  private ManagedChannel channelFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
-
   byte[] contractAddress1 = null;
   byte[] contractAddress2 = null;
   byte[] contractAddress3 = null;
   String txid = "";
   Optional<TransactionInfo> infoById = null;
   String contractName = "";
-
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contract014Address = ecKey1.getAddress();
   String contract014Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   String priKey014 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] receiverAddress = ecKey2.getAddress();
   String receiverKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+  private ManagedChannel channelFull = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+  private String fullnode = Configuration.getByPath("testng.conf")
+      .getStringList("fullnode.ip.list").get(0);
+  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
+      .getLong("defaultParameter.maxFeeLimit");
 
   @BeforeSuite
   public void beforeSuite() {
@@ -80,8 +76,9 @@ public class ContractScenario014 {
     PublicMethedForDailybuild.printAddress(contract014Key);
     PublicMethedForDailybuild.printAddress(receiverKey);
 
-    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contract014Address, 5000000000000L, fromAddress,
-        testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethedForDailybuild.sendcoin(contract014Address, 5000000000000L, fromAddress,
+            testKey002, blockingStubFull));
     Assert.assertTrue(PublicMethedForDailybuild
         .freezeBalanceGetEnergy(contract014Address, 1000000000000L, 0, 1, priKey014,
             blockingStubFull));
@@ -94,8 +91,9 @@ public class ContractScenario014 {
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    txid = PublicMethedForDailybuild.deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-        maxFeeLimit, 0L, 100, null, contract014Key, contract014Address, blockingStubFull);
+    txid = PublicMethedForDailybuild
+        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
+            maxFeeLimit, 0L, 100, null, contract014Key, contract014Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
@@ -137,21 +135,28 @@ public class ContractScenario014 {
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     contractAddress3 = infoById.get().getContractAddress().toByteArray();
 
-    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contractAddress1, 1000000L, fromAddress, testKey002,
-        blockingStubFull));
-    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(receiverAddress, 1000000L, fromAddress, testKey002,
-        blockingStubFull));
-    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contractAddress2, 1000000L, fromAddress, testKey002,
-        blockingStubFull));
-    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contractAddress3, 1000000L, fromAddress, testKey002,
-        blockingStubFull));
+    Assert.assertTrue(
+        PublicMethedForDailybuild.sendcoin(contractAddress1, 1000000L, fromAddress, testKey002,
+            blockingStubFull));
+    Assert.assertTrue(
+        PublicMethedForDailybuild.sendcoin(receiverAddress, 1000000L, fromAddress, testKey002,
+            blockingStubFull));
+    Assert.assertTrue(
+        PublicMethedForDailybuild.sendcoin(contractAddress2, 1000000L, fromAddress, testKey002,
+            blockingStubFull));
+    Assert.assertTrue(
+        PublicMethedForDailybuild.sendcoin(contractAddress3, 1000000L, fromAddress, testKey002,
+            blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     //Test contract2 trigger contract1 to test call function
-    Account contract2AccountInfo = PublicMethedForDailybuild.queryAccount(contractAddress2, blockingStubFull);
+    Account contract2AccountInfo = PublicMethedForDailybuild
+        .queryAccount(contractAddress2, blockingStubFull);
     final Long contract2BeforeBalance = contract2AccountInfo.getBalance();
-    Account receiverAccountInfo = PublicMethedForDailybuild.queryAccount(receiverAddress, blockingStubFull);
+    Account receiverAccountInfo = PublicMethedForDailybuild
+        .queryAccount(receiverAddress, blockingStubFull);
     Long receiverBeforeBalance = receiverAccountInfo.getBalance();
-    Account contract1AccountInfo = PublicMethedForDailybuild.queryAccount(contractAddress1, blockingStubFull);
+    Account contract1AccountInfo = PublicMethedForDailybuild
+        .queryAccount(contractAddress1, blockingStubFull);
     Long contract1BeforeBalance = contract1AccountInfo.getBalance();
     logger.info("before contract1 balance is " + Long.toString(contract1BeforeBalance));
     logger.info("before receiver balance is " + Long.toString(receiverBeforeBalance));
@@ -162,12 +167,14 @@ public class ContractScenario014 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
-    contract2AccountInfo = PublicMethedForDailybuild.queryAccount(contractAddress2, blockingStubFull);
+    contract2AccountInfo = PublicMethedForDailybuild
+        .queryAccount(contractAddress2, blockingStubFull);
     final Long contract2AfterBalance = contract2AccountInfo.getBalance();
     //contract2AccountInfo.getAccountResource().getFrozenBalanceForEnergy();
     receiverAccountInfo = PublicMethedForDailybuild.queryAccount(receiverAddress, blockingStubFull);
     Long receiverAfterBalance = receiverAccountInfo.getBalance();
-    contract1AccountInfo = PublicMethedForDailybuild.queryAccount(contractAddress1, blockingStubFull);
+    contract1AccountInfo = PublicMethedForDailybuild
+        .queryAccount(contractAddress1, blockingStubFull);
     Long contract1AfterBalance = contract1AccountInfo.getBalance();
     logger.info("after contract1 balance is " + Long.toString(contract1AfterBalance));
     Assert.assertTrue(receiverAfterBalance - receiverBeforeBalance == 5);
@@ -175,7 +182,8 @@ public class ContractScenario014 {
     Assert.assertTrue(contract1BeforeBalance - contract1AfterBalance == 5);
 
     //Test contract2 trigger contract1 but revert
-    contract1AccountInfo = PublicMethedForDailybuild.queryAccount(contractAddress1, blockingStubFull);
+    contract1AccountInfo = PublicMethedForDailybuild
+        .queryAccount(contractAddress1, blockingStubFull);
     contract1BeforeBalance = contract1AccountInfo.getBalance();
     receiverAccountInfo = PublicMethedForDailybuild.queryAccount(receiverAddress, blockingStubFull);
     receiverBeforeBalance = receiverAccountInfo.getBalance();
@@ -186,7 +194,8 @@ public class ContractScenario014 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 1);
-    contract1AccountInfo = PublicMethedForDailybuild.queryAccount(contractAddress1, blockingStubFull);
+    contract1AccountInfo = PublicMethedForDailybuild
+        .queryAccount(contractAddress1, blockingStubFull);
     contract1AfterBalance = contract1AccountInfo.getBalance();
     receiverAccountInfo = PublicMethedForDailybuild.queryAccount(receiverAddress, blockingStubFull);
     receiverAfterBalance = receiverAccountInfo.getBalance();
@@ -195,9 +204,11 @@ public class ContractScenario014 {
     Assert.assertTrue(contract1BeforeBalance - contract1AfterBalance == 0);
 
     //Test contract3 trigger contract2 to call contract1
-    contract1AccountInfo = PublicMethedForDailybuild.queryAccount(contractAddress1, blockingStubFull);
+    contract1AccountInfo = PublicMethedForDailybuild
+        .queryAccount(contractAddress1, blockingStubFull);
     contract1BeforeBalance = contract1AccountInfo.getBalance();
-    Account contract3AccountInfo = PublicMethedForDailybuild.queryAccount(contractAddress3, blockingStubFull);
+    Account contract3AccountInfo = PublicMethedForDailybuild
+        .queryAccount(contractAddress3, blockingStubFull);
     final Long contract3BeforeBalance = contract3AccountInfo.getBalance();
     receiverAccountInfo = PublicMethedForDailybuild.queryAccount(receiverAddress, blockingStubFull);
     receiverBeforeBalance = receiverAccountInfo.getBalance();
@@ -210,13 +221,15 @@ public class ContractScenario014 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
-    contract3AccountInfo = PublicMethedForDailybuild.queryAccount(contractAddress3, blockingStubFull);
+    contract3AccountInfo = PublicMethedForDailybuild
+        .queryAccount(contractAddress3, blockingStubFull);
     final Long contract3AfterBalance = contract3AccountInfo.getBalance();
     receiverAccountInfo = PublicMethedForDailybuild.queryAccount(receiverAddress, blockingStubFull);
     receiverAfterBalance = receiverAccountInfo.getBalance();
     logger.info("after receiver balance is " + Long.toString(receiverAfterBalance));
     logger.info("after contract3 balance is " + Long.toString(contract3AfterBalance));
-    contract1AccountInfo = PublicMethedForDailybuild.queryAccount(contractAddress1, blockingStubFull);
+    contract1AccountInfo = PublicMethedForDailybuild
+        .queryAccount(contractAddress1, blockingStubFull);
     contract1AfterBalance = contract1AccountInfo.getBalance();
 
     Assert.assertTrue(receiverAfterBalance - receiverBeforeBalance == 5);

@@ -141,7 +141,7 @@ public class MainChainGatewayApi {
   public static String getContractOwner(byte[] contractAddress) {
     SmartContract smartContract = GATEWAY_API.getInstance().getContract(contractAddress);
     byte[] ret = smartContract.getOriginAddress().toByteArray();
-    return AbiUtil.unpackAddress(ret);
+    return WalletUtil.encode58Check(ret);
   }
 
   public static AssetIssueContract getAssetIssueById(String assetId) {

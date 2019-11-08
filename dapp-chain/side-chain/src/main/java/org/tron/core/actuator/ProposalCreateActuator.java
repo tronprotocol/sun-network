@@ -21,6 +21,7 @@ import org.tron.core.Wallet;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.capsule.TransactionResultCapsule;
 import org.tron.core.config.Parameter.ChainParameters;
+import org.tron.core.config.Parameter.ForkBlockVersionEnum;
 import org.tron.core.config.args.Args;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractExeException;
@@ -399,6 +400,9 @@ public class ProposalCreateActuator extends AbstractActuator {
         break;
       }
       case (1_000_011): {
+        if (!dbManager.getForkController().pass(ForkBlockVersionEnum.DAPP_CHAIN_1_0_2)) {
+          throw new ContractValidateException("Bad chain parameter id [WITNESS_MAX_ACTIVE_NUM]");
+        }
         if (Integer.parseInt(entry.getValue()) < 5 || Integer.parseInt(entry.getValue()) > 27) {
           throw new ContractValidateException(
               "Bad chain parameter value, valid range is [5,27]");
@@ -409,6 +413,18 @@ public class ProposalCreateActuator extends AbstractActuator {
         } else if (Integer.parseInt(entry.getValue()) <= witnessMaxActiveNum) {
           throw new ContractValidateException(
               "Bad chain parameter value, must greater than current value " + witnessMaxActiveNum);
+        }
+        break;
+      }
+      case (1_000_012): {
+        if (!dbManager.getForkController().pass(ForkBlockVersionEnum.DAPP_CHAIN_1_0_2)) {
+          throw new ContractValidateException(
+              "Bad chain parameter id [ALLOW_DAPPCHAIN_SOLIDITY_059]");
+        }
+
+        if (Integer.parseInt(entry.getValue()) != 1) {
+          throw new ContractValidateException(
+              "ALLOW_DAPPCHAIN_SOLIDITY_059 is only allowed to be 1");
         }
         break;
       }
