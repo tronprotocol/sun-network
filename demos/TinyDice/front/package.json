@@ -9,7 +9,7 @@
     "dev": "PATH_TYPE=dev nuxt build",
     "local": "PATH_TYPE=local nuxt",
     "start": "PATH_TYPE=pro nuxt start -p $PORT",
-    "build": "PATH_TYPE=pro nuxt build && PORT=50054 npm start",
+    "build": "PATH_TYPE=pro nuxt build && PORT=50058 npm start",
     "generate": "nuxt generate",
     "generate:test": "PATH_TYPE=test nuxt  generate",
     "generate:pro": "PATH_TYPE=pro nuxt generate",

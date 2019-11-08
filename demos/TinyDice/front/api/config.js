@@ -14,7 +14,7 @@ switch (env) {
       sideOptions: {
         fullNode: 'https://sun.tronex.io',
         solidityNode: 'https://sun.tronex.io',
-        eventServer: 'https://sun.tronex.io'  
+        eventServer: 'http://47.90.206.231:8080'  
       },
       mainGatewayAddress: 'TWaPZru6PR5VjgT4sJrrZ481Zgp3iJ8Rfo',
       sideGatewayAddress: 'TGKotco6YoULzbYisTBuP6DWXDjEgJSpYz',
