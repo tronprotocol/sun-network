@@ -50,8 +50,9 @@ public class DepositMinTrc20001 {
   String sideChainAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key2");
   final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
-  String methodStr1 = null;
-  String parame2 = null;
+  String methodStr1 = "setDepositMinTrc20(uint256)";
+  ;
+  String parame2 = "0";
   String methodStr3 = null;
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
@@ -88,7 +89,6 @@ public class DepositMinTrc20001 {
     blockingSideStubFull = WalletGrpc.newBlockingStub(channelFull1);
 
     parame2 = "0";
-    methodStr1 = "setDepositMinTrc20(uint256)";
 
     byte[] input3 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame2, false));
 
@@ -209,6 +209,9 @@ public class DepositMinTrc20001 {
     logger.info(deposittrx);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     byte[] input4 = Hex.decode(AbiUtil.parseMethod("balanceOf(address)", parame, false));
@@ -369,6 +372,7 @@ public class DepositMinTrc20001 {
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    logger.info("txid3: " + txid3);
     Optional<TransactionInfo> infoById3 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertTrue(infoById3.get().getResultValue() == 0);
