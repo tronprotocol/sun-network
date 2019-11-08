@@ -366,7 +366,7 @@ public class PrecompiledContracts {
     public Pair<Boolean, byte[]> execute(byte[] data) {
       logger.info("[updatecontractowner method] ready to updatecontractowner");
       if (!checkInGatewayList(this.getCallerAddress(), getDeposit())) {
-        logger.error("[updatecontractowner method]caller must be gateway, caller: %s",
+        logger.error("[updatecontractowner method]caller must be gateway, caller: {}",
             Wallet.encode58Check(this.getCallerAddress()));
         throw new PrecompiledContractException(
             "[updatecontractowner method]caller must be gateway, caller: %s",
@@ -380,7 +380,7 @@ public class PrecompiledContracts {
 
       if (contract == null || !checkInGatewayList(contract.getOriginAddress(), getDeposit())) {
         logger.error(
-            "[updatecontractowner method]target contract not exists or address not in gatewayList: %s",
+            "[updatecontractowner method]target contract not exists or address not in gatewayList: {}",
             Wallet.encode58Check(contractAddress));
         throw new PrecompiledContractException(
             "[updatecontractowner method]target contract not exists or address not in gatewayList: %s",
