@@ -1,7 +1,7 @@
 ---
 home: true
 heroImage: /favicon.png
-heroText: Sun Network Testnet
+heroText: SUN Network Testnet
 tagline: A TRON Layer 2 Solution
 actionText: Developer Documents →
 actionLink: /guide/

@@ -4,7 +4,7 @@
 
 ### 1. Sun-network 计划
 
-Sun Network 计划是波场主网的扩容计划, 包含智能合约应用侧链(DAppChain), 跨链通讯等一些列扩容项目。其中 DAppChain 为波场的侧链项目，着重为波场主网提供无限扩容能力,同时帮助 DApp 以更低的 Energy 消耗，安全高效地在波场上运行。
+SUN Network 计划是波场主网的扩容计划, 包含智能合约应用侧链(DAppChain), 跨链通讯等一些列扩容项目。其中 DAppChain 为波场的侧链项目，着重为波场主网提供无限扩容能力,同时帮助 DApp 以更低的 Energy 消耗，安全高效地在波场上运行。
 
 ### 2. DAppChain 特性
 

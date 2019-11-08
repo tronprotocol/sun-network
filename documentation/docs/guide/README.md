@@ -4,7 +4,7 @@
 
 ### 1. Sun-network Project
 
-Sun Network Plan is an expansion plan for TRON main network ecosystem, including smart contract application oriented side-chain(DAppChain), cross-chain communication and other expansion projects. DAppChain is a side-chain project of TRON, which focuses on providing unlimited capacity expansion for the whole network. DAppChain is also designed to provide a low cost system for user and help DApp to operate safely and efficiently on TRON.
+SUN Network Plan is an expansion plan for TRON main network ecosystem, including smart contract application oriented side-chain(DAppChain), cross-chain communication and other expansion projects. DAppChain is a side-chain project of TRON, which focuses on providing unlimited capacity expansion for the whole network. DAppChain is also designed to provide a low cost system for user and help DApp to operate safely and efficiently on TRON.
 
 ### 2. DAppChain Features
 

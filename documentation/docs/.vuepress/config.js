@@ -1,7 +1,7 @@
 module.exports = {
   base: process.env.GITHUB == 'github' ? '/sun-network/' : '/sunnetwork/doc/',
   dest: process.env.GITHUB == 'github' ? 'docs/.vuepress/github' : 'docs/.vuepress/dist',
-  title: 'Sun Network DAppChain',
+  title: 'SUN Network DAppChain',
   head: [['link', { rel: 'icon', href: '/favicon.png' }]],
   locales: {
     '/': {},
