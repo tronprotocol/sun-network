@@ -726,7 +726,7 @@ public class Args {
     }
 
     if (config.hasPath("vm.allowDAppChainSolidity059")) {
-      INSTANCE.allowDAppChainSolidity059 = config.getInt("vm.allowTvmSolidity059");
+      INSTANCE.allowDAppChainSolidity059 = config.getInt("vm.allowDAppChainSolidity059");
     }
 
     if (config.hasPath("vm.minTimeRatio")) {
