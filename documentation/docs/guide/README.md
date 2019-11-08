@@ -2,13 +2,13 @@
 
 ## I. Overview
 
-### 1. Sun-network Project
+### 1. SUN Network Project
 
 SUN Network Plan is an expansion plan for TRON main network ecosystem, including smart contract application oriented side-chain(DAppChain), cross-chain communication and other expansion projects. DAppChain is a side-chain project of TRON, which focuses on providing unlimited capacity expansion for the whole network. DAppChain is also designed to provide a low cost system for user and help DApp to operate safely and efficiently on TRON.
 
 ### 2. DAppChain Features
 
-DAppChain is the first product of Sun-network Project. The chain is compatible with TRON main-chain, and fully support smart contract with low consumption, high security and high efficiency.
+DAppChain is the first product of SUN Network Project. The chain is compatible with TRON main-chain, and fully support smart contract with low consumption, high security and high efficiency.
 
 #### 2.1 Compatible with TRON main-chain
 
@@ -722,7 +722,7 @@ SunNetworkResponse<TransactionResponse> = getChainService().transferAsset(toAddr
 
 ## VI. SunWeb
 
-SunWeb inherits from [TronWeb](https://developers.tron.network/docs/tron-web-intro) and services for Sun-network. We encapsulated two objects (main-chain and sidechain) based on TronWeb. The methods and attributes in main-chain or side-chain are exactly the same as the tronweb instance. For example, users can use sunWeb.mainchain.trx.getBalance() to get balance from the mainchain. Futhermore, we add some new methods which are as follows in SunWeb class so that users can use them to contact between the main-chain and the side-chain. And users can visit the source code from [github](https://github.com/tronprotocol/sun-network/tree/develop/js-sdk).
+SunWeb inherits from [TronWeb](https://developers.tron.network/docs/tron-web-intro) and services for SUN Network. We encapsulated two objects (main-chain and sidechain) based on TronWeb. The methods and attributes in main-chain or side-chain are exactly the same as the tronweb instance. For example, users can use sunWeb.mainchain.trx.getBalance() to get balance from the mainchain. Futhermore, we add some new methods which are as follows in SunWeb class so that users can use them to contact between the main-chain and the side-chain. And users can visit the source code from [github](https://github.com/tronprotocol/sun-network/tree/develop/js-sdk).
 
 ### SunWeb class
 
@@ -1724,7 +1724,7 @@ At this stage, DAppChain was originally built by the TRON Foundation. We encoura
 
 - L2: Autonomous Chains (multiple community DAppChains)
 
-The Sun-network sidechain, with its initial DAppChain, will allow community developers to build their own sidechains and use their own tokens to manage its ecosystem. The side-chain can be customized to make it more suitable for the business characteristics of their DApps, such as lower resource consumption, faster block production speed and so on.
+The SUN Network sidechain, with its initial DAppChain, will allow community developers to build their own sidechains and use their own tokens to manage its ecosystem. The side-chain can be customized to make it more suitable for the business characteristics of their DApps, such as lower resource consumption, faster block production speed and so on.
 This phase will encourage communities to operate multiple sidechains.
 
 - L3: Fair Network

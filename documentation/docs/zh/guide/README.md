@@ -2,13 +2,13 @@
 
 ## I. 概述
 
-### 1. Sun-network 计划
+### 1. SUN Network 计划
 
 SUN Network 计划是波场主网的扩容计划, 包含智能合约应用侧链(DAppChain), 跨链通讯等一些列扩容项目。其中 DAppChain 为波场的侧链项目，着重为波场主网提供无限扩容能力,同时帮助 DApp 以更低的 Energy 消耗，安全高效地在波场上运行。
 
 ### 2. DAppChain 特性
 
-DAppChain 是 sun-network 计划的第一个产品。它在支持智能合约交易，兼容主网功能的同时，重点突出低消耗、高安全、强效率的特征，其完整特性如下。
+DAppChain 是 SUN Network 计划的第一个产品。它在支持智能合约交易，兼容主网功能的同时，重点突出低消耗、高安全、强效率的特征，其完整特性如下。
 
 #### 2.1 完全兼容 TRON 主网
 
@@ -752,7 +752,7 @@ SunNetworkResponse<TransactionResponse> = getChainService().transferAsset(toAddr
 
 ## VI. SunWeb
 
-SunWeb 是为 Tron Sun-Network 开发的一款 js-sdk 工具，并且继承自 [TronWeb](https://developers.tron.network/docs/tron-web-intro)。 SunWeb 里面封装了 main-chain 和 side-chain 两个对象，他们本质上就是 TronWeb 的对象实例，因此里面包含了 TronWeb 实例的所有属性和方法。例如用户可以使用 sunweb.mainchain.trx.getBalance() 来获取主网上的 balance。除此之外，SunWeb 增加了一些新的方法来支持主链和侧链的交互，如 deposit, withdraw, mapping, approve, injectFund 等操作，可参考[源码](https://github.com/tronprotocol/sun-network/tree/develop/js-sdk)。SunWeb 详细使用方法如下。
+SunWeb 是为 Tron SUN Network 开发的一款 js-sdk 工具，并且继承自 [TronWeb](https://developers.tron.network/docs/tron-web-intro)。 SunWeb 里面封装了 main-chain 和 side-chain 两个对象，他们本质上就是 TronWeb 的对象实例，因此里面包含了 TronWeb 实例的所有属性和方法。例如用户可以使用 sunweb.mainchain.trx.getBalance() 来获取主网上的 balance。除此之外，SunWeb 增加了一些新的方法来支持主链和侧链的交互，如 deposit, withdraw, mapping, approve, injectFund 等操作，可参考[源码](https://github.com/tronprotocol/sun-network/tree/develop/js-sdk)。SunWeb 详细使用方法如下。
 
 ### SunWeb 类
 
@@ -771,7 +771,7 @@ const sunWeb = new SunWeb(
 
 其中 mainchain 和 sidechain 分别是主网和侧链的 TronWeb 实例。 TronWeb 实例化参考[链接](https://developers.tron.network/reference#tronwebapi)。
 
-如果需要连接 Sun-Network 测试网，可以创建如下的 SunWeb 实例
+如果需要连接 SUN Network 测试网，可以创建如下的 SunWeb 实例
 
 ```javascript
 const mainchain = new TronWeb( {
@@ -1156,7 +1156,7 @@ sunWeb.retryWithdraw(1000, 10000, 10000000);
 
 ### 签名
 
-Sun-network 的签名有一些改变，主链的签名逻辑和 TronWeb 的保持一致，侧链的签名逻辑有更改。因此，如果需要和 TronLink 一样弹出签名框，需要分别覆盖 sunWeb.mainchain.trx.sign()和 sunWeb.sidechain.trx.sign().
+SUN Network 的签名有一些改变，主链的签名逻辑和 TronWeb 的保持一致，侧链的签名逻辑有更改。因此，如果需要和 TronLink 一样弹出签名框，需要分别覆盖 sunWeb.mainchain.trx.sign()和 sunWeb.sidechain.trx.sign().
 
 ```javascript
 // format
@@ -1769,7 +1769,7 @@ Witness: 链交易验证者，负责侧链交易打包
 
 - L2: Autonomous Chains （多条社区运营的侧链）
 
-Sun-network 侧链有初始 DAppChain 的同时，将允许开发者建立自己的侧链，可以使用自己的代币进行该侧链生态的治理。侧链可通过定制参数，让侧链更适合自身 DApp 的业务特性，比如更低的资源消耗，更快的产块速度等。
+SUN Network 侧链有初始 DAppChain 的同时，将允许开发者建立自己的侧链，可以使用自己的代币进行该侧链生态的治理。侧链可通过定制参数，让侧链更适合自身 DApp 的业务特性，比如更低的资源消耗，更快的产块速度等。
 
 L2 阶段将鼓励社区自主运营多条侧链。
 
