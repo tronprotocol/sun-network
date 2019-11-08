@@ -9,7 +9,7 @@
         >
           <img :src="require('../assets/images/tron_banner.png')" style="height: 43px;">
         </a>
-        <span class="sun-network">Sun Network</span>
+        <span class="sun-network">SUN Network</span>
         <div class="nav">
            <!-- <el-button
             class="test nav-menu-item"

@@ -1731,7 +1731,7 @@ var render = function() {
             ]
           ),
           _vm._v(" "),
-          _c("span", { staticClass: "sun-network" }, [_vm._v("Sun Network")]),
+          _c("span", { staticClass: "sun-network" }, [_vm._v("SUN Network")]),
           _vm._v(" "),
           _c(
             "div",
