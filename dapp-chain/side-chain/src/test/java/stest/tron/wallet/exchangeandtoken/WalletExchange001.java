@@ -80,8 +80,10 @@ public class WalletExchange001 {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *
+ * constructor.
+ *//*
 
 
   @BeforeClass(enabled = true)
@@ -356,8 +358,8 @@ public class WalletExchange001 {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   @AfterClass

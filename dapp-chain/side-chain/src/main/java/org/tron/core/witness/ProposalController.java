@@ -351,6 +351,11 @@ public class ProposalController {
               .saveWitnessMaxActiveNum(Integer.parseInt(entry.getValue()));
           break;
         }
+        case (1_000_012): {
+          manager.getDynamicPropertiesStore()
+              .saveAllowDAppChainSolidity059(Long.valueOf(entry.getValue()));
+          break;
+        }
         default:
           break;
       }

@@ -88,8 +88,16 @@ public class TransferAssetIssue {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *//*
 
 
   @BeforeClass(enabled = false)
@@ -162,8 +170,8 @@ public class TransferAssetIssue {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
 
@@ -285,8 +293,8 @@ public class TransferAssetIssue {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
 
@@ -324,8 +332,8 @@ public class TransferAssetIssue {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public static Protocol.Transaction signTransaction(ECKey ecKey,
@@ -341,8 +349,8 @@ public class TransferAssetIssue {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public static boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,

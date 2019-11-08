@@ -55,6 +55,7 @@ import org.tron.common.crypto.zksnark.BN128G1;
 import org.tron.common.crypto.zksnark.BN128G2;
 import org.tron.common.crypto.zksnark.Fp;
 import org.tron.common.crypto.zksnark.PairingCheck;
+import org.tron.common.runtime.config.VMConfig;
 import org.tron.common.runtime.utils.MUtil;
 import org.tron.common.runtime.vm.program.Program;
 import org.tron.common.runtime.vm.program.Program.BytecodeExecutionException;
@@ -133,8 +134,10 @@ public class PrecompiledContracts {
     if (address.equals(mineTokenAddr)) {
       return mineToken;
     }
-    if (address.equals(updateContractOwnerAddr)) {
-      return updateContractOwner;
+    if (VMConfig.isDAppChainSolidity059On()) {
+      if (address.equals(updateContractOwnerAddr)) {
+        return updateContractOwner;
+      }
     }
     if (address.equals(ecRecoverAddr)) {
       return ecRecover;
@@ -361,6 +364,7 @@ public class PrecompiledContracts {
 
     @Override
     public Pair<Boolean, byte[]> execute(byte[] data) {
+      logger.info("[updatecontractowner method] ready to updatecontractowner");
       if (!checkInGatewayList(this.getCallerAddress(), getDeposit())) {
         logger.error("[updatecontractowner method]caller must be gateway, caller: %s",
             Wallet.encode58Check(this.getCallerAddress()));
@@ -375,6 +379,9 @@ public class PrecompiledContracts {
       ContractCapsule contract = this.getDeposit().getContract(contractAddress);
 
       if (contract == null || !checkInGatewayList(contract.getOriginAddress(), getDeposit())) {
+        logger.error(
+            "[updatecontractowner method]target contract not exists or address not in gatewayList: %s",
+            Wallet.encode58Check(contractAddress));
         throw new PrecompiledContractException(
             "[updatecontractowner method]target contract not exists or address not in gatewayList: %s",
             Wallet.encode58Check(contractAddress));
@@ -388,6 +395,7 @@ public class PrecompiledContracts {
       }
       contract.setOriginAddress(ownerAddress);
       this.getDeposit().updateContract(contractAddress, contract);
+      logger.info("[updatecontractowner method]  updatecontractowner success");
 
       return Pair.of(true, EMPTY_BYTE_ARRAY);
     }

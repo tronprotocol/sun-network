@@ -43,7 +43,7 @@ contract Ownable is Delegatecallable {
      */
     function _transferOwnership(address _newOwner) internal {
         require(_newOwner != address(0));
-        emit eq(18);
+        emit eq(1);
         owner = _newOwner;
     }
 }

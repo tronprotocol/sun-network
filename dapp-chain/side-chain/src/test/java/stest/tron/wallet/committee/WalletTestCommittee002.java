@@ -10,9 +10,11 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.core.Wallet;
+import org.tron.protos.Protocol.SideChainParameters.SideChainParameter;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
@@ -22,6 +24,7 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 @Slf4j
 public class WalletTestCommittee002 {
 
+  private static final long now = System.currentTimeMillis();
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
@@ -42,23 +45,16 @@ public class WalletTestCommittee002 {
   //Witness 47.93.184.2
   private final String witnessKey005 = Configuration.getByPath("testng.conf")
       .getString("witness.key5");
-
-
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   private final byte[] witness001Address = PublicMethedForDailybuild.getFinalAddress(witnessKey001);
   private final byte[] witness002Address = PublicMethedForDailybuild.getFinalAddress(witnessKey002);
   private final byte[] witness003Address = PublicMethedForDailybuild.getFinalAddress(witnessKey003);
   private final byte[] witness004Address = PublicMethedForDailybuild.getFinalAddress(witnessKey004);
   private final byte[] witness005Address = PublicMethedForDailybuild.getFinalAddress(witnessKey005);
-
-
   private ManagedChannel channelFull = null;
   private ManagedChannel channelSolidity = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
-  private static final long now = System.currentTimeMillis();
-
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
   private String soliditynode = Configuration.getByPath("testng.conf")
@@ -92,11 +88,20 @@ public class WalletTestCommittee002 {
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
     Assert.assertTrue(PublicMethedForDailybuild.sendcoin(witness001Address, 10000000L,
         toAddress, testKey003, blockingStubFull));
-
-    //0:MAINTENANCE_TIME_INTERVAL,[3*27s,24h]
+    int WitnessMaxActiveNum = 0;
+    for (SideChainParameter para : blockingStubFull
+        .getSideChainParameters(EmptyMessage.newBuilder().build())
+        .getChainParameterList()) {
+      if (para.getKey().equals("getWitnessMaxActiveNum")) {
+        logger.info(para.getValue());
+        WitnessMaxActiveNum = Integer.parseInt(para.getValue());
+        break;
+      }
+    }
+    //0:MAINTENANCE_TIME_INTERVAL,[3*WitnessMaxActiveNum s,24h]
     //Minimum interval
     HashMap<Long, String> proposalMap = new HashMap<Long, String>();
-    proposalMap.put(0L, "81000");
+    proposalMap.put(0L, Integer.toString(3 * WitnessMaxActiveNum * 1000));
     Assert.assertTrue(PublicMethed.sideChainProposalCreate(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
@@ -106,7 +111,7 @@ public class WalletTestCommittee002 {
         proposalMap, blockingStubFull));
 
     //Minimum -1 interval, create failed.
-    proposalMap.put(0L, "80000");
+    proposalMap.put(0L, Integer.toString(3 * WitnessMaxActiveNum * 1000 - 1));
     Assert.assertFalse(PublicMethed.sideChainProposalCreate(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 

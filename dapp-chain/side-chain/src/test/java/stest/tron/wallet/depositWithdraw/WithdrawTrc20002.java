@@ -3,6 +3,7 @@ package stest.tron.wallet.depositWithdraw;
 
 import static org.tron.api.GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR;
 
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
@@ -32,39 +33,32 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 
 public class WithdrawTrc20002 {
 
+  final String ChainIdAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.chainIdAddress");
   private final String testDepositTrx = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] depositAddress = ecKey1.getAddress();
+  String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  String mainChainAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key1");
+  final byte[] mainChainAddressKey = WalletClient.decodeFromBase58Check(mainChainAddress);
+  String sideChainAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key2");
+  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
-
-
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] depositAddress = ecKey1.getAddress();
-  String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
-  String mainChainAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key1");
-  final byte[] mainChainAddressKey = WalletClient.decodeFromBase58Check(mainChainAddress);
-
-  String sideChainAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key2");
-  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
-  final String ChainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.chainIdAddress");
 
   @BeforeSuite
   public void beforeSuite() {
@@ -193,6 +187,9 @@ public class WithdrawTrc20002 {
             depositAddress, testKeyFordeposit, blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infodeposittrx = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
@@ -203,10 +200,10 @@ public class WithdrawTrc20002 {
             WalletClient.decodeFromBase58Check(ChainIdAddress), 0l, input1,
             1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
-    Optional<TransactionInfo> infoById2 = PublicMethed
-        .getTransactionInfoById(sideChainTxid, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById2 = PublicMethed
+        .getTransactionInfoById(sideChainTxid, blockingSideStubFull);
     int afterDepositSideChain = ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray());
     Assert.assertEquals(0, infoById2.get().getResultValue());
     Assert.assertEquals(1000, afterDepositSideChain);
@@ -237,13 +234,13 @@ public class WithdrawTrc20002 {
             WalletClient.decodeFromBase58Check(ChainIdAddress), 0l, input4,
             1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById3 = PublicMethed
         .getTransactionInfoById(sideChainTxid1, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Assert.assertEquals(0, infoById3.get().getResultValue());
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     int afterWithdrawsidechain = ByteArray
         .toInt(infoById3.get().getContractResult(0).toByteArray());
     Assert.assertEquals(afterDepositSideChain - 100, afterWithdrawsidechain);
@@ -267,13 +264,12 @@ public class WithdrawTrc20002 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    Optional<TransactionInfo> infoById4;
-    String txd1 = infoById1.get().getResult().name();
-    infoById3 = PublicMethed
+//    String txd1 = infoById1.get().getResult().name();
+    Optional<TransactionInfo> infoById4 = PublicMethed
         .getTransactionInfoById(txid2, blockingSideStubFull);
-    Assert.assertEquals(1, infoById3.get().getResultValue());
+    Assert.assertEquals(1, infoById4.get().getResultValue());
     Assert.assertEquals("REVERT opcode executed",
-        ByteArray.toStr(infoById3.get().getResMessage().toByteArray()));
+        ByteArray.toStr(infoById4.get().getResMessage().toByteArray()));
 
     //account not exit
 
@@ -307,14 +303,12 @@ public class WithdrawTrc20002 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    Optional<TransactionInfo> infoById5;
-
-    infoById4 = PublicMethed
+    Optional<TransactionInfo> infoById5 = PublicMethed
         .getTransactionInfoById(txid3, blockingSideStubFull);
-    String txd3 = infoById4.get().getResult().name();
-    Assert.assertEquals(1, infoById4.get().getResultValue());
+//    String txd3 = infoById5.get().getResult().name();
+    Assert.assertEquals(1, infoById5.get().getResultValue());
     Assert.assertEquals("REVERT opcode executed",
-        ByteArray.toStr(infoById4.get().getResMessage().toByteArray()));
+        ByteArray.toStr(infoById5.get().getResMessage().toByteArray()));
 
 //        //value=0
 //        String value2 = Long.toString(1000);

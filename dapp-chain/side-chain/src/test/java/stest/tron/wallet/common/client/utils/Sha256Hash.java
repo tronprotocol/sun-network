@@ -17,12 +17,13 @@ package stest.tron.wallet.common.client.utils;
  * limitations under the License.
  */
 
+import static com.google.common.base.Preconditions.checkArgument;
+
+
 import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
-import org.tron.common.utils.ByteArray;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,8 +32,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-
-import static com.google.common.base.Preconditions.checkArgument;
+import org.tron.common.utils.ByteArray;
 
 
 /**
@@ -49,24 +49,6 @@ public class Sha256Hash implements Serializable, Comparable<Sha256Hash> {
 
   private long blockNum;
 
-
-  private byte[] generateBlockId(long blockNum, Sha256Hash blockHash) {
-    byte[] numBytes = Longs.toByteArray(blockNum);
-    byte[] hash = blockHash.getBytes();
-    System.arraycopy(numBytes, 0, hash, 0, 8);
-    return hash;
-  }
-
-  private byte[] generateBlockId(long blockNum, byte[] blockHash) {
-    byte[] numBytes = Longs.toByteArray(blockNum);
-    byte[] hash = blockHash;
-    System.arraycopy(numBytes, 0, hash, 0, 8);
-    return hash;
-  }
-
-  public long getBlockNum() {
-    return blockNum;
-  }
 
   /**
    * constructor.
@@ -239,6 +221,24 @@ public class Sha256Hash implements Serializable, Comparable<Sha256Hash> {
     digest.update(input1, offset1, length1);
     digest.update(input2, offset2, length2);
     return digest.digest(digest.digest());
+  }
+
+  private byte[] generateBlockId(long blockNum, Sha256Hash blockHash) {
+    byte[] numBytes = Longs.toByteArray(blockNum);
+    byte[] hash = blockHash.getBytes();
+    System.arraycopy(numBytes, 0, hash, 0, 8);
+    return hash;
+  }
+
+  private byte[] generateBlockId(long blockNum, byte[] blockHash) {
+    byte[] numBytes = Longs.toByteArray(blockNum);
+    byte[] hash = blockHash;
+    System.arraycopy(numBytes, 0, hash, 0, 8);
+    return hash;
+  }
+
+  public long getBlockNum() {
+    return blockNum;
   }
 
   @Override

@@ -17,12 +17,10 @@ import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
-import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 
 @Slf4j
@@ -31,20 +29,17 @@ public class TronDice {
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-
+  byte[] contractAddress;
+  Long maxFeeLimit = 1000000000L;
+  Optional<TransactionInfo> infoById = null;
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] contract008Address = ecKey1.getAddress();
+  String contract008Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  ArrayList<String> txidList = new ArrayList<String>();
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
-  byte[] contractAddress;
-  Long maxFeeLimit = 1000000000L;
-  Optional<TransactionInfo> infoById = null;
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] contract008Address = ecKey1.getAddress();
-  String contract008Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
-  ArrayList<String> txidList = new ArrayList<String>();
 
   @BeforeSuite
   public void beforeSuite() {

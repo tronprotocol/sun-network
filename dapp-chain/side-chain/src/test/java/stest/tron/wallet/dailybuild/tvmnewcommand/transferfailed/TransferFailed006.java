@@ -30,32 +30,25 @@ public class TransferFailed006 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
   private final Long maxFeeLimit = Configuration.getByPath("testng.cong")
       .getLong("defaultParameter.maxFeeLimit");
-
+  byte[] contractAddress = null;
+  byte[] contractAddress1 = null;
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] accountExcAddress = ecKey1.getAddress();
+  String accountExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private ManagedChannel channelSolidity = null;
-
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-
-
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
-
-  byte[] contractAddress = null;
-  byte[] contractAddress1 = null;
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] accountExcAddress = ecKey1.getAddress();
-  String accountExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -120,8 +113,9 @@ public class TransferFailed006 {
   public void triggerContract() {
     Account info = null;
 
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(accountExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(accountExcAddress,
+            blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(accountExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
