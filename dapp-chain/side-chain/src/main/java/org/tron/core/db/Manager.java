@@ -481,6 +481,7 @@ public class Manager {
       getStorageRowStore().put(rowKey, new StorageRowCapsule(new DataWord(
           new DataWord(Wallet.decodeFromBase58Check(newContractOwner)).getLast20Bytes())
           .getData()));
+      logger.info("set Gateway OwnerAddress ");
     }
   }
 
