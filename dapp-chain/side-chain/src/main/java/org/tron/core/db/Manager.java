@@ -770,7 +770,7 @@ public class Manager {
           "too big transaction, the size is " + transactionCapsule.getData().length + " bytes");
     }
     long transactionExpiration = transactionCapsule.getExpiration();
-    long headBlockTime = getHeadBlockTimeStamp();
+    /*long headBlockTime = getHeadBlockTimeStamp();
     if (transactionExpiration <= headBlockTime ||
         transactionExpiration > headBlockTime + Constant.MAXIMUM_TIME_UNTIL_EXPIRATION) {
       throw new TransactionExpirationException(
@@ -779,7 +779,7 @@ public class Manager {
     }
   }
 
-  void validateDup(TransactionCapsule transactionCapsule) throws DupTransactionException {
+  */}void validateDup(TransactionCapsule transactionCapsule) throws DupTransactionException {
     if (containsTransaction(transactionCapsule)) {
       logger.debug(ByteArray.toHexString(transactionCapsule.getTransactionId().getBytes()));
       throw new DupTransactionException("dup trans");
@@ -1179,7 +1179,7 @@ public class Manager {
     if (block.getNum() != 1) {
       slot = witnessController.getSlotAtTime(block.getTimeStamp());
     }
-    for (int i = 1; i < slot; ++i) {
+    /*for (int i = 1; i < slot; ++i) {
       if (!witnessController.getScheduledWitness(i).equals(block.getWitnessAddress())) {
         WitnessCapsule w =
             this.witnessStore
@@ -1192,7 +1192,7 @@ public class Manager {
       }
       this.dynamicPropertiesStore.applyBlock(false);
     }
-    this.dynamicPropertiesStore.applyBlock(true);
+    */this.dynamicPropertiesStore.applyBlock(true);
 
     if (slot <= 0) {
       logger.warn("missedBlocks [" + slot + "] is illegal");
@@ -1296,8 +1296,8 @@ public class Manager {
       return false;
     }
 
-    validateTapos(trxCap);
-    validateCommon(trxCap);
+    //validateTapos(trxCap);
+    //validateCommon(trxCap);
 
     if (trxCap.getInstance().getRawData().getContractList().size() != 1) {
       throw new ContractSizeNotEqualToOneException(
@@ -2112,4 +2112,3 @@ public class Manager {
     witnessCapsule.setIsJobs(true);
     this.witnessStore.put(keyAddress, witnessCapsule);
   }
-}
