@@ -83,6 +83,8 @@ public class FullNode {
       }
       manager.getDynamicPropertiesStore().saveMaintenanceTimeInterval(interval);
       manager.getDynamicPropertiesStore().saveNextMaintenanceTime(next);
+      int ProposalExpireTime = 300000;
+      manager.getDynamicPropertiesStore().saveProposalExpireTime(ProposalExpireTime);
     }
     shutdown(appT);
 

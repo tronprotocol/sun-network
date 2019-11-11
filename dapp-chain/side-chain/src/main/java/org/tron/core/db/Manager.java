@@ -779,7 +779,10 @@ public class Manager {
     }
   }
 
-  */}void validateDup(TransactionCapsule transactionCapsule) throws DupTransactionException {
+  */
+  }
+
+  void validateDup(TransactionCapsule transactionCapsule) throws DupTransactionException {
     if (containsTransaction(transactionCapsule)) {
       logger.debug(ByteArray.toHexString(transactionCapsule.getTransactionId().getBytes()));
       throw new DupTransactionException("dup trans");
@@ -1192,7 +1195,8 @@ public class Manager {
       }
       this.dynamicPropertiesStore.applyBlock(false);
     }
-    */this.dynamicPropertiesStore.applyBlock(true);
+    */
+    this.dynamicPropertiesStore.applyBlock(true);
 
     if (slot <= 0) {
       logger.warn("missedBlocks [" + slot + "] is illegal");
@@ -2112,3 +2116,4 @@ public class Manager {
     witnessCapsule.setIsJobs(true);
     this.witnessStore.put(keyAddress, witnessCapsule);
   }
+}
