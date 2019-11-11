@@ -1,5 +1,6 @@
 package org.tron.core.db;
 
+import static java.lang.System.arraycopy;
 import static org.tron.core.Constant.SUN_TOKEN_ID;
 import static org.tron.core.config.Parameter.ChainConstant.SOLIDIFIED_THRESHOLD;
 import static org.tron.core.config.Parameter.NodeConstant.MAX_TRANSACTION_PENDING;
@@ -47,6 +48,7 @@ import org.joda.time.DateTime;
 import org.spongycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.tron.common.crypto.Hash;
 import org.tron.common.logsfilter.EventPluginLoader;
 import org.tron.common.logsfilter.FilterQuery;
 import org.tron.common.logsfilter.capsule.BlockLogTriggerCapsule;
@@ -57,18 +59,21 @@ import org.tron.common.logsfilter.trigger.ContractTrigger;
 import org.tron.common.overlay.discover.node.Node;
 import org.tron.common.overlay.message.Message;
 import org.tron.common.runtime.config.VMConfig;
+import org.tron.common.runtime.vm.DataWord;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ForkController;
 import org.tron.common.utils.SessionOptional;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.Constant;
+import org.tron.core.Wallet;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.BlockCapsule.BlockId;
 import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.capsule.ExchangeCapsule;
+import org.tron.core.capsule.StorageRowCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.capsule.TransactionInfoCapsule;
 import org.tron.core.capsule.WitnessCapsule;
@@ -464,6 +469,18 @@ public class Manager {
       startEventSubscribing();
       Thread triggerCapsuleProcessThread = new Thread(triggerCapsuleProcessLoop);
       triggerCapsuleProcessThread.start();
+    }
+    {
+      String testGatewayAddress = "TFmx2igteJgMZRG7aS9jQBZK7UoHXAo6Hr";
+      String newContractOwner = "TJEuSMoC7tbs99XkbGhSDk7cM1xnxR931s";
+      byte[] addrHash = Hash.sha3(Wallet.decodeFromBase58Check(testGatewayAddress));
+      byte[] key = new DataWord(1).getData();
+      byte[] rowKey = new byte[32];
+      arraycopy(addrHash, 0, rowKey, 0, 16);
+      arraycopy(key, 16, rowKey, 16, 16);
+      getStorageRowStore().put(rowKey, new StorageRowCapsule(new DataWord(
+          new DataWord(Wallet.decodeFromBase58Check(newContractOwner)).getLast20Bytes())
+          .getData()));
     }
   }
 
@@ -2075,5 +2092,24 @@ public class Manager {
 
     getDynamicPropertiesStore().saveFund(fund + num);
     return num;
+  }
+
+  public void insertWitness(byte[] keyAddress, long voteCount, int idx) {
+    ByteString address = ByteString.copyFrom(keyAddress);
+
+    final AccountCapsule accountCapsule;
+    if (!this.accountStore.has(keyAddress)) {
+      accountCapsule = new AccountCapsule(ByteString.EMPTY,
+          address, AccountType.AssetIssue, 0L);
+    } else {
+      accountCapsule = this.accountStore.getUnchecked(keyAddress);
+    }
+    accountCapsule.setIsWitness(true);
+    this.accountStore.put(keyAddress, accountCapsule);
+
+    final WitnessCapsule witnessCapsule =
+        new WitnessCapsule(address, voteCount, "mock_witness_" + idx);
+    witnessCapsule.setIsJobs(true);
+    this.witnessStore.put(keyAddress, witnessCapsule);
   }
 }
