@@ -195,6 +195,7 @@ public class SolidityNode {
     }
     Application appT = ApplicationFactory.create(context);
     Manager manager = context.getBean(Manager.class);
+
     AccountCapsule existAccount = manager.getAccountStore()
         .get(Wallet.decodeFromBase58Check("TJEuSMoC7tbs99XkbGhSDk7cM1xnxR931s"));
     if (existAccount == null) {
@@ -206,13 +207,9 @@ public class SolidityNode {
       }
       manager.getDynamicPropertiesStore().saveMaintenanceTimeInterval(interval);
       manager.getDynamicPropertiesStore().saveNextMaintenanceTime(next);
-      int ProposalExpireTime = 300000;
-      manager.getDynamicPropertiesStore().saveProposalExpireTime(ProposalExpireTime);
     }
     FullNode.shutdown(appT);
-
     mockWitness(context);
-
     //appT.init(cfgArgs);
     RpcApiService rpcApiService = context.getBean(RpcApiService.class);
     appT.addService(rpcApiService);
@@ -277,7 +274,6 @@ public class SolidityNode {
         voteCount = 5000_000;
       }
       voteCount = 5000_000 + voteCount * 4000;
-
       account.addVotes(ByteString.copyFrom(address), voteCount);
       context.getBean(Manager.class).getAccountStore().put(address, account);
       manager.insertWitness(address, voteCount, idx++);
@@ -285,4 +281,5 @@ public class SolidityNode {
 
     manager.getWitnessController().initWits();
   }
+
 }
