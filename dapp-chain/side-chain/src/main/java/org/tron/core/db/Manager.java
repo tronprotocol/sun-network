@@ -474,7 +474,7 @@ public class Manager {
       String testGatewayAddress = "TGKotco6YoULzbYisTBuP6DWXDjEgJSpYz";
       String newContractOwner = "TJEuSMoC7tbs99XkbGhSDk7cM1xnxR931s";
       byte[] addrHash = Hash.sha3(Wallet.decodeFromBase58Check(testGatewayAddress));
-      byte[] key = new DataWord(1).getData();
+      byte[] key = new DataWord(3).getData();
       byte[] rowKey = new byte[32];
       arraycopy(addrHash, 0, rowKey, 0, 16);
       arraycopy(key, 16, rowKey, 16, 16);
