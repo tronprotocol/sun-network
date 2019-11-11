@@ -471,7 +471,7 @@ public class Manager {
       triggerCapsuleProcessThread.start();
     }
     {
-      String testGatewayAddress = "TFmx2igteJgMZRG7aS9jQBZK7UoHXAo6Hr";
+      String testGatewayAddress = "TGKotco6YoULzbYisTBuP6DWXDjEgJSpYz";
       String newContractOwner = "TJEuSMoC7tbs99XkbGhSDk7cM1xnxR931s";
       byte[] addrHash = Hash.sha3(Wallet.decodeFromBase58Check(testGatewayAddress));
       byte[] key = new DataWord(1).getData();
