@@ -329,7 +329,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
 
     // 7. withdrawTRC10
     function withdrawTRC10(uint256 tokenId, uint256 tokenValue) payable
-    public checkForTrc10(tokenId, tokenValue) onlyNotPause onlyNotStop isHuman
+    public onlyNotPause onlyNotStop isHuman
     returns (uint256 r)
     {
         require(tokenIdMap[uint256(msg.tokenid)], "tokenIdMap[`msg.tokenid] == false");

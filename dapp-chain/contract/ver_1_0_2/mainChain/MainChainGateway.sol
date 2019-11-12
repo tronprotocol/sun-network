@@ -185,7 +185,7 @@ contract MainChainGateway is OracleManagerContract {
         return userDepositList.length - 1;
     }
 
-    function depositTRC10(uint64 tokenId, uint64 tokenValue) payable public checkForTrc10(tokenId, tokenValue)
+    function depositTRC10(uint64 tokenId, uint64 tokenValue) payable public
     onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(msg.value >= depositFee, "msg.value need  >= depositFee");
         if (msg.value > depositFee) {
