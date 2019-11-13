@@ -353,7 +353,7 @@ public class ProposalController {
         }
         case (1_000_012): {
           manager.getDynamicPropertiesStore()
-              .saveAllowDAppChainSolidity059(Long.valueOf(entry.getValue()));
+              .saveAllowUpdateGatewayV102(Long.valueOf(entry.getValue()));
           break;
         }
         default:

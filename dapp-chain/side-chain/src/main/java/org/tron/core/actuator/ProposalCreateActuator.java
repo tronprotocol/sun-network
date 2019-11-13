@@ -419,12 +419,12 @@ public class ProposalCreateActuator extends AbstractActuator {
       case (1_000_012): {
         if (!dbManager.getForkController().pass(ForkBlockVersionEnum.DAPP_CHAIN_1_0_2)) {
           throw new ContractValidateException(
-              "Bad chain parameter id [ALLOW_DAPPCHAIN_SOLIDITY_059]");
+              "Bad chain parameter id [updateGateway_v1_0_2]");
         }
 
         if (Integer.parseInt(entry.getValue()) != 1) {
           throw new ContractValidateException(
-              "ALLOW_DAPPCHAIN_SOLIDITY_059 is only allowed to be 1");
+              "updateGateway_v1_0_2 is only allowed to be 1");
         }
         break;
       }

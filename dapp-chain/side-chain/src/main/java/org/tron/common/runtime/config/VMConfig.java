@@ -43,7 +43,7 @@ public class VMConfig {
 
   @Getter
   @Setter
-  public static boolean isDAppChainSolidity059On = false;
+  public static boolean isAllowUpdateGateway102 = false;
 
   private VMConfig() {
   }
@@ -55,7 +55,7 @@ public class VMConfig {
 
   public static void handleProposalInVM(Manager dbManager) {
     isVmResourceChargingOn = isChargingResourceProposalOn(dbManager);
-    isDAppChainSolidity059On = isDAppChain059ProposalOn(dbManager);
+    isAllowUpdateGateway102 = isAllowUpdateGatewayV102(dbManager);
   }
 
 
@@ -75,8 +75,8 @@ public class VMConfig {
     return dbManger.getDynamicPropertiesStore().getChargingSwitch() == 1;
   }
 
-  private static boolean isDAppChain059ProposalOn(Manager dbManger) {
-    return dbManger.getDynamicPropertiesStore().getAllowDAppChainSolidity059() == 1;
+  private static boolean isAllowUpdateGatewayV102(Manager dbManger) {
+    return dbManger.getDynamicPropertiesStore().getAllowUpdateGatewayV102() == 1;
   }
 
 }

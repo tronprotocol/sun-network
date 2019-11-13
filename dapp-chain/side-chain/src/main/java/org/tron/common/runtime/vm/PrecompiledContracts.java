@@ -134,7 +134,7 @@ public class PrecompiledContracts {
     if (address.equals(mineTokenAddr)) {
       return mineToken;
     }
-    if (VMConfig.isDAppChainSolidity059On()) {
+    if (VMConfig.isAllowUpdateGateway102()) {
       if (address.equals(updateContractOwnerAddr)) {
         return updateContractOwner;
       }
