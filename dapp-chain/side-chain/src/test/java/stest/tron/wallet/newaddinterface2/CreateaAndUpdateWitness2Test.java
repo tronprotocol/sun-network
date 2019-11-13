@@ -39,14 +39,12 @@ import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 @Slf4j
 public class CreateaAndUpdateWitness2Test {
 
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
-
   private static final byte[] INVAILD_ADDRESS = Base58
       .decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
-
-  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private static final Long costForCreateWitness = 9999000000L;
+  private final String testKey002 = Configuration.getByPath("testng.conf")
+      .getString("foundationAccount.key1");
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   String createWitnessUrl = "http://www.createwitnessurl.com";
   String updateWitnessUrl = "http://www.updatewitnessurl.com";
   String nullUrl = "";
@@ -55,15 +53,19 @@ public class CreateaAndUpdateWitness2Test {
   byte[] updateUrl = updateWitnessUrl.getBytes();
   byte[] wrongUrl = nullUrl.getBytes();
   byte[] updateSpaceUrl = spaceUrl.getBytes();
+  //get account
+  ECKey ecKey = new ECKey(Utils.getRandom());
+  byte[] lowBalAddress = ecKey.getAddress();
+  String lowBalTest = ByteArray.toHexString(ecKey.getPrivKeyBytes());
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
 
-  //get account
-  ECKey ecKey = new ECKey(Utils.getRandom());
-  byte[] lowBalAddress = ecKey.getAddress();
-  String lowBalTest = ByteArray.toHexString(ecKey.getPrivKeyBytes());
+  public static String loadPubKey() {
+    char[] buf = new char[0x100];
+    return String.valueOf(buf, 32, 130);
+  }
 
   @BeforeSuite
   public void beforeSuite() {
@@ -393,11 +395,6 @@ public class CreateaAndUpdateWitness2Test {
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
   }
 
-  public static String loadPubKey() {
-    char[] buf = new char[0x100];
-    return String.valueOf(buf, 32, 130);
-  }
-
   public byte[] getAddress(ECKey ecKey) {
     return ecKey.getAddress();
   }
@@ -430,7 +427,7 @@ public class CreateaAndUpdateWitness2Test {
     }
     transaction = TransactionUtils.setTimestamp(transaction);
     return TransactionUtilsForDailybuild
-        .sign(transaction, ecKey, PublicMethed.getMaingatewayByteAddr(),false);
+        .sign(transaction, ecKey, PublicMethed.getMaingatewayByteAddr(), false);
   }
 }
 

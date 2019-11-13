@@ -31,46 +31,36 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 public class DepositFeeTrc721001 {
 
 
-  private final String foundationKey001 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
-  private final byte[] foundationAddress001 = PublicMethed.getFinalAddress(foundationKey001);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
-  private ManagedChannel channelFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
-  private ManagedChannel channelFull1 = null;
-  private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
-
-
-  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("mainfullnode.ip.list").get(0);
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] testAddress001 = ecKey1.getAddress();
-  String testKey001 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
-  String mainChainAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key1");
-  final byte[] mainChainAddressKey = WalletClient.decodeFromBase58Check(mainChainAddress);
-
-  String sideChainAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key2");
-  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
-
-
   final String ChainIdAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.chainIdAddress");
   final String gateWatOwnerAddressKey = Configuration.getByPath("testng.conf")
       .getString("gateWatOwnerAddressKey.key1");
-
+  private final String foundationKey001 = Configuration.getByPath("testng.conf")
+      .getString("foundationAccount.key2");
+  private final byte[] foundationAddress001 = PublicMethed.getFinalAddress(foundationKey001);
   private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] testAddress001 = ecKey1.getAddress();
+  String testKey001 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  String mainChainAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key1");
+  final byte[] mainChainAddressKey = WalletClient.decodeFromBase58Check(mainChainAddress);
+  String sideChainAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key2");
+  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
   String methodStr1 = null;
   String parame2 = null;
+  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
+      .getLong("defaultParameter.maxFeeLimit");
+  private ManagedChannel channelFull = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+  private ManagedChannel channelFull1 = null;
+  private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+  private String fullnode = Configuration.getByPath("testng.conf")
+      .getStringList("mainfullnode.ip.list").get(0);
+  private String fullnode1 = Configuration.getByPath("testng.conf")
+      .getStringList("fullnode.ip.list").get(0);
 
   @BeforeSuite
   public void beforeSuite() {
@@ -119,6 +109,9 @@ public class DepositFeeTrc721001 {
     String txid = PublicMethed.triggerContract(mainChainAddressKey, callValue, input,
         maxFeeLimit, 0, "", testAddress001, testKey001, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
@@ -210,6 +203,9 @@ public class DepositFeeTrc721001 {
             testAddress001, testKey001, blockingStubFull);
     logger.info(deposittrx);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(deposittrx, blockingStubFull);
     Assert.assertNotNull(deposittrx);
@@ -423,6 +419,7 @@ public class DepositFeeTrc721001 {
             1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById2 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     tmpAddress = ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray());
@@ -503,9 +500,8 @@ public class DepositFeeTrc721001 {
             1001, setDepositFee + 1,
             1000000000,
             testAddress001, testKey001, blockingStubFull);
-    logger.info(deposittrx);
+    logger.info("deposittrx：" + deposittrx);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(deposittrx, blockingStubFull);
     fee2 = infoById.get().getFee();
     Assert.assertNotNull(deposittrx);
@@ -530,8 +526,11 @@ public class DepositFeeTrc721001 {
             1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    Assert.assertNotNull(ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById2 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
+    Assert.assertEquals(0, infoById2.get().getResultValue());
     tmpAddress = ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray());
     tmpAddress = tmpAddress.substring(24);
     addressHex = "41" + tmpAddress;
@@ -564,7 +563,6 @@ public class DepositFeeTrc721001 {
   public void shutdown() throws InterruptedException {
     parame2 = "0";
     methodStr1 = "setDepositFee(uint256)";
-
     byte[] input3 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame2, false));
 
     PublicMethed
@@ -572,6 +570,7 @@ public class DepositFeeTrc721001 {
             0,
             input3,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

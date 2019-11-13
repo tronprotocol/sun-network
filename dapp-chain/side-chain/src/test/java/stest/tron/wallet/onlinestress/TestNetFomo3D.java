@@ -2,6 +2,7 @@ package stest.tron.wallet.onlinestress;
 
 import static stest.tron.wallet.common.client.utils.PublicMethed.getTransactionInfoById;
 
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.io.BufferedReader;
@@ -35,13 +36,11 @@ public class TestNetFomo3D {
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
   //"BC70ADC5A0971BA3F7871FBB7249E345D84CE7E5458828BE1E28BF8F98F2795B";
   private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
-
+  Optional<TransactionInfo> infoById = null;
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-  Optional<TransactionInfo> infoById = null;
-
 
   @BeforeSuite
   public void beforeSuite() {
@@ -159,8 +158,9 @@ public class TestNetFomo3D {
     /*    String name = readFromXieChang();*/
     String stringTimes = Integer.toString(7);
     byte[] contractAddress = infoById.get().getContractAddress().toByteArray();
-    txid = PublicMethed.triggerContractSideChain(contractAddress, "slice(uint256)", stringTimes, false,
-        0, maxFeeLimit, testNetAccountAddress, testNetAccountKey, blockingStubFull);
+    txid = PublicMethed
+        .triggerContractSideChain(contractAddress, "slice(uint256)", stringTimes, false,
+            0, maxFeeLimit, testNetAccountAddress, testNetAccountKey, blockingStubFull);
     logger.info("slice  " + txid);
     logger.info(Integer.toString(infoById.get().getResultValue()));
     infoById = getTransactionInfoById(txid, blockingStubFull);

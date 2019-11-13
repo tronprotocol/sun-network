@@ -32,7 +32,13 @@ public class ContractOriginEnergyLimit004 {
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
-
+  byte[] contractAddress = null;
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] dev001Address = ecKey1.getAddress();
+  String dev001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] user001Address = ecKey2.getAddress();
+  String user001Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
   private ManagedChannel channelFull = null;
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -43,17 +49,6 @@ public class ContractOriginEnergyLimit004 {
       .getStringList("fullnode.ip.list").get(1);
   private long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
-
-  byte[] contractAddress = null;
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] dev001Address = ecKey1.getAddress();
-  String dev001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] user001Address = ecKey2.getAddress();
-  String user001Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-
 
   @BeforeSuite
   public void beforeSuite() {
@@ -77,8 +72,9 @@ public class ContractOriginEnergyLimit004 {
   }
 
   private long getAvailableFrozenEnergy(byte[] accountAddress) {
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(accountAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(accountAddress,
+            blockingStubFull);
     long energyLimit = resourceInfo.getEnergyLimit();
     long energyUsed = resourceInfo.getEnergyUsed();
     return energyLimit - energyUsed;
@@ -95,7 +91,8 @@ public class ContractOriginEnergyLimit004 {
   }
 
   private long getFeeLimit(String txid) {
-    Optional<Transaction> trsById = PublicMethedForDailybuild.getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> trsById = PublicMethedForDailybuild
+        .getTransactionById(txid, blockingStubFull);
     return trsById.get().getRawData().getFeeLimit();
   }
 
@@ -106,12 +103,14 @@ public class ContractOriginEnergyLimit004 {
   }
 
   private long getOriginalEnergyLimit(byte[] contractAddress) {
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(contractAddress, blockingStubFull);
     return smartContract.getOriginEnergyLimit();
   }
 
   private long getConsumeUserResourcePercent(byte[] contractAddress) {
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(contractAddress, blockingStubFull);
     return smartContract.getConsumeUserResourcePercent();
   }
 
@@ -161,8 +160,9 @@ public class ContractOriginEnergyLimit004 {
     final boolean expectRet = true;
 
     // count dev energy, balance
-    long devFreezeBalanceSun = PublicMethedForDailybuild.getFreezeBalanceCount(dev001Address, dev001Key,
-        devTargetEnergy, blockingStubFull);
+    long devFreezeBalanceSun = PublicMethedForDailybuild
+        .getFreezeBalanceCount(dev001Address, dev001Key,
+            devTargetEnergy, blockingStubFull);
 
     long devNeedBalance = devTargetBalance + devFreezeBalanceSun;
 
@@ -173,15 +173,18 @@ public class ContractOriginEnergyLimit004 {
         testKey002, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     // get energy
-    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(dev001Address, devFreezeBalanceSun,
-        3, 1, dev001Key, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethedForDailybuild.freezeBalanceGetEnergy(dev001Address, devFreezeBalanceSun,
+            3, 1, dev001Key, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(dev001Address,
+            blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
-    long devBalanceBefore = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull).getBalance();
+    long devBalanceBefore = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull)
+        .getBalance();
 
     logger.info("before deploy, dev energy limit is " + Long.toString(devEnergyLimitBefore));
     logger.info("before deploy, dev energy usage is " + Long.toString(devEnergyUsageBefore));
@@ -202,7 +205,8 @@ public class ContractOriginEnergyLimit004 {
     accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitAfter = accountResource.getEnergyLimit();
     long devEnergyUsageAfter = accountResource.getEnergyUsed();
-    long devBalanceAfter = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull).getBalance();
+    long devBalanceAfter = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull)
+        .getBalance();
 
     logger.info("after deploy, dev energy limit is " + Long.toString(devEnergyLimitAfter));
     logger.info("after deploy, dev energy usage is " + Long.toString(devEnergyUsageAfter));
@@ -213,7 +217,8 @@ public class ContractOriginEnergyLimit004 {
 
     ByteString contractAddressString = infoById.get().getContractAddress();
     contractAddress = contractAddressString.toByteArray();
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(contractAddress, blockingStubFull);
 
     Assert.assertTrue(smartContract.getAbi() != null);
 
@@ -229,8 +234,9 @@ public class ContractOriginEnergyLimit004 {
     logger.info("dev need  balance:" + devNeedBalance);
 
     // count user energy, balance
-    long userFreezeBalanceSun = PublicMethedForDailybuild.getFreezeBalanceCount(user001Address, user001Key,
-        userTargetEnergy, blockingStubFull);
+    long userFreezeBalanceSun = PublicMethedForDailybuild
+        .getFreezeBalanceCount(user001Address, user001Key,
+            userTargetEnergy, blockingStubFull);
 
     long userNeedBalance = userTargetBalance + userFreezeBalanceSun;
 
@@ -239,21 +245,25 @@ public class ContractOriginEnergyLimit004 {
     // get balance
     Assert.assertTrue(PublicMethedForDailybuild.sendcoin(dev001Address, devNeedBalance, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(user001Address, userNeedBalance, fromAddress,
-        testKey002, blockingStubFull));
+    Assert
+        .assertTrue(PublicMethedForDailybuild.sendcoin(user001Address, userNeedBalance, fromAddress,
+            testKey002, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     // get energy
-    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(dev001Address, devFreezeBalanceSun,
-        3, 1, dev001Key, blockingStubFull));
-    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(user001Address, userFreezeBalanceSun,
-        3, 1, user001Key, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethedForDailybuild.freezeBalanceGetEnergy(dev001Address, devFreezeBalanceSun,
+            3, 1, dev001Key, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethedForDailybuild.freezeBalanceGetEnergy(user001Address, userFreezeBalanceSun,
+            3, 1, user001Key, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address, blockingStubFull);
     devEnergyLimitBefore = accountResource.getEnergyLimit();
     devEnergyUsageBefore = accountResource.getEnergyUsed();
-    devBalanceBefore = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull).getBalance();
+    devBalanceBefore = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull)
+        .getBalance();
 
     logger.info("before trigger, dev devEnergyLimitBefore is "
         + Long.toString(devEnergyLimitBefore));
@@ -261,7 +271,8 @@ public class ContractOriginEnergyLimit004 {
         + Long.toString(devEnergyUsageBefore));
     logger.info("before trigger, dev devBalanceBefore is " + Long.toString(devBalanceBefore));
 
-    accountResource = PublicMethedForDailybuild.getAccountResource(user001Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild
+        .getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
     long userBalanceBefore = PublicMethedForDailybuild.queryAccount(
@@ -291,13 +302,15 @@ public class ContractOriginEnergyLimit004 {
     accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address, blockingStubFull);
     devEnergyLimitAfter = accountResource.getEnergyLimit();
     devEnergyUsageAfter = accountResource.getEnergyUsed();
-    devBalanceAfter = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull).getBalance();
+    devBalanceAfter = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull)
+        .getBalance();
 
     logger.info("after trigger, dev devEnergyLimitAfter is " + Long.toString(devEnergyLimitAfter));
     logger.info("after trigger, dev devEnergyUsageAfter is " + Long.toString(devEnergyUsageAfter));
     logger.info("after trigger, dev devBalanceAfter is " + Long.toString(devBalanceAfter));
 
-    accountResource = PublicMethedForDailybuild.getAccountResource(user001Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild
+        .getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
     long userBalanceAfter = PublicMethedForDailybuild.queryAccount(user001Address,

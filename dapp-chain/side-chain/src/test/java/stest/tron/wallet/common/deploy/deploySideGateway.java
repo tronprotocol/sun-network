@@ -33,12 +33,11 @@ public class deploySideGateway {
   private final String oracleKey = Configuration.getByPath("testng.conf")
       .getString("oralceAccountKey.key1");
   private final byte[] oracleAddress = PublicMethed.getFinalAddress(oracleKey);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
   private final String foundationKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key3");
   private final byte[] foundationAddress003 = PublicMethed.getFinalAddress(foundationKey003);
-
+  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
+      .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
 
@@ -85,8 +84,8 @@ public class deploySideGateway {
     String sideChainGatewayAddress = null;
     while (count < 3) {
       Account accountOralce = PublicMethed.queryAccount(oracleAddress, blockingStubFull);
-      long OralceBalance = accountOralce.getBalance();
-      logger.info("OralceBalance: " + OralceBalance);
+      long oralceBalance = accountOralce.getBalance();
+      logger.info("OralceBalance: " + oralceBalance);
 
       String contractName = "gateWaysidechainContract";
       String code = null;
@@ -94,8 +93,8 @@ public class deploySideGateway {
       String parame = "\"" + Base58.encode58Check(oracleAddress) + "\"";
 
       try {
-        code = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.bin",false);
-        abi = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.abi",false);
+        code = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.bin", false);
+        abi = PublicMethed.fileRead("/home/ABI_ByteCode/sidegateway/SideChainGateway.abi", false);
       } catch (Exception e) {
         Assert.fail("Read ABI Failed");
         return;

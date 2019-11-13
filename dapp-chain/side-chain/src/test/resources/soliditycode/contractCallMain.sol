@@ -3,6 +3,7 @@ contract contractCallMain{
     function setGatewayAddress(address payable _gateway)public{
         gateway=_gateway;
     }
+    constructor() payable public{}
     function callDepositTRX() public returns(bool success, bytes memory data){
        ( success, data)= gateway.call.value(1000)(abi.encodeWithSignature("depositTRX()"));
 

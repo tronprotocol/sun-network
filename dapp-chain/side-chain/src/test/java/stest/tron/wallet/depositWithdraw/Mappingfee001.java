@@ -31,48 +31,39 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 @Slf4j
 public class Mappingfee001 {
 
+  final String ChainIdAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.chainIdAddress");
+  final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
   private final String testDepositTrx = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
+  private final String mainGateWayOwner = Configuration.getByPath("testng.conf")
+      .getString("gateWatOwnerAddressKey.key1");
+  private final byte[] mainGateWayOwnerAddress = PublicMethed.getFinalAddress(mainGateWayOwner);
+  private final String sideGateWayOwner = Configuration.getByPath("testng.conf")
+      .getString("gateWatOwnerAddressKey.key2");
+  private final byte[] sideGateWayOwnerAddress = PublicMethed.getFinalAddress(sideGateWayOwner);
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] depositAddress = ecKey1.getAddress();
+  String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  String mainChainAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key1");
+  final byte[] mainChainAddressKey = WalletClient.decodeFromBase58Check(mainChainAddress);
+  String sideChainAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key2");
+  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
-
-
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] depositAddress = ecKey1.getAddress();
-  String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
-  String mainChainAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key1");
-  final byte[] mainChainAddressKey = WalletClient.decodeFromBase58Check(mainChainAddress);
-
-  String sideChainAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key2");
-  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
-
-  final String ChainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.chainIdAddress");
-  final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
-  private final String mainGateWayOwner = Configuration.getByPath("testng.conf")
-      .getString("gateWatOwnerAddressKey.key1");
-  private final byte[] mainGateWayOwnerAddress = PublicMethed.getFinalAddress(mainGateWayOwner);
-
-  private final String sideGateWayOwner = Configuration.getByPath("testng.conf")
-      .getString("gateWatOwnerAddressKey.key2");
-  private final byte[] sideGateWayOwnerAddress = PublicMethed.getFinalAddress(sideGateWayOwner);
 
   @BeforeSuite
   public void beforeSuite() {
@@ -512,7 +503,6 @@ public class Mappingfee001 {
     Account accountSideBefore = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
     long accountSideBeforeBalance = accountSideBefore.getBalance();
 
-
     String contractName = "trc721";
     String code = Configuration.getByPath("testng.conf")
         .getString("code.code_ContractTRC721");
@@ -588,7 +578,7 @@ public class Mappingfee001 {
     Assert.assertEquals("FAILED", infoById10.get().getResult().name());
     Assert.assertEquals(1, infoById10.get().getResultValue());
     String msg = Hex.toHexString(infoById10.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135,172)));
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 172)));
     Assert.assertEquals("\u0002less than 1000 TRX", msg);
 
     byte[] input21 = Hex.decode(AbiUtil.parseMethod(

@@ -185,16 +185,16 @@ contract MainChainGateway is OracleManagerContract {
         return userDepositList.length - 1;
     }
 
-    function depositTRC10(uint64 tokenId, uint64 tokenValue) payable public checkForTrc10(tokenId, tokenValue)
+    function depositTRC10(uint64 tokenId, uint64 tokenValue) payable public
     onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(msg.value >= depositFee, "msg.value need  >= depositFee");
         if (msg.value > depositFee) {
             msg.sender.transfer(msg.value - depositFee);
         }
         bonus += depositFee;
-        require(msg.tokenvalue >= depositMinTrc10, "tokenvalue must be >= depositMinTrc10");
-        require(uint256(msg.tokenid) <= uint64Max, "msg.tokenid must <= uint64Max");
-        require(msg.tokenvalue <= uint64Max, "msg.tokenvalue must <= uint64Max");
+        require(tokenValue >= depositMinTrc10, "tokenvalue must be >= depositMinTrc10");
+        require(uint256(tokenId) <= uint64Max, "msg.tokenid must <= uint64Max");
+        require(tokenValue <= uint64Max, "msg.tokenvalue must <= uint64Max");
         userDepositList.push(DepositMsg(msg.sender, tokenValue, 1, address(0), tokenId, 0, 0));
         emit TRC10Received(msg.sender, tokenId, tokenValue, userDepositList.length - 1);
         return userDepositList.length - 1;

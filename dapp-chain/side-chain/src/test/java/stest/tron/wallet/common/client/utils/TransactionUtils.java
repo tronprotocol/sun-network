@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.crypto.ECKey.ECDSASignature;
 import org.tron.common.utils.Sha256Hash;
-import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
 import stest.tron.wallet.common.client.Configuration;
@@ -34,13 +33,13 @@ import stest.tron.wallet.common.client.Configuration;
 
 public class TransactionUtils {
 
-  private static final Logger logger = LoggerFactory.getLogger("Transaction");
-  private static final int RESERVE_BALANCE = 10;
   public static final int NORMALTRANSACTION = 0;
   public static final int UNEXECUTEDDEFERREDTRANSACTION = 1;
   public static final int EXECUTINGDEFERREDTRANSACTION = 2;
   public static final String mainGateWay = Configuration.getByPath("testng.conf")
       .getString("gateway_address.chainIdAddress");
+  private static final Logger logger = LoggerFactory.getLogger("Transaction");
+  private static final int RESERVE_BALANCE = 10;
 
   /**
    * constructor.

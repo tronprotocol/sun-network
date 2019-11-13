@@ -17,12 +17,10 @@ import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
-import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
@@ -31,17 +29,15 @@ public class ContractScenario004 {
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
-
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] contract004Address = ecKey1.getAddress();
+  String contract004Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] contract004Address = ecKey1.getAddress();
-  String contract004Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -64,12 +60,15 @@ public class ContractScenario004 {
 
   @Test(enabled = true)
   public void deployErc20TronTokenWithoutData() {
-    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contract004Address, 200000000L, fromAddress,
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(contract004Address, 100000000L,
-        3, 1, contract004Key, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(contract004Address,
-        blockingStubFull);
+    Assert
+        .assertTrue(PublicMethedForDailybuild.sendcoin(contract004Address, 200000000L, fromAddress,
+            testKey002, blockingStubFull));
+    Assert
+        .assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(contract004Address, 100000000L,
+            3, 1, contract004Key, blockingStubFull));
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(contract004Address,
+            blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
 
@@ -96,10 +95,12 @@ public class ContractScenario004 {
   public void deployErc20TronTokenWithData() {
     Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(contract004Address, 200000000L, fromAddress, testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(contract004Address, 100000000L,
-        3, 1, contract004Key, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(contract004Address,
-        blockingStubFull);
+    Assert
+        .assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(contract004Address, 100000000L,
+            3, 1, contract004Key, blockingStubFull));
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(contract004Address,
+            blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
 

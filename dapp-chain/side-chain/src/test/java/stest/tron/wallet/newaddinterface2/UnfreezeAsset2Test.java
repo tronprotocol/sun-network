@@ -94,8 +94,26 @@ public class UnfreezeAsset2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *//*
 
 
   @BeforeClass(enabled = true)
@@ -340,8 +358,8 @@ public class UnfreezeAsset2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   @AfterClass(enabled = true)
@@ -353,8 +371,8 @@ public class UnfreezeAsset2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
@@ -414,8 +432,8 @@ public class UnfreezeAsset2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -444,8 +462,8 @@ public class UnfreezeAsset2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -456,8 +474,8 @@ public class UnfreezeAsset2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -478,8 +496,8 @@ public class UnfreezeAsset2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
@@ -520,8 +538,8 @@ public class UnfreezeAsset2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public boolean unFreezeAsset(byte[] addRess, String priKey) {
@@ -563,8 +581,8 @@ public class UnfreezeAsset2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public boolean unFreezeAsset2(byte[] addRess, String priKey) {
@@ -618,8 +636,8 @@ public class UnfreezeAsset2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public boolean participateAssetIssue(byte[] to, byte[] assertName, long amount, byte[] from,

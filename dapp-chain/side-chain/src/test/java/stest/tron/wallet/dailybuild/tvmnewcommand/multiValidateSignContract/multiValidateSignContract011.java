@@ -35,26 +35,21 @@ public class multiValidateSignContract011 {
       .getString("foundationAccount.key2");
   private final byte[] testNetAccountAddress = PublicMethedForDailybuild
       .getFinalAddress(testNetAccountKey);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
-
-  private ManagedChannel channelFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
-  private ManagedChannel channelFull1 = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
-
   byte[] contractAddress = null;
-
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   String txid = "";
+  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
+      .getLong("defaultParameter.maxFeeLimit");
+  private ManagedChannel channelFull = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+  private ManagedChannel channelFull1 = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
+  private String fullnode = Configuration.getByPath("testng.conf")
+      .getStringList("fullnode.ip.list").get(0);
+  private String fullnode1 = Configuration.getByPath("testng.conf")
+      .getStringList("fullnode.ip.list").get(1);
 
   @BeforeSuite
   public void beforeSuite() {
@@ -159,7 +154,7 @@ public class multiValidateSignContract011 {
       Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
           .equals(infoById.get().getResMessage().toStringUtf8())
           || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
-      Assert.assertTrue(afterBalance == 0);
+      Assert.assertTrue(afterBalance < 100);
       txid = PublicMethedForDailybuild
           .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
               testNetAccountKey,
@@ -510,7 +505,7 @@ public class multiValidateSignContract011 {
       Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
           .equals(infoById.get().getResMessage().toStringUtf8())
           || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
-      Assert.assertEquals(afterBalance.longValue() , 0);
+      Assert.assertTrue(afterBalance < 100);
       txid = PublicMethedForDailybuild
           .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
               testNetAccountKey,
@@ -591,7 +586,7 @@ public class multiValidateSignContract011 {
       Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
           .equals(infoById.get().getResMessage().toStringUtf8())
           || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
-      Assert.assertTrue(afterBalance == 0);
+      Assert.assertTrue(afterBalance < 100);
       txid = PublicMethedForDailybuild
           .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
               testNetAccountKey,
@@ -674,7 +669,7 @@ public class multiValidateSignContract011 {
       Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
           .equals(infoById.get().getResMessage().toStringUtf8())
           || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
-      Assert.assertTrue(afterBalance == 0);
+      Assert.assertTrue(afterBalance < 100);
       txid = PublicMethedForDailybuild
           .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
               testNetAccountKey,
