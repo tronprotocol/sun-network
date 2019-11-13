@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.common.runtime.config.GatewayCode;
+import org.tron.common.utils.ByteArray;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.CodeCapsule;
@@ -356,7 +358,9 @@ public class ProposalController {
           manager.getDynamicPropertiesStore()
               .saveAllowUpdateGatewayV102(Long.valueOf(entry.getValue()));
 
-          CodeCapsule codeCapsule = new CodeCapsule(null);
+          byte[] byteCode = ByteArray.fromHexString(GatewayCode.gatewayCode);
+
+          CodeCapsule codeCapsule = new CodeCapsule(byteCode);
           manager.getCodeStore()
               .put(manager.getDynamicPropertiesStore().getSideChainGateWayList().get(0),
                   codeCapsule);
