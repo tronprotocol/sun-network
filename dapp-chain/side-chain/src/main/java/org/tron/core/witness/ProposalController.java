@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.AccountCapsule;
+import org.tron.core.capsule.CodeCapsule;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.capsule.WitnessCapsule;
 import org.tron.core.config.args.Args;
@@ -354,6 +355,11 @@ public class ProposalController {
         case (1_000_012): {
           manager.getDynamicPropertiesStore()
               .saveAllowUpdateGatewayV102(Long.valueOf(entry.getValue()));
+
+          CodeCapsule codeCapsule = new CodeCapsule(null);
+          manager.getCodeStore()
+              .put(manager.getDynamicPropertiesStore().getSideChainGateWayList().get(0),
+                  codeCapsule);
           break;
         }
         default:
