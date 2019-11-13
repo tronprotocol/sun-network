@@ -259,9 +259,11 @@ public class WithdrawMinTrx001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById3 = PublicMethed
         .getTransactionInfoById(txid2, blockingSideStubFull);
-    Assert.assertTrue(infoById3.get().getResultValue() == 1);
-    Assert.assertEquals("REVERT opcode executed",
-        ByteArray.toStr(infoById3.get().getResMessage().toByteArray()));
+    Assert.assertTrue(
+        infoById3.get().getInternalTransactions(infoById3.get().getInternalTransactionsCount() - 1)
+            .getRejected());
+//    Assert.assertEquals("REVERT opcode executed",
+//        ByteArray.toStr(infoById3.get().getResMessage().toByteArray()));
 
   }
 
@@ -280,9 +282,11 @@ public class WithdrawMinTrx001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingSideStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() != 0);
-    Assert.assertEquals("REVERT opcode executed",
-        ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
+    Assert.assertTrue(
+        infoById1.get().getInternalTransactions(infoById1.get().getInternalTransactionsCount() - 1)
+            .getRejected());
+//    Assert.assertEquals("REVERT opcode executed",
+//        ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
 
     parame1 = "-1";
     input1 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrx(uint256)", parame1, false));

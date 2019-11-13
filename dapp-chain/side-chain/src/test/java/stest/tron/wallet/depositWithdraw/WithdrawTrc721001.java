@@ -169,7 +169,9 @@ public class WithdrawTrc721001 {
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(mapTxid, blockingStubFull);
 
-    mappingNonce = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
+    mappingNonce = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById1.get().getLogList().get(1).getData().toByteArray())
+            .substring(193)), 16);
     Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
     Assert.assertEquals(0, infoById1.get().getResultValue());
     Assert.assertNotNull(mapTxid);
@@ -205,7 +207,10 @@ public class WithdrawTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(deposittrx, blockingStubFull);
-    depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    depositNonce =
+        Integer.valueOf(String.valueOf(
+            Hex.toHexString(infoById.get().getLogList().get(1).getData().toByteArray())
+                .substring(193)), 16);
     Assert.assertNotNull(deposittrx);
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertEquals("SUCESS", infoById.get().getResult().name());
@@ -259,8 +264,11 @@ public class WithdrawTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(withdrawTxid1, blockingSideStubFull);
     logger.info("fee:" + infoById.get().getFee());
-    withdrawNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
-    Assert.assertNotNull(withdrawTxid1);
+    withdrawNonce =
+        Integer.valueOf(String.valueOf(
+            Hex.toHexString(infoById.get().getLogList().get(2).getData().toByteArray())
+                .substring(193)), 16);
+
     Assert.assertEquals(0, infoById.get().getResultValue());
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);

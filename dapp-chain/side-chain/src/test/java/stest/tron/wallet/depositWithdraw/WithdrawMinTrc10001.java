@@ -14,7 +14,6 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
-import org.tron.common.utils.ByteArray;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.TransactionInfo;
@@ -262,9 +261,9 @@ public class WithdrawMinTrc10001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() != 0);
-    Assert.assertEquals("REVERT opcode executed",
-        ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
+    Assert.assertTrue(infoById1.get().getInternalTransactions(0).getRejected());
+//    Assert.assertEquals("REVERT opcode executed",
+//        ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
 
     parame1 = "-1";
     input2 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc10(uint256)", parame1, false));

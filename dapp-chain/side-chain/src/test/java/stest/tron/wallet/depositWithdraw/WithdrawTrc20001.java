@@ -137,8 +137,8 @@ public class WithdrawTrc20001 {
         .deployContractWithConstantParame(contractName, abi, code, "TronToken(address)",
             parame, "",
             maxFeeLimit,
-            0L, 100, null, testKeyFordeposit, depositAddress
-            , blockingStubFull);
+            0L, 100, null, testKeyFordeposit, depositAddress,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     infoById = PublicMethed
@@ -155,7 +155,9 @@ public class WithdrawTrc20001 {
 
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(mapTxid, blockingStubFull);
-    mappingNonce = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
+    mappingNonce = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById1.get().getLogList().get(1).getData().toByteArray())
+            .substring(193)), 16);
     Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
     Assert.assertEquals(0, infoById1.get().getResultValue());
 
@@ -203,7 +205,10 @@ public class WithdrawTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infodeposittrx = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
-    depositNonce = ByteArray.toInt(infodeposittrx.get().getContractResult(0).toByteArray());
+    depositNonce =
+        Integer.valueOf(String.valueOf(
+            Hex.toHexString(infodeposittrx.get().getLogList().get(1).getData().toByteArray())
+                .substring(193)), 16);
     Assert.assertEquals(0, infodeposittrx.get().getResultValue());
 
     String sideChainTxid = PublicMethed
@@ -240,7 +245,10 @@ public class WithdrawTrc20001 {
 
     Optional<TransactionInfo> infoByIdwithdrawTrc20 = PublicMethed
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
-    withdrawNonce = ByteArray.toInt(infoByIdwithdrawTrc20.get().getContractResult(0).toByteArray());
+    withdrawNonce =
+        Integer.valueOf(String.valueOf(
+            Hex.toHexString(infoByIdwithdrawTrc20.get().getLogList().get(3).getData().toByteArray())
+                .substring(193)), 16);
 
     Assert.assertEquals(0, infoByIdwithdrawTrc20.get().getResultValue());
     logger.info("infoByIdwithdrawTrc20Fee:" + infoByIdwithdrawTrc20.get().getFee());
