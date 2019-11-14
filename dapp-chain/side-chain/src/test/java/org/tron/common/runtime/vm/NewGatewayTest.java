@@ -148,6 +148,59 @@ public class NewGatewayTest extends VMTestBase {
     originAddress = contractCapsule.getOriginAddress();
     Assert.assertEquals(Wallet.encode58Check(originAddress), trc721OwnerAddress);
 
+    // deploy new gateway contract
+    String newContractName = "revertTest";
+    String new_ABI = "[]";
+    String new_factoryCode = "608060405234801561001057600080fd5b5061017d806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c8063107dbe1d14610046578063a029b09614610060578063afc874d2146100dd575b600080fd5b61004e6100e5565b60408051918252519081900360200190f35b6100686100ea565b6040805160208082528351818301528351919283929083019185019080838360005b838110156100a257818101518382015260200161008a565b50505050905090810190601f1680156100cf5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b61004e610109565b600190565b604080518082019091526005815264189718171960d91b602082015290565b60006040805162461bcd60e51b815260206004820152600d60248201526c1cda1bdd5b190814995d995c9d609a1b604482015290519081900360640190fdfea265627a7a72315820d068d81870a313411f9310f405b8422aaa26dde5133f672d5d006ec6c8318a7264736f6c634300050b0032";
+    trx = TvmTestUtils.generateDeploySmartContractAndGetTransaction(
+        newContractName, address, new_ABI, new_factoryCode, value, fee, consumeUserResourcePercent,
+        null, 1000000000);
+    byte[] newFactoryAddress = Wallet.generateContractAddress(trx);
+    runtime = TvmTestUtils.processTransactionAndReturnRuntime(trx, rootDeposit, null);
+    Assert.assertNull(runtime.getRuntimeError());
+
+    // update new gateway contract
+    String methodToTrigger = "setLogicAddress(address)";
+    hexInput = AbiUtil
+        .parseMethod(methodToTrigger, Arrays.asList(Wallet.encode58Check(newFactoryAddress)));
+    result = TvmTestUtils
+        .triggerContractAndReturnTvmTestResult(Hex.decode(OWNER_ADDRESS),
+            factoryAddress, Hex.decode(hexInput), 0, fee, manager, null);
+    Assert.assertNull(result.getRuntime().getRuntimeError());
+
+    // getNewCodeVersion
+
+    hexInput = AbiUtil
+        .parseMethod(getCodeVersion, Arrays.asList());
+    result = TvmTestUtils
+        .triggerContractAndReturnTvmTestResult(Hex.decode(OWNER_ADDRESS),
+            factoryAddress, Hex.decode(hexInput), 0, fee, manager, null);
+    Assert.assertNull(result.getRuntime().getRuntimeError());
+    Assert.assertTrue(
+        ByteArray.toStr(result.getRuntime().getResult().getHReturn()).contains("1.0.2"));
+
+    // new revert function
+    String methodDoSuccess = "doSuccess()";
+    hexInput = AbiUtil
+        .parseMethod(methodDoSuccess, Lists.newArrayList());
+    result = TvmTestUtils
+        .triggerContractAndReturnTvmTestResult(Hex.decode(OWNER_ADDRESS),
+            factoryAddress, Hex.decode(hexInput), 0, fee, manager, null);
+    Assert.assertNull(result.getRuntime().getRuntimeError());
+    Assert.assertFalse(result.getRuntime().getResult().isRevert());
+
+    // new revert function
+    String methodDoRevert = "doRevert()";
+    hexInput = AbiUtil
+        .parseMethod(methodDoRevert, Lists.newArrayList());
+    result = TvmTestUtils
+        .triggerContractAndReturnTvmTestResult(Hex.decode(OWNER_ADDRESS),
+            factoryAddress, Hex.decode(hexInput), 0, fee, manager, null);
+    Assert.assertTrue(result.getRuntime().getResult().isRevert());
+    Assert.assertTrue(
+        ByteArray.toStr(result.getRuntime().getResult().getHReturn()).contains("should Revert"));
+
+
   }
 
 }
