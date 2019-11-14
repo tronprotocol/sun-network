@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.encoders.Hex;
+import org.tron.common.runtime.config.GatewayCode;
 import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.Constant;
@@ -419,12 +420,17 @@ public class ProposalCreateActuator extends AbstractActuator {
       case (1_000_012): {
         if (!dbManager.getForkController().pass(ForkBlockVersionEnum.DAPP_CHAIN_1_0_2)) {
           throw new ContractValidateException(
-              "Bad chain parameter id [ALLOW_DAPPCHAIN_SOLIDITY_059]");
+              "Bad chain parameter id [updateGateway_v1_0_2]");
         }
 
         if (Integer.parseInt(entry.getValue()) != 1) {
           throw new ContractValidateException(
-              "ALLOW_DAPPCHAIN_SOLIDITY_059 is only allowed to be 1");
+              "updateGateway_v1_0_2 is only allowed to be 1");
+        }
+
+        if (!GatewayCode.codeHash().equals(Constant.GATEWAY_CODE_V_1_0_2_HASH)) {
+          throw new ContractValidateException(
+              "GatewayCode does not match updateGateway_v1_0_2");
         }
         break;
       }
