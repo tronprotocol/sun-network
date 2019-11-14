@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.encoders.Hex;
+import org.tron.common.runtime.config.GatewayCode;
 import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.Constant;
@@ -425,6 +426,11 @@ public class ProposalCreateActuator extends AbstractActuator {
         if (Integer.parseInt(entry.getValue()) != 1) {
           throw new ContractValidateException(
               "updateGateway_v1_0_2 is only allowed to be 1");
+        }
+
+        if (!GatewayCode.codeHash().equals(Constant.GATEWAY_CODE_V_1_0_2_HASH)) {
+          throw new ContractValidateException(
+              "GatewayCode does not match updateGateway_v1_0_2");
         }
         break;
       }

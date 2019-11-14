@@ -67,8 +67,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
 
     WithdrawMsg[] userWithdrawList;
 
-    address updateOwnerContract = address(0x10002);
-
     struct SignMsg {
         mapping(address => bool) oracleSigned;
         bytes[] signs;
@@ -174,7 +172,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
     {
         require(mainToSideContractMap[mainChainAddress] == address(0), "TRC20 contract is mapped");
         address sideChainAddress = address(new DAppTRC20(address(this), name, symbol, decimals));
-        updateOwnerContract.call(abi.encode(sideChainAddress, contractOwner));
+        address(0x10002).call(abi.encode(sideChainAddress, contractOwner));
         mainToSideContractMap[mainChainAddress] = sideChainAddress;
         sideToMainContractMap[sideChainAddress] = mainChainAddress;
         emit DeployDAppTRC20AndMapping(mainChainAddress, sideChainAddress, nonce);
@@ -220,7 +218,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
     {
         require(mainToSideContractMap[mainChainAddress] == address(0), "TRC721 contract is mapped");
         address sideChainAddress = address(new DAppTRC721(address(this), name, symbol));
-        updateOwnerContract.call(abi.encode(sideChainAddress, contractOwner));
+        address(0x10002).call(abi.encode(sideChainAddress, contractOwner));
         mainToSideContractMap[mainChainAddress] = sideChainAddress;
         sideToMainContractMap[sideChainAddress] = mainChainAddress;
         emit DeployDAppTRC721AndMapping(mainChainAddress, sideChainAddress, nonce);
