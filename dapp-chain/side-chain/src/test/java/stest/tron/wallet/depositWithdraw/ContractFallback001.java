@@ -148,7 +148,7 @@ public class ContractFallback001 {
     parame1 = String.valueOf(setDepositFee);
 
     byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
-//mainchain fallback
+    //mainchain fallback
     String txid1 = PublicMethed
         .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
             0,
@@ -163,8 +163,8 @@ public class ContractFallback001 {
         ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
     long fee1 = infoById1.get().getFee();
     logger.info("fee1:" + fee1);
-//sidechain fallback
 
+   //sidechain fallback
     txid1 = PublicMethed
         .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideChainAddress),
             ChainIdAddressKey, 0l, input1, 1000000000,

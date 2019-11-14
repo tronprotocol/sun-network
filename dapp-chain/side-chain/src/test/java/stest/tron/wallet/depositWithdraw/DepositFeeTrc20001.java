@@ -2,6 +2,7 @@ package stest.tron.wallet.depositWithdraw;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -88,8 +89,8 @@ public class DepositFeeTrc20001 {
     blockingSideStubFull = WalletGrpc.newBlockingStub(channelFull1);
   }
 
-  @Test(enabled = true, description = "DepositMinTrc20 normal.")
-  public void test1DepositMinTrc20001() {
+  @Test(enabled = true, description = "DepositFeeTrc20 normal.")
+  public void test1DepositFeeTrc20001() {
     PublicMethed.printAddress(testKeyFordeposit);
 
     Assert.assertTrue(PublicMethed
@@ -193,15 +194,17 @@ public class DepositFeeTrc20001 {
         .fromHexString(ByteArray.toHexString(return2.getConstantResult(0).toByteArray())));
     logger.info("mainTrc20Before:" + mainTrc20Before);
 
-    String deposittrx = PublicMethed
+    String depositTrc20Id = PublicMethed
         .depositTrc20(WalletClient.encode58Check(trc20Contract), mainChainAddress, 1000, 1000000000,
             depositAddress, testKeyFordeposit, blockingStubFull);
-    logger.info("deposittrx:" + deposittrx);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById4 = PublicMethed
+        .getTransactionInfoById(depositTrc20Id, blockingSideStubFull);
+    Assert.assertEquals(0, infoById4.get().getResultValue());
 
     String ownerTrx = PublicMethed
         .triggerContractSideChain(sideContractAddress,
@@ -222,10 +225,6 @@ public class DepositFeeTrc20001 {
     Long mainTrc20After = ByteArray.toLong(ByteArray
         .fromHexString(ByteArray.toHexString(return3.getConstantResult(0).toByteArray())));
     logger.info("mainTrc20After:" + mainTrc20After);
-
-    Assert.assertTrue(mainTrc20Before - 1000 == mainTrc20After);
-    Account accountMainBefore = PublicMethed.queryAccount(depositAddress, blockingStubFull);
-    long accountMainBeforeBalance = accountMainBefore.getBalance();
 
     methodStr1 = "setDepositFee(uint256)";
     long setDepositFee = 2;
@@ -251,10 +250,10 @@ public class DepositFeeTrc20001 {
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress), 0l, input4, 1000000000,
             0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
-    Long depositFee1 = ByteArray.toLong(ByteArray
+    Long getDepositFee = ByteArray.toLong(ByteArray
         .fromHexString(Hex.toHexString(return4.getConstantResult(0).toByteArray())));
-    Assert.assertTrue(depositFee1 == setDepositFee);
-    logger.info("setDepositFee:" + depositFee1);
+    Assert.assertTrue(getDepositFee == setDepositFee);
+    logger.info("depositFee:" + getDepositFee);
     byte[] input5 = Hex.decode(AbiUtil.parseMethod("bonus()", "", false));
     TransactionExtention response1 = PublicMethed
         .triggerContractForTransactionExtention(
@@ -265,20 +264,39 @@ public class DepositFeeTrc20001 {
     long bonusBefore = ByteArray.toLong(response1.getConstantResult(0).toByteArray());
     logger.info("bonusBefore:" + bonusBefore);
 
+    Assert.assertTrue(mainTrc20Before - 1000 == mainTrc20After);
+    Account accountMainBefore = PublicMethed.queryAccount(depositAddress, blockingStubFull);
+    long accountMainBeforeBalance = accountMainBefore.getBalance();
+    logger.info("accountMainBeforeBalance:" + accountMainBeforeBalance);
+
     //=0
-    Account accountMainBefore1 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
-    long accountMainBeforeBalance1 = accountMainBefore1.getBalance();
-    logger.info("accountMainBeforeBalance1:" + accountMainBeforeBalance1);
-    deposittrx = PublicMethed
+    Map<String, String> depositTrc20 = PublicMethed
         .depositTrc20ForDepositFee(WalletClient.encode58Check(trc20Contract), mainChainAddress,
             1000, 0, 1000000000,
             depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    infoById = PublicMethed
-        .getTransactionInfoById(deposittrx, blockingStubFull);
-    Assert.assertTrue(infoById.get().getResultValue() == 1);
-    logger.info(deposittrx);
+    String depositId = depositTrc20.get("depositId");
+    String approveId = depositTrc20.get("approveId");
+    logger.info("depositId:"+depositId);
+    logger.info("approveId:"+approveId);
+    Optional<TransactionInfo> depositInfo = PublicMethed
+        .getTransactionInfoById(depositId, blockingStubFull);
+    Assert.assertTrue(depositInfo.get().getResultValue() == 1);
+    String data = ByteArray
+        .toHexString(depositInfo.get().getContractResult(0).substring(67,97).toByteArray());
+    logger.info("data:" + data);
+    Assert.assertEquals("\u001Dmsg.value need  >= depositFee", PublicMethed.hexStringToString(data));
+
+    long depositFee = depositInfo.get().getFee();
+    Optional<TransactionInfo>  approveInfo = PublicMethed
+        .getTransactionInfoById(approveId, blockingStubFull);
+    long approveFee = approveInfo.get().getFee();
+    Account accountMainAfter = PublicMethed.queryAccount(depositAddress, blockingStubFull);
+    long accountMainAfterBalance = accountMainAfter.getBalance();
+    logger.info("accountMainAfterBalance:"+accountMainAfterBalance);
+    Assert.assertEquals(accountMainBeforeBalance - depositFee - approveFee, accountMainAfterBalance);
+
     ownerTrx = PublicMethed
         .triggerContractSideChain(sideContractAddress,
             WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input2,
@@ -300,10 +318,6 @@ public class DepositFeeTrc20001 {
     logger.info("mainTrc20After1:" + mainTrc20After1);
     Assert.assertEquals(mainTrc20After, mainTrc20After1);
 
-    long fee2 = infoById.get().getFee();
-    Account accountMainAfter = PublicMethed.queryAccount(depositAddress, blockingStubFull);
-    long accountMainAfterBalance = accountMainAfter.getBalance();
-
     response1 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress),
@@ -315,7 +329,7 @@ public class DepositFeeTrc20001 {
     Assert.assertEquals(bonusBefore, bonusBefore1);
 
     //value>setDepositFee
-    deposittrx = PublicMethed
+    depositTrc20 = PublicMethed
         .depositTrc20ForDepositFee(WalletClient.encode58Check(trc20Contract), mainChainAddress,
             1000, setDepositFee + 1, 1000000000,
             depositAddress, testKeyFordeposit, blockingStubFull);
@@ -325,9 +339,13 @@ public class DepositFeeTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    infoById = PublicMethed
-        .getTransactionInfoById(deposittrx, blockingStubFull);
-    Assert.assertTrue(infoById.get().getResultValue() == 0);
+    String depositId1 = depositTrc20.get("depositId");
+    String approveId1 = depositTrc20.get("approveId");
+    logger.info("depositId1:"+depositId1);
+    logger.info("approveId1:"+approveId1);
+    Optional<TransactionInfo> depositInfo1 = PublicMethed
+        .getTransactionInfoById(depositId1, blockingStubFull);
+    Assert.assertTrue(depositInfo1.get().getResultValue() == 0);
 
     ownerTrx = PublicMethed
         .triggerContractSideChain(sideContractAddress,
@@ -350,9 +368,14 @@ public class DepositFeeTrc20001 {
     logger.info("mainTrc20After2:" + mainTrc20After2);
     Assert.assertTrue(mainTrc20After1 - 1000 == mainTrc20After2);
 
-    long fee3 = infoById.get().getFee();
+    long depositFee1 = depositInfo1.get().getFee();
+    Optional<TransactionInfo>  approveInfo1 = PublicMethed
+        .getTransactionInfoById(approveId1, blockingStubFull);
+    long approveFee1 = approveInfo1.get().getFee();
     Account accountMainAfter1 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
     long accountMainAfterBalance1 = accountMainAfter1.getBalance();
+    logger.info("accountMainAfterBalance1:" + accountMainAfterBalance1);
+    Assert.assertEquals(accountMainAfterBalance - depositFee1 - approveFee1, accountMainAfterBalance1);
 
     response1 = PublicMethed
         .triggerContractForTransactionExtention(
@@ -365,7 +388,7 @@ public class DepositFeeTrc20001 {
     Assert.assertEquals(bonusBefore1 + setDepositFee, bonusBefore2);
 
     //value=setDepositFee
-    deposittrx = PublicMethed
+    depositTrc20 = PublicMethed
         .depositTrc20ForDepositFee(WalletClient.encode58Check(trc20Contract), mainChainAddress,
             1000, setDepositFee, 1000000000,
             depositAddress, testKeyFordeposit, blockingStubFull);
@@ -375,9 +398,13 @@ public class DepositFeeTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    infoById = PublicMethed
-        .getTransactionInfoById(deposittrx, blockingStubFull);
-    Assert.assertTrue(infoById.get().getResultValue() == 0);
+    String depositId2 = depositTrc20.get("depositId");
+    String approveId2 = depositTrc20.get("approveId");
+    logger.info("depositId2:"+depositId2);
+    logger.info("approveId2:"+approveId2);
+    Optional<TransactionInfo> depositInfo2 = PublicMethed
+        .getTransactionInfoById(depositId2, blockingStubFull);
+    Assert.assertTrue(depositInfo2.get().getResultValue() == 0);
 
     ownerTrx = PublicMethed
         .triggerContractSideChain(sideContractAddress,
@@ -400,9 +427,14 @@ public class DepositFeeTrc20001 {
     logger.info("mainTrc20After3:" + mainTrc20After3);
     Assert.assertTrue(mainTrc20After2 - 1000 == mainTrc20After3);
 
-    long fee4 = infoById.get().getFee();
+    long depositFee2 = depositInfo2.get().getFee();
+    Optional<TransactionInfo>  approveInfo2 = PublicMethed
+        .getTransactionInfoById(approveId2, blockingStubFull);
+    long approveFee2 = approveInfo2.get().getFee();
     Account accountMainAfter2 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
     long accountMainAfterBalance2 = accountMainAfter2.getBalance();
+    logger.info("accountMainAfterBalance2:" + accountMainAfterBalance2);
+    Assert.assertEquals(accountMainAfterBalance1 - depositFee2 - approveFee2, accountMainAfterBalance2);
 
     response1 = PublicMethed
         .triggerContractForTransactionExtention(
@@ -414,6 +446,64 @@ public class DepositFeeTrc20001 {
     logger.info("bonusBefore3:" + bonusBefore3);
     Assert.assertEquals(bonusBefore2 + setDepositFee, bonusBefore3);
 
+    //value<setDepositFee
+    depositTrc20 = PublicMethed
+        .depositTrc20ForDepositFee(WalletClient.encode58Check(trc20Contract), mainChainAddress,
+            1000, setDepositFee - 1, 1000000000,
+            depositAddress, testKeyFordeposit, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    String depositId3 = depositTrc20.get("depositId");
+    String approveId3 = depositTrc20.get("approveId");
+    logger.info("depositId3:"+depositId3);
+    logger.info("approveId3:"+approveId3);
+    Optional<TransactionInfo> depositInfo3 = PublicMethed
+        .getTransactionInfoById(depositId3, blockingStubFull);
+    Assert.assertTrue(depositInfo3.get().getResultValue() == 1);
+    data = ByteArray
+        .toHexString(depositInfo3.get().getContractResult(0).substring(67,97).toByteArray());
+    logger.info("data:" + data);
+    Assert.assertEquals("\u001Dmsg.value need  >= depositFee", PublicMethed.hexStringToString(data));
+
+    long depositFee3 = depositInfo3.get().getFee();
+    Optional<TransactionInfo>  approveInfo3 = PublicMethed
+        .getTransactionInfoById(approveId3, blockingStubFull);
+    long approveFee3 = approveInfo3.get().getFee();
+    Account accountMainAfter3 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
+    long accountMainAfterBalance3 = accountMainAfter3.getBalance();
+    logger.info("accountMainAfterBalance3:" + accountMainAfterBalance3);
+    Assert.assertEquals(accountMainAfterBalance2 - depositFee3 - approveFee3, accountMainAfterBalance3);
+
+    ownerTrx = PublicMethed
+        .triggerContractSideChain(sideContractAddress,
+            WalletClient.decodeFromBase58Check(chainIdAddress), 0l, input2,
+            1000000000,
+            0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
+    logger.info("ownerTrx : " + ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    infoById2 = PublicMethed
+        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
+    int sideTrc20After4 = ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray());
+    Assert.assertEquals(0, infoById2.get().getResultValue());
+    Assert.assertEquals(sideTrc20After3, sideTrc20After4);
+
+    return5 = PublicMethed
+        .triggerContractForTransactionExtention(trc20Contract, 0l, input2, 1000000000,
+            0l, "0", depositAddress, testKeyFordeposit, blockingStubFull);
+    Long mainTrc20After4 = ByteArray.toLong(ByteArray
+        .fromHexString(ByteArray.toHexString(return5.getConstantResult(0).toByteArray())));
+    logger.info("mainTrc20After4:" + mainTrc20After4);
+    Assert.assertEquals(mainTrc20After3, mainTrc20After4);
+
+    response1 = PublicMethed
+        .triggerContractForTransactionExtention(
+            WalletClient.decodeFromBase58Check(mainChainAddress),
+            0, input5,
+            maxFeeLimit, 0, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+
+    long bonusBefore4 = ByteArray.toLong(response1.getConstantResult(0).toByteArray());
+    logger.info("bonusBefore4:" + bonusBefore4);
+    Assert.assertEquals(bonusBefore3, bonusBefore4);
   }
 
 
