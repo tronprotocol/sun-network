@@ -14,8 +14,4 @@ public class GatewayCode {
   public static String codeHash() {
     return ByteArray.toHexString(Sha256Hash.hash(gatewayCode.getBytes()));
   }
-
-  public static void main(String[] args) {
-    System.out.println(codeHash());
-  }
 }
