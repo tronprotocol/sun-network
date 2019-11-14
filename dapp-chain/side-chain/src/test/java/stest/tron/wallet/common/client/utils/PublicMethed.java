@@ -5141,7 +5141,7 @@ public class PublicMethed {
   /**
    * constructor.
    */
-  public static String depositTrc20ForDepositFee(String trc20ContractAddress,
+  public static Map<String, String> depositTrc20ForDepositFee(String trc20ContractAddress,
       String mainGatewayAddress,
       long tokenValue, long callValue,
       long feeLimit, byte[] ownerAddress, String priKey,
@@ -5161,10 +5161,11 @@ public class PublicMethed {
   /**
    * constructor.
    */
-  public static String depositTrcForDepositFee(
+  public static Map<String, String> depositTrcForDepositFee(
       String contractAddrStr, String mainGatewayAddr, String methodStr,
       String depositMethodStr, String num, long callValue, long feeLimit, byte[] ownerAddress,
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Map<String, String> map = new HashMap<>();
     long tokenCallValue = 0;
     String tokenId = "";
     String argsStr = "\"" + mainGatewayAddr + "\",\"" + num + "\"";
@@ -5176,6 +5177,7 @@ public class PublicMethed {
         tokenId, ownerAddress, priKey, blockingStubFull);
     boolean result = org.apache.commons.lang3.StringUtils.isNoneEmpty(trxId);
     if (result) {
+      map.put("approveId", trxId);
       System.out.println("approve successfully.\n");
 
       byte[] depositContractAddr = WalletClient.decodeFromBase58Check(mainGatewayAddr);
@@ -5187,10 +5189,11 @@ public class PublicMethed {
       String Trxid = triggerContract(depositContractAddr, callValue, depositInput, feeLimit,
           tokenCallValue,
           tokenId, ownerAddress, priKey, blockingStubFull);
-      return Trxid;
+      map.put("depositId", Trxid);
+      return map;
     } else {
       logger.info("approve failed.\n");
-      return null;
+      return map;
     }
   }
 
@@ -5198,7 +5201,7 @@ public class PublicMethed {
    * constructor.
    */
 
-  public static String depositTrc721ForDepositFee(String trc20ContractAddress,
+  public static Map<String, String> depositTrc721ForDepositFee(String trc20ContractAddress,
       String mainGatewayAddress,
       long tokenValue, long callValue,
       long feeLimit, byte[] ownerAddress, String priKey,
@@ -5737,5 +5740,28 @@ public class PublicMethed {
       //logger.info("brodacast succesfully");
       return contractAddress;
     }
+  }
+
+  public static String hexStringToString(String s) {
+    if (s == null || s.equals("")) {
+      return null;
+    }
+    s = s.replace(" ", "");
+    byte[] baKeyword = new byte[s.length() / 2];
+    for (int i = 0; i < baKeyword.length; i++) {
+      try {
+        baKeyword[i] = (byte) (0xff & Integer.parseInt(
+            s.substring(i * 2, i * 2 + 2), 16));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    try {
+      s = new String(baKeyword, "gbk");
+      new String();
+    } catch (Exception e1) {
+      e1.printStackTrace();
+    }
+    return s;
   }
 }
