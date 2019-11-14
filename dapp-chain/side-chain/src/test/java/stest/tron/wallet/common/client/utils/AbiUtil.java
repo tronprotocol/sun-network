@@ -2,6 +2,7 @@ package stest.tron.wallet.common.client.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -427,11 +428,8 @@ public class AbiUtil {
 
     @Override
     byte[] encode(String value) {
-      long n = Long.valueOf(value);
-      DataWord word = new DataWord(Math.abs(n));
-      if (n < 0) {
-        word.negate();
-      }
+      BigInteger integer = new BigInteger(value, 10);
+      DataWord word = new DataWord(integer.abs().toByteArray());
       return word.getData();
     }
 
