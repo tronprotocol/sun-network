@@ -158,14 +158,11 @@ public class ContractFallback001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() == 0);
-    Assert.assertTrue(infoById1.get().getInternalTransactionsList().get(0).getRejected());
-    logger.info("data:"+ByteArray
-        .toHexString(infoById.get().getLogList().get(0).getData().toByteArray()));
-    String data = ByteArray
-        .toHexString(infoById.get().getLogList().get(0).getData().substring(163,191).toByteArray());
-    logger.info("data:" + data);
-    Assert.assertEquals("\u001Bnot allow function fallback", PublicMethed.hexStringToString(data));
+    Assert.assertTrue(infoById1.get().getResultValue() == 1);
+    Assert.assertEquals("REVERT opcode executed",
+        ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
+    long fee1 = infoById1.get().getFee();
+    logger.info("fee1:" + fee1);
 
     //sidechain fallback
     txid1 = PublicMethed
@@ -176,13 +173,11 @@ public class ContractFallback001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingSideStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() == 0);
-    Assert.assertTrue(infoById1.get().getInternalTransactionsList().get(0).getRejected());
-    data = ByteArray
-        .toHexString(infoById.get().getLogList().get(0).getData().substring(163,191).toByteArray());
-    logger.info("data:" + data);
-    Assert.assertEquals("\u001Bnot allow function fallback", PublicMethed.hexStringToString(data));
-
+    Assert.assertTrue(infoById1.get().getResultValue() == 1);
+    Assert.assertEquals("REVERT opcode executed",
+        ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
+    fee1 = infoById1.get().getFee();
+    logger.info("fee1:" + fee1);
 
   }
 
