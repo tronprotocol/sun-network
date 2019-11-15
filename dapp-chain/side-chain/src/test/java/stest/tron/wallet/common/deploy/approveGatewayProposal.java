@@ -88,7 +88,6 @@ public class approveGatewayProposal {
     logger.info("sideChainAddress: " + sideChainAddress);
     logger.info("testDepositTrx: " + testDepositTrx);
     proposalMap.put(1000001L, sideChainAddress);
-    proposalMap.put(1000012L, String.valueOf(1L));
     org.testng.Assert.assertTrue(PublicMethed.sideChainCreateProposal(testDepositAddress,
         testDepositTrx, mainChainAddress, proposalMap, blockingStubFull));
     try {
@@ -147,10 +146,6 @@ public class approveGatewayProposal {
         }
       }
     }
-
-    Assert.fail();
-
-
 
     String mainChainAddress = Configuration.getByPath("testng.conf")
         .getString("gateway_address.chainIdAddress");
