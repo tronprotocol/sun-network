@@ -595,6 +595,10 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         retryFee = fee;
     }
 
+    function setTokenOwner(address tokenAddress, address tokenOwner) external onlyOwner {
+        address(0x10002).call(abi.encode(tokenAddress, tokenOwner));
+    }
+
     function mainContractCount() view external returns (uint256) {
         return mainContractList.length;
     }
