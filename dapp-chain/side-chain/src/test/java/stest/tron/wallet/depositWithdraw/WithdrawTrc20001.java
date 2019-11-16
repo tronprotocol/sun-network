@@ -137,8 +137,8 @@ public class WithdrawTrc20001 {
         .deployContractWithConstantParame(contractName, abi, code, "TronToken(address)",
             parame, "",
             maxFeeLimit,
-            0L, 100, null, testKeyFordeposit, depositAddress,
-            blockingStubFull);
+            0L, 100, null, testKeyFordeposit, depositAddress
+            , blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     infoById = PublicMethed
@@ -155,9 +155,7 @@ public class WithdrawTrc20001 {
 
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(mapTxid, blockingStubFull);
-    mappingNonce = Integer.valueOf(String.valueOf(
-        Hex.toHexString(infoById1.get().getLogList().get(1).getData().toByteArray())
-            .substring(193)), 16);
+    mappingNonce = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
     Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
     Assert.assertEquals(0, infoById1.get().getResultValue());
 
@@ -192,7 +190,7 @@ public class WithdrawTrc20001 {
     Long mainTrc20Balance = ByteArray.toLong(ByteArray
         .fromHexString(ByteArray.toHexString(return2.getConstantResult(0).toByteArray())));
     logger.info("mainTrc20Balance:" + mainTrc20Balance);
-    Assert.assertTrue(100000000000000000L == mainTrc20Balance);
+    Assert.assertEquals(100000000000000000L, mainTrc20Balance.longValue());
 
     String depositTrc20txid = PublicMethed
         .depositTrc20(WalletClient.encode58Check(trc20Contract), mainChainAddress, 1000, 1000000000,
@@ -205,10 +203,7 @@ public class WithdrawTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infodeposittrx = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
-    depositNonce =
-        Integer.valueOf(String.valueOf(
-            Hex.toHexString(infodeposittrx.get().getLogList().get(1).getData().toByteArray())
-                .substring(193)), 16);
+    depositNonce = ByteArray.toInt(infodeposittrx.get().getContractResult(0).toByteArray());
     Assert.assertEquals(0, infodeposittrx.get().getResultValue());
 
     String sideChainTxid = PublicMethed
@@ -231,7 +226,7 @@ public class WithdrawTrc20001 {
     Long mainTrc20Balance2 = ByteArray.toLong(ByteArray
         .fromHexString(ByteArray.toHexString(return3.getConstantResult(0).toByteArray())));
     logger.info("mainTrc20Balance2:" + mainTrc20Balance2);
-    Assert.assertTrue(mainTrc20Balance - 1000 == mainTrc20Balance2);
+    Assert.assertEquals(mainTrc20Balance - 1000, mainTrc20Balance2.longValue());
 
     String withdrawTrc20Txid = PublicMethed.withdrawTrc20(ChainIdAddress,
         sideChainAddress, "100",
@@ -245,10 +240,7 @@ public class WithdrawTrc20001 {
 
     Optional<TransactionInfo> infoByIdwithdrawTrc20 = PublicMethed
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
-    withdrawNonce =
-        Integer.valueOf(String.valueOf(
-            Hex.toHexString(infoByIdwithdrawTrc20.get().getLogList().get(3).getData().toByteArray())
-                .substring(193)), 16);
+    withdrawNonce = ByteArray.toInt(infoByIdwithdrawTrc20.get().getContractResult(0).toByteArray());
 
     Assert.assertEquals(0, infoByIdwithdrawTrc20.get().getResultValue());
     logger.info("infoByIdwithdrawTrc20Fee:" + infoByIdwithdrawTrc20.get().getFee());

@@ -2,7 +2,6 @@ package stest.tron.wallet.depositWithdraw;
 
 import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
 
-
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;

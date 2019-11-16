@@ -1,6 +1,7 @@
 package stest.tron.wallet.depositWithdraw;
 
 import static org.tron.api.GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR;
+import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
@@ -91,8 +92,7 @@ public class WithdrawTrc10001 {
     blockingSideStubFull = WalletGrpc.newBlockingStub(channelFull1);
   }
 
-  @Test(enabled = true, description = "Withdraw Trc10 normal and"
-      + " Withdraw Trc10 with account exception.")
+  @Test(enabled = true, description = "Withdraw Trc10 normal and Withdraw Trc10 with account exception.")
   public void test1WithdrawTrc10001() {
 
     Assert.assertTrue(PublicMethed
@@ -141,10 +141,7 @@ public class WithdrawTrc10001 {
     Optional<TransactionInfo> infoById;
     infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
-    depositNonce =
-        Integer.valueOf(String.valueOf(
-            Hex.toHexString(infoById.get().getLogList().get(1).getData().toByteArray())
-                .substring(193)), 16);
+    depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     long fee = infoById.get().getFee();
     logger.info("fee:" + fee);
@@ -195,9 +192,7 @@ public class WithdrawTrc10001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(txid2, blockingSideStubFull);
-    withdrawNonce =
-        Integer.valueOf(Hex.toHexString(infoById2.get().getLogList().get(1).getData().toByteArray())
-            .substring(193), 16);
+    withdrawNonce = ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray());
     Assert.assertTrue(infoById2.get().getResultValue() == 0);
     long fee2 = infoById2.get().getFee();
     logger.info("fee2:" + fee2);
@@ -259,8 +254,8 @@ public class WithdrawTrc10001 {
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
     logger.info("withdrawSideTokenAfter:" + withdrawSideTokenAfter1);
     logger.info("withdrawMainTokenAfter:" + withdrawMainTokenAfter1);
-    Assert.assertEquals(withdrawSideTokenAfter, withdrawSideTokenAfter1);
-    Assert.assertEquals(withdrawMainTokenAfter, withdrawMainTokenAfter1);
+    Assert.assertTrue(withdrawSideTokenAfter == withdrawSideTokenAfter1);
+    Assert.assertTrue(withdrawMainTokenAfter == withdrawMainTokenAfter1);
   }
 
 
@@ -345,22 +340,23 @@ public class WithdrawTrc10001 {
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingSideStubFull);
-//    Assert.assertTrue(infoById.get().getResultValue() != 0);
-//    Assert.assertEquals(FAILED, infoById.get().getResult());
-//    Assert.assertEquals("REVERT opcode executed",
-//        infoById.get().getResMessage().toStringUtf8());
-    long fee = infoById.get().getFee();
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("REVERT opcode executed",
+        infoById.get().getResMessage().toStringUtf8());
+    Long fee = infoById.get().getFee();
     logger.info("fee:" + fee);
 
     Account accountWithdrawSideAfter = PublicMethed
         .queryAccount(depositAddress, blockingSideStubFull);
-    long accountWithdrawSideAfterBalance = accountWithdrawSideAfter.getBalance();
+    Long accountWithdrawSideAfterBalance = accountWithdrawSideAfter.getBalance();
     ByteString addressWithdrawSideAfter = accountWithdrawSideAfter.getAddress();
     String addressWithdrawSideAfterAddress = Base58
         .encode58Check(addressWithdrawSideAfter.toByteArray());
     logger.info("addressWithdrawSideAfterAddress:" + addressWithdrawSideAfterAddress);
     Assert.assertEquals(Base58.encode58Check(depositAddress), addressWithdrawSideAfterAddress);
-    Assert.assertEquals(accountSideBeforeBalance - fee, accountWithdrawSideAfterBalance);
+    Assert
+        .assertEquals(accountSideBeforeBalance - fee, accountWithdrawSideAfterBalance.longValue());
     Long withdrawSideTokenAfter = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
 
@@ -430,16 +426,16 @@ public class WithdrawTrc10001 {
         response1.getMessage().toStringUtf8());
 
     // tokenId is null
-//    String fakeTokenId1 = "null";
-//    Return response2 = PublicMethed
-//        .withdrawTrcForReturn(fakeTokenId1, withdrawToken, mainGateWayAddress,
-//            sideGatewayAddress,
-//            0,
-//            maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
-//    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response2.getCode());
-//    Assert.assertEquals(
-//        "contract validate error : tokenValue must >= 0",
-//        response2.getMessage().toStringUtf8());
+    /*String fakeTokenId1 = "null";
+    Return response2 = PublicMethed
+        .withdrawTrcForReturn(fakeTokenId1, withdrawToken, mainGateWayAddress,
+            sideGatewayAddress,
+            0,
+            maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response2.getCode());
+    Assert.assertEquals(
+        "contract validate error : tokenValue must >= 0",
+        response2.getMessage().toStringUtf8());*/
 
     // tokenId is 1000000
     String fakeTokenId2 = "1000000";
@@ -480,7 +476,6 @@ public class WithdrawTrc10001 {
         response5.getMessage().toStringUtf8());
     Account accountWithdrawSideAfter = PublicMethed
         .queryAccount(depositAddress, blockingSideStubFull);
-    long accountWithdrawSideAfterBalance = accountWithdrawSideAfter.getBalance();
     ByteString addressWithdrawSideAfter = accountWithdrawSideAfter.getAddress();
     String addressWithdrawSideAfterAddress = Base58
         .encode58Check(addressWithdrawSideAfter.toByteArray());
@@ -539,7 +534,7 @@ public class WithdrawTrc10001 {
     logger.info("fee1:" + fee1);
     Account accountWithdrawSideAfter = PublicMethed
         .queryAccount(depositAddress, blockingSideStubFull);
-    long accountWithdrawSideAfterBalance = accountWithdrawSideAfter.getBalance();
+    Long accountWithdrawSideAfterBalance = accountWithdrawSideAfter.getBalance();
     ByteString addressWithdrawSideAfter = accountWithdrawSideAfter.getAddress();
     String addressWithdrawSideAfterAddress = Base58
         .encode58Check(addressWithdrawSideAfter.toByteArray());
@@ -570,9 +565,9 @@ public class WithdrawTrc10001 {
             depositAddress, testKeyFordeposit, blockingStubFull);
     logger.info("return1: " + return1);
     logger.info(Hex.toHexString(return1.getConstantResult(0).toByteArray()));
-    String contractRestule = Hex.toHexString(return1.getConstantResult(0).toByteArray());
+    String ContractRestule = Hex.toHexString(return1.getConstantResult(0).toByteArray());
 
-    String ownerAddress = contractRestule.substring(24, 64);
+    String ownerAddress = ContractRestule.substring(24, 64);
     logger.info(ownerAddress);
     String addressHex = "41" + ownerAddress;
     logger.info("address_hex: " + addressHex);
@@ -580,23 +575,23 @@ public class WithdrawTrc10001 {
     logger.info("address_final: " + addressFinal);
     Assert.assertEquals(WalletClient.encode58Check(depositAddress), addressFinal);
 
-    String depositValue = contractRestule.substring(1 + 64 * 1, 64 * 2);
+    String depositValue = ContractRestule.substring(1 + 64 * 1, 64 * 2);
     Assert.assertEquals(10, Integer.parseInt(depositValue, 16));
 
-    String value1 = contractRestule.substring(1 + 64 * 2, 64 * 3);
+    String value1 = ContractRestule.substring(1 + 64 * 2, 64 * 3);
     Assert.assertEquals(1, Integer.parseInt(value1, 16));
 
-    String value2 = contractRestule.substring(1 + 64 * 3, 64 * 4);
+    String value2 = ContractRestule.substring(1 + 64 * 3, 64 * 4);
     Assert.assertEquals(0, Integer.parseInt(value2, 16));
 
-    String value3 = contractRestule.substring(1 + 64 * 4, 64 * 5);
+    String value3 = ContractRestule.substring(1 + 64 * 4, 64 * 5);
     Assert.assertEquals(assetAccountId.toStringUtf8(),
         "" + Integer.parseInt(value3, 16));
 
-    String value4 = contractRestule.substring(1 + 64 * 5, 64 * 6);
+    String value4 = ContractRestule.substring(1 + 64 * 5, 64 * 6);
     Assert.assertEquals(0, Integer.parseInt(value4, 16));
 
-    String value5 = contractRestule.substring(1 + 64 * 6, 64 * 7);
+    String value5 = ContractRestule.substring(1 + 64 * 6, 64 * 7);
     Assert.assertEquals(0, Integer.parseInt(value5, 16));
 
     // get WithdrawMsg
@@ -610,9 +605,9 @@ public class WithdrawTrc10001 {
             depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("return1: " + return2);
     logger.info(Hex.toHexString(return2.getConstantResult(0).toByteArray()));
-    contractRestule = Hex.toHexString(return2.getConstantResult(0).toByteArray());
+    ContractRestule = Hex.toHexString(return2.getConstantResult(0).toByteArray());
 
-    ownerAddress = contractRestule.substring(24, 64);
+    ownerAddress = ContractRestule.substring(24, 64);
     logger.info(ownerAddress);
     addressHex = "41" + ownerAddress;
     logger.info("address_hex: " + addressHex);
@@ -620,20 +615,20 @@ public class WithdrawTrc10001 {
     logger.info("address_final: " + addressFinal);
     Assert.assertEquals(WalletClient.encode58Check(depositAddress), addressFinal);
 
-    value1 = contractRestule.substring(1 + 64 * 1, 64 * 2);
+    value1 = ContractRestule.substring(1 + 64 * 1, 64 * 2);
     Assert.assertEquals(0, Integer.parseInt(value1, 16));
 
-    value2 = contractRestule.substring(1 + 64 * 2, 64 * 3);
+    value2 = ContractRestule.substring(1 + 64 * 2, 64 * 3);
     Assert.assertEquals(assetAccountId.toStringUtf8(),
         "" + Integer.parseInt(value2, 16));
 
-    value3 = contractRestule.substring(1 + 64 * 3, 64 * 4);
+    value3 = ContractRestule.substring(1 + 64 * 3, 64 * 4);
     Assert.assertEquals(9, Integer.parseInt(value3, 16));
 
-    value4 = contractRestule.substring(1 + 64 * 4, 64 * 5);
+    value4 = ContractRestule.substring(1 + 64 * 4, 64 * 5);
     Assert.assertEquals(1, Integer.parseInt(value4, 16));
 
-    value5 = contractRestule.substring(1 + 64 * 5, 64 * 6);
+    value5 = ContractRestule.substring(1 + 64 * 5, 64 * 6);
     Assert.assertEquals(0, Integer.parseInt(value5, 16));
   }
 

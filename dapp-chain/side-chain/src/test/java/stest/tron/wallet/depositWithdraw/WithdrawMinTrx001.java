@@ -184,17 +184,6 @@ public class WithdrawMinTrx001 {
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     Assert.assertEquals(0, infoById2.get().getResultValue());
 
-//    String methodStr2 = "withdrawMinTrx()";
-//    byte[] input2 = Hex.decode(AbiUtil.parseMethod(methodStr2, "", false));
-//
-//    TransactionExtention return1 = PublicMethed
-//        .triggerContractForTransactionExtention(
-//            WalletClient.decodeFromBase58Check(mainGateWayAddress), 0l, input2, 1000000000,
-//            0l, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingSideStubFull);
-//    Long MinTrx = ByteArray.toLong(ByteArray
-//        .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
-//    Assert.assertEquals(MinTrx, Long.valueOf(parame1));
-
     String txid2 = PublicMethed
         .withdrawTrx(chainIdAddress,
             sideGatewayAddress,
@@ -250,6 +239,8 @@ public class WithdrawMinTrx001 {
         accountMainAfterWithdrawBalance2);
 
     //value<WithdrawMinTrx
+    Account account = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
+    Long balanceBefore = account.getBalance();
     withdrawValue = 1;
     txid2 = PublicMethed
         .withdrawTrx(chainIdAddress,
@@ -259,11 +250,12 @@ public class WithdrawMinTrx001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById3 = PublicMethed
         .getTransactionInfoById(txid2, blockingSideStubFull);
-    Assert.assertTrue(
-        infoById3.get().getInternalTransactions(infoById3.get().getInternalTransactionsCount() - 1)
-            .getRejected());
-//    Assert.assertEquals("REVERT opcode executed",
-//        ByteArray.toStr(infoById3.get().getResMessage().toByteArray()));
+    Assert.assertTrue(infoById3.get().getResultValue() == 1);
+    Assert.assertEquals("REVERT opcode executed",
+        ByteArray.toStr(infoById3.get().getResMessage().toByteArray()));
+
+    Long balnceAfter = PublicMethed.queryAccount(depositAddress, blockingSideStubFull).getBalance();
+    Assert.assertEquals(balanceBefore - infoById3.get().getFee(), balnceAfter.longValue());
 
   }
 
@@ -282,11 +274,9 @@ public class WithdrawMinTrx001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingSideStubFull);
-    Assert.assertTrue(
-        infoById1.get().getInternalTransactions(infoById1.get().getInternalTransactionsCount() - 1)
-            .getRejected());
-//    Assert.assertEquals("REVERT opcode executed",
-//        ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
+    Assert.assertTrue(infoById1.get().getResultValue() != 0);
+    Assert.assertEquals("REVERT opcode executed",
+        ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
 
     parame1 = "-1";
     input1 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrx(uint256)", parame1, false));

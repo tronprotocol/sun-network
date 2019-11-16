@@ -367,6 +367,9 @@ public class WithdrawMinTrc20001 {
     Assert.assertTrue(afterMainTrc20Balance2 + withdrawValue == afterMainTrc20Balance3);
 
     //value <WithdrawMinTrc10
+
+    Account account = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
+    Long balanceBefore = account.getBalance();
     withdrawValue = 90;
     withdrawValueString = Long.toString(withdrawValue);
 
@@ -374,16 +377,15 @@ public class WithdrawMinTrc20001 {
         sideChainAddress, withdrawValueString,
         WalletClient.encode58Check(sideContractAddress),
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById3 = PublicMethed
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
-    Assert.assertTrue(
-        infoById3.get().getInternalTransactions(infoById3.get().getInternalTransactionsCount() - 1)
-            .getRejected());
-//    Assert.assertEquals("REVERT opcode executed",
-//        ByteArray.toStr(infoById3.get().getResMessage().toByteArray()));
+    Assert.assertTrue(infoById3.get().getResultValue() == 1);
+    Assert.assertEquals("REVERT opcode executed",
+        ByteArray.toStr(infoById3.get().getResMessage().toByteArray()));
+
+    Long balnceAfter = PublicMethed.queryAccount(depositAddress, blockingSideStubFull).getBalance();
+    Assert.assertEquals(balanceBefore - infoById4.get().getFee(), balnceAfter.longValue());
 
   }
 
@@ -401,9 +403,9 @@ public class WithdrawMinTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
-    Assert.assertTrue(infoById1.get().getInternalTransactions(0).getRejected());
-//    Assert.assertEquals("REVERT opcode executed",
-//        ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
+    Assert.assertTrue(infoById1.get().getResultValue() != 0);
+    Assert.assertEquals("REVERT opcode executed",
+        ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
 
     parame2 = "-1";
     input3 = Hex.decode(AbiUtil.parseMethod("setWithdrawMinTrc20(uint256)", parame2, false));

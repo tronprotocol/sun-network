@@ -2,7 +2,6 @@ package stest.tron.wallet.depositWithdraw;
 
 import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
 
-
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
@@ -376,6 +375,8 @@ public class RetryTrc721001 {
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById.get().getResMessage().toByteArray()));
 
+    Account accountRetryWithdraw = PublicMethed.queryAccount(testAddress001, blockingSideStubFull);
+    Long balanceBeforeRetryWithdraw = accountRetryWithdraw.getBalance();
     //retry  Withdraw 721  with no retryfee
 
     String retryWithdrawTxid = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
@@ -387,6 +388,11 @@ public class RetryTrc721001 {
     Optional<TransactionInfo> infoByIdretryWithdraw = PublicMethed
         .getTransactionInfoById(retryWithdrawTxid, blockingSideStubFull);
     Assert.assertTrue(infoByIdretryWithdraw.get().getResultValue() == 0);
+
+    Long balanceAfterRetryWithdraw = PublicMethed.queryAccount(testAddress001,
+        blockingSideStubFull).getBalance();
+    Assert.assertEquals(balanceAfterRetryWithdraw.longValue(),
+        balanceBeforeRetryWithdraw - infoByIdretryWithdraw.get().getFee());
 
     ownerTrx = PublicMethed
         .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1,

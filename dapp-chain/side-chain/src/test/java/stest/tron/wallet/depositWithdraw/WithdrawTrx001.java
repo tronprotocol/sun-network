@@ -120,9 +120,7 @@ public class WithdrawTrx001 {
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
-    depositNonce = Integer.valueOf(String.valueOf(
-        Hex.toHexString(infoById.get().getLogList().get(1).getData().toByteArray())
-            .substring(193)), 16);
+    depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     long fee = infoById.get().getFee();
     logger.info("fee:" + fee);
@@ -155,9 +153,7 @@ public class WithdrawTrx001 {
 
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingSideStubFull);
-    withdrawNonce = Integer.valueOf(String.valueOf(
-        Hex.toHexString(infoById1.get().getLogList().get(1).getData().toByteArray())
-            .substring(193)), 16);
+    withdrawNonce = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     long fee1 = infoById1.get().getFee();
     logger.info("fee1:" + fee1);
