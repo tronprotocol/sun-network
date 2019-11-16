@@ -256,9 +256,9 @@ public class DepositMinTrc10001 {
         .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
     Long depositMainTokenAfter2 = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
+    logger.info("depositSideTokenAfter2:" + depositSideTokenAfter2);
     Assert.assertTrue(depositSideTokenAfter1 + inputTokenValue2 == depositSideTokenAfter2);
     logger.info("depositMainTokenAfter2:" + depositMainTokenAfter2);
-    logger.info("depositSideTokenAfter2:" + depositSideTokenAfter2);
     Assert.assertTrue(depositMainTokenAfter1 - inputTokenValue2 == depositMainTokenAfter2);
 
     long inputTokenValue1 = 9;
@@ -275,11 +275,13 @@ public class DepositMinTrc10001 {
 
     Optional<TransactionInfo> infoById3 = PublicMethed
         .getTransactionInfoById(txid3, blockingStubFull);
-    Assert.assertTrue(infoById3.get().getResultValue() == 1);
+    Assert.assertEquals(1, infoById3.get().getResultValue());
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById3.get().getResMessage().toByteArray()));
-
-
+    String data = ByteArray
+        .toHexString(infoById3.get().getContractResult(0).substring(67,105).toByteArray());
+    logger.info("data:" + data);
+    Assert.assertEquals("%tokenvalue must be >= depositMinTrc10", PublicMethed.hexStringToString(data));
   }
 
   @Test(enabled = true, description = "DepositMinTrc10 with triggerAccount exception and "
@@ -297,12 +299,16 @@ public class DepositMinTrc10001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() != 0);
+    Assert.assertEquals(1, infoById1.get().getResultValue());
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
+    String data = ByteArray
+        .toHexString(infoById1.get().getContractResult(0).substring(67,87).toByteArray());
+    logger.info("data:" + data);
+    Assert.assertEquals("\u0013msg.sender != owner", PublicMethed.hexStringToString(data));
 
+    // -1
     parame1 = "-1";
-
     input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
 
     txid1 = PublicMethed
@@ -324,10 +330,12 @@ public class DepositMinTrc10001 {
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainGateWayAddress), 0L, input2, 1000000000,
             0L, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
-    Long MinTrx = ByteArray.toLong(ByteArray
+    Long minTrc10 = ByteArray.toLong(ByteArray
         .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
-    Assert.assertEquals(MinTrx, Long.valueOf(parame1));
+    logger.info("minTrc10:"+minTrc10);
+    Assert.assertEquals(Long.valueOf(1), minTrc10);
 
+    // Long.MIN_VALUE
     long setDepositMinTrc101 = Long.MIN_VALUE;
     parame1 = String.valueOf(setDepositMinTrc101);
 
@@ -350,10 +358,11 @@ public class DepositMinTrc10001 {
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainGateWayAddress), 0L, input2, 1000000000,
             0L, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
-    MinTrx = ByteArray.toLong(ByteArray
+    minTrc10 = ByteArray.toLong(ByteArray
         .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
-    Assert.assertEquals(MinTrx, Long.valueOf(parame1));
+    Assert.assertEquals(minTrc10, Long.valueOf(parame1));
 
+    // Long.MAX_VALUE
     setDepositMinTrc101 = Long.MAX_VALUE;
     parame1 = String.valueOf(setDepositMinTrc101);
     input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
@@ -375,10 +384,11 @@ public class DepositMinTrc10001 {
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainGateWayAddress), 0L, input2, 1000000000,
             0L, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
-    MinTrx = ByteArray.toLong(ByteArray
+    minTrc10 = ByteArray.toLong(ByteArray
         .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
-    Assert.assertEquals(MinTrx, Long.valueOf(parame1));
+    Assert.assertEquals(minTrc10, Long.valueOf(parame1));
 
+    // Long.MAX_VALUE + 1
     setDepositMinTrc101 = Long.MAX_VALUE + 1;
     parame1 = String.valueOf(setDepositMinTrc101);
     input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
@@ -400,10 +410,11 @@ public class DepositMinTrc10001 {
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainGateWayAddress), 0L, input2, 1000000000,
             0L, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
-    MinTrx = ByteArray.toLong(ByteArray
+    minTrc10 = ByteArray.toLong(ByteArray
         .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
-    Assert.assertEquals(MinTrx, Long.valueOf(parame1));
+    Assert.assertEquals(minTrc10, Long.valueOf(parame1));
 
+    // Long.MIN_VALUE - 1
     setDepositMinTrc101 = Long.MIN_VALUE - 1;
     parame1 = String.valueOf(setDepositMinTrc101);
     input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
@@ -425,9 +436,9 @@ public class DepositMinTrc10001 {
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainGateWayAddress), 0L, input2, 1000000000,
             0L, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
-    MinTrx = ByteArray.toLong(ByteArray
+    minTrc10 = ByteArray.toLong(ByteArray
         .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
-    Assert.assertEquals(MinTrx, Long.valueOf(parame1));
+    Assert.assertEquals(minTrc10, Long.valueOf(parame1));
   }
 
   /**

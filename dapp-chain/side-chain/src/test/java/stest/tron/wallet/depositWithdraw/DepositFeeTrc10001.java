@@ -88,8 +88,8 @@ public class DepositFeeTrc10001 {
     blockingSideStubFull = WalletGrpc.newBlockingStub(channelFull1);
   }
 
-  @Test(enabled = true, description = "DepositMinTrc10 normal.")
-  public void test1DepositMinTrc10001() {
+  @Test(enabled = true, description = "DepositFeeTrc10 normal.")
+  public void test1DepositFeeTrc10001() {
 
     Assert.assertTrue(PublicMethed
         .sendcoin(depositAddress, 3100_000_000L, testDepositAddress, testDepositTrx,
@@ -230,7 +230,7 @@ public class DepositFeeTrc10001 {
     Long depositMainTokenAfter1 = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
     logger.info("depositSideTokenAfter1:" + depositSideTokenAfter1);
-    Assert.assertTrue(depositSideTokenAfter == depositSideTokenAfter1);
+    Assert.assertEquals(depositSideTokenAfter, depositSideTokenAfter1);
     logger.info("depositMainTokenAfter1:" + depositMainTokenAfter1);
     Assert.assertEquals(depositMainTokenAfter, depositMainTokenAfter1);
 
@@ -360,7 +360,7 @@ public class DepositFeeTrc10001 {
     Long depositMainTokenAfter4 = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
     logger.info("depositSideTokenAfter4:" + depositSideTokenAfter4);
-    Assert.assertTrue(depositSideTokenAfter3 == depositSideTokenAfter4);
+    Assert.assertEquals(depositSideTokenAfter3, depositSideTokenAfter4);
     logger.info("depositMainTokenAfter4:" + depositMainTokenAfter4);
     Assert.assertEquals(depositMainTokenAfter3, depositMainTokenAfter4);
 

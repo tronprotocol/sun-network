@@ -328,6 +328,10 @@ public class DepositFeeTrc20001 {
     logger.info("bonusBefore1:" + bonusBefore1);
     Assert.assertEquals(bonusBefore, bonusBefore1);
 
+    Account accountMainAfter1 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
+    long accountMainAfterBalance1 = accountMainAfter1.getBalance();
+    logger.info("accountMainAfterBalance1:"+accountMainAfterBalance1);
+
     //value>setDepositFee
     depositTrc20 = PublicMethed
         .depositTrc20ForDepositFee(WalletClient.encode58Check(trc20Contract), mainChainAddress,
@@ -369,13 +373,15 @@ public class DepositFeeTrc20001 {
     Assert.assertTrue(mainTrc20After1 - 1000 == mainTrc20After2);
 
     long depositFee1 = depositInfo1.get().getFee();
+    logger.info("depositFee1:"+depositFee1);
     Optional<TransactionInfo>  approveInfo1 = PublicMethed
         .getTransactionInfoById(approveId1, blockingStubFull);
     long approveFee1 = approveInfo1.get().getFee();
-    Account accountMainAfter1 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
-    long accountMainAfterBalance1 = accountMainAfter1.getBalance();
-    logger.info("accountMainAfterBalance1:" + accountMainAfterBalance1);
-    Assert.assertEquals(accountMainAfterBalance - depositFee1 - approveFee1, accountMainAfterBalance1);
+    logger.info("approveFee1:"+approveFee1);
+    Account accountMainAfter2 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
+    long accountMainAfterBalance2 = accountMainAfter2.getBalance();
+    logger.info("accountMainAfterBalance2:" + accountMainAfterBalance2);
+    Assert.assertEquals(accountMainAfterBalance1 - depositFee1 - approveFee1 - setDepositFee, accountMainAfterBalance2);
 
     response1 = PublicMethed
         .triggerContractForTransactionExtention(
@@ -431,10 +437,10 @@ public class DepositFeeTrc20001 {
     Optional<TransactionInfo>  approveInfo2 = PublicMethed
         .getTransactionInfoById(approveId2, blockingStubFull);
     long approveFee2 = approveInfo2.get().getFee();
-    Account accountMainAfter2 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
-    long accountMainAfterBalance2 = accountMainAfter2.getBalance();
-    logger.info("accountMainAfterBalance2:" + accountMainAfterBalance2);
-    Assert.assertEquals(accountMainAfterBalance1 - depositFee2 - approveFee2, accountMainAfterBalance2);
+    Account accountMainAfter3 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
+    long accountMainAfterBalance3 = accountMainAfter3.getBalance();
+    logger.info("accountMainAfterBalance3:" + accountMainAfterBalance3);
+    Assert.assertEquals(accountMainAfterBalance2 - depositFee2 - approveFee2 - setDepositFee, accountMainAfterBalance3);
 
     response1 = PublicMethed
         .triggerContractForTransactionExtention(
@@ -469,10 +475,10 @@ public class DepositFeeTrc20001 {
     Optional<TransactionInfo>  approveInfo3 = PublicMethed
         .getTransactionInfoById(approveId3, blockingStubFull);
     long approveFee3 = approveInfo3.get().getFee();
-    Account accountMainAfter3 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
-    long accountMainAfterBalance3 = accountMainAfter3.getBalance();
-    logger.info("accountMainAfterBalance3:" + accountMainAfterBalance3);
-    Assert.assertEquals(accountMainAfterBalance2 - depositFee3 - approveFee3, accountMainAfterBalance3);
+    Account accountMainAfter4 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
+    long accountMainAfterBalance4 = accountMainAfter4.getBalance();
+    logger.info("accountMainAfterBalance4:" + accountMainAfterBalance4);
+    Assert.assertEquals(accountMainAfterBalance3 - depositFee3 - approveFee3, accountMainAfterBalance4);
 
     ownerTrx = PublicMethed
         .triggerContractSideChain(sideContractAddress,

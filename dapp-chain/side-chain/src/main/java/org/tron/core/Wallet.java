@@ -1027,9 +1027,9 @@ public class Wallet {
             .build());
     builder.addChainParameter(
         Protocol.SideChainParameters.SideChainParameter.newBuilder()
-            .setKey("getAllowDAppChainSolidity059")
+            .setKey("getUpdateGateway_v1_0_2")
             .setValue(String
-                .valueOf(dbManager.getDynamicPropertiesStore().getAllowDAppChainSolidity059()))
+                .valueOf(dbManager.getDynamicPropertiesStore().getAllowUpdateGatewayV102()))
             .build());
     return builder.build();
   }
