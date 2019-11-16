@@ -898,11 +898,8 @@ public class Withdrawfee001 {
             0l, "0", sideGateWayOwnerAddress, sideGateWayOwner, blockingSideStubFull);
     Optional<TransactionInfo> infoById6 = PublicMethed
         .getTransactionInfoById(txid6, blockingSideStubFull);
-    Assert.assertEquals("FAILED", infoById6.get().getResult().name());
-    Assert.assertEquals(1, infoById6.get().getResultValue());
-    String msg = Hex.toHexString(infoById6.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
-    Assert.assertEquals("\u0001less than 100 TRX", msg);
+    Assert.assertEquals("SUCESS", infoById6.get().getResult().name());
+    Assert.assertEquals(0, infoById6.get().getResultValue());
 
     //fee=100000001L
     input6 = Hex.decode(AbiUtil.parseMethod("setWithdrawFee(uint256)",
@@ -915,7 +912,7 @@ public class Withdrawfee001 {
         .getTransactionInfoById(txid6, blockingSideStubFull);
     Assert.assertEquals("FAILED", infoById6.get().getResult().name());
     Assert.assertEquals(1, infoById6.get().getResultValue());
-    msg = Hex.toHexString(infoById6.get().getContractResult(0).toByteArray());
+    String msg = Hex.toHexString(infoById6.get().getContractResult(0).toByteArray());
     msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
     Assert.assertEquals("\u0001less than 100 TRX", msg);
 
