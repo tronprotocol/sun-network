@@ -237,6 +237,9 @@ public class DepositMinTrx001 {
     long accountSideAfterBalance3 = accountSideAfter3.getBalance();
     Assert.assertEquals(accountSideAfterBalance2 + callValue, accountSideAfterBalance3);
 
+    Account account = PublicMethed.queryAccount(depositAddress,blockingStubFull);
+    Long balanceBefore = account.getBalance();
+
     callValue = 1;
     String txid4 = PublicMethed
         .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
@@ -250,6 +253,9 @@ public class DepositMinTrx001 {
     Assert.assertTrue(infoById4.get().getResultValue() == 1);
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById4.get().getResMessage().toByteArray()));
+
+    Long balnceAfter = PublicMethed.queryAccount(depositAddress,blockingStubFull).getBalance();
+    Assert.assertEquals(balanceBefore - infoById4.get().getFee(),balnceAfter.longValue());
 
 
   }

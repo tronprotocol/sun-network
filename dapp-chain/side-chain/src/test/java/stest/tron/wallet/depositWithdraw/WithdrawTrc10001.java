@@ -345,27 +345,27 @@ public class WithdrawTrc10001 {
     Assert.assertEquals(FAILED, infoById.get().getResult());
     Assert.assertEquals("REVERT opcode executed",
         infoById.get().getResMessage().toStringUtf8());
-    long fee = infoById.get().getFee();
+    Long fee = infoById.get().getFee();
     logger.info("fee:" + fee);
 
     Account accountWithdrawSideAfter = PublicMethed
         .queryAccount(depositAddress, blockingSideStubFull);
-    long accountWithdrawSideAfterBalance = accountWithdrawSideAfter.getBalance();
+    Long accountWithdrawSideAfterBalance = accountWithdrawSideAfter.getBalance();
     ByteString addressWithdrawSideAfter = accountWithdrawSideAfter.getAddress();
     String addressWithdrawSideAfterAddress = Base58
         .encode58Check(addressWithdrawSideAfter.toByteArray());
     logger.info("addressWithdrawSideAfterAddress:" + addressWithdrawSideAfterAddress);
     Assert.assertEquals(Base58.encode58Check(depositAddress), addressWithdrawSideAfterAddress);
-    Assert.assertEquals(accountSideBeforeBalance - fee, accountWithdrawSideAfterBalance);
+    Assert.assertEquals(accountSideBeforeBalance - fee, accountWithdrawSideAfterBalance.longValue());
     Long withdrawSideTokenAfter = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
 
-    long withdrawMainTokenAfter = PublicMethed
+    Long withdrawMainTokenAfter = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
     logger.info("withdrawSideTokenAfter:" + withdrawSideTokenAfter);
     logger.info("withdrawMainTokenAfter:" + withdrawMainTokenAfter);
-    Assert.assertTrue(depositSideTokenBefore == withdrawSideTokenAfter);
-    Assert.assertTrue(depositMainTokenBefore == withdrawMainTokenAfter);
+    Assert.assertEquals(depositSideTokenBefore , withdrawSideTokenAfter);
+    Assert.assertEquals(depositMainTokenBefore , withdrawMainTokenAfter);
   }
 
 
@@ -426,16 +426,16 @@ public class WithdrawTrc10001 {
         response1.getMessage().toStringUtf8());
 
     // tokenId is null
-//    String fakeTokenId1 = "null";
-//    Return response2 = PublicMethed
-//        .withdrawTrcForReturn(fakeTokenId1, withdrawToken, mainGateWayAddress,
-//            sideGatewayAddress,
-//            0,
-//            maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
-//    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response2.getCode());
-//    Assert.assertEquals(
-//        "contract validate error : tokenValue must >= 0",
-//        response2.getMessage().toStringUtf8());
+    /*String fakeTokenId1 = "null";
+    Return response2 = PublicMethed
+        .withdrawTrcForReturn(fakeTokenId1, withdrawToken, mainGateWayAddress,
+            sideGatewayAddress,
+            0,
+            maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response2.getCode());
+    Assert.assertEquals(
+        "contract validate error : tokenValue must >= 0",
+        response2.getMessage().toStringUtf8());*/
 
     // tokenId is 1000000
     String fakeTokenId2 = "1000000";
@@ -476,7 +476,6 @@ public class WithdrawTrc10001 {
         response5.getMessage().toStringUtf8());
     Account accountWithdrawSideAfter = PublicMethed
         .queryAccount(depositAddress, blockingSideStubFull);
-    long accountWithdrawSideAfterBalance = accountWithdrawSideAfter.getBalance();
     ByteString addressWithdrawSideAfter = accountWithdrawSideAfter.getAddress();
     String addressWithdrawSideAfterAddress = Base58
         .encode58Check(addressWithdrawSideAfter.toByteArray());
@@ -485,12 +484,12 @@ public class WithdrawTrc10001 {
     Long withdrawSideTokenAfter = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
 
-    long withdrawMainTokenAfter = PublicMethed
+    Long withdrawMainTokenAfter = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
     logger.info("withdrawSideTokenAfter:" + withdrawSideTokenAfter);
     logger.info("withdrawMainTokenAfter:" + withdrawMainTokenAfter);
-    Assert.assertTrue(depositSideTokenBefore == withdrawSideTokenAfter);
-    Assert.assertTrue(depositMainTokenBefore == withdrawMainTokenAfter);
+    Assert.assertEquals(depositSideTokenBefore , withdrawSideTokenAfter);
+    Assert.assertEquals(depositMainTokenBefore , withdrawMainTokenAfter);
   }
 
 
@@ -535,7 +534,7 @@ public class WithdrawTrc10001 {
     logger.info("fee1:" + fee1);
     Account accountWithdrawSideAfter = PublicMethed
         .queryAccount(depositAddress, blockingSideStubFull);
-    long accountWithdrawSideAfterBalance = accountWithdrawSideAfter.getBalance();
+    Long accountWithdrawSideAfterBalance = accountWithdrawSideAfter.getBalance();
     ByteString addressWithdrawSideAfter = accountWithdrawSideAfter.getAddress();
     String addressWithdrawSideAfterAddress = Base58
         .encode58Check(addressWithdrawSideAfter.toByteArray());
@@ -544,12 +543,12 @@ public class WithdrawTrc10001 {
     Long withdrawSideTokenAfter = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
 
-    long withdrawMainTokenAfter = PublicMethed
+    Long withdrawMainTokenAfter = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
     logger.info("withdrawSideTokenAfter:" + withdrawSideTokenAfter);
     logger.info("withdrawMainTokenAfter:" + withdrawMainTokenAfter);
-    Assert.assertTrue(depositSideTokenBefore == withdrawSideTokenAfter);
-    Assert.assertTrue(depositMainTokenBefore == withdrawMainTokenAfter);
+    Assert.assertEquals(depositSideTokenBefore , withdrawSideTokenAfter);
+    Assert.assertEquals(depositMainTokenBefore , withdrawMainTokenAfter);
   }
 
   @Test(enabled = true, description = "get DepositTrc10Msg and WithdrawTrc10Msg")

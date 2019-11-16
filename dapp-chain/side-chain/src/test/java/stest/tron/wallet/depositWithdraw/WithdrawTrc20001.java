@@ -190,7 +190,7 @@ public class WithdrawTrc20001 {
     Long mainTrc20Balance = ByteArray.toLong(ByteArray
         .fromHexString(ByteArray.toHexString(return2.getConstantResult(0).toByteArray())));
     logger.info("mainTrc20Balance:" + mainTrc20Balance);
-    Assert.assertTrue(100000000000000000L == mainTrc20Balance);
+    Assert.assertEquals(100000000000000000L , mainTrc20Balance.longValue());
 
     String depositTrc20txid = PublicMethed
         .depositTrc20(WalletClient.encode58Check(trc20Contract), mainChainAddress, 1000, 1000000000,
@@ -226,7 +226,7 @@ public class WithdrawTrc20001 {
     Long mainTrc20Balance2 = ByteArray.toLong(ByteArray
         .fromHexString(ByteArray.toHexString(return3.getConstantResult(0).toByteArray())));
     logger.info("mainTrc20Balance2:" + mainTrc20Balance2);
-    Assert.assertTrue(mainTrc20Balance - 1000 == mainTrc20Balance2);
+    Assert.assertEquals(mainTrc20Balance - 1000 , mainTrc20Balance2.longValue());
 
     String withdrawTrc20Txid = PublicMethed.withdrawTrc20(ChainIdAddress,
         sideChainAddress, "100",

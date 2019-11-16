@@ -239,12 +239,32 @@ public class WithdrawMinTrc10001 {
     Long withdrawSideTokenAfter1 = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
 
-    long withdrawMainTokenAfter1 = PublicMethed
+    Long withdrawMainTokenAfter1 = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
     logger.info("withdrawSideTokenAfter:" + withdrawSideTokenAfter);
     logger.info("withdrawMainTokenAfter:" + withdrawMainTokenAfter);
-    Assert.assertTrue(withdrawSideTokenAfter - withdrawTokenLong == withdrawSideTokenAfter1);
-    Assert.assertTrue(withdrawMainTokenAfter + withdrawTokenLong == withdrawMainTokenAfter1);
+    Assert.assertEquals(withdrawSideTokenAfter - withdrawTokenLong , withdrawSideTokenAfter1.longValue());
+    Assert.assertEquals(withdrawMainTokenAfter + withdrawTokenLong , withdrawMainTokenAfter1.longValue());
+
+    Account account = PublicMethed.queryAccount(depositAddress,blockingSideStubFull);
+    Long balanceBefore = account.getBalance();
+
+    Long callValue = 1L;
+    String txid4 = PublicMethed
+        .withdrawTrc10(inputTokenID, callValue + "", chainIdAddress,
+            sideGatewayAddress,
+            0,
+            maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById4 = PublicMethed
+        .getTransactionInfoById(txid4, blockingSideStubFull);
+    Assert.assertTrue(infoById4.get().getResultValue() == 1);
+    Assert.assertEquals("REVERT opcode executed",
+        ByteArray.toStr(infoById4.get().getResMessage().toByteArray()));
+
+    Long balnceAfter = PublicMethed.queryAccount(depositAddress,blockingSideStubFull).getBalance();
+    Assert.assertEquals(balanceBefore - infoById4.get().getFee(),balnceAfter.longValue());
 
 
   }

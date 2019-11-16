@@ -699,6 +699,7 @@ public class Mappingfee001 {
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
 
+
     //setDepositMinTrx is -1
     parame1 = "-1";
     byte[] input2 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
@@ -712,7 +713,7 @@ public class Mappingfee001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid2, blockingStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() == 1);
+    Assert.assertTrue(infoById1.get().getResultValue() == 0);
     String methodStr2 = "depositFee()";
     byte[] input4 = Hex.decode(AbiUtil.parseMethod(methodStr2, "", false));
 
