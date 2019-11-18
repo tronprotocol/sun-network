@@ -332,7 +332,7 @@ public class DepositFeeTrc721001 {
 
     Account accountAfter1 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
     long accountAfterBalance1 = accountAfter1.getBalance();
-    logger.info("accountAfterBalance1:"+accountAfterBalance1);
+    logger.info("accountAfterBalance1:" + accountAfterBalance1);
 
     // =0
     Map<String, String> deposit721 = PublicMethed
@@ -344,15 +344,17 @@ public class DepositFeeTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     String depositId = deposit721.get("depositId");
     String approveId = deposit721.get("approveId");
-    logger.info("depositId:"+depositId);
-    logger.info("approveId:"+approveId);
+    logger.info("depositId:" + depositId);
+    logger.info("approveId:" + approveId);
     Optional<TransactionInfo> depositInfo = PublicMethed
         .getTransactionInfoById(depositId, blockingStubFull);
     Assert.assertEquals(1, depositInfo.get().getResultValue());
     String data = ByteArray
-        .toHexString(depositInfo.get().getContractResult(0).substring(67,97).toByteArray());
+        .toHexString(
+            depositInfo.get().getContractResult(0).substring(67 + 68, 97 + 68).toByteArray());
     logger.info("data:" + data);
-    Assert.assertEquals("\u001Dmsg.value need  >= depositFee", PublicMethed.hexStringToString(data));
+    Assert
+        .assertEquals("\u001Dmsg.value need  >= depositFee", PublicMethed.hexStringToString(data));
 
     input5 = Hex.decode(AbiUtil.parseMethod("bonus()", "", false));
     response1 = PublicMethed
@@ -371,7 +373,7 @@ public class DepositFeeTrc721001 {
     long approveFee = approveInfo.get().getFee();
     Account accountAfter2 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
     long accountAfterBalance2 = accountAfter2.getBalance();
-    logger.info("accountAfterBalance2:"+accountAfterBalance2);
+    logger.info("accountAfterBalance2:" + accountAfterBalance2);
     Assert.assertEquals(accountAfterBalance1 - depositFee - approveFee, accountAfterBalance2);
 
     // TRC721`s owner in mainChain should be Depositor
@@ -410,16 +412,18 @@ public class DepositFeeTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     String depositId1 = deposit721.get("depositId");
     String approveId1 = deposit721.get("approveId");
-    logger.info("depositId1:"+depositId1);
-    logger.info("approveId1:"+approveId1);
+    logger.info("depositId1:" + depositId1);
+    logger.info("approveId1:" + approveId1);
     Optional<TransactionInfo> depositInfo1 = PublicMethed
         .getTransactionInfoById(depositId1, blockingStubFull);
     Assert.assertNotNull(depositInfo1);
     Assert.assertEquals(1, depositInfo1.get().getResultValue());
     data = ByteArray
-        .toHexString(depositInfo1.get().getContractResult(0).substring(67,97).toByteArray());
+        .toHexString(
+            depositInfo1.get().getContractResult(0).substring(67 + 68, 97 + 68).toByteArray());
     logger.info("data:" + data);
-    Assert.assertEquals("\u001Dmsg.value need  >= depositFee", PublicMethed.hexStringToString(data));
+    Assert
+        .assertEquals("\u001Dmsg.value need  >= depositFee", PublicMethed.hexStringToString(data));
 
     long depositFee1 = depositInfo1.get().getFee();
     Optional<TransactionInfo> approveInfo1 = PublicMethed
@@ -427,7 +431,7 @@ public class DepositFeeTrc721001 {
     long approveFee1 = approveInfo1.get().getFee();
     Account accountAfter3 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
     long accountAfterBalance3 = accountAfter3.getBalance();
-    logger.info("accountAfterBalance3:"+accountAfterBalance3);
+    logger.info("accountAfterBalance3:" + accountAfterBalance3);
     Assert.assertEquals(accountAfterBalance2 - depositFee1 - approveFee1, accountAfterBalance3);
 
     input5 = Hex.decode(AbiUtil.parseMethod("bonus()", "", false));
@@ -480,8 +484,8 @@ public class DepositFeeTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     String depositId2 = deposit721.get("depositId");
     String approveId2 = deposit721.get("approveId");
-    logger.info("depositId2:"+depositId2);
-    logger.info("approveId2:"+approveId2);
+    logger.info("depositId2:" + depositId2);
+    logger.info("approveId2:" + approveId2);
     Optional<TransactionInfo> depositInfo2 = PublicMethed
         .getTransactionInfoById(depositId2, blockingStubFull);
     Assert.assertNotNull(depositInfo2);
@@ -499,15 +503,16 @@ public class DepositFeeTrc721001 {
     Assert.assertEquals(bonusBefore2 + setDepositFee, bonusBefore3);
 
     long depositFee2 = depositInfo2.get().getFee();
-    logger.info("depositFee2:"+depositFee2);
+    logger.info("depositFee2:" + depositFee2);
     Optional<TransactionInfo> approveInfo2 = PublicMethed
         .getTransactionInfoById(approveId2, blockingStubFull);
     long approveFee2 = approveInfo2.get().getFee();
-    logger.info("approveFee2:"+approveFee2);
+    logger.info("approveFee2:" + approveFee2);
     Account accountAfter4 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
     long accountAfterBalance4 = accountAfter4.getBalance();
-    logger.info("accountAfterBalance4:"+accountAfterBalance4);
-    Assert.assertEquals(accountMainBeforeBalance - depositFee2 - approveFee2 - setDepositFee, accountAfterBalance4);
+    logger.info("accountAfterBalance4:" + accountAfterBalance4);
+    Assert.assertEquals(accountMainBeforeBalance - depositFee2 - approveFee2 - setDepositFee,
+        accountAfterBalance4);
 
     // TRC721`s owner in sideChain should be Depositor
     ownerTrx = PublicMethed
@@ -604,8 +609,8 @@ public class DepositFeeTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     String depositId3 = deposit721.get("depositId");
     String approveId3 = deposit721.get("approveId");
-    logger.info("depositId3:"+depositId3);
-    logger.info("approveId3:"+approveId3);
+    logger.info("depositId3:" + depositId3);
+    logger.info("approveId3:" + approveId3);
     Optional<TransactionInfo> depositInfo3 = PublicMethed
         .getTransactionInfoById(depositId3, blockingStubFull);
     Assert.assertNotNull(depositInfo3);
@@ -617,8 +622,9 @@ public class DepositFeeTrc721001 {
     long approveFee3 = approveInfo3.get().getFee();
     Account accountAfter5 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
     long accountAfterBalance5 = accountAfter5.getBalance();
-    logger.info("accountAfterBalance5:"+accountAfterBalance5);
-    Assert.assertEquals(accountAfterBalance4 - depositFee3 - approveFee3 - setDepositFee, accountAfterBalance5);
+    logger.info("accountAfterBalance5:" + accountAfterBalance5);
+    Assert.assertEquals(accountAfterBalance4 - depositFee3 - approveFee3 - setDepositFee,
+        accountAfterBalance5);
 
     input5 = Hex.decode(AbiUtil.parseMethod("bonus()", "", false));
     response1 = PublicMethed

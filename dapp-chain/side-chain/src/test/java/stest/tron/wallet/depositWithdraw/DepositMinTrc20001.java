@@ -53,7 +53,7 @@ public class DepositMinTrc20001 {
   String methodStr1 = "setDepositMinTrc20(uint256)";
   ;
   String parame2 = "0";
-  String methodStr3  = "depositMinTrc20()";
+  String methodStr3 = "depositMinTrc20()";
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
@@ -340,7 +340,8 @@ public class DepositMinTrc20001 {
         .getTransactionInfoById(depositTrc20, blockingStubFull);
     Assert.assertEquals(1, infoById4.get().getResultValue());
     String data = ByteArray
-        .toHexString(infoById4.get().getContractResult(0).substring(67,100).toByteArray());
+        .toHexString(
+            infoById4.get().getContractResult(0).substring(67 + 68, 100 + 68).toByteArray());
     logger.info("data:" + data);
     Assert.assertEquals(" value must be >= depositMinTrc20", PublicMethed.hexStringToString(data));
 
@@ -363,7 +364,8 @@ public class DepositMinTrc20001 {
         .getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
     String data = ByteArray
-        .toHexString(infoById1.get().getContractResult(0).substring(67,87).toByteArray());
+        .toHexString(
+            infoById1.get().getContractResult(0).substring(67 + 68, 87 + 68).toByteArray());
     logger.info("data:" + data);
     Assert.assertEquals("\u0013msg.sender != owner", PublicMethed.hexStringToString(data));
 

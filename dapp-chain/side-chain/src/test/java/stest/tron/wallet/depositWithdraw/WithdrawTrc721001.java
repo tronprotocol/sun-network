@@ -169,7 +169,10 @@ public class WithdrawTrc721001 {
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(mapTxid, blockingStubFull);
 
-    mappingNonce = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
+    mappingNonce = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
     Assert.assertEquals(0, infoById1.get().getResultValue());
     Assert.assertNotNull(mapTxid);

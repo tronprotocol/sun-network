@@ -130,7 +130,7 @@ public class DepositFeeTrc10001 {
             maxFeeLimit, inputTokenValue, inputTokenID, depositAddress, testKeyFordeposit,
             blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -158,7 +158,8 @@ public class DepositFeeTrc10001 {
     Assert.assertTrue(depositMainTokenBefore - inputTokenValue == depositMainTokenAfter);
     logger.info("depositMainTokenAfter:" + depositMainTokenAfter);
     logger.info("depositSideTokenAfter:" + depositSideTokenAfter);
-    Assert.assertTrue(depositSideTokenAfter == depositSideTokenBefore + inputTokenValue);
+    Assert
+        .assertEquals(depositSideTokenAfter.longValue(), depositSideTokenBefore + inputTokenValue);
 
     methodStr1 = "setDepositFee(uint256)";
     long setDepositFee = 2;
@@ -214,9 +215,10 @@ public class DepositFeeTrc10001 {
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById.get().getResMessage().toByteArray()));
     String data = ByteArray
-        .toHexString(infoById.get().getContractResult(0).substring(67,97).toByteArray());
+        .toHexString(infoById.get().getContractResult(0).substring(67 + 68, 97 + 68).toByteArray());
     logger.info("data:" + data);
-    Assert.assertEquals("\u001Dmsg.value need  >= depositFee", PublicMethed.hexStringToString(data));
+    Assert
+        .assertEquals("\u001Dmsg.value need  >= depositFee", PublicMethed.hexStringToString(data));
     fee = infoById.get().getFee();
     logger.info("fee:" + fee);
     Account accountMainAfter1 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
@@ -264,9 +266,11 @@ public class DepositFeeTrc10001 {
     Long depositMainTokenAfter2 = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
     logger.info("depositSideTokenAfter2:" + depositSideTokenAfter2);
-    Assert.assertTrue(depositSideTokenAfter1 + inputTokenValue2 == depositSideTokenAfter2);
+    Assert.assertEquals(depositSideTokenAfter1 + inputTokenValue2,
+        depositSideTokenAfter2.longValue());
     logger.info("depositMainTokenAfter2:" + depositMainTokenAfter2);
-    Assert.assertTrue(depositMainTokenAfter1 - inputTokenValue2 == depositMainTokenAfter2);
+    Assert.assertEquals(depositMainTokenAfter1 - inputTokenValue2,
+        depositMainTokenAfter2.longValue());
 
     input3 = Hex.decode(AbiUtil.parseMethod("bonus()", "", false));
     response1 = PublicMethed
@@ -343,9 +347,10 @@ public class DepositFeeTrc10001 {
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById.get().getResMessage().toByteArray()));
     data = ByteArray
-        .toHexString(infoById.get().getContractResult(0).substring(67,97).toByteArray());
+        .toHexString(infoById.get().getContractResult(0).substring(67 + 68, 97 + 68).toByteArray());
     logger.info("data:" + data);
-    Assert.assertEquals("\u001Dmsg.value need  >= depositFee", PublicMethed.hexStringToString(data));
+    Assert
+        .assertEquals("\u001Dmsg.value need  >= depositFee", PublicMethed.hexStringToString(data));
     fee = infoById.get().getFee();
     logger.info("fee:" + fee);
     Account accountMainAfter4 = PublicMethed.queryAccount(depositAddress, blockingStubFull);

@@ -279,9 +279,11 @@ public class DepositMinTrc10001 {
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById3.get().getResMessage().toByteArray()));
     String data = ByteArray
-        .toHexString(infoById3.get().getContractResult(0).substring(67,105).toByteArray());
+        .toHexString(
+            infoById3.get().getContractResult(0).substring(67 + 68, 105 + 68).toByteArray());
     logger.info("data:" + data);
-    Assert.assertEquals("%tokenvalue must be >= depositMinTrc10", PublicMethed.hexStringToString(data));
+    Assert.assertEquals("%tokenvalue must be >= depositMinTrc10",
+        PublicMethed.hexStringToString(data));
   }
 
   @Test(enabled = true, description = "DepositMinTrc10 with triggerAccount exception and "
@@ -303,7 +305,8 @@ public class DepositMinTrc10001 {
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
     String data = ByteArray
-        .toHexString(infoById1.get().getContractResult(0).substring(67,87).toByteArray());
+        .toHexString(
+            infoById1.get().getContractResult(0).substring(67 + 68, 87 + 68).toByteArray());
     logger.info("data:" + data);
     Assert.assertEquals("\u0013msg.sender != owner", PublicMethed.hexStringToString(data));
 
@@ -332,7 +335,7 @@ public class DepositMinTrc10001 {
             0L, "0", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     Long minTrc10 = ByteArray.toLong(ByteArray
         .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
-    logger.info("minTrc10:"+minTrc10);
+    logger.info("minTrc10:" + minTrc10);
     Assert.assertEquals(Long.valueOf(1), minTrc10);
 
     // Long.MIN_VALUE

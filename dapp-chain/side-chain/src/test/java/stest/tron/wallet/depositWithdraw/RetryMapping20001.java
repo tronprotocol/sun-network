@@ -156,6 +156,9 @@ public class RetryMapping20001 {
         maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
@@ -217,14 +220,17 @@ public class RetryMapping20001 {
             depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(mapTxid, blockingStubFull);
     Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
     Assert.assertEquals(0, infoById1.get().getResultValue());
     int nonceMapLong = Integer.valueOf(
-        Hex.toHexString(infoById.get().getLogList()
-            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+        Hex.toHexString(infoById1.get().getLogList()
+            .get(infoById1.get().getLogCount() - 1).getData().toByteArray())
             .substring(193), 16);
     logger.info("nonce:" + nonceMapLong);
     nonceMap = Long.toString(nonceMapLong);
@@ -313,9 +319,10 @@ public class RetryMapping20001 {
         .getTransactionInfoById(mapTxid, blockingStubFull);
     Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
     Assert.assertEquals(0, infoById1.get().getResultValue());
-    Long nonceMapLong = ByteArray.toLong(ByteArray
-        .fromHexString(
-            ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    int nonceMapLong = Integer.valueOf(
+        Hex.toHexString(infoById1.get().getLogList()
+            .get(infoById1.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193), 16);
     logger.info("nonce:" + nonceMapLong);
     nonceMap = Long.toString(nonceMapLong);
 
@@ -480,6 +487,27 @@ public class RetryMapping20001 {
   @AfterClass
   public void shutdown() throws InterruptedException {
 
+    Account depositAddress2MainAccount = PublicMethed
+        .queryAccount(depositAddress2, blockingStubFull);
+    long depositAddress2MainBalance = depositAddress2MainAccount.getBalance();
+    logger.info("depositAddress2MainBalance:" + depositAddress2MainBalance);
+    if (depositAddress2MainBalance > 2000000) {
+      Assert.assertTrue(PublicMethed
+          .sendcoin(testOracleAddress, depositAddress2MainBalance - 1000000, depositAddress2,
+              testKeyFordeposit2,
+              blockingStubFull));
+    }
+    Account depositAddress2SideAccount = PublicMethed
+        .queryAccount(depositAddress2, blockingSideStubFull);
+    long depositAddress2SideBalance = depositAddress2SideAccount.getBalance();
+    logger.info("depositAddress2SideBalance:" + depositAddress2SideBalance);
+    if (depositAddress2SideBalance > 2000000) {
+      Assert.assertTrue(PublicMethed
+          .sendcoinForSidechain(testOracleAddress, depositAddress2SideBalance - 1000000,
+              depositAddress2,
+              testKeyFordeposit2, chainIdAddressKey, blockingSideStubFull));
+    }
+
     methodStr2 = "setRetryFee(uint256)";
     long setRetryFee = 0;
     parame1 = String.valueOf(setRetryFee);
@@ -491,10 +519,7 @@ public class RetryMapping20001 {
             0,
             input1,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
-    PublicMethed
-        .sendcoin(testOracleAddress, oracleMainBeforeSendBalance - 200000, depositAddress2,
-            testKeyFordeposit2,
-            blockingStubFull);
+
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

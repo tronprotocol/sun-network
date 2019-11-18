@@ -256,9 +256,11 @@ public class DepositMinTrx001 {
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById4.get().getResMessage().toByteArray()));
     String data = ByteArray
-        .toHexString(infoById4.get().getContractResult(0).substring(67,108).toByteArray());
+        .toHexString(
+            infoById4.get().getContractResult(0).substring(67 + 68, 108 + 68).toByteArray());
     logger.info("data:" + data);
-    Assert.assertEquals("(must between depositMinTrx and uint64Max", PublicMethed.hexStringToString(data));
+    Assert.assertEquals("(must between depositMinTrx and uint64Max",
+        PublicMethed.hexStringToString(data));
 
 
   }
@@ -280,7 +282,8 @@ public class DepositMinTrx001 {
         .getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
     String data = ByteArray
-        .toHexString(infoById1.get().getContractResult(0).substring(67,87).toByteArray());
+        .toHexString(
+            infoById1.get().getContractResult(0).substring(67 + 68, 87 + 68).toByteArray());
     logger.info("data:" + data);
     Assert.assertEquals("\u0013msg.sender != owner", PublicMethed.hexStringToString(data));
 

@@ -183,9 +183,10 @@ public class RetryTrc20001 {
         .getTransactionInfoById(mapTxid, blockingStubFull);
     Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
     Assert.assertEquals(0, infoById1.get().getResultValue());
-    Long nonceMapLong = ByteArray.toLong(ByteArray
-        .fromHexString(
-            ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    int nonceMapLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById1.get().getLogList()
+            .get(infoById1.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonce:" + nonceMapLong);
     nonceMap = Long.toString(nonceMapLong);
     String parame1 = "\"" + Base58.encode58Check(trc20Contract) + "\"";

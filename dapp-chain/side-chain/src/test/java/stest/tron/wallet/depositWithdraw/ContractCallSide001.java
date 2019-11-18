@@ -122,6 +122,9 @@ public class ContractCallSide001 {
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
@@ -131,14 +134,14 @@ public class ContractCallSide001 {
     Account accountMainAfter = PublicMethed.queryAccount(depositAddress, blockingStubFull);
     long accountMainAfterBalance = accountMainAfter.getBalance();
     logger.info("accountAfterBalance:" + accountMainAfterBalance);
-    Assert.assertTrue(accountMainBeforeBalance - fee - 10000000000L == accountMainAfterBalance);
+    Assert.assertEquals(accountMainBeforeBalance - fee - 10000000000L, accountMainAfterBalance);
     Account accountSideAfter = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
     long accountSideAfterBalance = accountSideAfter.getBalance();
     ByteString addressSideAfter = accountSideAfter.getAddress();
     String accountSideAfterAddress = Base58.encode58Check(addressSideAfter.toByteArray());
     logger.info("accountSideAfterAddress:" + accountSideAfterAddress);
     Assert.assertEquals(Base58.encode58Check(depositAddress), accountSideAfterAddress);
-    Assert.assertTrue(accountSideAfterBalance == 10000000000L);
+    Assert.assertEquals(accountSideAfterBalance, 10000000000L);
   }
 
   @Test(enabled = true, description = "SideGateWay contract call function use contract account.")
@@ -188,7 +191,7 @@ public class ContractCallSide001 {
     String contractResult = ByteArray
         .toHexString(infoById.get().getContractResult(0).toByteArray());
     logger.info("contractResult:" + contractResult);
-    String expectContractResult = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000006408c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000126e6f7420616c6c6f7720636f6e7472616374000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+    String expectContractResult = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c408c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000006408c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000126e6f7420616c6c6f7720636f6e747261637400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
     Assert.assertEquals(expectContractResult, contractResult);
     String inputTokenID = "1000001";
     long inputTokenValue = 1;

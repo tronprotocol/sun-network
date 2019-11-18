@@ -1,6 +1,7 @@
 package stest.tron.wallet.depositWithdraw;
 
 import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
+import static org.tron.protos.Protocol.TransactionInfo.code.SUCESS;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
@@ -783,7 +784,7 @@ public class RetryTrx001 {
     Assert.assertEquals("REVERT opcode executed",
         infoByIdrretryWithdrawTxid5.get().getResMessage().toStringUtf8());
 
-    //Deposit noce value is Long.min_value-1
+    //Deposit noce value is -1
     String minusNonce = Long.toString(-1);
     logger.info("minusNonce:" + minusNonce);
     String retryDepositTxid6 = PublicMethed.retryDeposit(mainGateWayAddress,
@@ -794,10 +795,10 @@ public class RetryTrx001 {
     logger.info("retryDepositTxid4:" + retryDepositTxid6);
     Optional<TransactionInfo> infoByIdretryDepositTxid6 = PublicMethed
         .getTransactionInfoById(retryDepositTxid6, blockingStubFull);
-    Assert.assertTrue(infoByIdretryDepositTxid6.get().getResultValue() == 1);
-    Assert.assertEquals(FAILED, infoByIdretryDepositTxid6.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
+    Assert.assertTrue(infoByIdretryDepositTxid6.get().getResultValue() == 0);
+    Assert.assertEquals(SUCESS, infoByIdretryDepositTxid6.get().getResult());
+    //Assert.assertEquals("REVERT opcode executed",
+    //    infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is -1
     String retryWithdrawTxid6 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
@@ -808,10 +809,10 @@ public class RetryTrx001 {
     logger.info("retryWithdrawTxid6:" + retryWithdrawTxid6);
     Optional<TransactionInfo> infoByIdrretryWithdrawTxid6 = PublicMethed
         .getTransactionInfoById(retryWithdrawTxid6, blockingSideStubFull);
-    Assert.assertTrue(infoByIdrretryWithdrawTxid6.get().getResultValue() == 1);
-    Assert.assertEquals(FAILED, infoByIdrretryWithdrawTxid6.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdrretryWithdrawTxid6.get().getResMessage().toStringUtf8());
+    Assert.assertTrue(infoByIdrretryWithdrawTxid6.get().getResultValue() == 0);
+    Assert.assertEquals(SUCESS, infoByIdrretryWithdrawTxid6.get().getResult());
+    //Assert.assertEquals("REVERT opcode executed",
+    //    infoByIdrretryWithdrawTxid6.get().getResMessage().toStringUtf8());
   }
 
 

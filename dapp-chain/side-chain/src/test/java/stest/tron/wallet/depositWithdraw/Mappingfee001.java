@@ -20,6 +20,7 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
+import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
@@ -257,6 +258,9 @@ public class Mappingfee001 {
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertNotNull(sideContractAddress);
     Assert.assertNotEquals(addressFinal, "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb");
+    SmartContract contract = PublicMethed.getContract(sideContractAddress, blockingSideStubFull);
+    Assert.assertEquals(WalletClient.encode58Check(contract.getOriginAddress().toByteArray()),
+        WalletClient.encode58Check(depositAddress));
 
     //bonus
     input4 = Hex.decode(AbiUtil.parseMethod("bonus()", "", false));
@@ -578,7 +582,7 @@ public class Mappingfee001 {
     Assert.assertEquals("FAILED", infoById10.get().getResult().name());
     Assert.assertEquals(1, infoById10.get().getResultValue());
     String msg = Hex.toHexString(infoById10.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 172)));
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135 + 136, 172 + 136)));
     Assert.assertEquals("\u0002less than 1000 TRX", msg);
 
     byte[] input21 = Hex.decode(AbiUtil.parseMethod(
@@ -712,7 +716,7 @@ public class Mappingfee001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid2, blockingStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() == 1);
+    Assert.assertTrue(infoById1.get().getResultValue() == 0);
     String methodStr2 = "depositFee()";
     byte[] input4 = Hex.decode(AbiUtil.parseMethod(methodStr2, "", false));
 
