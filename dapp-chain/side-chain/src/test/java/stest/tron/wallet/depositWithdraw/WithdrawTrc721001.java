@@ -259,7 +259,10 @@ public class WithdrawTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(withdrawTxid1, blockingSideStubFull);
     logger.info("fee:" + infoById.get().getFee());
-    withdrawNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    withdrawNonce = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     Assert.assertNotNull(withdrawTxid1);
     Assert.assertEquals(0, infoById.get().getResultValue());
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);

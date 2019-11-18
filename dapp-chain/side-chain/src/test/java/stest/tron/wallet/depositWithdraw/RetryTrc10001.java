@@ -115,10 +115,6 @@ public class RetryTrc10001 {
     Assert.assertTrue(PublicMethed
         .sendcoin(depositAddress, 31000_000_000L, tokenFundtionAddress, tokenFundtionKey,
             blockingStubFull));
-    Assert.assertTrue(PublicMethed
-        .sendcoinForSidechain(depositAddress, 31000_000_000L, testDepositAddress, testDepositTrx,
-            chainIdAddressKey,
-            blockingSideStubFull));
     assetAccountId = PublicMethed
         .queryAccount(tokenFundtionAddress, blockingStubFull).getAssetIssuedID();
 
@@ -232,8 +228,10 @@ public class RetryTrc10001 {
         .getTransactionInfoById(txid2, blockingSideStubFull);
     Assert.assertTrue(infoById2.get().getResultValue() == 0);
     long fee2 = infoById2.get().getFee();
-    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray())));
+    int nonceWithdrawLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById2.get().getLogList()
+            .get(infoById2.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
     nonceWithdraw = Long.toString(nonceWithdrawLong);
     logger.info("fee2:" + fee2);
@@ -942,8 +940,10 @@ public class RetryTrc10001 {
         .getTransactionInfoById(txid2, blockingSideStubFull);
     Assert.assertTrue(infoById2.get().getResultValue() == 0);
     long fee2 = infoById2.get().getFee();
-    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray())));
+    int nonceWithdrawLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById2.get().getLogList()
+            .get(infoById2.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
     nonceWithdraw = Long.toString(nonceWithdrawLong);
 
@@ -1305,7 +1305,10 @@ public class RetryTrc10001 {
         .getTransactionInfoById(txid2, blockingSideStubFull);
 
     // check Withdraw Msg when withdraw failed
-    withdrawNonce = ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray());
+    withdrawNonce = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById2.get().getLogList()
+            .get(infoById2.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     String[] MsgWithdraw = {
         WalletClient.encode58Check(depositAddress),
         "0", inputTokenID, withdrawToken, "1", "0"
@@ -1316,8 +1319,10 @@ public class RetryTrc10001 {
 
     Assert.assertTrue(infoById2.get().getResultValue() == 0);
     long fee2 = infoById2.get().getFee();
-    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray())));
+    int nonceWithdrawLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById2.get().getLogList()
+            .get(infoById2.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
     nonceWithdraw = Long.toString(nonceWithdrawLong);
 

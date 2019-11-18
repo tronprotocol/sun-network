@@ -343,8 +343,10 @@ public class RetryTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(withdrawTxid1, blockingSideStubFull);
-    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
+    int nonceWithdrawLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
     nonceWithdraw = Long.toString(nonceWithdrawLong);
     Assert.assertNotNull(withdrawTxid1);
@@ -1011,9 +1013,10 @@ public class RetryTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(withdrawTxid1, blockingSideStubFull);
-    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
-    logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
+    int nonceWithdrawLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     nonceWithdraw = Long.toString(nonceWithdrawLong);
     Assert.assertNotNull(withdrawTxid1);
     Assert.assertEquals(0, infoById.get().getResultValue());
@@ -1319,15 +1322,19 @@ public class RetryTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(withdrawTxid1, blockingSideStubFull);
-    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
-    logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
+    int nonceWithdrawLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     nonceWithdraw = Long.toString(nonceWithdrawLong);
     Assert.assertNotNull(withdrawTxid1);
     Assert.assertEquals(0, infoById.get().getResultValue());
 
     // check Withdraw Msg when withdraw failed
-    int withdrawNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    int withdrawNonce = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById1.get().getLogList()
+            .get(infoById1.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     String[] MsgWithdraw = {
         WalletClient.encode58Check(testAddress001),
         WalletClient.encode58Check(trc721Contract), "0", "1001", "3", "0"

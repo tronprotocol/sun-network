@@ -210,8 +210,10 @@ public class RetryTrx001 {
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     long fee1 = infoById1.get().getFee();
     logger.info("fee1:" + fee1);
-    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    int nonceWithdrawLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById1.get().getLogList()
+            .get(infoById1.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
     nonceWithdraw = Long.toString(nonceWithdrawLong);
 
@@ -932,9 +934,10 @@ public class RetryTrx001 {
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     long fee1 = infoById1.get().getFee();
     logger.info("fee1:" + fee1);
-    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
-    logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
+    int nonceWithdrawLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById1.get().getLogList()
+            .get(infoById1.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     nonceWithdraw = Long.toString(nonceWithdrawLong);
     logger.info("nonceWithdraw:" + nonceWithdraw);
 
@@ -1313,7 +1316,10 @@ public class RetryTrx001 {
     logger.info("infoById1:" + infoById1);
 
     // check Withdraw Msg when withdraw failed
-    withdrawNonce = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
+    withdrawNonce = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById1.get().getLogList()
+            .get(infoById1.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     String[] MsgWithdraw = {
         WalletClient.encode58Check(depositAddress1),
         "0", "0", "" + withdrawValue, "0", "0"
@@ -1325,8 +1331,10 @@ public class RetryTrx001 {
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     fee1 = infoById1.get().getFee();
     logger.info("fee1:" + fee1);
-    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    int nonceWithdrawLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById1.get().getLogList()
+            .get(infoById1.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
     nonceWithdraw = Long.toString(nonceWithdrawLong);
     logger.info("nonceWithdraw:" + nonceWithdraw);

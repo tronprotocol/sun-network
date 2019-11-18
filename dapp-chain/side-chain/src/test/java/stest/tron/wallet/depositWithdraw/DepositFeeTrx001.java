@@ -185,9 +185,10 @@ public class DepositFeeTrx001 {
         .getTransactionInfoById(txid2, blockingStubFull);
     Assert.assertTrue(infoById2.get().getResultValue() == 1);
     String data = ByteArray
-        .toHexString(infoById2.get().getContractResult(0).substring(67,108).toByteArray());
+        .toHexString(infoById2.get().getContractResult(0).substring(67, 108).toByteArray());
     logger.info("data:" + data);
-    Assert.assertEquals("(must between depositMinTrx and uint64Max", PublicMethed.hexStringToString(data));
+    Assert.assertEquals("(must between depositMinTrx and uint64Max",
+        PublicMethed.hexStringToString(data));
     long fee2 = infoById2.get().getFee();
     logger.info("fee2:" + fee2);
     Account accountAfter2 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
@@ -259,7 +260,8 @@ public class DepositFeeTrx001 {
     data = ByteArray
         .toHexString(infoById4.get().getContractResult(0).substring(67, 97).toByteArray());
     logger.info("data:" + data);
-    Assert.assertEquals("\u001Dmsg.value need  >= depositFee", PublicMethed.hexStringToString(data));
+    Assert
+        .assertEquals("\u001Dmsg.value need  >= depositFee", PublicMethed.hexStringToString(data));
 
     long fee4 = infoById4.get().getFee();
     logger.info("fee4:" + fee4);
@@ -335,7 +337,7 @@ public class DepositFeeTrx001 {
         .getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
     String data = ByteArray
-        .toHexString(infoById1.get().getContractResult(0).substring(67,87).toByteArray());
+        .toHexString(infoById1.get().getContractResult(0).substring(67, 87).toByteArray());
     logger.info("data:" + data);
     Assert.assertEquals("\u0013msg.sender != owner", PublicMethed.hexStringToString(data));
 
@@ -353,7 +355,7 @@ public class DepositFeeTrx001 {
         .getTransactionInfoById(txid2, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
     data = ByteArray
-        .toHexString(infoById1.get().getContractResult(0).substring(67,85).toByteArray());
+        .toHexString(infoById1.get().getContractResult(0).substring(67, 85).toByteArray());
     logger.info("data:" + data);
     Assert.assertEquals("\u0011less than 100 TRX", PublicMethed.hexStringToString(data));
 
@@ -399,7 +401,7 @@ public class DepositFeeTrx001 {
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
     data = ByteArray
-        .toHexString(infoById1.get().getContractResult(0).substring(67,85).toByteArray());
+        .toHexString(infoById1.get().getContractResult(0).substring(67, 85).toByteArray());
     logger.info("data:" + data);
     Assert.assertEquals("\u0011less than 100 TRX", PublicMethed.hexStringToString(data));
 
@@ -429,7 +431,7 @@ public class DepositFeeTrx001 {
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
     data = ByteArray
-        .toHexString(infoById1.get().getContractResult(0).substring(67,85).toByteArray());
+        .toHexString(infoById1.get().getContractResult(0).substring(67, 85).toByteArray());
     logger.info("data:" + data);
     Assert.assertEquals("\u0011less than 100 TRX", PublicMethed.hexStringToString(data));
 
@@ -458,7 +460,7 @@ public class DepositFeeTrx001 {
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
     data = ByteArray
-        .toHexString(infoById1.get().getContractResult(0).substring(67,85).toByteArray());
+        .toHexString(infoById1.get().getContractResult(0).substring(67, 85).toByteArray());
     logger.info("data:" + data);
     Assert.assertEquals("\u0011less than 100 TRX", PublicMethed.hexStringToString(data));
 
@@ -488,7 +490,7 @@ public class DepositFeeTrx001 {
         .getTransactionInfoById(txid3, blockingStubFull);
     Assert.assertEquals(1, infoById1.get().getResultValue());
     data = ByteArray
-        .toHexString(infoById1.get().getContractResult(0).substring(67,85).toByteArray());
+        .toHexString(infoById1.get().getContractResult(0).substring(67, 85).toByteArray());
     logger.info("data:" + data);
     Assert.assertEquals("\u0011less than 100 TRX", PublicMethed.hexStringToString(data));
 
