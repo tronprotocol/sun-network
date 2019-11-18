@@ -6,6 +6,7 @@
   </listeners>
   <test name="BeforeSuit">
     <classes>
+      <class name="stest.tron.wallet.common.deploy.depositTokenFoundation"></class>
       <class name="stest.tron.wallet.common.deploy.deployFundInject"></class>
     </classes>
   </test>
