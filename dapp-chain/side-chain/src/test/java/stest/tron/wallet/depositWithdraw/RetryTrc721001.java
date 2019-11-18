@@ -870,7 +870,7 @@ public class RetryTrc721001 {
     //Retrymapping  noce value is is-1
 
     String retryMapTxid6 = PublicMethed.retryMapping(mainGateWayAddress,
-        minNonce,
+        minusNonce,
         maxFeeLimit, testAddress001, testKey001, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info("retryMapTxid1:" + retryMapTxid6);
@@ -1119,13 +1119,14 @@ public class RetryTrc721001 {
             testAddress001, testKey001, blockingStubFull);
     logger.info(deposittrx);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(deposittrx, blockingStubFull);
     Assert.assertNotNull(deposittrx);
+    logger.info("infoById : " + infoById);
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertEquals("SUCESS", infoById.get().getResult().name());
     Long nonceLong = ByteArray.toLong(ByteArray
