@@ -203,7 +203,10 @@ public class WithdrawTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infodeposittrx = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
-    depositNonce = ByteArray.toInt(infodeposittrx.get().getContractResult(0).toByteArray());
+    depositNonce = Integer.valueOf(
+        Hex.toHexString(infodeposittrx.get().getLogList()
+            .get(infodeposittrx.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193), 16);
     Assert.assertEquals(0, infodeposittrx.get().getResultValue());
 
     String sideChainTxid = PublicMethed

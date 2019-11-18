@@ -230,9 +230,10 @@ public class RetryTrc20001 {
     Optional<TransactionInfo> infodepositTrc20 = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
     Assert.assertEquals(0, infodepositTrc20.get().getResultValue());
-    Long nonceLong = ByteArray.toLong(ByteArray
-        .fromHexString(
-            ByteArray.toHexString(infodepositTrc20.get().getContractResult(0).toByteArray())));
+    int nonceLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infodepositTrc20.get().getLogList()
+            .get(infodepositTrc20.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonce:" + nonceLong);
     nonce = Long.toString(nonceLong);
 
@@ -1048,9 +1049,10 @@ public class RetryTrc20001 {
     Optional<TransactionInfo> infodepositTrc20 = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
     Assert.assertEquals(0, infodepositTrc20.get().getResultValue());
-    Long nonceLong = ByteArray.toLong(ByteArray
-        .fromHexString(
-            ByteArray.toHexString(infodepositTrc20.get().getContractResult(0).toByteArray())));
+    int nonceLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infodepositTrc20.get().getLogList()
+            .get(infodepositTrc20.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonce:" + nonceLong);
     nonce = Long.toString(nonceLong);
 
@@ -1220,7 +1222,10 @@ public class RetryTrc20001 {
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
 
     // check Deposit Msg when deposit failed
-    depositNonce = ByteArray.toInt(infodepositTrc20.get().getContractResult(0).toByteArray());
+    depositNonce = Integer.valueOf(
+        Hex.toHexString(infodepositTrc20.get().getLogList()
+            .get(infodepositTrc20.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193), 16);
     String[] Msg = {
         WalletClient.encode58Check(depositAddress), "" + "1000",
         "2", WalletClient.encode58Check(trc20Contract), "0", "0", "0"
@@ -1229,9 +1234,10 @@ public class RetryTrc20001 {
         testKeyFordeposit, blockingStubFull, Msg));
 
     Assert.assertEquals(0, infodepositTrc20.get().getResultValue());
-    Long nonceLong = ByteArray.toLong(ByteArray
-        .fromHexString(
-            ByteArray.toHexString(infodepositTrc20.get().getContractResult(0).toByteArray())));
+    int nonceLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infodepositTrc20.get().getLogList()
+            .get(infodepositTrc20.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonce:" + nonceLong);
     nonce = Long.toString(nonceLong);
 

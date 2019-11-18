@@ -1,4 +1,4 @@
-package stest.tron.wallet.depositWithdraw;
+package stest.tron.wallet.onlinestress;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -26,7 +26,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
-public class DepositFee001 {
+public class SetTokenOwnerAddressTest {
 
 
   final String mainGateWayAddress = Configuration.getByPath("testng.conf")
@@ -193,23 +193,23 @@ public class DepositFee001 {
     for (String oracleKey : newOracleKey) {
       byte[] oracleAddress = PublicMethedForDailybuild.getFinalAddress(oracleKey);
 
-      String parame2 = "\"" + "TPRFK2X2wfFvi2c8Vk8GM1xwv4Le9ZNgcR" + "\"";
+      String parame2 = "\"" + "TBESTv3wZkhdqLq6v6qistZ8DCzKLeV5UN" + "\"";
 
       byte[] input1 = Hex.decode(AbiUtil.parseMethod("setLogicAddress(address)", parame2, false));
       String ownerTrx1 = PublicMethed
-          .triggerContractSideChain(sideChainAddress, chainIdAddressKey, 0l, input1,
+          .triggerContract(mainGateWayAddressKey, 0l, input1,
               1000000000,
-              0l, "0", oracleAddress, oracleKey, blockingSideStubFull);
+              0l, "0", oracleAddress, oracleKey, blockingStubFull);
     }
 
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     byte[] input1 = Hex.decode(AbiUtil.parseMethod("logicAddress()", "", false));
     TransactionExtention return1 = PublicMethed
-        .triggerContractForTransactionExtention(sideChainAddress, 0l, input1,
+        .triggerContractForTransactionExtention(mainGateWayAddressKey, 0l, input1,
             1000000000,
-            0l, "0", witness001Address, witnessKey001, blockingSideStubFull);
+            0l, "0", witness001Address, witnessKey001, blockingStubFull);
 
     String ContractRestule = Hex.toHexString(return1.getConstantResult(0).toByteArray());
 

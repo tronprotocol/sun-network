@@ -5,6 +5,7 @@ import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.spongycastle.util.encoders.Hex;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -14,13 +15,11 @@ import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.utils.ByteArray;
 import org.tron.core.Wallet;
-import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.AbiUtil;
-import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
@@ -102,8 +101,8 @@ public class setTokenOwnerAddressTess001 {
     blockingSideStubFull = WalletGrpc.newBlockingStub(channelFull1);
   }
 
-  @Test
-  public void precom() {
+  @Test(enabled = true, description = "normal Address trigger setTokenOwnerAddress Function")
+  public void setTokenOwnerAddress001() {
 
     String parame2 =
         "\"" + sideGatewayAddress + "\",\"" + WalletClient.encode58Check(testDepositAddress) + "\"";
@@ -114,23 +113,41 @@ public class setTokenOwnerAddressTess001 {
         .triggerContractSideChain(sideChainAddress, chainIdAddressKey, 0l, input1,
             1000000000,
             0l, "0", testDepositAddress, testDepositTrx, blockingSideStubFull);
-
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById3 = PublicMethed
         .getTransactionInfoById(ownerTrx1, blockingSideStubFull);
 
     logger.info("infoById3:" + infoById3);
 
-    SmartContract ac = PublicMethed
-        .getContract(WalletClient.decodeFromBase58Check(sideGatewayAddress), blockingSideStubFull);
+    String data = ByteArray
+        .toHexString(infoById3.get().getContractResult(0).substring(68, 85).toByteArray());
+    logger.info("data:" + data);
+    Assert.assertEquals("msg.sender != own", PublicMethed.hexStringToString(data));
 
-    String ContractRestule = Hex.toHexString(ac.getOriginAddress().toByteArray());
+  }
 
-    String tmpAddress = ContractRestule.substring(24);
-    logger.info(tmpAddress);
-    String addressHex = "41" + tmpAddress;
-    logger.info("address_hex: " + addressHex);
-    String addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
-    logger.info("OriginAddress: " + addressFinal);
+  @Test(enabled = true, description = "normal Contract trigger 0x10002 ")
+  public void setTokenOwnerAddress002() {
+
+    String parame2 =
+        "\"" + sideGatewayAddress + "\",\"" + WalletClient.encode58Check(testDepositAddress) + "\"";
+
+    byte[] input1 = Hex.decode(AbiUtil.parseMethod("setTokenOwner(address,address)", parame2,
+        false));
+    String ownerTrx1 = PublicMethed
+        .triggerContractSideChain(sideChainAddress, chainIdAddressKey, 0l, input1,
+            1000000000,
+            0l, "0", testDepositAddress, testDepositTrx, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById3 = PublicMethed
+        .getTransactionInfoById(ownerTrx1, blockingSideStubFull);
+
+    logger.info("infoById3:" + infoById3);
+
+    String data = ByteArray
+        .toHexString(infoById3.get().getContractResult(0).substring(67, 85).toByteArray());
+    logger.info("data:" + data);
+    Assert.assertEquals("\u0013msg.sender != own", PublicMethed.hexStringToString(data));
 
   }
 

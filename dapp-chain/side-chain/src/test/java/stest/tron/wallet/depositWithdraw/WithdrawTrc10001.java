@@ -141,7 +141,10 @@ public class WithdrawTrc10001 {
     Optional<TransactionInfo> infoById;
     infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
-    depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    depositNonce = Integer.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193), 16);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     long fee = infoById.get().getFee();
     logger.info("fee:" + fee);

@@ -174,8 +174,10 @@ public class RetryTrx001 {
     long fee = infoById.get().getFee();
     logger.info("fee:" + fee);
 
-    Long nonceLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
+    int nonceLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonce:" + nonceLong);
     nonce = Long.toString(nonceLong);
     Account accountMainAfter = PublicMethed.queryAccount(depositAddress, blockingStubFull);
@@ -876,8 +878,10 @@ public class RetryTrx001 {
     long fee = infoById.get().getFee();
     logger.info("fee:" + fee);
 
-    Long nonceLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
+    long nonceLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonce:" + nonceLong);
     nonce = Long.toString(nonceLong);
     Account accountMainAfter = PublicMethed.queryAccount(depositAddress1, blockingStubFull);
@@ -1152,7 +1156,10 @@ public class RetryTrx001 {
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
     // check Deposit Msg when deposit failed
-    depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    depositNonce = Integer.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193), 16);
     String[] Msg = {
         WalletClient.encode58Check(depositAddress1), "" + callValue,
         "0", "0", "0", "0", "0"
@@ -1165,8 +1172,10 @@ public class RetryTrx001 {
     long fee = infoById.get().getFee();
     logger.info("fee:" + fee);
 
-    Long nonceLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
+    int nonceLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonce:" + nonceLong);
     nonce = Long.toString(nonceLong);
     Account accountMainAfter = PublicMethed.queryAccount(depositAddress1, blockingStubFull);

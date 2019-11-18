@@ -176,8 +176,11 @@ public class RetryTrc10001 {
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     long fee = infoById.get().getFee();
     logger.info("fee:" + fee);
-    Long nonceLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
+    int nonceLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
+    ;
     logger.info("nonce:" + nonceLong);
     nonce = Long.toString(nonceLong);
     Account accountMainAfter = PublicMethed.queryAccount(depositAddress, blockingStubFull);
@@ -911,8 +914,10 @@ public class RetryTrc10001 {
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     long fee = infoById.get().getFee();
     logger.info("fee:" + fee);
-    Long nonceLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
+    int nonceLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonce:" + nonceLong);
     nonce = Long.toString(nonceLong);
 
@@ -1121,7 +1126,10 @@ public class RetryTrc10001 {
         .getTransactionInfoById(txid, blockingStubFull);
 
     // check Deposit Msg when deposit failed
-    depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    depositNonce = Integer.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193), 16);
     String[] Msg = {
         WalletClient.encode58Check(depositAddress), "" + inputTokenValue,
         "1", "0", inputTokenID, "0", "0"
@@ -1132,8 +1140,10 @@ public class RetryTrc10001 {
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     long fee = infoById.get().getFee();
     logger.info("fee:" + fee);
-    Long nonceLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
+    int nonceLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonce:" + nonceLong);
     nonce = Long.toString(nonceLong);
 

@@ -120,8 +120,10 @@ public class WithdrawTrx001 {
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
-    depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
-    Assert.assertTrue(infoById.get().getResultValue() == 0);
+    depositNonce = Integer.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193), 16);
     long fee = infoById.get().getFee();
     logger.info("fee:" + fee);
     Account accountMainAfter = PublicMethed.queryAccount(depositAddress, blockingStubFull);

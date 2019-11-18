@@ -271,8 +271,10 @@ public class RetryTrc721001 {
     Assert.assertNotNull(deposittrx);
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertEquals("SUCESS", infoById.get().getResult().name());
-    Long nonceLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
+    int nonceLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonce:" + nonceLong);
     nonce = Long.toString(nonceLong);
 
@@ -1128,13 +1130,18 @@ public class RetryTrc721001 {
     Assert.assertNotNull(deposittrx);
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertEquals("SUCESS", infoById.get().getResult().name());
-    Long nonceLong = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
+    int nonceLong = Integer.valueOf(String.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193)), 16);
     logger.info("nonce:" + nonceLong);
     nonce = Long.toString(nonceLong);
 
     // check Deposit Msg when deposit failed
-    int depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    int depositNonce = Integer.valueOf(
+        Hex.toHexString(infoById.get().getLogList()
+            .get(infoById.get().getLogCount() - 1).getData().toByteArray())
+            .substring(193), 16);
     String[] Msg = {
         WalletClient.encode58Check(testAddress001), "0",
         "3", WalletClient.encode58Check(trc721Contract), "0", "0", "1001"
