@@ -423,14 +423,19 @@ public class ProposalCreateActuator extends AbstractActuator {
               "Bad chain parameter id [updateGateway_v1_0_2]");
         }
 
-        if (dbManager.getDynamicPropertiesStore().getSideChainGateWayList().isEmpty()) {
+        if (dbManager.getDynamicPropertiesStore().getAllowUpdateGatewayV102() == 1) {
           throw new ContractValidateException(
-              "updateGateway_v1_0_2 should set side chain gateway before");
+              "updateGateway_v1_0_2 is only allowed to be executed once");
         }
 
         if (Integer.parseInt(entry.getValue()) != 1) {
           throw new ContractValidateException(
               "updateGateway_v1_0_2 is only allowed to be 1");
+        }
+
+        if (dbManager.getDynamicPropertiesStore().getSideChainGateWayList().isEmpty()) {
+          throw new ContractValidateException(
+              "updateGateway_v1_0_2 should set side chain gateway before");
         }
 
         if (!GatewayCode.codeHash().equals(Constant.GATEWAY_CODE_V_1_0_2_HASH)) {
