@@ -385,7 +385,7 @@ public class WithdrawMinTrc20001 {
         ByteArray.toStr(infoById3.get().getResMessage().toByteArray()));
 
     Long balnceAfter = PublicMethed.queryAccount(depositAddress, blockingSideStubFull).getBalance();
-    Assert.assertEquals(balanceBefore - infoById4.get().getFee(), balnceAfter.longValue());
+    Assert.assertEquals(balanceBefore - infoById3.get().getFee(), balnceAfter.longValue());
 
   }
 
