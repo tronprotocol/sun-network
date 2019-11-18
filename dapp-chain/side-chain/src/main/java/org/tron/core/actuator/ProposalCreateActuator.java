@@ -422,7 +422,7 @@ public class ProposalCreateActuator extends AbstractActuator {
           throw new ContractValidateException(
               "Bad chain parameter id [updateGateway_v1_0_2]");
         }
-        
+
         if (dbManager.getDynamicPropertiesStore().getSideChainGateWayList().isEmpty()) {
           throw new ContractValidateException(
               "updateGateway_v1_0_2 should set side chain gateway before");
