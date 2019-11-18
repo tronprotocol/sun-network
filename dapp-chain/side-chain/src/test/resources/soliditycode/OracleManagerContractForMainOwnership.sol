@@ -33,8 +33,6 @@ contract OracleManagerContract is Ownable {
         _;}
 
     modifier checkForTrc10(uint64 tokenId, uint64 tokenValue) {
-        require(tokenId == uint64(msg.tokenid), "tokenId != msg.tokenid");
-        require(tokenValue == uint64(msg.tokenvalue), "tokenValue != msg.tokenvalue");
         _;
     }
 
@@ -105,7 +103,7 @@ contract OracleManagerContract is Ownable {
         return count;
     }
 
-    function addOracle(address _oracle) public onlyOwner {
+    function addOracle(address _oracle) public goDelegateCall onlyOwner {
         require(_oracle != address(0), "this address cannot be zero");
         require(oracleIndex[_oracle] == 0, "this address is already oracle");
         require(numOracles < 256, "cannot more than 256 oracles");
@@ -122,7 +120,7 @@ contract OracleManagerContract is Ownable {
         numOracles++;
     }
 
-    function delOracle(address _oracle) public onlyOwner {
+    function delOracle(address _oracle) public goDelegateCall onlyOwner {
         require(oracleIndex[_oracle] > 0, "this address is not oracle");
 
         indexOracle[oracleIndex[_oracle]] = address(0);
@@ -137,12 +135,11 @@ contract OracleManagerContract is Ownable {
         }
     }
 
-    function setPause(bool status) public onlyOwner {
-
+    function setPause(bool status) public goDelegateCall onlyOwner {
         pause = status;
     }
 
-    function setStop(bool status) public onlyOwner {
+    function setStop(bool status) public goDelegateCall onlyOwner {
         stop = status;
     }
 
