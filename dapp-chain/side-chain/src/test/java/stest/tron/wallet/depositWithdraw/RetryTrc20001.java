@@ -732,7 +732,7 @@ public class RetryTrc20001 {
 
   }
 
-  @Test(enabled = true, description = "Retry Deposit and Withdraw Trx with nonce exception ")
+  @Test(enabled = false, description = "Retry Deposit and Withdraw Trx with nonce exception ")
   public void test2RetryTrc20002() {
     methodStr1 = "setRetryFee(uint256)";
     long setRetryFee = 0;
@@ -995,7 +995,7 @@ public class RetryTrc20001 {
 
   }
 
-  @Test(enabled = true, description = "Retry Deposit and Withdraw Trc20 with mainOralce value is 0")
+  @Test(enabled = false, description = "Retry Deposit and Withdraw Trc20 with mainOralce value is 0")
   public void test3RetryTrc20003() {
     String parame = "\"" + Base58.encode58Check(depositAddress) + "\"";
     byte[] input1 = Hex.decode(AbiUtil.parseMethod("balanceOf(address)", parame, false));
@@ -1215,6 +1215,8 @@ public class RetryTrc20001 {
         .depositTrc20(WalletClient.encode58Check(trc20Contract), mainChainAddress, 1000, 1000000000,
             depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infodepositTrc20 = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);

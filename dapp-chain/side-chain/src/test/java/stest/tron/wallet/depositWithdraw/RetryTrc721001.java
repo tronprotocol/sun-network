@@ -1,6 +1,7 @@
 package stest.tron.wallet.depositWithdraw;
 
 import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
+import static org.tron.protos.Protocol.TransactionInfo.code.SUCESS;
 
 
 import io.grpc.ManagedChannel;
@@ -861,10 +862,10 @@ public class RetryTrc721001 {
     logger.info("retryDepositTxid4:" + retryDepositTxid6);
     Optional<TransactionInfo> infoByIdretryDepositTxid6 = PublicMethed
         .getTransactionInfoById(retryDepositTxid6, blockingStubFull);
-    Assert.assertTrue(infoByIdretryDepositTxid6.get().getResultValue() == 1);
-    Assert.assertEquals(FAILED, infoByIdretryDepositTxid6.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
+    Assert.assertTrue(infoByIdretryDepositTxid6.get().getResultValue() == 0);
+    Assert.assertEquals(SUCESS, infoByIdretryDepositTxid6.get().getResult());
+    //Assert.assertEquals("REVERT opcode executed",
+    //    infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
 
     //Retrymapping  noce value is is-1
 
@@ -875,10 +876,10 @@ public class RetryTrc721001 {
     logger.info("retryMapTxid1:" + retryMapTxid6);
     Optional<TransactionInfo> infoByIdretryMapTxid6 = PublicMethed
         .getTransactionInfoById(retryMapTxid6, blockingStubFull);
-    Assert.assertTrue(infoByIdretryMapTxid6.get().getResultValue() != 0);
-    Assert.assertEquals(FAILED, infoByIdretryMapTxid6.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryMapTxid6.get().getResMessage().toStringUtf8());
+    Assert.assertTrue(infoByIdretryMapTxid6.get().getResultValue() == 0);
+    Assert.assertEquals(SUCESS, infoByIdretryMapTxid6.get().getResult());
+    //Assert.assertEquals("REVERT opcode executed",
+    //    infoByIdretryMapTxid6.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is -1
     String retryWithdrawTxid6 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
@@ -889,10 +890,10 @@ public class RetryTrc721001 {
     logger.info("retryWithdrawTxid6:" + retryWithdrawTxid6);
     Optional<TransactionInfo> infoByIdrretryWithdrawTxid6 = PublicMethed
         .getTransactionInfoById(retryWithdrawTxid6, blockingSideStubFull);
-    Assert.assertTrue(infoByIdrretryWithdrawTxid6.get().getResultValue() == 1);
-    Assert.assertEquals(FAILED, infoByIdrretryWithdrawTxid6.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdrretryWithdrawTxid6.get().getResMessage().toStringUtf8());
+    Assert.assertTrue(infoByIdrretryWithdrawTxid6.get().getResultValue() == 0);
+    Assert.assertEquals(SUCESS, infoByIdrretryWithdrawTxid6.get().getResult());
+    //Assert.assertEquals("REVERT opcode executed",
+    //    infoByIdrretryWithdrawTxid6.get().getResMessage().toStringUtf8());
   }
 
 

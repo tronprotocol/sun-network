@@ -370,6 +370,7 @@ public class WithdrawMinTrc20001 {
 
     Account account = PublicMethed.queryAccount(depositAddress,blockingSideStubFull);
     Long balanceBefore = account.getBalance();
+    logger.info("balanceBefore : " + balanceBefore);
     withdrawValue = 90;
     withdrawValueString = Long.toString(withdrawValue);
 
@@ -385,7 +386,8 @@ public class WithdrawMinTrc20001 {
         ByteArray.toStr(infoById3.get().getResMessage().toByteArray()));
 
     Long balnceAfter = PublicMethed.queryAccount(depositAddress,blockingSideStubFull).getBalance();
-    Assert.assertEquals(balanceBefore - infoById4.get().getFee(),balnceAfter.longValue());
+    logger.info("balnceAfter : " + balnceAfter);
+    Assert.assertEquals(balanceBefore - infoById3.get().getFee(),balnceAfter.longValue());
 
   }
 

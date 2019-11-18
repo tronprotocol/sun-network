@@ -780,7 +780,7 @@ public class RetryTrx001 {
     Assert.assertEquals("REVERT opcode executed",
         infoByIdrretryWithdrawTxid5.get().getResMessage().toStringUtf8());
 
-    //Deposit noce value is Long.min_value-1
+    //Deposit noce value is -1
     String minusNonce = Long.toString(-1);
     logger.info("minusNonce:" + minusNonce);
     String retryDepositTxid6 = PublicMethed.retryDeposit(mainGateWayAddress,
@@ -791,10 +791,10 @@ public class RetryTrx001 {
     logger.info("retryDepositTxid4:" + retryDepositTxid6);
     Optional<TransactionInfo> infoByIdretryDepositTxid6 = PublicMethed
         .getTransactionInfoById(retryDepositTxid6, blockingStubFull);
-    Assert.assertTrue(infoByIdretryDepositTxid6.get().getResultValue() == 1);
-    Assert.assertEquals(FAILED, infoByIdretryDepositTxid6.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
+    Assert.assertTrue(infoByIdretryDepositTxid6.get().getResultValue() == 0);
+    //Assert.assertEquals(FAILED, infoByIdretryDepositTxid6.get().getResult());
+    //Assert.assertEquals("REVERT opcode executed",
+    //    infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is -1
     String retryWithdrawTxid6 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
@@ -1536,11 +1536,11 @@ public class RetryTrx001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingStubFull);
-    Assert.assertEquals("FAILED", infoById1.get().getResult().name());
-    Assert.assertEquals(1, infoById1.get().getResultValue());
-    msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
-    Assert.assertEquals("\u0001less than 100 TRX", msg);
+    Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
+    Assert.assertEquals(0, infoById1.get().getResultValue());
+    //msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
+    //msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
+    //Assert.assertEquals("\u0001less than 100 TRX", msg);
 
     setRetryFee = 100_000_001;
     parame1 = String.valueOf(setRetryFee);

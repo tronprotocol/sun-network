@@ -115,10 +115,6 @@ public class RetryTrc10001 {
     Assert.assertTrue(PublicMethed
         .sendcoin(depositAddress, 31000_000_000L, tokenFundtionAddress, tokenFundtionKey,
             blockingStubFull));
-    Assert.assertTrue(PublicMethed
-        .sendcoinForSidechain(depositAddress, 31000_000_000L, testDepositAddress, testDepositTrx,
-            chainIdAddressKey,
-            blockingSideStubFull));
     assetAccountId = PublicMethed
         .queryAccount(tokenFundtionAddress, blockingStubFull).getAssetIssuedID();
 
@@ -148,7 +144,6 @@ public class RetryTrc10001 {
     ByteString address = accountSideBefore.getAddress();
     String accountSideBeforeAddress = Base58.encode58Check(address.toByteArray());
     logger.info("accountSideBeforeAddress:" + accountSideBeforeAddress);
-//    Assert.assertEquals("3QJmnh", accountSideBeforeAddress);
 
     logger.info("accountBeforeBalance:" + accountMainBalance);
     logger.info("accountSideBeforeBalance:" + accountSideBeforeBalance);
@@ -1042,7 +1037,6 @@ public class RetryTrc10001 {
     Assert.assertEquals(accountSideBeforeWithdrawBalance4 - fee1 - setRetryFeeSide,
         accountSideBeforeWithdrawBalance5);
   }
-
 
   @Test(enabled = true, description = "Retry Deposit and Withdraw Trc10 with sideOralce value is 0")
   public void test4RetryTrc10004() {
