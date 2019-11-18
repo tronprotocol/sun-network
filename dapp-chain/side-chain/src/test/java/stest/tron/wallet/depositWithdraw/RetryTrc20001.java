@@ -732,7 +732,7 @@ public class RetryTrc20001 {
 
   }
 
-  @Test(enabled = false, description = "Retry Deposit and Withdraw Trx with nonce exception ")
+  @Test(enabled = true, description = "Retry Deposit and Withdraw Trx with nonce exception ")
   public void test2RetryTrc20002() {
     methodStr1 = "setRetryFee(uint256)";
     long setRetryFee = 0;
@@ -995,7 +995,7 @@ public class RetryTrc20001 {
 
   }
 
-  @Test(enabled = false, description = "Retry Deposit and Withdraw Trc20 with mainOralce value is 0")
+  @Test(enabled = true, description = "Retry Deposit and Withdraw Trc20 with mainOralce value is 0")
   public void test3RetryTrc20003() {
     String parame = "\"" + Base58.encode58Check(depositAddress) + "\"";
     byte[] input1 = Hex.decode(AbiUtil.parseMethod("balanceOf(address)", parame, false));
@@ -1160,7 +1160,6 @@ public class RetryTrc20001 {
     logger.info("mainTrc20Balance4:" + mainTrc20Balance4);
     Assert.assertTrue(mainTrc20Balance3 + 100 == mainTrc20Balance4);
   }
-
 
   @Test(enabled = true, description = "Retry Deposit and Withdraw Trc20 with sideOralce value is 0")
   public void test4RetryTrc20004() {
