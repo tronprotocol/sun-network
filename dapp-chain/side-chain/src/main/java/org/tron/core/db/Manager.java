@@ -81,7 +81,6 @@ import org.tron.core.capsule.utils.BlockUtil;
 import org.tron.core.config.Parameter.ChainConstant;
 import org.tron.core.config.args.Args;
 import org.tron.core.config.args.GenesisBlock;
-import org.tron.core.config.args.Witness;
 import org.tron.core.db.KhaosDatabase.KhaosBlock;
 import org.tron.core.db.fast.TrieService;
 import org.tron.core.db.fast.callback.FastSyncCallBack;
@@ -578,35 +577,28 @@ public class Manager {
   private void initWitness() {
     final Args args = Args.getInstance();
     final GenesisBlock genesisBlockArg = args.getGenesisBlock();
-    List<Witness> genesisBlockArgWitnesses = genesisBlockArg.getWitnesses();
-    if (genesisBlockArgWitnesses.size() < args.getWitnessMaxActiveNum()) {
-      logger.error("genesisBlockWitnessesSize must greater than witnessMaxActiveNum");
-      System.exit(1);
-    }
-    if (args.getWitnessMaxActiveNum() <= 0) {
-      logger.error("getWitnessMaxActiveNum must greater than zero");
-      System.exit(1);
-    }
-    List<Witness> witnessList = genesisBlockArgWitnesses.subList(0, args.getWitnessMaxActiveNum());
-    witnessList.forEach(key -> {
-      byte[] keyAddress = key.getAddress();
-      ByteString address = ByteString.copyFrom(keyAddress);
+    genesisBlockArg
+        .getWitnesses()
+        .forEach(
+            key -> {
+              byte[] keyAddress = key.getAddress();
+              ByteString address = ByteString.copyFrom(keyAddress);
 
-      final AccountCapsule accountCapsule;
-      if (!this.accountStore.has(keyAddress)) {
-        accountCapsule = new AccountCapsule(ByteString.EMPTY,
-            address, AccountType.AssetIssue, 0L);
-      } else {
-        accountCapsule = this.accountStore.getUnchecked(keyAddress);
-      }
-      accountCapsule.setIsWitness(true);
-      this.accountStore.put(keyAddress, accountCapsule);
+              final AccountCapsule accountCapsule;
+              if (!this.accountStore.has(keyAddress)) {
+                accountCapsule = new AccountCapsule(ByteString.EMPTY,
+                    address, AccountType.AssetIssue, 0L);
+              } else {
+                accountCapsule = this.accountStore.getUnchecked(keyAddress);
+              }
+              accountCapsule.setIsWitness(true);
+              this.accountStore.put(keyAddress, accountCapsule);
 
-      final WitnessCapsule witnessCapsule =
-          new WitnessCapsule(address, key.getVoteCount(), key.getUrl());
-      witnessCapsule.setIsJobs(true);
-      this.witnessStore.put(keyAddress, witnessCapsule);
-    });
+              final WitnessCapsule witnessCapsule =
+                  new WitnessCapsule(address, key.getVoteCount(), key.getUrl());
+              witnessCapsule.setIsJobs(true);
+              this.witnessStore.put(keyAddress, witnessCapsule);
+            });
   }
 
   public void initCacheTxs() {

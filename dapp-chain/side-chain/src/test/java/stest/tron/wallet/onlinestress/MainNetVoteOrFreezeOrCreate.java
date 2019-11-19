@@ -94,20 +94,8 @@ public class MainNetVoteOrFreezeOrCreate {
 
   */
 /**
- * constructor.
- *
- * constructor.
- *
- * constructor.
- *
- * constructor.
- *
- * constructor.
- *
- * constructor.
- *
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   @BeforeClass(enabled = false)
@@ -200,8 +188,8 @@ public class MainNetVoteOrFreezeOrCreate {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   @AfterClass(enabled = false)
@@ -218,8 +206,8 @@ public class MainNetVoteOrFreezeOrCreate {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   public Boolean voteWitness(HashMap<String, String> witness, byte[] addRess, String priKey) {
@@ -284,8 +272,8 @@ public class MainNetVoteOrFreezeOrCreate {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -314,8 +302,8 @@ public class MainNetVoteOrFreezeOrCreate {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -326,8 +314,8 @@ public class MainNetVoteOrFreezeOrCreate {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -348,8 +336,8 @@ public class MainNetVoteOrFreezeOrCreate {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   public static Boolean freezeBalance(byte[] addRess, long freezeBalance, long freezeDuration,

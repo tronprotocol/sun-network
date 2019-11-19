@@ -31,26 +31,34 @@ public class ContractGrammar001 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
-      .getFinalAddress(testNetAccountKey);
-  byte[] contractAddress = null;
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] grammarAddress = ecKey1.getAddress();
-  String testKeyForGrammarAddress = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
+
+
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
   private String compilerVersion = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.solidityCompilerVersion");
+
+
+  byte[] contractAddress = null;
+
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] grammarAddress = ecKey1.getAddress();
+  String testKeyForGrammarAddress = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
 
   @BeforeSuite
   public void beforeSuite() {
@@ -91,10 +99,9 @@ public class ContractGrammar001 {
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethedForDailybuild
-        .deployContract(contractName, abi, code, "", maxFeeLimit,
-            0L, 100, null, testKeyForGrammarAddress,
-            grammarAddress, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
+        0L, 100, null, testKeyForGrammarAddress,
+        grammarAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String txid = "";
     String num = "true" + "," + "10";
@@ -117,8 +124,7 @@ public class ContractGrammar001 {
 
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infoById：" + infoById);
-    Optional<Transaction> ById = PublicMethedForDailybuild
-        .getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> ById = PublicMethedForDailybuild.getTransactionById(txid, blockingStubFull);
     logger.info("getRet：" + ById.get().getRet(0));
     logger.info("getNumber：" + ById.get().getRet(0).getContractRet().getNumber());
     logger.info("getContractRetValue：" + ById.get().getRet(0).getContractRetValue());
@@ -152,10 +158,9 @@ public class ContractGrammar001 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethedForDailybuild
-        .deployContract(contractName, abi, code, "", maxFeeLimit,
-            0L, 100, null, testKeyForGrammarAddress,
-            grammarAddress, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
+        0L, 100, null, testKeyForGrammarAddress,
+        grammarAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String txid = "";
     String num = "1";
@@ -190,10 +195,9 @@ public class ContractGrammar001 {
     HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethedForDailybuild
-        .deployContract(contractName, abi, code, "", maxFeeLimit,
-            0L, 100, null, testKeyForGrammarAddress,
-            grammarAddress, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
+        0L, 100, null, testKeyForGrammarAddress,
+        grammarAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String txid = "";
     String num = "1";
@@ -238,10 +242,9 @@ public class ContractGrammar001 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethedForDailybuild
-        .deployContract(contractName, abi, code, "", maxFeeLimit,
-            0L, 100, null, testKeyForGrammarAddress,
-            grammarAddress, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
+        0L, 100, null, testKeyForGrammarAddress,
+        grammarAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     byte[] contractAddress1 = null;
     String contractName1 = "C";
@@ -305,10 +308,9 @@ public class ContractGrammar001 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethedForDailybuild
-        .deployContract(contractName, abi, code, "", maxFeeLimit,
-            0L, 100, null, testKeyForGrammarAddress,
-            grammarAddress, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
+        0L, 100, null, testKeyForGrammarAddress,
+        grammarAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String txid = "";
     String number = "1";

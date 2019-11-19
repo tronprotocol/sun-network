@@ -19,20 +19,26 @@ import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
+import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class CreateAccount2Test {
 
-  private static final long now = System.currentTimeMillis();
-  private static final long totalSupply = now;
-  private static final long sendAmount = 10000000000L;
-  private static final long FREENETLIMIT = 5000L;
-  private static final long BASELINE = 4800L;
-  private static String name = "AssetIssue012_" + Long.toString(now);
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private static final long now = System.currentTimeMillis();
+  private static String name = "AssetIssue012_" + Long.toString(now);
+  private static final long totalSupply = now;
+  private static final long sendAmount = 10000000000L;
+  private ManagedChannel channelFull = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
+      .get(0);
+
+  private static final long FREENETLIMIT = 5000L;
+  private static final long BASELINE = 4800L;
   //owner account
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] account007Address = ecKey1.getAddress();
@@ -41,10 +47,6 @@ public class CreateAccount2Test {
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] newAccountAddress = ecKey2.getAddress();
   String newAccountKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-  private ManagedChannel channelFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-      .get(0);
 
   @BeforeSuite
   public void beforeSuite() {
@@ -74,9 +76,8 @@ public class CreateAccount2Test {
     AccountNetMessage accountNetInfo = PublicMethedForDailybuild.getAccountNet(account007Address,
         blockingStubFull);
     final Long beforeFreeNet = accountNetInfo.getFreeNetUsed();
-    GrpcAPI.Return ret1 = PublicMethedForDailybuild
-        .createAccount2(account007Address, newAccountAddress,
-            account007Key, blockingStubFull);
+    GrpcAPI.Return ret1 = PublicMethedForDailybuild.createAccount2(account007Address, newAccountAddress,
+        account007Key, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
     accountInfo = PublicMethedForDailybuild.queryAccount(account007Key, blockingStubFull);

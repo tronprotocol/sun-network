@@ -15,13 +15,14 @@ import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
+//import org.tron.protos.Protocol.DeferredTransaction;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
+import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
-
-//import org.tron.protos.Protocol.DeferredTransaction;
+import stest.tron.wallet.common.client.utils.Sha256Hash;
 
 @Slf4j
 public class DelayTransaction002 {
@@ -32,32 +33,43 @@ public class DelayTransaction002 {
       .getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
-  Optional<TransactionInfo> infoById = null;
-  //Optional<DeferredTransaction> deferredTransactionById = null;
-  Optional<Transaction> getTransactionById = null;
-  ECKey ecKey = new ECKey(Utils.getRandom());
-  byte[] delayAccount1Address = ecKey.getAddress();
-  String delayAccount1Key = ByteArray.toHexString(ecKey.getPrivKeyBytes());
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] delayAccount2Address = ecKey2.getAddress();
-  String delayAccount2Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-  ECKey ecKey3 = new ECKey(Utils.getRandom());
-  byte[] receiverAccountAddress = ecKey3.getAddress();
-  String receiverAccountKey = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
-  ECKey ecKey4 = new ECKey(Utils.getRandom());
-  byte[] delayAccount3Address = ecKey4.getAddress();
-  String delayAccount3Key = ByteArray.toHexString(ecKey4.getPrivKeyBytes());
-  ECKey ecKey5 = new ECKey(Utils.getRandom());
-  byte[] receiverAccount4Address = ecKey5.getAddress();
-  String receiverAccount4Key = ByteArray.toHexString(ecKey5.getPrivKeyBytes());
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(1);
   private Long delayTransactionFee = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.delayTransactionFee");
   private Long cancleDelayTransactionFee = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.cancleDelayTransactionFee");
+
+
+
+  Optional<TransactionInfo> infoById = null;
+  //Optional<DeferredTransaction> deferredTransactionById = null;
+  Optional<Transaction> getTransactionById = null;
+
+
+  ECKey ecKey = new ECKey(Utils.getRandom());
+  byte[] delayAccount1Address = ecKey.getAddress();
+  String delayAccount1Key = ByteArray.toHexString(ecKey.getPrivKeyBytes());
+
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] delayAccount2Address = ecKey2.getAddress();
+  String delayAccount2Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+
+  ECKey ecKey3 = new ECKey(Utils.getRandom());
+  byte[] receiverAccountAddress = ecKey3.getAddress();
+  String receiverAccountKey = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
+
+  ECKey ecKey4 = new ECKey(Utils.getRandom());
+  byte[] delayAccount3Address = ecKey4.getAddress();
+  String delayAccount3Key = ByteArray.toHexString(ecKey4.getPrivKeyBytes());
+
+  ECKey ecKey5 = new ECKey(Utils.getRandom());
+  byte[] receiverAccount4Address = ecKey5.getAddress();
+  String receiverAccount4Key = ByteArray.toHexString(ecKey5.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -89,10 +101,9 @@ public class DelayTransaction002 {
     receiverAccountKey = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
     PublicMethedForDailybuild.printAddress(receiverAccountKey);
 
-    Assert.assertTrue(
-        PublicMethedForDailybuild.sendcoin(delayAccount1Address, 100000000L, fromAddress,
-            testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(receiverAccountAddress, 100L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(delayAccount1Address, 100000000L,fromAddress,
+        testKey002, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(receiverAccountAddress, 100L,fromAddress,
         testKey002, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
@@ -103,15 +114,13 @@ public class DelayTransaction002 {
     //Query balance before send coin.
     Long deplayAccountBeforeBalance = PublicMethedForDailybuild.queryAccount(delayAccount1Address,
         blockingStubFull).getBalance();
-    Long recevierAccountBeforeBalance = PublicMethedForDailybuild
-        .queryAccount(receiverAccountAddress,
-            blockingStubFull).getBalance();
+    Long recevierAccountBeforeBalance = PublicMethedForDailybuild.queryAccount(receiverAccountAddress,
+        blockingStubFull).getBalance();
     logger.info("deplayAccountBeforeBalance " + deplayAccountBeforeBalance);
     logger.info("recevierAccountBeforeBalance " + recevierAccountBeforeBalance);
-    String txid = PublicMethedForDailybuild
-        .sendcoinDelayedGetTxid(receiverAccountAddress, sendCoinAmount,
-            delaySecond, delayAccount1Address,
-            delayAccount1Key, blockingStubFull);
+    String txid = PublicMethedForDailybuild.sendcoinDelayedGetTxid(receiverAccountAddress, sendCoinAmount,
+        delaySecond,delayAccount1Address,
+        delayAccount1Key, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     //deferredTransactionById = PublicMethedForDailybuild.getDeferredTransactionById(txid,blockingStubFull);
     //DeferredTransaction transaction = deferredTransactionById.get();
@@ -120,49 +129,36 @@ public class DelayTransaction002 {
 
     //Assert.assertFalse(PublicMethedForDailybuild.cancelDeferredTransactionById(finalTxid,receiverAccountAddress
     //   ,receiverAccountKey,blockingStubFull));
-    Assert.assertFalse(
-        PublicMethedForDailybuild.cancelDeferredTransactionById(txid, receiverAccountAddress,
-            receiverAccountKey, blockingStubFull));
-    Assert.assertTrue(
-        PublicMethedForDailybuild.cancelDeferredTransactionById(txid, delayAccount1Address,
-            delayAccount1Key, blockingStubFull));
-    Assert.assertFalse(
-        PublicMethedForDailybuild.cancelDeferredTransactionById(txid, delayAccount1Address,
-            delayAccount1Key, blockingStubFull));
-    PublicMethedForDailybuild
-        .cancelDeferredTransactionById(txid, delayAccount1Address, delayAccount1Key,
-            blockingStubFull);
-    PublicMethedForDailybuild
-        .cancelDeferredTransactionById(txid, delayAccount1Address, delayAccount1Key,
-            blockingStubFull);
-    PublicMethedForDailybuild
-        .cancelDeferredTransactionById(txid, delayAccount1Address, delayAccount1Key,
-            blockingStubFull);
-    PublicMethedForDailybuild
-        .cancelDeferredTransactionById(txid, delayAccount1Address, delayAccount1Key,
-            blockingStubFull);
-    PublicMethedForDailybuild
-        .cancelDeferredTransactionById(txid, delayAccount1Address, delayAccount1Key,
-            blockingStubFull);
-    PublicMethedForDailybuild
-        .cancelDeferredTransactionById(txid, delayAccount1Address, delayAccount1Key,
-            blockingStubFull);
-    PublicMethedForDailybuild
-        .cancelDeferredTransactionById(txid, delayAccount1Address, delayAccount1Key,
-            blockingStubFull);
-    PublicMethedForDailybuild
-        .cancelDeferredTransactionById(txid, delayAccount1Address, delayAccount1Key,
-            blockingStubFull);
-    PublicMethedForDailybuild
-        .cancelDeferredTransactionById(txid, delayAccount1Address, delayAccount1Key,
-            blockingStubFull);
+    Assert.assertFalse(PublicMethedForDailybuild.cancelDeferredTransactionById(txid,receiverAccountAddress,
+        receiverAccountKey,blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,
+        delayAccount1Key,blockingStubFull));
+    Assert.assertFalse(PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,
+        delayAccount1Key,blockingStubFull));
+    PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,delayAccount1Key,
+        blockingStubFull);
+    PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,delayAccount1Key,
+        blockingStubFull);
+    PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,delayAccount1Key,
+        blockingStubFull);
+    PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,delayAccount1Key,
+        blockingStubFull);
+    PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,delayAccount1Key,
+        blockingStubFull);
+    PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,delayAccount1Key,
+        blockingStubFull);
+    PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,delayAccount1Key,
+        blockingStubFull);
+    PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,delayAccount1Key,
+        blockingStubFull);
+    PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,delayAccount1Key,
+        blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Long deplayAccountAfterBalance = PublicMethedForDailybuild.queryAccount(delayAccount1Address,
         blockingStubFull).getBalance();
-    Long recevierAccountAfterDelayalance = PublicMethedForDailybuild
-        .queryAccount(receiverAccountAddress,
-            blockingStubFull).getBalance();
+    Long recevierAccountAfterDelayalance = PublicMethedForDailybuild.queryAccount(receiverAccountAddress,
+        blockingStubFull).getBalance();
     logger.info("deplayAccountAfterBalance " + deplayAccountAfterBalance);
     logger.info("recevierAccountAfterDelayalance " + recevierAccountAfterDelayalance);
     //Assert.assertFalse(PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,
@@ -177,6 +173,7 @@ public class DelayTransaction002 {
     // blockingStubFull);
     //PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,delayAccount1Key,
     // blockingStubFull);
+
 
     Assert.assertTrue(deplayAccountBeforeBalance - deplayAccountAfterBalance
         == delayTransactionFee + cancleDelayTransactionFee);
@@ -196,10 +193,9 @@ public class DelayTransaction002 {
     receiverAccountKey = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
     PublicMethedForDailybuild.printAddress(receiverAccountKey);
 
-    Assert.assertTrue(
-        PublicMethedForDailybuild.sendcoin(delayAccount1Address, 100000000L, fromAddress,
-            testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(receiverAccountAddress, 100L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(delayAccount1Address, 100000000L,fromAddress,
+        testKey002, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(receiverAccountAddress, 100L,fromAddress,
         testKey002, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
@@ -210,37 +206,31 @@ public class DelayTransaction002 {
     //Query balance before send coin.
     Long deplayAccountBeforeBalance = PublicMethedForDailybuild.queryAccount(delayAccount1Address,
         blockingStubFull).getBalance();
-    Long recevierAccountBeforeBalance = PublicMethedForDailybuild
-        .queryAccount(receiverAccountAddress,
-            blockingStubFull).getBalance();
+    Long recevierAccountBeforeBalance = PublicMethedForDailybuild.queryAccount(receiverAccountAddress,
+        blockingStubFull).getBalance();
     logger.info("deplayAccountBeforeBalance " + deplayAccountBeforeBalance);
     logger.info("recevierAccountBeforeBalance " + recevierAccountBeforeBalance);
-    String txid = PublicMethedForDailybuild
-        .sendcoinDelayedGetTxid(receiverAccountAddress, sendCoinAmount,
-            delaySecond, delayAccount1Address,
-            delayAccount1Key, blockingStubFull);
+    String txid = PublicMethedForDailybuild.sendcoinDelayedGetTxid(receiverAccountAddress, sendCoinAmount,
+        delaySecond,delayAccount1Address,
+        delayAccount1Key, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    Assert.assertFalse(
-        PublicMethedForDailybuild.cancelDeferredTransactionById(txid, receiverAccountAddress,
-            receiverAccountKey, blockingStubFull));
-    Assert.assertTrue(
-        PublicMethedForDailybuild.cancelDeferredTransactionById(txid, delayAccount1Address,
-            delayAccount1Key, blockingStubFull));
-    Assert.assertFalse(
-        PublicMethedForDailybuild.cancelDeferredTransactionById(txid, delayAccount1Address,
-            delayAccount1Key, blockingStubFull));
+    Assert.assertFalse(PublicMethedForDailybuild.cancelDeferredTransactionById(txid,receiverAccountAddress,
+        receiverAccountKey,blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,
+        delayAccount1Key,blockingStubFull));
+    Assert.assertFalse(PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,
+        delayAccount1Key,blockingStubFull));
     //PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Long deplayAccountAfterBalance = PublicMethedForDailybuild.queryAccount(delayAccount1Address,
         blockingStubFull).getBalance();
-    Long recevierAccountAfterDelayalance = PublicMethedForDailybuild
-        .queryAccount(receiverAccountAddress,
-            blockingStubFull).getBalance();
+    Long recevierAccountAfterDelayalance = PublicMethedForDailybuild.queryAccount(receiverAccountAddress,
+        blockingStubFull).getBalance();
     logger.info("deplayAccountAfterBalance " + deplayAccountAfterBalance);
     logger.info("recevierAccountAfterDelayalance " + recevierAccountAfterDelayalance);
-    Assert.assertFalse(
-        PublicMethedForDailybuild.cancelDeferredTransactionById(txid, delayAccount1Address,
-            delayAccount1Key, blockingStubFull));
+    Assert.assertFalse(PublicMethedForDailybuild.cancelDeferredTransactionById(txid,delayAccount1Address,
+        delayAccount1Key,blockingStubFull));
+
 
     Assert.assertTrue(deplayAccountBeforeBalance - deplayAccountAfterBalance
         == delayTransactionFee + cancleDelayTransactionFee);

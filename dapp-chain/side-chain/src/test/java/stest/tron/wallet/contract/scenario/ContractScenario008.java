@@ -28,15 +28,17 @@ public class ContractScenario008 {
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] contract008Address = ecKey1.getAddress();
-  String contract008Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
+
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] contract008Address = ecKey1.getAddress();
+  String contract008Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -62,14 +64,12 @@ public class ContractScenario008 {
     contract008Address = ecKey1.getAddress();
     contract008Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
     PublicMethedForDailybuild.printAddress(contract008Key);
-    Assert
-        .assertTrue(PublicMethedForDailybuild.sendcoin(contract008Address, 5000000000L, fromAddress,
-            testKey002, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contract008Address, 5000000000L, fromAddress,
+        testKey002, blockingStubFull));
     Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(contract008Address, 1000000L,
         3, 1, contract008Key, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethedForDailybuild
-        .getAccountResource(contract008Address,
-            blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(contract008Address,
+        blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
     Account account = PublicMethedForDailybuild.queryAccount(contract008Key, blockingStubFull);
@@ -84,18 +84,14 @@ public class ContractScenario008 {
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    byte[] contractAddress = PublicMethedForDailybuild
-        .deployContract(contractName, abi, code, "", shortFeeLimit,
-            0L, 100, null, contract008Key, contract008Address, blockingStubFull);
+    byte[] contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", shortFeeLimit,
+        0L, 100, null, contract008Key, contract008Address, blockingStubFull);
 
-    contractAddress = PublicMethedForDailybuild
-        .deployContract(contractName, abi, code, "", maxFeeLimit,
-            0L, 100, null, contract008Key, contract008Address, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
+        0L, 100, null, contract008Key, contract008Address, blockingStubFull);
 
-    final SmartContract smartContract = PublicMethedForDailybuild
-        .getContract(contractAddress, blockingStubFull);
-    accountResource = PublicMethedForDailybuild
-        .getAccountResource(contract008Address, blockingStubFull);
+    final SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
+    accountResource = PublicMethedForDailybuild.getAccountResource(contract008Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
     account = PublicMethedForDailybuild.queryAccount(contract008Key, blockingStubFull);

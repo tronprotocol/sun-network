@@ -30,7 +30,6 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 @Slf4j
 
 public class ContractTrcToken078 {
-
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
@@ -40,37 +39,31 @@ public class ContractTrcToken078 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
-      .getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
+  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
+      .getLong("defaultParameter.maxFeeLimit");
+  private ManagedChannel channelSolidity = null;
+
+  private ManagedChannel channelFull = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+
+  private ManagedChannel channelFull1 = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
+
+
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+
+  private String fullnode = Configuration.getByPath("testng.conf")
+      .getStringList("fullnode.ip.list").get(0);
+
+
   byte[] contractAddress = null;
+
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] internalTxsAddress = ecKey1.getAddress();
   String testKeyForinternalTxsAddress = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   String priKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
-  private ManagedChannel channelSolidity = null;
-  private ManagedChannel channelFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private ManagedChannel channelFull1 = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
 
-  /**
-   * constructor.
-   */
-
-  public static String byte2HexStr(byte[] b, int offset, int length) {
-    String stmp = "";
-    StringBuilder sb = new StringBuilder("");
-    for (int n = offset; n < offset + length && n < b.length; n++) {
-      stmp = Integer.toHexString(b[n] & 0xFF);
-      sb.append((stmp.length() == 1) ? "0" + stmp : stmp);
-    }
-    return sb.toString().toUpperCase().trim();
-  }
 
   @BeforeSuite
   public void beforeSuite() {
@@ -90,11 +83,11 @@ public class ContractTrcToken078 {
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    logger.info(
-        Long.toString(PublicMethedForDailybuild.queryAccount(testNetAccountKey, blockingStubFull)
-            .getBalance()));
+    logger.info(Long.toString(PublicMethedForDailybuild.queryAccount(testNetAccountKey, blockingStubFull)
+        .getBalance()));
 
   }
+
 
   @Test(enabled = true, description = "Origin test call")
   public void testOriginCall001() {
@@ -138,6 +131,7 @@ public class ContractTrcToken078 {
     byte[] contractAddress1;
     contractAddress1 = infoById.get().getContractAddress().toByteArray();
 
+
     String filePath2 = "./src/test/resources/soliditycode/contractTrcToken078.sol";
     String contractName2 = "c";
     HashMap retMap2 = PublicMethedForDailybuild.getBycodeAbi(filePath2, contractName2);
@@ -169,9 +163,8 @@ public class ContractTrcToken078 {
     infoById2 = PublicMethedForDailybuild.getTransactionInfoById(txid2, blockingStubFull);
     logger.info("Trigger InfobyId: " + infoById2);
     Account info1 = PublicMethedForDailybuild.queryAccount(internalTxsAddress, blockingStubFull);
-    AccountResourceMessage resourceInfo1 = PublicMethedForDailybuild
-        .getAccountResource(internalTxsAddress,
-            blockingStubFull);
+    AccountResourceMessage resourceInfo1 = PublicMethedForDailybuild.getAccountResource(internalTxsAddress,
+        blockingStubFull);
     logger.info("getEnergyUsed  " + resourceInfo1.getEnergyUsed());
     logger.info("getEnergyLimit  " + resourceInfo1.getEnergyLimit());
     Assert.assertTrue(infoById2.get().getResultValue() == 0);
@@ -261,6 +254,20 @@ public class ContractTrcToken078 {
       index += 32;
     }
     return ret;
+  }
+
+  /**
+   * constructor.
+   */
+
+  public static String byte2HexStr(byte[] b, int offset, int length) {
+    String stmp = "";
+    StringBuilder sb = new StringBuilder("");
+    for (int n = offset; n < offset + length && n < b.length; n++) {
+      stmp = Integer.toHexString(b[n] & 0xFF);
+      sb.append((stmp.length() == 1) ? "0" + stmp : stmp);
+    }
+    return sb.toString().toUpperCase().trim();
   }
 
   /**

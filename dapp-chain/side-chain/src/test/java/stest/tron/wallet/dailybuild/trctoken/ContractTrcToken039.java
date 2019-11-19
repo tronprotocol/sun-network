@@ -27,19 +27,26 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractTrcToken039 {
-
-  private static final long TotalSupply = 10000000L;
-  private static final long now = System.currentTimeMillis();
-  private static ByteString assetAccountId = null;
-  private static String tokenName = "testAssetIssue_" + Long.toString(now);
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.slideTokenId");
+
+
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+
+  private ManagedChannel channelFull = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+  private String fullnode = Configuration.getByPath("testng.conf")
+      .getStringList("fullnode.ip.list").get(0);
+  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
+      .getLong("defaultParameter.maxFeeLimit");
+
+  private static final long TotalSupply = 10000000L;
+
   String description = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.assetDescription");
   String url = Configuration.getByPath("testng.conf")
@@ -47,18 +54,16 @@ public class ContractTrcToken039 {
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] dev001Address = ecKey1.getAddress();
   String dev001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] user001Address = ecKey2.getAddress();
   String user001Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+  private static ByteString assetAccountId = null;
+  private static final long now = System.currentTimeMillis();
+  private static String tokenName = "testAssetIssue_" + Long.toString(now);
   byte[] proxyTestAddress;
   byte[] atestAddress;
   byte[] btestAddress;
-  private ManagedChannel channelFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
 
   @BeforeSuite
   public void beforeSuite() {
@@ -78,9 +83,8 @@ public class ContractTrcToken039 {
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     assetAccountId = ByteString.copyFromUtf8(tokenId);
-    Assert.assertTrue(
-        PublicMethedForDailybuild.transferAsset(dev001Address, assetAccountId.toByteArray(),
-            10000000L, tokenOnwerAddress, tokenOwnerKey, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.transferAsset(dev001Address, assetAccountId.toByteArray(),
+        10000000L, tokenOnwerAddress, tokenOwnerKey, blockingStubFull));
 
   }
 
@@ -156,9 +160,8 @@ public class ContractTrcToken039 {
   @Test(enabled = true, description = "Trigger Proxy contract use AddressA")
   public void deploy02TransferTokenContract() {
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
-        .getAccountResource(dev001Address,
-            blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(dev001Address,
+        blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -181,8 +184,7 @@ public class ContractTrcToken039 {
             blockingStubFull);
     Long beforeBalanceContractAddress = PublicMethedForDailybuild.queryAccount(proxyTestAddress,
         blockingStubFull).getBalance();
-    Long beforeUserBalance = PublicMethedForDailybuild
-        .queryAccount(user001Address, blockingStubFull)
+    Long beforeUserBalance = PublicMethedForDailybuild.queryAccount(user001Address, blockingStubFull)
         .getBalance();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
@@ -219,9 +221,8 @@ public class ContractTrcToken039 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Account infoafter = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
-        .getAccountResource(dev001Address,
-            blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(dev001Address,
+        blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterAssetIssueDevAddress = PublicMethedForDailybuild
@@ -270,9 +271,8 @@ public class ContractTrcToken039 {
   @Test(enabled = true, description = "Trigger Proxy contract use AddressB")
   public void deploy03TransferTokenContract() {
     Account info1;
-    AccountResourceMessage resourceInfo1 = PublicMethedForDailybuild
-        .getAccountResource(dev001Address,
-            blockingStubFull);
+    AccountResourceMessage resourceInfo1 = PublicMethedForDailybuild.getAccountResource(dev001Address,
+        blockingStubFull);
     info1 = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull);
     Long beforeBalance1 = info1.getBalance();
     Long beforeEnergyUsed1 = resourceInfo1.getEnergyUsed();
@@ -293,8 +293,7 @@ public class ContractTrcToken039 {
 
     Long beforeBalanceContractAddress1 = PublicMethedForDailybuild.queryAccount(proxyTestAddress,
         blockingStubFull).getBalance();
-    Long beforeUserBalance1 = PublicMethedForDailybuild
-        .queryAccount(user001Address, blockingStubFull)
+    Long beforeUserBalance1 = PublicMethedForDailybuild.queryAccount(user001Address, blockingStubFull)
         .getBalance();
     logger.info("beforeBalance1:" + beforeBalance1);
     logger.info("beforeEnergyUsed1:" + beforeEnergyUsed1);
@@ -327,9 +326,8 @@ public class ContractTrcToken039 {
         1, dev001Address, dev001Key,
         blockingStubFull);
     Account infoafter1 = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull);
-    AccountResourceMessage resourceInfoafter1 = PublicMethedForDailybuild
-        .getAccountResource(dev001Address,
-            blockingStubFull);
+    AccountResourceMessage resourceInfoafter1 = PublicMethedForDailybuild.getAccountResource(dev001Address,
+        blockingStubFull);
     Long afterBalance1 = infoafter1.getBalance();
     Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
     Long afterAssetIssueDevAddress1 = PublicMethedForDailybuild
@@ -348,8 +346,7 @@ public class ContractTrcToken039 {
             blockingStubFull);
     Long afterBalanceContractAddress1 = PublicMethedForDailybuild.queryAccount(proxyTestAddress,
         blockingStubFull).getBalance();
-    Long afterUserBalance1 = PublicMethedForDailybuild
-        .queryAccount(user001Address, blockingStubFull)
+    Long afterUserBalance1 = PublicMethedForDailybuild.queryAccount(user001Address, blockingStubFull)
         .getBalance();
 
     logger.info("afterBalance1:" + afterBalance1);

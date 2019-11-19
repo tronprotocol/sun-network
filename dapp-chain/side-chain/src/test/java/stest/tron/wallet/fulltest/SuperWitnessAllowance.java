@@ -42,16 +42,20 @@ import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 @Slf4j
 public class SuperWitnessAllowance {
 
+  //testng001、testng002、testng003、testng004
+  private final String testKey002 =
+      "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
+
+
   /*  //testng001、testng002、testng003、testng004
   private static final byte[] fromAddress = Base58
       .decodeFromBase58Check("THph9K2M2nLvkianrMGswRhz5hjSA9fuH7");*/
   private static final byte[] INVAILD_ADDRESS = Base58
       .decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
-  private static final Long costForCreateWitness = 10009000000L;
-  //testng001、testng002、testng003、testng004
-  private final String testKey002 =
-      "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+
+
+  private static final Long costForCreateWitness = 10009000000L;
   String createWitnessUrl = "http://www.createwitnessurl.com";
   String updateWitnessUrl = "http://www.updatewitnessurl.com";
   String nullUrl = "";
@@ -60,19 +64,15 @@ public class SuperWitnessAllowance {
   byte[] updateUrl = updateWitnessUrl.getBytes();
   byte[] wrongUrl = nullUrl.getBytes();
   byte[] updateSpaceUrl = spaceUrl.getBytes();
-  //get account
-  ECKey ecKey = new ECKey(Utils.getRandom());
-  byte[] lowBalAddress = ecKey.getAddress();
-  String lowBalTest = ByteArray.toHexString(ecKey.getPrivKeyBytes());
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
 
-  public static String loadPubKey() {
-    char[] buf = new char[0x100];
-    return String.valueOf(buf, 32, 130);
-  }
+  //get account
+  ECKey ecKey = new ECKey(Utils.getRandom());
+  byte[] lowBalAddress = ecKey.getAddress();
+  String lowBalTest = ByteArray.toHexString(ecKey.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -300,6 +300,11 @@ public class SuperWitnessAllowance {
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
+  }
+
+  public static String loadPubKey() {
+    char[] buf = new char[0x100];
+    return String.valueOf(buf, 32, 130);
   }
 
   public byte[] getAddress(ECKey ecKey) {

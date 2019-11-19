@@ -2,7 +2,6 @@ package stest.tron.wallet.dailybuild.manual;
 
 import static org.hamcrest.core.StringContains.containsString;
 
-
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.HashMap;
@@ -33,29 +32,38 @@ public class ContractUnknownException {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
-      .getFinalAddress(testNetAccountKey);
-  byte[] contractAddress = null;
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] grammarAddress = ecKey1.getAddress();
-  String testKeyForGrammarAddress = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] grammarAddress2 = ecKey2.getAddress();
-  String testKeyForGrammarAddress2 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-  ECKey ecKey3 = new ECKey(Utils.getRandom());
-  byte[] grammarAddress3 = ecKey3.getAddress();
-  String testKeyForGrammarAddress3 = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
-  ECKey ecKey4 = new ECKey(Utils.getRandom());
-  byte[] grammarAddress4 = ecKey4.getAddress();
-  String testKeyForGrammarAddress4 = ByteArray.toHexString(ecKey4.getPrivKeyBytes());
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
+
+
+  byte[] contractAddress = null;
+
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] grammarAddress = ecKey1.getAddress();
+  String testKeyForGrammarAddress = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] grammarAddress2 = ecKey2.getAddress();
+  String testKeyForGrammarAddress2 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+
+
+  ECKey ecKey3 = new ECKey(Utils.getRandom());
+  byte[] grammarAddress3 = ecKey3.getAddress();
+  String testKeyForGrammarAddress3 = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
+
+  ECKey ecKey4 = new ECKey(Utils.getRandom());
+  byte[] grammarAddress4 = ecKey4.getAddress();
+  String testKeyForGrammarAddress4 = ByteArray.toHexString(ecKey4.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -75,9 +83,8 @@ public class ContractUnknownException {
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    logger.info(
-        Long.toString(PublicMethedForDailybuild.queryAccount(testNetAccountKey, blockingStubFull)
-            .getBalance()));
+    logger.info(Long.toString(PublicMethedForDailybuild.queryAccount(testNetAccountKey, blockingStubFull)
+        .getBalance()));
   }
 
   @Test(enabled = true, description = "trigger selfdestruct method")
@@ -89,9 +96,8 @@ public class ContractUnknownException {
     Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(grammarAddress, 204800000,
         0, 1, testKeyForGrammarAddress, blockingStubFull));
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
-        .getAccountResource(grammarAddress,
-            blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(grammarAddress,
+        blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(grammarAddress, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -122,9 +128,8 @@ public class ContractUnknownException {
     long energyUsage = infoById.get().getReceipt().getEnergyUsage();
     long energyFee = infoById.get().getReceipt().getEnergyFee();
     Account infoafter = PublicMethedForDailybuild.queryAccount(grammarAddress, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
-        .getAccountResource(grammarAddress,
-            blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(grammarAddress,
+        blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfo.getNetUsed();
@@ -149,9 +154,8 @@ public class ContractUnknownException {
     Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(grammarAddress2, 10000000L,
         0, 1, testKeyForGrammarAddress2, blockingStubFull));
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
-        .getAccountResource(grammarAddress2,
-            blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(grammarAddress2,
+        blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(grammarAddress2, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -184,9 +188,8 @@ public class ContractUnknownException {
     final String s = infoById.get().getResMessage().toStringUtf8();
 
     Account infoafter = PublicMethedForDailybuild.queryAccount(grammarAddress2, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
-        .getAccountResource(grammarAddress2,
-            blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(grammarAddress2,
+        blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfo.getNetUsed();
@@ -214,9 +217,8 @@ public class ContractUnknownException {
     Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(grammarAddress3, 1000000000L,
         0, 1, testKeyForGrammarAddress3, blockingStubFull));
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
-        .getAccountResource(grammarAddress3,
-            blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(grammarAddress3,
+        blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(grammarAddress3, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -247,9 +249,8 @@ public class ContractUnknownException {
     final long energyFee = infoById.get().getReceipt().getEnergyFee();
     String s = infoById.get().getResMessage().toStringUtf8();
     Account infoafter = PublicMethedForDailybuild.queryAccount(grammarAddress3, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
-        .getAccountResource(grammarAddress3,
-            blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(grammarAddress3,
+        blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfo.getNetUsed();
@@ -278,9 +279,8 @@ public class ContractUnknownException {
     Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(grammarAddress4, 100000000L,
         0, 1, testKeyForGrammarAddress4, blockingStubFull));
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
-        .getAccountResource(grammarAddress4,
-            blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(grammarAddress4,
+        blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(grammarAddress4, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -312,9 +312,8 @@ public class ContractUnknownException {
     final long energyFee = infoById.get().getReceipt().getEnergyFee();
 
     Account infoafter = PublicMethedForDailybuild.queryAccount(grammarAddress4, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
-        .getAccountResource(grammarAddress4,
-            blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(grammarAddress4,
+        blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfo.getNetUsed();

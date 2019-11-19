@@ -64,13 +64,14 @@ import stest.tron.wallet.common.client.WalletClient;
 
 public class PublicMethed {
 
+  Wallet wallet = new Wallet();
   //Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   private static final String FilePath = "Wallet";
-  private static final Logger logger = LoggerFactory.getLogger("TestLogger");
   private static List<WalletFile> walletFile = new ArrayList<>();
-  Wallet wallet = new Wallet();
+  private static final Logger logger = LoggerFactory.getLogger("TestLogger");
   //private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   //private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+
 
   /**
    * constructor.
@@ -1364,7 +1365,7 @@ public class PublicMethed {
 
       if (address.length == 20) {
         byte[] newAddress = new byte[21];
-        byte[] temp = new byte[] {0x41};
+        byte[] temp = new byte[]{0x41};
         System.arraycopy(temp, 0, newAddress, 0, temp.length);
         System.arraycopy(address, 0, newAddress, temp.length, address.length);
         address = newAddress;
@@ -5141,7 +5142,7 @@ public class PublicMethed {
   /**
    * constructor.
    */
-  public static Map<String, String> depositTrc20ForDepositFee(String trc20ContractAddress,
+  public static String depositTrc20ForDepositFee(String trc20ContractAddress,
       String mainGatewayAddress,
       long tokenValue, long callValue,
       long feeLimit, byte[] ownerAddress, String priKey,
@@ -5161,11 +5162,10 @@ public class PublicMethed {
   /**
    * constructor.
    */
-  public static Map<String, String> depositTrcForDepositFee(
+  public static String depositTrcForDepositFee(
       String contractAddrStr, String mainGatewayAddr, String methodStr,
       String depositMethodStr, String num, long callValue, long feeLimit, byte[] ownerAddress,
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    Map<String, String> map = new HashMap<>();
     long tokenCallValue = 0;
     String tokenId = "";
     String argsStr = "\"" + mainGatewayAddr + "\",\"" + num + "\"";
@@ -5177,7 +5177,6 @@ public class PublicMethed {
         tokenId, ownerAddress, priKey, blockingStubFull);
     boolean result = org.apache.commons.lang3.StringUtils.isNoneEmpty(trxId);
     if (result) {
-      map.put("approveId", trxId);
       System.out.println("approve successfully.\n");
 
       byte[] depositContractAddr = WalletClient.decodeFromBase58Check(mainGatewayAddr);
@@ -5189,11 +5188,10 @@ public class PublicMethed {
       String Trxid = triggerContract(depositContractAddr, callValue, depositInput, feeLimit,
           tokenCallValue,
           tokenId, ownerAddress, priKey, blockingStubFull);
-      map.put("depositId", Trxid);
-      return map;
+      return Trxid;
     } else {
       logger.info("approve failed.\n");
-      return map;
+      return null;
     }
   }
 
@@ -5201,7 +5199,7 @@ public class PublicMethed {
    * constructor.
    */
 
-  public static Map<String, String> depositTrc721ForDepositFee(String trc20ContractAddress,
+  public static String depositTrc721ForDepositFee(String trc20ContractAddress,
       String mainGatewayAddress,
       long tokenValue, long callValue,
       long feeLimit, byte[] ownerAddress, String priKey,
@@ -5400,11 +5398,11 @@ public class PublicMethed {
    */
 
   public static boolean checkDepositMsg(int depositNonce, String mainChainAddress,
-      byte[] depositAddress, String testKeyFordeposit,
-      WalletGrpc.WalletBlockingStub blockingStubFull,
-      String[] Msg) {
+      byte[] depositAddress, String testKeyFordeposit, WalletGrpc.WalletBlockingStub blockingStubFull,
+      String[] Msg){
 
-    if (Msg.length != 7) {
+
+    if(Msg.length != 7){
       logger.info("check Msg length not equal 7");
       return false;
     }
@@ -5422,67 +5420,67 @@ public class PublicMethed {
     logger.info(Hex.toHexString(return1.getConstantResult(0).toByteArray()));
     String ContractRestule = Hex.toHexString(return1.getConstantResult(0).toByteArray());
 
-    String ownerAddress = ContractRestule.substring(24, 64);
+    String ownerAddress = ContractRestule.substring(24,64);
     logger.info(ownerAddress);
     String addressHex = "41" + ownerAddress;
     logger.info("address_hex: " + addressHex);
     String addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
     logger.info("address_final: " + addressFinal);
-    if (!Msg[0].equalsIgnoreCase(addressFinal)) {
+    if(!Msg[0].equalsIgnoreCase(addressFinal)){
       logger.info("Msg[0] not equal, expected: " + Msg[0] + " actual: " + addressFinal);
       return false;
     }
 
-    String depositValue = ContractRestule.substring(1 + 64 * 1, 64 * 2);
-    if (!Msg[1].equalsIgnoreCase("" + Integer.parseInt(depositValue, 16))) {
+    String depositValue = ContractRestule.substring(1+64*1,64*2);
+    if(!Msg[1].equalsIgnoreCase("" + Integer.parseInt(depositValue,16))){
       logger.info("Msg[1] not equal, expected: " + Msg[1] +
-          " actual: " + Integer.parseInt(depositValue, 16));
+          " actual: " + Integer.parseInt(depositValue,16));
       return false;
     }
 
-    String value1 = ContractRestule.substring(1 + 64 * 2, 64 * 3);
-    if (!Msg[2].equalsIgnoreCase("" + Integer.parseInt(value1, 16))) {
+    String value1 = ContractRestule.substring(1+64*2,64*3);
+    if(!Msg[2].equalsIgnoreCase("" + Integer.parseInt(value1,16))){
       logger.info("Msg[2] not equal, expected: " + Msg[2] +
-          " actual: " + Integer.parseInt(value1, 16));
+          " actual: " + Integer.parseInt(value1,16));
       return false;
     }
 
-    String value2 = ContractRestule.substring(1 + 64 * 3 + 23, 64 * 4);
-    if (Msg[2].equalsIgnoreCase("0") || Msg[2].equalsIgnoreCase("1")) {
-      if (!Msg[3].equalsIgnoreCase("" + Integer.parseInt(value2, 16))) {
+    String value2 = ContractRestule.substring(1+64*3+23,64*4);
+    if(Msg[2].equalsIgnoreCase("0") || Msg[2].equalsIgnoreCase("1")){
+      if(!Msg[3].equalsIgnoreCase("" + Integer.parseInt(value2,16))){
         logger.info("Msg[3] not equal, expected: " + Msg[3] +
-            " actual: " + Integer.parseInt(value2, 16));
+            " actual: " + Integer.parseInt(value2,16));
         return false;
       }
-    } else {
+    }else {
       addressHex = "41" + value2;
       logger.info("address_hex: " + addressHex);
       addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
       logger.info("address_final: " + addressFinal);
-      if (!Msg[3].equalsIgnoreCase(addressFinal)) {
+      if(!Msg[3].equalsIgnoreCase(addressFinal)){
         logger.info("Msg[3] not equal, expected: " + Msg[3] + " actual: " + addressFinal);
         return false;
       }
     }
 
-    String value3 = ContractRestule.substring(1 + 64 * 4, 64 * 5);
-    if (!Msg[4].equalsIgnoreCase("" + Integer.parseInt(value3, 16))) {
+    String value3 = ContractRestule.substring(1+64*4,64*5);
+    if(!Msg[4].equalsIgnoreCase("" + Integer.parseInt(value3,16))){
       logger.info("Msg[4] not equal, expected: " + Msg[4] +
-          " actual: " + Integer.parseInt(value3, 16));
+          " actual: " + Integer.parseInt(value3,16));
       return false;
     }
 
-    String value4 = ContractRestule.substring(1 + 64 * 5, 64 * 6);
-    if (!Msg[5].equalsIgnoreCase("" + Integer.parseInt(value4, 16))) {
+    String value4 = ContractRestule.substring(1+64*5,64*6);
+    if(!Msg[5].equalsIgnoreCase("" + Integer.parseInt(value4,16))){
       logger.info("Msg[5] not equal, expected: " + Msg[5] +
-          " actual: " + Integer.parseInt(value4, 16));
+          " actual: " + Integer.parseInt(value4,16));
       return false;
     }
 
-    String value5 = ContractRestule.substring(1 + 64 * 6, 64 * 7);
-    if (!Msg[6].equalsIgnoreCase("" + Integer.parseInt(value5, 16))) {
+    String value5 = ContractRestule.substring(1+64*6,64*7);
+    if(!Msg[6].equalsIgnoreCase("" + Integer.parseInt(value5,16))){
       logger.info("Msg[6] not equal, expected: " + Msg[6] +
-          " actual: " + Integer.parseInt(value5, 16));
+          " actual: " + Integer.parseInt(value5,16));
       return false;
     }
 
@@ -5494,17 +5492,16 @@ public class PublicMethed {
    * constructor.
    */
   public static boolean checkWithdrawMsg(int withdrawNonce, String mainChainAddress,
-      byte[] depositAddress, String testKeyFordeposit,
-      WalletGrpc.WalletBlockingStub blockingStubFull,
-      String[] Msg) {
+      byte[] depositAddress, String testKeyFordeposit, WalletGrpc.WalletBlockingStub blockingStubFull,
+      String[] Msg){
 
-    if (Msg.length != 6) {
+
+    if(Msg.length != 6){
       logger.info("check Msg length not equal 6");
       return false;
     }
 
     // get DepositMsg
-    logger.info("withdrawNonce:" + withdrawNonce);
     String methodStr = "getWithdrawMsg(uint256)";
     String parame = withdrawNonce + "";
     byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
@@ -5517,60 +5514,60 @@ public class PublicMethed {
     logger.info(Hex.toHexString(return1.getConstantResult(0).toByteArray()));
     String ContractRestule = Hex.toHexString(return1.getConstantResult(0).toByteArray());
 
-    String ownerAddress = ContractRestule.substring(24, 64);
+    String ownerAddress = ContractRestule.substring(24,64);
     logger.info(ownerAddress);
     String addressHex = "41" + ownerAddress;
     logger.info("address_hex: " + addressHex);
     String addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
     logger.info("address_final: " + addressFinal);
-    if (!Msg[0].equalsIgnoreCase(addressFinal)) {
+    if(!Msg[0].equalsIgnoreCase(addressFinal)){
       logger.info("Msg[0] not equal, expected: " + Msg[0] + " actual: " + addressFinal);
       return false;
     }
 
-    String ownerAddress2 = ContractRestule.substring(1 + 64 * 1 + 23, 64 * 2);
-    if (Msg[4].equalsIgnoreCase("0") || Msg[4].equalsIgnoreCase("1")) {
-      if (!Msg[1].equalsIgnoreCase("" + Integer.parseInt(ownerAddress2, 16))) {
+    String ownerAddress2 = ContractRestule.substring(1+64*1+23,64*2);
+    if(Msg[4].equalsIgnoreCase("0") || Msg[4].equalsIgnoreCase("1")) {
+      if(!Msg[1].equalsIgnoreCase("" + Integer.parseInt(ownerAddress2,16))){
         logger.info("Msg[1] not equal, expected: " + Msg[1] +
-            " actual: " + Integer.parseInt(ownerAddress2, 16));
+            " actual: " + Integer.parseInt(ownerAddress2,16));
         return false;
       }
-    } else {
+    }else {
       addressHex = "41" + ownerAddress2;
       logger.info("address_hex: " + addressHex);
       addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
       logger.info("address_final: " + addressFinal);
-      if (!Msg[1].equalsIgnoreCase(addressFinal)) {
+      if(!Msg[1].equalsIgnoreCase(addressFinal)){
         logger.info("Msg[1] not equal, expected: " + Msg[1] + " actual: " + addressFinal);
         return false;
       }
     }
 
-    String value1 = ContractRestule.substring(1 + 64 * 2, 64 * 3);
-    if (!Msg[2].equalsIgnoreCase("" + Integer.parseInt(value1, 16))) {
+    String value1 = ContractRestule.substring(1+64*2,64*3);
+    if(!Msg[2].equalsIgnoreCase("" + Integer.parseInt(value1,16))){
       logger.info("Msg[2] not equal, expected: " + Msg[2] +
-          " actual: " + Integer.parseInt(value1, 16));
+          " actual: " + Integer.parseInt(value1,16));
       return false;
     }
 
-    String value2 = ContractRestule.substring(1 + 64 * 3 + 23, 64 * 4);
-    if (!Msg[3].equalsIgnoreCase("" + Integer.parseInt(value2, 16))) {
+    String value2 = ContractRestule.substring(1+64*3+23,64*4);
+    if(!Msg[3].equalsIgnoreCase("" + Integer.parseInt(value2,16))){
       logger.info("Msg[3] not equal, expected: " + Msg[3] +
-          " actual: " + Integer.parseInt(value2, 16));
+          " actual: " + Integer.parseInt(value2,16));
       return false;
     }
 
-    String value3 = ContractRestule.substring(1 + 64 * 4, 64 * 5);
-    if (!Msg[4].equalsIgnoreCase("" + Integer.parseInt(value3, 16))) {
+    String value3 = ContractRestule.substring(1+64*4,64*5);
+    if(!Msg[4].equalsIgnoreCase("" + Integer.parseInt(value3,16))){
       logger.info("Msg[4] not equal, expected: " + Msg[4] +
-          " actual: " + Integer.parseInt(value3, 16));
+          " actual: " + Integer.parseInt(value3,16));
       return false;
     }
 
-    String value4 = ContractRestule.substring(1 + 64 * 5, 64 * 6);
-    if (!Msg[5].equalsIgnoreCase("" + Integer.parseInt(value4, 16))) {
+    String value4 = ContractRestule.substring(1+64*5,64*6);
+    if(!Msg[5].equalsIgnoreCase("" + Integer.parseInt(value4,16))){
       logger.info("Msg[5] not equal, expected: " + Msg[5] +
-          " actual: " + Integer.parseInt(value4, 16));
+          " actual: " + Integer.parseInt(value4,16));
       return false;
     }
 
@@ -5582,11 +5579,10 @@ public class PublicMethed {
    */
 
   public static boolean checkMappingMsg(int mappingNonce, String mainChainAddress,
-      byte[] depositAddress, String testKeyFordeposit,
-      WalletGrpc.WalletBlockingStub blockingStubFull,
-      String[] Msg) {
+      byte[] depositAddress, String testKeyFordeposit, WalletGrpc.WalletBlockingStub blockingStubFull,
+      String[] Msg){
 
-    if (Msg.length != 3) {
+    if(Msg.length != 3){
       logger.info("check Msg length not equal 3");
       return false;
     }
@@ -5604,21 +5600,21 @@ public class PublicMethed {
     logger.info(Hex.toHexString(return1.getConstantResult(0).toByteArray()));
     String ContractRestule = Hex.toHexString(return1.getConstantResult(0).toByteArray());
 
-    String ownerAddress = ContractRestule.substring(24, 64);
+    String ownerAddress = ContractRestule.substring(24,64);
     logger.info(ownerAddress);
     String addressHex = "41" + ownerAddress;
     logger.info("address_hex: " + addressHex);
     String addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
     logger.info("address_final: " + addressFinal);
-    if (!Msg[0].equalsIgnoreCase(addressFinal)) {
+    if(!Msg[0].equalsIgnoreCase(addressFinal)){
       logger.info("Msg[0] not equal, expected: " + Msg[0] + " actual: " + addressFinal);
       return false;
     }
 
-    String depositValue = ContractRestule.substring(1 + 64 * 1, 64 * 2);
-    if (!Msg[1].equalsIgnoreCase("" + Integer.parseInt(depositValue, 16))) {
+    String depositValue = ContractRestule.substring(1+64*1,64*2);
+    if(!Msg[1].equalsIgnoreCase("" + Integer.parseInt(depositValue,16))){
       logger.info("Msg[1] not equal, expected: " + Msg[1] +
-          " actual: " + Integer.parseInt(depositValue, 16));
+          " actual: " + Integer.parseInt(depositValue,16));
       return false;
     }
 
@@ -5740,28 +5736,5 @@ public class PublicMethed {
       //logger.info("brodacast succesfully");
       return contractAddress;
     }
-  }
-
-  public static String hexStringToString(String s) {
-    if (s == null || s.equals("")) {
-      return null;
-    }
-    s = s.replace(" ", "");
-    byte[] baKeyword = new byte[s.length() / 2];
-    for (int i = 0; i < baKeyword.length; i++) {
-      try {
-        baKeyword[i] = (byte) (0xff & Integer.parseInt(
-            s.substring(i * 2, i * 2 + 2), 16));
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
-    try {
-      s = new String(baKeyword, "gbk");
-      new String();
-    } catch (Exception e1) {
-      e1.printStackTrace();
-    }
-    return s;
   }
 }

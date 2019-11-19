@@ -80,14 +80,8 @@ public class WalletTestAssetIssue017 {
 
   */
 /**
- * constructor.
- *
- * constructor.
- *
- * constructor.
- *
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   @BeforeClass(enabled = true)
@@ -278,8 +272,8 @@ public class WalletTestAssetIssue017 {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   @AfterClass(enabled = true)
@@ -294,8 +288,8 @@ public class WalletTestAssetIssue017 {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   public static Boolean createAssetIssue(byte[] address, String name, Long totalSupply,
@@ -355,8 +349,8 @@ public class WalletTestAssetIssue017 {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   public static Protocol.Transaction signTransaction(ECKey ecKey,

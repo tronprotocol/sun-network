@@ -27,6 +27,7 @@ import org.tron.protos.Protocol.Transaction;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
+import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
 import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
@@ -35,6 +36,13 @@ import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 @Slf4j
 public class GetTransactionsToThis2 {
 
+  private final String testKey002 = Configuration.getByPath("testng.conf")
+      .getString("foundationAccount.key1");
+  private final String testKey003 = Configuration.getByPath("testng.conf")
+      .getString("foundationAccount.key2");
+  private final String notexist01 =
+      "DCB620820121A866E4E25905DC37F5025BFA5420B781C69E1BC6E1D83038C88A";
+
   /*  //testng001、testng002、testng003、testng004
   private static final byte[] fromAddress    =
       Base58.decodeFromBase58Check("THph9K2M2nLvkianrMGswRhz5hjSA9fuH7");
@@ -42,12 +50,7 @@ public class GetTransactionsToThis2 {
       Base58.decodeFromBase58Check("TV75jZpdmP2juMe1dRwGrwpV6AMU6mr1EU");*/
   private static final byte[] INVAILD_ADDRESS =
       Base58.decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
-  private final String notexist01 =
-      "DCB620820121A866E4E25905DC37F5025BFA5420B781C69E1BC6E1D83038C88A";
+
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
@@ -62,11 +65,6 @@ public class GetTransactionsToThis2 {
       .getStringList("fullnode.ip.list").get(0);
   private String soliditynode = Configuration.getByPath("testng.conf")
       .getStringList("solidityNode.ip.list").get(0);
-
-  public static String loadPubKey() {
-    char[] buf = new char[0x100];
-    return String.valueOf(buf, 32, 130);
-  }
 
   @BeforeSuite
   public void beforeSuite() {
@@ -114,7 +112,7 @@ public class GetTransactionsToThis2 {
     if (gettransactionstothis2.get().getTransactionCount() == 0) {
       Assert.assertTrue(
           PublicMethedForDailybuild.sendcoin(toAddress, 1000000L, fromAddress, testKey002,
-              blockingStubFull));
+          blockingStubFull));
     }
 
     Assert.assertTrue(gettransactionstothis2.isPresent());
@@ -201,6 +199,11 @@ public class GetTransactionsToThis2 {
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
+  }
+
+  public static String loadPubKey() {
+    char[] buf = new char[0x100];
+    return String.valueOf(buf, 32, 130);
   }
 
   public byte[] getAddress(ECKey ecKey) {

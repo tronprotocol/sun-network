@@ -121,8 +121,7 @@ public class ProposalDeleteActuatorTest {
     dbManager.getProposalStore().delete(ByteArray.fromLong(1));
     dbManager.getProposalStore().delete(ByteArray.fromLong(2));
     HashMap<Long, String> paras = new HashMap<>();
-    paras.put(0L,
-        String.valueOf(3 * dbManager.getDynamicPropertiesStore().getWitnessMaxActiveNum() * 1000L));
+    paras.put(0L, String.valueOf(3 * Args.getInstance().getWitnessMaxActiveNum() * 1000L));
     ProposalCreateActuator actuator =
         new ProposalCreateActuator(getContract(OWNER_ADDRESS_FIRST, paras), dbManager);
     TransactionResultCapsule ret = new TransactionResultCapsule();

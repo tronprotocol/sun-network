@@ -16,35 +16,42 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 @Slf4j
 public class HttpTestSmartContract001 {
 
-  private static final long now = System.currentTimeMillis();
-  private final static String tokenId = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenId");
-  private static final long totalSupply = now;
-  private static String name = "testAssetIssue002_" + Long.toString(now);
-  private static String assetIssueId;
-  private static String contractName;
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
-  private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenOwnerKey");
-  private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] assetOwnerAddress = ecKey2.getAddress();
-  String assetOwnerKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-  ECKey ecKey3 = new ECKey(Utils.getRandom());
-  byte[] assetReceiverAddress = ecKey3.getAddress();
-  String assetReceiverKey = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
-  String contractAddress;
-  Long amount = 2048000000L;
-  String description = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetDescription");
-  String url = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetUrl");
   private JSONObject responseContent;
   private HttpResponse response;
   private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
       .get(0);
+
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] assetOwnerAddress = ecKey2.getAddress();
+  String assetOwnerKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+
+  ECKey ecKey3 = new ECKey(Utils.getRandom());
+  byte[] assetReceiverAddress = ecKey3.getAddress();
+  String assetReceiverKey = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
+
+
+  String contractAddress;
+
+  Long amount = 2048000000L;
+
+  String description = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.assetDescription");
+  String url = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.assetUrl");
+  private static final long now = System.currentTimeMillis();
+  private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
+      .getString("tokenFoundationAccount.slideTokenOwnerKey");
+  private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
+  private final static String tokenId = Configuration.getByPath("testng.conf")
+      .getString("tokenFoundationAccount.slideTokenId");
+  private static String name = "testAssetIssue002_" + Long.toString(now);
+  private static final long totalSupply = now;
+  private static String assetIssueId;
+  private static String contractName;
+
 
   /**
    * constructor.
@@ -58,12 +65,10 @@ public class HttpTestSmartContract001 {
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
     //Create an asset issue
-    response = HttpMethed
-        .freezeBalance(httpnode, assetOwnerAddress, 100000000L, 3, 1, assetOwnerKey);
+    response = HttpMethed.freezeBalance(httpnode,assetOwnerAddress,100000000L,3,1,assetOwnerKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
 
-    HttpMethed.transferAsset(httpnode, tokenOnwerAddress, assetOwnerAddress, tokenId, 10000000L,
-        tokenOwnerKey);
+    HttpMethed.transferAsset(httpnode, tokenOnwerAddress, assetOwnerAddress, tokenId, 10000000L, tokenOwnerKey);
     HttpMethed.waitToProduceOneBlock(httpnode);
 
     contractName = "transferTokenContract";
@@ -71,6 +76,7 @@ public class HttpTestSmartContract001 {
         .getString("code.code_ContractTrcToken001_transferTokenContract");
     String abi = Configuration.getByPath("testng.conf")
         .getString("abi.abi_ContractTrcToken001_transferTokenContract");
+
 
     long tokenValue = 100000;
     long callValue = 5000;
@@ -129,7 +135,7 @@ public class HttpTestSmartContract001 {
     logger.info(addressParam);
     logger.info(tokenIdParam);
     logger.info(tokenValueParam);
-    final Long beforeBalance = HttpMethed.getBalance(httpnode, assetOwnerAddress);
+    final Long beforeBalance = HttpMethed.getBalance(httpnode,assetOwnerAddress);
     String param = addressParam + tokenIdParam + tokenValueParam;
     Long callValue = 10L;
     String txid = HttpMethed.triggerContractGetTxid(httpnode, assetOwnerAddress, contractAddress,
@@ -144,10 +150,12 @@ public class HttpTestSmartContract001 {
     Assert.assertEquals(txid, responseContent.getString("txID"));
     Assert.assertTrue(!responseContent.getString("raw_data").isEmpty());
     Assert.assertTrue(!responseContent.getString("raw_data_hex").isEmpty());
-    Long afterBalance = HttpMethed.getBalance(httpnode, assetOwnerAddress);
+    Long afterBalance = HttpMethed.getBalance(httpnode,assetOwnerAddress);
     logger.info("beforeBalance: " + beforeBalance);
     logger.info("afterBalance: " + afterBalance);
     Assert.assertTrue(beforeBalance - afterBalance == callValue);
+
+
 
     response = HttpMethed.getTransactionInfoById(httpnode, txid);
     responseContent = HttpMethed.parseResponseContent(response);

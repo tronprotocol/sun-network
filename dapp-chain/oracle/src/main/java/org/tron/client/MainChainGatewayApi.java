@@ -15,7 +15,6 @@ import org.tron.common.exception.TxValidateException;
 import org.tron.common.utils.AbiUtil;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Contract.AssetIssueContract;
-import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.service.eventactuator.SignListParam;
 
@@ -136,12 +135,6 @@ public class MainChainGatewayApi {
         .asList(from, value, nonce, signParam.getOracleSigns(), signParam.getOracleAddresses());
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
-  }
-
-  public static String getContractOwner(byte[] contractAddress) {
-    SmartContract smartContract = GATEWAY_API.getInstance().getContract(contractAddress);
-    byte[] ret = smartContract.getOriginAddress().toByteArray();
-    return WalletUtil.encode58Check(ret);
   }
 
   public static AssetIssueContract getAssetIssueById(String assetId) {

@@ -40,11 +40,6 @@ public class VMConfig {
   @Setter
   public static boolean isVmResourceChargingOn = false;
 
-
-  @Getter
-  @Setter
-  public static boolean isAllowUpdateGateway102 = false;
-
   private VMConfig() {
   }
 
@@ -55,9 +50,7 @@ public class VMConfig {
 
   public static void handleProposalInVM(Manager dbManager) {
     isVmResourceChargingOn = isChargingResourceProposalOn(dbManager);
-    isAllowUpdateGateway102 = isAllowUpdateGatewayV102(dbManager);
   }
-
 
   public static VMConfig getInstance() {
     return SystemPropertiesInstance.INSTANCE;
@@ -71,12 +64,8 @@ public class VMConfig {
     return vmTraceCompressed;
   }
 
-  private static boolean isChargingResourceProposalOn(Manager dbManger) {
+  private static boolean isChargingResourceProposalOn(Manager dbManger){
     return dbManger.getDynamicPropertiesStore().getChargingSwitch() == 1;
-  }
-
-  private static boolean isAllowUpdateGatewayV102(Manager dbManger) {
-    return dbManger.getDynamicPropertiesStore().getAllowUpdateGatewayV102() == 1;
   }
 
 }

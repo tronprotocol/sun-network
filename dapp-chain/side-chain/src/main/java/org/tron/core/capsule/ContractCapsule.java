@@ -78,12 +78,6 @@ public class ContractCapsule implements ProtoCapsule<SmartContract> {
         .build();
   }
 
-
-  public void setOriginAddress(byte[] originAddress) {
-    this.smartContract = this.smartContract.toBuilder().setOriginAddress(
-        ByteString.copyFrom(originAddress)).build();
-  }
-
   @Override
   public byte[] getData() {
     return this.smartContract.toByteArray();

@@ -1,62 +1,85 @@
 package stest.tron.wallet.dailybuild.delaytransaction;
 
+import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.math.BigInteger;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.spongycastle.util.encoders.Hex;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.BytesMessage;
+import org.tron.api.GrpcAPI.NumberMessage;
+import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
+import org.tron.protos.Contract;
+import org.tron.protos.Protocol.Account;
+import org.tron.protos.Protocol.Block;
+//import org.tron.protos.Protocol.DeferredTransaction;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
+import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
-
-//import org.tron.protos.Protocol.DeferredTransaction;
+import stest.tron.wallet.common.client.utils.Sha256Hash;
+import stest.tron.wallet.common.client.utils.TransactionUtils;
 
 @Slf4j
 public class DelayTransaction001 {
 
-  public static final long MAX_DEFERRED_TRANSACTION_DELAY_SECONDS = 45 * 24 * 3_600L; //45 days
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
-  Optional<TransactionInfo> infoById = null;
-  //Optional<DeferredTransaction> deferredTransactionById = null;
-  Optional<Transaction> getTransactionById = null;
-  ECKey ecKey = new ECKey(Utils.getRandom());
-  byte[] delayAccount1Address = ecKey.getAddress();
-  String delayAccount1Key = ByteArray.toHexString(ecKey.getPrivKeyBytes());
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] delayAccount2Address = ecKey2.getAddress();
-  String delayAccount2Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-  ECKey ecKey3 = new ECKey(Utils.getRandom());
-  byte[] receiverAccountAddress = ecKey3.getAddress();
-  String receiverAccountKey = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
-  ECKey ecKey4 = new ECKey(Utils.getRandom());
-  byte[] delayAccount3Address = ecKey4.getAddress();
-  String delayAccount3Key = ByteArray.toHexString(ecKey4.getPrivKeyBytes());
-  ECKey ecKey5 = new ECKey(Utils.getRandom());
-  byte[] receiverAccount4Address = ecKey5.getAddress();
-  String receiverAccount4Key = ByteArray.toHexString(ecKey5.getPrivKeyBytes());
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
   private Long delayTransactionFee = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.delayTransactionFee");
+
+
+  public static final long MAX_DEFERRED_TRANSACTION_DELAY_SECONDS = 45 * 24 * 3_600L; //45 days
+  Optional<TransactionInfo> infoById = null;
+  //Optional<DeferredTransaction> deferredTransactionById = null;
+  Optional<Transaction> getTransactionById = null;
+
+
+  ECKey ecKey = new ECKey(Utils.getRandom());
+  byte[] delayAccount1Address = ecKey.getAddress();
+  String delayAccount1Key = ByteArray.toHexString(ecKey.getPrivKeyBytes());
+
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] delayAccount2Address = ecKey2.getAddress();
+  String delayAccount2Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+
+  ECKey ecKey3 = new ECKey(Utils.getRandom());
+  byte[] receiverAccountAddress = ecKey3.getAddress();
+  String receiverAccountKey = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
+
+  ECKey ecKey4 = new ECKey(Utils.getRandom());
+  byte[] delayAccount3Address = ecKey4.getAddress();
+  String delayAccount3Key = ByteArray.toHexString(ecKey4.getPrivKeyBytes());
+
+  ECKey ecKey5 = new ECKey(Utils.getRandom());
+  byte[] receiverAccount4Address = ecKey5.getAddress();
+  String receiverAccount4Key = ByteArray.toHexString(ecKey5.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -83,23 +106,20 @@ public class DelayTransaction001 {
     delayAccount1Address = ecKey.getAddress();
     delayAccount1Key = ByteArray.toHexString(ecKey.getPrivKeyBytes());
     PublicMethedForDailybuild.printAddress(delayAccount1Key);
-    Assert.assertTrue(
-        PublicMethedForDailybuild.sendcoin(delayAccount1Address, 100000000L, fromAddress,
-            testKey002, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(delayAccount1Address, 100000000L,fromAddress,
+        testKey002, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethedForDailybuild.sendcoinDelayed(fromAddress, 100000000L, 23L,
         delayAccount1Address, delayAccount1Key, blockingStubFull));
-    Assert.assertTrue(
-        PublicMethedForDailybuild.sendcoinDelayed(fromAddress, 1L, 0L, delayAccount1Address,
-            delayAccount1Key, blockingStubFull));
-    Assert.assertFalse(
-        PublicMethedForDailybuild.sendcoinDelayed(fromAddress, 1L, -1L, delayAccount1Address,
-            delayAccount1Key, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoinDelayed(fromAddress, 1L, 0L,delayAccount1Address,
+        delayAccount1Key, blockingStubFull));
+    Assert.assertFalse(PublicMethedForDailybuild.sendcoinDelayed(fromAddress, 1L, -1L,delayAccount1Address,
+        delayAccount1Key, blockingStubFull));
     Assert.assertFalse(PublicMethedForDailybuild.sendcoinDelayed(fromAddress, 1L,
-        MAX_DEFERRED_TRANSACTION_DELAY_SECONDS + 1L, delayAccount1Address, delayAccount1Key,
+        MAX_DEFERRED_TRANSACTION_DELAY_SECONDS + 1L,delayAccount1Address, delayAccount1Key,
         blockingStubFull));
     Assert.assertTrue(PublicMethedForDailybuild.sendcoinDelayed(fromAddress, 1L,
-        MAX_DEFERRED_TRANSACTION_DELAY_SECONDS, delayAccount1Address, delayAccount1Key,
+        MAX_DEFERRED_TRANSACTION_DELAY_SECONDS,delayAccount1Address, delayAccount1Key,
         blockingStubFull));
   }
 
@@ -242,9 +262,8 @@ public class DelayTransaction001 {
 
     Long sendCoinAmount = 100000000L;
     //Pre sendcoin to the test account
-    Assert.assertTrue(
-        PublicMethedForDailybuild.sendcoin(delayAccount3Address, sendCoinAmount, fromAddress,
-            testKey002, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(delayAccount3Address, sendCoinAmount,fromAddress,
+        testKey002, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     logger.info("----------------No balance to send coin--------------------");
@@ -255,22 +274,19 @@ public class DelayTransaction001 {
     //Query balance before send coin.
     Long deplayAccountBeforeBalance = PublicMethedForDailybuild.queryAccount(delayAccount3Address,
         blockingStubFull).getBalance();
-    Long recevierAccountBeforeBalance = PublicMethedForDailybuild
-        .queryAccount(receiverAccount4Address,
-            blockingStubFull).getBalance();
+    Long recevierAccountBeforeBalance = PublicMethedForDailybuild.queryAccount(receiverAccount4Address,
+        blockingStubFull).getBalance();
     logger.info("deplayAccountBeforeBalance " + deplayAccountBeforeBalance);
     logger.info("recevierAccountBeforeBalance " + recevierAccountBeforeBalance);
-    Assert.assertFalse(
-        PublicMethedForDailybuild.sendcoinDelayed(receiverAccount4Address, sendCoinAmount,
-            delaySecond, delayAccount3Address, delayAccount3Key, blockingStubFull));
+    Assert.assertFalse(PublicMethedForDailybuild.sendcoinDelayed(receiverAccount4Address, sendCoinAmount,
+        delaySecond,delayAccount3Address, delayAccount3Key, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     //Query balance after delay send coin.
     Long deplayAccountAfterBalance = PublicMethedForDailybuild.queryAccount(delayAccount3Address,
         blockingStubFull).getBalance();
-    Long recevierAccountAfterDelayalance = PublicMethedForDailybuild
-        .queryAccount(receiverAccount4Address,
-            blockingStubFull).getBalance();
+    Long recevierAccountAfterDelayalance = PublicMethedForDailybuild.queryAccount(receiverAccount4Address,
+        blockingStubFull).getBalance();
     logger.info("deplayAccountAfterBalance " + deplayAccountAfterBalance);
     logger.info("recevierAccountAfterDelayalance " + recevierAccountAfterDelayalance);
 
@@ -278,7 +294,8 @@ public class DelayTransaction001 {
     logger.info("deplayAccountBeforeBalance: " + deplayAccountBeforeBalance);
     logger.info("deplayAccountAfterBalance: " + deplayAccountAfterBalance);
 
-    Assert.assertEquals(deplayAccountBeforeBalance, deplayAccountAfterBalance);
+    Assert.assertEquals(deplayAccountBeforeBalance,deplayAccountAfterBalance);
+
 
     logger.info("----------------No balance to create account send coin--------------------");
     //Test delay send coin to create account.
@@ -291,21 +308,21 @@ public class DelayTransaction001 {
 
     Long createAccountFee = 100000L;
     Assert.assertTrue(PublicMethedForDailybuild.sendcoinDelayed(receiverAccount4Address,
-        deplayAccountBeforeBalance - createAccountFee, delaySecond, delayAccount3Address,
+        deplayAccountBeforeBalance - createAccountFee, delaySecond,delayAccount3Address,
         delayAccount3Key, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     //Query balance after delay send coin.
     deplayAccountAfterBalance = PublicMethedForDailybuild.queryAccount(delayAccount3Address,
         blockingStubFull).getBalance();
-    recevierAccountAfterDelayalance = PublicMethedForDailybuild
-        .queryAccount(receiverAccount4Address,
-            blockingStubFull).getBalance();
+    recevierAccountAfterDelayalance = PublicMethedForDailybuild.queryAccount(receiverAccount4Address,
+        blockingStubFull).getBalance();
     logger.info("deplayAccountAfterBalance " + deplayAccountAfterBalance);
     logger.info("recevierAccountAfterDelayalance " + recevierAccountAfterDelayalance);
 
     Assert.assertTrue(recevierAccountAfterDelayalance == 0);
     Assert.assertTrue(deplayAccountBeforeBalance - deplayAccountAfterBalance == 100000);
+
 
     logger.info("---------------Balance enough to create account send coin--------------------");
     //Test delay send coin to create account.
@@ -318,16 +335,15 @@ public class DelayTransaction001 {
     logger.info("recevierAccountBeforeBalance " + recevierAccountBeforeBalance);
     Assert.assertTrue(PublicMethedForDailybuild.sendcoinDelayed(receiverAccount4Address,
         deplayAccountBeforeBalance - createAccountFee - delayTransactionFee,
-        delaySecond, delayAccount3Address, delayAccount3Key, blockingStubFull));
+        delaySecond,delayAccount3Address, delayAccount3Key, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     //Query balance after delay send coin.
     deplayAccountAfterBalance = PublicMethedForDailybuild.queryAccount(delayAccount3Address,
         blockingStubFull).getBalance();
-    recevierAccountAfterDelayalance = PublicMethedForDailybuild
-        .queryAccount(receiverAccount4Address,
-            blockingStubFull).getBalance();
+    recevierAccountAfterDelayalance = PublicMethedForDailybuild.queryAccount(receiverAccount4Address,
+        blockingStubFull).getBalance();
     logger.info("deplayAccountAfterBalance " + deplayAccountAfterBalance);
     logger.info("recevierAccountAfterDelayalance " + recevierAccountAfterDelayalance);
     Long receiverBalanceShouldBe = deplayAccountBeforeBalance - createAccountFee
@@ -353,12 +369,10 @@ public class DelayTransaction001 {
 
     Long sendCoinAmount = 100000000L;
     //Pre sendcoin to the test account
-    Assert.assertTrue(
-        PublicMethedForDailybuild.sendcoin(delayAccount3Address, sendCoinAmount, fromAddress,
-            testKey002, blockingStubFull));
-    Assert.assertTrue(
-        PublicMethedForDailybuild.sendcoin(receiverAccount4Address, sendCoinAmount, fromAddress,
-            testKey002, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(delayAccount3Address, sendCoinAmount, fromAddress,
+        testKey002, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(receiverAccount4Address, sendCoinAmount, fromAddress,
+        testKey002, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     //Do delay send coin transaction.
@@ -369,24 +383,21 @@ public class DelayTransaction001 {
     //Query balance before send coin.
     Long deplayAccountBeforeBalance = PublicMethedForDailybuild.queryAccount(delayAccount3Address,
         blockingStubFull).getBalance();
-    Long recevierAccountBeforeBalance = PublicMethedForDailybuild
-        .queryAccount(receiverAccount4Address,
-            blockingStubFull).getBalance();
+    Long recevierAccountBeforeBalance = PublicMethedForDailybuild.queryAccount(receiverAccount4Address,
+        blockingStubFull).getBalance();
     logger.info("deplayAccountBeforeBalance " + deplayAccountBeforeBalance);
     logger.info("recevierAccountBeforeBalance " + recevierAccountBeforeBalance);
 
     Long delaySecond = 4L;
-    Assert.assertTrue(
-        PublicMethedForDailybuild.sendcoinDelayed(receiverAccount4Address, sendCoinAmount,
-            delaySecond, delayAccount3Address, delayAccount3Key, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoinDelayed(receiverAccount4Address, sendCoinAmount,
+        delaySecond,delayAccount3Address, delayAccount3Key, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     //Query balance after delay send coin.
     Long deplayAccountAfterBalance = PublicMethedForDailybuild.queryAccount(delayAccount3Address,
         blockingStubFull).getBalance();
-    Long recevierAccountAfterDelayalance = PublicMethedForDailybuild
-        .queryAccount(receiverAccount4Address,
-            blockingStubFull).getBalance();
+    Long recevierAccountAfterDelayalance = PublicMethedForDailybuild.queryAccount(receiverAccount4Address,
+        blockingStubFull).getBalance();
     logger.info("deplayAccountAfterBalance " + deplayAccountAfterBalance);
     logger.info("recevierAccountAfterDelayalance " + recevierAccountAfterDelayalance);
 
@@ -394,10 +405,13 @@ public class DelayTransaction001 {
     logger.info("deplayAccountBeforeBalance: " + deplayAccountBeforeBalance);
     logger.info("deplayAccountAfterBalance: " + deplayAccountAfterBalance);
 
-    Assert.assertEquals(deplayAccountBeforeBalance, deplayAccountAfterBalance);
+    Assert.assertEquals(deplayAccountBeforeBalance,deplayAccountAfterBalance);
+
 
 
   }
+
+
 
 
   /**

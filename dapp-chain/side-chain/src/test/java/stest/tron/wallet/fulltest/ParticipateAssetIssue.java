@@ -86,16 +86,8 @@ public class ParticipateAssetIssue {
 
   */
 /**
- * constructor.
- *
- * constructor.
- *
- * constructor.
- *
- * constructor.
- *
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   @BeforeClass(enabled = false)
@@ -168,8 +160,8 @@ public class ParticipateAssetIssue {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   @AfterClass(enabled = false)
@@ -269,8 +261,8 @@ public class ParticipateAssetIssue {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   public static boolean participateAssetIssue(byte[] to, byte[] assertName, long amount,
@@ -307,8 +299,8 @@ public class ParticipateAssetIssue {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   public static Protocol.Transaction signTransaction(ECKey ecKey,
@@ -324,8 +316,8 @@ public class ParticipateAssetIssue {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   public static boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,

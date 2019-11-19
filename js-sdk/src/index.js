@@ -1,7 +1,13 @@
+import TronWeb from 'tronweb';
+import {sha256} from './helper/ethersUtils';
+
 export default class SunWeb {
-    constructor(mainchain = false, sidechain = false, mainGatewayAddress = false, sideGatewayAddress = false, sideChainId = false) {
-        this.mainchain = mainchain;
-        this.sidechain = sidechain;
+    static TronWeb = TronWeb;
+    constructor(mainOptions = false, sideOptions = false, mainGatewayAddress = false, sideGatewayAddress = false, sideChainId = false, privateKey = false) {
+        mainOptions = {...mainOptions, privateKey};
+        sideOptions = {...sideOptions, privateKey};
+        this.mainchain = new TronWeb(mainOptions);
+        this.sidechain = new TronWeb(sideOptions);
         this.isAddress = this.mainchain.isAddress;
         this.utils = this.mainchain.utils;
         this.setMainGatewayAddress(mainGatewayAddress);
@@ -43,8 +49,7 @@ export default class SunWeb {
         let chainIdByteArr = this.utils.code.hexStr2byteArray(this.chainId);
 
         let byteArr = this.utils.code.hexStr2byteArray(transaction.txID).concat(chainIdByteArr);
-        let byteArrHash = this.sidechain.utils.ethersUtils.sha256(byteArr);
-
+        let byteArrHash = sha256(byteArr);
         const signature = this.utils.crypto.ECKeySign(this.utils.code.hexStr2byteArray(byteArrHash.replace(/^0x/, '')), priKeyBytes);
 
         if (Array.isArray(transaction.signature)) {
@@ -500,7 +505,7 @@ export default class SunWeb {
                 name: 'mappingFee',
                 type: 'integer',
                 value: mappingFee,
-                gte: 0
+                gt: 0
             },
             {
                 name: 'feeLimit',

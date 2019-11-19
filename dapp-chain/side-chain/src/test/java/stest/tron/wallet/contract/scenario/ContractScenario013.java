@@ -28,18 +28,21 @@ public class ContractScenario013 {
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
-  byte[] contractAddress = null;
-  String txid = "";
-  Optional<TransactionInfo> infoById = null;
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] contract013Address = ecKey1.getAddress();
-  String contract013Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
+
+  byte[] contractAddress = null;
+  String txid = "";
+  Optional<TransactionInfo> infoById = null;
+
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] contract013Address = ecKey1.getAddress();
+  String contract013Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -62,12 +65,10 @@ public class ContractScenario013 {
 
   @Test(enabled = true)
   public void deployTronTrxAndSunContract() {
-    Assert.assertTrue(
-        PublicMethedForDailybuild.sendcoin(contract013Address, 20000000000L, fromAddress,
-            testKey002, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethedForDailybuild
-        .getAccountResource(contract013Address,
-            blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contract013Address, 20000000000L, fromAddress,
+        testKey002, blockingStubFull));
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(contract013Address,
+        blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
 
@@ -81,9 +82,8 @@ public class ContractScenario013 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    txid = PublicMethedForDailybuild
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-            maxFeeLimit, 0L, 100, null, contract013Key, contract013Address, blockingStubFull);
+    txid = PublicMethedForDailybuild.deployContractAndGetTransactionInfoById(contractName, abi, code, "",
+        maxFeeLimit, 0L, 100, null, contract013Key, contract013Address, blockingStubFull);
     logger.info(txid);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
@@ -95,9 +95,8 @@ public class ContractScenario013 {
 
   @Test(enabled = true)
   public void triggerTronTrxAndSunContract() {
-    AccountResourceMessage accountResource = PublicMethedForDailybuild
-        .getAccountResource(contract013Address,
-            blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(contract013Address,
+        blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
 

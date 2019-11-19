@@ -18,19 +18,21 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 
 @Slf4j
 public class deployFundInject {
-
-  final String mainGateWayAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key1");
-  final String ChainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.chainIdAddress");
   private final String testDepositTrx = Configuration.getByPath("testng.conf")
       .getString("witness.key2");
   private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
+  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
+      .getLong("defaultParameter.maxFeeLimit");
   private final String foundationKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] foundationAddress003 = PublicMethed.getFinalAddress(foundationKey003);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+
+  final String mainGateWayAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key1");
+
+  final String ChainIdAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.chainIdAddress");
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
 
@@ -60,7 +62,7 @@ public class deployFundInject {
     long fundAfter = Long.valueOf(getChainParameters.get().getChainParameter(33).getValue());
     Assert.assertTrue(fundAfter > fundBefore);
 
-    for (int i = 0; i < 3; i++) {
+    for(int i=0; i<3;i++){
       String chainIdAddress = Configuration.getByPath("testng.conf")
           .getString("gateway_address.chainIdAddress");
       String FundAccount = WalletClient.encode58Check(foundationAddress003);
@@ -104,11 +106,11 @@ public class deployFundInject {
         }
       }
       int count = 0;
-      while (count++ < 150) {
+      while (count++<150){
         proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
-        if (proposalList.getProposalsList().get(0).getState().name() == "APPROVED") {
+        if(proposalList.getProposalsList().get(0).getState().name() == "APPROVED"){
           break;
-        } else {
+        }else {
           try {
             Thread.sleep(1000);
 
@@ -117,9 +119,7 @@ public class deployFundInject {
           }
         }
       }
-      if (count >= 150) {
-        continue;
-      }
+      if (count>=150){ continue;}
 
       proposalMap.clear();
       proposalMap.put(1000008L, "1");
@@ -152,11 +152,11 @@ public class deployFundInject {
         }
       }
       count = 0;
-      while (count++ < 150) {
+      while (count++<150){
         proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
-        if (proposalList.getProposalsList().get(0).getState().name() == "APPROVED") {
+        if(proposalList.getProposalsList().get(0).getState().name() == "APPROVED"){
           break;
-        } else {
+        }else {
           try {
             Thread.sleep(1000);
           } catch (InterruptedException e) {
@@ -164,11 +164,7 @@ public class deployFundInject {
           }
         }
       }
-      if (count >= 150) {
-        continue;
-      } else {
-        break;
-      }
+      if (count>=150){ continue; }else { break; }
 
     }
 
@@ -177,6 +173,7 @@ public class deployFundInject {
 
   @Test(enabled = true)
   public void test1DepositTrc20001() {
+
 
   }
 }

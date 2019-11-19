@@ -2,7 +2,6 @@ package stest.tron.wallet.contract.linkage;
 
 import static org.tron.protos.Protocol.Transaction.Result.contractResult.SUCCESS_VALUE;
 
-
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.HashMap;
@@ -35,9 +34,7 @@ public class ContractLinkage002 {
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] linkage002Address = ecKey1.getAddress();
-  String linkage002Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf")
@@ -48,6 +45,10 @@ public class ContractLinkage002 {
       .getStringList("fullnode.ip.list").get(1);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
+
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] linkage002Address = ecKey1.getAddress();
+  String linkage002Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -85,8 +86,7 @@ public class ContractLinkage002 {
     Assert.assertEquals(ByteArray.toHexString(infoById0.get().getContractResult(0).toByteArray()),
         "");
     Assert.assertEquals(infoById0.get().getResult().getNumber(), 0);
-    Optional<Transaction> ById = PublicMethedForDailybuild
-        .getTransactionById(sendcoin, blockingStubFull);
+    Optional<Transaction> ById = PublicMethedForDailybuild.getTransactionById(sendcoin, blockingStubFull);
     Assert.assertEquals(ById.get().getRet(0).getContractRet().getNumber(),
         SUCCESS_VALUE);
     Assert.assertEquals(ById.get().getRet(0).getContractRetValue(), SUCCESS_VALUE);
@@ -94,9 +94,8 @@ public class ContractLinkage002 {
 
     Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(linkage002Address, 50000000L,
         3, 1, linkage002Key, blockingStubFull));
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
-        .getAccountResource(linkage002Address,
-            blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(linkage002Address,
+        blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(linkage002Address, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyLimit = resourceInfo.getEnergyLimit();
@@ -125,11 +124,9 @@ public class ContractLinkage002 {
     contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "",
         maxFeeLimit, 0L, -1, null, linkage002Key, linkage002Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    Account infoafter = PublicMethedForDailybuild
-        .queryAccount(linkage002Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
-        .getAccountResource(linkage002Address,
-            blockingStubFull1);
+    Account infoafter = PublicMethedForDailybuild.queryAccount(linkage002Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(linkage002Address,
+        blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyLimit = resourceInfoafter.getEnergyLimit();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -150,9 +147,8 @@ public class ContractLinkage002 {
     Assert.assertTrue(afterFreeNetUsed > 0);
 
     //Set the consumeUserResourcePercent is 101,Nothing change.
-    AccountResourceMessage resourceInfo3 = PublicMethedForDailybuild
-        .getAccountResource(linkage002Address,
-            blockingStubFull);
+    AccountResourceMessage resourceInfo3 = PublicMethedForDailybuild.getAccountResource(linkage002Address,
+        blockingStubFull);
     Account info3 = PublicMethedForDailybuild.queryAccount(linkage002Address, blockingStubFull);
     Long beforeBalance3 = info3.getBalance();
     Long beforeEnergyLimit3 = resourceInfo3.getEnergyLimit();
@@ -169,14 +165,11 @@ public class ContractLinkage002 {
     logger.info("beforeNetUsed3:" + beforeNetUsed3);
     logger.info("beforeFreeNetUsed3:" + beforeFreeNetUsed3);
 
-    contractAddress = PublicMethedForDailybuild
-        .deployContract(contractName, abi, code, "", maxFeeLimit,
-            0L, 101, null, linkage002Key, linkage002Address, blockingStubFull);
-    Account infoafter3 = PublicMethedForDailybuild
-        .queryAccount(linkage002Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter3 = PublicMethedForDailybuild
-        .getAccountResource(linkage002Address,
-            blockingStubFull1);
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
+        0L, 101, null, linkage002Key, linkage002Address, blockingStubFull);
+    Account infoafter3 = PublicMethedForDailybuild.queryAccount(linkage002Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter3 = PublicMethedForDailybuild.getAccountResource(linkage002Address,
+        blockingStubFull1);
     Long afterBalance3 = infoafter3.getBalance();
     Long afterEnergyLimit3 = resourceInfoafter3.getEnergyLimit();
     Long afterEnergyUsed3 = resourceInfoafter3.getEnergyUsed();
@@ -199,17 +192,14 @@ public class ContractLinkage002 {
 
     //Set consumeUserResourcePercent is 100,balance not change,use FreeNet freezeBalanceGetEnergy.
 
-    contractAddress = PublicMethedForDailybuild
-        .deployContract(contractName, abi, code, "", maxFeeLimit,
-            0L, 100, null, linkage002Key, linkage002Address, blockingStubFull);
-    SmartContract smartContract = PublicMethedForDailybuild
-        .getContract(contractAddress, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
+        0L, 100, null, linkage002Key, linkage002Address, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getConsumeUserResourcePercent() == 100);
 
     //Set the consumeUserResourcePercent is 0,balance not change,use FreeNet freezeBalanceGetEnergy.
-    AccountResourceMessage resourceInfo2 = PublicMethedForDailybuild
-        .getAccountResource(linkage002Address,
-            blockingStubFull);
+    AccountResourceMessage resourceInfo2 = PublicMethedForDailybuild.getAccountResource(linkage002Address,
+        blockingStubFull);
     Account info2 = PublicMethedForDailybuild.queryAccount(linkage002Address, blockingStubFull);
     Long beforeBalance2 = info2.getBalance();
     Long beforeEnergyLimit2 = resourceInfo2.getEnergyLimit();
@@ -226,15 +216,12 @@ public class ContractLinkage002 {
     logger.info("beforeNetUsed2:" + beforeNetUsed2);
     logger.info("beforeFreeNetUsed2:" + beforeFreeNetUsed2);
 
-    contractAddress = PublicMethedForDailybuild
-        .deployContract(contractName, abi, code, "", maxFeeLimit,
-            0L, 0, null, linkage002Key, linkage002Address, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
+        0L, 0, null, linkage002Key, linkage002Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    Account infoafter2 = PublicMethedForDailybuild
-        .queryAccount(linkage002Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter2 = PublicMethedForDailybuild
-        .getAccountResource(linkage002Address,
-            blockingStubFull1);
+    Account infoafter2 = PublicMethedForDailybuild.queryAccount(linkage002Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter2 = PublicMethedForDailybuild.getAccountResource(linkage002Address,
+        blockingStubFull1);
     Long afterBalance2 = infoafter2.getBalance();
     Long afterEnergyLimit2 = resourceInfoafter2.getEnergyLimit();
     Long afterEnergyUsed2 = resourceInfoafter2.getEnergyUsed();

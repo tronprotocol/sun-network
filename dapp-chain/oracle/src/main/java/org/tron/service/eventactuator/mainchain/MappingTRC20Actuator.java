@@ -57,11 +57,9 @@ public class MappingTRC20Actuator extends Actuator {
       logger.info(
           "MappingTRC20Event, contractAddress: {}, trcName: {}, trcSymbol: {}, trcDecimals: {}, nonce: {}.",
           contractAddressStr, trcName, trcSymbol, trcDecimals, nonceStr);
-      String contractOwner = MainChainGatewayApi
-          .getContractOwner(event.getContractAddress().toByteArray());
+
       Transaction tx = SideChainGatewayApi
-          .multiSignForMappingTRC20(contractAddressStr, trcName, trcSymbol, trcDecimals,
-              contractOwner, nonceStr);
+          .multiSignForMappingTRC20(contractAddressStr, trcName, trcSymbol, trcDecimals, nonceStr);
       this.transactionExtensionCapsule = new TransactionExtensionCapsule(NONCE_TAG + nonceStr, tx,
           0);
       return CreateRet.SUCCESS;

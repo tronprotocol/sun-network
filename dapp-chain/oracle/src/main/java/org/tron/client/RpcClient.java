@@ -11,7 +11,6 @@ import org.tron.api.WalletGrpc;
 import org.tron.common.utils.ByteArray;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.AssetIssueContract;
-import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 
@@ -45,11 +44,5 @@ class RpcClient {
     ByteString assetIdBs = ByteString.copyFrom(assetId.getBytes());
     BytesMessage request = BytesMessage.newBuilder().setValue(assetIdBs).build();
     return blockingStub.getAssetIssueById(request);
-  }
-
-  SmartContract getContract(byte[] contractAddress) {
-    ByteString assetIdBs = ByteString.copyFrom(contractAddress);
-    BytesMessage request = BytesMessage.newBuilder().setValue(assetIdBs).build();
-    return blockingStub.getContract(request);
   }
 }

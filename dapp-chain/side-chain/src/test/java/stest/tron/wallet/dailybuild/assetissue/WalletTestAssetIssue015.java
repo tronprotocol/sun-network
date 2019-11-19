@@ -24,41 +24,49 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 @Slf4j
 public class WalletTestAssetIssue015 {
 
-  private static final long now = System.currentTimeMillis();
-  private static final long totalSupply = now;
-  private static final long sendAmount = 10000000000L;
-  private static final long netCostMeasure = 200L;
-  private static ByteString assetAccountId = null;
-  private static String name = "AssetIssue015_" + Long.toString(now);
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
+
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.slideTokenId");
+  private static ByteString assetAccountId = null;
+  private static final long now = System.currentTimeMillis();
+  private static String name = "AssetIssue015_" + Long.toString(now);
+  private static final long totalSupply = now;
+  private static final long sendAmount = 10000000000L;
+  private static final long netCostMeasure = 200L;
+
   Long freeAssetNetLimit = 30000L;
   Long publicFreeAssetNetLimit = 30000L;
   String description = "for case assetissue015";
   String url = "https://stest.assetissue015.url";
-  //get account
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] asset015Address = ecKey1.getAddress();
-  String testKeyForAssetIssue015 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] transferAssetAddress = ecKey2.getAddress();
-  String transferAssetCreateKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-  ECKey ecKey3 = new ECKey(Utils.getRandom());
-  byte[] newAddress = ecKey3.getAddress();
-  String testKeyForNewAddress = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
+
+
+  //get account
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] asset015Address = ecKey1.getAddress();
+  String testKeyForAssetIssue015 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
+
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] transferAssetAddress = ecKey2.getAddress();
+  String transferAssetCreateKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+
+  ECKey ecKey3 = new ECKey(Utils.getRandom());
+  byte[] newAddress = ecKey3.getAddress();
+  String testKeyForNewAddress = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -84,15 +92,15 @@ public class WalletTestAssetIssue015 {
         .sendcoin(asset015Address, sendAmount, fromAddress, testKey002, blockingStubFull));
     assetAccountId = ByteString.copyFromUtf8(tokenId);
     org.junit.Assert
-        .assertTrue(
-            PublicMethedForDailybuild.transferAsset(asset015Address, assetAccountId.toByteArray(),
-                10000000L, tokenOnwerAddress, tokenOwnerKey, blockingStubFull));
+        .assertTrue(PublicMethedForDailybuild.transferAsset(asset015Address, assetAccountId.toByteArray(),
+            10000000L, tokenOnwerAddress, tokenOwnerKey, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
   }
 
   @Test(enabled = true, description = "Use transfer net when token owner has not enough bandwidth")
   public void atestWhenCreatorHasNoEnoughBandwidthUseTransferNet() {
+
 
     //Transfer asset to an account.
     Assert.assertTrue(PublicMethedForDailybuild
@@ -112,9 +120,8 @@ public class WalletTestAssetIssue015 {
 
     //Transfer send some asset issue to default account, to test if this
     // transaction use the transaction free net.
-    Assert.assertTrue(
-        PublicMethedForDailybuild.transferAsset(toAddress, assetAccountId.toByteArray(), 1L,
-            transferAssetAddress, transferAssetCreateKey, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.transferAsset(toAddress, assetAccountId.toByteArray(), 1L,
+        transferAssetAddress, transferAssetCreateKey, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     assetCreatorNet = PublicMethedForDailybuild
         .getAccountNet(asset015Address, blockingStubFull);
@@ -148,17 +155,14 @@ public class WalletTestAssetIssue015 {
         20000000, fromAddress, testKey002, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Account transferAccount = PublicMethedForDailybuild
-        .queryAccount(transferAssetCreateKey, blockingStubFull);
+    Account transferAccount = PublicMethedForDailybuild.queryAccount(transferAssetCreateKey, blockingStubFull);
     Long beforeBalance = transferAccount.getBalance();
     logger.info(Long.toString(beforeBalance));
 
-    Assert.assertTrue(
-        PublicMethedForDailybuild.transferAsset(toAddress, assetAccountId.toByteArray(), 1L,
-            transferAssetAddress, transferAssetCreateKey, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.transferAsset(toAddress, assetAccountId.toByteArray(), 1L,
+        transferAssetAddress, transferAssetCreateKey, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    transferAccount = PublicMethedForDailybuild
-        .queryAccount(transferAssetCreateKey, blockingStubFull);
+    transferAccount = PublicMethedForDailybuild.queryAccount(transferAssetCreateKey, blockingStubFull);
     Long afterBalance = transferAccount.getBalance();
     logger.info(Long.toString(afterBalance));
 
@@ -172,22 +176,19 @@ public class WalletTestAssetIssue015 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     AccountNetMessage assetTransferNet = PublicMethedForDailybuild
         .getAccountNet(transferAssetAddress, blockingStubFull);
-    Account transferAccount = PublicMethedForDailybuild
-        .queryAccount(transferAssetCreateKey, blockingStubFull);
+    Account transferAccount = PublicMethedForDailybuild.queryAccount(transferAssetCreateKey, blockingStubFull);
 
     final Long transferNetUsedBefore = assetTransferNet.getNetUsed();
     final Long transferBalanceBefore = transferAccount.getBalance();
     logger.info("before  " + Long.toString(transferBalanceBefore));
 
-    Assert.assertTrue(
-        PublicMethedForDailybuild.transferAsset(toAddress, assetAccountId.toByteArray(), 1L,
-            transferAssetAddress, transferAssetCreateKey, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.transferAsset(toAddress, assetAccountId.toByteArray(), 1L,
+        transferAssetAddress, transferAssetCreateKey, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     assetTransferNet = PublicMethedForDailybuild
         .getAccountNet(transferAssetAddress, blockingStubFull);
-    transferAccount = PublicMethedForDailybuild
-        .queryAccount(transferAssetCreateKey, blockingStubFull);
+    transferAccount = PublicMethedForDailybuild.queryAccount(transferAssetCreateKey, blockingStubFull);
     final Long transferNetUsedAfter = assetTransferNet.getNetUsed();
     final Long transferBalanceAfter = transferAccount.getBalance();
     logger.info("after " + Long.toString(transferBalanceAfter));

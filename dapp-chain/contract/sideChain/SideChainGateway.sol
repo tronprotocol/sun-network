@@ -144,18 +144,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         }
     }
 
-    // 1. deployDAppTRC20AndMapping
-    function multiSignForDeployDAppTRC20AndMapping(address mainChainAddress, string memory name,
-        string memory symbol, uint8 decimals, address contractOwner, uint256 nonce)
-    public goDelegateCall onlyNotStop onlyOracle
-    {
-        require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
-        bool needMapping = multiSignForMapping(nonce);
-        if (needMapping) {
-            deployDAppTRC20AndMapping(mainChainAddress, name, symbol, decimals, contractOwner, nonce);
-        }
-    }
-
     function deployDAppTRC20AndMapping(address mainChainAddress, string memory name,
         string memory symbol, uint8 decimals, uint256 nonce) internal
     {
@@ -167,17 +155,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         mainContractList.push(mainChainAddress);
     }
 
-    function deployDAppTRC20AndMapping(address mainChainAddress, string memory name,
-        string memory symbol, uint8 decimals, address contractOwner, uint256 nonce) internal
-    {
-        require(mainToSideContractMap[mainChainAddress] == address(0), "TRC20 contract is mapped");
-        address sideChainAddress = address(new DAppTRC20(address(this), name, symbol, decimals));
-        address(0x10002).call(abi.encode(sideChainAddress, contractOwner));
-        mainToSideContractMap[mainChainAddress] = sideChainAddress;
-        sideToMainContractMap[sideChainAddress] = mainChainAddress;
-        emit DeployDAppTRC20AndMapping(mainChainAddress, sideChainAddress, nonce);
-        mainContractList.push(mainChainAddress);
-    }
     // 2. deployDAppTRC721AndMapping
     function multiSignForDeployDAppTRC721AndMapping(address mainChainAddress, string memory name,
         string memory symbol, uint256 nonce)
@@ -190,35 +167,11 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         }
     }
 
-    // 2. deployDAppTRC721AndMapping
-    function multiSignForDeployDAppTRC721AndMapping(address mainChainAddress, string memory name,
-        string memory symbol, address contractOwner, uint256 nonce)
-    public goDelegateCall onlyNotStop onlyOracle
-    {
-        require(mainChainAddress != sunTokenAddress, "mainChainAddress == sunTokenAddress");
-        bool needMapping = multiSignForMapping(nonce);
-        if (needMapping) {
-            deployDAppTRC721AndMapping(mainChainAddress, name, symbol, contractOwner, nonce);
-        }
-    }
-
     function deployDAppTRC721AndMapping(address mainChainAddress, string memory name,
         string memory symbol, uint256 nonce) internal
     {
         require(mainToSideContractMap[mainChainAddress] == address(0), "TRC721 contract is mapped");
         address sideChainAddress = address(new DAppTRC721(address(this), name, symbol));
-        mainToSideContractMap[mainChainAddress] = sideChainAddress;
-        sideToMainContractMap[sideChainAddress] = mainChainAddress;
-        emit DeployDAppTRC721AndMapping(mainChainAddress, sideChainAddress, nonce);
-        mainContractList.push(mainChainAddress);
-    }
-
-    function deployDAppTRC721AndMapping(address mainChainAddress, string memory name,
-        string memory symbol, address contractOwner, uint256 nonce) internal
-    {
-        require(mainToSideContractMap[mainChainAddress] == address(0), "TRC721 contract is mapped");
-        address sideChainAddress = address(new DAppTRC721(address(this), name, symbol));
-        address(0x10002).call(abi.encode(sideChainAddress, contractOwner));
         mainToSideContractMap[mainChainAddress] = sideChainAddress;
         sideToMainContractMap[sideChainAddress] = mainChainAddress;
         emit DeployDAppTRC721AndMapping(mainChainAddress, sideChainAddress, nonce);
@@ -332,8 +285,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
     public checkForTrc10(tokenId, tokenValue) goDelegateCall onlyNotPause onlyNotStop isHuman
     returns (uint256 r)
     {
-        require(tokenIdMap[uint256(tokenId)], "tokenIdMap[tokenId] == false");
-        require(tokenValue >= withdrawMinTrc10, "tokenvalue must be >= withdrawMinTrc10");
+        require(tokenIdMap[uint256(msg.tokenid)], "tokenIdMap[`msg.tokenid] == false");
+        require(msg.tokenvalue >= withdrawMinTrc10, "tokenvalue must be >= withdrawMinTrc10");
         require(msg.value >= withdrawFee, "value must be >= withdrawFee");
         if (msg.value > withdrawFee) {
             msg.sender.transfer(msg.value - withdrawFee);
@@ -341,10 +294,10 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         if (msg.value > 0) {
             bonus += withdrawFee;
         }
-        userWithdrawList.push(WithdrawMsg(msg.sender, address(0), tokenId, tokenValue, DataModel.TokenKind.TRC10, DataModel.Status.SUCCESS));
+        userWithdrawList.push(WithdrawMsg(msg.sender, address(0), msg.tokenid, msg.tokenvalue, DataModel.TokenKind.TRC10, DataModel.Status.SUCCESS));
         // burn
-        address(0).transferToken(tokenValue, tokenId);
-        emit WithdrawTRC10(msg.sender, tokenId, tokenValue, userWithdrawList.length - 1);
+        address(0).transferToken(msg.tokenvalue, msg.tokenid);
+        emit WithdrawTRC10(msg.sender, msg.tokenid, msg.tokenvalue, userWithdrawList.length - 1);
         r = userWithdrawList.length - 1;
     }
 
@@ -527,7 +480,7 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         if (_signMsg.success) {
             return false;
         }
-        bytes32 ret = batchvalidatesign(dataHash, _signMsg.signs, _signMsg.signOracles);
+        bytes32 ret = multivalidatesign(dataHash, _signMsg.signs, _signMsg.signOracles);
         uint256 count = countSuccess(ret);
         if (count > numOracles * 2 / 3) {
             _signMsg.success = true;
@@ -593,10 +546,6 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
     function setRetryFee(uint256 fee) external goDelegateCall onlyOwner {
         require(fee <= 100_000_000, "less than 100 TRX");
         retryFee = fee;
-    }
-
-    function setTokenOwner(address tokenAddress, address tokenOwner) external onlyOwner {
-        address(0x10002).call(abi.encode(tokenAddress, tokenOwner));
     }
 
     function mainContractCount() view external returns (uint256) {

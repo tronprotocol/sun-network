@@ -89,7 +89,7 @@ contract OracleManagerContract is Ownable {
     function checkOraclesWithMultiValidate(bytes32 dataHash, uint256 nonce, bytes[] memory sigList, address[] memory oracleList) internal returns (bool) {
         SignMsg storage signMsg = withdrawMultiSignList[nonce][dataHash];
 
-        bytes32 ret = batchvalidatesign(dataHash, sigList, oracleList);
+        bytes32 ret = multivalidatesign(dataHash, sigList, oracleList);
         signMsg.countSign = countSuccess(ret);
 
         if (!signMsg.success && signMsg.countSign > numOracles * 2 / 3) {
@@ -105,7 +105,7 @@ contract OracleManagerContract is Ownable {
         return count;
     }
 
-    function addOracle(address _oracle) public onlyOwner {
+    function addOracle(address _oracle) public goDelegateCall onlyOwner {
         require(_oracle != address(0), "this address cannot be zero");
         require(oracleIndex[_oracle] == 0, "this address is already oracle");
         require(numOracles < 256, "cannot more than 256 oracles");
@@ -122,7 +122,7 @@ contract OracleManagerContract is Ownable {
         numOracles++;
     }
 
-    function delOracle(address _oracle) public onlyOwner {
+    function delOracle(address _oracle) public goDelegateCall onlyOwner {
         require(oracleIndex[_oracle] > 0, "this address is not oracle");
 
         indexOracle[oracleIndex[_oracle]] = address(0);
@@ -137,12 +137,11 @@ contract OracleManagerContract is Ownable {
         }
     }
 
-    function setPause(bool status) public onlyOwner {
-
+    function setPause(bool status) public goDelegateCall onlyOwner {
         pause = status;
     }
 
-    function setStop(bool status) public onlyOwner {
+    function setStop(bool status) public goDelegateCall onlyOwner {
         stop = status;
     }
 

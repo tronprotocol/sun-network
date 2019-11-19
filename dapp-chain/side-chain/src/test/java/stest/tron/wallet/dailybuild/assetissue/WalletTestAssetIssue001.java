@@ -33,9 +33,6 @@ import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 @Slf4j
 public class WalletTestAssetIssue001 {
 
-  private static final long now = System.currentTimeMillis();
-  private static final long totalSupply = now;
-  private static String name = "testAssetIssue001_" + Long.toString(now);
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final String testKey003 = Configuration.getByPath("testng.conf")
@@ -47,23 +44,25 @@ public class WalletTestAssetIssue001 {
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.slideTokenId");
+
+
+  private static final long now = System.currentTimeMillis();
+  private static String name = "testAssetIssue001_" + Long.toString(now);
+  private static final long totalSupply = now;
   String description = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.assetDescription");
   String url = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.assetUrl");
+
+  private ManagedChannel channelFull = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   ByteString assetAccountId;
+  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
+      .get(0);
   ECKey ecKey = new ECKey(Utils.getRandom());
   byte[] noBandwitchAddress = ecKey.getAddress();
   String noBandwitch = ByteArray.toHexString(ecKey.getPrivKeyBytes());
-  private ManagedChannel channelFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-      .get(0);
 
-  public static String loadPubKey() {
-    char[] buf = new char[0x100];
-    return String.valueOf(buf, 32, 130);
-  }
 
   @BeforeSuite
   public void beforeSuite() {
@@ -88,9 +87,8 @@ public class WalletTestAssetIssue001 {
 
     PublicMethedForDailybuild.printAddress(noBandwitch);
     PublicMethedForDailybuild.printAddress(testKey002);
-    Assert
-        .assertTrue(PublicMethedForDailybuild.sendcoin(noBandwitchAddress, 2048000000, fromAddress,
-            testKey002, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(noBandwitchAddress, 2048000000, fromAddress,
+        testKey002, blockingStubFull));
     PublicMethedForDailybuild.printAddress(tokenOwnerKey);
     Assert.assertTrue(transferAsset(noBandwitchAddress, tokenId.getBytes(), 100L,
         tokenOnwerAddress, tokenOwnerKey));
@@ -127,11 +125,8 @@ public class WalletTestAssetIssue001 {
     //Not create asset, try to unfreeze asset failed.No exception.
     //Assert.assertFalse(unFreezeAsset(toAddress, testKey003));
 
-  }
 
-  /**
-   * constructor.
-   */
+  }
 
   /**
    * constructor.
@@ -143,6 +138,10 @@ public class WalletTestAssetIssue001 {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
+
+  /**
+   * constructor.
+   */
 
   /**
    * constructor.
@@ -161,6 +160,11 @@ public class WalletTestAssetIssue001 {
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
+  }
+
+  public static String loadPubKey() {
+    char[] buf = new char[0x100];
+    return String.valueOf(buf, 32, 130);
   }
 
   public byte[] getAddress(ECKey ecKey) {

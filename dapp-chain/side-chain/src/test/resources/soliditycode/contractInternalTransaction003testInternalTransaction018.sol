@@ -44,6 +44,12 @@ contract A{
         bAddr.call.value(1)(abi.encodeWithSignature("testNN(address)",eAddr));//2.1
         bAddr.call.value(1)(abi.encodeWithSignature("testNN(address)",eAddr));//2.1
         bAddr.call.value(1)(abi.encodeWithSignature("testNN(address)",eAddr));//2.1
+        bAddr.call.value(1)(abi.encodeWithSignature("testNN(address)",eAddr));//2.1
+        bAddr.call.value(1)(abi.encodeWithSignature("testNN(address)",eAddr));//2.1
+        bAddr.call.value(1)(abi.encodeWithSignature("testNN(address)",eAddr));//2.1
+        bAddr.call.value(1)(abi.encodeWithSignature("testNN(address)",eAddr));//2.1
+        bAddr.call.value(1)(abi.encodeWithSignature("testNN(address)",eAddr));//2.1
+        bAddr.call.value(1)(abi.encodeWithSignature("testNN(address)",eAddr));//2.1
     }
 
 }

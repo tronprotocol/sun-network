@@ -32,6 +32,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
 import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
+import zmq.socket.pubsub.Pub;
 
 @Slf4j
 public class FreezeBalance2Test {
@@ -43,8 +44,7 @@ public class FreezeBalance2Test {
       .getString("foundationAccount.key1");
 
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
-  private final byte[] noFrozenAddress = PublicMethedForDailybuild
-      .getFinalAddress(noFrozenBalanceTestKey);
+  private final byte[] noFrozenAddress = PublicMethedForDailybuild.getFinalAddress(noFrozenBalanceTestKey);
 
   private ManagedChannel channelFull = null;
   private ManagedChannel searchChannelFull = null;
@@ -54,11 +54,6 @@ public class FreezeBalance2Test {
       .get(0);
   private String searchFullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
-
-  public static String loadPubKey() {
-    char[] buf = new char[0x100];
-    return String.valueOf(buf, 32, 130);
-  }
 
   @BeforeSuite
   public void beforeSuite() {
@@ -132,8 +127,7 @@ public class FreezeBalance2Test {
       e.printStackTrace();
     }
     //Freeze balance success.
-    ret1 = PublicMethedForDailybuild
-        .freezeBalance2(fromAddress, 1000000L, 3L, testKey002, blockingStubFull);
+    ret1 = PublicMethedForDailybuild.freezeBalance2(fromAddress, 1000000L, 3L, testKey002, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
   }
@@ -305,8 +299,7 @@ public class FreezeBalance2Test {
         "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtilsForDailybuild
-        .sign(transaction, ecKey, PublicMethed.getMaingatewayByteAddr(), false);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey,PublicMethed.getMaingatewayByteAddr(),false);
     Return response = blockingStubFull.broadcastTransaction(transaction);
 
     if (response.getResult() == false) {
@@ -456,6 +449,11 @@ public class FreezeBalance2Test {
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
+  }
+
+  public static String loadPubKey() {
+    char[] buf = new char[0x100];
+    return String.valueOf(buf, 32, 130);
   }
 
   public byte[] getAddress(ECKey ecKey) {

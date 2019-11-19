@@ -15,12 +15,14 @@ import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.WalletGrpc;
 import org.tron.core.Wallet;
+import org.tron.core.config.Parameter.ChainParameters;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.SideChainParameters;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
+import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
@@ -37,14 +39,7 @@ public class TestStorageAndCpu {
   private final String testKey004 = Configuration.getByPath("testng.conf")
       .getString("witness.key3");
   private final byte[] testAddress004 = PublicMethedForDailybuild.getFinalAddress(testKey004);
-  ArrayList<String> txidList = new ArrayList<String>();
-  Optional<TransactionInfo> infoById = null;
-  Long beforeTime;
-  Long afterTime;
-  Long beforeBlockNum;
-  Long afterBlockNum;
-  Block currentBlock;
-  Long currentBlockNum;
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private ManagedChannel channelFull1 = null;
@@ -53,6 +48,16 @@ public class TestStorageAndCpu {
       .getStringList("fullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
+  ArrayList<String> txidList = new ArrayList<String>();
+
+  Optional<TransactionInfo> infoById = null;
+  Long beforeTime;
+  Long afterTime;
+  Long beforeBlockNum;
+  Long afterBlockNum;
+  Block currentBlock;
+  Long currentBlockNum;
+
 
   @BeforeSuite
   public void beforeSuite() {
@@ -103,8 +108,7 @@ public class TestStorageAndCpu {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    SmartContract smartContract = PublicMethedForDailybuild
-        .getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     String txid;
 
     SideChainParameters chainParameters = blockingStubFull

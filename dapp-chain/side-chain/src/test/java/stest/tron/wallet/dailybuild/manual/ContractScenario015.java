@@ -15,6 +15,7 @@ import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
+import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
@@ -27,24 +28,28 @@ public class ContractScenario015 {
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
-  byte[] contractAddress1 = null;
-  byte[] contractAddress2 = null;
-  byte[] contractAddress3 = null;
-  String txid = "";
-  Optional<TransactionInfo> infoById = null;
-  String contractName = "";
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] contract014Address = ecKey1.getAddress();
-  String contract014Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] receiverAddress = ecKey2.getAddress();
-  String receiverKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
+
+  byte[] contractAddress1 = null;
+  byte[] contractAddress2 = null;
+  byte[] contractAddress3 = null;
+  String txid = "";
+  Optional<TransactionInfo> infoById = null;
+  String contractName = "";
+
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] contract014Address = ecKey1.getAddress();
+  String contract014Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] receiverAddress = ecKey2.getAddress();
+  String receiverKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -76,9 +81,8 @@ public class ContractScenario015 {
     PublicMethedForDailybuild.printAddress(contract014Key);
     PublicMethedForDailybuild.printAddress(receiverKey);
 
-    Assert
-        .assertTrue(PublicMethedForDailybuild.sendcoin(contract014Address, 500000000L, fromAddress,
-            testKey002, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contract014Address, 500000000L, fromAddress,
+        testKey002, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     //Deploy contract1, contract1 has a function to transaction 5 sun to target account
     String contractName = "TRON TRC20";
@@ -86,9 +90,8 @@ public class ContractScenario015 {
         .getString("code.code_Scenario015_TRC20_TRON");
     String abi = Configuration.getByPath("testng.conf")
         .getString("abi.abi_Scenario015_TRC20_TRON");
-    txid = PublicMethedForDailybuild
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-            maxFeeLimit, 0L, 100, null, contract014Key, contract014Address, blockingStubFull);
+    txid = PublicMethedForDailybuild.deployContractAndGetTransactionInfoById(contractName, abi, code, "",
+        maxFeeLimit, 0L, 100, null, contract014Key, contract014Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     logger.info(txid);
@@ -103,8 +106,8 @@ public class ContractScenario015 {
     logger.info(txid);
 
     siringContractString = "\"" + Base58.encode58Check(fromAddress) + "\",\"" + 17 + "\"";
-    txid = PublicMethedForDailybuild.triggerContract(contractAddress1, "transfer(address,uint256)",
-        siringContractString, false, 0, 10000000L, contract014Address,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress1,"transfer(address,uint256)",
+        siringContractString,false, 0, 10000000L, contract014Address,
         contract014Key, blockingStubFull);
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);

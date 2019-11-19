@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.spongycastle.util.encoders.Hex;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -28,6 +30,8 @@ import org.tron.protos.Protocol.Block;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
+import stest.tron.wallet.common.client.utils.Base58;
+
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
 import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
@@ -37,15 +41,16 @@ import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 @Slf4j
 public class WalletTestAccount003 {
 
-  private static final long now = System.currentTimeMillis();
-  private static final String name = "testAssetIssue_" + Long.toString(now);
-  private static final long TotalSupply = now;
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
+
+  private static final long now = System.currentTimeMillis();
+  private static final String name = "testAssetIssue_" + Long.toString(now);
+  private static final long TotalSupply = now;
   String mostLongNamePlusOneChar = "1abcdeabcdefabcdefg1abcdefg10o0og1abcdefg10o0oabcd"
       + "efabcdefg1abcdefg10o0og1abcdefg10o0oabcdefabcdefg1abcdefg10o0og1abcdefg10o0oab"
       + "cdefabcdefg1abcdefg10o0og1abcdefg10o0ofabcdefg1abcdefg10o0og1abcdefg10o0o";
@@ -59,38 +64,16 @@ public class WalletTestAccount003 {
   ECKey ecKey = new ECKey(Utils.getRandom());
   byte[] lowBalAddress = ecKey.getAddress();
   String lowBalTest = ByteArray.toHexString(ecKey.getPrivKeyBytes());
-  //get account
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] noBandwitchAddress = ecKey1.getAddress();
-  String noBandwitch = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
 
-  public static String loadPubKey() {
-    char[] buf = new char[0x100];
-    return String.valueOf(buf, 32, 130);
-  }
-
-  /**
-   * constructor.
-   */
-
-  public static String getRandomStr(int length) {
-    String base = "abcdefghijklmnopqrstuvwxyz0123456789";
-    int randomNum;
-    char randomChar;
-    Random random = new Random();
-    StringBuffer str = new StringBuffer();
-
-    for (int i = 0; i < length; i++) {
-      randomNum = random.nextInt(base.length());
-      randomChar = base.charAt(randomNum);
-      str.append(randomChar);
-    }
-    return str.toString();
-  }
+  //get account
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] noBandwitchAddress = ecKey1.getAddress();
+  String noBandwitch = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -122,8 +105,7 @@ public class WalletTestAccount003 {
     }
     logger.info("lowBalAddress  " + ByteArray.toHexString(lowBalAddress));
     logger.info("lowBalTest  " + lowBalTest);
-    Assert.assertTrue(PublicMethedForDailybuild
-        .sendcoin(lowBalAddress, 1L, fromAddress, testKey002, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(lowBalAddress, 1L, fromAddress, testKey002,blockingStubFull));
     noCreateAccount = PublicMethedForDailybuild.queryAccount(lowBalTest, blockingStubFull);
     logger.info(Long.toString(noCreateAccount.getBalance()));
     Assert.assertTrue(noCreateAccount.getBalance() == 1);
@@ -133,22 +115,19 @@ public class WalletTestAccount003 {
   public void test2UpdateAccount() {
     Assert.assertFalse(PublicMethedForDailybuild.updateAccount(lowBalAddress,
         mostLongNamePlusOneChar.getBytes(), lowBalTest, blockingStubFull));
-    Assert.assertFalse(
-        PublicMethedForDailybuild.updateAccount(lowBalAddress, "".getBytes(), lowBalTest,
-            blockingStubFull));
+    Assert.assertFalse(PublicMethedForDailybuild.updateAccount(lowBalAddress, "".getBytes(), lowBalTest,
+        blockingStubFull));
     String mostLongName = getRandomStr(33);
-    Assert.assertTrue(
-        PublicMethedForDailybuild.updateAccount(lowBalAddress, mostLongName.getBytes(), lowBalTest,
-            blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.updateAccount(lowBalAddress, mostLongName.getBytes(), lowBalTest,
+        blockingStubFull));
     String firstUpdateName = getRandomStr(32);
-    Assert.assertFalse(
-        PublicMethedForDailybuild.updateAccount(lowBalAddress, firstUpdateName.getBytes(),
-            lowBalTest, blockingStubFull));
+    Assert.assertFalse(PublicMethedForDailybuild.updateAccount(lowBalAddress, firstUpdateName.getBytes(),
+        lowBalTest, blockingStubFull));
     String secondUpdateName = getRandomStr(15);
-    Assert.assertFalse(
-        PublicMethedForDailybuild.updateAccount(lowBalAddress, secondUpdateName.getBytes(),
-            lowBalTest, blockingStubFull));
+    Assert.assertFalse(PublicMethedForDailybuild.updateAccount(lowBalAddress, secondUpdateName.getBytes(),
+        lowBalTest, blockingStubFull));
   }
+
 
   @Test(enabled = true)
   public void test4NoBalanceTransferTrx() {
@@ -251,6 +230,18 @@ public class WalletTestAccount003 {
     } else {
       return true;
     }
+  }
+
+  class AccountComparator implements Comparator {
+
+    public int compare(Object o1, Object o2) {
+      return Long.compare(((Account) o2).getBalance(), ((Account) o1).getBalance());
+    }
+  }
+
+  public static String loadPubKey() {
+    char[] buf = new char[0x100];
+    return String.valueOf(buf, 32, 130);
   }
 
   public byte[] getAddress(ECKey ecKey) {
@@ -418,11 +409,23 @@ public class WalletTestAccount003 {
 
   }
 
-  class AccountComparator implements Comparator {
+  /**
+   * constructor.
+   */
 
-    public int compare(Object o1, Object o2) {
-      return Long.compare(((Account) o2).getBalance(), ((Account) o1).getBalance());
+  public static String getRandomStr(int length) {
+    String base = "abcdefghijklmnopqrstuvwxyz0123456789";
+    int randomNum;
+    char randomChar;
+    Random random = new Random();
+    StringBuffer str = new StringBuffer();
+
+    for (int i = 0; i < length; i++) {
+      randomNum = random.nextInt(base.length());
+      randomChar = base.charAt(randomNum);
+      str.append(randomChar);
     }
+    return str.toString();
   }
 
 }

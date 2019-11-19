@@ -33,10 +33,18 @@ public class WalletTestAccount013 {
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
+
+
+  private ManagedChannel channelFull = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+  private String fullnode = Configuration.getByPath("testng.conf")
+      .getStringList("fullnode.ip.list").get(1);
+
   Optional<TransactionInfo> infoById = null;
   long account013BeforeBalance;
   long freezeAmount = 10000000L;
   long freezeDuration = 0;
+
   byte[] account013Address;
   String testKeyForAccount013;
   byte[] receiverDelegateAddress;
@@ -51,10 +59,6 @@ public class WalletTestAccount013 {
   String accountForDeployKey;
   byte[] accountForAssetIssueAddress;
   String accountForAssetIssueKey;
-  private ManagedChannel channelFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
 
   /**
    * constructor.
@@ -185,13 +189,11 @@ public class WalletTestAccount013 {
     Assert.assertFalse(PublicMethedForDailybuild.freezeBalanceForReceiver(
         account013Address, freezeAmount, freezeDuration, 0,
         ByteString.copyFrom(account013Address), testKeyForAccount013, blockingStubFull));
-    account013Resource = PublicMethedForDailybuild
-        .getAccountResource(account013Address, blockingStubFull);
+    account013Resource = PublicMethedForDailybuild.getAccountResource(account013Address, blockingStubFull);
     logger.info("After 013 energy limit is " + account013Resource.getEnergyLimit());
     logger.info("After 013 net limit is " + account013Resource.getNetLimit());
 
-    receiverResource = PublicMethedForDailybuild
-        .getAccountResource(receiverDelegateAddress, blockingStubFull);
+    receiverResource = PublicMethedForDailybuild.getAccountResource(receiverDelegateAddress, blockingStubFull);
     logger.info("After receiver energy limit is " + receiverResource.getEnergyLimit());
     logger.info("After receiver net limit is " + receiverResource.getNetLimit());
   }
@@ -258,9 +260,8 @@ public class WalletTestAccount013 {
         new String(delegatedResourceIndexResult1.get().getToAccounts(0).toByteArray())));
 
     //unfreezebalance of bandwidth from Account013 to Account4
-    Assert.assertTrue(
-        PublicMethedForDailybuild.unFreezeBalance(account013Address, testKeyForAccount013,
-            0, account4DelegatedResourceAddress, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.unFreezeBalance(account013Address, testKeyForAccount013,
+        0, account4DelegatedResourceAddress, blockingStubFull));
     //check DelegatedResourceAccountIndex of Account4
     Optional<Protocol.DelegatedResourceAccountIndex> delegatedResourceIndexResult1AfterUnfreeze =
         PublicMethedForDailybuild.getDelegatedResourceAccountIndex(
@@ -406,10 +407,9 @@ public class WalletTestAccount013 {
         .getString("abi.abi_WalletTestAccount013");
 
     logger.info("TestSStore");
-    final byte[] contractAddress = PublicMethedForDailybuild
-        .deployContract(contractName, abi, code, "",
-            maxFeeLimit, 0L, consumeUserResourcePercent, null, accountForDeployKey,
-            accountForDeployAddress, blockingStubFull);
+    final byte[] contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "",
+        maxFeeLimit, 0L, consumeUserResourcePercent, null, accountForDeployKey,
+        accountForDeployAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     //Account4 DelegatedResource of Energy to Contract
     //After 3.6 can not delegate resource to contract

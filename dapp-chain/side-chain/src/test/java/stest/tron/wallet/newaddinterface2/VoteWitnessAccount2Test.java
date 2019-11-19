@@ -55,10 +55,6 @@ public class VoteWitnessAccount2Test {
   private String searchFullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
 
-  public static String loadPubKey() {
-    char[] buf = new char[0x100];
-    return String.valueOf(buf, 32, 130);
-  }
 
   @BeforeSuite
   public void beforeSuite() {
@@ -134,8 +130,7 @@ public class VoteWitnessAccount2Test {
     //Assert.assertFalse(VoteWitness(smallVoteMap, NO_FROZEN_ADDRESS, no_frozen_balance_testKey));
 
     //Freeze balance to get vote ability.
-    ret1 = PublicMethedForDailybuild
-        .freezeBalance2(fromAddress, 10000000L, 3L, testKey002, blockingStubFull);
+    ret1 = PublicMethedForDailybuild.freezeBalance2(fromAddress, 10000000L, 3L, testKey002, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
     //Vote failed when the vote is large than the freeze balance.
@@ -553,6 +548,11 @@ public class VoteWitnessAccount2Test {
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
   }
 
+  public static String loadPubKey() {
+    char[] buf = new char[0x100];
+    return String.valueOf(buf, 32, 130);
+  }
+
   public byte[] getAddress(ECKey ecKey) {
     return ecKey.getAddress();
   }
@@ -585,7 +585,7 @@ public class VoteWitnessAccount2Test {
     }
     transaction = TransactionUtils.setTimestamp(transaction);
     return TransactionUtilsForDailybuild
-        .sign(transaction, ecKey, PublicMethed.getMaingatewayByteAddr(), false);
+        .sign(transaction, ecKey, PublicMethed.getMaingatewayByteAddr(),false);
   }
 }
 

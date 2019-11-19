@@ -1,8 +1,5 @@
 package stest.tron.wallet.common.client;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
-
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.io.File;
@@ -12,11 +9,14 @@ import java.io.InputStreamReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 
 public class Configuration {
 
-  private static final Logger logger = LoggerFactory.getLogger("Configuration");
   private static Config config;
+
+  private static final Logger logger = LoggerFactory.getLogger("Configuration");
 
   /**
    * constructor.

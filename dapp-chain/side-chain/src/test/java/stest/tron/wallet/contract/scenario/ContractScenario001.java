@@ -30,9 +30,7 @@ public class ContractScenario001 {
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] contract001Address = ecKey1.getAddress();
-  String contract001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
   private ManagedChannel channelFull = null;
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -43,6 +41,10 @@ public class ContractScenario001 {
       .getStringList("fullnode.ip.list").get(0);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
+
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] contract001Address = ecKey1.getAddress();
+  String contract001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -75,17 +77,14 @@ public class ContractScenario001 {
 
     Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contract001Address, 20000000L, toAddress,
         testKey003, blockingStubFull));
-    Assert
-        .assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(contract001Address, 15000000L,
-            3, 1, contract001Key, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(contract001Address, 15000000L,
+        3, 1, contract001Key, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
-    AccountResourceMessage accountResource = PublicMethedForDailybuild
-        .getAccountResource(contract001Address,
-            blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(contract001Address,
+        blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
-    Long balanceBefore = PublicMethedForDailybuild.queryAccount(contract001Key, blockingStubFull)
-        .getBalance();
+    Long balanceBefore = PublicMethedForDailybuild.queryAccount(contract001Key, blockingStubFull).getBalance();
 
     logger.info("before energy limit is " + Long.toString(energyLimit));
     logger.info("before energy usage is " + Long.toString(energyUsage));
@@ -97,21 +96,17 @@ public class ContractScenario001 {
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    byte[] contractAddress = PublicMethedForDailybuild
-        .deployContract(contractName, abi, code, "", maxFeeLimit,
-            0L, 100, null, contract001Key, contract001Address, blockingStubFull);
-    SmartContract smartContract = PublicMethedForDailybuild
-        .getContract(contractAddress, blockingStubFull);
+    byte[] contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
+        0L, 100, null, contract001Key, contract001Address, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getAbi() != null);
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
-    accountResource = PublicMethedForDailybuild
-        .getAccountResource(contract001Address, blockingStubFull1);
+    accountResource = PublicMethedForDailybuild.getAccountResource(contract001Address, blockingStubFull1);
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
-    Long balanceAfter = PublicMethedForDailybuild.queryAccount(contract001Key, blockingStubFull1)
-        .getBalance();
+    Long balanceAfter = PublicMethedForDailybuild.queryAccount(contract001Key, blockingStubFull1).getBalance();
 
     logger.info("after energy limit is " + Long.toString(energyLimit));
     logger.info("after energy usage is " + Long.toString(energyUsage));

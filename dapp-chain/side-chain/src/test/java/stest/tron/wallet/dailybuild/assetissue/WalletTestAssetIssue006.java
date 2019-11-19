@@ -26,21 +26,13 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 @Slf4j
 public class WalletTestAssetIssue006 {
 
-  private static final long now = System.currentTimeMillis();
-  private static final long totalSupply = now;
-  private static String name = "assetissue006" + Long.toString(now);
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
-  String description = "test query assetissue by timestamp from soliditynode";
-  String url = "https://testqueryassetissue.com/bytimestamp/from/soliditynode/";
-  //get account
-  ECKey ecKey = new ECKey(Utils.getRandom());
-  byte[] queryAssetIssueFromSoliAddress = ecKey.getAddress();
-  String queryAssetIssueKey = ByteArray.toHexString(ecKey.getPrivKeyBytes());
+
   private ManagedChannel channelFull = null;
   private ManagedChannel channelSolidity = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -50,15 +42,40 @@ public class WalletTestAssetIssue006 {
   private String soliditynode = Configuration.getByPath("testng.conf")
       .getStringList("solidityNode.ip.list").get(0);
 
-  public static String loadPubKey() {
-    char[] buf = new char[0x100];
-    return String.valueOf(buf, 32, 130);
-  }
+  private static final long now = System.currentTimeMillis();
+  private static String name = "assetissue006" + Long.toString(now);
+  private static final long totalSupply = now;
+  String description = "test query assetissue by timestamp from soliditynode";
+  String url = "https://testqueryassetissue.com/bytimestamp/from/soliditynode/";
+
+  //get account
+  ECKey ecKey = new ECKey(Utils.getRandom());
+  byte[] queryAssetIssueFromSoliAddress = ecKey.getAddress();
+  String queryAssetIssueKey = ByteArray.toHexString(ecKey.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
     Wallet wallet = new Wallet();
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+  }
+
+  /**
+   * constructor.
+   */
+
+  @BeforeClass(enabled = false)
+  public void beforeClass() {
+    channelFull = ManagedChannelBuilder.forTarget(fullnode)
+        .usePlaintext(true)
+        .build();
+    blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
+        .usePlaintext(true)
+        .build();
+    blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
+
+
   }
 
   /*  @Test(enabled = true)
@@ -141,25 +158,6 @@ public class WalletTestAssetIssue006 {
    * constructor.
    */
 
-  @BeforeClass(enabled = false)
-  public void beforeClass() {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
-        .build();
-    blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext(true)
-        .build();
-    blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
-
-
-  }
-
-  /**
-   * constructor.
-   */
-
   @AfterClass(enabled = false)
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -187,6 +185,11 @@ public class WalletTestAssetIssue006 {
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
+  }
+
+  public static String loadPubKey() {
+    char[] buf = new char[0x100];
+    return String.valueOf(buf, 32, 130);
   }
 
   public byte[] getAddress(ECKey ecKey) {

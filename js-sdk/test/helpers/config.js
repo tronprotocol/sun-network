@@ -9,9 +9,6 @@ const sideEventServer = '';
 module.exports = {
     PRIVATE_KEY: '',
     CONSUME_USER_RESOURCE_PERCENT: 30,
-    DEPOSIT_FEE: 0,
-    MAPPING_FEE: 0,
-    WITHDRAW_FEE: 10000000,
     FEE_LIMIT: 100000000,
     MAIN_FULL_NODE_API: mainFullNode,
     MAIN_SOLIDITY_NODE_API: mainSolidityNode,

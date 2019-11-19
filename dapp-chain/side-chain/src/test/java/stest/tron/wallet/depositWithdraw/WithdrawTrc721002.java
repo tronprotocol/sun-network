@@ -31,33 +31,41 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 public class WithdrawTrc721002 {
 
 
-  final String ChainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.chainIdAddress");
   private final String foundationKey001 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] foundationAddress001 = PublicMethed.getFinalAddress(foundationKey001);
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] testAddress001 = ecKey1.getAddress();
-  String testKey001 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  String mainChainAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key1");
-  final byte[] mainChainAddressKey = WalletClient.decodeFromBase58Check(mainChainAddress);
-  String sideChainAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key2");
-  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
-  byte[] trc20Contract = null;
-  byte[] sideContractAddress = null;
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
+
+
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
+
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] testAddress001 = ecKey1.getAddress();
+  String testKey001 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
+  String mainChainAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key1");
+  final byte[] mainChainAddressKey = WalletClient.decodeFromBase58Check(mainChainAddress);
+
+  String sideChainAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key2");
+  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
+
+  final String ChainIdAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.chainIdAddress");
+  byte[] trc20Contract = null;
+  byte[] sideContractAddress = null;
 
   @BeforeSuite
   public void beforeSuite() {
@@ -106,8 +114,6 @@ public class WithdrawTrc721002 {
     String txid = PublicMethed.triggerContract(mainChainAddressKey, callValue, input,
         maxFeeLimit, 0, "", testAddress001, testKey001, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed

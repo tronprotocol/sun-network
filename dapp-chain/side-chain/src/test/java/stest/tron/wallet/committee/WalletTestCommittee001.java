@@ -26,7 +26,6 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 @Slf4j
 public class WalletTestCommittee001 {
 
-  private static final long now = System.currentTimeMillis();
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
@@ -48,15 +47,22 @@ public class WalletTestCommittee001 {
   //Witness 47.93.184.2
   private final String witnessKey005 = Configuration.getByPath("testng.conf")
       .getString("witness.key5");
+
+
   private final byte[] witness001Address = PublicMethedForDailybuild.getFinalAddress(witnessKey001);
   private final byte[] witness002Address = PublicMethedForDailybuild.getFinalAddress(witnessKey002);
   private final byte[] witness003Address = PublicMethedForDailybuild.getFinalAddress(witnessKey003);
   private final byte[] witness004Address = PublicMethedForDailybuild.getFinalAddress(witnessKey004);
   private final byte[] witness005Address = PublicMethedForDailybuild.getFinalAddress(witnessKey005);
+
+
   private ManagedChannel channelFull = null;
   private ManagedChannel channelSolidity = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+
+  private static final long now = System.currentTimeMillis();
+
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
   private String soliditynode = Configuration.getByPath("testng.conf")
@@ -89,8 +95,7 @@ public class WalletTestCommittee001 {
   @Test
   public void testListProposals() {
     //List proposals
-    SideChainProposalList proposalList = blockingStubFull
-        .listSideChainProposals(EmptyMessage.newBuilder().build());
+    SideChainProposalList proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
     Optional<SideChainProposalList> listProposals = Optional.ofNullable(proposalList);
     final Integer beforeProposalCount = listProposals.get().getProposalsCount();
 
@@ -115,7 +120,7 @@ public class WalletTestCommittee001 {
     PaginatedMessage.Builder pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(0);
     pageMessageBuilder.setLimit(1);
-    SideChainProposalList paginatedProposalList = blockingStubFull
+   SideChainProposalList paginatedProposalList = blockingStubFull
         .getPaginatedSideChainProposalList(pageMessageBuilder.build());
     Assert.assertTrue(paginatedProposalList.getProposalsCount() >= 1);
   }

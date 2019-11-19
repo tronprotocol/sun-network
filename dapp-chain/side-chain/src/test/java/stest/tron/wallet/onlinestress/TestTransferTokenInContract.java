@@ -64,12 +64,8 @@ public class TestTransferTokenInContract {
 
   */
 /**
- * constructor.
- *
- * constructor.
- *
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   @BeforeClass(enabled = true)
@@ -92,8 +88,8 @@ public class TestTransferTokenInContract {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   public ByteString createAssetissue(byte[] devAddress, String devKey, String tokenName) {
@@ -328,8 +324,8 @@ public class TestTransferTokenInContract {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   @AfterClass

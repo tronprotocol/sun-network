@@ -2,7 +2,6 @@ package stest.tron.wallet.dailybuild.multisign;
 
 import static org.hamcrest.core.StringContains.containsString;
 
-
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
@@ -85,8 +84,7 @@ public class MultiSign34 {
     Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(witnessesKey, 1000000000, fromAddress, testKey002,
             blockingStubFull));
-    Account test001AddressAccount = PublicMethedForDailybuild
-        .queryAccount(witnessesKey, blockingStubFull);
+    Account test001AddressAccount = PublicMethedForDailybuild.queryAccount(witnessesKey, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
     Permission ownerPermission = test001AddressAccount.getOwnerPermission();
     Permission witnessPermission = test001AddressAccount.getWitnessPermission();
@@ -102,8 +100,7 @@ public class MultiSign34 {
     final TransactionSignWeight transactionSignWeight = PublicMethedForMutiSign
         .getTransactionSignWeight(transaction1, blockingStubFull);
 
-    Account test001AddressAccount1 = PublicMethedForDailybuild
-        .queryAccount(witnessesKey, blockingStubFull);
+    Account test001AddressAccount1 = PublicMethedForDailybuild.queryAccount(witnessesKey, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
     Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
     Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
@@ -136,8 +133,7 @@ public class MultiSign34 {
     Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(witnessesKey, 1000000000, fromAddress, testKey002,
             blockingStubFull));
-    Account test001AddressAccount = PublicMethedForDailybuild
-        .queryAccount(witnessesKey, blockingStubFull);
+    Account test001AddressAccount = PublicMethedForDailybuild.queryAccount(witnessesKey, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
     Permission ownerPermission = test001AddressAccount.getOwnerPermission();
     Permission witnessPermission = test001AddressAccount.getWitnessPermission();
@@ -162,8 +158,7 @@ public class MultiSign34 {
     Return returnResult1 = PublicMethedForMutiSign
         .broadcastTransaction1(transaction1, blockingStubFull);
     logger.info("returnResult1:" + returnResult1);
-    Account test001AddressAccount1 = PublicMethedForDailybuild
-        .queryAccount(witnessesKey, blockingStubFull);
+    Account test001AddressAccount1 = PublicMethedForDailybuild.queryAccount(witnessesKey, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
     Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
     Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
@@ -186,8 +181,7 @@ public class MultiSign34 {
     Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(witnessesKey, 1000000000, fromAddress, testKey002,
             blockingStubFull));
-    Account test001AddressAccount = PublicMethedForDailybuild
-        .queryAccount(witnessesKey, blockingStubFull);
+    Account test001AddressAccount = PublicMethedForDailybuild.queryAccount(witnessesKey, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
     Permission ownerPermission = test001AddressAccount.getOwnerPermission();
     Permission witnessPermission = test001AddressAccount.getWitnessPermission();
@@ -204,8 +198,7 @@ public class MultiSign34 {
         .broadcastTransaction1(transaction1, blockingStubFull);
     logger.info("returnResult1:" + returnResult1);
     Assert.assertTrue(returnResult1.getResult());
-    Account test001AddressAccount1 = PublicMethedForDailybuild
-        .queryAccount(witnessesKey, blockingStubFull);
+    Account test001AddressAccount1 = PublicMethedForDailybuild.queryAccount(witnessesKey, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
     Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
     Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();

@@ -61,10 +61,6 @@ public class ContinueVote {
   private String searchFullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
 
-  public static String loadPubKey() {
-    char[] buf = new char[0x100];
-    return String.valueOf(buf, 32, 130);
-  }
 
   @BeforeSuite
   public void beforeSuite() {
@@ -114,8 +110,7 @@ public class ContinueVote {
       smallVoteMap = new HashMap<String, String>();
       smallVoteMap.put(voteStr, Integer.toString(randNum));
       if (fromInfo.getFrozen(0).getFrozenBalance() < 10000000) {
-        PublicMethedForDailybuild
-            .freezeBalance(fromAddress, 10000000000L, 3, testKey002, blockingStubFull);
+        PublicMethedForDailybuild.freezeBalance(fromAddress, 10000000000L, 3, testKey002, blockingStubFull);
       }
       ret = voteWitness(smallVoteMap, fromAddress, testKey002);
       if (ret) {
@@ -374,6 +369,11 @@ public class ContinueVote {
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
+  }
+
+  public static String loadPubKey() {
+    char[] buf = new char[0x100];
+    return String.valueOf(buf, 32, 130);
   }
 
   public byte[] getAddress(ECKey ecKey) {

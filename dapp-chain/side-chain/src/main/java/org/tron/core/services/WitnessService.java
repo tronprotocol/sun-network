@@ -75,7 +75,8 @@ public class WitnessService implements Service {
 
   private AtomicInteger dupBlockCount = new AtomicInteger(0);
   private AtomicLong dupBlockTime = new AtomicLong(0);
-  private long blockCycle;
+  private long blockCycle =
+      ChainConstant.BLOCK_PRODUCED_INTERVAL * Args.getInstance().getWitnessMaxActiveNum();
 
   /**
    * Construction method.
@@ -90,9 +91,6 @@ public class WitnessService implements Service {
     manager = tronApp.getDbManager();
     manager.setWitnessService(this);
     controller = manager.getWitnessController();
-    blockCycle =
-        ChainConstant.BLOCK_PRODUCED_INTERVAL * manager.getDynamicPropertiesStore()
-            .getWitnessMaxActiveNum();
     new Thread(() -> {
       while (needSyncCheck) {
         try {

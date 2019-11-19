@@ -59,9 +59,9 @@ public class Constant {
 
 
   /**
-   * normal transaction is 0 representing normal transaction unexecuted deferred transaction is 1
-   * representing unexecuted deferred transaction executing deferred transaction is 2 representing
-   * executing deferred transaction
+   * normal transaction is 0 representing normal transaction
+   * unexecuted deferred transaction is 1 representing unexecuted deferred transaction
+   * executing deferred transaction is 2 representing executing deferred transaction
    */
   public static final int NORMALTRANSACTION = 0;
   public static final int UNEXECUTEDDEFERREDTRANSACTION = 1;
@@ -71,6 +71,5 @@ public class Constant {
   public static final String SUN_TOKEN_ID = "2000000";
   public static final long MICRO_SUN_TOKEN_PER_ENERGY = 100;
   public static final String TRON_ZERO_ADDRESS_HEX = "410000000000000000000000000000000000000000";
-  public static final String GATEWAY_CODE_V_1_0_2_HASH = "ddc918e325efc982957c0e7290a3c916854743572719d7fcad751369c1e90ee8";
 
 }

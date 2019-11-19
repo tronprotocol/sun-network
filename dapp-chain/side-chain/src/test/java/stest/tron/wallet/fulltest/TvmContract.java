@@ -18,6 +18,7 @@ import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
+import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
@@ -27,13 +28,15 @@ public class TvmContract {
   private final String testKey002 =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] contract008Address = ecKey1.getAddress();
-  String contract008Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
+
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] contract008Address = ecKey1.getAddress();
+  String contract008Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -52,17 +55,14 @@ public class TvmContract {
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-    Assert
-        .assertTrue(PublicMethedForDailybuild.sendcoin(contract008Address, 500000000L, fromAddress,
-            testKey002, blockingStubFull));
-    logger
-        .info(Long.toString(PublicMethedForDailybuild.queryAccount(contract008Key, blockingStubFull)
-            .getBalance()));
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(contract008Address, 500000000L, fromAddress,
+        testKey002, blockingStubFull));
+    logger.info(Long.toString(PublicMethedForDailybuild.queryAccount(contract008Key, blockingStubFull)
+        .getBalance()));
     Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(contract008Address, 1000000L,
         3, 1, contract008Key, blockingStubFull));
-    Assert.assertTrue(
-        PublicMethedForDailybuild.buyStorage(50000000L, contract008Address, contract008Key,
-            blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.buyStorage(50000000L, contract008Address, contract008Key,
+        blockingStubFull));
     Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(contract008Address, 5000000L,
         3, contract008Key, blockingStubFull));
 
@@ -70,9 +70,8 @@ public class TvmContract {
 
   @Test(enabled = false)
   public void deployErc721CryptoKitties() {
-    AccountResourceMessage accountResource = PublicMethedForDailybuild
-        .getAccountResource(contract008Address,
-            blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(contract008Address,
+        blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long storageLimit = accountResource.getStorageLimit();
     Long energyUsage = accountResource.getEnergyUsed();
@@ -90,8 +89,7 @@ public class TvmContract {
         .getString("abi.abi_TvmContract_deployErc721CryptoKitties");
     Long m = 0L;
     Long freeNet;
-    accountResource = PublicMethedForDailybuild
-        .getAccountResource(contract008Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild.getAccountResource(contract008Address, blockingStubFull);
     Long net = accountResource.getFreeNetUsed();
     Account account = PublicMethedForDailybuild.queryAccount(contract008Key, blockingStubFull);
     Long netUsed = account.getNetUsage();
@@ -101,8 +99,7 @@ public class TvmContract {
     for (Integer i = 0; i < 1; i++) {
       byte[] contractAddress = PublicMethedForDailybuild.deployContract("1", abi, code, "",
           30000000L, 0L, 1, null, contract008Key, contract008Address, blockingStubFull);
-      accountResource = PublicMethedForDailybuild
-          .getAccountResource(contract008Address, blockingStubFull);
+      accountResource = PublicMethedForDailybuild.getAccountResource(contract008Address, blockingStubFull);
       freeNet = accountResource.getFreeNetUsed();
       energyUsage = accountResource.getEnergyUsed();
       logger.info(

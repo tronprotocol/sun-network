@@ -26,7 +26,6 @@ import org.tron.common.utils.TransactionUtils;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.AssetIssueContract;
-import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.TransactionInfo;
@@ -195,19 +194,6 @@ class WalletClient {
     }
 
     return assetIssueById;
-  }
-
-  SmartContract getContract(byte[] contractAddress) {
-    SmartContract smartContract = null;
-    for (int i = SystemSetting.CLIENT_MAX_RETRY; i > 0; i--) {
-      smartContract = rpcCli.getContract(contractAddress);
-      if (smartContract != null) {
-        break;
-      }
-      sleep(SystemSetting.CLIENT_RETRY_INTERVAL);
-    }
-
-    return smartContract;
   }
 
   private Transaction getTransaction(

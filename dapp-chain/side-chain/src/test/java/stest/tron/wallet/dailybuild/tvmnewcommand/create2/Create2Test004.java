@@ -2,7 +2,6 @@ package stest.tron.wallet.dailybuild.tvmnewcommand.create2;
 
 import static org.hamcrest.core.StringContains.containsString;
 
-
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -16,6 +15,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.WalletGrpc;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
@@ -352,8 +352,7 @@ public class Create2Test004 {
 
     testContractAddress = WalletClient.decodeFromBase58Check(addressFinal);
 
-    SmartContract smartContract = PublicMethedForDailybuild
-        .getContract(testContractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild.getContract(testContractAddress, blockingStubFull);
 
     // contract created by create2, doesn't have ABI
     Assert.assertEquals(0, smartContract.getAbi().getEntrysCount());

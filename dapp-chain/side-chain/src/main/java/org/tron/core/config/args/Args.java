@@ -531,10 +531,6 @@ public class Args {
   @Setter
   private int witnessMaxActiveNum;
 
-  @Getter
-  @Setter
-  private long updateGateway_v1_0_2; //committee parameter
-
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
     INSTANCE.help = false;
@@ -622,7 +618,6 @@ public class Args {
     INSTANCE.percentToPayWitness = 80;
     INSTANCE.voteSwitch = 0;
     INSTANCE.witnessMaxActiveNum = 27;
-    INSTANCE.updateGateway_v1_0_2 = 0;
   }
 
   /**
@@ -723,10 +718,6 @@ public class Args {
 
     if (config.hasPath("vm.supportConstant")) {
       INSTANCE.supportConstant = config.getBoolean("vm.supportConstant");
-    }
-
-    if (config.hasPath("vm.updateGateway_v1_0_2")) {
-      INSTANCE.updateGateway_v1_0_2 = config.getInt("vm.updateGateway_v1_0_2");
     }
 
     if (config.hasPath("vm.minTimeRatio")) {

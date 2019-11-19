@@ -29,6 +29,7 @@ import org.tron.protos.Protocol.Transaction;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
+import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
 import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
@@ -48,11 +49,6 @@ public class WalletTestWitness002 {
       .get(0);
   private String soliditynode = Configuration.getByPath("testng.conf")
       .getStringList("solidityNode.ip.list").get(0);
-
-  public static String loadPubKey() {
-    char[] buf = new char[0x100];
-    return String.valueOf(buf, 32, 130);
-  }
 
   @BeforeSuite
   public void beforeSuite() {
@@ -150,6 +146,14 @@ public class WalletTestWitness002 {
     }
   }
 
+  class WitnessComparator implements Comparator {
+
+    public int compare(Object o1, Object o2) {
+      return Long
+          .compare(((Protocol.Witness) o2).getVoteCount(), ((Protocol.Witness) o1).getVoteCount());
+    }
+  }
+
   /**
    * constructor.
    */
@@ -167,6 +171,11 @@ public class WalletTestWitness002 {
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
+  }
+
+  public static String loadPubKey() {
+    char[] buf = new char[0x100];
+    return String.valueOf(buf, 32, 130);
   }
 
   public byte[] getAddress(ECKey ecKey) {
@@ -201,14 +210,6 @@ public class WalletTestWitness002 {
     }
     transaction = TransactionUtils.setTimestamp(transaction);
     return TransactionUtilsForDailybuild.sign(transaction, ecKey);
-  }
-
-  class WitnessComparator implements Comparator {
-
-    public int compare(Object o1, Object o2) {
-      return Long
-          .compare(((Protocol.Witness) o2).getVoteCount(), ((Protocol.Witness) o1).getVoteCount());
-    }
   }
 }
 

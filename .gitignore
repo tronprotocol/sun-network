@@ -62,4 +62,3 @@ node_modules/
 /documentation/config.js
 /documentation/package-lock.json
 /documentation/docs/.vuepress/github
-js-sdk/src/test/helpers/config.js

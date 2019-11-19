@@ -68,10 +68,8 @@ public class MainNetTransferSendOrAsset {
 
   */
 /**
- * constructor.
- *
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   @BeforeClass(enabled = false)
@@ -141,8 +139,8 @@ public class MainNetTransferSendOrAsset {
 
   */
 /**
- * constructor.
- *//*
+   * constructor.
+   *//*
 
 
   @AfterClass(enabled = false)

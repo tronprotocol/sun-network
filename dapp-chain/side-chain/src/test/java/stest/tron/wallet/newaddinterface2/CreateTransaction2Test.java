@@ -28,6 +28,7 @@ import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
+
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
 import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
@@ -47,10 +48,7 @@ public class CreateTransaction2Test {
       .decodeFromBase58Check("TV75jZpdmP2juMe1dRwGrwpV6AMU6mr1EU");*/
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
-  //receipt account
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] receiptAccountAddress = ecKey2.getAddress();
-  String receiptAccountKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+
   private ManagedChannel channelFull = null;
   private ManagedChannel searchChannelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -63,10 +61,10 @@ public class CreateTransaction2Test {
   byte[] sendAccountAddress = ecKey1.getAddress();
   String sendAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-  public static String loadPubKey() {
-    char[] buf = new char[0x100];
-    return String.valueOf(buf, 32, 130);
-  }
+  //receipt account
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] receiptAccountAddress = ecKey2.getAddress();
+  String receiptAccountKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -101,8 +99,7 @@ public class CreateTransaction2Test {
     Account sendAccount = PublicMethedForDailybuild.queryAccount(sendAccountKey, blockingStubFull);
     Long sendAccountBeforeBalance = sendAccount.getBalance();
     Assert.assertTrue(sendAccountBeforeBalance == 90000000000L);
-    Account receiptAccount = PublicMethedForDailybuild
-        .queryAccount(receiptAccountKey, blockingStubFull);
+    Account receiptAccount = PublicMethedForDailybuild.queryAccount(receiptAccountKey, blockingStubFull);
     Long receiptAccountBeforeBalance = receiptAccount.getBalance();
     Assert.assertTrue(receiptAccountBeforeBalance == 0);
     //normal sendcoin2
@@ -141,9 +138,8 @@ public class CreateTransaction2Test {
         "contract validate error : Amount must greater than 0.");
 
     //Send coin to yourself
-    ret1 = PublicMethedForDailybuild
-        .sendcoin2(sendAccountAddress, 1000000L, sendAccountAddress, sendAccountKey,
-            blockingStubFull);
+    ret1 = PublicMethedForDailybuild.sendcoin2(sendAccountAddress, 1000000L, sendAccountAddress, sendAccountKey,
+        blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(),
         "contract validate error : Cannot transfer trx to yourself.");
@@ -319,6 +315,11 @@ public class CreateTransaction2Test {
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
+  }
+
+  public static String loadPubKey() {
+    char[] buf = new char[0x100];
+    return String.valueOf(buf, 32, 130);
   }
 
   public byte[] getAddress(ECKey ecKey) {

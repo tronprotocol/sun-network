@@ -17,31 +17,9 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 @Slf4j
 public class HttpTestAsset001 {
 
-  private static final long now = System.currentTimeMillis();
-  private static final long totalSupply = now;
-  private final static String tokenId = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenId");
-  private static String name = "testAssetIssue002_" + Long.toString(now);
-  private static String assetIssueId;
-  private static String updateDescription = "Description_update_" + Long.toString(now);
-  private static String updateUrl = "Url_update_" + Long.toString(now);
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
-  private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenOwnerKey");
-  private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] assetAddress = ecKey1.getAddress();
-  String assetKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] participateAddress = ecKey2.getAddress();
-  String participateKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-  Long amount = 2048000000L;
-  String description = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetDescription");
-  String url = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetUrl");
   private JSONObject responseContent;
   private JSONObject getAssetIssueByIdContent;
   private JSONObject getAssetIssueByNameContent;
@@ -50,6 +28,33 @@ public class HttpTestAsset001 {
       .get(1);
   private String httpSoliditynode = Configuration.getByPath("testng.conf")
       .getStringList("httpnode.ip.list").get(2);
+
+
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] assetAddress = ecKey1.getAddress();
+  String assetKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] participateAddress = ecKey2.getAddress();
+  String participateKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+
+  Long amount = 2048000000L;
+
+  String description = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.assetDescription");
+  String url = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.assetUrl");
+  private static final long now = System.currentTimeMillis();
+  private static String name = "testAssetIssue002_" + Long.toString(now);
+  private static final long totalSupply = now;
+  private static String assetIssueId;
+  private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
+      .getString("tokenFoundationAccount.slideTokenOwnerKey");
+  private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
+  private final static String tokenId = Configuration.getByPath("testng.conf")
+      .getString("tokenFoundationAccount.slideTokenId");
+  private static String updateDescription = "Description_update_" + Long.toString(now);
+  private static String updateUrl = "Url_update_" + Long.toString(now);
 
   /**
    * constructor.
@@ -163,9 +168,8 @@ public class HttpTestAsset001 {
    */
   @Test(enabled = false, description = "Update asset issue by http")
   public void test08UpdateAssetIssue() {
-    response = HttpMethed
-        .updateAssetIssue(httpnode, tokenOnwerAddress, updateDescription, updateUrl,
-            290L, 390L, assetKey);
+    response = HttpMethed.updateAssetIssue(httpnode, tokenOnwerAddress, updateDescription, updateUrl,
+        290L, 390L, assetKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.getAssetIssueById(httpnode, tokenId);

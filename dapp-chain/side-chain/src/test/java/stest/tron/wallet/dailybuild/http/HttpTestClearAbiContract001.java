@@ -2,7 +2,6 @@ package stest.tron.wallet.dailybuild.http;
 
 import static org.hamcrest.core.StringContains.containsString;
 
-
 import com.alibaba.fastjson.JSONObject;
 import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
@@ -20,28 +19,31 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 @Slf4j
 public class HttpTestClearAbiContract001 {
 
-  private static final long now = System.currentTimeMillis();
-  private static final long totalSupply = now;
-  private static String name = "testAssetIssue002_" + Long.toString(now);
-  private static String assetIssueId;
-  private static String contractName;
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private JSONObject responseContent;
+  private HttpResponse response;
+  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
+      .get(0);
+
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] assetOwnerAddress = ecKey2.getAddress();
   String assetOwnerKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
   String contractAddress;
   String abi;
   Long amount = 2048000000L;
+
   String description = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.assetDescription");
   String url = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.assetUrl");
-  private JSONObject responseContent;
-  private HttpResponse response;
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(0);
+  private static final long now = System.currentTimeMillis();
+  private static String name = "testAssetIssue002_" + Long.toString(now);
+  private static final long totalSupply = now;
+  private static String assetIssueId;
+  private static String contractName;
+
 
   /**
    * constructor.

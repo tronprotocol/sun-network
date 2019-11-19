@@ -23,38 +23,48 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 @Slf4j
 public class WalletTestAssetIssue012 {
 
-  private static final long now = System.currentTimeMillis();
-  private static final long totalSupply = now;
-  private static final long sendAmount = 10000000000L;
-  private static final long netCostMeasure = 200L;
-  private static ByteString assetAccountId = null;
-  private static String name = "AssetIssue012_" + Long.toString(now);
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
+
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.slideTokenId");
+  private static ByteString assetAccountId = null;
+
+
+
+  private static final long now = System.currentTimeMillis();
+  private static String name = "AssetIssue012_" + Long.toString(now);
+  private static final long totalSupply = now;
+  private static final long sendAmount = 10000000000L;
+  private static final long netCostMeasure = 200L;
+
   Long freeAssetNetLimit = 10000L;
   Long publicFreeAssetNetLimit = 10000L;
   String description = "for case assetissue012";
   String url = "https://stest.assetissue012.url";
-  //get account
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] asset012Address = ecKey1.getAddress();
-  String testKeyForAssetIssue012 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] transferAssetAddress = ecKey2.getAddress();
-  String transferAssetCreateKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+
+
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
+
+  //get account
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] asset012Address = ecKey1.getAddress();
+  String testKeyForAssetIssue012 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
+
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] transferAssetAddress = ecKey2.getAddress();
+  String transferAssetCreateKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -95,9 +105,8 @@ public class WalletTestAssetIssue012 {
             blockingStubFull));
     assetAccountId = ByteString.copyFromUtf8(tokenId);
     org.junit.Assert
-        .assertTrue(
-            PublicMethedForDailybuild.transferAsset(asset012Address, assetAccountId.toByteArray(),
-                100000000L, tokenOnwerAddress, tokenOwnerKey, blockingStubFull));
+        .assertTrue(PublicMethedForDailybuild.transferAsset(asset012Address, assetAccountId.toByteArray(),
+            100000000L, tokenOnwerAddress, tokenOwnerKey, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
   }
@@ -122,9 +131,8 @@ public class WalletTestAssetIssue012 {
 
     //Transfer send some asset issue to default account, to test if this
     // transaction use the creator net.
-    Assert.assertTrue(
-        PublicMethedForDailybuild.transferAsset(toAddress, assetAccountId.toByteArray(), 1L,
-            transferAssetAddress, transferAssetCreateKey, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.transferAsset(toAddress, assetAccountId.toByteArray(), 1L,
+        transferAssetAddress, transferAssetCreateKey, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     assetCreatorNet = PublicMethedForDailybuild
         .getAccountNet(asset012Address, blockingStubFull);

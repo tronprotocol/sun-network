@@ -1,8 +1,18 @@
 package stest.tron.wallet.common.client;
 
+import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigObject;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,11 +46,12 @@ public class WalletClient {
 
   private static final Logger logger = LoggerFactory.getLogger("WalletClient");
   private static final String FilePath = "Wallet";
-  private static String dbPath;
-  private static String txtPath;
-  private static byte addressPreFixByte = CommonConstant.ADD_PRE_FIX_BYTE_MAINNET;
   private ECKey ecKey = null;
   private boolean loginState = false;
+  private static String dbPath;
+  private static String txtPath;
+
+  private static byte addressPreFixByte = CommonConstant.ADD_PRE_FIX_BYTE_MAINNET;
 
   //  static {
   //    new Timer().schedule(new TimerTask() {
@@ -54,6 +65,22 @@ public class WalletClient {
   //    }, 3 * 60 * 1000, 3 * 60 * 1000);
   //  }
 
+
+  public static byte getAddressPreFixByte() {
+    return addressPreFixByte;
+  }
+
+  public static void setAddressPreFixByte(byte addressPreFixByte) {
+    WalletClient.addressPreFixByte = addressPreFixByte;
+  }
+
+  public static String getDbPath() {
+    return dbPath;
+  }
+
+  public static String getTxtPath() {
+    return txtPath;
+  }
 
   /**
    * Creates a new WalletClient with a random ECKey or no ECKey.
@@ -81,28 +108,17 @@ public class WalletClient {
     this.ecKey = temKey;
   }
 
-  /**
-   * Creates a Wallet with an existing ECKey.
-   */
-
-  public WalletClient(final ECKey ecKey) {
-    this.ecKey = ecKey;
+  public boolean login(String password) {
+    loginState = checkPassWord(password);
+    return loginState;
   }
 
-  public static byte getAddressPreFixByte() {
-    return addressPreFixByte;
+  public boolean isLoginState() {
+    return loginState;
   }
 
-  public static void setAddressPreFixByte(byte addressPreFixByte) {
-    WalletClient.addressPreFixByte = addressPreFixByte;
-  }
-
-  public static String getDbPath() {
-    return dbPath;
-  }
-
-  public static String getTxtPath() {
-    return txtPath;
+  public void logout() {
+    loginState = false;
   }
 
   /**
@@ -121,6 +137,22 @@ public class WalletClient {
     byte[] priKeyHexPlain = SymmEncoder.AES128EcbDec(priKeyHexEnced, aesKey);
     String priKeyPlain = Hex.toHexString(priKeyHexPlain);
     return new WalletClient(priKeyPlain);
+  }
+
+  /**
+   * Creates a Wallet with an existing ECKey.
+   */
+
+  public WalletClient(final ECKey ecKey) {
+    this.ecKey = ecKey;
+  }
+
+  public ECKey getEcKey() {
+    return ecKey;
+  }
+
+  public byte[] getAddress() {
+    return ecKey.getAddress();
   }
 
   private static String loadPassword() {
@@ -324,27 +356,6 @@ public class WalletClient {
       return null;
     }
     return address;
-  }
-
-  public boolean login(String password) {
-    loginState = checkPassWord(password);
-    return loginState;
-  }
-
-  public boolean isLoginState() {
-    return loginState;
-  }
-
-  public void logout() {
-    loginState = false;
-  }
-
-  public ECKey getEcKey() {
-    return ecKey;
-  }
-
-  public byte[] getAddress() {
-    return ecKey.getAddress();
   }
 
 }

@@ -30,7 +30,6 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 @Slf4j
 public class WalletTestCommittee004 {
 
-  private static final long now = System.currentTimeMillis();
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
@@ -50,16 +49,23 @@ public class WalletTestCommittee004 {
   //Witness 47.93.184.2
   private final String witnessKey005 = Configuration.getByPath("testng.conf")
       .getString("witness.key5");
+
+
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   private final byte[] witness001Address = PublicMethedForDailybuild.getFinalAddress(witnessKey001);
+  private final byte[] witness002Address = PublicMethedForDailybuild.getFinalAddress(witnessKey002);
   //private final byte[] witness003Address = PublicMethedForDailybuild.getFinalAddress(witnessKey003);
   //private final byte[] witness004Address = PublicMethedForDailybuild.getFinalAddress(witnessKey004);
   //private final byte[] witness005Address = PublicMethedForDailybuild.getFinalAddress(witnessKey005);
-  private final byte[] witness002Address = PublicMethedForDailybuild.getFinalAddress(witnessKey002);
+
+
   private ManagedChannel channelFull = null;
   private ManagedChannel channelSolidity = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+
+  private static final long now = System.currentTimeMillis();
+
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
   private String soliditynode = Configuration.getByPath("testng.conf")
@@ -107,8 +113,7 @@ public class WalletTestCommittee004 {
       e.printStackTrace();
     }
     //Get proposal list
-    SideChainProposalList proposalList = blockingStubFull
-        .listSideChainProposals(EmptyMessage.newBuilder().build());
+   SideChainProposalList proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
     Optional<SideChainProposalList> listProposals = Optional.ofNullable(proposalList);
     final Integer proposalId = listProposals.get().getProposalsCount();
     Assert.assertTrue(PublicMethed.approveSideProposal(witness001Address, witnessKey001,
@@ -151,8 +156,7 @@ public class WalletTestCommittee004 {
     Assert.assertTrue(PublicMethed.sideChainProposalCreate(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
     //Get proposal list
-    SideChainProposalList proposalList = blockingStubFull
-        .listSideChainProposals(EmptyMessage.newBuilder().build());
+   SideChainProposalList proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
     Optional<SideChainProposalList> listProposals = Optional.ofNullable(proposalList);
     final Integer proposalId = listProposals.get().getProposalsCount();
 
