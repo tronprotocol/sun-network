@@ -37,7 +37,7 @@ public class ContractTrcToken064 {
   private static ByteString assetAccountId = null;
   private static ByteString assetAccountUser = null;
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenOwnerKey");
+      .getString("tokenFoundationAccount.sideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.sideTokenId");

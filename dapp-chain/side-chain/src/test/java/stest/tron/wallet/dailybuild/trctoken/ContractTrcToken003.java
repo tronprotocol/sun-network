@@ -38,12 +38,12 @@ public class ContractTrcToken003 {
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenOwnerKey");
+      .getString("tokenFoundationAccount.sideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.sideTokenId");
   private final String tokenOwnerKey2 = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenOwnerKey2");
+      .getString("tokenFoundationAccount.sideTokenOwnerKey2");
   private final byte[] tokenOnwerAddress2 = PublicMethedForDailybuild
       .getFinalAddress(tokenOwnerKey2);
   private final String tokenId2 = Configuration.getByPath("testng.conf")

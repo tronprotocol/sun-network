@@ -27,12 +27,12 @@ public class depositTokenFoundation {
       .getString("gateway_address.chainIdAddress");
   final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
   final String tokenFoundationKey001 = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenOwnerKey");
+      .getString("tokenFoundationAccount.sideTokenOwnerKey");
   final byte[] tokenFoundationAddress001 = PublicMethed.getFinalAddress(tokenFoundationKey001);
   final String tokenFoundationId001 = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.sideTokenId");
   final String tokenFoundationKey002 = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenOwnerKey2");
+      .getString("tokenFoundationAccount.sideTokenOwnerKey2");
   final byte[] tokenFoundationAddress002 = PublicMethed.getFinalAddress(tokenFoundationKey002);
   final String tokenFoundationId002 = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.sideTokenId2");
