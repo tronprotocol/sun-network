@@ -1517,7 +1517,7 @@ public class RetryTrx001 {
     Assert.assertEquals("FAILED", infoById1.get().getResult().name());
     Assert.assertEquals(1, infoById1.get().getResultValue());
     String msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135 + 136, 170 + 136)));
     Assert.assertEquals("\u0001less than 100 TRX", msg);
 
     setRetryFee = Long.MIN_VALUE - 1;
@@ -1537,7 +1537,7 @@ public class RetryTrx001 {
     Assert.assertEquals("FAILED", infoById1.get().getResult().name());
     Assert.assertEquals(1, infoById1.get().getResultValue());
     msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135 + 136, 170 + 136)));
     Assert.assertEquals("\u0001less than 100 TRX", msg);
 
     setRetryFee = -1;
@@ -1553,11 +1553,11 @@ public class RetryTrx001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingStubFull);
-    Assert.assertEquals("FAILED", infoById1.get().getResult().name());
-    Assert.assertEquals(1, infoById1.get().getResultValue());
-    msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
-    Assert.assertEquals("\u0001less than 100 TRX", msg);
+    Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
+    Assert.assertEquals(0, infoById1.get().getResultValue());
+    //msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
+    //msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135 + 136, 170 + 136)));
+    //Assert.assertEquals("\u0001less than 100 TRX", msg);
 
     setRetryFee = 100_000_001;
     parame1 = String.valueOf(setRetryFee);
@@ -1575,7 +1575,7 @@ public class RetryTrx001 {
     Assert.assertEquals("FAILED", infoById1.get().getResult().name());
     Assert.assertEquals(1, infoById1.get().getResultValue());
     msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135 + 136, 170 + 136)));
     Assert.assertEquals("\u0001less than 100 TRX", msg);
 
     setRetryFee = 99_999_999L;

@@ -260,8 +260,8 @@ public class WithdrawTrc10001 {
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
     logger.info("withdrawSideTokenAfter:" + withdrawSideTokenAfter1);
     logger.info("withdrawMainTokenAfter:" + withdrawMainTokenAfter1);
-    Assert.assertTrue(withdrawSideTokenAfter == withdrawSideTokenAfter1);
-    Assert.assertTrue(withdrawMainTokenAfter == withdrawMainTokenAfter1);
+    Assert.assertEquals(withdrawSideTokenAfter, withdrawSideTokenAfter1);
+    Assert.assertEquals(withdrawMainTokenAfter, withdrawMainTokenAfter1);
   }
 
 

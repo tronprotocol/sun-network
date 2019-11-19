@@ -327,7 +327,7 @@ public class RetryMapping20001 {
     nonceMap = Long.toString(nonceMapLong);
 
     // check Deposit Msg when deposit failed
-    int mappingNonce = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
+    int mappingNonce = nonceMapLong;
     String[] Msg = {
         WalletClient.encode58Check(trc20Contract), "2", "0"
     };

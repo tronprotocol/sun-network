@@ -1340,10 +1340,7 @@ public class RetryTrc721001 {
     Assert.assertEquals(0, infoById.get().getResultValue());
 
     // check Withdraw Msg when withdraw failed
-    int withdrawNonce = Integer.valueOf(String.valueOf(
-        Hex.toHexString(infoById1.get().getLogList()
-            .get(infoById1.get().getLogCount() - 1).getData().toByteArray())
-            .substring(193)), 16);
+    int withdrawNonce = nonceWithdrawLong;
     String[] MsgWithdraw = {
         WalletClient.encode58Check(testAddress001),
         WalletClient.encode58Check(trc721Contract), "0", "1001", "3", "0"
