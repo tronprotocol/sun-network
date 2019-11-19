@@ -111,6 +111,7 @@ public class WithdrawTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
@@ -165,6 +166,9 @@ public class WithdrawTrc721001 {
             testAddress001, testKey001, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(mapTxid, blockingStubFull);
@@ -203,6 +207,9 @@ public class WithdrawTrc721001 {
             testAddress001, testKey001, blockingStubFull);
     logger.info(deposittrx);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(deposittrx, blockingStubFull);
     depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
