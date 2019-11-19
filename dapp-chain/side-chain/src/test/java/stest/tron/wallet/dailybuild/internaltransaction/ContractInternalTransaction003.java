@@ -33,32 +33,24 @@ public class ContractInternalTransaction003 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
+  byte[] contractAddress = null;
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] internalTxsAddress = ecKey1.getAddress();
+  String testKeyForinternalTxsAddress = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
-
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-
-
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
-
-
-  byte[] contractAddress = null;
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] internalTxsAddress = ecKey1.getAddress();
-  String testKeyForinternalTxsAddress = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
 
   @BeforeSuite
   public void beforeSuite() {
@@ -82,8 +74,9 @@ public class ContractInternalTransaction003 {
         .build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
 
-    logger.info(Long.toString(PublicMethedForDailybuild.queryAccount(testNetAccountKey, blockingStubFull)
-        .getBalance()));
+    logger.info(
+        Long.toString(PublicMethedForDailybuild.queryAccount(testNetAccountKey, blockingStubFull)
+            .getBalance()));
   }
 
 
@@ -101,9 +94,10 @@ public class ContractInternalTransaction003 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        1000000L, 100, null, testKeyForinternalTxsAddress,
-        internalTxsAddress, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            1000000L, 100, null, testKeyForinternalTxsAddress,
+            internalTxsAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String contractName1 = "D";
@@ -169,9 +163,10 @@ public class ContractInternalTransaction003 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        1000000L, 100, null, testKeyForinternalTxsAddress,
-        internalTxsAddress, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            1000000L, 100, null, testKeyForinternalTxsAddress,
+            internalTxsAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String contractName1 = "calledContract";
@@ -300,9 +295,10 @@ public class ContractInternalTransaction003 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        1000000L, 100, null, testKeyForinternalTxsAddress,
-        internalTxsAddress, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            1000000L, 100, null, testKeyForinternalTxsAddress,
+            internalTxsAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String contractName1 = "D";
     HashMap retMap1 = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName1);
@@ -355,9 +351,10 @@ public class ContractInternalTransaction003 {
     HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        1000000L, 100, null, testKeyForinternalTxsAddress,
-        internalTxsAddress, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            1000000L, 100, null, testKeyForinternalTxsAddress,
+            internalTxsAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String txid = "";
@@ -421,9 +418,10 @@ public class ContractInternalTransaction003 {
     HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        1000000L, 100, null, testKeyForinternalTxsAddress,
-        internalTxsAddress, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            1000000L, 100, null, testKeyForinternalTxsAddress,
+            internalTxsAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String initParmes = "\"" + Base58.encode58Check(contractAddress) + "\"";
@@ -455,7 +453,7 @@ public class ContractInternalTransaction003 {
     dupInternalTrsansactionHash(infoById.get().getInternalTransactionsList());
   }
 
-  @Test(enabled = true, description = "Test maxfeelimit can trigger call create call max time")
+  @Test(enabled = false, description = "Test maxfeelimit can trigger call create call max time")
   public void testInternalTransaction018() {
     Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(internalTxsAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
@@ -471,9 +469,10 @@ public class ContractInternalTransaction003 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        1000000L, 100, null, testKeyForinternalTxsAddress,
-        internalTxsAddress, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            1000000L, 100, null, testKeyForinternalTxsAddress,
+            internalTxsAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String contractName1 = "B";
     HashMap retMap1 = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName1);
@@ -514,36 +513,42 @@ public class ContractInternalTransaction003 {
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("InfoById:" + infoById);
-    Assert.assertTrue(infoById.get().getResultValue() == 0);
-    int transactionsCount = infoById.get().getInternalTransactionsCount();
-    Assert.assertEquals(184, transactionsCount);
-    for (int i = 0; i < transactionsCount; i++) {
-      Assert.assertFalse(infoById.get().getInternalTransactions(i).getRejected());
+    if (infoById.get().getResultValue() == 0) {
+      Assert.assertEquals(0, infoById.get().getResultValue());
+      int transactionsCount = infoById.get().getInternalTransactionsCount();
+      Assert.assertEquals(160, transactionsCount);
+      for (int i = 0; i < transactionsCount; i++) {
+        Assert.assertFalse(infoById.get().getInternalTransactions(i).getRejected());
+      }
+      dupInternalTrsansactionHash(infoById.get().getInternalTransactionsList());
+      String note = ByteArray
+          .toStr(infoById.get().getInternalTransactions(0).getNote().toByteArray());
+      String note1 = ByteArray
+          .toStr(infoById.get().getInternalTransactions(1).getNote().toByteArray());
+      String note2 = ByteArray
+          .toStr(infoById.get().getInternalTransactions(2).getNote().toByteArray());
+      String note3 = ByteArray
+          .toStr(infoById.get().getInternalTransactions(3).getNote().toByteArray());
+      Long vaule1 = infoById.get().getInternalTransactions(0).getCallValueInfo(0).getCallValue();
+      Long vaule2 = infoById.get().getInternalTransactions(1).getCallValueInfo(0).getCallValue();
+      Long vaule3 = infoById.get().getInternalTransactions(2).getCallValueInfo(0).getCallValue();
+      Long vaule4 = infoById.get().getInternalTransactions(3).getCallValueInfo(0).getCallValue();
+
+      Assert.assertEquals("call", note);
+      Assert.assertEquals("create", note1);
+      Assert.assertEquals("call", note2);
+      Assert.assertEquals("call", note3);
+      Assert.assertTrue(1 == vaule1);
+      Assert.assertTrue(100 == vaule2);
+      Assert.assertTrue(0 == vaule3);
+      Assert.assertTrue(1 == vaule4);
+    } else {
+      Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
+          .equals(infoById.get().getResMessage().toStringUtf8())
+          || "Already Time Out".equals(infoById.get().getResMessage().toStringUtf8()));
+      long fee = infoById.get().getFee();
+      Assert.assertTrue(fee >= maxFeeLimit);
     }
-    dupInternalTrsansactionHash(infoById.get().getInternalTransactionsList());
-    String note = ByteArray
-        .toStr(infoById.get().getInternalTransactions(0).getNote().toByteArray());
-    String note1 = ByteArray
-        .toStr(infoById.get().getInternalTransactions(1).getNote().toByteArray());
-    String note2 = ByteArray
-        .toStr(infoById.get().getInternalTransactions(2).getNote().toByteArray());
-    String note3 = ByteArray
-        .toStr(infoById.get().getInternalTransactions(3).getNote().toByteArray());
-    Long vaule1 = infoById.get().getInternalTransactions(0).getCallValueInfo(0).getCallValue();
-    Long vaule2 = infoById.get().getInternalTransactions(1).getCallValueInfo(0).getCallValue();
-    Long vaule3 = infoById.get().getInternalTransactions(2).getCallValueInfo(0).getCallValue();
-    Long vaule4 = infoById.get().getInternalTransactions(3).getCallValueInfo(0).getCallValue();
-
-    Assert.assertEquals("call", note);
-    Assert.assertEquals("create", note1);
-    Assert.assertEquals("call", note2);
-    Assert.assertEquals("call", note3);
-    Assert.assertTrue(1 == vaule1);
-    Assert.assertTrue(100 == vaule2);
-    Assert.assertTrue(0 == vaule3);
-    Assert.assertTrue(1 == vaule4);
-
-
   }
 
   /**

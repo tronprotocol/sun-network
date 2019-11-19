@@ -2,6 +2,7 @@ package stest.tron.wallet.dailybuild.tvmnewcommand.triggerconstant;
 
 import static org.hamcrest.core.StringContains.containsString;
 
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.HashMap;
@@ -31,34 +32,26 @@ public class TriggerConstant023 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
+  byte[] contractAddress = null;
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] contractExcAddress = ecKey1.getAddress();
+  String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
-
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-
-
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
-
   private String soliditynode = Configuration.getByPath("testng.conf")
       .getStringList("solidityNode.ip.list").get(0);
-
-  byte[] contractAddress = null;
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] contractExcAddress = ecKey1.getAddress();
-  String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
 
   @BeforeSuite
   public void beforeSuite() {
@@ -105,18 +98,21 @@ public class TriggerConstant023 {
         + "me\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\""
         + ":\"function\"}]";
 
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            0L, 100, null, contractExcKey,
+            contractExcAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(contractAddress, blockingStubFull);
     Assert.assertFalse(smartContract.getAbi().toString().isEmpty());
     Assert.assertTrue(smartContract.getName().equalsIgnoreCase(contractName));
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(contractExcAddress,
+            blockingStubFull);
     info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();

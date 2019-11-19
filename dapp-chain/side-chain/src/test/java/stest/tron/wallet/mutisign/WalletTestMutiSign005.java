@@ -75,8 +75,10 @@ public class WalletTestMutiSign005 {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *
+ * constructor.
+ *//*
 
 
   @BeforeClass
@@ -167,8 +169,8 @@ public class WalletTestMutiSign005 {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   @AfterClass

@@ -2,6 +2,7 @@ package stest.tron.wallet.common.client.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -18,19 +19,6 @@ public class AbiUtil {
   static Pattern paramTypeNumber = Pattern.compile("^(u?int)([0-9]*)$");
   static Pattern paramTypeArray = Pattern.compile("^(.*)\\[([0-9]*)\\]$");
   //
-
-  abstract static class Coder {
-
-    boolean dynamic = false;
-    String name;
-    String type;
-
-    //    DataWord[] encode
-    abstract byte[] encode(String value);
-
-    abstract byte[] decode();
-
-  }
 
   /**
    * constructor.
@@ -88,182 +76,6 @@ public class AbiUtil {
       return new CoderArray(arrayType, length);
     }
     return null;
-  }
-
-  static class CoderArray extends Coder {
-
-    private String elementType;
-    private int length;
-
-    CoderArray(String arrayType, int length) {
-      this.elementType = arrayType;
-      this.length = length;
-      if (length == -1) {
-        this.dynamic = true;
-      }
-      this.dynamic = true;
-    }
-
-    @Override
-    byte[] encode(String arrayValues) {
-
-      Coder coder = getParamCoder(elementType);
-
-      List<Object> strings = null;
-      try {
-        ObjectMapper mapper = new ObjectMapper();
-        strings = mapper.readValue(arrayValues, List.class);
-      } catch (IOException e) {
-        e.printStackTrace();
-        return null;
-      }
-
-      List<Coder> coders = new ArrayList<>();
-
-      if (this.length == -1) {
-        for (int i = 0; i < strings.size(); i++) {
-          coders.add(coder);
-        }
-      } else {
-        for (int i = 0; i < this.length; i++) {
-          coders.add(coder);
-        }
-      }
-
-      if (this.length == -1) {
-        return concat(new DataWord(strings.size()).getData(), pack(coders, strings));
-      } else {
-        return pack(coders, strings);
-      }
-    }
-
-    @Override
-    byte[] decode() {
-      return new byte[0];
-    }
-  }
-
-  static class CoderNumber extends Coder {
-
-    @Override
-    byte[] encode(String value) {
-      long n = Long.valueOf(value);
-      DataWord word = new DataWord(Math.abs(n));
-      if (n < 0) {
-        word.negate();
-      }
-      return word.getData();
-    }
-
-    @Override
-    byte[] decode() {
-      return new byte[0];
-    }
-  }
-
-  static class CoderFixedBytes extends Coder {
-
-    @Override
-    byte[] encode(String value) {
-
-      if (value.startsWith("0x")) {
-        value = value.substring(2);
-      }
-
-      if (value.length() % 2 != 0) {
-        value = "0" + value;
-      }
-
-      byte[] result = new byte[32];
-      byte[] bytes = Hex.decode(value);
-      System.arraycopy(bytes, 0, result, 0, bytes.length);
-      return result;
-    }
-
-    @Override
-    byte[] decode() {
-      return new byte[0];
-    }
-  }
-
-  static class CoderToken extends Coder {
-
-    @Override
-    byte[] encode(String value) {
-      String hex = Hex.toHexString(new DataWord(value.getBytes()).getData());
-      return new CoderFixedBytes().encode(hex);
-    }
-
-    @Override
-    byte[] decode() {
-      return new byte[0];
-    }
-  }
-
-  static class CoderDynamicBytes extends Coder {
-
-    CoderDynamicBytes() {
-      dynamic = true;
-    }
-
-    @Override
-    byte[] encode(String value) {
-      return encodeDynamicBytes(value);
-    }
-
-    @Override
-    byte[] decode() {
-      return new byte[0];
-    }
-  }
-
-  static class CoderBool extends Coder {
-
-    @Override
-    byte[] encode(String value) {
-      if (value.equals("true") || value.equals("1")) {
-        return new DataWord(1).getData();
-      } else {
-        return new DataWord(0).getData();
-      }
-
-    }
-
-    @Override
-    byte[] decode() {
-      return new byte[0];
-    }
-  }
-
-  static class CoderAddress extends Coder {
-
-    @Override
-    byte[] encode(String value) {
-      byte[] address = Wallet.decodeFromBase58Check(value);
-      return new DataWord(address).getData();
-    }
-
-    @Override
-    byte[] decode() {
-      return new byte[0];
-    }
-  }
-
-  static class CoderString extends Coder {
-
-    CoderString() {
-      dynamic = true;
-    }
-
-    @Override
-    byte[] encode(String value) {
-      return encodeString(value);
-    }
-
-    @Override
-    byte[] decode() {
-      return new byte[0];
-    }
   }
 
   public static byte[] encodeString(String value) {
@@ -398,10 +210,10 @@ public class AbiUtil {
   public static String parseParameters(String methodSign, List<Object> parameters) {
     String[] inputArr = new String[parameters.size()];
     int i = 0;
-    for (Object parameter: parameters) {
-      if (parameter instanceof  List) {
+    for (Object parameter : parameters) {
+      if (parameter instanceof List) {
         StringBuilder sb = new StringBuilder();
-        for (Object item: (List) parameter) {
+        for (Object item : (List) parameter) {
           if (sb.length() != 0) {
             sb.append(",");
           }
@@ -409,7 +221,8 @@ public class AbiUtil {
         }
         inputArr[i++] = "[" + sb.toString() + "]";
       } else {
-        inputArr[i++] = (parameter instanceof String) ? ("\"" + parameter + "\"") : ("" + parameter);
+        inputArr[i++] =
+            (parameter instanceof String) ? ("\"" + parameter + "\"") : ("" + parameter);
       }
     }
     String input = StringUtils.join(inputArr, ',');
@@ -420,6 +233,7 @@ public class AbiUtil {
     byte[] encodedParms = encodeInput(methodSign, input);
     return Hex.toHexString(encodedParms);
   }
+
   /**
    * constructor.
    */
@@ -483,8 +297,6 @@ public class AbiUtil {
     return parseMethod(methodSign, StringUtils.join(inputArr, ','));
   }
 
-
-
   /**
    * constructor.
    */
@@ -544,6 +356,192 @@ public class AbiUtil {
       index += bytes.length;
     }
     return ret;
+  }
+
+  abstract static class Coder {
+
+    boolean dynamic = false;
+    String name;
+    String type;
+
+    //    DataWord[] encode
+    abstract byte[] encode(String value);
+
+    abstract byte[] decode();
+
+  }
+
+  static class CoderArray extends Coder {
+
+    private String elementType;
+    private int length;
+
+    CoderArray(String arrayType, int length) {
+      this.elementType = arrayType;
+      this.length = length;
+      if (length == -1) {
+        this.dynamic = true;
+      }
+      this.dynamic = true;
+    }
+
+    @Override
+    byte[] encode(String arrayValues) {
+
+      Coder coder = getParamCoder(elementType);
+
+      List<Object> strings = null;
+      try {
+        ObjectMapper mapper = new ObjectMapper();
+        strings = mapper.readValue(arrayValues, List.class);
+      } catch (IOException e) {
+        e.printStackTrace();
+        return null;
+      }
+
+      List<Coder> coders = new ArrayList<>();
+
+      if (this.length == -1) {
+        for (int i = 0; i < strings.size(); i++) {
+          coders.add(coder);
+        }
+      } else {
+        for (int i = 0; i < this.length; i++) {
+          coders.add(coder);
+        }
+      }
+
+      if (this.length == -1) {
+        return concat(new DataWord(strings.size()).getData(), pack(coders, strings));
+      } else {
+        return pack(coders, strings);
+      }
+    }
+
+    @Override
+    byte[] decode() {
+      return new byte[0];
+    }
+  }
+
+  static class CoderNumber extends Coder {
+
+    @Override
+    byte[] encode(String value) {
+      BigInteger integer = new BigInteger(value, 10);
+      DataWord word = new DataWord(integer.abs().toByteArray());
+      return word.getData();
+    }
+
+    @Override
+    byte[] decode() {
+      return new byte[0];
+    }
+  }
+
+  static class CoderFixedBytes extends Coder {
+
+    @Override
+    byte[] encode(String value) {
+
+      if (value.startsWith("0x")) {
+        value = value.substring(2);
+      }
+
+      if (value.length() % 2 != 0) {
+        value = "0" + value;
+      }
+
+      byte[] result = new byte[32];
+      byte[] bytes = Hex.decode(value);
+      System.arraycopy(bytes, 0, result, 0, bytes.length);
+      return result;
+    }
+
+    @Override
+    byte[] decode() {
+      return new byte[0];
+    }
+  }
+
+  static class CoderToken extends Coder {
+
+    @Override
+    byte[] encode(String value) {
+      String hex = Hex.toHexString(new DataWord(value.getBytes()).getData());
+      return new CoderFixedBytes().encode(hex);
+    }
+
+    @Override
+    byte[] decode() {
+      return new byte[0];
+    }
+  }
+
+  static class CoderDynamicBytes extends Coder {
+
+    CoderDynamicBytes() {
+      dynamic = true;
+    }
+
+    @Override
+    byte[] encode(String value) {
+      return encodeDynamicBytes(value);
+    }
+
+    @Override
+    byte[] decode() {
+      return new byte[0];
+    }
+  }
+
+  static class CoderBool extends Coder {
+
+    @Override
+    byte[] encode(String value) {
+      if (value.equals("true") || value.equals("1")) {
+        return new DataWord(1).getData();
+      } else {
+        return new DataWord(0).getData();
+      }
+
+    }
+
+    @Override
+    byte[] decode() {
+      return new byte[0];
+    }
+  }
+
+  static class CoderAddress extends Coder {
+
+    @Override
+    byte[] encode(String value) {
+      byte[] address = Wallet.decodeFromBase58Check(value);
+      return new DataWord(address).getData();
+    }
+
+    @Override
+    byte[] decode() {
+      return new byte[0];
+    }
+  }
+
+  static class CoderString extends Coder {
+
+    CoderString() {
+      dynamic = true;
+    }
+
+    @Override
+    byte[] encode(String value) {
+      return encodeString(value);
+    }
+
+    @Override
+    byte[] decode() {
+      return new byte[0];
+    }
   }
 
 

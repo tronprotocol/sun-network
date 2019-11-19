@@ -39,7 +39,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.spongycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -635,7 +634,8 @@ public class Wallet {
                 "Signature size is " + sig.size());
           }
           String base64 = TransactionCapsule.getBase64FromByteString(sig);
-          byte[] address = ECKey.signatureToAddress(TransactionCapsule.getHashWithSideChainId(hash), base64);
+          byte[] address = ECKey
+              .signatureToAddress(TransactionCapsule.getHashWithSideChainId(hash), base64);
           approveList.add(ByteString.copyFrom(address)); //out put approve list.
         }
         tswBuilder.addAllApprovedList(approveList);
@@ -750,7 +750,8 @@ public class Wallet {
     builder.addChainParameter(
         Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getMaintenanceTimeInterval")
-            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getMaintenanceTimeInterval()))
+            .setValue(
+                String.valueOf(dbManager.getDynamicPropertiesStore().getMaintenanceTimeInterval()))
             .build());
     //    ACCOUNT_UPGRADE_COST, //drop ,1
     builder.addChainParameter(
@@ -771,10 +772,11 @@ public class Wallet {
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTransactionFee()))
             .build());
     builder.addChainParameter(
-            Protocol.SideChainParameters.SideChainParameter.newBuilder()
-                    .setKey("getTransactionSunTokenFee")
-                    .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTransactionSunTokenFee()))
-                    .build());
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getTransactionSunTokenFee")
+            .setValue(
+                String.valueOf(dbManager.getDynamicPropertiesStore().getTransactionSunTokenFee()))
+            .build());
     //    ASSET_ISSUE_FEE, //drop ,4
     builder.addChainParameter(
         Protocol.SideChainParameters.SideChainParameter.newBuilder()
@@ -791,20 +793,23 @@ public class Wallet {
     builder.addChainParameter(
         Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getWitnessStandbyAllowance")
-            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getWitnessStandbyAllowance()))
+            .setValue(
+                String.valueOf(dbManager.getDynamicPropertiesStore().getWitnessStandbyAllowance()))
             .build());
     //    CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT, //drop ,7
     builder.addChainParameter(
         Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getCreateNewAccountFeeInSystemContract")
             .setValue(
-                String.valueOf(dbManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract()))
+                String.valueOf(
+                    dbManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract()))
             .build());
     //    CREATE_NEW_ACCOUNT_BANDWIDTH_RATE, // 1 ~ ,8
     builder.addChainParameter(
         Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getCreateNewAccountBandwidthRate")
-            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getCreateNewAccountBandwidthRate()))
+            .setValue(String
+                .valueOf(dbManager.getDynamicPropertiesStore().getCreateNewAccountBandwidthRate()))
             .build());
     //    ALLOW_CREATION_OF_CONTRACTS, // 0 / >0 ,9
 //    builder.addChainParameter(
@@ -816,7 +821,8 @@ public class Wallet {
     builder.addChainParameter(
         Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getRemoveThePowerOfTheGr")
-            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getRemoveThePowerOfTheGr()))
+            .setValue(
+                String.valueOf(dbManager.getDynamicPropertiesStore().getRemoveThePowerOfTheGr()))
             .build());
     //    ENERGY_FEE, // drop, 11
     builder.addChainParameter(
@@ -840,7 +846,8 @@ public class Wallet {
     builder.addChainParameter(
         Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getAllowUpdateAccountName")
-            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowUpdateAccountName()))
+            .setValue(
+                String.valueOf(dbManager.getDynamicPropertiesStore().getAllowUpdateAccountName()))
             .build());
     //    ALLOW_SAME_TOKEN_NAME, // 1, 15
 //    builder.addChainParameter(
@@ -870,7 +877,8 @@ public class Wallet {
     builder.addChainParameter(
         Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getTotalEnergyCurrentLimit")
-            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTotalEnergyCurrentLimit()))
+            .setValue(
+                String.valueOf(dbManager.getDynamicPropertiesStore().getTotalEnergyCurrentLimit()))
             .build());
     //    ALLOW_MULTI_SIGN, // 1, 20
     builder.addChainParameter(
@@ -884,7 +892,8 @@ public class Wallet {
     builder.addChainParameter(
         Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getAllowAdaptiveEnergy")
-            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowAdaptiveEnergy()))
+            .setValue(
+                String.valueOf(dbManager.getDynamicPropertiesStore().getAllowAdaptiveEnergy()))
             .build());
     //other chainParameters
     builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
@@ -894,12 +903,14 @@ public class Wallet {
 
     builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getTotalEnergyAverageUsage")
-        .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getTotalEnergyAverageUsage()))
+        .setValue(
+            String.valueOf(dbManager.getDynamicPropertiesStore().getTotalEnergyAverageUsage()))
         .build());
 
     builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getUpdateAccountPermissionFee")
-        .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee()))
+        .setValue(
+            String.valueOf(dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee()))
         .build());
 
     builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
@@ -909,7 +920,8 @@ public class Wallet {
 
     builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getUpdateAccountPermissionFee")
-        .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee()))
+        .setValue(
+            String.valueOf(dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee()))
         .build());
 
     builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
@@ -937,12 +949,14 @@ public class Wallet {
 
     builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getMainChainGateWayList")
-        .setValue(convertGateWayListToString(dbManager.getDynamicPropertiesStore().getMainChainGateWayList()))
+        .setValue(convertGateWayListToString(
+            dbManager.getDynamicPropertiesStore().getMainChainGateWayList()))
         .build());
 
     builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getSideChainGateWayList")
-        .setValue(convertGateWayListToString(dbManager.getDynamicPropertiesStore().getSideChainGateWayList()))
+        .setValue(convertGateWayListToString(
+            dbManager.getDynamicPropertiesStore().getSideChainGateWayList()))
         .build());
     builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
         .setKey("getSideChainId")
@@ -950,10 +964,10 @@ public class Wallet {
         .build());
     // PROPOSAL_EXPIRE_TIME, //ms  ,259_200_000L
     builder.addChainParameter(
-            Protocol.SideChainParameters.SideChainParameter.newBuilder()
-                    .setKey("getProposalExpireTime")
-                    .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getProposalExpireTime()))
-                    .build());
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getProposalExpireTime")
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getProposalExpireTime()))
+            .build());
 
     // vote witness switch
     builder.addChainParameter(
@@ -1005,6 +1019,18 @@ public class Wallet {
                 .valueOf(dbManager.getDynamicPropertiesStore().getPercentToPayWitness()))
             .build());
 
+    builder.addChainParameter(
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getWitnessMaxActiveNum")
+            .setValue(String
+                .valueOf(dbManager.getDynamicPropertiesStore().getWitnessMaxActiveNum()))
+            .build());
+    builder.addChainParameter(
+        Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getUpdateGateway_v1_0_2")
+            .setValue(String
+                .valueOf(dbManager.getDynamicPropertiesStore().getAllowUpdateGatewayV102()))
+            .build());
     return builder.build();
   }
 
@@ -1568,8 +1594,8 @@ public class Wallet {
   public String convertGateWayListToString(List<byte[]> list) {
     String gateWayStr = "";
     int i = 0;
-    while(i < list.size() - 1){
-      gateWayStr+= Wallet.encode58Check(list.get(i)) + ",";
+    while (i < list.size() - 1) {
+      gateWayStr += Wallet.encode58Check(list.get(i)) + ",";
       i++;
     }
     if (i == list.size() - 1) {

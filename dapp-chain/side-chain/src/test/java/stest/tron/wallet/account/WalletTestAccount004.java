@@ -28,8 +28,6 @@ import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.Base58;
-
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
 import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
@@ -47,8 +45,9 @@ public class WalletTestAccount004 {
       "8CB4480194192F30907E14B52498F594BD046E21D7C4D8FE866563A6760AC891";
 
 
-  private final byte[] noFrozenAddress = PublicMethedForDailybuild.getFinalAddress(noFrozenBalanceTestKey);
-
+  private final byte[] noFrozenAddress = PublicMethedForDailybuild
+      .getFinalAddress(noFrozenBalanceTestKey);
+  Long freezeAmount = 2000000L;
   private ManagedChannel channelFull = null;
   private ManagedChannel searchChannelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -58,8 +57,10 @@ public class WalletTestAccount004 {
   private String searchFullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
 
-
-  Long freezeAmount = 2000000L;
+  public static String loadPubKey() {
+    char[] buf = new char[0x100];
+    return String.valueOf(buf, 32, 130);
+  }
 
   @BeforeSuite
   public void beforeSuite() {
@@ -85,7 +86,6 @@ public class WalletTestAccount004 {
 
 
   }
-
 
   @Test(enabled = true)
   public void testFreezeBalance() {
@@ -125,15 +125,17 @@ public class WalletTestAccount004 {
     //Unfreeze failed when there is no freeze balance.
     //Wait to be create account
 
-    Assert.assertFalse(PublicMethedForDailybuild.unFreezeBalance(noFrozenAddress, noFrozenBalanceTestKey, 1,
-        null, blockingStubFull));
+    Assert.assertFalse(
+        PublicMethedForDailybuild.unFreezeBalance(noFrozenAddress, noFrozenBalanceTestKey, 1,
+            null, blockingStubFull));
     logger.info("Test unfreezebalance");
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] account004Address = ecKey1.getAddress();
     String account004Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
     Assert
-        .assertTrue(PublicMethedForDailybuild.sendcoin(account004Address, freezeAmount, fromAddress, testKey002,
-            blockingStubFull));
+        .assertTrue(PublicMethedForDailybuild
+            .sendcoin(account004Address, freezeAmount, fromAddress, testKey002,
+                blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(account004Address, freezeAmount, 0,
         account004Key, blockingStubFull));
@@ -145,13 +147,15 @@ public class WalletTestAccount004 {
     account004 = PublicMethedForDailybuild.queryAccount(account004Address, blockingStubFull);
     Assert.assertTrue(account004.getBalance() == freezeAmount);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(account004Address, freezeAmount, 0,
-        1, account004Key, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethedForDailybuild.freezeBalanceGetEnergy(account004Address, freezeAmount, 0,
+            1, account004Key, blockingStubFull));
     account004 = PublicMethedForDailybuild.queryAccount(account004Address, blockingStubFull);
     Assert.assertTrue(account004.getBalance() == 0);
 
-    Assert.assertFalse(PublicMethedForDailybuild.unFreezeBalance(account004Address, account004Key, 0,
-        null, blockingStubFull));
+    Assert
+        .assertFalse(PublicMethedForDailybuild.unFreezeBalance(account004Address, account004Key, 0,
+            null, blockingStubFull));
     Assert.assertTrue(PublicMethedForDailybuild.unFreezeBalance(account004Address, account004Key, 1,
         null, blockingStubFull));
     account004 = PublicMethedForDailybuild.queryAccount(account004Address, blockingStubFull);
@@ -314,11 +318,6 @@ public class WalletTestAccount004 {
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
-  }
-
-  public static String loadPubKey() {
-    char[] buf = new char[0x100];
-    return String.valueOf(buf, 32, 130);
   }
 
   public byte[] getAddress(ECKey ecKey) {

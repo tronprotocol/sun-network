@@ -30,52 +30,40 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 public class DepositFeeTrc10001 {
 
 
-  private final String testDepositTrx = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
-  private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
-  private ManagedChannel channelSolidity = null;
-
-  private ManagedChannel channelFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
-  private ManagedChannel channelFull1 = null;
-  private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
-  ByteString assetAccountId;
-
-  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("mainfullnode.ip.list").get(0);
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-
-  private final String testKeyFordeposit = Configuration.getByPath("testng.conf")
-      .getString("mainNetAssetAccountKey.key3");
-
-  private final byte[] depositAddress = PublicMethed.getFinalAddress(testKeyFordeposit);
-
-
-  private final String testKeyFordeposit2 = Configuration.getByPath("testng.conf")
-      .getString("mainNetAssetAccountKey.key4");
-
-  private final byte[] depositAddress2 = PublicMethed.getFinalAddress(testKeyFordeposit2);
   final String sideGatewayAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key2");
   final String mainGateWayAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key1");
-
   final String ChainIdAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.chainIdAddress");
   final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
-
   final String gateWatOwnerAddressKey = Configuration.getByPath("testng.conf")
       .getString("gateWatOwnerAddressKey.key1");
-
+  private final String testDepositTrx = Configuration.getByPath("testng.conf")
+      .getString("foundationAccount.key2");
+  private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
+  private final String testKeyFordeposit = Configuration.getByPath("testng.conf")
+      .getString("mainNetAssetAccountKey.key3");
+  private final byte[] depositAddress = PublicMethed.getFinalAddress(testKeyFordeposit);
+  private final String testKeyFordeposit2 = Configuration.getByPath("testng.conf")
+      .getString("mainNetAssetAccountKey.key4");
+  private final byte[] depositAddress2 = PublicMethed.getFinalAddress(testKeyFordeposit2);
   private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
+  ByteString assetAccountId;
   String methodStr1 = null;
   String parame1 = null;
+  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
+      .getLong("defaultParameter.maxFeeLimit");
+  private ManagedChannel channelSolidity = null;
+  private ManagedChannel channelFull = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+  private ManagedChannel channelFull1 = null;
+  private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+  private String fullnode = Configuration.getByPath("testng.conf")
+      .getStringList("mainfullnode.ip.list").get(0);
+  private String fullnode1 = Configuration.getByPath("testng.conf")
+      .getStringList("fullnode.ip.list").get(0);
 
   @BeforeSuite
   public void beforeSuite() {
@@ -100,8 +88,8 @@ public class DepositFeeTrc10001 {
     blockingSideStubFull = WalletGrpc.newBlockingStub(channelFull1);
   }
 
-  @Test(enabled = true, description = "DepositMinTrc10 normal.")
-  public void test1DepositMinTrc10001() {
+  @Test(enabled = true, description = "DepositFeeTrc10 normal.")
+  public void test1DepositFeeTrc10001() {
 
     Assert.assertTrue(PublicMethed
         .sendcoin(depositAddress, 3100_000_000L, testDepositAddress, testDepositTrx,
@@ -142,6 +130,9 @@ public class DepositFeeTrc10001 {
             maxFeeLimit, inputTokenValue, inputTokenID, depositAddress, testKeyFordeposit,
             blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById;
@@ -181,7 +172,6 @@ public class DepositFeeTrc10001 {
             input1,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
@@ -221,6 +211,12 @@ public class DepositFeeTrc10001 {
     infoById = PublicMethed
         .getTransactionInfoById(txid2, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 1);
+    Assert.assertEquals("REVERT opcode executed",
+        ByteArray.toStr(infoById.get().getResMessage().toByteArray()));
+    String data = ByteArray
+        .toHexString(infoById.get().getContractResult(0).substring(67,97).toByteArray());
+    logger.info("data:" + data);
+    Assert.assertEquals("\u001Dmsg.value need  >= depositFee", PublicMethed.hexStringToString(data));
     fee = infoById.get().getFee();
     logger.info("fee:" + fee);
     Account accountMainAfter1 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
@@ -233,9 +229,9 @@ public class DepositFeeTrc10001 {
         .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
     Long depositMainTokenAfter1 = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
-    Assert.assertTrue(depositSideTokenAfter == depositSideTokenAfter1);
-    logger.info("depositMainTokenAfter1:" + depositMainTokenAfter1);
     logger.info("depositSideTokenAfter1:" + depositSideTokenAfter1);
+    Assert.assertEquals(depositSideTokenAfter, depositSideTokenAfter1);
+    logger.info("depositMainTokenAfter1:" + depositMainTokenAfter1);
     Assert.assertEquals(depositMainTokenAfter, depositMainTokenAfter1);
 
     //=setDepositFee
@@ -249,6 +245,9 @@ public class DepositFeeTrc10001 {
             maxFeeLimit, inputTokenValue2, inputTokenID, depositAddress, testKeyFordeposit,
             blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     infoById = PublicMethed
@@ -260,14 +259,13 @@ public class DepositFeeTrc10001 {
     long accountMainAfterBalance2 = accountMainAfter2.getBalance();
     logger.info("accountMainAfterBalance2:" + accountMainAfterBalance2);
     Assert.assertEquals(accountMainAfterBalance1 - fee - setDepositFee, accountMainAfterBalance2);
-    Account accountSideAfter2 = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
     Long depositSideTokenAfter2 = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
     Long depositMainTokenAfter2 = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
+    logger.info("depositSideTokenAfter2:" + depositSideTokenAfter2);
     Assert.assertTrue(depositSideTokenAfter1 + inputTokenValue2 == depositSideTokenAfter2);
     logger.info("depositMainTokenAfter2:" + depositMainTokenAfter2);
-    logger.info("depositSideTokenAfter2:" + depositSideTokenAfter2);
     Assert.assertTrue(depositMainTokenAfter1 - inputTokenValue2 == depositMainTokenAfter2);
 
     input3 = Hex.decode(AbiUtil.parseMethod("bonus()", "", false));
@@ -292,6 +290,9 @@ public class DepositFeeTrc10001 {
             maxFeeLimit, inputTokenValue2, inputTokenID, depositAddress, testKeyFordeposit,
             blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     infoById = PublicMethed
@@ -303,14 +304,13 @@ public class DepositFeeTrc10001 {
     long accountMainAfterBalance3 = accountMainAfter3.getBalance();
     logger.info("accountMainAfterBalance3:" + accountMainAfterBalance3);
     Assert.assertEquals(accountMainAfterBalance2 - fee - setDepositFee, accountMainAfterBalance3);
-    Account accountSideAfter3 = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
     Long depositSideTokenAfter3 = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
     Long depositMainTokenAfter3 = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
+    logger.info("depositSideTokenAfter3:" + depositSideTokenAfter3);
     Assert.assertTrue(depositSideTokenAfter2 + inputTokenValue2 == depositSideTokenAfter3);
-    logger.info("depositMainTokenAfter2:" + depositMainTokenAfter2);
-    logger.info("depositSideTokenAfter2:" + depositSideTokenAfter2);
+    logger.info("depositMainTokenAfter3:" + depositMainTokenAfter3);
     Assert.assertTrue(depositMainTokenAfter2 - inputTokenValue2 == depositMainTokenAfter3);
 
     input3 = Hex.decode(AbiUtil.parseMethod("bonus()", "", false));
@@ -342,6 +342,27 @@ public class DepositFeeTrc10001 {
     Assert.assertTrue(infoById.get().getResultValue() == 1);
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById.get().getResMessage().toByteArray()));
+    data = ByteArray
+        .toHexString(infoById.get().getContractResult(0).substring(67,97).toByteArray());
+    logger.info("data:" + data);
+    Assert.assertEquals("\u001Dmsg.value need  >= depositFee", PublicMethed.hexStringToString(data));
+    fee = infoById.get().getFee();
+    logger.info("fee:" + fee);
+    Account accountMainAfter4 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
+    long accountMainAfterBalance4 = accountMainAfter4.getBalance();
+    logger.info("accountMainAfterBalance4:" + accountMainAfterBalance4);
+    Assert.assertEquals(accountMainAfterBalance3 - fee, accountMainAfterBalance4);
+    Account accountSideAfter4 = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
+    long accountSideAfterBalance4 = accountSideAfter4.getBalance();
+    logger.info("accountSideAfterBalance4:" + accountSideAfterBalance4);
+    Long depositSideTokenAfter4 = PublicMethed
+        .getAssetIssueValue(depositAddress, assetAccountId, blockingSideStubFull);
+    Long depositMainTokenAfter4 = PublicMethed
+        .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
+    logger.info("depositSideTokenAfter4:" + depositSideTokenAfter4);
+    Assert.assertEquals(depositSideTokenAfter3, depositSideTokenAfter4);
+    logger.info("depositMainTokenAfter4:" + depositMainTokenAfter4);
+    Assert.assertEquals(depositMainTokenAfter3, depositMainTokenAfter4);
 
   }
 
@@ -351,6 +372,7 @@ public class DepositFeeTrc10001 {
   @AfterClass
   public void shutdown() throws InterruptedException {
     parame1 = "0";
+    methodStr1 = "setDepositFee(uint256)";
 
     byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
 
@@ -359,6 +381,7 @@ public class DepositFeeTrc10001 {
             0,
             input1,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

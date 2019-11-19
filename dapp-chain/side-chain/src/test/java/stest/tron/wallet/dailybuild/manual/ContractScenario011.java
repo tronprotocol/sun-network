@@ -32,7 +32,20 @@ public class ContractScenario011 {
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
-
+  String kittyCoreAddressAndCut = "";
+  byte[] kittyCoreContractAddress = null;
+  byte[] saleClockAuctionContractAddress = null;
+  byte[] siringClockAuctionContractAddress = null;
+  byte[] geneScienceInterfaceContractAddress = null;
+  Integer consumeUserResourcePercent = 50;
+  String txid = "";
+  Optional<TransactionInfo> infoById = null;
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] deployAddress = ecKey1.getAddress();
+  String deployKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] triggerAddress = ecKey2.getAddress();
+  String triggerKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private ManagedChannel channelFull1 = null;
@@ -43,24 +56,6 @@ public class ContractScenario011 {
       .getStringList("fullnode.ip.list").get(1);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
-
-
-  String kittyCoreAddressAndCut = "";
-  byte[] kittyCoreContractAddress = null;
-  byte[] saleClockAuctionContractAddress = null;
-  byte[] siringClockAuctionContractAddress = null;
-  byte[] geneScienceInterfaceContractAddress = null;
-  Integer consumeUserResourcePercent = 50;
-  String txid = "";
-  Optional<TransactionInfo> infoById = null;
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] deployAddress = ecKey1.getAddress();
-  String deployKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] triggerAddress = ecKey2.getAddress();
-  String triggerKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -105,8 +100,9 @@ public class ContractScenario011 {
     Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(triggerAddress, 100000000L, 0,
         triggerKey, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
-    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(deployAddress,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(deployAddress,
+            blockingStubFull);
     Long cpuLimit = accountResource.getEnergyLimit();
     Long cpuUsage = accountResource.getEnergyUsed();
     Account account = PublicMethedForDailybuild.queryAccount(deployAddress, blockingStubFull);
@@ -147,8 +143,9 @@ public class ContractScenario011 {
 
   @Test(enabled = true, description = "Deploy Erc721 contract \"Sale Clock Auction\"")
   public void deploySaleClockAuction() {
-    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(deployAddress,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(deployAddress,
+            blockingStubFull);
     Long cpuLimit = accountResource.getEnergyLimit();
     Long cpuUsage = accountResource.getEnergyUsed();
     Account account = PublicMethedForDailybuild.queryAccount(deployKey, blockingStubFull);
@@ -175,8 +172,9 @@ public class ContractScenario011 {
 
     saleClockAuctionContractAddress = info.get().getContractAddress().toByteArray();
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(saleClockAuctionContractAddress,
-        blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(saleClockAuctionContractAddress,
+            blockingStubFull);
     Assert.assertFalse(StringUtils.isEmpty(smartContract.getBytecode()));
     Assert.assertTrue(smartContract.getAbi() != null);
     accountResource = PublicMethedForDailybuild.getAccountResource(deployAddress, blockingStubFull);
@@ -198,8 +196,9 @@ public class ContractScenario011 {
 
   @Test(enabled = true, description = "Deploy Erc721 contract \"Siring Clock Auction\"")
   public void deploySiringClockAuction() {
-    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(deployAddress,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(deployAddress,
+            blockingStubFull);
     Long cpuLimit = accountResource.getEnergyLimit();
     Long cpuUsage = accountResource.getEnergyUsed();
     Account account = PublicMethedForDailybuild.queryAccount(deployKey, blockingStubFull);
@@ -223,8 +222,9 @@ public class ContractScenario011 {
         .getTransactionInfoById(siringClockAuctionContractAddressTxid, blockingStubFull);
     siringClockAuctionContractAddress = info2.get().getContractAddress().toByteArray();
     Assert.assertTrue(info2.get().getResultValue() == 0);
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(siringClockAuctionContractAddress,
-        blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(siringClockAuctionContractAddress,
+            blockingStubFull);
     Assert.assertFalse(StringUtils.isEmpty(smartContract.getBytecode()));
     Assert.assertTrue(smartContract.getAbi() != null);
     accountResource = PublicMethedForDailybuild.getAccountResource(deployAddress, blockingStubFull);
@@ -238,8 +238,9 @@ public class ContractScenario011 {
 
   @Test(enabled = true, description = "Deploy Erc721 contract \"Gene Science Interface\"")
   public void deployGeneScienceInterface() {
-    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(deployAddress,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(deployAddress,
+            blockingStubFull);
     Long cpuLimit = accountResource.getEnergyLimit();
     Long cpuUsage = accountResource.getEnergyUsed();
     Account account = PublicMethedForDailybuild.queryAccount(deployKey, blockingStubFull);
@@ -253,17 +254,19 @@ public class ContractScenario011 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    String txid = PublicMethedForDailybuild.deployContractAndGetTransactionInfoById(contractName, abi, code,
-        "", maxFeeLimit,
-        0L, consumeUserResourcePercent, null, deployKey, deployAddress, blockingStubFull);
+    String txid = PublicMethedForDailybuild
+        .deployContractAndGetTransactionInfoById(contractName, abi, code,
+            "", maxFeeLimit,
+            0L, consumeUserResourcePercent, null, deployKey, deployAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> info2 = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
     geneScienceInterfaceContractAddress = info2.get().getContractAddress().toByteArray();
     Assert.assertTrue(info2.get().getResultValue() == 0);
 
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(geneScienceInterfaceContractAddress,
-        blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(geneScienceInterfaceContractAddress,
+            blockingStubFull);
     Assert.assertFalse(StringUtils.isEmpty(smartContract.getBytecode()));
     Assert.assertTrue(smartContract.getAbi() != null);
     accountResource = PublicMethedForDailybuild.getAccountResource(deployAddress, blockingStubFull);
@@ -280,8 +283,9 @@ public class ContractScenario011 {
   public void triggerToSetThreeContractAddressToKittyCore() {
     //Set SaleAuctionAddress to kitty core.
     String saleContractString = "\"" + Base58.encode58Check(saleClockAuctionContractAddress) + "\"";
-    txid = PublicMethedForDailybuild.triggerContract(kittyCoreContractAddress, "setSaleAuctionAddress(address)",
-        saleContractString, false, 0, 10000000L, deployAddress, deployKey, blockingStubFull);
+    txid = PublicMethedForDailybuild
+        .triggerContract(kittyCoreContractAddress, "setSaleAuctionAddress(address)",
+            saleContractString, false, 0, 10000000L, deployAddress, deployKey, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     logger.info(txid);
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
@@ -310,8 +314,9 @@ public class ContractScenario011 {
     Integer result = 1;
     Integer times = 0;
     while (result == 1) {
-      txid = PublicMethedForDailybuild.triggerContract(kittyCoreContractAddress, "unpause()", "", false, 0,
-          10000000L, deployAddress, deployKey, blockingStubFull);
+      txid = PublicMethedForDailybuild
+          .triggerContract(kittyCoreContractAddress, "unpause()", "", false, 0,
+              10000000L, deployAddress, deployKey, blockingStubFull);
       PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
       infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
       result = infoById.get().getResultValue();
@@ -447,10 +452,12 @@ public class ContractScenario011 {
     logger.info("before EnergyTotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
     Assert.assertTrue(
-        PublicMethedForDailybuild.freezeBalanceGetEnergy(triggerUseTriggerEnergyUsageAddress, 100000000L,
-            0, 1, triggerUseTriggerEnergyUsageKey, blockingStubFull));
+        PublicMethedForDailybuild
+            .freezeBalanceGetEnergy(triggerUseTriggerEnergyUsageAddress, 100000000L,
+                0, 1, triggerUseTriggerEnergyUsageKey, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    beforeBalance = PublicMethedForDailybuild.queryAccount(triggerUseTriggerEnergyUsageKey, blockingStubFull)
+    beforeBalance = PublicMethedForDailybuild
+        .queryAccount(triggerUseTriggerEnergyUsageKey, blockingStubFull)
         .getBalance();
     logger.info("before balance is " + Long.toString(beforeBalance));
 
@@ -471,7 +478,8 @@ public class ContractScenario011 {
     logger.info("after OriginEnergyUsage is " + infoById.get().getReceipt().getOriginEnergyUsage());
     logger.info("after EnergyTotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
     fee = infoById.get().getFee();
-    afterBalance = PublicMethedForDailybuild.queryAccount(triggerUseTriggerEnergyUsageKey, blockingStubFull1)
+    afterBalance = PublicMethedForDailybuild
+        .queryAccount(triggerUseTriggerEnergyUsageKey, blockingStubFull1)
         .getBalance();
     logger.info("after balance is " + Long.toString(afterBalance));
     logger.info("fee is " + Long.toString(fee));

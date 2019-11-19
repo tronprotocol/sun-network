@@ -6,14 +6,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.protobuf.ByteString;
-import io.netty.util.internal.StringUtil;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -24,10 +19,7 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.util.EntityUtils;
 import org.junit.Assert;
-import org.testng.collections.Lists;
-import org.tron.api.GrpcAPI;
 import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.ByteUtil;
 import stest.tron.wallet.common.client.Configuration;
 
 @Slf4j
@@ -202,7 +194,8 @@ public class HttpMethed {
   /**
    * constructor.
    */
-  public static HttpResponse withdrawBalance(String httpNode, byte[] witnessAddress, String witnessKey) {
+  public static HttpResponse withdrawBalance(String httpNode, byte[] witnessAddress,
+      String witnessKey) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/withdrawbalance";
       JsonObject userBaseObj2 = new JsonObject();
@@ -210,8 +203,8 @@ public class HttpMethed {
       response = createConnect(requestUrl, userBaseObj2);
       logger.info(userBaseObj2.toString());
       transactionString = EntityUtils.toString(response.getEntity());
-      transactionSignString = gettransactionsign(httpNode,transactionString,witnessKey);
-      response = broadcastTransaction(httpNode,transactionSignString);
+      transactionSignString = gettransactionsign(httpNode, transactionString, witnessKey);
+      response = broadcastTransaction(httpNode, transactionSignString);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
@@ -1097,7 +1090,6 @@ public class HttpMethed {
   }
 
 
-
   /**
    * constructor.
    */
@@ -1480,7 +1472,6 @@ public class HttpMethed {
       return null;
     }
   }
-
 
 
   /**
@@ -2103,7 +2094,6 @@ public class HttpMethed {
   }
 
 
-
   /**
    * constructor.
    */
@@ -2566,10 +2556,9 @@ public class HttpMethed {
 
   /**
    * constructor.
-
-
-  /**
-   * constructor.
+   *
+   *
+   * /** constructor.
    */
   public static HttpResponse getSpendingKey(String httpNode) {
     try {
@@ -2707,7 +2696,6 @@ public class HttpMethed {
   /**
    * constructor.
    */
-
 
   /**
    * constructor.

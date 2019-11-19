@@ -24,6 +24,7 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractTrcToken076 {
+
   private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
@@ -31,33 +32,24 @@ public class ContractTrcToken076 {
       .getString("tokenFoundationAccount.slideTokenId");
 
 
-
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
-  private ManagedChannel channelSolidity = null;
-
-  private ManagedChannel channelFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
-  private ManagedChannel channelFull1 = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-
-
-  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-
-
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
-
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] grammarAddress = ecKey1.getAddress();
   String testKeyForGrammarAddress = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
+  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
+      .getLong("defaultParameter.maxFeeLimit");
+  private ManagedChannel channelSolidity = null;
+  private ManagedChannel channelFull = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+  private ManagedChannel channelFull1 = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+  private String fullnode = Configuration.getByPath("testng.conf")
+      .getStringList("fullnode.ip.list").get(0);
 
   @BeforeSuite
   public void beforeSuite() {
@@ -76,8 +68,9 @@ public class ContractTrcToken076 {
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-    logger.info(Long.toString(PublicMethedForDailybuild.queryAccount(testNetAccountKey, blockingStubFull)
-        .getBalance()));
+    logger.info(
+        Long.toString(PublicMethedForDailybuild.queryAccount(testNetAccountKey, blockingStubFull)
+            .getBalance()));
 
   }
 
