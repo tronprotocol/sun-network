@@ -30,12 +30,12 @@ public class depositTokenFoundation {
       .getString("tokenFoundationAccount.slideTokenOwnerKey");
   final byte[] tokenFoundationAddress001 = PublicMethed.getFinalAddress(tokenFoundationKey001);
   final String tokenFoundationId001 = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenId");
+      .getString("tokenFoundationAccount.sideTokenId");
   final String tokenFoundationKey002 = Configuration.getByPath("testng.conf")
       .getString("tokenFoundationAccount.slideTokenOwnerKey2");
   final byte[] tokenFoundationAddress002 = PublicMethed.getFinalAddress(tokenFoundationKey002);
   final String tokenFoundationId002 = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenId2");
+      .getString("tokenFoundationAccount.sideTokenId2");
   private final String testDepositTrx = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);

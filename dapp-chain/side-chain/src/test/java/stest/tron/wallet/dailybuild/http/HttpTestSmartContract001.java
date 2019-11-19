@@ -18,7 +18,7 @@ public class HttpTestSmartContract001 {
 
   private static final long now = System.currentTimeMillis();
   private final static String tokenId = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenId");
+      .getString("tokenFoundationAccount.sideTokenId");
   private static final long totalSupply = now;
   private static String name = "testAssetIssue002_" + Long.toString(now);
   private static String assetIssueId;

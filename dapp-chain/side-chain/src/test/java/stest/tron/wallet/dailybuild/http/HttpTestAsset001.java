@@ -20,7 +20,7 @@ public class HttpTestAsset001 {
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
   private final static String tokenId = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenId");
+      .getString("tokenFoundationAccount.sideTokenId");
   private static String name = "testAssetIssue002_" + Long.toString(now);
   private static String assetIssueId;
   private static String updateDescription = "Description_update_" + Long.toString(now);

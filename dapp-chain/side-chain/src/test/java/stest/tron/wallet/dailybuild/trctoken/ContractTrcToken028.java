@@ -37,7 +37,7 @@ public class ContractTrcToken028 {
       .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenId");
+      .getString("tokenFoundationAccount.sideTokenId");
   int i1 = randomInt(6666666, 9999999);
   ByteString tokenId1 = ByteString.copyFromUtf8(String.valueOf(i1));
   String description = Configuration.getByPath("testng.conf")

@@ -39,7 +39,7 @@ public class WalletTestAssetIssue013 {
       .getString("tokenFoundationAccount.slideTokenOwnerKey");
   private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   private final String tokenId = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenId");
+      .getString("tokenFoundationAccount.sideTokenId");
   Long freeAssetNetLimit = 300L;
   Long publicFreeAssetNetLimit = 3000L;
   String description = "for case assetissue013";

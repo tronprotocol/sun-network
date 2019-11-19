@@ -18,7 +18,7 @@ import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 public class HttpTestEasyAccount001 {
 
   private final static String tokenId = Configuration.getByPath("testng.conf")
-      .getString("tokenFoundationAccount.slideTokenId");
+      .getString("tokenFoundationAccount.sideTokenId");
   private static String assetIssueId;
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
