@@ -31,53 +31,40 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 public class ContractFallback001 {
 
 
+  final String mainGateWayAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key1");
+  final String gateWatOwnerAddressKey = Configuration.getByPath("testng.conf")
+      .getString("gateWatOwnerAddressKey.key1");
+  final String ChainIdAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.chainIdAddress");
+  final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
   private final String testDepositTrx = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
+  private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
+  private final String sideGateWayOwner = Configuration.getByPath("testng.conf")
+      .getString("gateWatOwnerAddressKey.key2");
+  private final byte[] sideGateWayOwnerAddress = PublicMethed.getFinalAddress(sideGateWayOwner);
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] depositAddress = ecKey1.getAddress();
+  String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  String sideChainAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.key2");
+  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
+  String methodStr1 = null;
+  String parame1 = null;
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelSolidity = null;
-
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
-
-
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-
-
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] depositAddress = ecKey1.getAddress();
-  String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  final String mainGateWayAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key1");
-
-  final String gateWatOwnerAddressKey = Configuration.getByPath("testng.conf")
-      .getString("gateWatOwnerAddressKey.key1");
-
-  private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
-
-  String sideChainAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.key2");
-  final byte[] sideChainAddressKey = WalletClient.decodeFromBase58Check(sideChainAddress);
-
-  final String ChainIdAddress = Configuration.getByPath("testng.conf")
-      .getString("gateway_address.chainIdAddress");
-  final byte[] ChainIdAddressKey = WalletClient.decodeFromBase58Check(ChainIdAddress);
-
-  private final String sideGateWayOwner = Configuration.getByPath("testng.conf")
-      .getString("gateWatOwnerAddressKey.key2");
-  private final byte[] sideGateWayOwnerAddress = PublicMethed.getFinalAddress(sideGateWayOwner);
-
-  String methodStr1 = null;
-  String parame1 = null;
 
   @BeforeSuite
   public void beforeSuite() {
@@ -135,6 +122,9 @@ public class ContractFallback001 {
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
@@ -158,7 +148,7 @@ public class ContractFallback001 {
     parame1 = String.valueOf(setDepositFee);
 
     byte[] input1 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
-//mainchain fallback
+    //mainchain fallback
     String txid1 = PublicMethed
         .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
             0,
@@ -173,8 +163,8 @@ public class ContractFallback001 {
         ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
     long fee1 = infoById1.get().getFee();
     logger.info("fee1:" + fee1);
-//sidechain fallback
 
+   //sidechain fallback
     txid1 = PublicMethed
         .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideChainAddress),
             ChainIdAddressKey, 0l, input1, 1000000000,

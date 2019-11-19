@@ -2,6 +2,7 @@ package stest.tron.wallet.dailybuild.tvmnewcommand.create2;
 
 import static org.hamcrest.core.StringContains.containsString;
 
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.HashMap;
@@ -78,8 +79,9 @@ public class Create2Test001 {
   public void test01DeployFactoryContract() {
     Assert.assertTrue(PublicMethedForDailybuild.sendcoin(dev001Address, 10000_000_000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(user001Address, 10000_000_000L, fromAddress,
-        testKey002, blockingStubFull));
+    Assert
+        .assertTrue(PublicMethedForDailybuild.sendcoin(user001Address, 10000_000_000L, fromAddress,
+            testKey002, blockingStubFull));
     String filePath = "./src/test/resources/soliditycode/create2contract.sol";
     String contractName = "Factory";
     HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
@@ -164,7 +166,8 @@ public class Create2Test001 {
 
     testContractAddress = WalletClient.decodeFromBase58Check(addressFinal);
 
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(testContractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(testContractAddress, blockingStubFull);
 
     // contract created by create2, doesn't have ABI
     Assert.assertEquals(0, smartContract.getAbi().getEntrysCount());
@@ -289,20 +292,24 @@ public class Create2Test001 {
   @Test(enabled = true, description = "Trigger create2 command without meta data hash in bytecode")
   public void test04TriggerCreate2ToDeployTestContract() {
 
-    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(dev001Address,
+            blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
-    long devBalanceBefore = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull).getBalance();
+    long devBalanceBefore = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull)
+        .getBalance();
 
     logger.info("before trigger, devEnergyLimitBefore is " + Long.toString(devEnergyLimitBefore));
     logger.info("before trigger, devEnergyUsageBefore is " + Long.toString(devEnergyUsageBefore));
     logger.info("before trigger, devBalanceBefore is " + Long.toString(devBalanceBefore));
 
-    accountResource = PublicMethedForDailybuild.getAccountResource(user001Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild
+        .getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethedForDailybuild.queryAccount(user001Address, blockingStubFull)
+    long userBalanceBefore = PublicMethedForDailybuild
+        .queryAccount(user001Address, blockingStubFull)
         .getBalance();
 
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
@@ -331,13 +338,15 @@ public class Create2Test001 {
     accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitAfter = accountResource.getEnergyLimit();
     long devEnergyUsageAfter = accountResource.getEnergyUsed();
-    long devBalanceAfter = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull).getBalance();
+    long devBalanceAfter = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull)
+        .getBalance();
 
     logger.info("after trigger, devEnergyLimitAfter is " + Long.toString(devEnergyLimitAfter));
     logger.info("after trigger, devEnergyUsageAfter is " + Long.toString(devEnergyUsageAfter));
     logger.info("after trigger, devBalanceAfter is " + Long.toString(devBalanceAfter));
 
-    accountResource = PublicMethedForDailybuild.getAccountResource(user001Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild
+        .getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
     long userBalanceAfter = PublicMethedForDailybuild.queryAccount(user001Address, blockingStubFull)
@@ -379,7 +388,8 @@ public class Create2Test001 {
 
     testContractAddress = WalletClient.decodeFromBase58Check(addressFinal);
 
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(testContractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(testContractAddress, blockingStubFull);
 
     // contract created by create2, doesn't have ABI
     Assert.assertEquals(0, smartContract.getAbi().getEntrysCount());
@@ -450,7 +460,8 @@ public class Create2Test001 {
 
     testContractAddress = WalletClient.decodeFromBase58Check(addressFinal);
 
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(testContractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(testContractAddress, blockingStubFull);
 
     // contract created by create2, doesn't have ABI
     Assert.assertEquals(0, smartContract.getAbi().getEntrysCount());
@@ -469,20 +480,24 @@ public class Create2Test001 {
   @Test(enabled = true, description = "Trigger Test contact")
   public void test04TriggerTestContract() {
 
-    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(dev001Address,
+            blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
-    long devBalanceBefore = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull).getBalance();
+    long devBalanceBefore = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull)
+        .getBalance();
 
     logger.info("before trigger, devEnergyLimitBefore is " + Long.toString(devEnergyLimitBefore));
     logger.info("before trigger, devEnergyUsageBefore is " + Long.toString(devEnergyUsageBefore));
     logger.info("before trigger, devBalanceBefore is " + Long.toString(devBalanceBefore));
 
-    accountResource = PublicMethedForDailybuild.getAccountResource(user001Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild
+        .getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethedForDailybuild.queryAccount(user001Address, blockingStubFull)
+    long userBalanceBefore = PublicMethedForDailybuild
+        .queryAccount(user001Address, blockingStubFull)
         .getBalance();
 
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
@@ -500,13 +515,15 @@ public class Create2Test001 {
     accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitAfter = accountResource.getEnergyLimit();
     long devEnergyUsageAfter = accountResource.getEnergyUsed();
-    long devBalanceAfter = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull).getBalance();
+    long devBalanceAfter = PublicMethedForDailybuild.queryAccount(dev001Address, blockingStubFull)
+        .getBalance();
 
     logger.info("after trigger, devEnergyLimitAfter is " + Long.toString(devEnergyLimitAfter));
     logger.info("after trigger, devEnergyUsageAfter is " + Long.toString(devEnergyUsageAfter));
     logger.info("after trigger, devBalanceAfter is " + Long.toString(devBalanceAfter));
 
-    accountResource = PublicMethedForDailybuild.getAccountResource(user001Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild
+        .getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
     long userBalanceAfter = PublicMethedForDailybuild.queryAccount(user001Address, blockingStubFull)
@@ -538,8 +555,9 @@ public class Create2Test001 {
       Assert.fail("transaction failed with message: " + infoById.get().getResMessage());
     }
 
-    SmartContract smartContract = PublicMethedForDailybuild.getContract(infoById.get().getContractAddress()
-        .toByteArray(), blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(infoById.get().getContractAddress()
+            .toByteArray(), blockingStubFull);
 
     long consumeUserPercent = smartContract.getConsumeUserResourcePercent();
     logger.info("ConsumeURPercent: " + consumeUserPercent);

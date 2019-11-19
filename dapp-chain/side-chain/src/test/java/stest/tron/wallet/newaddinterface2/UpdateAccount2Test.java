@@ -89,8 +89,42 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *//*
 
 
   @BeforeClass
@@ -258,8 +292,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   @AfterClass
@@ -271,8 +305,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public Boolean createWitness(byte[] owner, byte[] url, String priKey) {
@@ -304,8 +338,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public GrpcAPI.Return createWitness2(byte[] owner, byte[] url, String priKey) {
@@ -353,8 +387,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public Boolean sendCoin(byte[] to, long amount, byte[] owner, String priKey) {
@@ -393,8 +427,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public GrpcAPI.Return sendCoin2(byte[] to, long amount, byte[] owner, String priKey) {
@@ -450,8 +484,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
@@ -508,8 +542,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public Account queryAccount(String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -547,8 +581,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -559,8 +593,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -581,8 +615,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public boolean updateAccount(byte[] addressBytes, byte[] accountNameBytes, String priKey) {
@@ -623,8 +657,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public GrpcAPI.Return updateAccount2(byte[] addressBytes, byte[] accountNameBytes,
@@ -682,8 +716,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public boolean unFreezeBalance(byte[] address, String priKey) {
@@ -721,8 +755,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public GrpcAPI.Return unFreezeBalance2(byte[] address, String priKey) {
@@ -775,8 +809,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public Boolean voteWitness(HashMap<String, String> witness, byte[] address, String priKey) {
@@ -824,8 +858,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public GrpcAPI.Return voteWitness2(HashMap<String, String> witness, byte[] address,
@@ -891,8 +925,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public Boolean freezeBalance(byte[] addRess, long freezeBalance, long freezeDuration,
@@ -937,8 +971,8 @@ public class UpdateAccount2Test {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public GrpcAPI.Return freezeBalance2(byte[] addRess, long freezeBalance, long freezeDuration,

@@ -53,12 +53,14 @@ public class MappingTRC721Actuator extends Actuator {
 
       String trcName = MainChainGatewayApi.getTRCName(contractAddressStr);
       String trcSymbol = MainChainGatewayApi.getTRCSymbol(contractAddressStr);
+      String contractOwner = MainChainGatewayApi
+          .getContractOwner(event.getContractAddress().toByteArray());
       logger.info(
-          "MappingTRC721Event, contractAddress: {}, trcName: {}, trcSymbol: {}, nonce: {}.",
-          contractAddressStr, trcName, trcSymbol, nonceStr);
+          "MappingTRC721Event, contractAddress: {}, trcName: {}, trcSymbol: {}, contractOwner: {}, nonce: {}.",
+          contractAddressStr, trcName, trcSymbol, contractOwner, nonceStr);
 
       Transaction tx = SideChainGatewayApi
-          .multiSignForMappingTRC721(contractAddressStr, trcName, trcSymbol,
+          .multiSignForMappingTRC721(contractAddressStr, trcName, trcSymbol, contractOwner,
               nonceStr);
       this.transactionExtensionCapsule = new TransactionExtensionCapsule(NONCE_TAG + nonceStr, tx,
           0);

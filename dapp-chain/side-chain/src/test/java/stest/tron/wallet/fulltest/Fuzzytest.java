@@ -89,8 +89,14 @@ public class Fuzzytest {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *
+ * constructor.
+ *//*
 
 
   @BeforeClass(enabled = false)
@@ -155,8 +161,8 @@ public class Fuzzytest {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   @AfterClass(enabled = false)
@@ -173,8 +179,8 @@ public class Fuzzytest {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public static Boolean createAssetIssue(byte[] address, String name, Long totalSupply,
@@ -234,8 +240,8 @@ public class Fuzzytest {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   public static Protocol.Transaction signTransaction(ECKey ecKey,

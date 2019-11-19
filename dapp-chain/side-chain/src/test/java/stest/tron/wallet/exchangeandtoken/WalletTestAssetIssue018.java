@@ -80,8 +80,10 @@ public class WalletTestAssetIssue018 {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *
+ * constructor.
+ *//*
 
 
   @BeforeClass(enabled = true)
@@ -243,8 +245,8 @@ public class WalletTestAssetIssue018 {
 
   */
 /**
-   * constructor.
-   *//*
+ * constructor.
+ *//*
 
 
   @AfterClass(enabled = true)

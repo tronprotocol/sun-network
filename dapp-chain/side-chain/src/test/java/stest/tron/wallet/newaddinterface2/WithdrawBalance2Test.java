@@ -54,6 +54,11 @@ public class WithdrawBalance2Test {
   private String searchFullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(1);
 
+  public static String loadPubKey() {
+    char[] buf = new char[0x100];
+    return String.valueOf(buf, 32, 130);
+  }
+
   @BeforeSuite
   public void beforeSuite() {
     Wallet wallet = new Wallet();
@@ -272,11 +277,6 @@ public class WithdrawBalance2Test {
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
   }
 
-  public static String loadPubKey() {
-    char[] buf = new char[0x100];
-    return String.valueOf(buf, 32, 130);
-  }
-
   public byte[] getAddress(ECKey ecKey) {
     return ecKey.getAddress();
   }
@@ -309,7 +309,7 @@ public class WithdrawBalance2Test {
     }
     transaction = TransactionUtils.setTimestamp(transaction);
     return TransactionUtilsForDailybuild
-        .sign(transaction, ecKey,PublicMethed.getMaingatewayByteAddr(),false);
+        .sign(transaction, ecKey, PublicMethed.getMaingatewayByteAddr(), false);
   }
 }
 

@@ -1,6 +1,8 @@
 package stest.tron.wallet.depositWithdraw;
 
 import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
+import static org.tron.protos.Protocol.TransactionInfo.code.SUCESS;
+
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
@@ -35,45 +37,32 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 public class RetryTrx001 {
 
 
-  private final String testDepositTrx = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
-  private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
-  private ManagedChannel channelSolidity = null;
-
-  private ManagedChannel channelFull = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
-  private ManagedChannel channelFull1 = null;
-  private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
-
-
-  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("mainfullnode.ip.list").get(0);
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-
   final String mainGateWayAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key1");
   final String sideGatewayAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.key2");
-
   final String chainIdAddress = Configuration.getByPath("testng.conf")
       .getString("gateway_address.chainIdAddress");
   final byte[] chainIdAddressKey = WalletClient.decodeFromBase58Check(chainIdAddress);
-
+  final String gateWatOwnerAddressKey = Configuration.getByPath("testng.conf")
+      .getString("gateWatOwnerAddressKey.key1");
+  final String gateWatOwnerSideAddressKey = Configuration.getByPath("testng.conf")
+      .getString("gateWatOwnerAddressKey.key2");
+  private final String testDepositTrx = Configuration.getByPath("testng.conf")
+      .getString("foundationAccount.key2");
+  private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
+  private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
+  private final byte[] gateWaySideOwnerAddress = PublicMethed
+      .getFinalAddress(gateWatOwnerSideAddressKey);
+  private final String testOracle = Configuration.getByPath("testng.conf")
+      .getString("oralceAccountKey.key1");
+  private final byte[] testOracleAddress = PublicMethed.getFinalAddress(testOracle);
   ECKey ecKey = new ECKey(Utils.getRandom());
   byte[] depositAddress = ecKey.getAddress();
   String testKeyFordeposit = ByteArray.toHexString(ecKey.getPrivKeyBytes());
-
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] depositAddress1 = ecKey1.getAddress();
   String testKeyFordeposit1 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
-
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] depositAddress2 = ecKey2.getAddress();
   String testKeyFordeposit2 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
@@ -83,22 +72,18 @@ public class RetryTrx001 {
   String parame1 = null;
   String methodStrSide = null;
   String parameSide1 = null;
-
-  final String gateWatOwnerAddressKey = Configuration.getByPath("testng.conf")
-      .getString("gateWatOwnerAddressKey.key1");
-
-  private final byte[] gateWatOwnerAddress = PublicMethed.getFinalAddress(gateWatOwnerAddressKey);
-
-  final String gateWatOwnerSideAddressKey = Configuration.getByPath("testng.conf")
-      .getString("gateWatOwnerAddressKey.key2");
-
-  private final byte[] gateWaySideOwnerAddress = PublicMethed
-      .getFinalAddress(gateWatOwnerSideAddressKey);
-
-  private final String testOracle = Configuration.getByPath("testng.conf")
-      .getString("oralceAccountKey.key1");
-  private final byte[] testOracleAddress = PublicMethed.getFinalAddress(testOracle);
-
+  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
+      .getLong("defaultParameter.maxFeeLimit");
+  private ManagedChannel channelSolidity = null;
+  private ManagedChannel channelFull = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+  private ManagedChannel channelFull1 = null;
+  private WalletGrpc.WalletBlockingStub blockingSideStubFull = null;
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+  private String fullnode = Configuration.getByPath("testng.conf")
+      .getStringList("mainfullnode.ip.list").get(0);
+  private String fullnode1 = Configuration.getByPath("testng.conf")
+      .getStringList("fullnode.ip.list").get(0);
   private int depositNonce;
   private int withdrawNonce;
 
@@ -115,6 +100,7 @@ public class RetryTrx001 {
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(testKeyFordeposit);
+    PublicMethed.printAddress(testKeyFordeposit1);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -178,6 +164,9 @@ public class RetryTrx001 {
             input,
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     logger.info("txid:" + txid);
 
@@ -792,7 +781,7 @@ public class RetryTrx001 {
     Assert.assertEquals("REVERT opcode executed",
         infoByIdrretryWithdrawTxid5.get().getResMessage().toStringUtf8());
 
-    //Deposit noce value is Long.min_value-1
+    //Deposit noce value is -1
     String minusNonce = Long.toString(-1);
     logger.info("minusNonce:" + minusNonce);
     String retryDepositTxid6 = PublicMethed.retryDeposit(mainGateWayAddress,
@@ -803,10 +792,10 @@ public class RetryTrx001 {
     logger.info("retryDepositTxid4:" + retryDepositTxid6);
     Optional<TransactionInfo> infoByIdretryDepositTxid6 = PublicMethed
         .getTransactionInfoById(retryDepositTxid6, blockingStubFull);
-    Assert.assertTrue(infoByIdretryDepositTxid6.get().getResultValue() == 1);
-    Assert.assertEquals(FAILED, infoByIdretryDepositTxid6.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
+    Assert.assertTrue(infoByIdretryDepositTxid6.get().getResultValue() == 0);
+    Assert.assertEquals(SUCESS, infoByIdretryDepositTxid6.get().getResult());
+    //Assert.assertEquals("REVERT opcode executed",
+    //    infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is -1
     String retryWithdrawTxid6 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
@@ -817,10 +806,10 @@ public class RetryTrx001 {
     logger.info("retryWithdrawTxid6:" + retryWithdrawTxid6);
     Optional<TransactionInfo> infoByIdrretryWithdrawTxid6 = PublicMethed
         .getTransactionInfoById(retryWithdrawTxid6, blockingSideStubFull);
-    Assert.assertTrue(infoByIdrretryWithdrawTxid6.get().getResultValue() == 1);
-    Assert.assertEquals(FAILED, infoByIdrretryWithdrawTxid6.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdrretryWithdrawTxid6.get().getResMessage().toStringUtf8());
+    Assert.assertTrue(infoByIdrretryWithdrawTxid6.get().getResultValue() == 0);
+    Assert.assertEquals(SUCESS, infoByIdrretryWithdrawTxid6.get().getResult());
+    //Assert.assertEquals("REVERT opcode executed",
+    //    infoByIdrretryWithdrawTxid6.get().getResMessage().toStringUtf8());
   }
 
 
@@ -867,32 +856,6 @@ public class RetryTrx001 {
     logger.info("accountSideBeforeBalance:" + accountSideBeforeBalance);
 
     logger.info("mainGateWayAddress:" + mainGateWayAddress);
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(testOracleAddress, 10000000,
-        0, 0, testOracle, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    Account oracleMainBeforeSend = PublicMethed.queryAccount(testOracleAddress, blockingStubFull);
-    long oracleMainBeforeSendBalance = oracleMainBeforeSend.getBalance();
-
-    Assert.assertTrue(PublicMethed
-        .sendcoin(depositAddress2, oracleMainBeforeSendBalance, testOracleAddress, testOracle,
-            blockingStubFull));
-    AccountResourceMessage oracleMainBeforeWithdraw = PublicMethed
-        .getAccountResource(testOracleAddress,
-            blockingStubFull);
-    long oracleMainBeforeWithdrawnEnergyLimit = oracleMainBeforeWithdraw.getEnergyLimit();
-    long oracleMainBeforeWithdrawEnergyUsage = oracleMainBeforeWithdraw.getEnergyUsed();
-    long oracleMainBeforeWithdrawNetUsed = oracleMainBeforeWithdraw.getNetUsed();
-    long oracleMainBeforeWithdrawNetLimit = oracleMainBeforeWithdraw.getNetLimit();
-    Assert.assertEquals(oracleMainBeforeWithdrawnEnergyLimit, 0);
-    Assert.assertEquals(oracleMainBeforeWithdrawEnergyUsage, 0);
-    Assert.assertTrue(oracleMainBeforeWithdrawNetUsed < oracleMainBeforeWithdrawNetLimit);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     String methodStr = "depositTRX()";
     byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
@@ -930,6 +893,31 @@ public class RetryTrx001 {
     Assert.assertEquals(1500000000, accountSideAfterBalance);
 
     logger.info("sideGatewayAddress:" + sideGatewayAddress);
+
+    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(testOracleAddress, 10000000,
+        0, 0, testOracle, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Account oracleMainBeforeSend = PublicMethed.queryAccount(testOracleAddress, blockingStubFull);
+    long oracleMainBeforeSendBalance = oracleMainBeforeSend.getBalance();
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(depositAddress2, oracleMainBeforeSendBalance, testOracleAddress, testOracle,
+            blockingStubFull));
+    AccountResourceMessage oracleMainBeforeWithdraw = PublicMethed
+        .getAccountResource(testOracleAddress,
+            blockingStubFull);
+    long oracleMainBeforeWithdrawnEnergyLimit = oracleMainBeforeWithdraw.getEnergyLimit();
+    long oracleMainBeforeWithdrawEnergyUsage = oracleMainBeforeWithdraw.getEnergyUsed();
+    long oracleMainBeforeWithdrawNetUsed = oracleMainBeforeWithdraw.getNetUsed();
+    long oracleMainBeforeWithdrawNetLimit = oracleMainBeforeWithdraw.getNetLimit();
+    Assert.assertEquals(oracleMainBeforeWithdrawnEnergyLimit, 0);
+    Assert.assertEquals(oracleMainBeforeWithdrawEnergyUsage, 0);
+    Assert.assertTrue(oracleMainBeforeWithdrawNetUsed < oracleMainBeforeWithdrawNetLimit);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     long withdrawValue = 1;
     String txid1 = PublicMethed
@@ -1162,14 +1150,15 @@ public class RetryTrx001 {
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
-      // check Deposit Msg when deposit failed
-      depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
-      String[] Msg = {
-          WalletClient.encode58Check(depositAddress1), "" + callValue,
-          "0","0","0","0","0"
-      };
-      Assert.assertTrue(PublicMethed.checkDepositMsg(depositNonce, mainGateWayAddress, depositAddress1,
-          testKeyFordeposit1, blockingStubFull, Msg));
+    // check Deposit Msg when deposit failed
+    depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    String[] Msg = {
+        WalletClient.encode58Check(depositAddress1), "" + callValue,
+        "0", "0", "0", "0", "0"
+    };
+    Assert
+        .assertTrue(PublicMethed.checkDepositMsg(depositNonce, mainGateWayAddress, depositAddress1,
+            testKeyFordeposit1, blockingStubFull, Msg));
 
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     long fee = infoById.get().getFee();
@@ -1323,18 +1312,17 @@ public class RetryTrx001 {
     logger.info("txid1:" + txid1);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingSideStubFull);
+    logger.info("infoById1:" + infoById1);
 
-      // check Withdraw Msg when withdraw failed
-      withdrawNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
-      String[] MsgWithdraw = {
-          WalletClient.encode58Check(depositAddress1),
-          "0", "0", "" + withdrawValue, "0", "0"
-      };
-      Assert.assertTrue(PublicMethed.checkWithdrawMsg(withdrawNonce, sideGatewayAddress, depositAddress1,
-          testKeyFordeposit1, blockingSideStubFull, MsgWithdraw));
-
-
-
+    // check Withdraw Msg when withdraw failed
+    withdrawNonce = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
+    String[] MsgWithdraw = {
+        WalletClient.encode58Check(depositAddress1),
+        "0", "0", "" + withdrawValue, "0", "0"
+    };
+    Assert.assertTrue(
+        PublicMethed.checkWithdrawMsg(withdrawNonce, sideGatewayAddress, depositAddress1,
+            testKeyFordeposit1, blockingSideStubFull, MsgWithdraw));
 
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     fee1 = infoById1.get().getFee();
@@ -1513,9 +1501,8 @@ public class RetryTrx001 {
     Assert.assertEquals("FAILED", infoById1.get().getResult().name());
     Assert.assertEquals(1, infoById1.get().getResultValue());
     String msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135,170)));
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
     Assert.assertEquals("\u0001less than 100 TRX", msg);
-
 
     setRetryFee = Long.MIN_VALUE - 1;
     parame1 = String.valueOf(setRetryFee);
@@ -1534,9 +1521,8 @@ public class RetryTrx001 {
     Assert.assertEquals("FAILED", infoById1.get().getResult().name());
     Assert.assertEquals(1, infoById1.get().getResultValue());
     msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135,170)));
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
     Assert.assertEquals("\u0001less than 100 TRX", msg);
-
 
     setRetryFee = -1;
     parame1 = String.valueOf(setRetryFee);
@@ -1551,12 +1537,11 @@ public class RetryTrx001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingStubFull);
-    Assert.assertEquals("FAILED", infoById1.get().getResult().name());
-    Assert.assertEquals(1, infoById1.get().getResultValue());
-    msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135,170)));
-    Assert.assertEquals("\u0001less than 100 TRX", msg);
-
+    Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
+    Assert.assertEquals(0, infoById1.get().getResultValue());
+    //msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
+    //msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
+    //Assert.assertEquals("\u0001less than 100 TRX", msg);
 
     setRetryFee = 100_000_001;
     parame1 = String.valueOf(setRetryFee);
@@ -1574,7 +1559,7 @@ public class RetryTrx001 {
     Assert.assertEquals("FAILED", infoById1.get().getResult().name());
     Assert.assertEquals(1, infoById1.get().getResultValue());
     msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135,170)));
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
     Assert.assertEquals("\u0001less than 100 TRX", msg);
 
     setRetryFee = 99_999_999L;
@@ -1602,6 +1587,26 @@ public class RetryTrx001 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
+    Account depositAddress2MainAccount = PublicMethed
+        .queryAccount(depositAddress2, blockingStubFull);
+    long depositAddress2MainBalance = depositAddress2MainAccount.getBalance();
+    logger.info("depositAddress2MainBalance:" + depositAddress2MainBalance);
+    if (depositAddress2MainBalance > 2000000) {
+      Assert.assertTrue(PublicMethed
+          .sendcoin(testOracleAddress, depositAddress2MainBalance - 1000000, depositAddress2,
+              testKeyFordeposit2,
+              blockingStubFull));
+    }
+    Account depositAddress2SideAccount = PublicMethed
+        .queryAccount(depositAddress2, blockingSideStubFull);
+    long depositAddress2SideBalance = depositAddress2SideAccount.getBalance();
+    logger.info("depositAddress2SideBalance:" + depositAddress2SideBalance);
+    if (depositAddress2SideBalance > 2000000) {
+      Assert.assertTrue(PublicMethed
+          .sendcoinForSidechain(testOracleAddress, depositAddress2SideBalance - 1000000,
+              depositAddress2,
+              testKeyFordeposit2, chainIdAddressKey, blockingSideStubFull));
+    }
 
     parame1 = "0";
 
