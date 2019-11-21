@@ -4,13 +4,22 @@ import com.google.protobuf.ByteString;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.common.runtime.config.GatewayCode;
+import org.tron.common.utils.ByteArray;
 import org.tron.core.Wallet;
+import org.tron.core.capsule.AccountCapsule;
+import org.tron.core.capsule.CodeCapsule;
 import org.tron.core.capsule.ProposalCapsule;
+import org.tron.core.capsule.WitnessCapsule;
+import org.tron.core.config.args.Args;
+import org.tron.core.config.args.Witness;
 import org.tron.core.db.Manager;
+import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.SideChainProposal.State;
 
 @Slf4j(topic = "witness")
@@ -172,11 +181,11 @@ public class ProposalController {
               .saveMaxCpuTimeOfOneTx(Long.valueOf(entry.getValue()));
           break;
         }
-        // default to allow update account name
-//        case (14): {
-//          manager.getDynamicPropertiesStore().saveAllowUpdateAccountName(entry.getValue());
-//          break;
-//        }
+        case (14): {
+          manager.getDynamicPropertiesStore()
+              .saveAllowUpdateAccountName(Long.valueOf(entry.getValue()));
+          break;
+        }
         // default to allow same token
 //        case (15): {
 //          manager.getDynamicPropertiesStore().saveAllowSameTokenName(entry.getValue());
@@ -225,12 +234,14 @@ public class ProposalController {
               .saveMultiSignFee(Long.valueOf(entry.getValue()));
           break;
         }
-//        case (24): {
-//          manager.getDynamicPropertiesStore().saveAllowProtoFilterNum(Long.valueOf(entry.getValue()));
-//          break;
-//        }
+        case (24): {
+          manager.getDynamicPropertiesStore()
+              .saveAllowProtoFilterNum(Long.valueOf(entry.getValue()));
+          break;
+        }
         case (25): {
-          manager.getDynamicPropertiesStore().saveAllowAccountStateRoot(Long.valueOf(entry.getValue()));
+          manager.getDynamicPropertiesStore()
+              .saveAllowAccountStateRoot(Long.valueOf(entry.getValue()));
           break;
         }
 //        case (26): {
@@ -262,7 +273,7 @@ public class ProposalController {
         case (1_000_003): {
           // replace all side chain proposal expire time
           manager.getDynamicPropertiesStore()
-                  .saveProposalExpireTime(Long.valueOf(entry.getValue()));
+              .saveProposalExpireTime(Long.valueOf(entry.getValue()));
           break;
         }
         case (1_000_004): {
@@ -275,11 +286,11 @@ public class ProposalController {
               .saveMaxGateWayContractSize(Long.valueOf(entry.getValue()));
           break;
         }
-        case (1_000_006): {
-          manager.getDynamicPropertiesStore()
-                  .saveSideChainChargingBandwidth(Long.valueOf(entry.getValue()));
-          break;
-        }
+//        case (1_000_006): {
+//          manager.getDynamicPropertiesStore()
+//                  .saveSideChainChargingBandwidth(Long.valueOf(entry.getValue()));
+//          break;
+//        }
         case (1_000_007): {
           manager.getDynamicPropertiesStore()
               .saveFundInjectAddress(Wallet
@@ -299,6 +310,60 @@ public class ProposalController {
         case (1_000_010): {
           manager.getDynamicPropertiesStore()
               .savePercentToPayWitness(Long.valueOf(entry.getValue()));
+          break;
+        }
+        case (1_000_011): {
+          int oldNum = manager.getDynamicPropertiesStore().getWitnessMaxActiveNum();
+          int newNum = Integer.parseInt(entry.getValue());
+          if (newNum <= oldNum) {
+            manager.getDynamicPropertiesStore()
+                .saveWitnessMaxActiveNum(Integer.parseInt(entry.getValue()));
+            break;
+          }
+          List<Witness> witnessList = Args.getInstance().getGenesisBlock().getWitnesses();
+          if (witnessList.size() < newNum) {
+            logger.error("size of witness in genesis block : {} must greater than value : {}",
+                witnessList.size(), newNum);
+            System.exit(1);
+          }
+          List<Witness> subWitnessList = witnessList.subList(oldNum, newNum);
+          subWitnessList.forEach(key -> {
+            byte[] keyAddress = key.getAddress();
+            ByteString address = ByteString.copyFrom(keyAddress);
+
+            final AccountCapsule accountCapsule;
+            if (!manager.getAccountStore().has(keyAddress)) {
+              accountCapsule = new AccountCapsule(ByteString.EMPTY,
+                  address, AccountType.AssetIssue, 0L);
+            } else {
+              accountCapsule = manager.getAccountStore().getUnchecked(keyAddress);
+            }
+            accountCapsule.setIsWitness(true);
+            manager.getAccountStore().put(keyAddress, accountCapsule);
+
+            WitnessCapsule witnessCapsule = manager.getWitnessStore().get(keyAddress);
+            if (Objects.isNull(witnessCapsule)) {
+              witnessCapsule = new WitnessCapsule(address, key.getVoteCount(), key.getUrl());
+            } else {
+              witnessCapsule.setVoteCount(witnessCapsule.getVoteCount() + key.getVoteCount());
+            }
+            witnessCapsule.setIsJobs(true);
+            manager.getWitnessStore().put(keyAddress, witnessCapsule);
+          });
+          manager.getDynamicPropertiesStore()
+              .saveWitnessMaxActiveNum(Integer.parseInt(entry.getValue()));
+          break;
+        }
+        case (1_000_012): {
+          manager.getDynamicPropertiesStore()
+              .saveAllowUpdateGatewayV102(Long.valueOf(entry.getValue()));
+
+          byte[] byteCode = ByteArray.fromHexString(GatewayCode.gatewayCode);
+
+          CodeCapsule codeCapsule = new CodeCapsule(byteCode);
+          manager.getCodeStore()
+              .put(manager.getDynamicPropertiesStore().getSideChainGateWayList().get(0),
+                  codeCapsule);
           break;
         }
         default:

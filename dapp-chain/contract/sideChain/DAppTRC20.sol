@@ -1,5 +1,3 @@
-pragma solidity ^0.4.24;
-
 import "../common/token/TRC20/TRC20.sol";
 import "../common/token/TRC20/ITRC20Receiver.sol";
 import "./IDApp.sol";
@@ -21,7 +19,7 @@ contract DAppTRC20 is TRC20, IDApp {
       * @dev Constructor function
       */
 
-    constructor (address _gateway, string _name, string _symbol, uint8 _decimals) public {
+    constructor (address _gateway, string memory _name, string memory _symbol, uint8 _decimals) public {
         gateway = _gateway;
         name = _name;
         symbol = _symbol;
@@ -42,8 +40,13 @@ contract DAppTRC20 is TRC20, IDApp {
         emit Transfer(address(0), to, value);
     }
 
-    function withdrawal(uint256 value) external returns (uint256 r) {
+    function withdrawal(uint256 value) payable external returns (uint256 r) {
+        uint256 withdrawFee = ITRC20Receiver(gateway).getWithdrawFee();
+        require(msg.value >= withdrawFee, "value must be >= withdrawFee");
+        if (msg.value > withdrawFee) {
+            msg.sender.transfer(msg.value - withdrawFee);
+        }
         transfer(gateway, value);
-        r = ITRC20Receiver(gateway).onTRC20Received(msg.sender, value);
+        r = ITRC20Receiver(gateway).onTRC20Received.value(withdrawFee)(msg.sender, value);
     }
 }

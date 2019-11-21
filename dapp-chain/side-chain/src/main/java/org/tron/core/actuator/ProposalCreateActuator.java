@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.encoders.Hex;
+import org.tron.common.runtime.config.GatewayCode;
 import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.Constant;
@@ -21,6 +22,8 @@ import org.tron.core.Wallet;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.capsule.TransactionResultCapsule;
 import org.tron.core.config.Parameter.ChainParameters;
+import org.tron.core.config.Parameter.ForkBlockVersionEnum;
+import org.tron.core.config.args.Args;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
@@ -92,7 +95,8 @@ public class ProposalCreateActuator extends AbstractActuator {
     }
     if (!this.contract.is(SideChainProposalCreateContract.class)) {
       throw new ContractValidateException(
-          "contract type error,expected type [SideChainProposalCreateContract],real type[" + contract
+          "contract type error,expected type [SideChainProposalCreateContract],real type["
+              + contract
               .getClass() + "]");
     }
     final SideChainProposalCreateContract contract;
@@ -145,12 +149,15 @@ public class ProposalCreateActuator extends AbstractActuator {
 
   private void validateValue(Map.Entry<Long, String> entry) throws ContractValidateException {
 
+    Integer witnessMaxActiveNum = dbManager.getDynamicPropertiesStore()
+        .getWitnessMaxActiveNum();
     switch (entry.getKey().intValue()) {
       case (0): {
-        if (Long.valueOf(entry.getValue()) < 3 * 27 * 1000
+        if (Long.valueOf(entry.getValue()) < 3 * witnessMaxActiveNum * 1000
             || Long.valueOf(entry.getValue()) > 24 * 3600 * 1000) {
           throw new ContractValidateException(
-              "Bad chain parameter value,valid range is [3 * 27 * 1000,24 * 3600 * 1000]");
+              "Bad chain parameter value,valid range is [3 * " + witnessMaxActiveNum
+                  + " * 1000,24 * 3600 * 1000]");
         }
         return;
       }
@@ -195,6 +202,13 @@ public class ProposalCreateActuator extends AbstractActuator {
               "Bad chain parameter value,valid range is [10,100]");
         }
         break;
+      case (14): {
+        if (Long.valueOf(entry.getValue()) != 1) {
+          throw new ContractValidateException(
+              "This value[ALLOW_UPDATE_ACCOUNT_NAME] is only allowed to be 1");
+        }
+        break;
+      }
       case (17): { // deprecated
         if (Long.valueOf(entry.getValue()) < 0
             || Long.valueOf(entry.getValue()) > 100_000_000_000_000_000L) {
@@ -245,6 +259,13 @@ public class ProposalCreateActuator extends AbstractActuator {
             || Long.valueOf(entry.getValue()) > 100_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid range is [0,100_000_000_000L]");
+        }
+        break;
+      }
+      case (24): {
+        if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
+          throw new ContractValidateException(
+              "This value[ALLOW_PROTO_FILTER_NUM] is only allowed to be 1 or 0");
         }
         break;
       }
@@ -315,14 +336,14 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       }
-      case (1_000_006):{
-        if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
-          throw new ContractValidateException(
-              "Bad chain parameter value,valid value is {0,1}");
-        }
-        break;
-      }
-      case (1_000_007):{
+//      case (1_000_006):{
+//        if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
+//          throw new ContractValidateException(
+//              "Bad chain parameter value,valid value is {0,1}");
+//        }
+//        break;
+//      }
+      case (1_000_007): {
         try {
           byte[] address = Wallet.decodeFromBase58Check(entry.getValue());
           if (!Wallet.addressValid(address)) {
@@ -343,20 +364,21 @@ public class ProposalCreateActuator extends AbstractActuator {
             throw new ContractValidateException("target Fund Inject Address should not "
                 + "be a contract");
           }
-        } catch (Exception e){
+        } catch (Exception e) {
           throw new ContractValidateException(
               "Invalid Fund Inject Address");
         }
 
         break;
       }
-      case (1_000_008):{
+      case (1_000_008): {
         if (Long.valueOf(entry.getValue()) != 1 && Long.valueOf(entry.getValue()) != 0) {
           throw new ContractValidateException(
               "Bad chain parameter value,valid value is {0,1}");
         }
-        if (Long.valueOf(entry.getValue()) == 1 && ByteUtil.equals(this.dbManager.getDynamicPropertiesStore().getFundInjectAddress(),
-            Hex.decode(Constant.TRON_ZERO_ADDRESS_HEX))) {
+        if (Long.valueOf(entry.getValue()) == 1 && ByteUtil
+            .equals(this.dbManager.getDynamicPropertiesStore().getFundInjectAddress(),
+                Hex.decode(Constant.TRON_ZERO_ADDRESS_HEX))) {
           throw new ContractValidateException(
               "Fund Inject Address should not be default T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
                   + " to enable Fund distribution switch"
@@ -378,9 +400,52 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         break;
       }
+      case (1_000_011): {
+        if (!dbManager.getForkController().pass(ForkBlockVersionEnum.DAPP_CHAIN_1_0_2)) {
+          throw new ContractValidateException("Bad chain parameter id [WITNESS_MAX_ACTIVE_NUM]");
+        }
+        if (Integer.parseInt(entry.getValue()) < 5 || Integer.parseInt(entry.getValue()) > 27) {
+          throw new ContractValidateException(
+              "Bad chain parameter value, valid range is [5,27]");
+        } else if (Integer.parseInt(entry.getValue()) > Args.getInstance().getGenesisBlock()
+            .getWitnesses().size()) {
+          throw new ContractValidateException(
+              "Bad chain parameter value, must Less than Genesis Block Witnesses size");
+        } else if (Integer.parseInt(entry.getValue()) <= witnessMaxActiveNum) {
+          throw new ContractValidateException(
+              "Bad chain parameter value, must greater than current value " + witnessMaxActiveNum);
+        }
+        break;
+      }
+      case (1_000_012): {
+        if (!dbManager.getForkController().pass(ForkBlockVersionEnum.DAPP_CHAIN_1_0_2)) {
+          throw new ContractValidateException(
+              "Bad chain parameter id [updateGateway_v1_0_2]");
+        }
+
+        if (dbManager.getDynamicPropertiesStore().getAllowUpdateGatewayV102() == 1) {
+          throw new ContractValidateException(
+              "updateGateway_v1_0_2 is only allowed to be executed once");
+        }
+
+        if (Integer.parseInt(entry.getValue()) != 1) {
+          throw new ContractValidateException(
+              "updateGateway_v1_0_2 is only allowed to be 1");
+        }
+
+        if (dbManager.getDynamicPropertiesStore().getSideChainGateWayList().isEmpty()) {
+          throw new ContractValidateException(
+              "updateGateway_v1_0_2 should set side chain gateway before");
+        }
+
+        if (!GatewayCode.codeHash().equals(Constant.GATEWAY_CODE_V_1_0_2_HASH)) {
+          throw new ContractValidateException(
+              "GatewayCode does not match updateGateway_v1_0_2");
+        }
+        break;
+      }
       default:
-        throw new ContractValidateException(
-            "non-exist proposal number");
+        throw new ContractValidateException("non-exist proposal number");
     }
   }
 

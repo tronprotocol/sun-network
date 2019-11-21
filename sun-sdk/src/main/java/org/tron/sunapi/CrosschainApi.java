@@ -33,7 +33,8 @@ public class CrosschainApi {
    * @return the result of withdraw trx
    * @author sun-network
    */
-  public SunNetworkResponse<TransactionResponse> withdrawTrx(long trxNum, long feeLimit) {
+  public SunNetworkResponse<TransactionResponse> withdrawTrx(long trxNum, long withdrawFee,
+      long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
     byte[] sideGatewayAddress = ServerApi.getSideGatewayAddress();
@@ -46,7 +47,7 @@ public class CrosschainApi {
       byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
 
       TransactionResponse result = sidechainServer
-          .triggerContract(sideGatewayAddress, trxNum, input, feeLimit, 0, "0");
+          .triggerContract(sideGatewayAddress, trxNum + withdrawFee, input, feeLimit, 0, "0");
       resp.setData(result);
       if (result.getResponseType() == ResponseType.TRANSACTION_NORMAL && result.getResult()) {
         resp.success(result);
@@ -70,7 +71,7 @@ public class CrosschainApi {
    * @author sun-network
    */
   public SunNetworkResponse<TransactionResponse> withdrawTrc10(String tokenId, long tokenValue,
-      long feeLimit) {
+      long withdrawFee, long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
     byte[] sideGatewayAddress = ServerApi.getSideGatewayAddress();
@@ -87,7 +88,7 @@ public class CrosschainApi {
       String inputParam = tokenId + "," + tokenValue;
       byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, inputParam, false));
       TransactionResponse result = sidechainServer.
-          triggerContract(sideGatewayAddress, 0, input, feeLimit, tokenValue, tokenId);
+          triggerContract(sideGatewayAddress, withdrawFee, input, feeLimit, tokenValue, tokenId);
       resp.setData(result);
       if (result.getResponseType() == ResponseType.TRANSACTION_NORMAL && result.getResult()) {
         resp.success(result);
@@ -111,7 +112,7 @@ public class CrosschainApi {
    * @author sun-network
    */
   public SunNetworkResponse<TransactionResponse> withdrawTrc20(String contractAddrStr, String value,
-      long feeLimit) {
+      long withdrawFee, long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
     //side chain contract address
@@ -125,7 +126,7 @@ public class CrosschainApi {
       byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, value, false));
 
       TransactionResponse result = sidechainServer
-          .triggerContract(sideAddress, 0, input, feeLimit, 0, "0");
+          .triggerContract(sideAddress, withdrawFee, input, feeLimit, 0, "0");
       resp.setData(result);
       if (result.getResponseType() == ResponseType.TRANSACTION_NORMAL && result.getResult()) {
         resp.success(result);
@@ -149,19 +150,19 @@ public class CrosschainApi {
    * @author sun-network
    */
   public SunNetworkResponse<TransactionResponse> withdrawTrc721(String contractAddrStr,
-      String value, long feeLimit) {
-    return withdrawTrc20(contractAddrStr, value, feeLimit);
+      String value, long withdrawFee, long feeLimit) {
+    return withdrawTrc20(contractAddrStr, value, withdrawFee, feeLimit);
   }
 
   private SunNetworkResponse<TransactionResponse> mappingTrc(String methodStr,
-      String argsStr, long feeLimit) {
+      String argsStr, long mappingFee, long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
     try {
       byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, false));
 
       TransactionResponse result = mainchainServer
-          .triggerContract(ServerApi.getMainGatewayAddress(), 0, input, feeLimit, 0, "");
+          .triggerContract(ServerApi.getMainGatewayAddress(), mappingFee, input, feeLimit, 0, "");
       resp.setData(result);
       if (result.getResult()) {
         resp.success(result);
@@ -177,7 +178,7 @@ public class CrosschainApi {
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> mappingTrc20(String trxHash,
+  public SunNetworkResponse<TransactionResponse> mappingTrc20(String trxHash, long mappingFee,
       long feeLimit) {
     if (StringUtils.isEmpty(trxHash)) {
       SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
@@ -187,10 +188,10 @@ public class CrosschainApi {
     String methodStr = "mappingTRC20(bytes)";
     String argsStr = "\"" + trxHash + "\"";
 
-    return mappingTrc(methodStr, argsStr, feeLimit);
+    return mappingTrc(methodStr, argsStr, mappingFee, feeLimit);
   }
 
-  public SunNetworkResponse<TransactionResponse> mappingTrc721(String trxHash,
+  public SunNetworkResponse<TransactionResponse> mappingTrc721(String trxHash, long mappingFee,
       long feeLimit) {
     if (StringUtils.isEmpty(trxHash)) {
       SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
@@ -200,7 +201,7 @@ public class CrosschainApi {
     String methodStr = "mappingTRC721(bytes)";
     String argsStr = "\"" + trxHash + "\"";
 
-    return mappingTrc(methodStr, argsStr, feeLimit);
+    return mappingTrc(methodStr, argsStr, mappingFee, feeLimit);
   }
 
   /**
@@ -209,7 +210,7 @@ public class CrosschainApi {
    * @return the result of deposit trx
    * @author sun-network
    */
-  public SunNetworkResponse<TransactionResponse> depositTrx(long trxNum,
+  public SunNetworkResponse<TransactionResponse> depositTrx(long trxNum, long depositFee,
       long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
@@ -218,7 +219,7 @@ public class CrosschainApi {
       byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, "", false));
 
       TransactionResponse result = mainchainServer
-          .triggerContract(ServerApi.getMainGatewayAddress(), trxNum, input, feeLimit, 0, "");
+          .triggerContract(ServerApi.getMainGatewayAddress(), trxNum + depositFee, input, feeLimit, 0, "");
       resp.setData(result);
       if (result.getResponseType() == ResponseType.TRANSACTION_NORMAL && result.getResult()) {
         resp.success(result);
@@ -240,7 +241,7 @@ public class CrosschainApi {
    * @return the result of deposit trc10
    * @author sun-network
    */
-  public SunNetworkResponse<TransactionResponse> depositTrc10(String tokenId, long tokenValue,
+  public SunNetworkResponse<TransactionResponse> depositTrc10(String tokenId, long tokenValue, long depositFee,
       long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
@@ -250,7 +251,7 @@ public class CrosschainApi {
       byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, inputParam, false));
 
       TransactionResponse result = mainchainServer
-          .triggerContract(ServerApi.getMainGatewayAddress(), 0, input, feeLimit, tokenValue,
+          .triggerContract(ServerApi.getMainGatewayAddress(), depositFee, input, feeLimit, tokenValue,
               tokenId);
       resp.setData(result);
       if (result.getResponseType() == ResponseType.TRANSACTION_NORMAL && result.getResult()) {
@@ -268,7 +269,7 @@ public class CrosschainApi {
   }
 
   private SunNetworkResponse<TransactionResponse> depositTrc(String contractAddrStr,
-      String methodStr, String depositMethodStr, String num, long feeLimit) {
+      String methodStr, String depositMethodStr, String num, long depositFee, long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
     List<TransactionResponse> dataList = new ArrayList<TransactionResponse>();
 
@@ -279,7 +280,7 @@ public class CrosschainApi {
       byte[] contractAddress = AddressUtil.decodeFromBase58Check(contractAddrStr);
 
       TransactionResponse result = mainchainServer
-          .triggerContract(contractAddress, 0, input, feeLimit, 0, "");
+          .triggerContract(contractAddress, depositFee, input, feeLimit, 0, "");
       dataList.add(result);
       resp.setDataList(dataList);
       String trxId = result.getTrxId();
@@ -316,7 +317,7 @@ public class CrosschainApi {
   }
 
   public SunNetworkResponse<TransactionResponse> depositTrc20(String contractAddrStr, String num,
-      long feeLimit) {
+      long depositFee, long feeLimit) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
 
     if (StringUtils.isEmpty(contractAddrStr)) {
@@ -326,11 +327,11 @@ public class CrosschainApi {
     String methodStr = "approve(address,uint256)";
     String depositMethodStr = "depositTRC20(address,uint64)";
 
-    return depositTrc(contractAddrStr, methodStr, depositMethodStr, num, feeLimit);
+    return depositTrc(contractAddrStr, methodStr, depositMethodStr, num, depositFee, feeLimit);
   }
 
   public SunNetworkResponse<TransactionResponse> depositTrc721(String contractAddrStr, String num,
-      long feeLimit) {
+      long depositFee, long feeLimit) {
 
     if (StringUtils.isEmpty(contractAddrStr)) {
       SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
@@ -340,10 +341,10 @@ public class CrosschainApi {
     String methodStr = "approve(address,uint256)";
     String depositMethodStr = "depositTRC721(address,uint256)";
 
-    return depositTrc(contractAddrStr, methodStr, depositMethodStr, num, feeLimit);
+    return depositTrc(contractAddrStr, methodStr, depositMethodStr, num, depositFee, feeLimit);
   }
 
-  public SunNetworkResponse<TransactionResponse> retryDeposit(String nonce, long feeLimit) {
+  public SunNetworkResponse<TransactionResponse> retryDeposit(String nonce, long retryFee, long feeLimit) {
 
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
     if (StringUtils.isEmpty(nonce)) {
@@ -355,7 +356,7 @@ public class CrosschainApi {
       byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
 
       TransactionResponse result = mainchainServer
-          .triggerContract(ServerApi.getMainGatewayAddress(), 0, input, feeLimit, 0, null);
+          .triggerContract(ServerApi.getMainGatewayAddress(), retryFee, input, feeLimit, 0, null);
       resp.setData(result);
       if (result.getResponseType() == ResponseType.TRANSACTION_NORMAL && result.getResult()) {
         resp.success(result);
@@ -371,7 +372,7 @@ public class CrosschainApi {
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> retryWithdraw(String nonce, long feeLimit) {
+  public SunNetworkResponse<TransactionResponse> retryWithdraw(String nonce, long retryFee, long feeLimit) {
 
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
     if (StringUtils.isEmpty(nonce)) {
@@ -384,7 +385,7 @@ public class CrosschainApi {
       byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
 
       TransactionResponse result = sidechainServer
-          .triggerContract(ServerApi.getSideGatewayAddress(), 0, input, feeLimit, 0, null);
+          .triggerContract(ServerApi.getSideGatewayAddress(), retryFee, input, feeLimit, 0, null);
       resp.setData(result);
       if (result.getResponseType() == ResponseType.TRANSACTION_NORMAL && result.getResult()) {
         resp.success(result);
@@ -400,7 +401,7 @@ public class CrosschainApi {
     return resp;
   }
 
-  public SunNetworkResponse<TransactionResponse> retryMapping(String nonce, long feeLimit) {
+  public SunNetworkResponse<TransactionResponse> retryMapping(String nonce, long retryFee, long feeLimit) {
 
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<TransactionResponse>();
     if (StringUtils.isEmpty(nonce)) {
@@ -413,7 +414,7 @@ public class CrosschainApi {
       byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
 
       TransactionResponse result = mainchainServer
-          .triggerContract(ServerApi.getMainGatewayAddress(), 0, input, feeLimit, 0, null);
+          .triggerContract(ServerApi.getMainGatewayAddress(), retryFee, input, feeLimit, 0, null);
       resp.setData(result);
       if (result.getResponseType() == ResponseType.TRANSACTION_NORMAL && result.getResult()) {
         resp.success(result);

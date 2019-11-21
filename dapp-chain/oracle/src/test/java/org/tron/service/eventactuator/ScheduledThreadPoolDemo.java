@@ -6,8 +6,8 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Ignore;
 
 
-@Ignore
-public class ScheduledThreadPoolDemo {
+
+public abstract class ScheduledThreadPoolDemo {
 
   static class WorkThread implements Runnable {
 

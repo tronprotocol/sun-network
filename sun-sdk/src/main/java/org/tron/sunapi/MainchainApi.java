@@ -7,8 +7,9 @@ import org.tron.api.GrpcAPI.ProposalList;
 import org.tron.core.exception.CancelException;
 import org.tron.core.exception.CipherException;
 import org.tron.sunapi.response.TransactionResponse;
+import org.tron.sunserver.IMultiTransactionSign;
 
-public class MainchainApi extends Chain{
+public class MainchainApi extends Chain {
 
   /**
    * @param config the configuration path
@@ -16,16 +17,18 @@ public class MainchainApi extends Chain{
    * @return the result of init main chain
    * @author sun-network
    */
-  public SunNetworkResponse<Integer> init(String config, String priKey) {
-    return super.init(config, priKey, true);
+  public SunNetworkResponse<Integer> init(IServerConfig config, String priKey,
+      IMultiTransactionSign multiTransactionSign) {
+    return super.init(config, priKey, true, multiTransactionSign);
   }
 
   /**
    * @return the result of init main chain
    * @author sun-network
    */
-  public SunNetworkResponse<Integer> init(String config) {
-    return super.init(config, true);
+  public SunNetworkResponse<Integer> init(IServerConfig config,
+      IMultiTransactionSign multiTransactionSign) {
+    return super.init(config, true, multiTransactionSign);
   }
 
   /**
@@ -36,7 +39,7 @@ public class MainchainApi extends Chain{
   public SunNetworkResponse<TransactionResponse> createProposal(HashMap<Long, Long> parametersMap) {
     SunNetworkResponse<TransactionResponse> resp = new SunNetworkResponse<>();
 
-    if(parametersMap == null || parametersMap.isEmpty()) {
+    if (parametersMap == null || parametersMap.isEmpty()) {
       return resp.failed(ErrorCodeEnum.COMMON_PARAM_EMPTY);
     }
 
@@ -48,9 +51,9 @@ public class MainchainApi extends Chain{
       } else {
         resp.failed(ErrorCodeEnum.FAILED);
       }
-    } catch(IOException e) {
+    } catch (IOException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_IO);
-    } catch(CipherException e) {
+    } catch (CipherException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CIPHER);
     } catch (CancelException e) {
       resp.failed(ErrorCodeEnum.EXCEPTION_CANCEL);

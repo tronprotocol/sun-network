@@ -35,6 +35,7 @@ public class InitTask {
 
     // process txs
     Set<ByteBuffer> allTxKeys = TransactionExtensionStore.getInstance().allKeys();
+    logger.info("TX Store task numbers = {}", (allTxKeys == null ? 0 : allTxKeys.size()));
     for (ByteBuffer TxKey : allTxKeys) {
       byte[] event = EventStore.getInstance().getData(TxKey.array());
       byte[] tx = TransactionExtensionStore.getInstance().getData(TxKey.array());
@@ -53,7 +54,7 @@ public class InitTask {
         if (nonceMsg.getStatus() == NonceStatus.BROADCASTED) {
           CheckTransactionTask.getInstance().submitCheck(actuator, 60);
         } else {
-          Manager.getInstance().setProcessProcessing(actuator.getNonceKey());
+          Manager.getInstance().setProcessProcessingInit(actuator.getNonceKey(),0);
           BroadcastTransactionTask.getInstance()
               .submitBroadcast(actuator, actuator.getTransactionExtensionCapsule().getDelay());
         }
@@ -64,6 +65,7 @@ public class InitTask {
 
     // process events
     Set<byte[]> allEvents = EventStore.getInstance().allValues();
+    logger.info("Event Store task numbers = {}", (allEvents == null ? 0 : allEvents.size()));
     for (byte[] event : allEvents) {
       try {
         Actuator actuator = getActuatorByEventMsg(event);
@@ -71,8 +73,8 @@ public class InitTask {
             .contains(ByteBuffer.wrap(actuator.getNonceKey()))) {
           continue;
         }
-        Manager.getInstance().setProcessProcessing(actuator.getNonceKey());
-        CreateTransactionTask.getInstance().submitCreate(actuator);
+        Manager.getInstance().setProcessProcessingInit(actuator.getNonceKey(),0);
+        CreateTransactionTask.getInstance().submitCreate(actuator, 0l);
       } catch (InvalidProtocolBufferException e) {
         logger.error("parse pb error", e);
       }

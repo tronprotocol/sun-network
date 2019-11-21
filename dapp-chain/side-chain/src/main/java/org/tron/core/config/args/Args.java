@@ -42,6 +42,7 @@ import org.tron.common.logsfilter.TriggerConfig;
 import org.tron.common.overlay.discover.node.Node;
 import org.tron.common.storage.RocksDbSettings;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.Sha256Hash;
 import org.tron.core.Constant;
 import org.tron.core.Wallet;
 import org.tron.core.config.Configuration;
@@ -353,7 +354,6 @@ public class Args {
 //  @Setter
 //  private long allowSameTokenName; //committee parameter
 
-
   // remove in side-chain
 //  @Getter
 //  @Setter
@@ -527,6 +527,14 @@ public class Args {
   @Setter
   private int voteSwitch;
 
+  @Getter
+  @Setter
+  private int witnessMaxActiveNum;
+
+  @Getter
+  @Setter
+  private long updateGateway_v1_0_2; //committee parameter
+
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
     INSTANCE.help = false;
@@ -613,6 +621,8 @@ public class Args {
     INSTANCE.dayToSustainByFund = 90L;
     INSTANCE.percentToPayWitness = 80;
     INSTANCE.voteSwitch = 0;
+    INSTANCE.witnessMaxActiveNum = 27;
+    INSTANCE.updateGateway_v1_0_2 = 0;
   }
 
   /**
@@ -715,6 +725,10 @@ public class Args {
       INSTANCE.supportConstant = config.getBoolean("vm.supportConstant");
     }
 
+    if (config.hasPath("vm.updateGateway_v1_0_2")) {
+      INSTANCE.updateGateway_v1_0_2 = config.getInt("vm.updateGateway_v1_0_2");
+    }
+
     if (config.hasPath("vm.minTimeRatio")) {
       INSTANCE.minTimeRatio = config.getDouble("vm.minTimeRatio");
     }
@@ -780,7 +794,9 @@ public class Args {
       INSTANCE.genesisBlock = new GenesisBlock();
 
       INSTANCE.genesisBlock.setTimestamp(config.getString("genesis.block.timestamp"));
-      INSTANCE.genesisBlock.setParentHash(config.getString("genesis.block.parentHash"));
+      byte[] chainId = ByteArray.fromHexString(config.getString("genesis.block.sideChainId"));
+      String parentHash = ByteArray.toHexString(Sha256Hash.hash(chainId));
+      INSTANCE.genesisBlock.setParentHash(parentHash);
 
       if (config.hasPath("genesis.block.assets")) {
         INSTANCE.genesisBlock.setAssets(getAccountsFromConfig(config));
@@ -998,7 +1014,7 @@ public class Args {
 //    INSTANCE.sideChainGatewayList = getGateWayList(config,"sidechain.sideChainGateWayList");
     INSTANCE.mainChainGateWayList = getGateWayList(config, "sidechain.mainChainGateWayList");
     // mandatory to have sideChainId
-    INSTANCE.sideChainId = config.getString("sidechain.sideChainId");
+    INSTANCE.sideChainId = config.getString("genesis.block.sideChainId");
 
     INSTANCE.eventPluginConfig =
         config.hasPath("event.subscribe") ?
@@ -1026,12 +1042,12 @@ public class Args {
       initRocksDbSettings(config);
     }
 
-
     // side chain
-    INSTANCE.sideChainChargingBandwidth =
-            config.hasPath("sidechain.chargingBandwidth") ? config
-                    .getInt("sidechain.chargingBandwidth") : 1;
-    
+//    INSTANCE.sideChainChargingBandwidth =
+//        config.hasPath("sidechain.chargingBandwidth") ? config
+//            .getInt("sidechain.chargingBandwidth") : 1;
+    INSTANCE.sideChainChargingBandwidth = 1;
+
     INSTANCE.chargingSwitchOn =
         config.hasPath("committee.chargingSwitchOn") ? config
             .getInt("committee.chargingSwitchOn") : 0;
@@ -1063,6 +1079,9 @@ public class Args {
         config.hasPath("committee.voteSwitch") ? config
             .getInt("committee.voteSwitch") : 0;
 
+    INSTANCE.witnessMaxActiveNum =
+        config.hasPath("sidechain.witnessMaxActiveNum") ? config.
+            getInt("sidechain.witnessMaxActiveNum") : 27;
     logConfig();
   }
 

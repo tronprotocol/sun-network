@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
@@ -315,7 +316,9 @@ public class WitnessController {
     Map<ByteString, Long> countWitness = countVote(votesStore);
 
     //Only possible during the initialization phase
-    if (countWitness.isEmpty()) {
+    if (countWitness.isEmpty()
+        && manager.getDynamicPropertiesStore().getWitnessMaxActiveNum() == getActiveWitnesses()
+        .size()) {
       logger.info("No vote, no change to witness.");
     } else {
       List<ByteString> currentWits = getActiveWitnesses();
@@ -326,16 +329,14 @@ public class WitnessController {
       });
 
       countWitness.forEach((address, voteCount) -> {
-        final WitnessCapsule witnessCapsule = witnessStore
-            .get(StringUtil.createDbKey(address));
+        final WitnessCapsule witnessCapsule = witnessStore.get(StringUtil.createDbKey(address));
         if (null == witnessCapsule) {
           logger.warn("witnessCapsule is null.address is {}",
               StringUtil.createReadableString(address));
           return;
         }
 
-        AccountCapsule witnessAccountCapsule = accountStore
-            .get(StringUtil.createDbKey(address));
+        AccountCapsule witnessAccountCapsule = accountStore.get(StringUtil.createDbKey(address));
         if (witnessAccountCapsule == null) {
           logger.warn(
               "witnessAccount[" + StringUtil.createReadableString(address) + "] not exists");
@@ -348,8 +349,10 @@ public class WitnessController {
       });
 
       sortWitness(newWitnessAddressList);
-      if (newWitnessAddressList.size() > ChainConstant.MAX_ACTIVE_WITNESS_NUM) {
-        setActiveWitnesses(newWitnessAddressList.subList(0, ChainConstant.MAX_ACTIVE_WITNESS_NUM));
+      Integer witnessMaxActiveNum = manager.getDynamicPropertiesStore().getWitnessMaxActiveNum();
+      if (newWitnessAddressList.size() > witnessMaxActiveNum) {
+        setActiveWitnesses(newWitnessAddressList.subList(0,
+            witnessMaxActiveNum));
       } else {
         setActiveWitnesses(newWitnessAddressList);
       }
@@ -385,14 +388,18 @@ public class WitnessController {
     if (manager.getDynamicPropertiesStore().getRemoveThePowerOfTheGr() == 1) {
 
       WitnessStore witnessStore = manager.getWitnessStore();
+      int GrNum = manager.getDynamicPropertiesStore().getWitnessMaxActiveNum();
+      Args.getInstance().getGenesisBlock().getWitnesses().subList(0, GrNum)
+          .forEach(witnessInGenesisBlock -> {
+            WitnessCapsule witnessCapsule = witnessStore.get(witnessInGenesisBlock.getAddress());
+            if (Objects.nonNull(witnessCapsule)) {
+              witnessCapsule
+                  .setVoteCount(
+                      witnessCapsule.getVoteCount() - witnessInGenesisBlock.getVoteCount());
 
-      Args.getInstance().getGenesisBlock().getWitnesses().forEach(witnessInGenesisBlock -> {
-        WitnessCapsule witnessCapsule = witnessStore.get(witnessInGenesisBlock.getAddress());
-        witnessCapsule
-            .setVoteCount(witnessCapsule.getVoteCount() - witnessInGenesisBlock.getVoteCount());
-
-        witnessStore.put(witnessCapsule.createDbKey(), witnessCapsule);
-      });
+              witnessStore.put(witnessCapsule.createDbKey(), witnessCapsule);
+            }
+          });
 
       manager.getDynamicPropertiesStore().saveRemoveThePowerOfTheGr(-1);
     }

@@ -36,12 +36,13 @@ import java.nio.ByteBuffer;
 public class DataWord implements Comparable<DataWord> {
 
   /* Maximum value of the DataWord */
+  public static final int WORD_LENGTH = 32;
   public static final BigInteger _2_256 = BigInteger.valueOf(2).pow(256);
   public static final BigInteger MAX_VALUE = _2_256.subtract(BigInteger.ONE);
-  public static final DataWord ZERO = new DataWord(new byte[32]);      // don't push it in to the stack
+  public static final DataWord ZERO = new DataWord(new byte[WORD_LENGTH]);      // don't push it in to the stack
   public static final DataWord ZERO_EMPTY_ARRAY = new DataWord(new byte[0]);      // don't push it in to the stack
 
-  private byte[] data = new byte[32];
+  private byte[] data = new byte[WORD_LENGTH];
 
   public DataWord() {
   }
@@ -55,9 +56,9 @@ public class DataWord implements Comparable<DataWord> {
   }
 
   private DataWord(ByteBuffer buffer) {
-    final ByteBuffer data = ByteBuffer.allocate(32);
+    final ByteBuffer data = ByteBuffer.allocate(WORD_LENGTH);
     final byte[] array = buffer.array();
-    System.arraycopy(array, 0, data.array(), 32 - array.length, array.length);
+    System.arraycopy(array, 0, data.array(), WORD_LENGTH - array.length, array.length);
     this.data = data.array();
   }
 
@@ -73,10 +74,10 @@ public class DataWord implements Comparable<DataWord> {
   public DataWord(byte[] data) {
     if (data == null)
       this.data = ByteUtil.EMPTY_BYTE_ARRAY;
-    else if (data.length == 32)
+    else if (data.length == WORD_LENGTH)
       this.data = data;
-    else if (data.length <= 32)
-      System.arraycopy(data, 0, this.data, 32 - data.length, data.length);
+    else if (data.length <= WORD_LENGTH)
+      System.arraycopy(data, 0, this.data, WORD_LENGTH - data.length, data.length);
     else
       throw new RuntimeException("Data word can't exceed 32 bytes: " + data);
   }
@@ -227,7 +228,7 @@ public class DataWord implements Comparable<DataWord> {
   // By   : Holger
   // From : http://stackoverflow.com/a/24023466/459349
   public void add(DataWord word) {
-    byte[] result = new byte[32];
+    byte[] result = new byte[WORD_LENGTH];
     for (int i = 31, overflow = 0; i >= 0; i--) {
       int v = (this.data[i] & 0xff) + (word.data[i] & 0xff) + overflow;
       result[i] = (byte) v;
@@ -313,7 +314,7 @@ public class DataWord implements Comparable<DataWord> {
 
   public void addmod(DataWord word1, DataWord word2) {
     if (word2.isZero()) {
-      this.data = new byte[32];
+      this.data = new byte[WORD_LENGTH];
       return;
     }
 
@@ -324,7 +325,7 @@ public class DataWord implements Comparable<DataWord> {
   public void mulmod(DataWord word1, DataWord word2) {
 
     if (this.isZero() || word1.isZero() || word2.isZero()) {
-      this.data = new byte[32];
+      this.data = new byte[WORD_LENGTH];
       return;
     }
 
@@ -410,4 +411,15 @@ public class DataWord implements Comparable<DataWord> {
   public String toHexString() {
     return Hex.toHexString(data);
   }
+
+  public static DataWord getDataWord(byte[] bytes, int index) {
+    if (index >= bytes.length / DataWord.WORD_LENGTH) {
+      throw new IndexOutOfBoundsException("length:" + bytes + " index:" + index);
+    }
+    int start = WORD_LENGTH * index;
+    int end = WORD_LENGTH * (index + 1);
+    return new DataWord(java.util.Arrays.copyOfRange(bytes, start, end));
+
+  }
+  
 }

@@ -1,11 +1,13 @@
 package org.tron.sunapi;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.tron.common.utils.AddressUtil;
 import org.tron.protos.Protocol.Account;
 import org.tron.sunapi.response.TransactionResponse;
 
+@Ignore
 public class SunNetworkTest {
 
   public static String priKey = "e901ef62b241b6f1577fd6ea34ef8b1c4b3ddee1e3c051b9e63f5ff729ad47a1";
@@ -13,7 +15,7 @@ public class SunNetworkTest {
   public static SunNetwork sdk = new SunNetwork();
 
   {
-    sdk.init("config.conf");
+    sdk.init(null, null);
     sdk.setPrivateKey(priKey);
   }
 
@@ -45,7 +47,7 @@ public class SunNetworkTest {
     System.out.println("\r\n===================== deposit 124 trx ===============================");
     {
       SunNetworkResponse<TransactionResponse> resp = sdk.getCrossChainService()
-          .depositTrx(124, 1000000);
+          .depositTrx(124, 0,1000000);
 
       System.out.println("Error code desc: " + resp.getDesc());
       System.out.println("transaction result: " + resp.getData().getResult());
@@ -104,7 +106,7 @@ public class SunNetworkTest {
     String priKey = "e901ef62b241b6f1577fd6ea34ef8b1c4b3ddee1e3c051b9e63f5ff729ad47a1";
 
     SunNetwork sdk = new SunNetwork();
-    sdk.init("config.conf");
+    sdk.init(null, null);
     sdk.setPrivateKey(priKey);
 
     System.out.println("\r\n===================== balance before deposit ========================");

@@ -76,6 +76,7 @@ import org.tron.core.capsule.utils.BlockUtil;
 import org.tron.core.config.Parameter.ChainConstant;
 import org.tron.core.config.args.Args;
 import org.tron.core.config.args.GenesisBlock;
+import org.tron.core.config.args.Witness;
 import org.tron.core.db.KhaosDatabase.KhaosBlock;
 import org.tron.core.db.fast.TrieService;
 import org.tron.core.db.fast.callback.FastSyncCallBack;
@@ -283,11 +284,11 @@ public class Manager {
   }
 
   public ExchangeStore getExchangeStoreFinal() {
-      return getExchangeV2Store();
+    return getExchangeV2Store();
   }
 
   public void putExchangeCapsule(ExchangeCapsule exchangeCapsule) {
-      getExchangeV2Store().put(exchangeCapsule.createDbKey(), exchangeCapsule);
+    getExchangeV2Store().put(exchangeCapsule.createDbKey(), exchangeCapsule);
   }
 
   public List<TransactionCapsule> getPendingTransactions() {
@@ -502,7 +503,7 @@ public class Manager {
         this.dynamicPropertiesStore.saveLatestBlockHeaderTimestamp(
             this.genesisBlock.getTimeStamp());
 
-        if(this.dynamicPropertiesStore.getSideChainChargingType() == 1) {
+        if (this.dynamicPropertiesStore.getSideChainChargingType() == 1) {
           // new trc20 token id start from 2000000L
           this.dynamicPropertiesStore.saveTokenIdNum(2000000L);
           this.initAssetIssue();
@@ -519,14 +520,14 @@ public class Manager {
   }
 
   /**
-   *  init sunToken asset on side-chain
+   * init sunToken asset on side-chain
    */
   public void initAssetIssue() {
     AssetIssueContract.Builder assetBuilder = AssetIssueContract.newBuilder();
     assetBuilder.setId(SUN_TOKEN_ID)
         .setPrecision(6);
     AssetIssueCapsule assetIssueCapsuleV2 = new AssetIssueCapsule(assetBuilder.build());
-    this.assetIssueV2Store.put(assetIssueCapsuleV2.createDbV2Key(),assetIssueCapsuleV2);
+    this.assetIssueV2Store.put(assetIssueCapsuleV2.createDbV2Key(), assetIssueCapsuleV2);
   }
 
   /**
@@ -558,28 +559,35 @@ public class Manager {
   private void initWitness() {
     final Args args = Args.getInstance();
     final GenesisBlock genesisBlockArg = args.getGenesisBlock();
-    genesisBlockArg
-        .getWitnesses()
-        .forEach(
-            key -> {
-              byte[] keyAddress = key.getAddress();
-              ByteString address = ByteString.copyFrom(keyAddress);
+    List<Witness> genesisBlockArgWitnesses = genesisBlockArg.getWitnesses();
+    if (genesisBlockArgWitnesses.size() < args.getWitnessMaxActiveNum()) {
+      logger.error("genesisBlockWitnessesSize must greater than witnessMaxActiveNum");
+      System.exit(1);
+    }
+    if (args.getWitnessMaxActiveNum() <= 0) {
+      logger.error("getWitnessMaxActiveNum must greater than zero");
+      System.exit(1);
+    }
+    List<Witness> witnessList = genesisBlockArgWitnesses.subList(0, args.getWitnessMaxActiveNum());
+    witnessList.forEach(key -> {
+      byte[] keyAddress = key.getAddress();
+      ByteString address = ByteString.copyFrom(keyAddress);
 
-              final AccountCapsule accountCapsule;
-              if (!this.accountStore.has(keyAddress)) {
-                accountCapsule = new AccountCapsule(ByteString.EMPTY,
-                    address, AccountType.AssetIssue, 0L);
-              } else {
-                accountCapsule = this.accountStore.getUnchecked(keyAddress);
-              }
-              accountCapsule.setIsWitness(true);
-              this.accountStore.put(keyAddress, accountCapsule);
+      final AccountCapsule accountCapsule;
+      if (!this.accountStore.has(keyAddress)) {
+        accountCapsule = new AccountCapsule(ByteString.EMPTY,
+            address, AccountType.AssetIssue, 0L);
+      } else {
+        accountCapsule = this.accountStore.getUnchecked(keyAddress);
+      }
+      accountCapsule.setIsWitness(true);
+      this.accountStore.put(keyAddress, accountCapsule);
 
-              final WitnessCapsule witnessCapsule =
-                  new WitnessCapsule(address, key.getVoteCount(), key.getUrl());
-              witnessCapsule.setIsJobs(true);
-              this.witnessStore.put(keyAddress, witnessCapsule);
-            });
+      final WitnessCapsule witnessCapsule =
+          new WitnessCapsule(address, key.getVoteCount(), key.getUrl());
+      witnessCapsule.setIsJobs(true);
+      this.witnessStore.put(keyAddress, witnessCapsule);
+    });
   }
 
   public void initCacheTxs() {
@@ -660,7 +668,7 @@ public class Manager {
   }
 
   public void adjustSunTokenBalance(AccountCapsule account, long amount)
-          throws BalanceInsufficientException {
+      throws BalanceInsufficientException {
 
     long sunTokenBalance = account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L);
     if (amount == 0) {
@@ -669,7 +677,8 @@ public class Manager {
 
     if (amount < 0 && sunTokenBalance < -amount) {
       throw new BalanceInsufficientException(
-              StringUtil.createReadableString(account.createDbKey()) + " insufficient sun token balance");
+          StringUtil.createReadableString(account.createDbKey())
+              + " insufficient sun token balance");
     }
 
     account.addAssetAmountV2(SUN_TOKEN_ID.getBytes(), amount);
@@ -677,9 +686,9 @@ public class Manager {
   }
 
   public void adjustBalance(byte[] accountAddress, long amount, int chargingType)
-          throws BalanceInsufficientException {
+      throws BalanceInsufficientException {
     AccountCapsule account = getAccountStore().getUnchecked(accountAddress);
-    if(chargingType == 0) {
+    if (chargingType == 0) {
       adjustBalance(account, amount);
     } else {
       adjustSunTokenBalance(account, amount);
@@ -687,8 +696,8 @@ public class Manager {
   }
 
   public void adjustBalance(AccountCapsule account, long amount, int chargingType)
-          throws BalanceInsufficientException {
-    if(chargingType == 0) {
+      throws BalanceInsufficientException {
+    if (chargingType == 0) {
       adjustBalance(account, amount);
     } else {
       adjustSunTokenBalance(account, amount);
@@ -848,7 +857,7 @@ public class Manager {
   public void consumeBandwidthEnergy(TransactionCapsule trx, TransactionTrace trace)
       throws ContractValidateException, TooBigTransactionResultException, AccountResourceInsufficientException {
     EnergyProcessor processor = new EnergyProcessor(this);
-    processor.bandwidthEnergyConsume(trx,trace);
+    processor.bandwidthEnergyConsume(trx, trace);
   }
 
   public void checkTransactionSize(TransactionCapsule trx)
@@ -1292,23 +1301,21 @@ public class Manager {
     TransactionTrace trace = new TransactionTrace(trxCap, this);
     trxCap.setTrxTrace(trace);
 
-
     boolean isSideChainGateWayCall = trace.isSideChainGateWayContractCall();
-    if (isSideChainGateWayCall){
+    if (isSideChainGateWayCall) {
       this.checkTransactionSize(trxCap);
     }
 
     if (dynamicPropertiesStore.getChargingSwitch() == 1
         && !isSideChainGateWayCall) {
       //
-      if(dynamicPropertiesStore.getSideChainChargingBandwidth() == 1) {
+      if (dynamicPropertiesStore.getSideChainChargingBandwidth() == 1) {
         consumeBandwidth(trxCap, trace);
       } else {
         consumeBandwidthEnergy(trxCap, trace);
       }
       consumeMultiSignFee(trxCap, trace);
     }
-
 
     VMConfig.handleProposalInVM(this);
     trace.init(blockCap, eventPluginLoaded);
@@ -1591,7 +1598,7 @@ public class Manager {
       throws ValidateSignatureException, ContractValidateException, ContractExeException,
       AccountResourceInsufficientException, TaposException, TooBigTransactionException,
       DupTransactionException, TransactionExpirationException, ValidateScheduleException,
-      ReceiptCheckErrException, VMIllegalException, TooBigTransactionResultException, BadBlockException{
+      ReceiptCheckErrException, VMIllegalException, TooBigTransactionResultException, BadBlockException {
     // todo set revoking db max size.
 
     // checkWitness
@@ -1808,7 +1815,7 @@ public class Manager {
   }
 
   public AssetIssueStore getAssetIssueStoreFinal() {
-      return getAssetIssueV2Store();
+    return getAssetIssueV2Store();
   }
 
   public void setBlockIndexStore(BlockIndexStore indexStore) {

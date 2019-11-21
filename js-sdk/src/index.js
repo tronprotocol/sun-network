@@ -1,13 +1,7 @@
-import TronWeb from 'tronweb';
-import {sha256} from './helper/ethersUtils';
-
 export default class SunWeb {
-    static TronWeb = TronWeb;
-    constructor(mainOptions = false, sideOptions = false, mainGatewayAddress = false, sideGatewayAddress = false, sideChainId = false, privateKey = false) {
-        mainOptions = {...mainOptions, privateKey};
-        sideOptions = {...sideOptions, privateKey};
-        this.mainchain = new TronWeb(mainOptions);
-        this.sidechain = new TronWeb(sideOptions);
+    constructor(mainchain = false, sidechain = false, mainGatewayAddress = false, sideGatewayAddress = false, sideChainId = false) {
+        this.mainchain = mainchain;
+        this.sidechain = sidechain;
         this.isAddress = this.mainchain.isAddress;
         this.utils = this.mainchain.utils;
         this.setMainGatewayAddress(mainGatewayAddress);
@@ -15,10 +9,13 @@ export default class SunWeb {
         this.setChainId(sideChainId);
         this.injectPromise = this.utils.promiseInjector(this);
         this.validator = this.mainchain.trx.validator;
-        
+
         const self = this;
         this.sidechain.trx.sign = (...args) => {
             return self.sign(...args);
+        };
+        this.sidechain.trx.multiSign = (...args) => {
+            return self.multiSign(...args);
         };
     }
     setMainGatewayAddress(mainGatewayAddress) {
@@ -46,7 +43,8 @@ export default class SunWeb {
         let chainIdByteArr = this.utils.code.hexStr2byteArray(this.chainId);
 
         let byteArr = this.utils.code.hexStr2byteArray(transaction.txID).concat(chainIdByteArr);
-        let byteArrHash = sha256(byteArr);
+        let byteArrHash = this.sidechain.utils.ethersUtils.sha256(byteArr);
+
         const signature = this.utils.crypto.ECKeySign(this.utils.code.hexStr2byteArray(byteArrHash.replace(/^0x/, '')), priKeyBytes);
 
         if (Array.isArray(transaction.signature)) {
@@ -55,6 +53,60 @@ export default class SunWeb {
         } else
             transaction.signature = [signature];
         return transaction;
+    }
+
+    async multiSign(transaction = false, privateKey = this.sidechain.defaultPrivateKey, permissionId = false, callback = false) {
+        if (this.utils.isFunction(permissionId)) {
+            callback = permissionId;
+            permissionId = 0;
+        }
+
+        if (this.utils.isFunction(privateKey)) {
+            callback = privateKey;
+            privateKey = this.mainchain.defaultPrivateKey;
+            permissionId = 0;
+        }
+
+        if (!callback) return this.injectPromise(this.multiSign, transaction, privateKey, permissionId);
+
+        if (!this.utils.isObject(transaction) || !transaction.raw_data || !transaction.raw_data.contract) return callback('Invalid transaction provided');
+
+        // set permission id
+        transaction.raw_data.contract[0].Permission_id = permissionId;
+
+        // check if private key insides permission list
+        const address = this.sidechain.address.toHex(this.sidechain.address.fromPrivateKey(privateKey)).toLowerCase();
+        const signWeight = await this.sidechain.trx.getSignWeight(transaction, permissionId);
+
+        if (signWeight.result.code === 'PERMISSION_ERROR') {
+           return callback(signWeight.result.message);
+        }
+
+        let foundKey = false;
+        signWeight.permission.keys.map(key => {
+           if (key.address === address) foundKey = true;
+        });
+
+        if (!foundKey) return callback(privateKey + ' has no permission to sign');
+
+        if (signWeight.approved_list && signWeight.approved_list.indexOf(address) != -1) {
+           return callback(privateKey + ' already sign transaction');
+        }
+
+        // reset transaction
+        if (signWeight.transaction && signWeight.transaction.transaction) {
+            transaction = signWeight.transaction.transaction;
+            transaction.raw_data.contract[0].Permission_id = permissionId;
+        } else {
+             return callback('Invalid transaction provided');
+        }
+
+        // sign
+        try {
+           return callback(null, this.signTransaction(privateKey, transaction));
+        } catch (ex) {
+           callback(ex);
+        }
     }
 
     async sign(transaction = false, privateKey = this.sidechain.defaultPrivateKey, useTronHeader = true, multisig = false, callback = false) {
@@ -120,6 +172,7 @@ export default class SunWeb {
      */
     async depositTrx(
         callValue,
+        depositFee,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
@@ -134,13 +187,19 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.depositTrx, callValue, feeLimit, options, privateKey);
+            return this.injectPromise(this.depositTrx, callValue, depositFee, feeLimit, options, privateKey);
         }
         if (this.validator.notValid([
             {
                 name: 'callValue',
                 type: 'integer',
                 value: callValue,
+                gte: 0
+            },
+            {
+                name: 'depositFee',
+                type: 'integer',
+                value: depositFee,
                 gte: 0
             },
             {
@@ -154,7 +213,7 @@ export default class SunWeb {
             return;
         }
         options = {
-            callValue,
+            callValue: Number(callValue) + Number(depositFee),
             feeLimit,
             ...options
         };
@@ -170,6 +229,7 @@ export default class SunWeb {
     async depositTrc10(
         tokenId,
         tokenValue,
+        depositFee,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
@@ -183,13 +243,19 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.depositTrc10, tokenId, tokenValue, feeLimit, options, privateKey);
+            return this.injectPromise(this.depositTrc10, tokenId, tokenValue, depositFee, feeLimit, options, privateKey);
         }
         if (this.validator.notValid([
             {
                 name: 'tokenValue',
                 type: 'integer',
                 value: tokenValue,
+                gte: 0
+            },
+            {
+                name: 'depositFee',
+                type: 'integer',
+                value: depositFee,
                 gte: 0
             },
             {
@@ -212,7 +278,8 @@ export default class SunWeb {
             tokenId,
             tokenValue,
             feeLimit,
-            ...options
+            ...options,
+            callValue: depositFee
         };
         try {
             const contractInstance = await this.mainchain.contract().at(this.mainGatewayAddress);
@@ -226,6 +293,7 @@ export default class SunWeb {
     async depositTrc(
         functionSelector,
         num,
+        fee,
         feeLimit,
         contractAddress,
         options = {},
@@ -241,7 +309,7 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.depositTrc, functionSelector, num, feeLimit, contractAddress, options, privateKey);
+            return this.injectPromise(this.depositTrc, functionSelector, num, fee, feeLimit, contractAddress, options, privateKey);
         }
         if (this.validator.notValid([
             {
@@ -253,6 +321,12 @@ export default class SunWeb {
                 name: 'num',
                 type: 'integer',
                 value: num,
+                gte: 0
+            },
+            {
+                name: 'fee',
+                type: 'integer',
+                value: fee,
                 gte: 0
             },
             {
@@ -273,7 +347,7 @@ export default class SunWeb {
         options = {
             feeLimit,
             ...options,
-            callValue: 0,
+            callValue: fee,
             tokenId: '',
             tokenValue: 0
         };
@@ -281,13 +355,24 @@ export default class SunWeb {
             let result = null;
             if (functionSelector === 'approve') {
                 const approveInstance = await this.mainchain.contract().at(contractAddress);
-                result = await approveInstance.approve(this.mainGatewayAddress, num).send(options, privateKey)
+                result = await approveInstance.approve(this.mainGatewayAddress, num).send(options, privateKey);
             } else {
                 const contractInstance = await this.mainchain.contract().at(this.mainGatewayAddress);
-                if (functionSelector === 'depositTRC20') {
-                    result = await contractInstance.depositTRC20(contractAddress, num).send(options, privateKey);
-                } else if (functionSelector === 'depositTRC721') {
-                    result = await contractInstance.depositTRC721(contractAddress, num).send(options, privateKey);
+                switch(functionSelector) {
+                    case 'depositTRC20':
+                        result = await contractInstance.depositTRC20(contractAddress, num).send(options, privateKey);
+                        break;
+                    case 'depositTRC721':
+                        result = await contractInstance.depositTRC721(contractAddress, num).send(options, privateKey);
+                        break;
+                    case 'retryDeposit':
+                        result = await contractInstance.retryDeposit(num).send(options, privateKey);
+                        break; 
+                    case 'retryMapping':
+                        result = await contractInstance.retryMapping(num).send(options, privateKey);
+                        break;
+                    default:
+                        break;
                 }
             }
             callback(null, result);
@@ -308,6 +393,7 @@ export default class SunWeb {
         return this.depositTrc(
             functionSelector,
             num,
+            0,
             feeLimit,
             contractAddress,
             options,
@@ -328,6 +414,7 @@ export default class SunWeb {
         return this.depositTrc(
             functionSelector,
             id,
+            0,
             feeLimit,
             contractAddress,
             options,
@@ -338,6 +425,7 @@ export default class SunWeb {
 
     async depositTrc20(
         num,
+        depositFee,
         feeLimit,
         contractAddress,
         options = {},
@@ -348,6 +436,7 @@ export default class SunWeb {
         return this.depositTrc(
             functionSelector,
             num,
+            depositFee,
             feeLimit,
             contractAddress,
             options,
@@ -358,6 +447,7 @@ export default class SunWeb {
 
     async depositTrc721(
         id,
+        depositFee,
         feeLimit,
         contractAddress,
         options = {},
@@ -368,6 +458,7 @@ export default class SunWeb {
         return this.depositTrc(
             functionSelector,
             id,
+            depositFee,
             feeLimit,
             contractAddress,
             options,
@@ -381,6 +472,7 @@ export default class SunWeb {
      */
     async mappingTrc(
         trxHash,
+        mappingFee,
         feeLimit,
         functionSelector,
         options = {},
@@ -396,13 +488,19 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.mappingTrc, trxHash, feeLimit, functionSelector, options, privateKey);
+            return this.injectPromise(this.mappingTrc, trxHash, mappingFee, feeLimit, functionSelector, options, privateKey);
         }
         if (this.validator.notValid([
             {
                 name: 'trxHash',
                 type: 'not-empty-string',
                 value: trxHash
+            },
+            {
+                name: 'mappingFee',
+                type: 'integer',
+                value: mappingFee,
+                gte: 0
             },
             {
                 name: 'feeLimit',
@@ -418,7 +516,7 @@ export default class SunWeb {
         options = {
             feeLimit,
             ...options,
-            callValue: 0
+            callValue: mappingFee
         };
         try {
             const contractInstance = await this.mainchain.contract().at(this.mainGatewayAddress);
@@ -438,6 +536,7 @@ export default class SunWeb {
 
     async mappingTrc20(
         trxHash,
+        mappingFee,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
@@ -446,6 +545,7 @@ export default class SunWeb {
         const functionSelector = 'mappingTRC20';
         return this.mappingTrc(
             trxHash,
+            mappingFee,
             feeLimit,
             functionSelector,
             options,
@@ -455,6 +555,7 @@ export default class SunWeb {
 
     async mappingTrc721(
         trxHash,
+        mappingFee,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
@@ -463,6 +564,7 @@ export default class SunWeb {
         const functionSelector = 'mappingTRC721';
         return this.mappingTrc(
             trxHash,
+            mappingFee,
             feeLimit,
             functionSelector,
             options,
@@ -475,6 +577,7 @@ export default class SunWeb {
      */
     async withdrawTrx(
         callValue,
+        withdrawFee,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
@@ -489,13 +592,19 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.withdrawTrx, callValue, feeLimit, options, privateKey);
+            return this.injectPromise(this.withdrawTrx, callValue, withdrawFee, feeLimit, options, privateKey);
         }
         if (this.validator.notValid([
             {
                 name: 'callValue',
                 type: 'integer',
                 value: callValue,
+                gte: 0
+            },
+            {
+                name: 'withdrawFee',
+                type: 'integer',
+                value: withdrawFee,
                 gte: 0
             },
             {
@@ -509,7 +618,7 @@ export default class SunWeb {
             return;
         }
         options = {
-            callValue,
+            callValue: Number(callValue) + Number(withdrawFee),
             feeLimit,
             ...options
         };
@@ -525,6 +634,7 @@ export default class SunWeb {
     async withdrawTrc10(
         tokenId,
         tokenValue,
+        withdrawFee,
         feeLimit,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
@@ -539,7 +649,7 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.withdrawTrc10, tokenId, tokenValue, feeLimit, options, privateKey);
+            return this.injectPromise(this.withdrawTrc10, tokenId, tokenValue, withdrawFee, feeLimit, options, privateKey);
         }
         if (this.validator.notValid([
             {
@@ -555,6 +665,12 @@ export default class SunWeb {
                 gte: 0
             },
             {
+                name: 'withdrawFee',
+                type: 'integer',
+                value: withdrawFee,
+                gte: 0
+            },
+            {
                 name: 'feeLimit',
                 type: 'integer',
                 value: feeLimit,
@@ -567,7 +683,7 @@ export default class SunWeb {
         options = {
             tokenValue,
             tokenId,
-            callValue: 0,
+            callValue: withdrawFee,
             feeLimit,
             ...options
         };
@@ -581,9 +697,11 @@ export default class SunWeb {
     }
 
     async withdrawTrc(
+        functionSelector,
         numOrId,
+        withdrawFee,
         feeLimit,
-        contractAddress,  // side chain trc20 contract address after mapping
+        contractAddress,
         options = {},
         privateKey = this.mainchain.defaultPrivateKey,
         callback = false
@@ -597,13 +715,24 @@ export default class SunWeb {
             options = {};
         }
         if (!callback) {
-            return this.injectPromise(this.withdrawTrc, numOrId, feeLimit, contractAddress, options, privateKey);
+            return this.injectPromise(this.withdrawTrc, functionSelector, numOrId, withdrawFee, feeLimit, contractAddress, options, privateKey);
         }
         if (this.validator.notValid([
+            {
+                name: 'functionSelector',
+                type: 'not-empty-string',
+                value: functionSelector
+            },
             {
                 name: 'numOrId',
                 type: 'integer',
                 value: numOrId,
+                gte: 0
+            },
+            {
+                name: 'withdrawFee',
+                type: 'integer',
+                value: withdrawFee,
                 gte: 0
             },
             {
@@ -624,7 +753,7 @@ export default class SunWeb {
         options = {
             feeLimit,
             ...options,
-            callValue: 0
+            callValue: withdrawFee
         };
         const parameters = [
             {
@@ -632,7 +761,6 @@ export default class SunWeb {
                 value: numOrId
             }
         ];
-        const functionSelector = 'withdrawal(uint256)';
 
         try {
             const address = privateKey ? this.sidechain.address.fromPrivateKey(privateKey) : this.sidechain.defaultAddress.base58;
@@ -663,7 +791,7 @@ export default class SunWeb {
                     message: broadcast.code
                 };
                 if (broadcast.message)
-                    err.message = this.tronWeb.toUtf8(broadcast.message);
+                    err.message = this.sidechain.toUtf8(broadcast.message);
                 return callback(err)
             }
 
@@ -688,7 +816,7 @@ export default class SunWeb {
 
                 if (output.result && output.result == 'FAILED') {
                     return callback({
-                        error: this.tronWeb.toUtf8(output.resMessage),
+                        error: this.sidechain.toUtf8(output.resMessage),
                         transaction: signedTransaction,
                         output
                     });
@@ -721,14 +849,18 @@ export default class SunWeb {
 
     async withdrawTrc20(
         num,
+        withdrawFee,
         feeLimit,
         contractAddress,
         options,
         privateKey = this.mainchain.defaultPrivateKey,
         callback = false
     ) {
+        const functionSelector = 'withdrawal(uint256)';
         return this.withdrawTrc(
+            functionSelector,
             num,
+            withdrawFee,
             feeLimit,
             contractAddress,
             options,
@@ -738,19 +870,157 @@ export default class SunWeb {
 
     async withdrawTrc721(
         id,
+        withdrawFee,
         feeLimit,
         contractAddress,
         options,
         privateKey = this.mainchain.defaultPrivateKey,
         callback = false
     ) {
+        const functionSelector = 'withdrawal(uint256)';
         return this.withdrawTrc(
+            functionSelector,
             id,
+            withdrawFee,
             feeLimit,
             contractAddress,
             options,
             privateKey,
             callback);
+    }
+
+
+    async injectFund(
+        num,
+        feeLimit,
+        options,
+        privateKey = this.mainchain.defaultPrivateKey,
+        callback = false
+    ) {
+        if (this.utils.isFunction(privateKey)) {
+            callback = privateKey;
+            privateKey = this.mainchain.defaultPrivateKey;
+        }
+
+        if (this.utils.isFunction(options)) {
+            callback = options;
+            options = {};
+        }
+        if (!callback) {
+            return this.injectPromise(this.injectFund, num, feeLimit, options, privateKey);
+        }
+        if (this.validator.notValid([
+            {
+                name: 'num',
+                type: 'integer',
+                value: num,
+                gte: 0
+            },
+            {
+                name: 'feeLimit',
+                type: 'integer',
+                value: feeLimit,
+                gt: 0,
+                lte: 1_000_000_000
+            }
+        ], callback)) {
+            return;
+        }
+
+        try {
+            const address = this.sidechain.address.fromPrivateKey(privateKey);
+            const hexAddress = this.sidechain.address.toHex(address);
+            const transaction = await this.sidechain.fullNode.request('/wallet/fundinject', {
+                owner_address: hexAddress,
+                amount: num
+            }, 'post');
+
+            const signedTransaction = await this.sidechain.trx.sign(transaction, privateKey);
+
+            if (!signedTransaction.signature) {
+                if (!privateKey)
+                    return callback('Transaction was not signed properly');
+
+                return callback('Invalid private key provided');
+            }
+
+            const broadcast = await this.sidechain.trx.sendRawTransaction(signedTransaction);
+            if (broadcast.code) {
+                const err = {
+                    error: broadcast.code,
+                    message: broadcast.code
+                };
+                if (broadcast.message)
+                    err.message = this.mainchain.toUtf8(broadcast.message);
+                return callback(err)
+            }
+            return callback(null, signedTransaction.txID);
+        } catch (ex) {
+            return callback(ex);
+        }
+    }
+
+    async retryWithdraw(
+        nonce,
+        retryWithdrawFee,
+        feeLimit,
+        options = {},
+        privateKey = this.sidechain.defaultPrivateKey,
+        callback = false
+    ) {
+        const functionSelector = 'retryWithdraw(uint256)';
+        return this.withdrawTrc(
+            functionSelector,
+            nonce,
+            retryWithdrawFee,
+            feeLimit,
+            this.sideGatewayAddress,
+            options,
+            privateKey,
+            callback
+        );
+    }
+
+    async retryDeposit(
+        nonce,
+        retryDepositFee,
+        feeLimit,
+        options = {},
+        privateKey = this.mainchain.defaultPrivateKey,
+        callback = false
+    ) {
+        const functionSelector = 'retryDeposit';
+        return this.depositTrc(
+            functionSelector,
+            nonce,
+            retryDepositFee,
+            feeLimit,
+            this.mainGatewayAddress,
+            options,
+            privateKey,
+            callback
+        );
+    }
+
+    async retryMapping(
+        nonce,
+        retryMappingFee,
+        feeLimit,
+        options = {},
+        privateKey = this.mainchain.defaultPrivateKey,
+        callback = false
+    ) {
+        const functionSelector = 'retryMapping';
+        return this.depositTrc(
+            functionSelector,
+            nonce,
+            retryMappingFee,
+            feeLimit,
+            this.mainGatewayAddress,
+            options,
+            privateKey,
+            callback
+        );
     }
 }
 

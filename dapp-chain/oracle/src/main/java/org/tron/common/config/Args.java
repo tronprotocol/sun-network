@@ -1,8 +1,12 @@
 package org.tron.common.config;
 
+import static java.lang.System.exit;
+
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.typesafe.config.Config;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +19,11 @@ import org.springframework.stereotype.Component;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
+import org.tron.keystore.CipherException;
+import org.tron.keystore.Credentials;
 
 
-@Slf4j
+@Slf4j(topic = "args")
 @Component
 public class Args {
 
@@ -63,11 +69,16 @@ public class Args {
   @Getter
   private String mainchainKafka;
 
-  @Getter
   @Parameter(names = {"-p", "--private-key"}, description = "Oracle Private Key")
   private String oraclePrivateKeyStr;
   @Getter
   private byte[] oraclePrivateKey;
+
+  @Getter
+  private int oracleRetryTimes;
+
+  @Parameter(names = {"-pw", "--password"}, description = "Oracle keystore password")
+  private String password;
 
   @Getter
   private byte[] sunTokenAddress;
@@ -130,15 +141,50 @@ public class Args {
     this.sidechainGateway = WalletUtil
         .decodeFromBase58Check(sidechainGatewayStr);
 
-    if (StringUtils.isEmpty(this.oraclePrivateKeyStr)) {
-      this.oraclePrivateKeyStr = config.getString("oracle.private.key");
+    this.oracleRetryTimes = config.getInt("oracle.retryTimes");
+    if (oracleRetryTimes >= SystemSetting.RETRY_TIMES_EPOCH_OFFSET || oracleRetryTimes < 1) {
+      logger.error("oracle retryTimes should < " + SystemSetting.RETRY_TIMES_EPOCH_OFFSET + " and >= 1");
+      exit(-1);
     }
-    this.oraclePrivateKey = Hex.decode(this.oraclePrivateKeyStr);
 
-    this.mainchainKafka = config.getString("kafka.mainchain.server");
+    if (StringUtils.isNotEmpty(this.oraclePrivateKeyStr)) {
+      this.oraclePrivateKey = Hex.decode(this.oraclePrivateKeyStr);
+    } else if (config.hasPath("oracle.private.key")) {
+      this.oraclePrivateKeyStr = config.getString("oracle.private.key");
+      this.oraclePrivateKey = Hex.decode(this.oraclePrivateKeyStr);
+    } else if (config.hasPath("oracle.keystore")) {
 
-    if (config.hasPath("alert.dingding.webhook.token")) {
-      this.alertDingWebhookToken = config.getString("alert.dingding.webhook.token");
+      String fileName = System.getProperty("user.dir") + "/" + config.getString("oracle.keystore");
+      String password;
+      if (StringUtils.isEmpty(instance.password)) {
+        System.out.println("Please input your password.");
+        password = WalletUtil.inputPassword();
+      } else {
+        password = instance.password;
+        instance.password = null;
+      }
+
+      try {
+        Credentials credentials = WalletUtil
+            .loadCredentials(password, new File(fileName));
+        ECKey ecKeyPair = credentials.getEcKeyPair();
+        oraclePrivateKey = ecKeyPair.getPrivKeyBytes();
+        oraclePrivateKeyStr = ByteArray.toHexString(oraclePrivateKey);
+      } catch (IOException e) {
+        logger.error(e.getMessage());
+        logger.error("Witness node start faild!");
+        exit(-1);
+      } catch (CipherException e) {
+        logger.error(e.getMessage());
+        logger.error("Witness node start faild!");
+        exit(-1);
+      }
+    }
+
+    this.mainchainKafka = config.getString("kafka.server");
+
+    if (config.hasPath("alert.webhook.url")) {
+      this.alertDingWebhookToken = config.getString("alert.webhook.url");
     }
     if (config.hasPath("initTaskSwitch") && config.getBoolean("initTaskSwitch")) {
       this.initTask = true;
