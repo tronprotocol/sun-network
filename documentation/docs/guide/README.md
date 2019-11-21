@@ -1140,7 +1140,59 @@ SideChain SR use a reward pool concept for chain rewarding, all the income from 
 
 SR reward is a floating number. In theory, the richer the ecosystem (high TPS), the more TRX SR will gain. 
 
-## VIII. Deploy your own side-chain
+## VIII. Build your DApp on DAppChain
+
+DApp developer can migrate their DApp from TRON Network to DAppChain to boost their ecosystem. And it is also allowed to design and deploy DApp on DAppChain only from scratch. More free DApp bandwidth/energy resource are provided on DAppChain and burning energy fee is also reduced to help developer to lower the cost. 
+
+### DAppChain supported Type
+According to developer’s business concern, a developer can choose:
+
+**Type A** Deploy whole DApp only on DAppChain
+
+**Type B** Deploy DApp on both TRON Network and DAppChain
+
+### Deploy whole DApp only on DAppChain
+The whole develop process is very similar to develop on TRON Network. But some key facts are also need to pay attention to:
+1. DAppChain and TRON Network are not share the same resource system, so please deposit some TRX to DAppChain to cover the deploy fee and maintenance fee.
+
+2. Developer can use TRONSCAN, TRONLINK, sun-cli or sdk(java/nodejs) to complete the deposit step.
+
+3. DApp can issue the asset on TRON Network and register it in gateway by using mapping function to generate a corresponding asset contract on DAppChain. In this case, the token can be deposited and withdraw between TRON Network and DAppChain. It is allowed for developer to deploy new TRC20/TRC721 Asset on DAppChain, but please be aware of that the asset can not be withdrawn back to TRON Network, since it is not issued on TRON Network.  
+
+4. The generated asset contracts are official TRC20/TRC721 Assets only provide standard TRC20/TRC721 interface, which means you cannot use self-defined function in the contract. For example, you can not mint token on DAppChain in the generated contract, even if you have such logic in your origin asset contract. 
+
+5. Transaction sign step is different from TRON Network, please refer to Sunweb implementation if you want to implement it yourself.
+
+6. You may need to implement Asset cross-chain transferring in your DApp, but it’s not mandatory. Please refer to below part.
+
+
+### Recommended additional Step for Type B DApp
+**Asset cross-chain transferring in DApp**
+
+Asset Deposit/Withdraw:
+
+User can choose to use third-party tool or official tools to transfer their asset to DAppChain, so it is not mandatory for a DApp to implement cross-chain transferring. 
+
+Tools here can be TRONSCAN, TRONLINK and sun-cli, etc. However, building a cross-chain transferring available DApp is highly recommended especially for Type B DApps, which will do a convenience to the user. 
+
+We provide multiple ways to help developer embed their logic for TRX/TRC10/TRC20/TRC721 Asset transferring:
+A java jdk, sun-sdk 
+A js lib, sunweb
+
+
+**Asset mapping**
+
+If a DApp has its own TRC20/TRC721 on TRON Network, and the asset need to be involved in DApp logic, a mapping operation is required, which will generate a corresponding asset contract on DAppChain. 
+
+Mapping operation can be done manually by using TRONSCAN, sun-cli. And it can also be done by using sun-sdk and sunweb. It is required and only required to be triggered once for a single type of TRC20/TRC721 asset. 
+
+However, only asset contract origin owner, the address which deployed the contract, can trigger mapping function in gateway contract. If you are not the owner of your target TRC20/TRC721 contract asset, please make sure the owner already mapped the contract before.
+
+### TOOLS:
+sunweb is equivalence to tronweb. What’s more,  sunweb provide additional cross-chain functionality for SUN Network and TRON Network. Thus, sunweb is highly recommended for your migration process.
+
+
+## IX. Deploy your own side-chain
 ### Get started
 #### 1. Deloy _main-chain_ gateway contract. Create related Accounts. Configurate fullnode on _main-chain_.
 * i. create an account Onwer as _main-chain_ gateway contract deployer and _side-chain_ owner. Give sufficient balance to Onwer.
@@ -1705,7 +1757,7 @@ initTaskSwitch = true
 #### 11. Test if everything works as expected under charging fee proposal is approved
  * test cmd 1-9 again.
  
-## IX. RoadMap
+## X. RoadMap
 
 As part of the TRON expansion plan, DAppChain is committed to decentralizing and prospering the TRON ecosystem. For all builders of the entire ecology, it will be accompanied by the development of DAppChain through the three stages of L1, L2 and L3. We will open up more roles for the community as the plan progresses and the development work is completed, allowing the community to participate in the entire ecosystem in different forms.
 
