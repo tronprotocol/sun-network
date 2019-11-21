@@ -1196,7 +1196,7 @@ Mapping operation can be done manually by using TRONSCAN, sun-cli. And it can al
 
 However, only asset contract origin owner, the address which deployed the contract, can trigger mapping function in gateway contract. If you are not the owner of your target TRC20/TRC721 contract asset, please make sure the owner already mapped the contract before.
 
-### TOOLS:
+### TOOLS
 sunweb is equivalence to tronweb. What’s more,  sunweb provide additional cross-chain functionality for SUN Network and TRON Network. Thus, sunweb is highly recommended for your migration process.
 
 
