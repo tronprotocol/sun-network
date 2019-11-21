@@ -1171,7 +1171,7 @@ The whole develop process is very similar to develop on TRON Network. But some k
 
 To migrate your logic from TRON Network to DAppChain, please refer to Type A DApp logic, the migration and create from scratch are similar. The only different part from Type A DApp should be you need two DApp share the similar code deployed on two separated networks rather than just consider of one network.
 
-What's more, you may also need to consider DAppChain and TRON Network as a whole ecosystem. You need to consdier asset transfer from one part of the ecosystem to another according to your logic. 
+What's more, you may also need to consider DAppChain and TRON Network as a whole ecosystem. You need to consider asset transfer from one part of the ecosystem to another according to your logic. 
 
 **Asset cross-chain transferring in DApp**
 
