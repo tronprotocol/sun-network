@@ -1168,7 +1168,13 @@ The whole develop process is very similar to develop on TRON Network. But some k
 6. You may need to implement Asset cross-chain transferring in your DApp, but it’s not mandatory. Please refer to below part.
 
 
-### Recommended additional Step for Type B DApp
+### Recommended Step for Type B DApp
+**Deploy DApp on DAppChain**
+
+To migrate your logic from TRON Network to DAppChain, please refer to Type A DApp logic, the migration and create from scratch are similar. The only different part from Type A DApp should be you need two DApp share the similar code deployed on two separated networks rather than just consider of one network.
+
+What's more, you may also need to consider DAppChain and TRON Network as a whole ecosystem. You need to consider asset transfer from one part of the ecosystem to another according to your logic. 
+
 **Asset cross-chain transferring in DApp**
 
 Asset Deposit/Withdraw:
