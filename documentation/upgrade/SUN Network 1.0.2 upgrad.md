@@ -20,7 +20,7 @@ cp build/libs/FullNode.jar ../../..
 
 Copy  Jar package from Release: [SunNetwork-v1.0.2](https://github.com/tronprotocol/sun-network/releases/tag/SunNetwork-v1.0.2) or compiler by source code  to execute path.
 
-Then create file config.conf，like [config.conf](https://raw.githubusercontent.com/tronprotocol/sun-network/SunNetwork-v1.0.2/dapp-chain/side-chain/src/main/resources/config.conf) .
+Then replace the config.conf file with the [latest version](https://raw.githubusercontent.com/tronprotocol/sun-network/SunNetwork-v1.0.2/dapp-chain/side-chain/src/main/resources/config.conf). **This is a mandatory operation**.
 
 ### Execute JAR
 
