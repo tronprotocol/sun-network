@@ -1,6 +1,6 @@
 {
     "name": "sunweb",
-    "version": "1.0.9",
+    "version": "1.1.0",
     "description": "JavaScript SDK that encapsulates the TRON HTTP API",
     "main": "dist/SunWeb.node.js",
     "scripts": {
@@ -15,7 +15,8 @@
     },
     "dependencies": {
         "@babel/runtime": "^7.4.5",
-        "babel-runtime": "^6.26.0"
+        "babel-runtime": "^6.26.0",
+        "injectpromise": "^1.0.0"
     },
     "devDependencies": {
         "tronweb": "^2.8.1",
