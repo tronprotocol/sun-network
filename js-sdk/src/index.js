@@ -1,3 +1,5 @@
+import injectpromise from 'injectpromise';
+
 export default class SunWeb {
     constructor(mainchain = false, sidechain = false, mainGatewayAddress = false, sideGatewayAddress = false, sideChainId = false) {
         this.mainchain = mainchain;
@@ -7,7 +9,7 @@ export default class SunWeb {
         this.setMainGatewayAddress(mainGatewayAddress);
         this.setSideGatewayAddress(sideGatewayAddress);
         this.setChainId(sideChainId);
-        this.injectPromise = this.utils.promiseInjector(this);
+        this.injectPromise = injectpromise(this);
         this.validator = this.mainchain.trx.validator;
 
         const self = this;
