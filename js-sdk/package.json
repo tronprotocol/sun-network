@@ -1,6 +1,6 @@
 {
     "name": "sunweb",
-    "version": "1.0.9",
+    "version": "1.1.0",
     "description": "JavaScript SDK that encapsulates the TRON HTTP API",
     "main": "dist/SunWeb.node.js",
     "scripts": {
