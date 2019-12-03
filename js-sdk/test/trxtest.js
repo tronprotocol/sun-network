@@ -1,4 +1,4 @@
-const {TIMEOUT, PRIVATE_KEY, ACCOUNTADDRESS,ADDRESS_HEX1,MAIN_GATEWAY_ADDRESS_HEX,ADDRESS_HEX2,CONTRACT_ADDRESS20,ADDRESS20_MAPPING,ADDRESS721_MAPPING,CONTRACT_ADDRESS721, FEE_LIMIT, MAIN_FULL_NODE_API, MAIN_SOLIDITY_NODE_API, MAIN_EVENT_API, SIDE_FULL_NODE_API, SIDE_SOLIDITY_NODE_API, SIDE_EVENT_API, MAIN_GATEWAY_ADDRESS, SIDE_GATEWAY_ADDRESS, ADDRESS_HEX, ADDRESS_BASE58, TOKEN_ID,  HASH20, HASH721, SIDE_CHAIN_ID} = require('./helpers/config');
+const {TIMEOUT, PRIVATE_KEY, DEPOSIT_FEE, WITHDRAW_FEE, ACCOUNTADDRESS,ADDRESS_HEX1,MAIN_GATEWAY_ADDRESS_HEX,ADDRESS_HEX2,CONTRACT_ADDRESS20,ADDRESS20_MAPPING,ADDRESS721_MAPPING,CONTRACT_ADDRESS721, FEE_LIMIT, MAIN_FULL_NODE_API, MAIN_SOLIDITY_NODE_API, MAIN_EVENT_API, SIDE_FULL_NODE_API, SIDE_SOLIDITY_NODE_API, SIDE_EVENT_API, MAIN_GATEWAY_ADDRESS, SIDE_GATEWAY_ADDRESS, ADDRESS_HEX, ADDRESS_BASE58, TOKEN_ID,  HASH20, HASH721, SIDE_CHAIN_ID} = require('./helpers/config');
 
 const sunBuilder = require('./helpers/sunWebBuilder');
 const SunWeb = sunBuilder.SunWeb;
@@ -6,6 +6,7 @@ const SunWeb = sunBuilder.SunWeb;
 const chai = require('chai');
 const assert = chai.assert;
 const assertThrow = require('./helpers/assertThrow');
+const TronWeb = require('tronweb');
 
 describe('SunWeb Instance', function() {
     describe('#constructor', function() {
@@ -17,19 +18,19 @@ describe('SunWeb Instance', function() {
         });
 
         it('should create an instance using an options object without private key', function() {
-            const mainOptions = {
+            const mainchain = new TronWeb({
                 fullNode: MAIN_FULL_NODE_API,
                 solidityNode: MAIN_SOLIDITY_NODE_API,
-                eventServer: MAIN_EVENT_API
-            };
-            const sideOptions = {
+                eventServer: MAIN_EVENT_API,
+            });
+            const sidechain = new TronWeb({
                 fullNode: SIDE_FULL_NODE_API,
                 solidityNode: SIDE_SOLIDITY_NODE_API,
-                eventServer: SIDE_EVENT_API
-            };
-            const sunWeb = new SunWeb(
-                mainOptions,
-                sideOptions,
+                eventServer: SIDE_EVENT_API,
+            });
+            return new SunWeb(
+                mainchain,
+                sidechain,
                 MAIN_GATEWAY_ADDRESS,
                 SIDE_GATEWAY_ADDRESS,
                 SIDE_CHAIN_ID
@@ -39,15 +40,15 @@ describe('SunWeb Instance', function() {
         });
 
         it('should create an instance using an options object which only constains a fullhost without private key', function() {
-            const mainOptions = {
+            const mainchain = new TronWeb({
                 fullHost: MAIN_FULL_NODE_API
-            };
-            const sideOptions = {
+            });
+            const sidechain = new TronWeb({
                 fullHost: SIDE_FULL_NODE_API
-            };
+            });
             const sunWeb = new SunWeb(
-                mainOptions,
-                sideOptions,
+                mainchain,
+                sidechain,
                 MAIN_GATEWAY_ADDRESS,
                 SIDE_GATEWAY_ADDRESS,
                 SIDE_CHAIN_ID
@@ -58,19 +59,20 @@ describe('SunWeb Instance', function() {
         });
 
         it('should create an instance using an options object which only constains a fullhost with private key', function() {
-            const mainOptions = {
-                fullHost: MAIN_FULL_NODE_API
-            };
-            const sideOptions = {
-                fullHost: SIDE_FULL_NODE_API
-            };
+            const mainchain = new TronWeb({
+                fullHost: MAIN_FULL_NODE_API,
+                privateKey: PRIVATE_KEY
+            });
+            const sidechain = new TronWeb({
+                fullHost: SIDE_FULL_NODE_API,
+                privateKey: PRIVATE_KEY
+            });
             const sunWeb = new SunWeb(
-                mainOptions,
-                sideOptions,
+                mainchain,
+                sidechain,
                 MAIN_GATEWAY_ADDRESS,
                 SIDE_GATEWAY_ADDRESS,
-                SIDE_CHAIN_ID,
-                PRIVATE_KEY
+                SIDE_CHAIN_ID
             );
             assert.instanceOf(sunWeb, SunWeb);
             assert.equal(sunWeb.mainchain.defaultPrivateKey, PRIVATE_KEY);
@@ -89,7 +91,7 @@ describe('SunWeb Instance', function() {
                 console.log('mBefore:' + mdepositBalancebefore);
                 console.log('sBefore:' + sdepositBalancebefore);
                 const callValue = 100;
-                const txID = await sunWeb.depositTrx(callValue, 0,FEE_LIMIT);
+                const txID = await sunWeb.depositTrx(callValue, DEPOSIT_FEE,FEE_LIMIT);
                 await TIMEOUT(80000);
                 const result =await sunWeb.mainchain.trx.getTransactionInfo(txID);
                 console.log(result)
@@ -113,7 +115,7 @@ describe('SunWeb Instance', function() {
                     const mwithdrawBalancebefore = await sunWeb.mainchain.trx.getBalance();
                     const swithdrawBalancebefore = await sunWeb.sidechain.trx.getBalance();
                     const callValue = 100;
-                    const txID = await sunWeb.withdrawTrx(callValue, 0,100000000);
+                    const txID = await sunWeb.withdrawTrx(callValue, WITHDRAW_FEE,100000000);
                     await TIMEOUT(80000);
                     const mwithdrawBalanceafter = await sunWeb.mainchain.trx.getBalance();
                     const swithdrawBalanceafter = await sunWeb.sidechain.trx.getBalance();

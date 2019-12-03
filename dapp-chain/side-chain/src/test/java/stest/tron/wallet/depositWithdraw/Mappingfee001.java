@@ -108,8 +108,7 @@ public class Mappingfee001 {
 
   @Test(enabled = true, description = "Deposit Trc20")
   public void mappingfeetrc20001() {
-
-    PublicMethed.printAddress(testKeyFordeposit);
+    /*PublicMethed.printAddress(testKeyFordeposit);
 
     Assert.assertTrue(PublicMethed
         .sendcoin(depositAddress, 11000_000_000L, testDepositAddress, testDepositTrx,
@@ -165,8 +164,8 @@ public class Mappingfee001 {
         .getTransactionInfoById(deployTxid, blockingStubFull);
     byte[] trc20Contract = infoById.get().getContractAddress().toByteArray();
     Assert.assertEquals(0, infoById.get().getResultValue());
-    Assert.assertNotNull(trc20Contract);
-    byte[] input10 = Hex.decode(AbiUtil.parseMethod("setMappingFee(uint256)", "100", false));
+    Assert.assertNotNull(trc20Contract);*/
+    /*byte[] input10 = Hex.decode(AbiUtil.parseMethod("setMappingFee(uint256)", "1000000000", false));
     String txid2 = PublicMethed
         .triggerContract(mainChainAddressKey, 0l, input10,
             maxFeeLimit, 0, "", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
@@ -179,7 +178,7 @@ public class Mappingfee001 {
     Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(txid2, blockingStubFull);
     Assert.assertEquals("SUCESS", infoById2.get().getResult().name());
-    Assert.assertEquals(0, infoById2.get().getResultValue());
+    Assert.assertEquals(0, infoById2.get().getResultValue());*/
 
     String methodStr2 = "mappingFee()";
     byte[] input5 = Hex.decode(AbiUtil.parseMethod(methodStr2, "", false));
@@ -190,20 +189,20 @@ public class Mappingfee001 {
             0l, "0", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
     Long mapFee1 = ByteArray.toLong(ByteArray
         .fromHexString(Hex.toHexString(return6.getConstantResult(0).toByteArray())));
-    Assert.assertEquals(mapFee1, Long.valueOf("100"));
+//    Assert.assertEquals(mapFee1, Long.valueOf("100"));
     logger.info("mapFee1:" + mapFee1);
 
-    //bonus
-    byte[] input4 = Hex.decode(AbiUtil.parseMethod("bonus()", "", false));
-    TransactionExtention response1 = PublicMethed
-        .triggerContractForTransactionExtention(
-            WalletClient.decodeFromBase58Check(mainChainAddress),
-            0, input4,
-            maxFeeLimit, 0, "0", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
-
-    long bonusBefore = ByteArray.toLong(response1.getConstantResult(0).toByteArray());
-    logger.info("bonusBefore:" + bonusBefore);
-
+//    //bonus
+//    byte[] input4 = Hex.decode(AbiUtil.parseMethod("bonus()", "", false));
+//    TransactionExtention response1 = PublicMethed
+//        .triggerContractForTransactionExtention(
+//            WalletClient.decodeFromBase58Check(mainChainAddress),
+//            0, input4,
+//            maxFeeLimit, 0, "0", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
+//
+//    long bonusBefore = ByteArray.toLong(response1.getConstantResult(0).toByteArray());
+//    logger.info("bonusBefore:" + bonusBefore);
+/*
 //fee<mappingfee
     String mapTxid1 = PublicMethed
         .mappingTrc20fee(mainChainAddressKey, deployTxid, 50, 1000000000,
@@ -293,7 +292,7 @@ public class Mappingfee001 {
     byte[] input15 = Hex.decode(AbiUtil.parseMethod("setMappingFee(uint256)", "0", false));
     PublicMethed
         .triggerContract(mainChainAddressKey, 0l, input15,
-            maxFeeLimit, 0, "", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
+            maxFeeLimit, 0, "", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);*/
 
   }
 
@@ -510,7 +509,6 @@ public class Mappingfee001 {
     Account accountSideBefore = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
     long accountSideBeforeBalance = accountSideBefore.getBalance();
 
-
     String contractName = "trc721";
     String code = Configuration.getByPath("testng.conf")
         .getString("code.code_ContractTRC721");
@@ -586,7 +584,7 @@ public class Mappingfee001 {
     Assert.assertEquals("FAILED", infoById10.get().getResult().name());
     Assert.assertEquals(1, infoById10.get().getResultValue());
     String msg = Hex.toHexString(infoById10.get().getContractResult(0).toByteArray());
-    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135,172)));
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 172)));
     Assert.assertEquals("\u0002less than 1000 TRX", msg);
 
     byte[] input21 = Hex.decode(AbiUtil.parseMethod(
@@ -835,10 +833,10 @@ public class Mappingfee001 {
   @AfterClass
   public void shutdown() throws InterruptedException {
 
-    byte[] input1 = Hex.decode(AbiUtil.parseMethod("setMappingFee(uint256)", "0", false));
+    /*byte[] input1 = Hex.decode(AbiUtil.parseMethod("setMappingFee(uint256)", "0", false));
     PublicMethed
         .triggerContract(mainChainAddressKey, 0l, input1,
-            maxFeeLimit, 0, "", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
+            maxFeeLimit, 0, "", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);*/
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
