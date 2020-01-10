@@ -365,8 +365,8 @@ SUN Network DAppChain侧链 gateway合约地址
 
 Http 接口
 
+- suntest.tronex.io/wallet (支持http跨域)
 - 47.252.85.90:8090
-- 47.252.85.90:8070 (支持http跨域)
 - 47.252.80.185:8090
 - 47.252.84.141:8090
 
@@ -380,8 +380,8 @@ RPC 接口
 
 Http 接口
 
+- suntest.tronex.io/walletsolidity (支持http跨域)
 - 47.252.85.90:8091
-- 47.252.85.90:8071 (支持http跨域)
 - 47.252.80.185:8091
 - 47.252.84.141:8091
 
@@ -399,7 +399,7 @@ main chain
 
 side chain
 
-- 47.252.87.129:8070（支持http跨域）
+- suntest.tronex.io/event （支持http跨域）
 
 ####  测试网gateway合约相关信息
 
