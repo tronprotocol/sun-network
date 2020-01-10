@@ -338,8 +338,8 @@ SUN Network DAppChain(SideChain) gateway contract address
 
 Http Interface
 
+- https://suntest.tronex.io/wallet(CORS Enabled)
 - 47.252.85.90:8090
-- 47.252.85.90:8070(CORS Enabled)
 - 47.252.80.185:8090
 - 47.252.84.141:8090
 
@@ -353,8 +353,8 @@ RPC Interface
 
 Http Interface
 
+- https://suntest.tronex.io/walletsolidity(CORS Enabled)
 - 47.252.85.90:8091
-- 47.252.85.90:8071(CORS Enabled)
 - 47.252.80.185:8091
 - 47.252.84.141:8091
 
@@ -372,7 +372,7 @@ main chain
 
 side chain
 
-- 47.252.87.129:8070(CORS Enabled)
+- https://suntest.tronex.io/event(CORS Enabled)
 
 ####  testnet gateway contract information
 
