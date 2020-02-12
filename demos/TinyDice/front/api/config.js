@@ -14,7 +14,7 @@ switch (env) {
       sideOptions: {
         fullNode: 'https://sun.tronex.io',
         solidityNode: 'https://sun.tronex.io',
-        eventServer: 'http://47.90.206.231:8080'  
+        eventServer: 'https://sun.tronex.io'
       },
       mainGatewayAddress: 'TWaPZru6PR5VjgT4sJrrZ481Zgp3iJ8Rfo',
       sideGatewayAddress: 'TGKotco6YoULzbYisTBuP6DWXDjEgJSpYz',
@@ -44,12 +44,12 @@ switch (env) {
       sideOptions: {
         fullNode: 'http://47.252.85.90:8070',
         solidityNode: 'http://47.252.85.90:8071',
-        eventServer: 'http://47.252.87.129:8080'  
+        eventServer: 'http://47.252.87.129:8080'
       },
       mainGatewayAddress: 'TFLtPoEtVJBMcj6kZPrQrwEdM3W3shxsBU',
       sideGatewayAddress: 'TRDepx5KoQ8oNbFVZ5sogwUxtdYmATDRgX',
       chainId: '413AF23F37DA0D48234FDD43D89931E98E1144481B',
-      
+
       SERVER_API: 'https://api.trondice.org', // 邀请 历史排行
       // 排行榜websocket
 
@@ -74,12 +74,12 @@ switch (env) {
       sideOptions: {
         fullNode: 'http://47.252.85.90:8070',
         solidityNode: 'http://47.252.85.90:8071',
-        eventServer: 'http://47.252.87.129:8080'  
+        eventServer: 'http://47.252.87.129:8080'
       },
       mainGatewayAddress: 'TFLtPoEtVJBMcj6kZPrQrwEdM3W3shxsBU',
       sideGatewayAddress: 'TRDepx5KoQ8oNbFVZ5sogwUxtdYmATDRgX',
       chainId: '413AF23F37DA0D48234FDD43D89931E98E1144481B',
-      
+
 
       SERVER_API: 'https://api.trondice.org', // 邀请 历史排行
       // 排行榜websocket
