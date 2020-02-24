@@ -280,7 +280,7 @@ public class CrosschainApi {
       byte[] contractAddress = AddressUtil.decodeFromBase58Check(contractAddrStr);
 
       TransactionResponse result = mainchainServer
-          .triggerContract(contractAddress, depositFee, input, feeLimit, 0, "");
+          .triggerContract(contractAddress, 0, input, feeLimit, 0, "");
       dataList.add(result);
       resp.setDataList(dataList);
       String trxId = result.getTrxId();
@@ -296,7 +296,7 @@ public class CrosschainApi {
             .decode(AbiUtil.parseMethod(depositMethodStr, depositArgStr, false));
 
         result = mainchainServer
-            .triggerContract(ServerApi.getMainGatewayAddress(), 0, depositInput, feeLimit, 0, "");
+            .triggerContract(ServerApi.getMainGatewayAddress(), depositFee, depositInput, feeLimit, 0, "");
         dataList.add(result);
         resp.setDataList(dataList);
         if (result.getResult()) {
