@@ -32,7 +32,7 @@ public class ConfigInfo {
       .getString("sidechain.contract.withdraw.func");
 
   public static final Long accountNum = config.getLong("sidechain.account.num");
-  public static final Long accountAddNum = config.getLong("hour.account.add.num");
+  public static final Long accountAddNum = config.getLong("sidechain.hour.account.add.num");
 
 
 }
