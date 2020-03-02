@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,8 @@ public class AccountTask extends SideChainTask {
   private static final Logger logger = LoggerFactory.getLogger("AccountTask");
 
   private List<String> accountList = new ArrayList<>();
+
+  private Long lastAddTime = 0L;
 
   public AccountTask() {
     File file = new File(ConfigInfo.privateKeyAddressFile);
@@ -53,10 +56,21 @@ public class AccountTask extends SideChainTask {
     logger.info("send coin and deposit");
 
     while (true) {
+      long now = System.currentTimeMillis();
       logger.info("withdraw task run!");
       sdk.setPrivateKey(ConfigInfo.privateKey);
       triggerContract(sdk, 0, ConfigInfo.contractWithdraw);
-      Random r = new Random(System.currentTimeMillis());
+
+      if (now - lastAddTime > 60 * 60 * 1000L) {
+        logger.info("task add {} account!", ConfigInfo.accountAddNum);
+        lastAddTime = now;
+        try {
+          addAccountByNum(sdk, ConfigInfo.accountAddNum);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      Random r = new Random(now);
       logger.info("send coin run!");
       accountList.forEach(account -> {
         if (getBalance(sdk, account.split(",")[0]) > 0) {
@@ -93,59 +107,64 @@ public class AccountTask extends SideChainTask {
     logger.info("init accounts !");
     sdk.setPrivateKey(ConfigInfo.privateKey);
     if (accountList.size() >= ConfigInfo.accountNum) {
-      accountList.forEach(account -> {
-        SunNetworkResponse<Account> account1 = sdk.getSideChainService()
-            .getAccount(account.split(",")[0]);
-        if (account1.getData().getAcquiredDelegatedFrozenBalanceForBandwidth() < 0) {
-          SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
-              .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 0, account.split(",")[0]);
-          logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
-          try {
-            Thread.sleep(1000);
-          } catch (InterruptedException e) {
-            e.printStackTrace();
-          }
-        }
-      });
+      accountList.forEach(account -> delegateFrozen(sdk, account));
     } else {
-      BufferedWriter out = null;
       try {
-        out = new BufferedWriter(
-            new OutputStreamWriter(new FileOutputStream(ConfigInfo.privateKeyAddressFile, true)));
         long addnum = ConfigInfo.accountNum - accountList.size();
-        logger.info("add account num is {}", addnum);
-        for (int i = 0; i < addnum; i++) {
-
-          sdk.setPrivateKey(ConfigInfo.privateKey);
-          SunNetworkResponse<AddressPrKeyPairMessage> resp = sdk.getMainChainService()
-              .generateAddress();
-
-          if (resp.getCode() == ErrorCodeEnum.SUCCESS.getCode()) {
-            String info = resp.getData().getAddress() + "," + resp.getData().getPrivateKey();
-            sdk.getSideChainService().createAccount(resp.getData().getAddress());
-//            SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
-//                .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 1, resp.getData().getAddress());
-//            logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
-            SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
-                .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 0, info.split(",")[0]);
-            logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
-
-            accountList.add(info);
-            out.write(info);
-            out.newLine();
-            out.flush();
-            try {
-              Thread.sleep(2000);
-            } catch (Exception e) {
-              e.printStackTrace();
-            }
-          }
-        }
-        out.close();
+        addAccountByNum(sdk, addnum);
       } catch (Exception e) {
         logger.error(e.getMessage());
       }
     }
+  }
+
+  private void delegateFrozen(SunNetwork sdk, String account) {
+    SunNetworkResponse<Account> account1 = sdk.getSideChainService()
+        .getAccount(account.split(",")[0]);
+    if (account1.getData().getAcquiredDelegatedFrozenBalanceForBandwidth() <= 0) {
+      SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
+          .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 0, account.split(",")[0]);
+      logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  private void addAccountByNum(SunNetwork sdk, long addnum) throws IOException {
+    BufferedWriter out = new BufferedWriter(
+        new OutputStreamWriter(new FileOutputStream(ConfigInfo.privateKeyAddressFile, true)));
+    logger.info("add account num is {}", addnum);
+    for (int i = 0; i < addnum; i++) {
+
+      sdk.setPrivateKey(ConfigInfo.privateKey);
+      SunNetworkResponse<AddressPrKeyPairMessage> resp = sdk.getMainChainService()
+          .generateAddress();
+
+      if (resp.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
+        String info = resp.getData().getAddress() + "," + resp.getData().getPrivateKey();
+        sdk.getSideChainService().createAccount(resp.getData().getAddress());
+//            SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
+//                .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 1, resp.getData().getAddress());
+//            logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
+        SunNetworkResponse<TransactionResponse> sunNetworkResponse = sdk.getSideChainService()
+            .freezeBalance(ConfigInfo.accountFreezeBalance, 3, 0, info.split(",")[0]);
+        logger.info("freeze txid = {}", sunNetworkResponse.getData().getTrxId());
+
+        accountList.add(info);
+        out.write(info);
+        out.newLine();
+        out.flush();
+        try {
+          Thread.sleep(2000);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    }
+    out.close();
   }
 
 }
