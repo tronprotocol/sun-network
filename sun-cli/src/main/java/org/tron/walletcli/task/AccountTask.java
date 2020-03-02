@@ -61,16 +61,19 @@ public class AccountTask extends SideChainTask {
       sdk.setPrivateKey(ConfigInfo.privateKey);
       triggerContract(sdk, 0, ConfigInfo.contractWithdraw);
 
+      Random r = new Random(now);
       if (now - lastAddTime > 60 * 60 * 1000L) {
         logger.info("task add {} account!", ConfigInfo.accountAddNum);
         lastAddTime = now;
         try {
-          addAccountByNum(sdk, ConfigInfo.accountAddNum);
+          long amountNum = r.nextLong() % (ConfigInfo.accountAddNum * 2);
+          if (amountNum > 0) {
+            addAccountByNum(sdk, amountNum);
+          }
         } catch (IOException e) {
           e.printStackTrace();
         }
       }
-      Random r = new Random(now);
       logger.info("send coin run!");
       accountList.forEach(account -> {
         if (getBalance(sdk, account.split(",")[0]) > 0) {
