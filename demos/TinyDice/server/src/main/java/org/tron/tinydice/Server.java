@@ -34,7 +34,7 @@ public class Server {
     request.setContractAddrStr(contractAddress);
     request.setMethodStr("rtu()");
     SunNetworkResponse<TransactionResponse> sunNetworkresp = sdk.sideChainService.triggerContract(request);
-    logger.info("sun network response code is: " + sunNetworkresp.getDesc());
+    logger.info("SUN Network response code is: " + sunNetworkresp.getDesc());
 
     TransactionResponse resp = sunNetworkresp.getData();
     return resp != null && resp.getResult();
@@ -45,7 +45,7 @@ public class Server {
     request.setContractAddrStr(contractAddress);
     request.setMethodStr("stat()");
     SunNetworkResponse<TransactionResponse> sunNetworkresp = sdk.sideChainService.triggerContract(request);
-    logger.info("sun network response code is: " + sunNetworkresp.getDesc());
+    logger.info("SUN Network response code is: " + sunNetworkresp.getDesc());
 
     TransactionResponse resp = sunNetworkresp.getData();
     return (resp != null && resp.getResult()) ? ByteArray.fromHexString(resp.constantResult) : null;
