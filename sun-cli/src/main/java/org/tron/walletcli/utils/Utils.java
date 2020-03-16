@@ -33,7 +33,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import org.apache.commons.lang3.ArrayUtils;
-import org.bouncycastle.util.encoders.Hex;
 import org.tron.api.GrpcAPI.AccountNetMessage;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AssetIssueList;
@@ -1093,7 +1092,7 @@ public class Utils {
           result += newContract.getAbi().toString();
           result += "\n";
           result += "byte_code: ";
-          result += Hex.toHexString(newContract.getBytecode().toByteArray());
+          result += ByteArray.toHexString(newContract.getBytecode().toByteArray());
           result += "\n";
           result += "call_value: ";
           result += newContract.getCallValue();
@@ -1117,7 +1116,7 @@ public class Utils {
           result += triggerSmartContract.getCallValue();
           result += "\n";
           result += "data:";
-          result += Hex.toHexString(triggerSmartContract.getData().toByteArray());
+          result += ByteArray.toHexString(triggerSmartContract.getData().toByteArray());
           result += "\n";
           break;
         case ProposalCreateContract:

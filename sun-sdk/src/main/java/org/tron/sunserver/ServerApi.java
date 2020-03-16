@@ -19,7 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.Arrays;
 import org.spongycastle.util.encoders.Hex;
 import org.tron.api.GrpcAPI;
@@ -101,7 +101,7 @@ public class ServerApi {
   private static byte[] mainGatewayAddress;
 
   private static byte[] sideChainId;
-  private static ECKey priEcKey;
+  private ECKey priEcKey;
 
   private boolean isMainChain;
   private GrpcClient rpcCli;
@@ -205,7 +205,7 @@ public class ServerApi {
   }
 
   public byte[] getTrc10Address(String trc10) throws EncodingException {
-    byte[] input = org.bouncycastle.util.encoders.Hex.decode(
+    byte[] input = ByteArray.fromHexString(
         AbiUtil.parseMethod("mainToSideTRC10Map(uint256)", trc10, false));
     Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
         sideGatewayAddress, 0, input, 0, "0");
@@ -215,7 +215,7 @@ public class ServerApi {
   }
 
   public byte[] getSideTokenAddress(String mainAddress) throws EncodingException {
-    byte[] input = org.bouncycastle.util.encoders.Hex.decode(
+    byte[] input = ByteArray.fromHexString(
         AbiUtil.parseMethod("mainToSideContractMap(address)", "\"" + mainAddress + "\"", false));
     Contract.TriggerSmartContract triggerContract = triggerCallContract(getAddress(),
         sideGatewayAddress, 0, input, 0, "0");
@@ -228,7 +228,7 @@ public class ServerApi {
   public String sideGetMappingAddress(byte[] sideGateway, String mainContractAddress)
       throws EncodingException {
     String contractAddress = null;
-    byte[] input = org.bouncycastle.util.encoders.Hex.decode(
+    byte[] input = ByteArray.fromHexString(
         AbiUtil.parseMethod("mainToSideContractMap(address)", "\"" + mainContractAddress + "\"",
             false));
 
