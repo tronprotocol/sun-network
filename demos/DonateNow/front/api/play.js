@@ -18,12 +18,12 @@ export function doBet(params) {
         if (response) {
           resolve(response)
         } else {
-          Message({ type: "warning", message: response.message, showClose: true });
+          // Message({ type: "warning", message: response.message, showClose: true });
           reject(response)
         }
       })
       .catch(err => {
-        Message({ type: "error", message: err.message, showClose: true });
+        // Message({ type: "error", message: err.message, showClose: true });
         reject(err);
       });
   });
