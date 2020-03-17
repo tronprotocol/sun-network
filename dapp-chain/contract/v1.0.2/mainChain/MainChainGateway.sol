@@ -40,9 +40,6 @@ contract MainChainGateway is OracleManagerContract {
     DepositMsg[] userDepositList;
     MappingMsg[] userMappingList;
     uint256 uint64Max = 18446744073709551615;
-    
-    address public refGatewayAddress;
-    uint256 public nonceBaseValue = 18446744073709551615; // 2**64
 
     struct DepositMsg {
         address user;
@@ -133,7 +130,7 @@ contract MainChainGateway is OracleManagerContract {
     // Requires first to have called `approve` on the specified TRC20 contract
     function depositTRC20(address contractAddress, uint64 value) payable
     public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
-        require(isMapAddrInGateways(contractAddress), "not an allowed token");
+        require(mainToSideContractMap[contractAddress] == 1, "not an allowed token");
         require(value >= depositMinTrc20, "value must be >= depositMinTrc20");
         require(msg.value >= depositFee, "msg.value need  >= depositFee");
         if (msg.value > depositFee) {
@@ -145,36 +142,26 @@ contract MainChainGateway is OracleManagerContract {
             revert("TRC20 transferFrom error");
         }
         userDepositList.push(DepositMsg(msg.sender, value, 2, contractAddress, 0, 0, 0));
-        emit TRC20Received(msg.sender, contractAddress, value, nonceBaseValue + userDepositList.length - 1);
-        return nonceBaseValue + userDepositList.length - 1;
+        emit TRC20Received(msg.sender, contractAddress, value, userDepositList.length - 1);
+        return userDepositList.length - 1;
 
     }
 
-    function getDepositMsg(uint256 nonce) view goDelegateCall public returns (address, uint256, uint256, address, uint256, uint256, uint256){
-        if(nonce >= nonceBaseValue) {
-            DepositMsg memory _depositMsg = userDepositList[nonce - nonceBaseValue];
+    function getDepositMsg(uint256 nonce) view public returns (address, uint256, uint256, address, uint256, uint256, uint256){
+        DepositMsg memory _depositMsg = userDepositList[nonce];
         return (_depositMsg.user, uint256(_depositMsg.value), uint256(_depositMsg._type), _depositMsg.mainChainAddress,
         uint256(_depositMsg.tokenId), uint256(_depositMsg.status), uint256(_depositMsg.uId));
-        }
-        else {
-            return refGatewayAddress.getDepositMsg(nonce);
-        }
+
     }
 
-    function getMappingMsg(uint256 nonce) view goDelegateCall public returns (address, uint256, uint256){
-        if(nonce >= nonceBaseValue) {
-            MappingMsg memory _mappingMsg = userMappingList[nonce - nonceBaseValue];
-            return (_mappingMsg.mainChainAddress, uint256(_mappingMsg._type), uint256(_mappingMsg.status));
-        }
-        else {
-            return refGatewayAddress.getMappingMsg(nonce);
-        }
-        
+    function getMappingMsg(uint256 nonce) view public returns (address, uint256, uint256){
+        MappingMsg memory _mappingMsg = userMappingList[nonce];
+        return (_mappingMsg.mainChainAddress, uint256(_mappingMsg._type), uint256(_mappingMsg.status));
     }
 
     function depositTRC721(address contractAddress, uint256 uid) payable
     public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
-        require(isMapAddrInGateways(contractAddress), "not an allowed token");
+        require(mainToSideContractMap[contractAddress] == 1, "not an allowed token");
         require(msg.value >= depositFee, "msg.value need  >= depositFee");
         if (msg.value > depositFee) {
             msg.sender.transfer(msg.value - depositFee);
@@ -183,8 +170,8 @@ contract MainChainGateway is OracleManagerContract {
 
         TRC721(contractAddress).transferFrom(msg.sender, address(this), uid);
         userDepositList.push(DepositMsg(msg.sender, 0, 3, contractAddress, 0, 0, uid));
-        emit TRC721Received(msg.sender, contractAddress, uid, nonceBaseValue + userDepositList.length - 1);
-        return nonceBaseValue + userDepositList.length - 1;
+        emit TRC721Received(msg.sender, contractAddress, uid, userDepositList.length - 1);
+        return userDepositList.length - 1;
     }
 
     function depositTRX() payable public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
@@ -194,11 +181,11 @@ contract MainChainGateway is OracleManagerContract {
         require(value >= depositMinTrx && value <= uint64Max, "must between depositMinTrx and uint64Max");
 
         userDepositList.push(DepositMsg(msg.sender, uint64(value), 0, address(0), 0, 0, 0));
-        emit TRXReceived(msg.sender, uint64(value), nonceBaseValue + userDepositList.length - 1);
-        return nonceBaseValue + userDepositList.length - 1;
+        emit TRXReceived(msg.sender, uint64(value), userDepositList.length - 1);
+        return userDepositList.length - 1;
     }
 
-    function depositTRC10(uint64 tokenId, uint256 tokenValue) payable public checkForTrc10(tokenId, tokenValue)
+    function depositTRC10(uint64 tokenId, uint64 tokenValue) payable public checkForTrc10(tokenId, tokenValue)
     goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(msg.value >= depositFee, "msg.value need  >= depositFee");
         if (msg.value > depositFee) {
@@ -209,8 +196,8 @@ contract MainChainGateway is OracleManagerContract {
         require(uint256(tokenId) <= uint64Max, "tokenId must <= uint64Max");
         require(tokenValue <= uint64Max, "tokenValue must <= uint64Max");
         userDepositList.push(DepositMsg(msg.sender, tokenValue, 1, address(0), tokenId, 0, 0));
-        emit TRC10Received(msg.sender, tokenId, tokenValue, nonceBaseValue + userDepositList.length - 1);
-        return nonceBaseValue + userDepositList.length - 1;
+        emit TRC10Received(msg.sender, tokenId, tokenValue, userDepositList.length - 1);
+        return userDepositList.length - 1;
     }
 
     function() payable external goDelegateCall onlyNotStop onlyNotPause {
@@ -225,14 +212,14 @@ contract MainChainGateway is OracleManagerContract {
         bonus += mappingFee;
         address trc20Address = calcContractAddress(txId, msg.sender);
         require(trc20Address != sunTokenAddress, "mainChainAddress == sunTokenAddress");
-        require(!isMapAddrInGateways(trc20Address), "trc20Address mapped");
+        require(mainToSideContractMap[trc20Address] != 1, "trc20Address mapped");
         uint256 size;
         assembly {size := extcodesize(trc20Address)}
         require(size > 0);
         userMappingList.push(MappingMsg(trc20Address, DataModel.TokenKind.TRC20, DataModel.Status.SUCCESS));
         mainToSideContractMap[trc20Address] = 1;
-        emit TRC20Mapping(trc20Address, nonceBaseValue + userMappingList.length - 1);
-        return nonceBaseValue + userMappingList.length - 1;
+        emit TRC20Mapping(trc20Address, userMappingList.length - 1);
+        return userMappingList.length - 1;
     }
 
     // 2. deployDAppTRC721AndMapping
@@ -244,14 +231,14 @@ contract MainChainGateway is OracleManagerContract {
         bonus += mappingFee;
         address trc721Address = calcContractAddress(txId, msg.sender);
         require(trc721Address != sunTokenAddress, "mainChainAddress == sunTokenAddress");
-        require(!isMapAddrInGateways(trc20Address), "trc721Address mapped");
+        require(mainToSideContractMap[trc721Address] != 1, "trc721Address mapped");
         uint256 size;
         assembly {size := extcodesize(trc721Address)}
         require(size > 0);
         userMappingList.push(MappingMsg(trc721Address, DataModel.TokenKind.TRC721, DataModel.Status.SUCCESS));
         mainToSideContractMap[trc721Address] = 1;
-        emit TRC721Mapping(trc721Address, nonceBaseValue + userMappingList.length - 1);
-        return nonceBaseValue + userMappingList.length - 1;
+        emit TRC721Mapping(trc721Address, userMappingList.length - 1);
+        return userMappingList.length - 1;
     }
 
     function retryDeposit(uint256 nonce) payable public goDelegateCall onlyNotStop onlyNotPause isHuman {
@@ -260,8 +247,8 @@ contract MainChainGateway is OracleManagerContract {
             msg.sender.transfer(msg.value - retryFee);
         }
         bonus += retryFee;
-        require(nonce < nonceBaseValue + userDepositList.length, "nonce >= nonceBaseValue + userDepositList.length");
-        DepositMsg storage depositMsg = userDepositList[nonce - nonceBaseValue];
+        require(nonce < userDepositList.length, "nonce >= userDepositList.length");
+        DepositMsg storage depositMsg = userDepositList[nonce];
         // TRX,    // 0
         // TRC10,  // 1
         // TRC20,  // 2
@@ -283,8 +270,8 @@ contract MainChainGateway is OracleManagerContract {
             msg.sender.transfer(msg.value - retryFee);
         }
         bonus += retryFee;
-        require(nonce < nonceBaseValue + userMappingList.length, "nonce >= nonceBaseValue + userMappingList.length");
-        MappingMsg storage mappingMsg = userMappingList[nonce - nonceBaseValue];
+        require(nonce < userMappingList.length, "nonce >= userMappingList.length");
+        MappingMsg storage mappingMsg = userMappingList[nonce];
         require(mappingMsg.status == DataModel.Status.SUCCESS, "mappingMsg.status != SUCCESS ");
 
         if (mappingMsg._type == DataModel.TokenKind.TRC20) {
@@ -364,25 +351,6 @@ contract MainChainGateway is OracleManagerContract {
 
     function setDepositMinTrc20(uint256 minValue) public goDelegateCall onlyOwner {
         depositMinTrc20 = minValue;
-    }
-
-    function setRefGatewayAddress(address ref) public goDelegateCall onlyOwner {
-        refGatewayAddress = ref;
-    }
-
-    function isMapAddrInGateways(address trcAddress) public goDelegateCall returns (bool){
-        if(mainToSideContractMap[trcAddress] == 1) {
-            return true;
-        }
-        if(refGatewayAddress == 0) {
-            return false;
-        }
-        // TODO: In next version we should use gatewayPeers[i].isMapAddrInGateways(trcAddress) here
-        if(refGatewayAddress.mainToSideContractMap(trcAddress) == 1){
-            mainToSideContractMap[trcAddress] = 1;
-            return true;
-        }
-        return false;
     }
 
 }
