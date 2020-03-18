@@ -35,7 +35,11 @@ public class EventActuatorFactory {
       }
       if (obj.get("contractAddress").equals(args.getMainchainGatewayStr())) {
         return createMainChainActuator(obj);
-      } else if (obj.get("contractAddress").equals(args.getSidechainGatewayStr())) {
+      }
+      else if (obj.get("contractAddress").equals(args.getRefMainchainGatewayStr())) {
+        return createMainChainActuator(obj);
+      }
+      else if (obj.get("contractAddress").equals(args.getSidechainGatewayStr())) {
         return createSideChainActuator(obj);
       }
       logger.debug("unknown contract address:{}", obj.get("contractAddress"));

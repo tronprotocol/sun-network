@@ -83,6 +83,7 @@ public class MainChainGatewayApi {
 
   public static boolean getWithdrawStatus(String withdrawDataHash, String nonce)
       throws RpcConnectException {
+    // check withdraw in main chain gateway only, not in reference gateway
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawDone(bytes32,uint256)";
     List params = Arrays.asList(withdrawDataHash, nonce);
@@ -93,6 +94,7 @@ public class MainChainGatewayApi {
 
   public static Transaction multiSignForWithdrawTRC10Transaction(String from, String tokenId,
       String value, String nonce, SignListParam signParam) throws RpcConnectException {
+    // sign withdraw in main chain gateway only, not in reference gateway
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawTRC10(address,trcToken,uint256,uint256,bytes[],address[])";
     List params = Arrays.asList(from, tokenId, value, nonce, signParam.getOracleSigns(),
@@ -104,7 +106,7 @@ public class MainChainGatewayApi {
   public static Transaction multiSignForWithdrawTRC20Transaction(String from,
       String mainChainAddress, String value, String nonce, SignListParam signParam)
       throws RpcConnectException {
-
+    // sign withdraw in main chain gateway only, not in reference gateway
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawTRC20(address,address,uint256,uint256,bytes[],address[])";
     List params = Arrays.asList(from, mainChainAddress, value, nonce, signParam.getOracleSigns(),
@@ -117,7 +119,7 @@ public class MainChainGatewayApi {
   public static Transaction multiSignForWithdrawTRC721Transaction(String from,
       String mainChainAddress, String uId, String nonce, SignListParam signParam)
       throws RpcConnectException {
-
+    // sign withdraw in main chain gateway only, not in reference gateway
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawTRC721(address,address,uint256,uint256,bytes[],address[])";
     List params = Arrays.asList(from, mainChainAddress, uId, nonce, signParam.getOracleSigns(),
@@ -129,7 +131,7 @@ public class MainChainGatewayApi {
 
   public static Transaction multiSignForWithdrawTRXTransaction(String from, String value,
       String nonce, SignListParam signParam) throws RpcConnectException {
-
+    // sign withdraw in main chain gateway only, not in reference gateway
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
     String method = "withdrawTRX(address,uint256,uint256,bytes[],address[])";
     List params = Arrays
