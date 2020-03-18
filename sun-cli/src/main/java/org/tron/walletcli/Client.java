@@ -1912,9 +1912,6 @@ public class Client {
     allCmds.add("votewitness");
     allCmds.add("freezebalance");
     allCmds.add("unfreezebalance");
-    allCmds.add("buystorage");
-    allCmds.add("buystoragebytes");
-    allCmds.add("sellstorage");
     allCmds.add("withdrawbalance");
     allCmds.add("unfreezeasset");
     allCmds.add("createproposal");

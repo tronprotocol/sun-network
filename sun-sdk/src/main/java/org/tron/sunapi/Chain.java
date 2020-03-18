@@ -131,7 +131,7 @@ public class Chain implements ChainInterface {
     }
 
     try {
-      if (StringUtils.isNotEmpty(constructorStr)) {
+      if (StringUtils.isNotEmpty(constructorStr) && !constructorStr.equals("#")) {
         if (isHex) {
           codeStr += argsStr;
         } else {
