@@ -5,6 +5,7 @@
                <el-input size="small" v-model.trim="form.privateKey" clearable></el-input>
             </el-form-item>
         </el-form>
+        <div style="text-align:center;">Tronlink will support soon...</div>
         <div slot="footer" class="dialog-footer">
             <el-button type="primary" @click="confirm" size="small" :disabled="form.privateKey == ''">{{$t('SIGNIN')}}</el-button>
         </div>

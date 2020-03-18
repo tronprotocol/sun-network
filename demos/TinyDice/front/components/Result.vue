@@ -166,7 +166,6 @@ export default {
       maxNum: 30, // 存储的最大条数
       timers: null,
       i: 0,
-      noTronweb: false, // 判断是否有tronweb
       limitAmount: 500,
       promiseData: [] // 每次获取到的数组数据
     };
@@ -181,7 +180,9 @@ export default {
       "address",
       "autoBet",
       "platForm",
-      "globalSunWeb"
+      "globalSunWeb",
+      "globalSunWeb2",
+      "loginState"
     ])
   },
   watch: {
@@ -209,9 +210,9 @@ export default {
   },
   async mounted() {
     let timer = setInterval(() => {
-      if (!this.address.base58) {
-        return;
-      }
+      // if (!this.address.base58) {
+      //   return;
+      // }
       this.getAllData();
     }, 3000);
   },
@@ -220,6 +221,16 @@ export default {
      * 切换不同的tab标签页
      */
     tab(index) {
+      if (index == 1) {
+        if (!this.address.base58) {
+          this.$message({
+            type: "warn",
+            message: 'Please Login',
+            showClose: true
+          });
+          return;
+        }
+      }
       const tables = this.$refs.output.getElementsByTagName("table");
       const tabItem = this.$refs.tab.getElementsByTagName("a");
       for (let i = 0; i < tabItem.length; i++) {
@@ -267,7 +278,7 @@ export default {
         const player = d["_addr"]; // 用户地址
         const select = Number(d["_point"]); // 下注的数
         const result = d["_random"]; // 获得的随机数
-        const input = this.globalSunWeb.sidechain.fromSun(d["_amount"]); // 下注的金额
+        const input = this.globalSunWeb2.sidechain.fromSun(d["_amount"]); // 下注的金额
         // const output = item["_W"] // 赢取的金额
         //   ? this.globalSunWeb.fromSun(item["_W"])
         //   : "0";
@@ -301,8 +312,8 @@ export default {
           event
         });
       });
-  this.all = needAllTable;
-  this.my = myBetsTable;
+      this.all = needAllTable;
+      this.my = myBetsTable;
       // // 筛选出成功的，且投注数大于500，猜小于80的
       // this.filterSuccess(needAllTable);
       // this.all = needAllTable;
@@ -394,7 +405,9 @@ export default {
            this.transData();
         });
        
-      });
+      }).catch(err => {
+        console.log(err)
+      })
       
     }
   }

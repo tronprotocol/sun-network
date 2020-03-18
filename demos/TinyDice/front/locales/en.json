@@ -88,7 +88,7 @@
   "ServiceItem": "Terms of Service",
   "Telegram": "Telegram",
   "Rule": {
-    "p1": "1. Make sure you have some asset in the side chain. If not you can use the deposit in the header to deposit some TRX to the side chain, and withdraw support withdraw TRX from the side chain to the main chain.",
+    "p1": "1. Make sure you have some asset in the side chain. If not you can download TronLink wallet and deposit some TRX to the side chain.",
     "p2": "2. Set your bet amount, that is the number of TRX you want to bet on.",
     "p3": "3. You can adjust the slider to the predicted number range you want. At the same time most amount you can win, win rate, odds will be automatically adjusted.",
     "p4": "4. Click the 'ROLL' to start the game. The smart contract will randomly generate a lucky number from 1 to 100. If the lucky number is within your range, you win!"
@@ -307,7 +307,8 @@
   "diceTip": "* dices gained through mining will arrive in your account in about 5 minutes.",
   "withDrawSuccess": "Withdraw Successfully",
   "cancel": "Cancel",
-  "noLogin": "Please login before starting the game.",
+  "noLogin": "Please Login",
+  "loginWallet": "Please login to your TRONLink wallet. If you do not have TRONLink wallet installed please visit <a href='https://chrome.google.com/webstore/detail/tronlink%EF%BC%88%E6%B3%A2%E5%AE%9D%E9%92%B1%E5%8C%85%EF%BC%89/ibnejdfjmmkpcnlpebklmnkoeoihofec' target='_blank'>http://u6.gg/gmc5D</a> and download the chrome extension.",
   "exchange": "Exchange",
   "timeOut": "Because of event services log, we can't load the smart contract betting result. This will not affect your betting result, you can check balance in your TRON wallet.",
   "Dividend": {

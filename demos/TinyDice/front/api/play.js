@@ -5,12 +5,12 @@ const SERVER_API = interfaceData.sideOptions.eventServer
 
 /**
  *  摇塞子，绑定contractResult和transactionId
- * @param {Object} params 
+ * @param {Object} params
  */
 export function doBet(params) {
   return new Promise(function(resolve, reject) {
     request({
-      url: `${SERVER_API}/events/contract/${params.contractAddress}/${params.eventName}`,
+      url: `${SERVER_API}/event/contract/${params.contractAddress}/${params.eventName}`,
       method: "get",
       data: {limit: params.limit}
     })

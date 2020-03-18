@@ -1,6 +1,6 @@
 # PetFront
 
-> Pet Demo for Sun Network
+> Pet Demo for SUN Network
 
 ## Build Setup
 

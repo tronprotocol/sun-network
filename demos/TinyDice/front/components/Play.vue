@@ -382,7 +382,9 @@ export default {
       "diviend",
       "platForm",
       "trx20Account",
-      "globalSunWeb"
+      "globalSunWeb",
+      "globalSunWeb2",
+      "loginState"
     ]),
     /**
      * 挖矿数量
@@ -508,8 +510,8 @@ export default {
     async roll() {
       if (!this.address.base58) {
         this.$message({
-          type: "success",
-          message: this.$t("noLogin"),
+          type: "warn",
+          message: 'Please Login',
           showClose: true
         });
         return;
@@ -540,6 +542,7 @@ export default {
           shouldPollResponse: false //是否等待响应
         })
         .catch(err => {
+          console.log(err)
           this.isOpen = false;
           this.$alert(this.$t("Play.lackOfMoneyMistakes"), "", {
             confirmButtonText: this.$t("Confirm"),
@@ -668,6 +671,9 @@ export default {
      * 更新store中balance的值
      */
     async watchBalance() {
+      if (!this.address.base58) {
+        return;
+      }
       // const balance = await getBalance(this.address.hex);
       const balance = await this.globalSunWeb.sidechain.trx.getBalance();
 
