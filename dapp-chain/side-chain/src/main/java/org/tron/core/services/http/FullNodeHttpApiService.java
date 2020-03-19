@@ -1,8 +1,14 @@
 package org.tron.core.services.http;
 
+import java.io.File;
+import jdk.internal.org.objectweb.asm.Handle;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.server.ConnectionLimit;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -170,9 +176,15 @@ public class FullNodeHttpApiService implements Service {
   public void start() {
     try {
       server = new Server(port);
+      RequestLogHandler logHandler = new RequestLogHandler();
+      File log = new File("logs/fullHttp.log");
+      log.createNewFile();
+      logHandler.setRequestLog(new NCSARequestLog(log.getAbsolutePath()));
       ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
       context.setContextPath("/wallet/");
-      server.setHandler(context);
+      HandlerCollection hc = new HandlerCollection();
+      hc.setHandlers(new Handler[]{logHandler,context});
+      server.setHandler(hc);
 
       context.addServlet(new ServletHolder(getAccountServlet), "/getaccount");
       context.addServlet(new ServletHolder(transferServlet), "/createtransaction");

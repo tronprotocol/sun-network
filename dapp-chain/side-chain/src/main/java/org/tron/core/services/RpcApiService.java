@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import io.grpc.Server;
+import io.grpc.ServerInterceptors;
 import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import java.io.IOException;
@@ -139,7 +140,7 @@ public class RpcApiService implements Service {
     try {
       NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(port)
           .addService(databaseApi);
-
+      serverBuilder.addService(ServerInterceptors.intercept(databaseApi,new LogInterceptor()));
       Args args = Args.getInstance();
 
       if (args.getRpcThreadNum() > 0) {
@@ -149,11 +150,13 @@ public class RpcApiService implements Service {
 
       if (args.isSolidityNode()) {
         serverBuilder = serverBuilder.addService(walletSolidityApi);
+        serverBuilder.addService(ServerInterceptors.intercept(walletSolidityApi,new LogInterceptor()));
         if (args.isWalletExtensionApi()) {
           serverBuilder = serverBuilder.addService(new WalletExtensionApi());
         }
       } else {
         serverBuilder = serverBuilder.addService(walletApi);
+        serverBuilder.addService(ServerInterceptors.intercept(walletApi,new LogInterceptor()));
       }
 
       // Set configs from config.conf or default value
