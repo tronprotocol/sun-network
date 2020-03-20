@@ -16,10 +16,9 @@ import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.protos.Sidechain.MappingTRC721Event;
 import org.tron.service.capsule.TransactionExtensionCapsule;
-import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "mainChainTask")
-public class MappingTRC721Actuator extends Actuator {
+public class MappingTRC721Actuator extends MappingActuator {
 
   private static final String NONCE_TAG = "mapping_";
 

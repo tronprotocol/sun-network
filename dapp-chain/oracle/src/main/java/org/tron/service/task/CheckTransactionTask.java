@@ -1,5 +1,6 @@
 package org.tron.service.task;
 
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -46,14 +47,36 @@ public class CheckTransactionTask {
               .getMsg(chain, transactionId);
           logger.info(msg);
         }
+        //deposit G1 will withdraw to G2
+        if (isTypeOfDeposit(eventActuator) && ByteArray.toLong(eventActuator.getNonce()) < 100000) {
+          if (Objects.nonNull(eventActuator.getNextActuator())) {
+            CreateTransactionTask.getInstance().submitCreate(eventActuator.getNextActuator(), 0L);
+          } else {
+            logger.info("G1 deposit nonce is {} next G1 to G2 withdraw actuator is null",
+                eventActuator.getNonce());
+          }
+        }
       } else {
         String msg = MessageCode.CHECK_TRANSACTION_FAIL
             .getMsg(chain, transactionId);
         RetryTransactionTask.getInstance().processAndSubmit(eventActuator, msg);
       }
     } catch (Exception e) {
-      logger.error("checkTransaction catch error! nouce = {}", ByteArray.toStr(eventActuator.getNonceKey()), e);
-      Manager.getInstance().setProcessFail(eventActuator.getNonceKey(), eventActuator.getRetryTimes());
+      logger.error("checkTransaction catch error! nouce = {}",
+          ByteArray.toStr(eventActuator.getNonceKey()), e);
+      Manager.getInstance()
+          .setProcessFail(eventActuator.getNonceKey(), eventActuator.getRetryTimes());
     }
+  }
+
+  private boolean isTypeOfDeposit(Actuator eventActuator) {
+    switch (eventActuator.getType()) {
+      case DEPOSIT_TRC10_EVENT:
+      case DEPOSIT_TRC20_EVENT:
+      case DEPOSIT_TRC721_EVENT:
+      case DEPOSIT_TRX_EVENT:
+        return true;
+    }
+    return false;
   }
 }

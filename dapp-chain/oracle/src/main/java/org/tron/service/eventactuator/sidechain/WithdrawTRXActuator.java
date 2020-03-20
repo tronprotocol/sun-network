@@ -15,10 +15,9 @@ import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.protos.Sidechain.WithdrawTRXEvent;
 import org.tron.service.capsule.TransactionExtensionCapsule;
-import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "sideChainTask")
-public class WithdrawTRXActuator extends Actuator {
+public class WithdrawTRXActuator extends WithdrawActuator {
 
   private static final String PREFIX = "withdraw_1_";
   private WithdrawTRXEvent event;
