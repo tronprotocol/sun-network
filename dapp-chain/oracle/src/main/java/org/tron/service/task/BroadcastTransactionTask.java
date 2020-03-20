@@ -42,8 +42,7 @@ public class BroadcastTransactionTask {
       Manager.getInstance().setProcessBroadcasted(eventActuator.getNonceKey());
       String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
       if (broadcastRet == BroadcastRet.SUCCESS) {
-        CheckTransactionTask.getInstance()
-            .submitCheck(eventActuator, 60);
+        CheckTransactionTask.getInstance().submitCheck(eventActuator, 60);
       } else {
         String chain = eventActuator.getTaskEnum().name();
         if (broadcastRet == BroadcastRet.DONE) {
@@ -60,10 +59,11 @@ public class BroadcastTransactionTask {
         }
       }
     } catch (Exception e) {
-      logger.error("broadcastTransaction catch error! nouce = {}", ByteArray.toStr(eventActuator.getNonceKey()), e);
-      Manager.getInstance().setProcessFail(eventActuator.getNonceKey(), eventActuator.getRetryTimes());
+      logger.error("broadcastTransaction catch error! nouce = {}",
+          ByteArray.toStr(eventActuator.getNonceKey()), e);
+      Manager.getInstance()
+          .setProcessFail(eventActuator.getNonceKey(), eventActuator.getRetryTimes());
     }
-
 
 
   }
