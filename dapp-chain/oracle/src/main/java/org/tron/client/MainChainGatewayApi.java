@@ -93,9 +93,13 @@ public class MainChainGatewayApi {
   }
 
   public static Transaction multiSignForWithdrawTRC10Transaction(String from, String tokenId,
-      String value, String nonce, SignListParam signParam) throws RpcConnectException {
+      String value, String nonce, SignListParam signParam)
+      throws RpcConnectException {
     // sign withdraw in main chain gateway only, not in reference gateway
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
+    if (from.equals(Args.getInstance().getMainchainGatewayStr())) {
+      contractAddress = Args.getInstance().getRefMainchainGateway();
+    }
     String method = "withdrawTRC10(address,trcToken,uint256,uint256,bytes[],address[])";
     List params = Arrays.asList(from, tokenId, value, nonce, signParam.getOracleSigns(),
         signParam.getOracleAddresses());
@@ -108,6 +112,9 @@ public class MainChainGatewayApi {
       throws RpcConnectException {
     // sign withdraw in main chain gateway only, not in reference gateway
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
+    if (from.equals(Args.getInstance().getMainchainGatewayStr())) {
+      contractAddress = Args.getInstance().getRefMainchainGateway();
+    }
     String method = "withdrawTRC20(address,address,uint256,uint256,bytes[],address[])";
     List params = Arrays.asList(from, mainChainAddress, value, nonce, signParam.getOracleSigns(),
         signParam.getOracleAddresses());
@@ -121,6 +128,9 @@ public class MainChainGatewayApi {
       throws RpcConnectException {
     // sign withdraw in main chain gateway only, not in reference gateway
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
+    if (from.equals(Args.getInstance().getMainchainGatewayStr())) {
+      contractAddress = Args.getInstance().getRefMainchainGateway();
+    }
     String method = "withdrawTRC721(address,address,uint256,uint256,bytes[],address[])";
     List params = Arrays.asList(from, mainChainAddress, uId, nonce, signParam.getOracleSigns(),
         signParam.getOracleAddresses());
@@ -133,6 +143,9 @@ public class MainChainGatewayApi {
       String nonce, SignListParam signParam) throws RpcConnectException {
     // sign withdraw in main chain gateway only, not in reference gateway
     byte[] contractAddress = Args.getInstance().getMainchainGateway();
+    if (from.equals(Args.getInstance().getMainchainGatewayStr())) {
+      contractAddress = Args.getInstance().getRefMainchainGateway();
+    }
     String method = "withdrawTRX(address,uint256,uint256,bytes[],address[])";
     List params = Arrays
         .asList(from, value, nonce, signParam.getOracleSigns(), signParam.getOracleAddresses());
