@@ -48,7 +48,8 @@ public class CheckTransactionTask {
           logger.info(msg);
         }
         //deposit G1 will withdraw to G2
-        if (isTypeOfDeposit(eventActuator) && ByteArray.toLong(eventActuator.getNonce()) < 100000) {
+        if (isTypeOfDeposit(eventActuator)
+            && ByteArray.toLong(eventActuator.getNonce()) < SystemSetting.NEW_NONCE_BASE_VALUE) {
           if (Objects.nonNull(eventActuator.getNextActuator())) {
             CreateTransactionTask.getInstance().submitCreate(eventActuator.getNextActuator(), 0L);
           } else {
