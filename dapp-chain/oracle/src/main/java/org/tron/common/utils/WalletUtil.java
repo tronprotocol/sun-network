@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Console;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -249,5 +250,9 @@ public class WalletUtil {
       System.out.println("The passwords do not match, please input again.");
     }
     return password0;
+  }
+
+  public static String bigIntegerStrAdd(String base, String nonce) {
+    return new BigInteger(base).add(new BigInteger(nonce)).toString();
   }
 }

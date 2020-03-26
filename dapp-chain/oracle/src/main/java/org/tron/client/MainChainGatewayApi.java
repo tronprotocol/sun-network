@@ -3,10 +3,12 @@ package org.tron.client;
 import static org.tron.client.MainChainGatewayApi.GatewayApi.GATEWAY_API;
 
 import com.beust.jcommander.internal.Lists;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.config.Args;
+import org.tron.common.config.SystemSetting;
 import org.tron.common.exception.RpcConnectException;
 import org.tron.common.exception.TxExpiredException;
 import org.tron.common.exception.TxFailException;
@@ -83,8 +85,12 @@ public class MainChainGatewayApi {
 
   public static boolean getWithdrawStatus(String withdrawDataHash, String nonce)
       throws RpcConnectException {
+    byte[] contractAddress = Args.getInstance().getMainchainGateway(); //G2
     // check withdraw in main chain gateway only, not in reference gateway
-    byte[] contractAddress = Args.getInstance().getMainchainGateway();
+    if (new BigInteger(nonce).compareTo(new BigInteger(SystemSetting.OPERATION_BASE_VALUE)) > 0) {
+      contractAddress = Args.getInstance().getRefMainchainGateway(); //G1
+    }
+
     String method = "withdrawDone(bytes32,uint256)";
     List params = Arrays.asList(withdrawDataHash, nonce);
     byte[] ret = GATEWAY_API.getInstance()

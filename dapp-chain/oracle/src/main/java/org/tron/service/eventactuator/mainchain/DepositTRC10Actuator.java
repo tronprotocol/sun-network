@@ -92,7 +92,7 @@ public class DepositTRC10Actuator extends DepositActuator {
   public Actuator getNextActuator() {
     return new MultiSignForWithdrawTRC10Actuator(Args.getInstance().getMainchainGatewayStr(),
         event.getTokenId().toStringUtf8(), event.getValue().toStringUtf8(),
-        SystemSetting.WITHDRAW_BASE_VALUE + event.getNonce().toStringUtf8());
+        WalletUtil.bigIntegerStrAdd(SystemSetting.OPERATION_BASE_VALUE,  event.getNonce().toStringUtf8()));
   }
 
   @Override

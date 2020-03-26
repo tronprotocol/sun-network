@@ -51,7 +51,7 @@ public class CheckTransactionTask {
         //deposit G1 will withdraw to G2
         if (isTypeOfDeposit(eventActuator)
             && new BigInteger(eventActuator.getNonce())
-            .compareTo(new BigInteger(SystemSetting.NEW_NONCE_BASE_VALUE)) < 0) {
+            .compareTo(new BigInteger(SystemSetting.VERSION_BASE_VALUE)) < 0) {
           if (Objects.nonNull(eventActuator.getNextActuator())) {
             CreateTransactionTask.getInstance().submitCreate(eventActuator.getNextActuator(), 0L);
           } else {

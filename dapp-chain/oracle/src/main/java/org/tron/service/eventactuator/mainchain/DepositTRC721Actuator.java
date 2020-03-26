@@ -83,7 +83,7 @@ public class DepositTRC721Actuator extends DepositActuator {
     return new MultiSignForWithdrawTRC721Actuator(Args.getInstance().getMainchainGatewayStr(),
         WalletUtil.encode58Check(event.getContractAddress().toByteArray()),
         event.getUId().toStringUtf8(),
-        SystemSetting.WITHDRAW_BASE_VALUE + event.getNonce().toStringUtf8());
+        WalletUtil.bigIntegerStrAdd(SystemSetting.OPERATION_BASE_VALUE,  event.getNonce().toStringUtf8()));
   }
 
   @Override

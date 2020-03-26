@@ -76,7 +76,7 @@ public class DepositTRXActuator extends DepositActuator {
   public Actuator getNextActuator() {
     return new MultiSignForWithdrawTRXActuator(Args.getInstance().getMainchainGatewayStr(),
         event.getValue().toStringUtf8(),
-        SystemSetting.WITHDRAW_BASE_VALUE + event.getNonce().toStringUtf8());
+        WalletUtil.bigIntegerStrAdd(SystemSetting.OPERATION_BASE_VALUE,  event.getNonce().toStringUtf8()));
   }
 
   @Override
