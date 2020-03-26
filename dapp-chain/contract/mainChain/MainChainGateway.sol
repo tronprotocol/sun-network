@@ -40,9 +40,9 @@ contract MainChainGateway is OracleManagerContract {
     DepositMsg[] userDepositList;
     MappingMsg[] userMappingList;
     uint256 uint64Max = 18446744073709551615;
-    
+
     address public refGatewayAddress;
-    uint256 public nonceBaseValue = 18446744073709551615; // 2**64
+    uint256 public nonceBaseValue = 100000000000000000000; // 1*(10**20)
 
     struct DepositMsg {
         address user;
@@ -151,10 +151,10 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function getDepositMsg(uint256 nonce) view goDelegateCall public returns (address, uint256, uint256, address, uint256, uint256, uint256){
-        if(nonce >= nonceBaseValue) {
+        if (nonce >= nonceBaseValue) {
             DepositMsg memory _depositMsg = userDepositList[nonce - nonceBaseValue];
-        return (_depositMsg.user, uint256(_depositMsg.value), uint256(_depositMsg._type), _depositMsg.mainChainAddress,
-        uint256(_depositMsg.tokenId), uint256(_depositMsg.status), uint256(_depositMsg.uId));
+            return (_depositMsg.user, uint256(_depositMsg.value), uint256(_depositMsg._type), _depositMsg.mainChainAddress,
+            uint256(_depositMsg.tokenId), uint256(_depositMsg.status), uint256(_depositMsg.uId));
         }
         else {
             return refGatewayAddress.getDepositMsg(nonce);
@@ -162,14 +162,14 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function getMappingMsg(uint256 nonce) view goDelegateCall public returns (address, uint256, uint256){
-        if(nonce >= nonceBaseValue) {
+        if (nonce >= nonceBaseValue) {
             MappingMsg memory _mappingMsg = userMappingList[nonce - nonceBaseValue];
             return (_mappingMsg.mainChainAddress, uint256(_mappingMsg._type), uint256(_mappingMsg.status));
         }
         else {
             return refGatewayAddress.getMappingMsg(nonce);
         }
-        
+
     }
 
     function depositTRC721(address contractAddress, uint256 uid) payable
@@ -371,14 +371,14 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function isMapAddrInGateways(address trcAddress) public goDelegateCall returns (bool){
-        if(mainToSideContractMap[trcAddress] == 1) {
+        if (mainToSideContractMap[trcAddress] == 1) {
             return true;
         }
-        if(refGatewayAddress == 0) {
+        if (refGatewayAddress == 0) {
             return false;
         }
         // TODO: In next version we should use gatewayPeers[i].isMapAddrInGateways(trcAddress) here
-        if(refGatewayAddress.mainToSideContractMap(trcAddress) == 1){
+        if (refGatewayAddress.mainToSideContractMap(trcAddress) == 1) {
             mainToSideContractMap[trcAddress] = 1;
             return true;
         }

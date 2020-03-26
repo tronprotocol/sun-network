@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.config.Args;
+import org.tron.common.config.SystemSetting;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
@@ -74,7 +75,8 @@ public class DepositTRXActuator extends DepositActuator {
   @Override
   public Actuator getNextActuator() {
     return new MultiSignForWithdrawTRXActuator(Args.getInstance().getMainchainGatewayStr(),
-        event.getValue().toStringUtf8(), "10000000000000000000" + event.getNonce().toStringUtf8());
+        event.getValue().toStringUtf8(),
+        SystemSetting.WITHDRAW_BASE_VALUE + event.getNonce().toStringUtf8());
   }
 
   @Override

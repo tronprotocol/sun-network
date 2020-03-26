@@ -1,5 +1,6 @@
 package org.tron.service.task;
 
+import java.math.BigInteger;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -49,7 +50,8 @@ public class CheckTransactionTask {
         }
         //deposit G1 will withdraw to G2
         if (isTypeOfDeposit(eventActuator)
-            && ByteArray.toLong(eventActuator.getNonce()) < SystemSetting.NEW_NONCE_BASE_VALUE) {
+            && new BigInteger(eventActuator.getNonce())
+            .compareTo(new BigInteger(SystemSetting.NEW_NONCE_BASE_VALUE)) < 0) {
           if (Objects.nonNull(eventActuator.getNextActuator())) {
             CreateTransactionTask.getInstance().submitCreate(eventActuator.getNextActuator(), 0L);
           } else {

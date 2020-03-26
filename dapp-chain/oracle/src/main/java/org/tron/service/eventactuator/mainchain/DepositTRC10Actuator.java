@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
 import org.tron.common.config.Args;
+import org.tron.common.config.SystemSetting;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Contract.AssetIssueContract;
@@ -19,7 +20,7 @@ import org.tron.protos.Sidechain.EventMsg.EventType;
 import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.service.capsule.TransactionExtensionCapsule;
 import org.tron.service.eventactuator.Actuator;
-import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRC721Actuator;
+import org.tron.service.eventactuator.sidechain.MultiSignForWithdrawTRC10Actuator;
 
 @Slf4j(topic = "mainChainTask")
 public class DepositTRC10Actuator extends DepositActuator {
@@ -89,9 +90,9 @@ public class DepositTRC10Actuator extends DepositActuator {
 
   @Override
   public Actuator getNextActuator() {
-    return new MultiSignForWithdrawTRC721Actuator(Args.getInstance().getMainchainGatewayStr(),
+    return new MultiSignForWithdrawTRC10Actuator(Args.getInstance().getMainchainGatewayStr(),
         event.getTokenId().toStringUtf8(), event.getValue().toStringUtf8(),
-        "10000000000000000000" + event.getNonce().toStringUtf8());
+        SystemSetting.WITHDRAW_BASE_VALUE + event.getNonce().toStringUtf8());
   }
 
   @Override
