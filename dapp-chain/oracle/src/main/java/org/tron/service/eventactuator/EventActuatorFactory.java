@@ -75,6 +75,12 @@ public class EventActuatorFactory {
             dataMap.get("nonce").toString());
         return task;
       }
+      case TRC20_RECEIVED_V2: {
+        task = new DepositTRC20Actuator(dataMap.get("from").toString(),
+            dataMap.get("contractAddress").toString(), dataMap.get("uid").toString(),
+            dataMap.get("nonce").toString());
+        return task;
+      }
       case TRC721_RECEIVED: {
         task = new DepositTRC721Actuator(dataMap.get("from").toString(),
             dataMap.get("contractAddress").toString(), dataMap.get("uid").toString(),
