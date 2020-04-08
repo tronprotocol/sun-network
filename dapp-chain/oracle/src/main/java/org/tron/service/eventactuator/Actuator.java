@@ -23,6 +23,8 @@ public abstract class Actuator {
 
   public abstract TaskEnum getTaskEnum();
 
+  public abstract Actuator getNextActuator();
+
   public abstract CreateRet createTransactionExtensionCapsule();
 
   public TransactionExtensionCapsule getTransactionExtensionCapsule() {

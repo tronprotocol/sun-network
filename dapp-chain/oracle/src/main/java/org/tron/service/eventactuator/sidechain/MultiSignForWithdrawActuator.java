@@ -27,4 +27,8 @@ public abstract class MultiSignForWithdrawActuator extends Actuator {
   }
 
   public abstract String getWithdrawDataHash();
+
+  public Actuator getNextActuator() {
+    return null;
+  }
 }

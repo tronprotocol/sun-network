@@ -1,5 +1,6 @@
 package org.tron.sunapi;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -330,7 +331,10 @@ public class CrosschainApi {
 
     String methodStr = "approve(address,uint256)";
     String depositMethodStr = "depositTRC20(address,uint64)";
-
+    BigInteger amount = new BigInteger(num);
+    if (amount.compareTo(new BigInteger("18446744073709551615")) > 0) {
+      depositMethodStr = "depositTRC20(address,uint256)";
+    }
     return depositTrc(contractAddrStr, methodStr, depositMethodStr, num, depositFee, feeLimit);
   }
 
