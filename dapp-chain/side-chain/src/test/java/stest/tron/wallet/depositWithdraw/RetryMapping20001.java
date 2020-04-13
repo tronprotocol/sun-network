@@ -89,6 +89,7 @@ public class RetryMapping20001 {
   byte[] trc20Contract = null;
   byte[] sideContractAddress = null;
   long oracleMainBeforeSendBalance = 0;
+  long oracleSideBeforeSendBalance = 0;
   String parame1 = null;
   String methodStr2 = null;
 
@@ -291,7 +292,7 @@ public class RetryMapping20001 {
 
     Account oracleSideBeforeSend = PublicMethed
         .queryAccount(testOracleAddress, blockingSideStubFull);
-    long oracleSideBeforeSendBalance = oracleSideBeforeSend.getBalance();
+    oracleSideBeforeSendBalance = oracleSideBeforeSend.getBalance();
 
     Assert.assertTrue(PublicMethed
         .sendcoinForSidechain(depositAddress2, oracleSideBeforeSendBalance, testOracleAddress,
@@ -329,7 +330,8 @@ public class RetryMapping20001 {
     nonceMap = Long.toString(nonceMapLong);
 
     // check Deposit Msg when deposit failed
-    int mappingNonce = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
+    String mappingNonce = ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray());
+    logger.info("mappingNonce:" + mappingNonce);
     String[] Msg = {
         WalletClient.encode58Check(trc20Contract), "2","0"
     };
@@ -504,6 +506,11 @@ public class RetryMapping20001 {
         .sendcoin(testOracleAddress, oracleMainBeforeSendBalance - 200000, depositAddress2,
             testKeyFordeposit2,
             blockingStubFull);
+    PublicMethed
+        .sendcoinForSidechain(testOracleAddress, oracleSideBeforeSendBalance - 200000,
+            depositAddress2,
+            testKeyFordeposit2, chainIdAddressKey,
+            blockingSideStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

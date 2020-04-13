@@ -321,6 +321,31 @@ public class WithdrawTrx002 {
 
   }
 
+  @Test(enabled = false, description = "Withdraw Trx with feelimit=1")
+  public void test1WithdrawTrx004() {
+    /*Optional<TransactionInfo> infoById1 = PublicMethed
+        .getTransactionInfoById("e647483fcb35a7b10f10202775a2b2e6780175d5eee1b00e52dd97d04f7d5ac6", blockingStubFull);
+    Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
+    Assert.assertEquals(0, infoById1.get().getResultValue());
+    Long nonceMapLong = ByteArray.toLong(ByteArray
+        .fromHexString(
+            ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    logger.info("nonce:" + nonceMapLong);
+//    nonceMap = Long.toString(nonceMapLong);
+
+    logger.info("1:"+infoById1.get().getContractResult(0).toByteArray());
+    logger.info("2:"+ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray()));
+    // check Deposit Msg when deposit failed
+    String mappingNonce = ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray());
+    logger.info("mappingNonce:" + mappingNonce);*/
+
+    String s = numToHex64(-1L);
+    logger.info("s:"+s);
+  }
+  //使用1字节就可以表示b
+  public static String numToHex64(Long b) {
+    return String.format("%064x", b);//2表示需要两个16进行数
+  }
   /**
    * constructor.
    */

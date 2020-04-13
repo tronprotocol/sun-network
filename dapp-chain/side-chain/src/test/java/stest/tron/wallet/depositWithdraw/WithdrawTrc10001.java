@@ -66,8 +66,8 @@ public class WithdrawTrc10001 {
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-  private int depositNonce;
-  private int withdrawNonce;
+  private String depositNonce;
+  private String withdrawNonce;
 
 
   @BeforeSuite
@@ -142,7 +142,7 @@ public class WithdrawTrc10001 {
     Optional<TransactionInfo> infoById;
     infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
-    depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    depositNonce = ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray());
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     long fee = infoById.get().getFee();
     logger.info("fee:" + fee);
@@ -193,7 +193,7 @@ public class WithdrawTrc10001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(txid2, blockingSideStubFull);
-    withdrawNonce = ByteArray.toInt(infoById2.get().getContractResult(0).toByteArray());
+    withdrawNonce = ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray());
     Assert.assertTrue(infoById2.get().getResultValue() == 0);
     long fee2 = infoById2.get().getFee();
     logger.info("fee2:" + fee2);
@@ -253,10 +253,10 @@ public class WithdrawTrc10001 {
 
     long withdrawMainTokenAfter1 = PublicMethed
         .getAssetIssueValue(depositAddress, assetAccountId, blockingStubFull);
-    logger.info("withdrawSideTokenAfter:" + withdrawSideTokenAfter1);
-    logger.info("withdrawMainTokenAfter:" + withdrawMainTokenAfter1);
-    Assert.assertTrue(withdrawSideTokenAfter == withdrawSideTokenAfter1);
-    Assert.assertTrue(withdrawMainTokenAfter == withdrawMainTokenAfter1);
+    logger.info("withdrawSideTokenAfter1:" + withdrawSideTokenAfter1);
+    logger.info("withdrawMainTokenAfter1:" + withdrawMainTokenAfter1);
+    Assert.assertEquals(withdrawSideTokenAfter, withdrawSideTokenAfter1);
+    Assert.assertEquals(withdrawMainTokenAfter, withdrawMainTokenAfter1);
   }
 
 
@@ -556,8 +556,8 @@ public class WithdrawTrc10001 {
 
     // get DepositMsg
     String methodStr = "getDepositMsg(uint256)";
-    String parame = depositNonce + "";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    String parame = depositNonce;
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     TransactionExtention return1 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainGateWayAddress), 0, input,
@@ -596,8 +596,8 @@ public class WithdrawTrc10001 {
 
     // get WithdrawMsg
     methodStr = "getWithdrawMsg(uint256)";
-    parame = withdrawNonce + "";
-    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    parame = withdrawNonce;
+    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     TransactionExtention return2 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(sideGatewayAddress), 0, input,

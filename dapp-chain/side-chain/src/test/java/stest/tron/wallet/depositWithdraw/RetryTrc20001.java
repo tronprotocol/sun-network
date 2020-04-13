@@ -84,9 +84,8 @@ public class RetryTrc20001 {
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-  private int depositNonce;
-  private int withdrawNonce;
-  private int mappingNonce;
+  private String depositNonce;
+  private String withdrawNonce;
 
   @BeforeSuite
   public void beforeSuite() {
@@ -1221,7 +1220,7 @@ public class RetryTrc20001 {
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
 
     // check Deposit Msg when deposit failed
-    depositNonce = ByteArray.toInt(infodepositTrc20.get().getContractResult(0).toByteArray());
+    depositNonce = ByteArray.toHexString(infodepositTrc20.get().getContractResult(0).toByteArray());
     String[] Msg = {
         WalletClient.encode58Check(depositAddress), "" + "1000",
         "2", WalletClient.encode58Check(trc20Contract), "0", "0", "0"
@@ -1388,7 +1387,7 @@ public class RetryTrc20001 {
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
 
     // check Withdraw Msg when withdraw failed
-    withdrawNonce = ByteArray.toInt(infoByIdwithdrawTrc20.get().getContractResult(0).toByteArray());
+    withdrawNonce = ByteArray.toHexString(infoByIdwithdrawTrc20.get().getContractResult(0).toByteArray());
     String[] MsgWithdraw = {
         WalletClient.encode58Check(depositAddress),
         WalletClient.encode58Check(trc20Contract), "0", "100", "2", "0"

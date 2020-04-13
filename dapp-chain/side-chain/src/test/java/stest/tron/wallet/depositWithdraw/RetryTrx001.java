@@ -84,8 +84,8 @@ public class RetryTrx001 {
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-  private int depositNonce;
-  private int withdrawNonce;
+  private String depositNonce;
+  private String withdrawNonce;
 
   @BeforeSuite
   public void beforeSuite() {
@@ -1151,7 +1151,7 @@ public class RetryTrx001 {
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
     // check Deposit Msg when deposit failed
-    depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    depositNonce = ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray());
     String[] Msg = {
         WalletClient.encode58Check(depositAddress1), "" + callValue,
         "0", "0", "0", "0", "0"
@@ -1315,7 +1315,7 @@ public class RetryTrx001 {
     logger.info("infoById1:" + infoById1);
 
     // check Withdraw Msg when withdraw failed
-    withdrawNonce = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
+    withdrawNonce = ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray());
     String[] MsgWithdraw = {
         WalletClient.encode58Check(depositAddress1),
         "0", "0", "" + withdrawValue, "0", "0"
