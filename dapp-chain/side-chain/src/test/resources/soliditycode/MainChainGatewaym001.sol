@@ -42,11 +42,12 @@ contract MainChainGateway is OracleManagerContract {
     DepositMsg[] userDepositList;
     MappingMsg[] userMappingList;
     uint256 uint64Max = 18446744073709551615;
-    uint256 public it=1;
-    mapping(address => uint256) public xc;
 
     address payable public refGatewayAddress;
     uint256 public nonceBaseValue = 100000000000000000000; // 1*(10**20)
+
+    uint256 public it=1;
+    mapping(address => uint256) public xc;
 
     struct DepositMsg {
         address user;
