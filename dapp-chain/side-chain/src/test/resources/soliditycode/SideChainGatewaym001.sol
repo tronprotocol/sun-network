@@ -336,8 +336,8 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
     public checkForTrc10(tokenId, tokenValue) onlyNotPause onlyNotStop isHuman
     returns (uint256 r)
     {
-        require(tokenIdMap[uint256(msg.tokenid)], "tokenIdMap[`msg.tokenid] == false");
-        require(msg.tokenvalue >= withdrawMinTrc10, "tokenvalue must be >= withdrawMinTrc10");
+        require(tokenIdMap[uint256(tokenId)], "tokenIdMap[tokenId] == false");
+        require(tokenValue >= withdrawMinTrc10, "tokenvalue must be >= withdrawMinTrc10");
         require(msg.value >= withdrawFee, "value must be >= withdrawFee");
         if (msg.value > withdrawFee) {
             msg.sender.transfer(msg.value - withdrawFee);
@@ -345,10 +345,10 @@ contract SideChainGateway is ITRC20Receiver, ITRC721Receiver, Ownable {
         if (msg.value > 0) {
             bonus += withdrawFee;
         }
-        userWithdrawList.push(WithdrawMsg(msg.sender, address(0), msg.tokenid, msg.tokenvalue, DataModel.TokenKind.TRC10, DataModel.Status.SUCCESS));
+        userWithdrawList.push(WithdrawMsg(msg.sender, address(0), tokenId, tokenValue, DataModel.TokenKind.TRC10, DataModel.Status.SUCCESS));
         // burn
-        address(0).transferToken(msg.tokenvalue, msg.tokenid);
-        emit WithdrawTRC10(msg.sender, msg.tokenid, msg.tokenvalue, userWithdrawList.length - 1);
+        address(0).transferToken(tokenValue, tokenId);
+        emit WithdrawTRC10(msg.sender, tokenId, tokenValue, userWithdrawList.length - 1);
         r = userWithdrawList.length - 1;
     }
 

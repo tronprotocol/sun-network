@@ -1742,6 +1742,26 @@ public class PublicMethed {
     return transactionExtention;
   }
 
+  public static String withdrawTrx1(
+      byte[] sideChainId, byte[] sideGatewayAddress,
+      long callValue, long feeLimit, byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingsideStubFull) {
+    long tokenCallValue = 0;
+    String tokenId = "0";
+    String methodStr1 = "withdrawTRX()";
+
+    byte[] input1 = Hex
+        .decode(AbiUtil.parseMethod(methodStr1, "", false));
+
+    String txid1 = PublicMethed
+        .triggerContractSideChain(sideGatewayAddress, sideChainId,
+            callValue,
+            input1,
+            feeLimit, tokenCallValue, tokenId, ownerAddress, priKey, blockingsideStubFull);
+    logger.info("txid:" + txid1);
+    return txid1;
+  }
+
   /**
    * constructor.
    */

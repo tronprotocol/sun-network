@@ -8,6 +8,9 @@ contract Delegatecallable is Versionable {
     modifier goDelegateCall {
         if (logicAddress != address(0)) {
             (bool result,bytes memory mesg) = logicAddress.delegatecall(msg.data);
+            if (!result) {
+                revert(string(mesg));
+            }
             emit DelegateResult(result, mesg);
             return;
         }

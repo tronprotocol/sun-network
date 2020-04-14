@@ -138,7 +138,6 @@ contract OracleManagerContract is Ownable {
     }
 
     function setPause(bool status) public onlyOwner {
-
         pause = status;
     }
 
