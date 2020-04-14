@@ -812,7 +812,7 @@ public class RetryTrc721001 {
   }
 
 
-  @Test(enabled = false, description = "Retry Deposit and Withdraw Trc721 with mainOralce value is 0 ")
+  @Test(enabled = true, description = "Retry Deposit and Withdraw Trc721 with mainOralce value is 0 ")
   public void test3RetryTrc721003() {
     methodStr1 = "setRetryFee(uint256)";
     long setRetryFee = 0;
@@ -994,7 +994,7 @@ public class RetryTrc721001 {
   }
 
 
-  @Test(enabled = false, description = "Retry Deposit and Withdraw Trc721 with sideOralce value is 0 ")
+  @Test(enabled = true, description = "Retry Deposit and Withdraw Trc721 with sideOralce value is 0 ")
   public void test4RetryTrc721004() {
     Assert.assertTrue(PublicMethed.freezeBalanceSideChainGetEnergy(testOracleAddress, 100000000,
         3, 0, testOracle, chainIdAddressKey, blockingSideStubFull));

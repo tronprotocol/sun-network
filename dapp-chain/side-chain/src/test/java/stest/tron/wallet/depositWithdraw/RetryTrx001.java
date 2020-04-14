@@ -766,7 +766,7 @@ public class RetryTrx001 {
   }
 
 
-  @Test(enabled = false, description = "Retry Deposit and Withdraw Trx with mainOralce value is 0")
+  @Test(enabled = true, description = "Retry Deposit and Withdraw Trx with mainOralce value is 0")
   public void test3RetryTrx003() {
 
     parame1 = "0";
@@ -1009,7 +1009,7 @@ public class RetryTrx001 {
   }
 
 
-  @Test(enabled = false, description = "Retry Deposit and Withdraw Trx with sideOralce value is 0")
+  @Test(enabled = true, description = "Retry Deposit and Withdraw Trx with sideOralce value is 0")
   public void test4RetryTrx004() {
     parame1 = "0";
 
@@ -1401,7 +1401,7 @@ public class RetryTrx001 {
   }
 
 
-  @Test(enabled = false, description = "Retry Deposit and Withdraw Trx with sideOralce value is 0")
+  @Test(enabled = true, description = "Retry Deposit and Withdraw Trx with sideOralce value is 0")
   public void test5RetryTrx005() {
     ECKey ecKey2 = new ECKey(Utils.getRandom());
     byte[] depositAddress2 = ecKey2.getAddress();
