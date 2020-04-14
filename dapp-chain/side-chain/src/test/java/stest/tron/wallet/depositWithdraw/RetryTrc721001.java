@@ -667,82 +667,39 @@ public class RetryTrc721001 {
         .getTransactionInfoById(retryWithdrawTxid, blockingSideStubFull);
     Assert.assertTrue(infoByIdWithdrawDeposit.get().getResultValue() == 0);
 
-    //Deposit noce value is
-    String bigNonce = "100000";
-    String retryDepositTxid2 = PublicMethed.retryDeposit(mainGateWayAddress,
-        bigNonce,
-        maxFeeLimit, foundationAddress001, foundationKey001, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-
-    logger.info("retryDepositTxid2:" + retryDepositTxid2);
-    Optional<TransactionInfo> infoByIdretryDepositTxid2 = PublicMethed
-        .getTransactionInfoById(retryDepositTxid2, blockingStubFull);
-    Assert.assertTrue(infoByIdretryDepositTxid2.get().getResultValue() != 0);
-    Assert.assertEquals(FAILED, infoByIdretryDepositTxid2.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryDepositTxid2.get().getResMessage().toStringUtf8());
-
-    //Remapping noce value
-
-    String retryMapTxid2 = PublicMethed.retryMapping(mainGateWayAddress,
-        bigNonce,
-        maxFeeLimit, testAddress001, testKey001, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    logger.info("retryMapTxid1:" + retryMapTxid2);
-    Optional<TransactionInfo> infoByIdretryMapTxid2 = PublicMethed
-        .getTransactionInfoById(retryMapTxid2, blockingStubFull);
-    Assert.assertTrue(infoByIdretryMapTxid2.get().getResultValue() != 0);
-    Assert.assertEquals(FAILED, infoByIdretryMapTxid2.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryMapTxid2.get().getResMessage().toStringUtf8());
-
-    //Withdraw noce value
-    String retryWithdrawTxid2 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
-        bigNonce,
-        maxFeeLimit, foundationAddress001, foundationKey001, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-
-    logger.info("retryDepositTxid2:" + retryWithdrawTxid2);
-    Optional<TransactionInfo> infoByIdretryWithdrawTxid2 = PublicMethed
-        .getTransactionInfoById(retryWithdrawTxid2, blockingSideStubFull);
-    Assert.assertTrue(infoByIdretryWithdrawTxid2.get().getResultValue() != 0);
-    Assert.assertEquals(FAILED, infoByIdretryWithdrawTxid2.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryWithdrawTxid2.get().getResMessage().toStringUtf8());
-
-    //Deposit noce value is 1*10**20
-    String smallNonce = "0000000000000000000000000000000000000000000000056bc75e2d63100000";
+    //Deposit noce value is 0
+    String smallNonce = "0000000000000000000000000000000000000000000000000000000000000000";
     logger.info("smallNonce:" + smallNonce);
     String retryDepositTxid3 = PublicMethed.retryDeposit(mainGateWayAddress,
         smallNonce, maxFeeLimit, foundationAddress001, foundationKey001, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     logger.info("retryDepositTxid3:" + retryDepositTxid3);
     Optional<TransactionInfo> infoByIdretryDepositTxid3 = PublicMethed
         .getTransactionInfoById(retryDepositTxid3, blockingStubFull);
-    Assert.assertTrue(infoByIdretryDepositTxid3.get().getResultValue() == 0);
+    Assert.assertTrue(infoByIdretryDepositTxid3.get().getResultValue() == 1);
+    Assert.assertEquals(FAILED, infoByIdretryDepositTxid3.get().getResult());
+    Assert.assertEquals("Invalid operation code: opCode[fe];",
+        infoByIdretryDepositTxid3.get().getResMessage().toStringUtf8());
 
-    //Retrymapping  noce value is 1*10**20
-
+    //Retrymapping  noce value is 0
     String retryMapTxid3 = PublicMethed.retryMapping(mainGateWayAddress,
         smallNonce, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
-    logger.info("retryMapTxid1:" + retryMapTxid3);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    logger.info("retryMapTxid3:" + retryMapTxid3);
     Optional<TransactionInfo> infoByIdretryMapTxid3 = PublicMethed
         .getTransactionInfoById(retryMapTxid3, blockingStubFull);
-    Assert.assertTrue(infoByIdretryMapTxid3.get().getResultValue() == 0);
+    Assert.assertEquals(1, infoByIdretryMapTxid3.get().getResultValue());
+    Assert.assertEquals(FAILED, infoByIdretryMapTxid3.get().getResult());
+    Assert.assertEquals("Invalid operation code: opCode[fe];",
+        infoByIdretryMapTxid3.get().getResMessage().toStringUtf8());
 
-    //Withdraw noce value is 1*10**20
+    //Withdraw noce value is 0
     String retryWithdrawTxid3 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         smallNonce, maxFeeLimit, foundationAddress001, foundationKey001, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-
-    logger.info("retryDepositTxid2:" + retryWithdrawTxid3);
+    logger.info("retryDepositTxid3:" + retryWithdrawTxid3);
     Optional<TransactionInfo> infoByIdrretryWithdrawTxid3 = PublicMethed
-        .getTransactionInfoById(retryWithdrawTxid3, blockingStubFull);
+        .getTransactionInfoById(retryWithdrawTxid3, blockingSideStubFull);
     Assert.assertTrue(infoByIdrretryWithdrawTxid3.get().getResultValue() == 0);
 
     //Deposit noce value is 1*10**20+1*10**6（nonexistent）
@@ -751,7 +708,6 @@ public class RetryTrc721001 {
     String retryDepositTxid4 = PublicMethed.retryDeposit(mainGateWayAddress,
         maxNonce, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     logger.info("retryDepositTxid4:" + retryDepositTxid4);
     Optional<TransactionInfo> infoByIdretryDepositTxid4 = PublicMethed
         .getTransactionInfoById(retryDepositTxid4, blockingStubFull);
@@ -764,11 +720,10 @@ public class RetryTrc721001 {
     String retryMapTxid4 = PublicMethed.retryMapping(mainGateWayAddress,
         maxNonce, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     logger.info("retryMapTxid1:" + retryMapTxid4);
     Optional<TransactionInfo> infoByIdretryMapTxid4 = PublicMethed
         .getTransactionInfoById(retryMapTxid4, blockingStubFull);
-    Assert.assertTrue(infoByIdretryMapTxid4.get().getResultValue() != 0);
+    Assert.assertTrue(infoByIdretryMapTxid4.get().getResultValue() == 1);
     Assert.assertEquals(FAILED, infoByIdretryMapTxid4.get().getResult());
     Assert.assertEquals("REVERT opcode executed",
         infoByIdretryMapTxid4.get().getResMessage().toStringUtf8());
@@ -777,7 +732,6 @@ public class RetryTrc721001 {
     String retryWithdrawTxid4 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         maxNonce, maxFeeLimit, foundationAddress001, foundationKey001, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-
     logger.info("retryDepositTxid2:" + retryWithdrawTxid3);
     Optional<TransactionInfo> infoByIdrretryWithdrawTxid4 = PublicMethed
         .getTransactionInfoById(retryWithdrawTxid4, blockingSideStubFull);
@@ -786,46 +740,75 @@ public class RetryTrc721001 {
     Assert.assertEquals("REVERT opcode executed",
         infoByIdrretryWithdrawTxid4.get().getResMessage().toStringUtf8());
 
+    //Deposit noce value is 1*10**20
+    String initialNonce = "0000000000000000000000000000000000000000000000056bc75e2d63100000";
+    logger.info("initialNonce:" + initialNonce);
+    String retryDepositTxid5 = PublicMethed.retryDeposit(mainGateWayAddress,
+        initialNonce, maxFeeLimit, foundationAddress001, foundationKey001, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    logger.info("retryDepositTxid5:" + retryDepositTxid5);
+    Optional<TransactionInfo> infoByIdretryDepositTxid5 = PublicMethed
+        .getTransactionInfoById(retryDepositTxid5, blockingStubFull);
+    Assert.assertTrue(infoByIdretryDepositTxid5.get().getResultValue() == 0);
+
+    //Retrymapping  noce value is 1*10**20
+    String retryMapTxid5 = PublicMethed.retryMapping(mainGateWayAddress,
+        initialNonce, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    logger.info("retryMapTxid5:" + retryMapTxid5);
+    Optional<TransactionInfo> infoByIdretryMapTxid5 = PublicMethed
+        .getTransactionInfoById(retryMapTxid5, blockingStubFull);
+    Assert.assertTrue(infoByIdretryMapTxid5.get().getResultValue() == 0);
+
+    //Withdraw noce value is 1*10**20
+    String retryWithdrawTxid5 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
+        initialNonce, maxFeeLimit, foundationAddress001, foundationKey001, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    logger.info("retryWithdrawTxid5:" + retryWithdrawTxid5);
+    Optional<TransactionInfo> infoByIdrretryWithdrawTxid5 = PublicMethed
+        .getTransactionInfoById(retryWithdrawTxid5, blockingSideStubFull);
+    Assert.assertTrue(infoByIdrretryWithdrawTxid5.get().getResultValue() == 1);
+    Assert.assertEquals(FAILED, infoByIdrretryWithdrawTxid5.get().getResult());
+    Assert.assertEquals("REVERT opcode executed",
+        infoByIdrretryWithdrawTxid5.get().getResMessage().toStringUtf8());
+
     //Deposit noce value is -1
     String minusNonce = PublicMethed.numToHex64(-1L);
     logger.info("minusNonce:" + minusNonce);
     String retryDepositTxid6 = PublicMethed.retryDeposit(mainGateWayAddress,
         minusNonce, maxFeeLimit, foundationAddress001, foundationKey001, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     logger.info("retryDepositTxid4:" + retryDepositTxid6);
     Optional<TransactionInfo> infoByIdretryDepositTxid6 = PublicMethed
         .getTransactionInfoById(retryDepositTxid6, blockingStubFull);
-    Assert.assertTrue(infoByIdretryDepositTxid6.get().getResultValue() == 0);
-    Assert.assertEquals(SUCESS, infoByIdretryDepositTxid6.get().getResult());
-    //Assert.assertEquals("REVERT opcode executed",
-    //    infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
+    Assert.assertTrue(infoByIdretryDepositTxid6.get().getResultValue() == 1);
+    Assert.assertEquals(FAILED, infoByIdretryDepositTxid6.get().getResult());
+    Assert.assertEquals("Invalid operation code: opCode[fe];",
+        infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
 
     //Retrymapping  noce value is is-1
-
     String retryMapTxid6 = PublicMethed.retryMapping(mainGateWayAddress,
         minusNonce, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info("retryMapTxid1:" + retryMapTxid6);
     Optional<TransactionInfo> infoByIdretryMapTxid6 = PublicMethed
         .getTransactionInfoById(retryMapTxid6, blockingStubFull);
-    Assert.assertTrue(infoByIdretryMapTxid6.get().getResultValue() == 0);
-    Assert.assertEquals(SUCESS, infoByIdretryMapTxid6.get().getResult());
-    //Assert.assertEquals("REVERT opcode executed",
-    //    infoByIdretryMapTxid6.get().getResMessage().toStringUtf8());
+    Assert.assertTrue(infoByIdretryMapTxid6.get().getResultValue() == 1);
+    Assert.assertEquals(FAILED, infoByIdretryMapTxid6.get().getResult());
+    Assert.assertEquals("Invalid operation code: opCode[fe];",
+        infoByIdretryMapTxid6.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is -1
     String retryWithdrawTxid6 = PublicMethed.retryWithdraw(chainIdAddress, sideGatewayAddress,
         minusNonce, maxFeeLimit, foundationAddress001, foundationKey001, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-
     logger.info("retryWithdrawTxid6:" + retryWithdrawTxid6);
     Optional<TransactionInfo> infoByIdrretryWithdrawTxid6 = PublicMethed
         .getTransactionInfoById(retryWithdrawTxid6, blockingSideStubFull);
-    Assert.assertTrue(infoByIdrretryWithdrawTxid6.get().getResultValue() == 0);
-    Assert.assertEquals(SUCESS, infoByIdrretryWithdrawTxid6.get().getResult());
-    //Assert.assertEquals("REVERT opcode executed",
-    //    infoByIdrretryWithdrawTxid6.get().getResMessage().toStringUtf8());
+    Assert.assertTrue(infoByIdrretryWithdrawTxid6.get().getResultValue() == 1);
+    Assert.assertEquals(FAILED, infoByIdrretryWithdrawTxid6.get().getResult());
+    Assert.assertEquals("REVERT opcode executed",
+        infoByIdrretryWithdrawTxid6.get().getResMessage().toStringUtf8());
   }
 
 

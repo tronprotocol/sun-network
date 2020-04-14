@@ -56,8 +56,8 @@ public class WithdrawTrx001 {
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-  private int depositNonce;
-  private int withdrawNonce;
+  private String depositNonce;
+  private String withdrawNonce;
 
   @BeforeSuite
   public void beforeSuite() {
@@ -120,7 +120,7 @@ public class WithdrawTrx001 {
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
-    depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    depositNonce = ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray());
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     long fee = infoById.get().getFee();
     logger.info("fee:" + fee);
@@ -153,7 +153,7 @@ public class WithdrawTrx001 {
 
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(txid1, blockingSideStubFull);
-    withdrawNonce = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
+    withdrawNonce = ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray());
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     long fee1 = infoById1.get().getFee();
     logger.info("fee1:" + fee1);
@@ -180,8 +180,8 @@ public class WithdrawTrx001 {
 
     // get DepositMsg
     String methodStr = "getDepositMsg(uint256)";
-    String parame = depositNonce + "";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    String parame = depositNonce;
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     TransactionExtention return1 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainGateWayAddress), 0, input,
@@ -221,8 +221,8 @@ public class WithdrawTrx001 {
 
     // get WithdrawMsg
     methodStr = "getWithdrawMsg(uint256)";
-    parame = withdrawNonce + "";
-    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    parame = withdrawNonce;
+    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     TransactionExtention return2 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(sideGatewayAddress), 0, input,

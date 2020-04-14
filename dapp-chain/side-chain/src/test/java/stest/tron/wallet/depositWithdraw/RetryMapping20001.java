@@ -83,9 +83,7 @@ public class RetryMapping20001 {
   String testKeyFordeposit2 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
   String methodStrSide = null;
   String parameSide1 = null;
-  String nonce = null;
   String nonceMap = null;
-  String nonceWithdraw = null;
   byte[] trc20Contract = null;
   byte[] sideContractAddress = null;
   long oracleMainBeforeSendBalance = 0;
@@ -233,11 +231,8 @@ public class RetryMapping20001 {
         .getTransactionInfoById(mapTxid, blockingStubFull);
     Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
     Assert.assertEquals(0, infoById1.get().getResultValue());
-    Long nonceMapLong = ByteArray.toLong(ByteArray
-        .fromHexString(
-            ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
-    logger.info("nonce:" + nonceMapLong);
-    nonceMap = Long.toString(nonceMapLong);
+    nonceMap = ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray());
+    logger.info("nonceMap:" + nonceMap);
     String parame1 = "\"" + Base58.encode58Check(trc20Contract) + "\"";
     byte[] input2 = Hex
         .decode(AbiUtil.parseMethod("mainToSideContractMap(address)", parame1, false));
@@ -323,11 +318,8 @@ public class RetryMapping20001 {
         .getTransactionInfoById(mapTxid, blockingStubFull);
     Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
     Assert.assertEquals(0, infoById1.get().getResultValue());
-    Long nonceMapLong = ByteArray.toLong(ByteArray
-        .fromHexString(
-            ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
-    logger.info("nonce:" + nonceMapLong);
-    nonceMap = Long.toString(nonceMapLong);
+    nonceMap = ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray());
+    logger.info("nonceMap:" + nonceMap);
 
     // check Deposit Msg when deposit failed
     String mappingNonce = ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray());
@@ -416,8 +408,7 @@ public class RetryMapping20001 {
 
     //retry mapping <setRetryFeeSide
     String retryMaptxid = PublicMethed.retryMapping(mainChainAddress,
-        nonceMap,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
+        nonceMap, maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 

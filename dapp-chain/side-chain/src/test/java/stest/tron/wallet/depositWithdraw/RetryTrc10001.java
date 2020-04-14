@@ -765,7 +765,7 @@ public class RetryTrc10001 {
         infoByIdrretryWithdrawTxid4.get().getResMessage().toStringUtf8());
   }
 
-  @Test(enabled = false, description = "Retry Deposit and Withdraw Trc10 with mainOralce value is 0")
+  @Test(enabled = true, description = "Retry Deposit and Withdraw Trc10 with mainOralce value is 0")
   public void test3RetryTrc10003() {
     methodStr2 = "setRetryFee(uint256)";
     parame1 = "0";
@@ -961,7 +961,7 @@ public class RetryTrc10001 {
         accountSideBeforeWithdrawBalance5);
   }
 
-  @Test(enabled = false, description = "Retry Deposit and Withdraw Trc10 with sideOralce value is 0")
+  @Test(enabled = true, description = "Retry Deposit and Withdraw Trc10 with sideOralce value is 0")
   public void test4RetryTrc10004() {
 
     methodStr2 = "setRetryFee(uint256)";

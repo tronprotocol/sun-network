@@ -57,9 +57,9 @@ public class WithdrawTrc721001 {
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-  private int depositNonce;
-  private int withdrawNonce;
-  private int mappingNonce;
+  private String depositNonce;
+  private String withdrawNonce;
+  private String mappingNonce;
 
   @BeforeSuite
   public void beforeSuite() {
@@ -173,7 +173,7 @@ public class WithdrawTrc721001 {
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(mapTxid, blockingStubFull);
 
-    mappingNonce = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
+    mappingNonce = ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray());
     Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
     Assert.assertEquals(0, infoById1.get().getResultValue());
     Assert.assertNotNull(mapTxid);
@@ -212,7 +212,7 @@ public class WithdrawTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(deposittrx, blockingStubFull);
-    depositNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    depositNonce = ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray());
     Assert.assertNotNull(deposittrx);
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertEquals("SUCESS", infoById.get().getResult().name());
@@ -266,7 +266,7 @@ public class WithdrawTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(withdrawTxid1, blockingSideStubFull);
     logger.info("fee:" + infoById.get().getFee());
-    withdrawNonce = ByteArray.toInt(infoById.get().getContractResult(0).toByteArray());
+    withdrawNonce = ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray());
     Assert.assertNotNull(withdrawTxid1);
     Assert.assertEquals(0, infoById.get().getResultValue());
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -306,8 +306,8 @@ public class WithdrawTrc721001 {
 
     // get DepositMsg
     String methodStr = "getDepositMsg(uint256)";
-    String parame = depositNonce + "";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    String parame = depositNonce;
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     TransactionExtention return1 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress), 0, input,
@@ -349,8 +349,8 @@ public class WithdrawTrc721001 {
 
     // get WithdrawMsg
     methodStr = "getWithdrawMsg(uint256)";
-    parame = withdrawNonce + "";
-    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    parame = withdrawNonce;
+    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     TransactionExtention return2 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(sideChainAddress), 0, input,
@@ -389,8 +389,8 @@ public class WithdrawTrc721001 {
 
     // get DepositMsg
     methodStr = "getMappingMsg(uint256)";
-    parame = mappingNonce + "";
-    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    parame = mappingNonce;
+    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     return1 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress), 0, input,

@@ -5246,7 +5246,7 @@ public class PublicMethed {
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     String retryMethodStr = "retryMapping(uint256)";
 
-    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
+    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, true));
 
     String txid = PublicMethed
         .triggerContract(WalletClient.decodeFromBase58Check(mainGatewayAddr),
