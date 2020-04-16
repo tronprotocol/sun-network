@@ -93,8 +93,9 @@ public class SideChainGatewayApi {
 
   public static SignListParam getWithdrawTRC10SignParam(String from, String tokenId, String value,
       String nonce) {
-    return new SignListParam(Lists.newArrayList(GATEWAY_API.getInstance().getAddressStr()),
-        Lists.newArrayList(getWithdrawTRC10Sign(from, tokenId, value, nonce)));
+    return new SignListParam(
+        Lists.newArrayList(getWithdrawTRC10Sign(from, tokenId, value, nonce)),
+        Lists.newArrayList(GATEWAY_API.getInstance().getAddressStr()));
   }
 
   public static byte[] getWithdrawTRC10DataHash(String from, String tokenId, String value,
@@ -129,8 +130,9 @@ public class SideChainGatewayApi {
 
   public static SignListParam getWithdrawTRCTokenSignParam(String from, String mainChainAddress,
       String value, String nonce) {
-    return new SignListParam(Lists.newArrayList(GATEWAY_API.getInstance().getAddressStr()),
-        Lists.newArrayList(getWithdrawTRCTokenSign(from, mainChainAddress, value, nonce)));
+    return new SignListParam(
+        Lists.newArrayList(getWithdrawTRCTokenSign(from, mainChainAddress, value, nonce)),
+        Lists.newArrayList(GATEWAY_API.getInstance().getAddressStr()));
   }
 
   public static byte[] getWithdrawTRCTokenDataHash(String from, String mainChainAddress,
@@ -174,8 +176,8 @@ public class SideChainGatewayApi {
   }
 
   public static SignListParam getWithdrawTRXSignParam(String from, String value, String nonce) {
-    return new SignListParam(Lists.newArrayList(GATEWAY_API.getInstance().getAddressStr()),
-        Lists.newArrayList(getWithdrawTRXSign(from, value, nonce)));
+    return new SignListParam(Lists.newArrayList(getWithdrawTRXSign(from, value, nonce)),
+        Lists.newArrayList(GATEWAY_API.getInstance().getAddressStr()));
   }
 
   public static byte[] getWithdrawTRXDataHash(String from, String value, String nonce) {
