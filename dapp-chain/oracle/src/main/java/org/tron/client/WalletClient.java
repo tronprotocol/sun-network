@@ -304,6 +304,6 @@ class WalletClient {
   }
 
   public String getAddressStr() {
-    return WalletUtil.encode58CheckWithoutPrefix(getAddress());
+    return WalletUtil.encode58CheckForTron(getAddress());
   }
 }
