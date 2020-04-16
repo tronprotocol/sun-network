@@ -76,6 +76,14 @@ public class WalletUtil {
     return CommonConstant.ADD_PRE_FIX_BYTE_MAINNET;
   }
 
+  public static String encode58CheckForTron(byte[] input) {
+    if (input.length <= 20) {
+      return encode58CheckWithoutPrefix(input);
+    } else {
+      return encode58Check(input);
+    }
+  }
+
   public static String encode58Check(byte[] input) {
     byte[] hash0 = Sha256Hash.hash(input);
     byte[] hash1 = Sha256Hash.hash(hash0);
