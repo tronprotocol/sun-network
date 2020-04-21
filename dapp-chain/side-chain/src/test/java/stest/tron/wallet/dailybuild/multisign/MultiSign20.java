@@ -177,6 +177,7 @@ public class MultiSign20 {
         ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Long balanceAfter = PublicMethedForDailybuild.queryAccount(ownerAddress, blockingStubFull)
         .getBalance();
