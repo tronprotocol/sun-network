@@ -349,7 +349,7 @@ contract MainChainGateway is OracleManagerContract {
 
     // Returns all the TRC20
     function getTRC20(address contractAddress) external view returns (uint256) {
-        return TRC20(contractAddress).balanceOf(contractAddress);
+        return TRC20(contractAddress).balanceOf(this);
     }
 
     // Returns TRC721 token by uid

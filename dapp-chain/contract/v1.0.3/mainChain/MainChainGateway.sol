@@ -235,9 +235,7 @@ contract MainChainGateway is OracleManagerContract {
     }
 
     function() payable external goDelegateCall onlyNotStop onlyNotPause {
-        if (msg.sender != refGatewayAddress) {
-            revert("not allow function fallback");
-        }
+        revert("not allow function fallback");
     }
 
     function mappingTRC20(bytes memory txId) payable public goDelegateCall onlyNotStop onlyNotPause isHuman returns (uint256) {
@@ -349,7 +347,7 @@ contract MainChainGateway is OracleManagerContract {
 
     // Returns all the TRC20
     function getTRC20(address contractAddress) external view returns (uint256) {
-        return TRC20(contractAddress).balanceOf(contractAddress);
+        return TRC20(contractAddress).balanceOf(this);
     }
 
     // Returns TRC721 token by uid
