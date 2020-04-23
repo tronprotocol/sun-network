@@ -635,7 +635,7 @@ public class RetryTrc721001 {
     //other account Retry Mapping
 
     String retryMapTxid1 = PublicMethed.retryMapping(mainGateWayAddress,
-        nonceWithdraw, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
+        nonceMap, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
 
     logger.info("retryMapTxid1:" + retryMapTxid1);
     Optional<TransactionInfo> infoByIdretryMapTxid1 = PublicMethed

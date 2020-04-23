@@ -1288,6 +1288,23 @@ public class PublicMethed {
     return trxid;
   }
 
+  /**
+   * constructor.
+   */
+  public static String mappingTrc721fee(byte[] mainGatewayAddress,
+      String trxHash, long mappingfee, long feeLimit,
+      byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+    String methodStr = "mappingTRC721(bytes)";
+    String argsStr = "\"" + trxHash + "\"";
+
+    String trxid = triggerContract(mainGatewayAddress, methodStr, argsStr, false, mappingfee,
+        feeLimit,
+        ownerAddress, priKey, blockingStubFull);
+    return trxid;
+  }
+
 
   /**
    * constructor.
