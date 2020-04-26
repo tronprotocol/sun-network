@@ -176,7 +176,7 @@ public class DepositTrx002 {
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response1.getCode());
     Assert.assertEquals(
-        "contract validate error : callValue must >= 0",
+        "contract validate error : callValue must be >= 0",
         response1.getMessage().toStringUtf8());
     //value is Long.MAX_VALUE+1
     long callValue2 = Long.MAX_VALUE + 1;
@@ -188,7 +188,7 @@ public class DepositTrx002 {
             maxFeeLimit, 0, "", depositAddress, testKeyFordeposit, blockingStubFull);
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response2.getCode());
     Assert.assertEquals(
-        "contract validate error : callValue must >= 0",
+        "contract validate error : callValue must be >= 0",
         response2.getMessage().toStringUtf8());
 
     //value is Long.MIN_VALUE-1

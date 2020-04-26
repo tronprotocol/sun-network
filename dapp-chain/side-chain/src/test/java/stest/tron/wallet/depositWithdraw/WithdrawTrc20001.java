@@ -58,9 +58,9 @@ public class WithdrawTrc20001 {
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-  private int depositNonce;
-  private int withdrawNonce;
-  private int mappingNonce;
+  private String depositNonce;
+  private String withdrawNonce;
+  private String mappingNonce;
 
   @BeforeSuite
   public void beforeSuite() {
@@ -155,10 +155,10 @@ public class WithdrawTrc20001 {
 
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(mapTxid, blockingStubFull);
-    mappingNonce = Integer.valueOf(String.valueOf(
-        Hex.toHexString(infoById1.get().getLogList()
+    mappingNonce = Hex.toHexString(infoById1.get().getLogList()
             .get(infoById1.get().getLogCount() - 1).getData().toByteArray())
-            .substring(193)), 16);
+            .substring(192);
+    logger.info("mappingNonce:"+mappingNonce);
     Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
     Assert.assertEquals(0, infoById1.get().getResultValue());
 
@@ -206,10 +206,10 @@ public class WithdrawTrc20001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infodeposittrx = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
-    depositNonce = Integer.valueOf(
-        Hex.toHexString(infodeposittrx.get().getLogList()
+    depositNonce = Hex.toHexString(infodeposittrx.get().getLogList()
             .get(infodeposittrx.get().getLogCount() - 1).getData().toByteArray())
-            .substring(193), 16);
+            .substring(192);
+    logger.info("depositNonce:"+depositNonce);
     Assert.assertEquals(0, infodeposittrx.get().getResultValue());
 
     String sideChainTxid = PublicMethed
@@ -246,11 +246,10 @@ public class WithdrawTrc20001 {
 
     Optional<TransactionInfo> infoByIdwithdrawTrc20 = PublicMethed
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
-    withdrawNonce = Integer.valueOf(String.valueOf(
-        Hex.toHexString(infoByIdwithdrawTrc20.get().getLogList()
+    withdrawNonce = Hex.toHexString(infoByIdwithdrawTrc20.get().getLogList()
             .get(infoByIdwithdrawTrc20.get().getLogCount() - 1).getData().toByteArray())
-            .substring(193)), 16);
-
+            .substring(192);
+    logger.info("withdrawNonce:"+withdrawNonce);
     Assert.assertEquals(0, infoByIdwithdrawTrc20.get().getResultValue());
     logger.info("infoByIdwithdrawTrc20Fee:" + infoByIdwithdrawTrc20.get().getFee());
 
@@ -287,8 +286,8 @@ public class WithdrawTrc20001 {
 
     // get DepositMsg
     String methodStr = "getDepositMsg(uint256)";
-    String parame = depositNonce + "";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    String parame = depositNonce;
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     TransactionExtention return1 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress), 0, input,
@@ -306,8 +305,8 @@ public class WithdrawTrc20001 {
     logger.info("address_final: " + addressFinal);
     Assert.assertEquals(WalletClient.encode58Check(depositAddress), addressFinal);
 
-    String depositValue = ContractRestule.substring(1 + 64 * 1, 64 * 2);
-    Assert.assertEquals(1000, Integer.parseInt(depositValue, 16));
+    String value5 = ContractRestule.substring(1 + 64 * 1, 64 * 2);
+    Assert.assertEquals(0, Integer.parseInt(value5, 16));
 
     String value1 = ContractRestule.substring(1 + 64 * 2, 64 * 3);
     Assert.assertEquals(2, Integer.parseInt(value1, 16));
@@ -325,13 +324,13 @@ public class WithdrawTrc20001 {
     String value4 = ContractRestule.substring(1 + 64 * 5, 64 * 6);
     Assert.assertEquals(0, Integer.parseInt(value4, 16));
 
-    String value5 = ContractRestule.substring(1 + 64 * 6, 64 * 7);
-    Assert.assertEquals(0, Integer.parseInt(value5, 16));
+    String depositValue = ContractRestule.substring(1 + 64 * 6, 64 * 7);
+    Assert.assertEquals(1000, Integer.parseInt(depositValue, 16));
 
     // get WithdrawMsg
     methodStr = "getWithdrawMsg(uint256)";
-    parame = withdrawNonce + "";
-    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    parame = withdrawNonce;
+    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     TransactionExtention return2 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(sideChainAddress), 0, input,
@@ -370,8 +369,8 @@ public class WithdrawTrc20001 {
 
     // get DepositMsg
     methodStr = "getMappingMsg(uint256)";
-    parame = mappingNonce + "";
-    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    parame = mappingNonce;
+    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     return1 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress), 0, input,

@@ -170,7 +170,7 @@ public class DepositTrc10001 {
             maxFeeLimit, inputTokenValue2, inputTokenID2, depositAddress, testKeyFordeposit,
             blockingStubFull);
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : tokenId must > 1000000",
+    Assert.assertEquals("contract validate error : tokenId must be > 1000000",
         response2.getMessage().toStringUtf8());
 
 //TokenId is 0
@@ -206,7 +206,7 @@ public class DepositTrc10001 {
             blockingStubFull);
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response4.getCode());
     Assert.assertEquals(
-        "contract validate error : tokenId must > 1000000",
+        "contract validate error : tokenId must be > 1000000",
         response4.getMessage().toStringUtf8());
   }
 
@@ -277,7 +277,7 @@ public class DepositTrc10001 {
             maxFeeLimit, inputTokenValue2, inputTokenID2, depositAddress, testKeyFordeposit,
             blockingStubFull);
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response2.getCode());
-    Assert.assertEquals("contract validate error : tokenValue must >= 0",
+    Assert.assertEquals("contract validate error : tokenValue must be >= 0",
         response2.getMessage().toStringUtf8());
 
 //Tokenvalue > Long.max
@@ -297,7 +297,7 @@ public class DepositTrc10001 {
             maxFeeLimit, inputTokenValue3, inputTokenID3, depositAddress, testKeyFordeposit,
             blockingStubFull);
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response3.getCode());
-    Assert.assertEquals("contract validate error : tokenValue must >= 0",
+    Assert.assertEquals("contract validate error : tokenValue must be >= 0",
         response3.getMessage().toStringUtf8());
 
     //Tokenvalue < Long.min

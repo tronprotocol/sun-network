@@ -57,9 +57,9 @@ public class WithdrawTrc721001 {
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-  private int depositNonce;
-  private int withdrawNonce;
-  private int mappingNonce;
+  private String depositNonce;
+  private String withdrawNonce;
+  private String mappingNonce;
 
   @BeforeSuite
   public void beforeSuite() {
@@ -169,10 +169,10 @@ public class WithdrawTrc721001 {
     Optional<TransactionInfo> infoById1 = PublicMethed
         .getTransactionInfoById(mapTxid, blockingStubFull);
 
-    mappingNonce = Integer.valueOf(String.valueOf(
-        Hex.toHexString(infoById1.get().getLogList()
+    mappingNonce = Hex.toHexString(infoById1.get().getLogList()
             .get(infoById1.get().getLogCount() - 1).getData().toByteArray())
-            .substring(193)), 16);
+            .substring(192);
+    logger.info("mappingNonce:"+mappingNonce);
     Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
     Assert.assertEquals(0, infoById1.get().getResultValue());
     Assert.assertNotNull(mapTxid);
@@ -208,10 +208,10 @@ public class WithdrawTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(deposittrx, blockingStubFull);
-    depositNonce = Integer.valueOf(
-        Hex.toHexString(infoById.get().getLogList()
+    depositNonce = Hex.toHexString(infoById.get().getLogList()
             .get(infoById.get().getLogCount() - 1).getData().toByteArray())
-            .substring(193), 16);
+            .substring(192);
+    logger.info("depositNonce:"+depositNonce);
     Assert.assertNotNull(deposittrx);
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertEquals("SUCESS", infoById.get().getResult().name());
@@ -265,10 +265,10 @@ public class WithdrawTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(withdrawTxid1, blockingSideStubFull);
     logger.info("fee:" + infoById.get().getFee());
-    withdrawNonce = Integer.valueOf(String.valueOf(
-        Hex.toHexString(infoById.get().getLogList()
+    withdrawNonce = Hex.toHexString(infoById.get().getLogList()
             .get(infoById.get().getLogCount() - 1).getData().toByteArray())
-            .substring(193)), 16);
+            .substring(192);
+    logger.info("withdrawNonce:"+withdrawNonce);
     Assert.assertNotNull(withdrawTxid1);
     Assert.assertEquals(0, infoById.get().getResultValue());
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
@@ -308,8 +308,8 @@ public class WithdrawTrc721001 {
 
     // get DepositMsg
     String methodStr = "getDepositMsg(uint256)";
-    String parame = depositNonce + "";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    String parame = depositNonce;
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     TransactionExtention return1 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress), 0, input,
@@ -351,8 +351,8 @@ public class WithdrawTrc721001 {
 
     // get WithdrawMsg
     methodStr = "getWithdrawMsg(uint256)";
-    parame = withdrawNonce + "";
-    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    parame = withdrawNonce;
+    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     TransactionExtention return2 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(sideChainAddress), 0, input,
@@ -391,8 +391,8 @@ public class WithdrawTrc721001 {
 
     // get DepositMsg
     methodStr = "getMappingMsg(uint256)";
-    parame = mappingNonce + "";
-    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    parame = mappingNonce;
+    input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     return1 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress), 0, input,

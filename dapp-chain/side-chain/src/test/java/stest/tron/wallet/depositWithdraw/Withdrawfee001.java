@@ -922,7 +922,7 @@ public class Withdrawfee001 {
     Assert.assertEquals("FAILED", infoById6.get().getResult().name());
     Assert.assertEquals(1, infoById6.get().getResultValue());
     String msg = ByteArray
-        .toHexString(infoById6.get().getContractResult(0).substring(135, 153).toByteArray());
+        .toHexString(infoById6.get().getContractResult(0).substring(134).toByteArray());
     Assert.assertEquals("\u0011less than 100 TRX", PublicMethed.hexStringToString(msg));
 
     //fee=99999999L

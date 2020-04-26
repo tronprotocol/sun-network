@@ -50,7 +50,7 @@ task sourceJar(type: Jar, dependsOn: classes) {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven { url 'http://repo.spring.io/plugins-release' }
+    maven { url 'https://repo.spring.io/plugins-release' }
 }
 def versions = [
         checkstyle: '8.7',
@@ -121,7 +121,7 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients
     compile group: 'org.apache.kafka', name: 'kafka-clients', version: '2.2.0'
-    
+
     compile "org.iq80.leveldb:leveldb:0.7"
 
     compile group: 'org.rocksdb', name: 'rocksdbjni', version: '5.15.10'
