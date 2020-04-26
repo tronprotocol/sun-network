@@ -678,7 +678,7 @@ public class RetryTrc721001 {
         .getTransactionInfoById(retryDepositTxid3, blockingStubFull);
     Assert.assertTrue(infoByIdretryDepositTxid3.get().getResultValue() == 1);
     Assert.assertEquals(FAILED, infoByIdretryDepositTxid3.get().getResult());
-    Assert.assertEquals("Invalid operation code: opCode[fe];",
+    Assert.assertEquals("REVERT opcode executed",
         infoByIdretryDepositTxid3.get().getResMessage().toStringUtf8());
 
     //Retrymapping  noce value is 0
@@ -690,7 +690,7 @@ public class RetryTrc721001 {
         .getTransactionInfoById(retryMapTxid3, blockingStubFull);
     Assert.assertEquals(1, infoByIdretryMapTxid3.get().getResultValue());
     Assert.assertEquals(FAILED, infoByIdretryMapTxid3.get().getResult());
-    Assert.assertEquals("Invalid operation code: opCode[fe];",
+    Assert.assertEquals("REVERT opcode executed",
         infoByIdretryMapTxid3.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is 0
@@ -783,7 +783,7 @@ public class RetryTrc721001 {
         .getTransactionInfoById(retryDepositTxid6, blockingStubFull);
     Assert.assertTrue(infoByIdretryDepositTxid6.get().getResultValue() == 1);
     Assert.assertEquals(FAILED, infoByIdretryDepositTxid6.get().getResult());
-    Assert.assertEquals("Invalid operation code: opCode[fe];",
+    Assert.assertEquals("REVERT opcode executed",
         infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
 
     //Retrymapping  noce value is is-1
@@ -795,7 +795,7 @@ public class RetryTrc721001 {
         .getTransactionInfoById(retryMapTxid6, blockingStubFull);
     Assert.assertTrue(infoByIdretryMapTxid6.get().getResultValue() == 1);
     Assert.assertEquals(FAILED, infoByIdretryMapTxid6.get().getResult());
-    Assert.assertEquals("Invalid operation code: opCode[fe];",
+    Assert.assertEquals("REVERT opcode executed",
         infoByIdretryMapTxid6.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is -1

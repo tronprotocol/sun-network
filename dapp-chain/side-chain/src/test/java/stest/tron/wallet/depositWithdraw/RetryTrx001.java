@@ -700,7 +700,7 @@ public class RetryTrx001 {
         .getTransactionInfoById(retryDepositTxid3, blockingStubFull);
     Assert.assertTrue(infoByIdretryDepositTxid3.get().getResultValue() == 1);
     Assert.assertEquals(FAILED, infoByIdretryDepositTxid3.get().getResult());
-    Assert.assertEquals("Invalid operation code: opCode[fe];",
+    Assert.assertEquals("REVERT opcode executed",
         infoByIdretryDepositTxid3.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is 0
@@ -749,7 +749,7 @@ public class RetryTrx001 {
         .getTransactionInfoById(retryDepositTxid6, blockingStubFull);
     Assert.assertTrue(infoByIdretryDepositTxid6.get().getResultValue() == 1);
     Assert.assertEquals(FAILED, infoByIdretryDepositTxid6.get().getResult());
-    Assert.assertEquals("Invalid operation code: opCode[fe];",
+    Assert.assertEquals("REVERT opcode executed",
         infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
 
     //Withdraw noce value is -1
