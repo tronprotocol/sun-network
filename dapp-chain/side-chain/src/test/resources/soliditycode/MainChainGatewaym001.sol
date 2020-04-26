@@ -224,8 +224,7 @@ contract MainChainGateway is OracleManagerContract {
         return nonceBaseValue + userDepositList.length - 1;
     }
 
-    function depositTRC10(uint64 tokenId, uint64 tokenValue) payable public checkForTrc10(tokenId, tokenValue)
-    onlyNotStop onlyNotPause isHuman returns (uint256) {
+    function depositTRC10(uint64 tokenId, uint64 tokenValue) payable public onlyNotStop onlyNotPause isHuman returns (uint256) {
         require(msg.value >= depositFee, "msg.value need  >= depositFee");
         if (msg.value > depositFee) {
             msg.sender.transfer(msg.value - depositFee);
@@ -284,11 +283,12 @@ contract MainChainGateway is OracleManagerContract {
 
     function retryDeposit(uint256 nonce) payable public onlyNotStop onlyNotPause isHuman {
         require(msg.value >= retryFee, "msg.value need  >= retryFee");
+        require(nonce >= nonceBaseValue, "nonce should not < nonceBaseValue");
+        require(nonce < nonceBaseValue + userDepositList.length, "nonce >= nonceBaseValue + userDepositList.length");
         if (msg.value > retryFee) {
             msg.sender.transfer(msg.value - retryFee);
         }
         bonus += retryFee;
-        require(nonce < nonceBaseValue + userDepositList.length, "nonce >= nonceBaseValue + userDepositList.length");
         DepositMsg storage depositMsg = userDepositList[nonce - nonceBaseValue];
         // TRX,    // 0
         // TRC10,  // 1
@@ -307,11 +307,12 @@ contract MainChainGateway is OracleManagerContract {
 
     function retryMapping(uint256 nonce) payable public onlyNotStop onlyNotPause isHuman {
         require(msg.value >= retryFee, "msg.value need  >= retryFee");
+        require(nonce >= nonceBaseValue, "nonce should not < nonceBaseValue");
+        require(nonce < nonceBaseValue + userMappingList.length, "nonce >= nonceBaseValue + userMappingList.length");
         if (msg.value > retryFee) {
             msg.sender.transfer(msg.value - retryFee);
         }
         bonus += retryFee;
-        require(nonce < nonceBaseValue + userMappingList.length, "nonce >= nonceBaseValue + userMappingList.length");
         MappingMsg storage mappingMsg = userMappingList[nonce - nonceBaseValue];
         require(mappingMsg.status == DataModel.Status.SUCCESS, "mappingMsg.status != SUCCESS ");
 
@@ -354,7 +355,17 @@ contract MainChainGateway is OracleManagerContract {
 
     // Returns all the TRC20
     function getTRC20(address contractAddress) external view returns (uint256) {
-        return TRC20(contractAddress).balanceOf(contractAddress);
+        return TRC20(contractAddress).balanceOf(address(this));
+    }
+
+    function getBonus() external view returns(uint256) {
+        // TODO:
+        // Changed in next version to make it recursively as:
+        // MainChainGateway(refGatewayAddress).getBonus() + bonus
+        if(refGatewayAddress == address(0))
+            return bonus;
+        else
+            return MainChainGateway(refGatewayAddress).bonus() + bonus;
     }
 
     // Returns TRC721 token by uid
