@@ -19,7 +19,6 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.ArrayUtils;
-import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tron.api.GrpcAPI.AccountNetMessage;
@@ -1434,7 +1433,7 @@ public class Client {
       if (isHex) {
         codeStr += argsStr;
       } else {
-        codeStr += Hex.toHexString(AbiUtil.encodeInput(constructorStr, argsStr));
+        codeStr += ByteArray.toHexString(AbiUtil.encodeInput(constructorStr, argsStr));
       }
     }
     long value = 0;
@@ -1689,7 +1688,7 @@ public class Client {
       return;
     }
 
-    byte[] code = Hex.decode(parameters[1]);
+    byte[] code = ByteArray.fromHexString(parameters[1]);
     byte[] temp = Longs.toByteArray(Long.parseLong(parameters[2]));
     if (temp.length != 8) {
       System.out.println("invalid salt!");
@@ -1913,9 +1912,6 @@ public class Client {
     allCmds.add("votewitness");
     allCmds.add("freezebalance");
     allCmds.add("unfreezebalance");
-    allCmds.add("buystorage");
-    allCmds.add("buystoragebytes");
-    allCmds.add("sellstorage");
     allCmds.add("withdrawbalance");
     allCmds.add("unfreezeasset");
     allCmds.add("createproposal");

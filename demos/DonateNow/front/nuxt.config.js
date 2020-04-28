@@ -20,7 +20,7 @@ export default {
       }
     ],
     script: [
-      { src: "/js/vconsole.min.js" }
+      { src: "/demos/donate/js/vconsole.min.js" }
     ]
   },
   /*
@@ -29,6 +29,7 @@ export default {
   loading: false,
 
   router: {
+    base: "/demos/donate",
     middleware: "i18n"
   },
 

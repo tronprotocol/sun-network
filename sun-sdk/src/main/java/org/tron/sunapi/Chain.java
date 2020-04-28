@@ -9,8 +9,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.bouncycastle.util.encoders.Hex;
+import org.apache.commons.lang3.StringUtils;
 import org.tron.api.GrpcAPI.AccountNetMessage;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
@@ -63,8 +62,8 @@ public class Chain implements ChainInterface {
   private ServerApi serverApi;
 
   /**
-   * @param config the environment configuration path
-   * @param priKey the private key of user
+   * @param config      the environment configuration path
+   * @param priKey      the private key of user
    * @param isMainChain main chain or side chain
    * @return the result of initialize
    * @author sun-network
@@ -132,11 +131,11 @@ public class Chain implements ChainInterface {
     }
 
     try {
-      if (StringUtils.isEmpty(constructorStr)) {
+      if (StringUtils.isNotEmpty(constructorStr) && !constructorStr.equals("#")) {
         if (isHex) {
           codeStr += argsStr;
         } else {
-          codeStr += Hex.toHexString(AbiUtil.encodeInput(constructorStr, argsStr));
+          codeStr += ByteArray.toHexString(AbiUtil.encodeInput(constructorStr, argsStr));
         }
       }
 
@@ -189,7 +188,7 @@ public class Chain implements ChainInterface {
       tokenId = "";
     }
     try {
-      byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, isHex));
+      byte[] input = ByteArray.fromHexString(AbiUtil.parseMethod(methodStr, argsStr, isHex));
       byte[] contractAddress = AddressUtil.decodeFromBase58Check(contractAddrStr);
 
       TransactionResponse result = serverApi
@@ -227,7 +226,7 @@ public class Chain implements ChainInterface {
       argsStr = "";
     }
     try {
-      byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, argsStr, isHex));
+      byte[] input = ByteArray.fromHexString(AbiUtil.parseMethod(methodStr, argsStr, isHex));
       byte[] contractAddress = AddressUtil.decodeFromBase58Check(contractAddrStr);
 
       TransactionResponse result = serverApi
@@ -528,7 +527,7 @@ public class Chain implements ChainInterface {
 
   /**
    * @param toAddress the destination address
-   * @param amount the amount of trx
+   * @param amount    the amount of trx
    * @return the result of send
    * @author sun-network
    */
@@ -556,9 +555,9 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @param toAddress the destination address
+   * @param toAddress  the destination address
    * @param assertName the asset name
-   * @param amount the amount of asset
+   * @param amount     the amount of asset
    * @return the result of transfer
    * @author sun-network
    */
@@ -587,9 +586,9 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @param toAddress the destination address
+   * @param toAddress  the destination address
    * @param assertName the asset name
-   * @param amount the amount of asset
+   * @param amount     the amount of asset
    * @return the result of participating asset issue
    * @author sun-network
    */
@@ -842,7 +841,7 @@ public class Chain implements ChainInterface {
 
   /**
    * @param offset the offset from the first asset
-   * @param limit the number of asset issues
+   * @param limit  the number of asset issues
    * @return assert issue list
    * @author sun-network
    */
@@ -862,7 +861,7 @@ public class Chain implements ChainInterface {
 
   /**
    * @param offset the offset from the first proposal
-   * @param limit the number of proposal
+   * @param limit  the number of proposal
    * @return proposal list
    * @author sun-network
    */
@@ -882,7 +881,7 @@ public class Chain implements ChainInterface {
 
   /**
    * @param offset the offset from the first exchange
-   * @param limit the number of exchange
+   * @param limit  the number of exchange
    * @return exchange list
    * @author sun-network
    */
@@ -1023,7 +1022,7 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @param resourceCode the resource code
+   * @param resourceCode    the resource code
    * @param receiverAddress the receive address
    * @return the result of unfreeze balance
    * @author sun-network
@@ -1075,7 +1074,7 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @param id the proposal id
+   * @param id       the proposal id
    * @param approval the proposal or not
    * @return the result of approving proposal
    * @author sun-network
@@ -1154,7 +1153,7 @@ public class Chain implements ChainInterface {
 
   /**
    * @param fromAddress the from address
-   * @param toAddress the address delegated
+   * @param toAddress   the address delegated
    * @return the delegated resource list
    * @author sun-network
    */
@@ -1242,7 +1241,7 @@ public class Chain implements ChainInterface {
   /**
    * @param exchangeId the exchange id
    * @param tokenIdStr the token id
-   * @param quantity the quantity
+   * @param quantity   the quantity
    * @return the result of injecting exchange
    * @author sun-network
    */
@@ -1278,7 +1277,7 @@ public class Chain implements ChainInterface {
   /**
    * @param exchangeId the exchange id
    * @param tokenIdStr the token id
-   * @param quantity the quantity
+   * @param quantity   the quantity
    * @return the result of withdrawing exchange
    * @author sun-network
    */
@@ -1489,8 +1488,8 @@ public class Chain implements ChainInterface {
 
   /**
    * @param address the account address
-   * @param offset the offset from first transaction
-   * @param limit the number of transaction
+   * @param offset  the offset from first transaction
+   * @param limit   the number of transaction
    * @return transaction list extension
    * @author sun-network
    */
@@ -1517,8 +1516,8 @@ public class Chain implements ChainInterface {
 
   /**
    * @param address the account address
-   * @param offset the offset from first transaction
-   * @param limit the number of transaction
+   * @param offset  the offset from first transaction
+   * @param limit   the number of transaction
    * @return transaction list extension
    * @author sun-network
    */
@@ -1564,7 +1563,7 @@ public class Chain implements ChainInterface {
 
   /**
    * @param start the start number
-   * @param end the end number
+   * @param end   the end number
    * @return Block list extension
    * @author sun-network
    */
@@ -1602,7 +1601,7 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @param address the account address
+   * @param address                    the account address
    * @param consumeUserResourcePercent the percent of user resource consuming
    * @return the result of update
    * @author sun-network
@@ -1641,7 +1640,7 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @param address the account address
+   * @param address           the account address
    * @param originEnergyLimit the limit of origin energy
    * @return the result of update
    * @author sun-network
@@ -1733,7 +1732,7 @@ public class Chain implements ChainInterface {
   }
 
   /**
-   * @param address the account address
+   * @param address        the account address
    * @param permissionJson the permission information
    * @return the result of update
    * @author sun-network

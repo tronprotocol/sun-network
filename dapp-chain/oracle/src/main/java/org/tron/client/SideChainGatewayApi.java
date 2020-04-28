@@ -2,6 +2,7 @@ package org.tron.client;
 
 import static org.tron.client.SideChainGatewayApi.GatewayApi.GATEWAY_API;
 
+import com.beust.jcommander.internal.Lists;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,6 +91,13 @@ public class SideChainGatewayApi {
         .signDigest(getWithdrawTRC10DataHash(from, tokenId, value, nonce)));
   }
 
+  public static SignListParam getWithdrawTRC10SignParam(String from, String tokenId, String value,
+      String nonce) {
+    return new SignListParam(
+        Lists.newArrayList(getWithdrawTRC10Sign(from, tokenId, value, nonce)),
+        Lists.newArrayList(GATEWAY_API.getInstance().getAddressStr()));
+  }
+
   public static byte[] getWithdrawTRC10DataHash(String from, String tokenId, String value,
       String nonce) {
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
@@ -118,6 +126,13 @@ public class SideChainGatewayApi {
       String nonce) {
     return Hex.toHexString(GATEWAY_API.getInstance()
         .signDigest(getWithdrawTRCTokenDataHash(from, mainChainAddress, value, nonce)));
+  }
+
+  public static SignListParam getWithdrawTRCTokenSignParam(String from, String mainChainAddress,
+      String value, String nonce) {
+    return new SignListParam(
+        Lists.newArrayList(getWithdrawTRCTokenSign(from, mainChainAddress, value, nonce)),
+        Lists.newArrayList(GATEWAY_API.getInstance().getAddressStr()));
   }
 
   public static byte[] getWithdrawTRCTokenDataHash(String from, String mainChainAddress,
@@ -158,6 +173,11 @@ public class SideChainGatewayApi {
   public static String getWithdrawTRXSign(String from, String value, String nonce) {
     return Hex.toHexString(
         GATEWAY_API.getInstance().signDigest(getWithdrawTRXDataHash(from, value, nonce)));
+  }
+
+  public static SignListParam getWithdrawTRXSignParam(String from, String value, String nonce) {
+    return new SignListParam(Lists.newArrayList(getWithdrawTRXSign(from, value, nonce)),
+        Lists.newArrayList(GATEWAY_API.getInstance().getAddressStr()));
   }
 
   public static byte[] getWithdrawTRXDataHash(String from, String value, String nonce) {

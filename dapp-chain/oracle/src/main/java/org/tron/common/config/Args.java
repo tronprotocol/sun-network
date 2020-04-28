@@ -59,6 +59,11 @@ public class Args {
   private String mainchainGatewayStr;
 
   @Getter
+  private byte[] refMainchainGateway;
+  @Getter
+  private String refMainchainGatewayStr;
+
+  @Getter
   private byte[] chainId;
 
   @Getter
@@ -134,6 +139,9 @@ public class Args {
     this.mainchainGatewayStr = config.getString("gateway.mainchain.address");
     this.mainchainGateway = WalletUtil
         .decodeFromBase58Check(this.mainchainGatewayStr);
+    this.refMainchainGatewayStr = config.getString("gateway.referenceMainchain.address");
+    this.refMainchainGateway = WalletUtil
+        .decodeFromBase58Check(this.refMainchainGatewayStr);
 
     this.chainId = ByteArray.fromHexString(config.getString("sidechain.chain.id"));
 

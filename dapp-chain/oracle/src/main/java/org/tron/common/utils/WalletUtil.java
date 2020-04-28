@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Console;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -73,6 +74,14 @@ public class WalletUtil {
 
   public static byte getAddressPreFixByte() {
     return CommonConstant.ADD_PRE_FIX_BYTE_MAINNET;
+  }
+
+  public static String encode58CheckForTron(byte[] input) {
+    if (input.length <= 20) {
+      return encode58CheckWithoutPrefix(input);
+    } else {
+      return encode58Check(input);
+    }
   }
 
   public static String encode58Check(byte[] input) {
@@ -249,5 +258,9 @@ public class WalletUtil {
       System.out.println("The passwords do not match, please input again.");
     }
     return password0;
+  }
+
+  public static String bigIntegerStrAdd(String base, String nonce) {
+    return new BigInteger(base).add(new BigInteger(nonce)).toString();
   }
 }

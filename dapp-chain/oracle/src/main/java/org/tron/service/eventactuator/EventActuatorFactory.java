@@ -35,7 +35,11 @@ public class EventActuatorFactory {
       }
       if (obj.get("contractAddress").equals(args.getMainchainGatewayStr())) {
         return createMainChainActuator(obj);
-      } else if (obj.get("contractAddress").equals(args.getSidechainGatewayStr())) {
+      }
+      else if (obj.get("contractAddress").equals(args.getRefMainchainGatewayStr())) {
+        return createMainChainActuator(obj);
+      }
+      else if (obj.get("contractAddress").equals(args.getSidechainGatewayStr())) {
         return createSideChainActuator(obj);
       }
       logger.debug("unknown contract address:{}", obj.get("contractAddress"));
@@ -66,6 +70,12 @@ public class EventActuatorFactory {
         return task;
       }
       case TRC20_RECEIVED: {
+        task = new DepositTRC20Actuator(dataMap.get("from").toString(),
+            dataMap.get("contractAddress").toString(), dataMap.get("value").toString(),
+            dataMap.get("nonce").toString());
+        return task;
+      }
+      case TRC20_RECEIVED_V2: {
         task = new DepositTRC20Actuator(dataMap.get("from").toString(),
             dataMap.get("contractAddress").toString(), dataMap.get("value").toString(),
             dataMap.get("nonce").toString());

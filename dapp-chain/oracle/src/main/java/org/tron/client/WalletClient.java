@@ -298,4 +298,12 @@ class WalletClient {
     }
     throw new TxRollbackException(txId);
   }
+
+  public byte[] getAddress() {
+    return address;
+  }
+
+  public String getAddressStr() {
+    return WalletUtil.encode58CheckForTron(getAddress());
+  }
 }

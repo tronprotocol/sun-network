@@ -15,6 +15,7 @@ import org.tron.common.logsfilter.nativequeue.NativeMessageQueue;
 import org.tron.common.logsfilter.trigger.BlockLogTrigger;
 import org.tron.common.logsfilter.trigger.ContractEventTrigger;
 import org.tron.common.logsfilter.trigger.ContractLogTrigger;
+import org.tron.common.logsfilter.trigger.SolidityTrigger;
 import org.tron.common.logsfilter.trigger.TransactionLogTrigger;
 import org.tron.common.logsfilter.trigger.Trigger;
 
@@ -46,6 +47,8 @@ public class EventPluginLoader {
   private FilterQuery filterQuery;
 
   private boolean useNativeQueue = false;
+
+  private final String solidity_topic = "solidity";
 
   public static EventPluginLoader getInstance() {
     if (Objects.isNull(instance)) {
@@ -180,6 +183,10 @@ public class EventPluginLoader {
         setPluginTopic(Trigger.CONTRACTLOG_TRIGGER, triggerConfig.getTopic());
       }
     }
+
+    if (!useNativeQueue) {
+      setPluginTopic(Trigger.SOLIDITY_TRIGGER, Trigger.SOLIDITY_TOPIC);
+    }
   }
 
   public synchronized boolean isBlockLogTriggerEnable() {
@@ -262,6 +269,16 @@ public class EventPluginLoader {
     else {
       eventListeners.forEach(listener ->
           listener.handleBlockEvent(toJsonString(trigger)));
+    }
+  }
+
+  public void postSolidityTrigger(SolidityTrigger trigger) {
+    if (useNativeQueue) {
+      NativeMessageQueue.getInstance()
+          .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
+    } else {
+      eventListeners.forEach(listener ->
+          listener.handleSolidityTrigger(toJsonString(trigger)));
     }
   }
 
