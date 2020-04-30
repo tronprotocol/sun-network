@@ -350,7 +350,7 @@ SideChainID
 
 TRON Network主网gateway合约地址
 
-- TWaPZru6PR5VjgT4sJrrZ481Zgp3iJ8Rfo
+- TL9q7aDAHYbW5KdPCwk8oJR3bCDhRwegFf
 
 SUN Network DAppChain侧链 gateway合约地址
 
