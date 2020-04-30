@@ -325,7 +325,7 @@ SideChainID
 
 TRON Network MainChain gateway contract address
 
-- TWaPZru6PR5VjgT4sJrrZ481Zgp3iJ8Rfo
+- TL9q7aDAHYbW5KdPCwk8oJR3bCDhRwegFf
 
 SUN Network DAppChain(SideChain) gateway contract address
 
