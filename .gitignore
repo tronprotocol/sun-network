@@ -1,0 +1,65 @@
+# IDEA
+.idea
+*iml
+.DS_Store
+
+# gradle
+.gradle
+build
+
+# log
+logs
+consensus-logs
+
+# lombok
+out
+
+# levelDB
+tron-data
+database*
+
+# database
+database
+
+# doc
+doc
+
+# gossip
+pernodedata.*
+ringstate.*
+shareddata.*
+
+# protobuf generated classes
+dapp-chain/side-chain/src/main/gen
+
+dapp-chain/side-chain/src/main/java/org/tron/core/bftconsensus
+dapp-chain/side-chain/src/test/java/org/tron/consensus2
+dapp-chain/side-chain/src/main/java/META-INF/
+dapp-chain/side-chain/src/main/resources/META-INF/
+dapp-chain/side-chain/bin/
+dapp-chain/contract/solc
+
+# Eclipse IDE specific files and folders
+/.project
+/.classpath
+/.settings/
+/.apt_generated/
+
+# output directory
+dapp-chain/side-chain/output-directory/
+
+dapp-chain/side-chain/output_manager/
+dapp-chain/side-chain/output_witness/
+output*
+nodeId.properties
+
+# vm_trace
+dapp-chain/side-chain/vm_trace/
+
+
+# node
+node_modules/
+/documentation/config.js
+/documentation/package-lock.json
+/documentation/docs/.vuepress/github
+js-sdk/src/test/helpers/config.js

@@ -1,0 +1,38 @@
+{
+  "name": "sun-documentation",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "cd home && npm i",
+    "config": "cp sample.config.js config.js",
+    "home:dev": "cd home && npm run serve",
+    "home:build": "cd home && npm run build",
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs",
+    "docs:dev:github": "cross-env GITHUB='github' vuepress dev docs",
+    "docs:build:github": "cross-env GITHUB='github' vuepress build docs",
+    "docs:deploy": "sh deploy.sh",
+    "dev": "node index 3000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tronprotocol/sun-network.git"
+  },
+  "author": "llwslc <llwslc@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tronprotocol/sun-network/issues"
+  },
+  "homepage": "https://tronprotocol.github.io/sun-network",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "express": "^4.17.1",
+    "tronweb": "^2.5.6"
+  },
+  "devDependencies": {
+    "@vue/ui": "^0.9.2",
+    "cross-env": "^5.2.0",
+    "vuepress": "^1.0.0-alpha.48"
+  }
+}

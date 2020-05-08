@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+  <!-- Be sure to flush latest logs on exit -->
+  <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
+
+  <!--<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">-->
+  <!--<encoder>-->
+  <!--<pattern>%d{HH:mm:ss.SSS} %-5level [%t] [%c{1}]\(%F:%L\) %m%n</pattern>-->
+  <!--</encoder>-->
+  <!--<filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+  <!--<level>INFO</level>-->
+  <!--</filter>-->
+  <!--</appender>-->
+
+  <appender name="FILE"
+    class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>./logs/gateway.log</file>
+    <rollingPolicy
+      class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <!-- rollover daily -->
+      <fileNamePattern>./logs/gateway-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <!-- each file should be at most 500MB, keep 30 days worth of history, but at most 50GB -->
+      <maxFileSize>500MB</maxFileSize>
+      <maxHistory>3</maxHistory>
+      <totalSizeCap>50GB</totalSizeCap>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %-5level [%t] [%c{1}]\(%F:%L\) %m%n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>TRACE</level>
+    </filter>
+  </appender>
+
+  <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+    <!-- Don't discard INFO, DEBUG, TRACE events in case of queue is 80% full -->
+    <discardingThreshold>0</discardingThreshold>
+    <!-- Default is 256 -->
+    <!-- Logger will block incoming events (log calls) until queue will free some space -->
+    <!-- (the smaller value -> flush occurs often) -->
+    <queueSize>100</queueSize>
+    <includeCallerData>true</includeCallerData>
+    <appender-ref ref="FILE"/>
+  </appender>
+
+  <root level="ERROR">
+    <!--<appender-ref ref="STDOUT"/>-->
+    <appender-ref ref="ASYNC"/>
+  </root>
+
+  <logger name="app" level="INFO"/>
+  <logger name="task" level="INFO"/>
+  <logger name="sideChainTask" level="INFO"/>
+  <logger name="mainChainTask" level="INFO"/>
+  <logger name="alert" level="INFO"/>
+  <logger name="rpcClient" level="INFO"/>
+  <logger name="rpcClient" level="INFO"/>
+  <logger name="eventTask" level="INFO"/>
+  <logger name="broadcastTxTask" level="INFO"/>
+  <logger name="checkTxTask" level="INFO"/>
+  <logger name="createTxTask" level="INFO"/>
+  <logger name="walletClient" level="INFO"/>
+  <logger name="mainApi" level="INFO"/>
+  <logger name="sideApi" level="INFO"/>
+  <logger name="keystoreFactory" level="INFO"/>
+  <logger name="abiUtil" level="INFO"/>
+  <logger name="nonceStore" level="INFO"/>
+  <logger name="manager" level="INFO"/>
+  <logger name="retryTransactionTask" level="INFO"/>
+  <logger name="args" level="INFO"/>
+
+
+</configuration>
+

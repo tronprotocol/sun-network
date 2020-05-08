@@ -1,0 +1,151 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+import "core/Tron.proto";
+
+package protocol;
+
+
+option java_package = "org.tron.protos"; //Specify the name of the package that generated the Java file
+option java_outer_classname = "Sidechain"; //Specify the class name of the generated Java file
+option go_package = "github.com/tronprotocol/grpc-gateway/core";
+
+message TransactionExtension {
+  Transaction transaction = 1;
+  bytes transaction_id = 2;
+  bytes nonce_key = 3;
+  int64 delay = 4;
+}
+
+message NonceMsg {
+  enum NonceStatus {
+    PROCESSING = 0;
+    BROADCASTED = 1;
+    SUCCESS = 2;
+    FAIL = 3;
+  }
+  NonceStatus status = 1;
+  int64 next_process_timestamp = 2;
+  int32 retry_times = 3;
+}
+
+message EventMsg {
+  enum EventType {
+    DEPOSIT_TRC10_EVENT = 0;
+    DEPOSIT_TRC20_EVENT = 1;
+    DEPOSIT_TRC721_EVENT = 2;
+    DEPOSIT_TRX_EVENT = 3;
+    MAPPING_TRC20 = 4;
+    MAPPING_TRC721 = 5;
+    WITHDRAW_TRC10_EVENT = 6;
+    WITHDRAW_TRC20_EVENT = 7;
+    WITHDRAW_TRC721_EVENT = 8;
+    WITHDRAW_TRX_EVENT = 9;
+    MULTISIGN_FOR_WITHDRAW_TRC10_EVENT = 10;
+    MULTISIGN_FOR_WITHDRAW_TRC20_EVENT = 11;
+    MULTISIGN_FOR_WITHDRAW_TRC721_EVENT = 12;
+    MULTISIGN_FOR_WITHDRAW_TRX_EVENT = 13;
+  }
+
+  enum TaskEnum {
+    MAIN_CHAIN = 0;
+    SIDE_CHAIN = 1;
+  }
+
+  EventType type = 1;
+  TaskEnum task_enum = 2;
+  google.protobuf.Any parameter = 3;
+}
+
+message DepositTRC10Event {
+  bytes from = 1;
+  bytes token_id = 2;
+  bytes value = 3;
+  bytes nonce = 4;
+}
+
+// Update account name. Account name is not unique now.
+message DepositTRC20Event {
+  bytes from = 1;
+  bytes contract_address = 2;
+  bytes value = 3;
+  bytes nonce = 4;
+}
+
+// Set account id if the account has no id. Account id is unique and case insensitive.
+message DepositTRC721Event {
+  bytes from = 1;
+  bytes contract_address = 2;
+  bytes u_id = 3;
+  bytes nonce = 4;
+}
+
+message DepositTRXEvent {
+  bytes from = 1;
+  bytes value = 2;
+  bytes nonce = 3;
+}
+
+message MappingTRC20Event {
+  bytes contract_address = 1;
+  bytes nonce = 2;
+}
+
+message MappingTRC721Event {
+  bytes contract_address = 1;
+  bytes nonce = 2;
+}
+
+message WithdrawTRC10Event {
+  bytes from = 1;
+  bytes token_id = 2;
+  bytes value = 3;
+  bytes nonce = 4;
+}
+
+message WithdrawTRC20Event {
+  bytes from = 1;
+  bytes mainchain_address = 2;
+  bytes value = 3;
+  bytes nonce = 4;
+}
+
+message WithdrawTRC721Event {
+  bytes from = 1;
+  bytes mainchain_address = 2;
+  bytes u_id = 3;
+  bytes nonce = 4;
+}
+
+message WithdrawTRXEvent {
+  bytes from = 1;
+  bytes value = 2;
+  bytes nonce = 3;
+}
+
+message MultiSignForWithdrawTRC10Event {
+  bytes from = 1;
+  bytes token_id = 2;
+  bytes value = 3;
+  bytes nonce = 4;
+}
+
+message MultiSignForWithdrawTRC20Event {
+  bytes from = 1;
+  bytes mainchain_address = 2;
+  bytes value = 3;
+  bytes nonce = 4;
+}
+
+message MultiSignForWithdrawTRC721Event {
+  bytes from = 1;
+  bytes mainchain_address = 2;
+  bytes u_id = 3;
+  bytes nonce = 4;
+}
+
+message MultiSignForWithdrawTRXEvent {
+  bytes from = 1;
+  bytes value = 2;
+  bytes nonce = 3;
+}
