@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tron.api.GrpcAPI.PaginatedMessage;
-import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.core.Wallet;
 
 
@@ -23,7 +23,7 @@ public class GetPaginatedProposalListServlet extends RateLimiterServlet {
       boolean visible = Util.getVisible(request);
       long offset = Long.parseLong(request.getParameter("offset"));
       long limit = Long.parseLong(request.getParameter("limit"));
-      ProposalList reply = wallet.getPaginatedProposalList(offset, limit);
+      SideChainProposalList reply = wallet.getPaginatedProposalList(offset, limit);
       if (reply != null) {
         response.getWriter().println(JsonFormat.printToString(reply, visible));
       } else {
@@ -42,7 +42,7 @@ public class GetPaginatedProposalListServlet extends RateLimiterServlet {
       boolean visible = Util.getVisiblePost(input);
       PaginatedMessage.Builder build = PaginatedMessage.newBuilder();
       JsonFormat.merge(input, build, visible);
-      ProposalList reply = wallet.getPaginatedProposalList(build.getOffset(), build.getLimit());
+      SideChainProposalList reply = wallet.getPaginatedProposalList(build.getOffset(), build.getLimit());
       if (reply != null) {
         response.getWriter().println(JsonFormat.printToString(reply, visible));
       } else {

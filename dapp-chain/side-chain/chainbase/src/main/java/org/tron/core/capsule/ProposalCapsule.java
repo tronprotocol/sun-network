@@ -12,28 +12,29 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.StringUtil;
-import org.tron.protos.Protocol.Proposal;
-import org.tron.protos.Protocol.Proposal.State;
+import org.tron.protos.Protocol.SideChainProposal;
+import org.tron.protos.Protocol.SideChainProposal.State;
+import org.tron.protos.Protocol.SideChainProposal;
 
 @Slf4j(topic = "capsule")
-public class ProposalCapsule implements ProtoCapsule<Proposal> {
+public class ProposalCapsule implements ProtoCapsule<SideChainProposal> {
 
-  private Proposal proposal;
+  private SideChainProposal proposal;
 
-  public ProposalCapsule(final Proposal proposal) {
+  public ProposalCapsule(final SideChainProposal proposal) {
     this.proposal = proposal;
   }
 
   public ProposalCapsule(final byte[] data) {
     try {
-      this.proposal = Proposal.parseFrom(data);
+      this.proposal = SideChainProposal.parseFrom(data);
     } catch (InvalidProtocolBufferException e) {
       logger.debug(e.getMessage(), e);
     }
   }
 
   public ProposalCapsule(ByteString address, final long id) {
-    this.proposal = Proposal.newBuilder()
+    this.proposal = SideChainProposal.newBuilder()
         .setProposerAddress(address)
         .setProposalId(id)
         .build();
@@ -63,11 +64,11 @@ public class ProposalCapsule implements ProtoCapsule<Proposal> {
         .build();
   }
 
-  public Map<Long, Long> getParameters() {
+  public Map<Long, String> getParameters() {
     return this.proposal.getParametersMap();
   }
 
-  public void setParameters(Map<Long, Long> parameters) {
+  public void setParameters(Map<Long, String> parameters) {
     this.proposal = this.proposal.toBuilder()
         .putAllParameters(parameters)
         .build();
@@ -150,7 +151,7 @@ public class ProposalCapsule implements ProtoCapsule<Proposal> {
   }
 
   @Override
-  public Proposal getInstance() {
+  public SideChainProposal getInstance() {
     return this.proposal;
   }
 

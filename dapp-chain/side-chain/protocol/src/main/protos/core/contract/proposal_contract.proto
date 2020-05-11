@@ -14,10 +14,15 @@ message ProposalApproveContract {
 
 message ProposalCreateContract {
     bytes owner_address = 1;
-    map<int64, int64> parameters = 2;
+    map<int64, string> parameters = 2;
+}
+message SideChainProposalCreateContract {
+    bytes owner_address = 1;
+    map<int64, string> parameters = 2;
 }
 
 message ProposalDeleteContract {
     bytes owner_address = 1;
     int64 proposal_id = 2;
 }
+
