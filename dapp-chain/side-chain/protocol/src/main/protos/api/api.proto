@@ -436,7 +436,7 @@ service Wallet {
   rpc GetDelegatedResourceAccountIndex (BytesMessage) returns (DelegatedResourceAccountIndex) {
   };
 
-  rpc ListProposals (EmptyMessage) returns (ProposalList) {
+  rpc ListProposals (EmptyMessage) returns (SideChainProposalList) {
     option (google.api.http) = {
       post: "/wallet/listproposals"
       body: "*"
@@ -445,7 +445,7 @@ service Wallet {
       }
     };
   };
-  rpc GetPaginatedProposalList (PaginatedMessage) returns (ProposalList) {
+  rpc GetPaginatedProposalList (PaginatedMessage) returns (SideChainProposalList) {
     option (google.api.http) = {
           post: "/wallet/getpaginatedproposallist"
           body: "*"
@@ -454,7 +454,7 @@ service Wallet {
           }
         };
   }
-  rpc GetProposalById (BytesMessage) returns (Proposal) {
+  rpc GetSideChainProposalById (BytesMessage) returns (SideChainProposal) {
     option (google.api.http) = {
         post: "/wallet/getproposalbyid"
         body: "*"
@@ -492,7 +492,7 @@ service Wallet {
       };
   };
 
-  rpc GetChainParameters (EmptyMessage) returns (ChainParameters) {
+  rpc GetChainParameters (EmptyMessage) returns (SideChainParameters) {
     option (google.api.http) = {
          post: "/wallet/getchainparameters"
          body: "*"
@@ -954,8 +954,8 @@ service Network {
 message WitnessList {
   repeated Witness witnesses = 1;
 }
-message ProposalList {
-  repeated Proposal proposals = 1;
+message SideChainProposalList {
+  repeated SideChainProposal proposals = 1;
 }
 message ExchangeList {
   repeated Exchange exchanges = 1;

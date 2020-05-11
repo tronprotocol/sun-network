@@ -1,17 +1,21 @@
 package org.tron.common.utils;
 
+import static org.tron.common.utils.DecodeUtil.addressValid;
+
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.encoders.Hex;
+
 
 /*
  * Copyright (c) [2016] [ <ether.camp> ]
@@ -133,5 +137,26 @@ public class ByteArray {
       }
     }
     return false;
+  }
+
+  public static List<byte[]> toByte21List(byte[] input) {
+    ArrayList<byte[]> list = new ArrayList<byte[]>();
+    for (int i=0; i * 21 < input.length; i++){
+      byte[] element = new byte[21];
+      System.arraycopy(input,i * 21, element,0,21);
+      list.add(element);
+    }
+    return list;
+  }
+
+  public static byte[] fromBytes21ListToAddressList(List<byte[]> list) {
+    byte[] data = new byte[21*list.size()];
+    for (int i=0; i< list.size();i++) {
+      if (!addressValid(list.get(i))) {
+        throw new IllegalArgumentException("Invalid address");
+      }
+      System.arraycopy(list.get(i), 0, data, i*21, 21);
+    }
+    return data;
   }
 }

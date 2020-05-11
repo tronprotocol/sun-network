@@ -57,7 +57,7 @@ import org.tron.api.GrpcAPI.PaginatedMessage;
 import org.tron.api.GrpcAPI.PaymentAddressMessage;
 import org.tron.api.GrpcAPI.PrivateParameters;
 import org.tron.api.GrpcAPI.PrivateParametersWithoutAsk;
-import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.GrpcAPI.Return;
 import org.tron.api.GrpcAPI.Return.response_code;
 import org.tron.api.GrpcAPI.ShieldedAddressInfo;
@@ -104,7 +104,7 @@ import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.DynamicProperties;
 import org.tron.protos.Protocol.Exchange;
 import org.tron.protos.Protocol.NodeInfo;
-import org.tron.protos.Protocol.Proposal;
+import org.tron.protos.Protocol.SideChainProposal;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.protos.Protocol.TransactionInfo;
@@ -1596,8 +1596,8 @@ public class RpcApiService implements Service {
     }
 
     @Override
-    public void getProposalById(BytesMessage request,
-        StreamObserver<Proposal> responseObserver) {
+    public void getSideChainProposalById(BytesMessage request,
+        StreamObserver<SideChainProposal> responseObserver) {
       ByteString proposalId = request.getValue();
 
       if (Objects.nonNull(proposalId)) {
@@ -1789,7 +1789,7 @@ public class RpcApiService implements Service {
 
     @Override
     public void listProposals(EmptyMessage request,
-        StreamObserver<ProposalList> responseObserver) {
+        StreamObserver<SideChainProposalList> responseObserver) {
       responseObserver.onNext(wallet.getProposalList());
       responseObserver.onCompleted();
     }
@@ -1812,7 +1812,7 @@ public class RpcApiService implements Service {
 
     @Override
     public void getPaginatedProposalList(PaginatedMessage request,
-        StreamObserver<ProposalList> responseObserver) {
+        StreamObserver<SideChainProposalList> responseObserver) {
       responseObserver
           .onNext(wallet.getPaginatedProposalList(request.getOffset(), request.getLimit()));
       responseObserver.onCompleted();
@@ -1837,7 +1837,7 @@ public class RpcApiService implements Service {
 
     @Override
     public void getChainParameters(EmptyMessage request,
-        StreamObserver<Protocol.ChainParameters> responseObserver) {
+        StreamObserver<Protocol.SideChainParameters> responseObserver) {
       responseObserver.onNext(wallet.getChainParameters());
       responseObserver.onCompleted();
     }

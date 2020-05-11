@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.core.Wallet;
 
 
@@ -19,7 +19,7 @@ public class ListProposalsServlet extends RateLimiterServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {
     try {
       boolean visible = Util.getVisible(request);
-      ProposalList reply = wallet.getProposalList();
+      SideChainProposalList reply = wallet.getProposalList();
       if (reply != null) {
         response.getWriter().println(JsonFormat.printToString(reply, visible));
       } else {

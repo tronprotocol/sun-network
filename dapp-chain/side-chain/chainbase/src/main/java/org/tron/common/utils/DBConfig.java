@@ -1,6 +1,7 @@
 package org.tron.common.utils;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -139,6 +140,63 @@ public class DBConfig {
   @Getter
   @Setter
   private static boolean isECKeyCryptoEngine = true;
+
+  /**
+   *  Side Chain parameters
+   */
+
+  @Getter
+  @Setter
+  private static List<byte[]> mainChainGateWayList;
+
+  @Getter
+  @Setter
+  private static String sideChainId;
+
+  @Getter
+  @Setter
+  private static int chargingSwitchOn;
+
+  @Getter
+  @Setter
+  private static int sideChainChargingType;
+
+  @Getter
+  @Setter
+  private static int energyFee;
+
+  @Getter
+  @Setter
+  private static long totalEnergyLimit;
+
+  @Getter
+  @Setter
+  private static int sideChainChargingBandwidth;
+
+  @Getter
+  @Setter
+  private static long maxCpuTimeOfOneTx;
+
+  @Getter
+  @Setter
+  private static long dayToSustainByFund;
+
+  @Getter
+  @Setter
+  private static int percentToPayWitness;
+
+  @Getter
+  @Setter
+  private static int voteSwitch;
+
+  @Getter
+  @Setter
+  private static int witnessMaxActiveNum;
+
+  @Getter
+  @Setter
+  private static long updateGateway_v1_0_2; //committee parameter
+
 
   public static boolean getEnergyLimitHardFork() {
     return ENERGY_LIMIT_HARD_FORK;
