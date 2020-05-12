@@ -12,15 +12,13 @@ import org.spongycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.Commons;
-import org.tron.common.utils.DBConfig;
-import org.tron.common.utils.Sha256Hash;
+import org.tron.common.utils.*;
 import org.tron.core.Constant;
 import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.config.Parameter;
 import org.tron.core.config.Parameter.ChainConstant;
 import org.tron.core.db.TronStoreWithRevoking;
+import org.tron.core.db2.common.DB;
 
 @Slf4j(topic = "DB")
 @Component
@@ -77,6 +75,10 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       "CREATE_NEW_ACCOUNT_BANDWIDTH_RATE"
           .getBytes();
   private static final byte[] TRANSACTION_FEE = "TRANSACTION_FEE".getBytes(); // 1 byte
+
+  private static final byte[] TRANSACTION_SUNTOKEN_FEE = "TRANSACTION_SUNTOKEN_FEE"
+          .getBytes(); // 1 byte : 100 micro suntoken
+
   private static final byte[] ASSET_ISSUE_FEE = "ASSET_ISSUE_FEE".getBytes();
   private static final byte[] UPDATE_ACCOUNT_PERMISSION_FEE = "UPDATE_ACCOUNT_PERMISSION_FEE"
       .getBytes();
@@ -246,7 +248,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getAllowMultiSign();
     } catch (IllegalArgumentException e) {
-      this.saveAllowMultiSign(DBConfig.getAllowMultiSign());
+      // should always be 1
+      this.saveAllowMultiSign(1);
     }
 
     try {
@@ -348,13 +351,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getWitnessPayPerBlock();
     } catch (IllegalArgumentException e) {
-      this.saveWitnessPayPerBlock(32000000L);
+      this.saveWitnessPayPerBlock(0); // side chain equals to 0 by default
     }
 
     try {
       this.getWitnessStandbyAllowance();
     } catch (IllegalArgumentException e) {
-      this.saveWitnessStandbyAllowance(115_200_000_000L);
+      this.saveWitnessStandbyAllowance(0); // side chain equals to 0 by default
     }
 
     try {
@@ -364,9 +367,27 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getProposalExpireTime();
+    } catch (IllegalArgumentException e) {
+      this.saveProposalExpireTime(DBConfig.getProposalExpireTime());
+    }
+
+    try {
+      this.getSideChainChargingBandwidth();
+    } catch (IllegalArgumentException e) {
+      this.saveSideChainChargingBandwidth(DBConfig.getSideChainChargingBandwidth());
+    }
+
+    try {
       this.getAccountUpgradeCost();
     } catch (IllegalArgumentException e) {
       this.saveAccountUpgradeCost(9_999_000_000L);
+    }
+
+    try {
+      this.getAccountUpgradeTokenCost();
+    } catch (IllegalArgumentException e) {
+      this.saveAccountUpgradeTokenCost(9_999_000_000L);  //side chain
     }
 
     try {
@@ -424,27 +445,35 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getTotalEnergyLimit();
+    } catch (IllegalArgumentException e) {
+      this.saveTotalEnergyLimit(DBConfig.getTotalEnergyLimit());
+      //50_000_000_000
+    }
+
+    try {
       this.getAdaptiveResourceLimitTargetRatio();
     } catch (IllegalArgumentException e) {
       this.saveAdaptiveResourceLimitTargetRatio(14400);// 24 * 60 * 10,one minute 1/10 total limit
     }
 
     try {
-      this.getTotalEnergyLimit();
+      this.getEnergyFee();
     } catch (IllegalArgumentException e) {
-      this.saveTotalEnergyLimit(50_000_000_000L);
+      this.saveEnergyFee(DBConfig.getEnergyFee());
+      // origin 100 sun per energy, side chain 1 sun per energy
     }
 
     try {
-      this.getEnergyFee();
+      this.getEnergyTokenFee();
     } catch (IllegalArgumentException e) {
-      this.saveEnergyFee(100L);// 100 sun per energy
+      this.saveEnergyTokenFee(100L);// 100 micro sun-token per energy
     }
 
     try {
       this.getMaxCpuTimeOfOneTx();
     } catch (IllegalArgumentException e) {
-      this.saveMaxCpuTimeOfOneTx(50L);
+      this.saveMaxCpuTimeOfOneTx(DBConfig.getMaxCpuTimeOfOneTx());
     }
 
     try {
@@ -472,9 +501,21 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getCreateAccountSunTokenFee();
+    } catch (IllegalArgumentException e) {
+      this.saveCreateAccountSunTokenFee(100_000L); // 0.1SunToken
+    }
+
+    try {
       this.getCreateNewAccountFeeInSystemContract();
     } catch (IllegalArgumentException e) {
       this.saveCreateNewAccountFeeInSystemContract(0L); //changed by committee later
+    }
+
+    try {
+      this.getCreateNewAccountTokenFeeInSystemContract();
+    } catch (IllegalArgumentException e) {
+      this.saveCreateNewAccountTokenFeeInSystemContract(0L); // side chain
     }
 
     try {
@@ -484,9 +525,43 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getCreateNewAccountEnergyRate();
+    } catch (IllegalArgumentException e) {
+      this.saveCreateNewAccountEnergyRate(10);
+      // 10 byte(bandwidth) == 1 energy
+    }
+
+    try {
       this.getTransactionFee();
     } catch (IllegalArgumentException e) {
       this.saveTransactionFee(10L); // 10sun/byte
+    }
+
+    try {
+      this.getTransactionEnergyByteRate();
+    } catch (IllegalArgumentException e) {
+      this.saveTransactionEnergyByteRate(10);
+      // 10 byte(bandwidth) == 1 energy
+    }
+
+    try {
+      this.getCreateNewAccountSunTokenEnergyRate();
+    } catch (IllegalArgumentException e) {
+      this.saveCreateNewAccountSunTokenEnergyRate(10);
+      // 10 byte(bandwidth) == 1 energy
+    }
+
+    try {
+      this.getTransactionSunTokenFee();
+    } catch (IllegalArgumentException e) {
+      this.saveTransactionSunTokenFee(100L); // 100micro suntoken/byte
+    }
+
+    try {
+      this.getTransactionSunTokenEnergyByteRate();
+    } catch (IllegalArgumentException e) {
+      this.saveTransactionSunTokenEnergyByteRate(10);
+      // 10 byte(bandwidth) == 1 energy
     }
 
     try {
@@ -502,9 +577,21 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getUpdateAccountPermissionTokenFee();
+    } catch (IllegalArgumentException e) {
+      this.saveUpdateAccountPermissionTokenFee(100000000L);  //side chain
+    }
+
+    try {
       this.getMultiSignFee();
     } catch (IllegalArgumentException e) {
       this.saveMultiSignFee(1000000L);
+    }
+
+    try {
+      this.getMultiSignTokenFee();
+    } catch (IllegalArgumentException e) {
+      this.saveMultiSignTokenFee(1000000L);  //side chain
     }
 
     try {
@@ -570,13 +657,15 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getAllowDelegateResource();
     } catch (IllegalArgumentException e) {
-      this.saveAllowDelegateResource(DBConfig.getAllowDelegateResource());
+      // always allow
+      this.saveAllowDelegateResource(1);
     }
 
     try {
       this.getAllowTvmTransferTrc10();
     } catch (IllegalArgumentException e) {
-      this.saveAllowTvmTransferTrc10(DBConfig.getAllowTvmTransferTrc10());
+      // should always allow
+      this.saveAllowTvmTransferTrc10(1);
     }
 
     try {
@@ -600,7 +689,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getAvailableContractType();
     } catch (IllegalArgumentException e) {
-      String contractType = "7fff1fc0037e0000000000000000000000000000000000000000000000000000";
+      //7fff1fc0037e0000000000000000000000000000000000000000000000000000
+      String contractType = "3f3d1ec0036001000000000000000000000000000000000000000000000000c0";
       byte[] bytes = ByteArray.fromHexString(contractType);
       this.saveAvailableContractType(bytes);
     }
@@ -608,7 +698,8 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getActiveDefaultOperations();
     } catch (IllegalArgumentException e) {
-      String contractType = "7fff1fc0033e0000000000000000000000000000000000000000000000000000";
+      //7fff1fc0033e0000000000000000000000000000000000000000000000000000
+      String contractType = "3f3d1ec0032001000000000000000000000000000000000000000000000000c0";
       byte[] bytes = ByteArray.fromHexString(contractType);
       this.saveActiveDefaultOperations(bytes);
     }
@@ -816,6 +907,240 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
     return result;
   }
+
+  /**
+   * Side-chain parameters
+   */
+
+
+  public int getTransactionEnergyByteRate() {
+    return Optional.ofNullable(getUnchecked(TRANSACTION_ENERGY_BYTE_RATE))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toInt)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found TRANSACTION_ENERGY_BYTE_RATE"));
+  }
+
+  public void saveTransactionEnergyByteRate(int num) {
+    this.put(TRANSACTION_ENERGY_BYTE_RATE,
+            new BytesCapsule(ByteArray.fromInt(num)));
+  }
+
+  public int getTransactionSunTokenEnergyByteRate() {
+    return Optional.ofNullable(getUnchecked(TRANSACTION_SUN_TOKEN_ENERGY_BYTE_RATE))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toInt)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found TRANSACTION_SUN_TOKEN_ENERGY_BYTE_RATE"));
+  }
+
+  public void saveTransactionSunTokenEnergyByteRate(int num) {
+    this.put(TRANSACTION_SUN_TOKEN_ENERGY_BYTE_RATE,
+            new BytesCapsule(ByteArray.fromInt(num)));
+  }
+
+  public int getTransactionEnergyByteRate(int chargingType) {
+    if (chargingType == 0) {
+      return getTransactionEnergyByteRate();
+    }
+
+    return getTransactionSunTokenEnergyByteRate();
+  }
+
+  public List<byte[]> getSideChainGateWayList() {
+    return Optional.ofNullable(getUnchecked(SIDE_CHAIN_GATEWAY_ADDRESS_LIST))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toByte21List)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found SIDE_CHAIN_GATEWAY_ADDRESS_LIST"));
+  }
+
+  public void saveSideChainGateWayList(List<byte[]> gateWayList) {
+    this.put(SIDE_CHAIN_GATEWAY_ADDRESS_LIST,
+            new BytesCapsule(ByteArray.fromBytes21ListToAddressList(gateWayList)));
+  }
+
+  public List<byte[]> getMainChainGateWayList() {
+    return Optional.ofNullable(getUnchecked(MAIN_CHAIN_GATEWAY_ADDRESS_LIST))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toByte21List)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found MAIN_CHAIN_GATEWAY_ADDRESS_LIST"));
+  }
+
+  public void saveMainChainGateWayList(List<byte[]> gateWayList) {
+    this.put(MAIN_CHAIN_GATEWAY_ADDRESS_LIST,
+            new BytesCapsule(ByteArray.fromBytes21ListToAddressList(gateWayList)));
+  }
+
+  public void addToSideChainGateWayList(byte[] gateWayContractAddress) {
+    List<byte[]> list = Optional.ofNullable(getUnchecked(SIDE_CHAIN_GATEWAY_ADDRESS_LIST))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toByte21List)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found SIDE_CHAIN_GATEWAY_ADDRESS_LIST"));
+    if (gateWayContractAddress.length != 21) {
+      throw new IllegalArgumentException("new added gate way address should be 21 bytes");
+    }
+    list.add(gateWayContractAddress);
+    this.put(SIDE_CHAIN_GATEWAY_ADDRESS_LIST,
+            new BytesCapsule(ByteArray.fromBytes21ListToAddressList(list)));
+  }
+
+  public String getSideChainId() {
+    return Optional.ofNullable(getUnchecked(SIDE_CHAIN_ID))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toHexString)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found SIDE_CHAIN_ID"));
+  }
+
+  public void saveSideChainId(String chainId) {
+    byte[] address = ByteArray.fromHexString(chainId);
+    if (!Commons.addressValid(address)) {
+      throw new IllegalArgumentException("given chainId is not valid");
+    }
+    this.put(SIDE_CHAIN_ID, new BytesCapsule(address));
+  }
+
+  public long getChargingSwitch() {
+    return Optional.ofNullable(getUnchecked(CHARGING_SWITCH))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found ENERGY_CHARGING_SWITCH"));
+  }
+
+  public void saveChargingSwitch(long num) {
+    this.put(CHARGING_SWITCH, new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public int getSideChainChargingType() {
+    return Optional.ofNullable(getUnchecked(SIDE_CHAIN_CHARGING_TYPE))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toInt)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found SIDE_CHAIN_CHARGING_TYPE"));
+  }
+
+  public void saveSideChainChargingType(long num) {
+    this.put(SIDE_CHAIN_CHARGING_TYPE, new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public long getSideChainChargingBandwidth() {
+    return Optional.ofNullable(getUnchecked(SIDE_CHAIN_CHARGING_BANDWIDTH))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found SIDE_CHAIN_CHARGING_BANDWIDTH"));
+  }
+
+  public void saveSideChainChargingBandwidth(long num) {
+    this.put(SIDE_CHAIN_CHARGING_BANDWIDTH, new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public int getVoteWitnessSwitch() {
+    return Optional.ofNullable(getUnchecked(VOTE_WITNESS_SWITCH))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toInt)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found VOTE_WITNESS_SWITCH"));
+  }
+
+  public void saveVoteWitnessSwitch(long num) {
+    this.put(VOTE_WITNESS_SWITCH, new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public long getMaxGateWayContractSize() {
+    return Optional.ofNullable(getUnchecked(MAX_GATE_WAY_CONTRACT_SIZE))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found MAX_GATE_WAY_CONTRACT_SIZE"));
+  }
+
+  public void saveMaxGateWayContractSize(long num) {
+    this.put(MAX_GATE_WAY_CONTRACT_SIZE, new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public long getFund() {
+    return Optional.ofNullable(getUnchecked(FUND))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found FUND"));
+  }
+
+  public void saveFund(long num) {
+    this.put(FUND, new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public byte[] getFundInjectAddress() {
+    return Optional.ofNullable(getUnchecked(FUND_INJECT_ADDRESS))
+            .map(BytesCapsule::getData)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found FUND_INJECT_ADDRESS"));
+  }
+
+  public void saveFundInjectAddress(byte[] address) {
+    this.put(FUND_INJECT_ADDRESS, new BytesCapsule(address));
+  }
+
+
+  public long getFundDistributeEnableSwitch() {
+    return Optional.ofNullable(getUnchecked(FUND_DISTRIBUTE_ENABLE_SWITCH))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found FUND_DISTRIBUTE_ENABLE_SWITCH"));
+  }
+
+  public void saveFundDistributeEnableSwitch(long num) {
+    this.put(FUND_DISTRIBUTE_ENABLE_SWITCH,
+            new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public long getDayToSustainByFund() {
+    return Optional.ofNullable(getUnchecked(DAY_TO_SUSTAIN_BY_FUND))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found DAY_TO_SUSTAIN_BY_FUND"));
+  }
+
+  public void saveDayToSustainByFund(long num) {
+    this.put(DAY_TO_SUSTAIN_BY_FUND,
+            new BytesCapsule(ByteArray.fromLong(num)));
+  }
+
+  public long getPercentToPayWitness() {
+    return Optional.ofNullable(getUnchecked(PERCENT_TO_PAY_WITNESS))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found PERCENT_TO_PAY_WITNESS"));
+  }
+
+  public void savePercentToPayWitness(long radio) {
+    this.put(PERCENT_TO_PAY_WITNESS,
+            new BytesCapsule(ByteArray.fromLong(radio)));
+  }
+
+  public Integer getWitnessMaxActiveNum() {
+    return Optional.ofNullable(getUnchecked(WITNESS_MAX_ACTIVE_NUM))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toInt)
+            .orElse(DBConfig.getWitnessMaxActiveNum());
+  }
+
+  public void saveWitnessMaxActiveNum(int witnessMaxActiveNum) {
+    this.put(WITNESS_MAX_ACTIVE_NUM,
+            new BytesCapsule(ByteArray.fromInt(witnessMaxActiveNum)));
+  }
+
+  /**
+   * SideChain parameter end
+   */
 
   public void saveTokenIdNum(long num) {
     this.put(TOKEN_ID_NUM,
@@ -1119,8 +1444,9 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     this.put(DynamicResourceProperties.TOTAL_ENERGY_LIMIT,
         new BytesCapsule(ByteArray.fromLong(totalEnergyLimit)));
 
-    long ratio = getAdaptiveResourceLimitTargetRatio();
-    saveTotalEnergyTargetLimit(totalEnergyLimit / ratio);
+    //long ratio = getAdaptiveResourceLimitTargetRatio();
+    //saveTotalEnergyTargetLimit(totalEnergyLimit / ratio);
+    saveTotalEnergyTargetLimit(totalEnergyLimit / 14400);
   }
 
   public void saveTotalEnergyLimit2(long totalEnergyLimit) {
@@ -1248,9 +1574,36 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found ENERGY_FEE"));
   }
 
+  public void saveEnergyTokenFee(long totalEnergyFee) {
+    this.put(ENERGY_TOKEN_FEE,
+            new BytesCapsule(ByteArray.fromLong(totalEnergyFee)));
+  }
+
+  public long getEnergyTokenFee() {
+    return Optional.ofNullable(getUnchecked(ENERGY_TOKEN_FEE))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found ENERGY_TOKEN_FEE"));
+  }
+
+  public long getEnergyFee(int chargingType) {
+    if (chargingType == 0) {
+      return getEnergyFee();
+    }
+
+    return getEnergyTokenFee();
+  }
+
   public void saveMaxCpuTimeOfOneTx(long time) {
+/*    this.put(MAX_CPU_TIME_OF_ONE_TX,
+        new BytesCapsule(ByteArray.fromLong(time)));*/
+    if (time < 10 || time > 100) {
+      throw new IllegalArgumentException(
+              "Bad MAX_CPU_TIME_OF_ONE_TX value,valid range is [10,100]");
+    }
     this.put(MAX_CPU_TIME_OF_ONE_TX,
-        new BytesCapsule(ByteArray.fromLong(time)));
+            new BytesCapsule(ByteArray.fromLong(time)));
   }
 
   public long getMaxCpuTimeOfOneTx() {
@@ -1264,6 +1617,27 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   public void saveCreateAccountFee(long fee) {
     this.put(CREATE_ACCOUNT_FEE,
         new BytesCapsule(ByteArray.fromLong(fee)));
+  }
+
+  public void saveAccountUpgradeTokenCost(long accountUpgradeCost) {
+    logger.debug("ACCOUNT_UPGRADE_TOKEN_COST:" + accountUpgradeCost);
+    this.put(ACCOUNT_UPGRADE_TOKEN_COST,
+            new BytesCapsule(ByteArray.fromLong(accountUpgradeCost)));
+  }
+
+  public long getAccountUpgradeTokenCost() {
+    return Optional.ofNullable(getUnchecked(ACCOUNT_UPGRADE_TOKEN_COST))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found ACCOUNT_UPGRADE_TOKEN_COST"));
+  }
+
+  public long getAccountUpgradeCost(int chargingType) {
+    if (chargingType == 0) {
+      return getAccountUpgradeCost();
+    }
+    return getAccountUpgradeTokenCost();
   }
 
   public long getShieldedTransactionCreateAccountFee() {
@@ -1313,6 +1687,27 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found CREATE_ACCOUNT_FEE"));
   }
 
+  public void saveCreateAccountSunTokenFee(long fee) {
+    this.put(CREATE_ACCOUNT_SUN_TOKEN_FEE,
+            new BytesCapsule(ByteArray.fromLong(fee)));
+  }
+
+  public long getCreateAccountSunTokenFee() {
+    return Optional.ofNullable(getUnchecked(CREATE_ACCOUNT_SUN_TOKEN_FEE))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found CREATE_ACCOUNT_SUN_TOKEN_FEE"));
+  }
+
+  public long getCreateAccountFee(int chargingType) {
+    if (chargingType == 0) {
+      return getCreateAccountFee();
+    }
+
+    return getCreateAccountSunTokenFee();
+  }
+
   public void saveCreateNewAccountFeeInSystemContract(long fee) {
     this.put(CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT,
         new BytesCapsule(ByteArray.fromLong(fee)));
@@ -1325,6 +1720,55 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         .orElseThrow(
             () -> new IllegalArgumentException(
                 "not found CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT"));
+  }
+
+  public void saveCreateNewAccountEnergyRate(long rate) {
+    this.put(CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE,
+            new BytesCapsule(ByteArray.fromLong(rate)));
+  }
+
+  public long getCreateNewAccountEnergyRate() {
+    return Optional.ofNullable(getUnchecked(CREATE_NEW_ACCOUNT_ENERGY_BYTE_RATE))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found CREATE_NEW_ACCOUNT_ENERGY_RATE"));
+  }
+
+  public void saveCreateNewAccountSunTokenEnergyRate(long rate) {
+    this.put(CREATE_NEW_ACCOUNT_SUN_TOKEN_ENERGY_BYTE_RATE,
+            new BytesCapsule(ByteArray.fromLong(rate)));
+  }
+
+  public long getCreateNewAccountSunTokenEnergyRate() {
+    return Optional.ofNullable(getUnchecked(CREATE_NEW_ACCOUNT_SUN_TOKEN_ENERGY_BYTE_RATE))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException(
+                            "not found CREATE_NEW_ACCOUNT_SUN_TOKEN_ENERGY_BYTE_RATE"));
+  }
+
+  public long getCreateNewAccountEnergyRate(int chargingType) {
+    if (chargingType == 0) {
+      return getCreateNewAccountEnergyRate();
+    }
+
+    return getCreateNewAccountSunTokenEnergyRate();
+  }
+
+  public void saveCreateNewAccountTokenFeeInSystemContract(long fee) {
+    this.put(CREATE_NEW_ACCOUNT_TOKEN_FEE_IN_SYSTEM_CONTRACT,
+            new BytesCapsule(ByteArray.fromLong(fee)));
+  }
+
+  public long getCreateNewAccountTokenFeeInSystemContract() {
+    return Optional.ofNullable(getUnchecked(CREATE_NEW_ACCOUNT_TOKEN_FEE_IN_SYSTEM_CONTRACT))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException(
+                            "not found CREATE_NEW_ACCOUNT_TOKEN_FEE_IN_SYSTEM_CONTRACT"));
   }
 
   public void saveCreateNewAccountBandwidthRate(long rate) {
@@ -1354,6 +1798,26 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found TRANSACTION_FEE"));
   }
 
+  public void saveTransactionSunTokenFee(long fee) {
+    this.put(TRANSACTION_SUNTOKEN_FEE,
+            new BytesCapsule(ByteArray.fromLong(fee)));
+  }
+
+  public long getTransactionSunTokenFee() {
+    return Optional.ofNullable(getUnchecked(TRANSACTION_SUNTOKEN_FEE))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found TRANSACTION_SUNTOKEN_FEE"));
+  }
+
+  public long getTransactionFee(int chargingType) {
+    if (chargingType == 0) {
+      return getTransactionFee();
+    }
+    return getTransactionSunTokenFee();
+  }
+
   public void saveAssetIssueFee(long fee) {
     this.put(ASSET_ISSUE_FEE,
         new BytesCapsule(ByteArray.fromLong(fee)));
@@ -1364,9 +1828,20 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         new BytesCapsule(ByteArray.fromLong(fee)));
   }
 
+  public void saveUpdateAccountPermissionTokenFee(long fee) {
+    this.put(UPDATE_ACCOUNT_PERMISSION_TOKEN_FEE,
+            new BytesCapsule(ByteArray.fromLong(fee)));
+  }
+
+
   public void saveMultiSignFee(long fee) {
     this.put(MULTI_SIGN_FEE,
         new BytesCapsule(ByteArray.fromLong(fee)));
+  }
+
+  public void saveMultiSignTokenFee(long fee) {
+    this.put(MULTI_SIGN_TOKEN_FEE,
+            new BytesCapsule(ByteArray.fromLong(fee)));
   }
 
   public long getAssetIssueFee() {
@@ -1385,12 +1860,36 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found UPDATE_ACCOUNT_PERMISSION_FEE"));
   }
 
+  public long getUpdateAccountPermissionTokenFee() {
+    return Optional.ofNullable(getUnchecked(UPDATE_ACCOUNT_PERMISSION_TOKEN_FEE))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found UPDATE_ACCOUNT_PERMISSION_TOKEN_FEE"));
+  }
+
   public long getMultiSignFee() {
     return Optional.ofNullable(getUnchecked(MULTI_SIGN_FEE))
         .map(BytesCapsule::getData)
         .map(ByteArray::toLong)
         .orElseThrow(
             () -> new IllegalArgumentException("not found MULTI_SIGN_FEE"));
+  }
+
+  public long getMultiSignTokenFee() {
+    return Optional.ofNullable(getUnchecked(MULTI_SIGN_TOKEN_FEE))
+            .map(BytesCapsule::getData)
+            .map(ByteArray::toLong)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("not found MULTI_SIGN_TOKEN_FEE"));
+  }
+
+  public long getMultiSignFee(int chargingType) {
+    if (chargingType == 0) {
+      return getMultiSignFee();
+    }
+
+    return getMultiSignTokenFee();
   }
 
   public void saveExchangeCreateFee(long fee) {
@@ -2008,236 +2507,6 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
 
   public boolean allowChangeDelegation() {
     return getChangeDelegation() == 1;
-  }
-
-  /**
-   * Side-chain parameters
-   */
-
-
-  public int getTransactionEnergyByteRate() {
-    return Optional.ofNullable(getUnchecked(TRANSACTION_ENERGY_BYTE_RATE))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toInt)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found TRANSACTION_ENERGY_BYTE_RATE"));
-  }
-
-  public void saveTransactionEnergyByteRate(int num) {
-    this.put(TRANSACTION_ENERGY_BYTE_RATE,
-        new BytesCapsule(ByteArray.fromInt(num)));
-  }
-
-  public int getTransactionSunTokenEnergyByteRate() {
-    return Optional.ofNullable(getUnchecked(TRANSACTION_SUN_TOKEN_ENERGY_BYTE_RATE))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toInt)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found TRANSACTION_SUN_TOKEN_ENERGY_BYTE_RATE"));
-  }
-
-  public void saveTransactionSunTokenEnergyByteRate(int num) {
-    this.put(TRANSACTION_SUN_TOKEN_ENERGY_BYTE_RATE,
-        new BytesCapsule(ByteArray.fromInt(num)));
-  }
-
-  public int getTransactionEnergyByteRate(int chargingType) {
-    if (chargingType == 0) {
-      return getTransactionEnergyByteRate();
-    }
-
-    return getTransactionSunTokenEnergyByteRate();
-  }
-
-  public List<byte[]> getSideChainGateWayList() {
-    return Optional.ofNullable(getUnchecked(SIDE_CHAIN_GATEWAY_ADDRESS_LIST))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toByte21List)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found SIDE_CHAIN_GATEWAY_ADDRESS_LIST"));
-  }
-
-  public void saveSideChainGateWayList(List<byte[]> gateWayList) {
-    this.put(SIDE_CHAIN_GATEWAY_ADDRESS_LIST,
-        new BytesCapsule(ByteArray.fromBytes21ListToAddressList(gateWayList)));
-  }
-
-  public List<byte[]> getMainChainGateWayList() {
-    return Optional.ofNullable(getUnchecked(MAIN_CHAIN_GATEWAY_ADDRESS_LIST))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toByte21List)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found MAIN_CHAIN_GATEWAY_ADDRESS_LIST"));
-  }
-
-  public void saveMainChainGateWayList(List<byte[]> gateWayList) {
-    this.put(MAIN_CHAIN_GATEWAY_ADDRESS_LIST,
-        new BytesCapsule(ByteArray.fromBytes21ListToAddressList(gateWayList)));
-  }
-
-  public void addToSideChainGateWayList(byte[] gateWayContractAddress) {
-    List<byte[]> list = Optional.ofNullable(getUnchecked(SIDE_CHAIN_GATEWAY_ADDRESS_LIST))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toByte21List)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found SIDE_CHAIN_GATEWAY_ADDRESS_LIST"));
-    if (gateWayContractAddress.length != 21) {
-      throw new IllegalArgumentException("new added gate way address should be 21 bytes");
-    }
-    list.add(gateWayContractAddress);
-    this.put(SIDE_CHAIN_GATEWAY_ADDRESS_LIST,
-        new BytesCapsule(ByteArray.fromBytes21ListToAddressList(list)));
-  }
-
-  public String getSideChainId() {
-    return Optional.ofNullable(getUnchecked(SIDE_CHAIN_ID))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toHexString)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found SIDE_CHAIN_ID"));
-  }
-
-  public void saveSideChainId(String chainId) {
-    byte[] address = ByteArray.fromHexString(chainId);
-    if (!Commons.addressValid(address)) {
-      throw new IllegalArgumentException("given chainId is not valid");
-    }
-    this.put(SIDE_CHAIN_ID, new BytesCapsule(address));
-  }
-
-  public long getChargingSwitch() {
-    return Optional.ofNullable(getUnchecked(CHARGING_SWITCH))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toLong)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found ENERGY_CHARGING_SWITCH"));
-  }
-
-  public void saveChargingSwitch(long num) {
-    this.put(CHARGING_SWITCH, new BytesCapsule(ByteArray.fromLong(num)));
-  }
-
-  public int getSideChainChargingType() {
-    return Optional.ofNullable(getUnchecked(SIDE_CHAIN_CHARGING_TYPE))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toInt)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found SIDE_CHAIN_CHARGING_TYPE"));
-  }
-
-  public void saveSideChainChargingType(long num) {
-    this.put(SIDE_CHAIN_CHARGING_TYPE, new BytesCapsule(ByteArray.fromLong(num)));
-  }
-
-  public long getSideChainChargingBandwidth() {
-    return Optional.ofNullable(getUnchecked(SIDE_CHAIN_CHARGING_BANDWIDTH))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toLong)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found SIDE_CHAIN_CHARGING_BANDWIDTH"));
-  }
-
-  public void saveSideChainChargingBandwidth(long num) {
-    this.put(SIDE_CHAIN_CHARGING_BANDWIDTH, new BytesCapsule(ByteArray.fromLong(num)));
-  }
-
-  public int getVoteWitnessSwitch() {
-    return Optional.ofNullable(getUnchecked(VOTE_WITNESS_SWITCH))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toInt)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found VOTE_WITNESS_SWITCH"));
-  }
-
-  public void saveVoteWitnessSwitch(long num) {
-    this.put(VOTE_WITNESS_SWITCH, new BytesCapsule(ByteArray.fromLong(num)));
-  }
-
-  public long getMaxGateWayContractSize() {
-    return Optional.ofNullable(getUnchecked(MAX_GATE_WAY_CONTRACT_SIZE))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toLong)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found MAX_GATE_WAY_CONTRACT_SIZE"));
-  }
-
-  public void saveMaxGateWayContractSize(long num) {
-    this.put(MAX_GATE_WAY_CONTRACT_SIZE, new BytesCapsule(ByteArray.fromLong(num)));
-  }
-
-  public long getFund() {
-    return Optional.ofNullable(getUnchecked(FUND))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toLong)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found FUND"));
-  }
-
-  public void saveFund(long num) {
-    this.put(FUND, new BytesCapsule(ByteArray.fromLong(num)));
-  }
-
-  public byte[] getFundInjectAddress() {
-    return Optional.ofNullable(getUnchecked(FUND_INJECT_ADDRESS))
-        .map(BytesCapsule::getData)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found FUND_INJECT_ADDRESS"));
-  }
-
-  public void saveFundInjectAddress(byte[] address) {
-    this.put(FUND_INJECT_ADDRESS, new BytesCapsule(address));
-  }
-
-
-  public long getFundDistributeEnableSwitch() {
-    return Optional.ofNullable(getUnchecked(FUND_DISTRIBUTE_ENABLE_SWITCH))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toLong)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found FUND_DISTRIBUTE_ENABLE_SWITCH"));
-  }
-
-  public void saveFundDistributeEnableSwitch(long num) {
-    this.put(FUND_DISTRIBUTE_ENABLE_SWITCH,
-        new BytesCapsule(ByteArray.fromLong(num)));
-  }
-
-  public long getDayToSustainByFund() {
-    return Optional.ofNullable(getUnchecked(DAY_TO_SUSTAIN_BY_FUND))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toLong)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found DAY_TO_SUSTAIN_BY_FUND"));
-  }
-
-  public void saveDayToSustainByFund(long num) {
-    this.put(DAY_TO_SUSTAIN_BY_FUND,
-        new BytesCapsule(ByteArray.fromLong(num)));
-  }
-
-  public long getPercentToPayWitness() {
-    return Optional.ofNullable(getUnchecked(PERCENT_TO_PAY_WITNESS))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toLong)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found PERCENT_TO_PAY_WITNESS"));
-  }
-
-  public void savePercentToPayWitness(long radio) {
-    this.put(PERCENT_TO_PAY_WITNESS,
-        new BytesCapsule(ByteArray.fromLong(radio)));
-  }
-
-  public Integer getWitnessMaxActiveNum() {
-    return Optional.ofNullable(getUnchecked(WITNESS_MAX_ACTIVE_NUM))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toInt)
-        .orElse(DBConfig.getWitnessMaxActiveNum());
-  }
-
-  public void saveWitnessMaxActiveNum(int witnessMaxActiveNum) {
-    this.put(WITNESS_MAX_ACTIVE_NUM,
-        new BytesCapsule(ByteArray.fromInt(witnessMaxActiveNum)));
   }
 
   public void saveAllowUpdateGatewayV102(long value) {

@@ -25,6 +25,8 @@ import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.protos.Protocol.Transaction.Result.code;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
+
 @Slf4j(topic = "actuator")
 public class FreezeBalanceActuator extends AbstractActuator {
 
@@ -56,7 +58,13 @@ public class FreezeBalanceActuator extends AbstractActuator {
     long now = dynamicStore.getLatestBlockHeaderTimestamp();
     long duration = freezeBalanceContract.getFrozenDuration() * 86_400_000;
 
-    long newBalance = accountCapsule.getBalance() - freezeBalanceContract.getFrozenBalance();
+    long newBalance;
+    long chargingType = chainBaseManager.getDynamicPropertiesStore().getSideChainChargingType();
+    if (chargingType == 1) {
+      newBalance = accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) - freezeBalanceContract.getFrozenBalance();
+    } else {
+      newBalance = accountCapsule.getBalance() - freezeBalanceContract.getFrozenBalance();
+    }
 
     long frozenBalance = freezeBalanceContract.getFrozenBalance();
     long expireTime = now + duration;
@@ -96,7 +104,11 @@ public class FreezeBalanceActuator extends AbstractActuator {
         break;
     }
 
-    accountCapsule.setBalance(newBalance);
+    if(chargingType == 1 ) {
+      accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(), newBalance);
+    } else {
+      accountCapsule.setBalance(newBalance);
+    }
     accountStore.put(accountCapsule.createDbKey(), accountCapsule);
 
     ret.setStatus(fee, code.SUCESS);
@@ -145,14 +157,25 @@ public class FreezeBalanceActuator extends AbstractActuator {
       throw new ContractValidateException("frozenBalance must be positive");
     }
     if (frozenBalance < 1_000_000L) {
-      throw new ContractValidateException("frozenBalance must be more than 1TRX");
+      if (chainBaseManager.getDynamicPropertiesStore().getSideChainChargingType() == 1) {
+        throw new ContractValidateException("frozenBalance must be more than 1SUN_TOKEN");
+      }
+      else {
+        throw new ContractValidateException("frozenBalance must be more than 1TRX");
+      }
     }
 
     int frozenCount = accountCapsule.getFrozenCount();
     if (!(frozenCount == 0 || frozenCount == 1)) {
       throw new ContractValidateException("frozenCount must be 0 or 1");
     }
-    if (frozenBalance > accountCapsule.getBalance()) {
+
+    if (chainBaseManager.getDynamicPropertiesStore().getSideChainChargingType() == 1 &&
+            frozenBalance > accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L)) {
+      throw new ContractValidateException("frozenBalance must be less than accountBalance");
+    }
+    else if(chainBaseManager.getDynamicPropertiesStore().getSideChainChargingType() == 0 &&
+            frozenBalance > accountCapsule.getBalance()){
       throw new ContractValidateException("frozenBalance must be less than accountBalance");
     }
 
@@ -203,13 +226,10 @@ public class FreezeBalanceActuator extends AbstractActuator {
             "Account[" + readableOwnerAddress + "] not exists");
       }
 
-      if (dynamicStore.getAllowTvmConstantinople() == 1
-          && receiverCapsule.getType() == AccountType.Contract) {
+      if (receiverCapsule.getType() == AccountType.Contract) {
         throw new ContractValidateException(
             "Do not allow delegate resources to contract addresses");
-
       }
-
     }
 
     return true;

@@ -27,6 +27,7 @@ public class CreateAccountActuator extends AbstractActuator {
   @Override
   public boolean execute(Object result)
       throws ContractExeException {
+    int chargingType = chainBaseManager.getDynamicPropertiesStore().getSideChainChargingType();
     TransactionResultCapsule ret = (TransactionResultCapsule)result;
     if (Objects.isNull(ret)){
       throw new RuntimeException("TransactionResultCapsule is null");
@@ -37,18 +38,17 @@ public class CreateAccountActuator extends AbstractActuator {
     AccountStore accountStore = chainBaseManager.getAccountStore();
     try {
       AccountCreateContract accountCreateContract = any.unpack(AccountCreateContract.class);
-      boolean withDefaultPermission =
-          dynamicStore.getAllowMultiSign() == 1;
       AccountCapsule accountCapsule = new AccountCapsule(accountCreateContract,
-          dynamicStore.getLatestBlockHeaderTimestamp(), withDefaultPermission, dynamicStore);
+          dynamicStore.getLatestBlockHeaderTimestamp(), true, dynamicStore);
 
       accountStore
           .put(accountCreateContract.getAccountAddress().toByteArray(), accountCapsule);
 
       Commons
-          .adjustBalance(accountStore, accountCreateContract.getOwnerAddress().toByteArray(), -fee);
+          .adjustBalance(accountStore, accountCreateContract.getOwnerAddress().toByteArray(), -fee, chargingType);
       // Add to blackhole address
       Commons.adjustBalance(accountStore, accountStore.getBlackhole().createDbKey(), fee);
+      Commons.adjustFund(dynamicStore, fee);
 
       ret.setStatus(fee, code.SUCESS);
     } catch (BalanceInsufficientException e) {
@@ -129,6 +129,12 @@ public class CreateAccountActuator extends AbstractActuator {
 
   @Override
   public long calcFee() {
-    return chainBaseManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract();
+    int chargingType = chainBaseManager.getDynamicPropertiesStore().getSideChainChargingType();
+
+    if(chargingType == 0) {
+      return chainBaseManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract();
+    } else {
+      return chainBaseManager.getDynamicPropertiesStore().getCreateNewAccountTokenFeeInSystemContract();
+    }
   }
 }

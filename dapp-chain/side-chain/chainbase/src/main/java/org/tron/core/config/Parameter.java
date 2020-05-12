@@ -7,7 +7,7 @@ public class Parameter {
     public static final int WITNESS_STANDBY_LENGTH = 127;
     public static final int SOLIDIFIED_THRESHOLD = 70; // 70%
     public static final int PRIVATE_KEY_LENGTH = 64;
-    public static final int MAX_ACTIVE_WITNESS_NUM = 27;
+//    public static final int MAX_ACTIVE_WITNESS_NUM = 27;
     public static final int BLOCK_SIZE = 2_000_000;
     public static final long CLOCK_MAX_DELAY = 3600000; // 3600 * 1000 ms
     public static final int BLOCK_PRODUCED_TIME_OUT = 50; // 50%
@@ -18,7 +18,7 @@ public class Parameter {
     public static final int SINGLE_REPEAT = 1;
     public static final int BLOCK_FILLED_SLOTS_NUMBER = 128;
     public static final int MAX_FROZEN_NUMBER = 1;
-    public static final int BLOCK_VERSION = 15;
+    public static final int BLOCK_VERSION = 10000;
   }
 
   public class NodeConstant {

@@ -59,7 +59,7 @@ abstract class ResourceProcessor {
     return getUsage(averageLastUsage, windowSize);
   }
 
-  private long divideCeil(long numerator, long denominator) {
+  public long divideCeil(long numerator, long denominator) {
     return (numerator / denominator) + ((numerator % denominator) > 0 ? 1 : 0);
   }
 
@@ -69,10 +69,11 @@ abstract class ResourceProcessor {
 
   protected boolean consumeFee(AccountCapsule accountCapsule, long fee) {
     try {
+      int chargingType = dynamicPropertiesStore.getSideChainChargingType();
       long latestOperationTime = dynamicPropertiesStore.getLatestBlockHeaderTimestamp();
       accountCapsule.setLatestOperationTime(latestOperationTime);
-      Commons.adjustBalance(accountStore, accountCapsule, -fee);
-      Commons.adjustBalance(accountStore, accountStore.getBlackhole().createDbKey(), +fee);
+      Commons.adjustBalance(accountStore, accountCapsule, -fee, chargingType);
+      Commons.adjustFund(dynamicPropertiesStore, fee);
       return true;
     } catch (BalanceInsufficientException e) {
       return false;

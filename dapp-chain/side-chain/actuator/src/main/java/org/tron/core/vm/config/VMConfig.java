@@ -19,7 +19,9 @@ package org.tron.core.vm.config;
 
 import static org.tron.common.utils.DBConfig.ENERGY_LIMIT_HARD_FORK;
 
+import lombok.Getter;
 import lombok.Setter;
+import org.tron.core.vm.repository.Repository;
 
 /**
  * For developer only
@@ -47,8 +49,20 @@ public class VMConfig {
   @Setter
   private static boolean ALLOW_TVM_SOLIDITY_059 = false;
 
+  @Getter
+  @Setter
+  public static boolean isVmResourceChargingOn = false;
+
+  @Getter
+  @Setter
+  public static boolean isAllowUpdateGateway102 = false;
 
   private VMConfig() {
+  }
+
+  public static void handleProposalInVM(Repository repository) {
+    isVmResourceChargingOn = isChargingResourceProposalOn(repository);
+    isAllowUpdateGateway102 = isAllowUpdateGatewayV102(repository);
   }
 
   public static VMConfig getInstance() {
@@ -106,6 +120,14 @@ public class VMConfig {
   private static class SystemPropertiesInstance {
 
     private static final VMConfig INSTANCE = new VMConfig();
+  }
+
+  private static boolean isChargingResourceProposalOn(Repository repository) {
+    return repository.getDynamicPropertiesStore().getChargingSwitch() == 1;
+  }
+
+  private static boolean isAllowUpdateGatewayV102(Repository repository) {
+    return repository.getDynamicPropertiesStore().getAllowUpdateGatewayV102() == 1;
   }
 
 }

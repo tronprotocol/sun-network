@@ -16,6 +16,8 @@ import org.tron.core.vm.repository.Key;
 import org.tron.core.vm.repository.Value;
 import org.tron.protos.Protocol;
 
+import java.util.List;
+
 public interface Deposit {
 
   Manager getDbManager();
@@ -114,6 +116,14 @@ public interface Deposit {
 
   public AccountCapsule createNormalAccount(byte[] address);
 
+  void putAssetIssue(Key key, Value value);
 
+  void putAssetIssue(byte[] tokenId, AssetIssueCapsule assetIssueCapsule);
+
+  long getEnergyFee();
+
+  List<byte[]> getSideChainGateWayList();
+
+  boolean isGatewayAddress(byte[] address);
 }
 

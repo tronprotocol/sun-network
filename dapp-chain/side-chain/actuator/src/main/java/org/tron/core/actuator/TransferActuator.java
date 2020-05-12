@@ -38,6 +38,7 @@ public class TransferActuator extends AbstractActuator {
     AccountStore accountStore = chainBaseManager.getAccountStore();
     DynamicPropertiesStore dynamicStore = chainBaseManager.getDynamicPropertiesStore();
     try {
+      int chargingType = chainBaseManager.getDynamicPropertiesStore().getSideChainChargingType();
       TransferContract transferContract = any.unpack(TransferContract.class);
       long amount = transferContract.getAmount();
       byte[] toAddress = transferContract.getToAddress().toByteArray();
@@ -46,16 +47,19 @@ public class TransferActuator extends AbstractActuator {
       // if account with to_address does not exist, create it first.
       AccountCapsule toAccount = accountStore.get(toAddress);
       if (toAccount == null) {
-        boolean withDefaultPermission =
-            dynamicStore.getAllowMultiSign() == 1;
         toAccount = new AccountCapsule(ByteString.copyFrom(toAddress), AccountType.Normal,
-            dynamicStore.getLatestBlockHeaderTimestamp(), withDefaultPermission, dynamicStore);
+            dynamicStore.getLatestBlockHeaderTimestamp(), true, dynamicStore);
         accountStore.put(toAddress, toAccount);
 
-        fee = fee + dynamicStore.getCreateNewAccountFeeInSystemContract();
+        if (chargingType == 0) {
+          fee = fee + chainBaseManager.getDynamicPropertiesStore().getCreateNewAccountFeeInSystemContract();
+        }
+        else {
+          fee = fee + chainBaseManager.getDynamicPropertiesStore().getCreateNewAccountTokenFeeInSystemContract();
+        }
       }
-      Commons.adjustBalance(accountStore, ownerAddress, -fee);
-      Commons.adjustBalance(accountStore, accountStore.getBlackhole().createDbKey(), fee);
+      Commons.adjustBalance(accountStore, ownerAddress, -fee, chargingType);
+      Commons.adjustFund(dynamicStore, fee);
       ret.setStatus(fee, code.SUCESS);
       Commons.adjustBalance(accountStore, ownerAddress, -amount);
       Commons.adjustBalance(accountStore, toAddress, amount);
@@ -115,7 +119,6 @@ public class TransferActuator extends AbstractActuator {
     }
 
     AccountCapsule ownerAccount = accountStore.get(ownerAddress);
-
     if (ownerAccount == null) {
       throw new ContractValidateException("Validate TransferContract error, no OwnerAccount.");
     }
@@ -131,8 +134,18 @@ public class TransferActuator extends AbstractActuator {
       if (toAccount == null) {
         fee = fee + dynamicStore.getCreateNewAccountFeeInSystemContract();
       }
+
+      if (balance < Math.addExact(amount, fee)) {
+        throw new ContractValidateException(
+                "Validate TransferContract error, balance is not sufficient.");
+      }
+
+      if (toAccount != null) {
+        long toAddressBalance = Math.addExact(toAccount.getBalance(), amount);
+      }
+
       //after ForbidTransferToContract proposal, send trx to smartContract by actuator is not allowed.
-      if (dynamicStore.getForbidTransferToContract() == 1
+/*      if (dynamicStore.getForbidTransferToContract() == 1
           && toAccount != null
           && toAccount.getType() == AccountType.Contract) {
 
@@ -140,14 +153,12 @@ public class TransferActuator extends AbstractActuator {
 
       }
 
-      if (balance < Math.addExact(amount, fee)) {
-        throw new ContractValidateException(
-            "Validate TransferContract error, balance is not sufficient.");
-      }
 
       if (toAccount != null) {
-        Math.addExact(toAccount.getBalance(), amount);
-      }
+        long toAddressBalance = Math.addExact(toAccount.getBalance(), amount);
+      } else {
+        long toAddressBalance = Math.addExact(0, amount);
+      }*/
     } catch (ArithmeticException e) {
       logger.debug(e.getMessage(), e);
       throw new ContractValidateException(e.getMessage());

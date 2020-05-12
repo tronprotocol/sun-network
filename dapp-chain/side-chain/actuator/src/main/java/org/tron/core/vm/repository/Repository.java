@@ -12,6 +12,8 @@ import org.tron.core.store.DynamicPropertiesStore;
 import org.tron.core.vm.program.Storage;
 import org.tron.protos.Protocol;
 
+import java.util.List;
+
 public interface Repository {
 
   AssetIssueCapsule getAssetIssue(byte[] tokenId);
@@ -84,4 +86,13 @@ public interface Repository {
 
   public AccountCapsule createNormalAccount(byte[] address);
 
+  void putAssetIssue(Key key, Value value);
+
+  void putAssetIssue(byte[] tokenId, AssetIssueCapsule assetIssueCapsule);
+
+  long getEnergyFee();
+
+  List<byte[]> getSideChainGateWayList();
+
+  boolean isGatewayAddress(byte[] address);
 }
