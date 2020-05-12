@@ -12,12 +12,13 @@ message ProposalApproveContract {
     bool is_add_approval = 3; // add or remove approval
 }
 
-message ProposalCreateContract {
+message SideChainProposalCreateContract {
     bytes owner_address = 1;
-    map<int64, int64> parameters = 2;
+    map<int64, string> parameters = 2;
 }
 
 message ProposalDeleteContract {
     bytes owner_address = 1;
     int64 proposal_id = 2;
 }
+

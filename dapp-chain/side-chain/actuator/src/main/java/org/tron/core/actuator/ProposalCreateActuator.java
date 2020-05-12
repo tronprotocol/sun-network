@@ -19,13 +19,13 @@ import org.tron.core.exception.ContractValidateException;
 import org.tron.core.utils.ProposalUtil;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.protos.Protocol.Transaction.Result.code;
-import org.tron.protos.contract.ProposalContract.ProposalCreateContract;
+import org.tron.protos.contract.ProposalContract.SideChainProposalCreateContract;
 
 @Slf4j(topic = "actuator")
 public class ProposalCreateActuator extends AbstractActuator {
 
   public ProposalCreateActuator() {
-    super(ContractType.ProposalCreateContract, ProposalCreateContract.class);
+    super(ContractType.SideChainProposalCreateContract, SideChainProposalCreateContract.class);
   }
 
   @Override
@@ -38,8 +38,8 @@ public class ProposalCreateActuator extends AbstractActuator {
     long fee = calcFee();
 
     try {
-      final ProposalCreateContract proposalCreateContract = this.any
-          .unpack(ProposalCreateContract.class);
+      final SideChainProposalCreateContract proposalCreateContract = this.any
+          .unpack(SideChainProposalCreateContract.class);
       long id = chainBaseManager.getDynamicPropertiesStore().getLatestProposalNum() + 1;
       ProposalCapsule proposalCapsule =
           new ProposalCapsule(proposalCreateContract.getOwnerAddress(), id);
@@ -79,14 +79,14 @@ public class ProposalCreateActuator extends AbstractActuator {
     if (chainBaseManager == null) {
       throw new ContractValidateException("No dbManager!");
     }
-    if (!this.any.is(ProposalCreateContract.class)) {
+    if (!this.any.is(SideChainProposalCreateContract.class)) {
       throw new ContractValidateException(
-          "contract type error,expected type [ProposalCreateContract],real type[" + any
+          "contract type error,expected type [SideChainProposalCreateContract],real type[" + any
               .getClass() + "]");
     }
-    final ProposalCreateContract contract;
+    final SideChainProposalCreateContract contract;
     try {
-      contract = this.any.unpack(ProposalCreateContract.class);
+      contract = this.any.unpack(SideChainProposalCreateContract.class);
     } catch (InvalidProtocolBufferException e) {
       throw new ContractValidateException(e.getMessage());
     }
@@ -112,21 +112,29 @@ public class ProposalCreateActuator extends AbstractActuator {
       throw new ContractValidateException("This proposal has no parameter.");
     }
 
-    for (Map.Entry<Long, Long> entry : contract.getParametersMap().entrySet()) {
-      validateValue(entry);
+    for (Map.Entry<Long, String> entry : contract.getParametersMap().entrySet()) {
+      try {
+        validateValue(entry);
+      }
+      catch (ContractValidateException e) {
+        throw e;
+      }
+      catch (Exception e) {
+        throw new ContractValidateException(e.getMessage());
+      }
     }
 
     return true;
   }
 
-  private void validateValue(Map.Entry<Long, Long> entry) throws ContractValidateException {
-    ProposalUtil.validator(chainBaseManager.getDynamicPropertiesStore(), forkUtils, entry.getKey(),
+  private void validateValue(Map.Entry<Long, String> entry) throws ContractValidateException {
+    ProposalUtil.validator(chainBaseManager, forkUtils, entry.getKey(),
         entry.getValue());
   }
 
   @Override
   public ByteString getOwnerAddress() throws InvalidProtocolBufferException {
-    return any.unpack(ProposalCreateContract.class).getOwnerAddress();
+    return any.unpack(SideChainProposalCreateContract.class).getOwnerAddress();
   }
 
   @Override

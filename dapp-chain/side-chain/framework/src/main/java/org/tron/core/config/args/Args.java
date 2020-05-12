@@ -55,6 +55,7 @@ import org.tron.core.config.Configuration;
 import org.tron.core.config.Parameter.NetConstants;
 import org.tron.core.config.Parameter.NodeConstant;
 import org.tron.core.db.backup.DbBackupConfig;
+import org.tron.core.exception.ContractValidateException;
 import org.tron.core.store.AccountStore;
 import org.tron.keystore.CipherException;
 import org.tron.keystore.Credentials;
@@ -530,6 +531,67 @@ public class Args {
   @Setter
   public boolean isEckey=true;
 
+  /**
+   *  Side Chain parameters
+   */
+
+  //  @Getter
+  //  @Setter
+  //  private List<byte[]> sideChainGatewayList;
+
+  @Getter
+  @Setter
+  private List<byte[]> mainChainGateWayList;
+
+  @Getter
+  @Setter
+  private String sideChainId;
+
+  @Getter
+  @Setter
+  private int chargingSwitchOn;
+
+  @Getter
+  @Setter
+  private int sideChainChargingType;
+
+  @Getter
+  @Setter
+  private int energyFee;
+
+  @Getter
+  @Setter
+  private long totalEnergyLimit;
+
+  @Getter
+  @Setter
+  private int sideChainChargingBandwidth;
+
+  @Getter
+  @Setter
+  private long maxCpuTimeOfOneTx;
+
+  @Getter
+  @Setter
+  private long dayToSustainByFund;
+
+  @Getter
+  @Setter
+  private int percentToPayWitness;
+
+  @Getter
+  @Setter
+  private int voteSwitch;
+
+  @Getter
+  @Setter
+  private int witnessMaxActiveNum;
+
+  @Getter
+  @Setter
+  private long updateGateway_v1_0_2; //committee parameter
+
+
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
     INSTANCE.help = false;
@@ -616,6 +678,18 @@ public class Args {
     INSTANCE.fullNodeHttpEnable = true;
     INSTANCE.solidityNodeHttpEnable = true;
     INSTANCE.isEckey = true;
+
+    // side chain
+    INSTANCE.chargingSwitchOn = 0;
+    INSTANCE.sideChainChargingType = 0;
+    INSTANCE.energyFee = 1;
+    INSTANCE.totalEnergyLimit = 100000000000L;
+    INSTANCE.maxCpuTimeOfOneTx = 50L;
+    INSTANCE.dayToSustainByFund = 90L;
+    INSTANCE.percentToPayWitness = 80;
+    INSTANCE.voteSwitch = 0;
+    INSTANCE.witnessMaxActiveNum = 27;
+    INSTANCE.updateGateway_v1_0_2 = 0;
   }
 
   /**
@@ -1081,6 +1155,7 @@ public class Args {
         config.hasPath(Constant.COMMITTEE_CHANGED_DELEGATION) ? config
             .getInt(Constant.COMMITTEE_CHANGED_DELEGATION) : 0;
 
+
     initBackupProperty(config);
     if (Constant.ROCKSDB.equals(Args.getInstance().getStorage().getDbEngine().toUpperCase())) {
       initRocksDbBackupProperty(config);
@@ -1088,10 +1163,65 @@ public class Args {
     }
 
     INSTANCE.actuatorSet =
-            config.hasPath(Constant.ACTUATOR_WHITELIST) ?
-                    new HashSet<>(config.getStringList(Constant.ACTUATOR_WHITELIST))
-                    : Collections.emptySet();
+        config.hasPath(Constant.ACTUATOR_WHITELIST) ?
+            new HashSet<>(config.getStringList(Constant.ACTUATOR_WHITELIST))
+            : Collections.emptySet();
 
+/**
+ *  Side Chain parameters
+ */
+//    INSTANCE.sideChainChargingBandwidth =
+//        config.hasPath("sidechain.chargingBandwidth") ? config
+//            .getInt("sidechain.chargingBandwidth") : 1;
+    INSTANCE.sideChainChargingBandwidth = 1;
+
+    INSTANCE.mainChainGateWayList = getGateWayList(config, "sidechain.mainChainGateWayList");
+    // mandatory to have sideChainId
+    INSTANCE.sideChainId = config.getString("genesis.block.sideChainId");
+
+    INSTANCE.chargingSwitchOn =
+        config.hasPath("committee.chargingSwitchOn") ? config
+            .getInt("committee.chargingSwitchOn") : 0;
+
+    INSTANCE.sideChainChargingType =
+        config.hasPath("sidechain.chargingType") ? config
+            .getInt("sidechain.chargingType") : 0;
+
+    INSTANCE.energyFee =
+        config.hasPath("sidechain.energyFee") ? config.getInt("sidechain.energyFee") : 1;
+
+    INSTANCE.totalEnergyLimit =
+        config.hasPath("sidechain.totalEnergyLimit") ? config
+            .getLong("sidechain.totalEnergyLimit") : 100_000_000_000L;
+
+    INSTANCE.maxCpuTimeOfOneTx =
+        config.hasPath("sidechain.maxCpuTimeOfOneTx") ? config
+            .getLong("sidechain.maxCpuTimeOfOneTx") : 50L;
+
+    INSTANCE.dayToSustainByFund =
+        config.hasPath("sidechain.dayToSustainByFund") ? config
+            .getLong("sidechain.dayToSustainByFund") : 90L;
+
+    INSTANCE.percentToPayWitness =
+        config.hasPath("sidechain.percentToPayWitness") ? config
+            .getInt("sidechain.percentToPayWitness") : 80;
+
+    INSTANCE.voteSwitch =
+        config.hasPath("committee.voteSwitch") ? config
+            .getInt("committee.voteSwitch") : 0;
+
+    INSTANCE.witnessMaxActiveNum =
+        config.hasPath("sidechain.witnessMaxActiveNum") ? config.
+            getInt("sidechain.witnessMaxActiveNum") : 27;
+
+
+    if (config.hasPath("vm.updateGateway_v1_0_2")) {
+      INSTANCE.updateGateway_v1_0_2 = config.getInt("vm.updateGateway_v1_0_2");
+    }
+
+    /**
+     *  Side Chain End
+     */
 
     logConfig();
     initDBConfig(INSTANCE);
@@ -1165,6 +1295,28 @@ public class Args {
         ret.add(n);
       }
     }
+    return ret;
+  }
+
+  private static List<byte[]> getGateWayList(final com.typesafe.config.Config config, String path) {
+    if (!config.hasPath(path)) {
+      return Collections.emptyList();
+    }
+    List<byte[]> ret = new ArrayList<>();
+    List<String> list = config.getStringList(path);
+    try {
+      for (String configString : list) {
+        byte[] address = Wallet.decodeFromBase58Check(configString);
+        if (!Wallet.addressValid(address)) {
+          throw new ContractValidateException("invalid gateway address");
+        }
+        ret.add(address);
+      }
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+      exit(-1);
+    }
+
     return ret;
   }
 
@@ -1312,7 +1464,7 @@ public class Args {
 
   private static void bindIp(final com.typesafe.config.Config config) {
     if (!config.hasPath(Constant.NODE_DISCOVERY_BIND_IP) || config.getString(Constant.NODE_DISCOVERY_BIND_IP)
-            .trim().isEmpty()) {
+        .trim().isEmpty()) {
       if (INSTANCE.nodeDiscoveryBindIp == null) {
         logger.info("Bind address wasn't set, Punching to identify it...");
         try (Socket s = new Socket("www.baidu.com", 80)) {
@@ -1330,13 +1482,13 @@ public class Args {
 
   private static void externalIp(final com.typesafe.config.Config config) {
     if (!config.hasPath(Constant.NODE_DISCOVERY_EXTENNAL_IP) || config
-            .getString(Constant.NODE_DISCOVERY_EXTENNAL_IP).trim().isEmpty()) {
+        .getString(Constant.NODE_DISCOVERY_EXTENNAL_IP).trim().isEmpty()) {
       if (INSTANCE.nodeExternalIp == null) {
         logger.info("External IP wasn't set, using checkip.amazonaws.com to identify it...");
         BufferedReader in = null;
         try {
           in = new BufferedReader(new InputStreamReader(
-                  new URL(Constant.AMAZONAWS_URL).openStream()));
+              new URL(Constant.AMAZONAWS_URL).openStream()));
           INSTANCE.nodeExternalIp = in.readLine();
           if (INSTANCE.nodeExternalIp == null || INSTANCE.nodeExternalIp.trim().isEmpty()) {
             throw new IOException("Invalid address: '" + INSTANCE.nodeExternalIp + "'");
@@ -1350,8 +1502,8 @@ public class Args {
         } catch (IOException e) {
           INSTANCE.nodeExternalIp = INSTANCE.nodeDiscoveryBindIp;
           logger.warn(
-                  "Can't get external IP. Fall back to peer.bind.ip: " + INSTANCE.nodeExternalIp + " :"
-                          + e);
+              "Can't get external IP. Fall back to peer.bind.ip: " + INSTANCE.nodeExternalIp + " :"
+                  + e);
         } finally {
           if (in != null) {
             try {
@@ -1505,6 +1657,24 @@ public class Args {
     DBConfig.setActuatorSet(cfgArgs.getActuatorSet());
 //    DBConfig.setECKeyCryptoEngine(cfgArgs.isECKeyCryptoEngine());
     DBConfig.setECKeyCryptoEngine(cfgArgs.isEckey());
+    /**
+     *  Side Chain parameters
+     */
+    DBConfig.setMainChainGateWayList(cfgArgs.getMainChainGateWayList());
+    DBConfig.setSideChainId(cfgArgs.getSideChainId());
+    DBConfig.setChargingSwitchOn(cfgArgs.getChargingSwitchOn());
+    DBConfig.setSideChainChargingType(cfgArgs.getSideChainChargingType());
+    DBConfig.setEnergyFee(cfgArgs.getEnergyFee());
+    DBConfig.setTotalEnergyLimit(cfgArgs.getTotalEnergyLimit());
+    DBConfig.setSideChainChargingBandwidth(cfgArgs.getSideChainChargingBandwidth());
+    DBConfig.setMaxCpuTimeOfOneTx(cfgArgs.getMaxCpuTimeOfOneTx());
+    DBConfig.setDayToSustainByFund(cfgArgs.getDayToSustainByFund());
+    DBConfig.setPercentToPayWitness(cfgArgs.getPercentToPayWitness());
+    DBConfig.setVoteSwitch(cfgArgs.getVoteSwitch());
+    DBConfig.setWitnessMaxActiveNum(cfgArgs.getWitnessMaxActiveNum());
+    DBConfig.setUpdateGateway_v1_0_2(cfgArgs.getUpdateGateway_v1_0_2());
+
+
   }
 
   public void setFullNodeAllowShieldedTransaction(boolean fullNodeAllowShieldedTransaction) {

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
-import org.tron.protos.contract.ProposalContract.ProposalCreateContract;
+import org.tron.protos.contract.ProposalContract.SideChainProposalCreateContract;
 
 
 @Component
@@ -30,10 +30,10 @@ public class ProposalCreateServlet extends RateLimiterServlet {
           .collect(Collectors.joining(System.lineSeparator()));
       Util.checkBodySize(contract);
       boolean visible = Util.getVisiblePost(contract);
-      ProposalCreateContract.Builder build = ProposalCreateContract.newBuilder();
+      SideChainProposalCreateContract.Builder build = SideChainProposalCreateContract.newBuilder();
       JsonFormat.merge(contract, build, visible);
       Transaction tx = wallet
-          .createTransactionCapsule(build.build(), ContractType.ProposalCreateContract)
+          .createTransactionCapsule(build.build(), ContractType.SideChainProposalCreateContract)
           .getInstance();
       JSONObject jsonObject = JSONObject.parseObject(contract);
       tx = Util.setTransactionPermissionId(jsonObject, tx);

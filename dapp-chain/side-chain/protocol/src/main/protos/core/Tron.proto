@@ -31,10 +31,10 @@ message Vote {
 }
 
 // Proposal
-message Proposal {
+message SideChainProposal {
   int64 proposal_id = 1;
   bytes proposer_address = 2;
-  map<int64, int64> parameters = 3;
+  map<int64, string> parameters = 3;
   int64 expiration_time = 4;
   int64 create_time = 5;
   repeated bytes approvals = 6;
@@ -58,11 +58,11 @@ message Exchange {
   int64 second_token_balance = 9;
 }
 
-message ChainParameters {
-  repeated ChainParameter chainParameter = 1;
-  message ChainParameter {
+message SideChainParameters {
+  repeated SideChainParameter chainParameter = 1;
+  message SideChainParameter {
     string key = 1;
-    int64 value = 2;
+    string value = 2;
   }
 }
 
@@ -254,7 +254,7 @@ message Transaction {
       WithdrawBalanceContract = 13;
       UnfreezeAssetContract = 14;
       UpdateAssetContract = 15;
-      ProposalCreateContract = 16;
+      //ProposalCreateContract = 16;
       ProposalApproveContract = 17;
       ProposalDeleteContract = 18;
       SetAccountIdContract = 19;
@@ -272,6 +272,8 @@ message Transaction {
       ClearABIContract = 48;
       UpdateBrokerageContract = 49;
       ShieldedTransferContract = 51;
+      FundInjectContract = 254;
+      SideChainProposalCreateContract = 255;
     }
     ContractType type = 1;
     google.protobuf.Any parameter = 2;
