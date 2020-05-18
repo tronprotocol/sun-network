@@ -45,8 +45,11 @@ import org.tron.common.crypto.ECKey.ECDSASignature;
 import org.tron.common.crypto.SignInterface;
 import org.tron.common.crypto.SignUtils;
 import org.tron.common.overlay.message.Message;
-import org.tron.common.utils.*;
-import org.tron.core.ChainBaseManager;
+import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.ByteUtil;
+import org.tron.common.utils.DBConfig;
+import org.tron.common.utils.ReflectUtils;
+import org.tron.common.utils.Sha256Hash;
 import org.tron.core.actuator.TransactionFactory;
 import org.tron.core.db.TransactionContext;
 import org.tron.core.db.TransactionTrace;
@@ -781,14 +784,14 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
     return this.transaction.getRet(0).getContractRet();
   }
 
-  public boolean checkIfSideChainGateWayContractCall(ChainBaseManager chainBaseManager) {
+  public boolean checkIfSideChainGateWayContractCall(DynamicPropertiesStore dynamicPropertiesStore) {
     try {
       Transaction.Contract contract = this.transaction.getRawData().getContract(0);
       if (contract.getType() == ContractType.TriggerSmartContract) {
         Any contractParameter = contract.getParameter();
         TriggerSmartContract smartContract =
                 contractParameter.unpack(TriggerSmartContract.class);
-        List<byte[]> gatewayList = chainBaseManager.getDynamicPropertiesStore().getSideChainGateWayList();
+        List<byte[]> gatewayList = dynamicPropertiesStore.getSideChainGateWayList();
         for (byte[] gateway : gatewayList) {
           if (ByteUtil.equals(gateway, smartContract.getContractAddress().toByteArray())) {
             return true;
@@ -808,6 +811,6 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
     byte[] hashWithSideChainId = Arrays.copyOf(hash, hash.length + sideChainIdByteArray.length);
     System.arraycopy(sideChainIdByteArray, 0, hashWithSideChainId, hash.length,
             sideChainIdByteArray.length);
-    return Sha256Hash.hash(hashWithSideChainId);
+    return Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), hashWithSideChainId);
   }
 }

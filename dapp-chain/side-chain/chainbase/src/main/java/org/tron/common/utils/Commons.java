@@ -103,7 +103,7 @@ public class Commons {
     if (chargingType == 0) {
       adjustBalance(accountStore, account, amount);
     } else {
-      adjustSunTokenBalance(accountStore, account, amount, chargingType);
+      adjustSunTokenBalance(accountStore, account, amount);
     }
   }
 
@@ -112,7 +112,7 @@ public class Commons {
     if (chargingType == 0) {
       adjustBalance(accountStore, accountCapsule, amount);
     } else {
-      adjustSunTokenBalance(accountStore, accountCapsule, amount, chargingType);
+      adjustSunTokenBalance(accountStore, accountCapsule, amount);
     }
   }
 
@@ -135,14 +135,14 @@ public class Commons {
     accountStore.put(account.getAddress().toByteArray(), account);
   }
 
-  private static void adjustSunTokenBalance(AccountStore accountStore, AccountCapsule account, long amount, int chargingType) throws BalanceInsufficientException {
+  private static void adjustSunTokenBalance(AccountStore accountStore, AccountCapsule account, long amount) throws BalanceInsufficientException {
 
-    long balance = account.getBalance();
+    long sunTokenBalance = account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L);
     if (amount == 0) {
       return;
     }
 
-    if (amount < 0 && balance < -amount) {
+    if (amount < 0 && sunTokenBalance < -amount) {
       throw new BalanceInsufficientException(
               createReadableString(account.createDbKey()) + " insufficient sun token balance");
     }
@@ -176,34 +176,19 @@ public class Commons {
   public static ExchangeStore getExchangeStoreFinal(DynamicPropertiesStore dynamicPropertiesStore,
       ExchangeStore exchangeStore,
       ExchangeV2Store exchangeV2Store) {
-    if (dynamicPropertiesStore.getAllowSameTokenName() == 0) {
-      return exchangeStore;
-    } else {
       return exchangeV2Store;
-    }
   }
 
-/*  public static void putExchangeCapsule(ExchangeCapsule exchangeCapsule,
+  public static void putExchangeCapsule(ExchangeCapsule exchangeCapsule,
       DynamicPropertiesStore dynamicPropertiesStore, ExchangeStore exchangeStore,
       ExchangeV2Store exchangeV2Store, AssetIssueStore assetIssueStore) {
-    if (dynamicPropertiesStore.getAllowSameTokenName() == 0) {
-      exchangeStore.put(exchangeCapsule.createDbKey(), exchangeCapsule);
-      ExchangeCapsule exchangeCapsuleV2 = new ExchangeCapsule(exchangeCapsule.getData());
-      exchangeCapsuleV2.resetTokenWithID(assetIssueStore, dynamicPropertiesStore);
-      exchangeV2Store.put(exchangeCapsuleV2.createDbKey(), exchangeCapsuleV2);
-    } else {
       exchangeV2Store.put(exchangeCapsule.createDbKey(), exchangeCapsule);
-    }
-  }*/
+  }
 
   public static AssetIssueStore getAssetIssueStoreFinal(
       DynamicPropertiesStore dynamicPropertiesStore,
       AssetIssueStore assetIssueStore, AssetIssueV2Store assetIssueV2Store) {
-    if (dynamicPropertiesStore.getAllowSameTokenName() == 0) {
-      return assetIssueStore;
-    } else {
       return assetIssueV2Store;
-    }
   }
 
   public static void adjustAssetBalanceV2(AccountCapsule account, String AssetID, long amount,
@@ -211,13 +196,11 @@ public class Commons {
       DynamicPropertiesStore dynamicPropertiesStore)
       throws BalanceInsufficientException {
     if (amount < 0) {
-      if (!account.reduceAssetAmountV2(AssetID.getBytes(), -amount, dynamicPropertiesStore,
-          assetIssueStore)) {
+      if (!account.reduceAssetAmountV2(AssetID.getBytes(), -amount)) {
         throw new BalanceInsufficientException("reduceAssetAmount failed !");
       }
     } else if (amount > 0 &&
-        !account.addAssetAmountV2(AssetID.getBytes(), amount, dynamicPropertiesStore,
-            assetIssueStore)) {
+        !account.addAssetAmountV2(AssetID.getBytes(), amount)) {
       throw new BalanceInsufficientException("addAssetAmount failed !");
     }
     accountStore.put(account.getAddress().toByteArray(), account);

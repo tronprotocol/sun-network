@@ -126,6 +126,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   private static final byte[] ALLOW_TVM_TRANSFER_TRC10 = "ALLOW_TVM_TRANSFER_TRC10".getBytes();
   //If the parameter is larger than 0, allow ZKsnark Transaction
   private static final byte[] ALLOW_SHIELDED_TRANSACTION = "ALLOW_SHIELDED_TRANSACTION".getBytes();
+  //??? this method should be removed, but it's used
   private static final byte[] ALLOW_TVM_CONSTANTINOPLE = "ALLOW_TVM_CONSTANTINOPLE".getBytes();
   private static final byte[] ALLOW_TVM_SOLIDITY_059 = "ALLOW_TVM_SOLIDITY_059".getBytes();
   private static final byte[] FORBID_TRANSFER_TO_CONTRACT = "FORBID_TRANSFER_TO_CONTRACT".getBytes();
@@ -445,16 +446,16 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     }
 
     try {
+      this.getAdaptiveResourceLimitTargetRatio();
+    } catch (IllegalArgumentException e) {
+      this.saveAdaptiveResourceLimitTargetRatio(14400);// 24 * 60 * 10,one minute 1/10 total limit
+    }
+
+    try {
       this.getTotalEnergyLimit();
     } catch (IllegalArgumentException e) {
       this.saveTotalEnergyLimit(DBConfig.getTotalEnergyLimit());
       //50_000_000_000
-    }
-
-    try {
-      this.getAdaptiveResourceLimitTargetRatio();
-    } catch (IllegalArgumentException e) {
-      this.saveAdaptiveResourceLimitTargetRatio(14400);// 24 * 60 * 10,one minute 1/10 total limit
     }
 
     try {
@@ -657,7 +658,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     try {
       this.getAllowDelegateResource();
     } catch (IllegalArgumentException e) {
-      // always allow
+      // always allowed
       this.saveAllowDelegateResource(1);
     }
 
@@ -668,11 +669,11 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       this.saveAllowTvmTransferTrc10(1);
     }
 
-    try {
-      this.getAllowTvmConstantinople();
-    } catch (IllegalArgumentException e) {
-      this.saveAllowTvmConstantinople(DBConfig.getAllowTvmConstantinople());
-    }
+//    try {
+//      this.getAllowTvmConstantinople();
+//    } catch (IllegalArgumentException e) {
+//      this.saveAllowTvmConstantinople(DBConfig.getAllowTvmConstantinople());
+//    }
 
     try {
       this.getAllowTvmSolidity059();
@@ -704,11 +705,11 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       this.saveActiveDefaultOperations(bytes);
     }
 
-    try {
-      this.getAllowSameTokenName();
-    } catch (IllegalArgumentException e) {
-      this.saveAllowSameTokenName(DBConfig.getAllowSameTokenName());
-    }
+//    try {
+//      this.getAllowSameTokenName();
+//    } catch (IllegalArgumentException e) {
+//      this.saveAllowSameTokenName(DBConfig.getAllowSameTokenName());
+//    }
 
     try {
       this.getAllowUpdateAccountName();
@@ -716,11 +717,11 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       this.saveAllowUpdateAccountName(0);
     }
 
-    try {
-      this.getAllowCreationOfContracts();
-    } catch (IllegalArgumentException e) {
-      this.saveAllowCreationOfContracts(DBConfig.getAllowCreationOfContracts());
-    }
+//    try {
+//      this.getAllowCreationOfContracts();
+//    } catch (IllegalArgumentException e) {
+//      this.saveAllowCreationOfContracts(DBConfig.getAllowCreationOfContracts());
+//    }
 
     try {
       this.getAllowShieldedTransaction();
@@ -1596,8 +1597,6 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public void saveMaxCpuTimeOfOneTx(long time) {
-/*    this.put(MAX_CPU_TIME_OF_ONE_TX,
-        new BytesCapsule(ByteArray.fromLong(time)));*/
     if (time < 10 || time > 100) {
       throw new IllegalArgumentException(
               "Bad MAX_CPU_TIME_OF_ONE_TX value,valid range is [10,100]");
@@ -1782,7 +1781,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         .map(ByteArray::toLong)
         .orElseThrow(
             () -> new IllegalArgumentException(
-                "not found CREATE_NsEW_ACCOUNT_BANDWIDTH_RATE2"));
+                "not found CREATE_NEW_ACCOUNT_BANDWIDTH_RATE2"));
   }
 
   public void saveTransactionFee(long fee) {
@@ -2061,11 +2060,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found ALLOW_TVM_TRANSFER_TRC10"));
   }
 
+//??? this method should be removed, but it's used
   public void saveAllowTvmConstantinople(long value) {
     this.put(ALLOW_TVM_CONSTANTINOPLE,
         new BytesCapsule(ByteArray.fromLong(value)));
   }
 
+//??? this method should be removed, but it's used
   public long getAllowTvmConstantinople() {
     return Optional.ofNullable(getUnchecked(ALLOW_TVM_CONSTANTINOPLE))
         .map(BytesCapsule::getData)
@@ -2120,12 +2121,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     saveActiveDefaultOperations(activeDefaultOperations);
   }
 
-  public void updateDynamicStoreByConfig() {
-    if (DBConfig.getAllowTvmConstantinople() != 0) {
-      saveAllowTvmConstantinople(DBConfig.getAllowTvmConstantinople());
-      addSystemContractAndSetPermission(48);
-    }
-  }
+//  public void updateDynamicStoreByConfig() {
+//    if (DBConfig.getAllowTvmConstantinople() != 0) {
+//      saveAllowTvmConstantinople(DBConfig.getAllowTvmConstantinople());
+//      addSystemContractAndSetPermission(48);
+//    }
+//  }
 
   public void saveActiveDefaultOperations(byte[] value) {
     this.put(ACTIVE_DEFAULT_OPERATIONS,
@@ -2156,11 +2157,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found ALLOW_UPDATE_ACCOUNT_NAME"));
   }
 
+  //??? this method should be removed, but it's used
   public void saveAllowSameTokenName(long rate) {
     this.put(ALLOW_SAME_TOKEN_NAME,
         new BytesCapsule(ByteArray.fromLong(rate)));
   }
 
+  //??? this method should be removed, but it's used
   public long getAllowSameTokenName() {
     return Optional.ofNullable(getUnchecked(ALLOW_SAME_TOKEN_NAME))
         .map(BytesCapsule::getData)
@@ -2169,6 +2172,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found ALLOW_SAME_TOKEN_NAME"));
   }
 
+  //??? this method should be removed, but it's used
   public void saveAllowCreationOfContracts(long allowCreationOfContracts) {
     this.put(ALLOW_CREATION_OF_CONTRACTS,
         new BytesCapsule(ByteArray.fromLong(allowCreationOfContracts)));
@@ -2200,6 +2204,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found ALLOW_MULTI_SIGN"));
   }
 
+  //??? this method should be removed, but it's used
   public long getAllowCreationOfContracts() {
     return Optional.ofNullable(getUnchecked(ALLOW_CREATION_OF_CONTRACTS))
         .map(BytesCapsule::getData)
@@ -2208,6 +2213,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
             () -> new IllegalArgumentException("not found ALLOW_CREATION_OF_CONTRACTS"));
   }
 
+  //??? this method should be removed, but it's used
   public boolean supportVM() {
     return getAllowCreationOfContracts() == 1L;
   }

@@ -161,9 +161,7 @@ public class ProposalCapsule implements ProtoCapsule<SideChainProposal> {
           .filter(witness -> !activeWitnesses.contains(witness)).collect(Collectors.toList());
       logger.info("InvalidApprovalList:" + getAddressStringList(InvalidApprovalList));
     }
-    if (activeWitnesses.size() != MAX_ACTIVE_WITNESS_NUM) {
-      logger.info("activeWitnesses size = {}", activeWitnesses.size());
-    }
+    logger.info("activeWitnesses size = {}", activeWitnesses.size());
     return count >= activeWitnesses.size() * 7 / 10;
   }
 }

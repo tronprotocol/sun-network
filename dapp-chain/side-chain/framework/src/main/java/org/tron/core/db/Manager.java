@@ -139,7 +139,7 @@ import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
 import org.tron.protos.Protocol.TransactionInfo;
-import org.tron.protos.contract.AssetIssueContractOuterClass;
+import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
 
 
 @Slf4j(topic = "DB")
@@ -166,8 +166,6 @@ public class Manager {
   private BlockStore blockStore;
   @Autowired
   private WitnessStore witnessStore;
-  @Autowired
-  private AssetIssueStore assetIssueStore;
   @Autowired
   private AssetIssueV2Store assetIssueV2Store;
   @Autowired
@@ -371,32 +369,21 @@ public class Manager {
     return this.proposalStore;
   }
 
-  public ExchangeStore getExchangeStore() {
-    return this.exchangeStore;
-  }
+//  public ExchangeStore getExchangeStore() {
+//    return this.exchangeStore;
+//  }
 
   public ExchangeV2Store getExchangeV2Store() {
     return this.exchangeV2Store;
   }
 
   public ExchangeStore getExchangeStoreFinal() {
-    if (getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      return getExchangeStore();
-    } else {
       return getExchangeV2Store();
-    }
   }
 
-//  public void putExchangeCapsule(ExchangeCapsule exchangeCapsule) {
-//    if (getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-//      getExchangeStore().put(exchangeCapsule.createDbKey(), exchangeCapsule);
-//      ExchangeCapsule exchangeCapsuleV2 = new ExchangeCapsule(exchangeCapsule.getData());
-//      exchangeCapsuleV2.resetTokenWithID(this.getAssetIssueStore(), this.dynamicPropertiesStore);
-//      getExchangeV2Store().put(exchangeCapsuleV2.createDbKey(), exchangeCapsuleV2);
-//    } else {
-//      getExchangeV2Store().put(exchangeCapsule.createDbKey(), exchangeCapsule);
-//    }
-//  }
+  public void putExchangeCapsule(ExchangeCapsule exchangeCapsule) {
+      getExchangeV2Store().put(exchangeCapsule.createDbKey(), exchangeCapsule);
+  }
 
   public List<TransactionCapsule> getPendingTransactions() {
     return this.pendingTransactions;
@@ -513,7 +500,7 @@ public class Manager {
 //    }
 
     //for test only
-    dynamicPropertiesStore.updateDynamicStoreByConfig();
+//    dynamicPropertiesStore.updateDynamicStoreByConfig();
 
     initCacheTxs();
     revokingStore.enable();
@@ -592,7 +579,7 @@ public class Manager {
    * init sunToken asset on side-chain
    */
   public void initAssetIssue() {
-    AssetIssueContractOuterClass.AssetIssueContract.Builder assetBuilder = AssetIssueContractOuterClass.AssetIssueContract.newBuilder();
+    AssetIssueContract.Builder assetBuilder = AssetIssueContract.newBuilder();
     assetBuilder.setId(SUN_TOKEN_ID)
             .setPrecision(6);
     AssetIssueCapsule assetIssueCapsuleV2 = new AssetIssueCapsule(assetBuilder.build());
@@ -775,26 +762,26 @@ public class Manager {
     }
   }
 
-  public void adjustAssetBalanceV2(byte[] accountAddress, String AssetID, long amount)
-      throws BalanceInsufficientException {
-    AccountCapsule account = getAccountStore().getUnchecked(accountAddress);
-    adjustAssetBalanceV2(account, AssetID, amount);
-  }
-
-  public void adjustAssetBalanceV2(AccountCapsule account, String AssetID, long amount)
-      throws BalanceInsufficientException {
-    if (amount < 0) {
-      if (!account.reduceAssetAmountV2(AssetID.getBytes(), -amount,
-          this.getDynamicPropertiesStore(), this.getAssetIssueStore())) {
-        throw new BalanceInsufficientException("reduceAssetAmount failed !");
-      }
-    } else if (amount > 0 &&
-        !account.addAssetAmountV2(AssetID.getBytes(), amount,
-            this.getDynamicPropertiesStore(), this.getAssetIssueStore())) {
-      throw new BalanceInsufficientException("addAssetAmount failed !");
-    }
-    accountStore.put(account.getAddress().toByteArray(), account);
-  }
+//  public void adjustAssetBalanceV2(byte[] accountAddress, String AssetID, long amount)
+//      throws BalanceInsufficientException {
+//    AccountCapsule account = getAccountStore().getUnchecked(accountAddress);
+//    adjustAssetBalanceV2(account, AssetID, amount);
+//  }
+//
+//  public void adjustAssetBalanceV2(AccountCapsule account, String AssetID, long amount)
+//      throws BalanceInsufficientException {
+//    if (amount < 0) {
+//      if (!account.reduceAssetAmountV2(AssetID.getBytes(), -amount,
+//          this.getDynamicPropertiesStore(), this.getAssetIssueStore())) {
+//        throw new BalanceInsufficientException("reduceAssetAmount failed !");
+//      }
+//    } else if (amount > 0 &&
+//        !account.addAssetAmountV2(AssetID.getBytes(), amount,
+//            this.getDynamicPropertiesStore(), this.getAssetIssueStore())) {
+//      throw new BalanceInsufficientException("addAssetAmount failed !");
+//    }
+//    accountStore.put(account.getAddress().toByteArray(), account);
+//  }
 
   public void adjustTotalShieldedPoolValue(long valueBalance) throws BalanceInsufficientException {
     long totalShieldedPoolValue = Math
@@ -1690,6 +1677,7 @@ public class Manager {
 
     if (dynamicPropertiesStore.getNextMaintenanceTime() <= block.getTimeStamp()) {
       proposalController.processProposals();
+      modifyPayPerBlock();
       forkController.reset();
     }
 
@@ -1714,10 +1702,29 @@ public class Manager {
           getDynamicPropertiesStore().getWitnessPayPerBlock());
       delegationService.payStandbyWitness();
     } else {
-      byte[] witness = block.getWitnessAddress().toByteArray();
-      AccountCapsule account = getAccountStore().get(witness);
-      account.setAllowance(account.getAllowance() + dynamicPropertiesStore.getWitnessPayPerBlock());
-      getAccountStore().put(account.createDbKey(), account);
+      try {
+        if (dynamicPropertiesStore.getFundDistributeEnableSwitch() == 1) {
+          long payPerBlock = (-1) * (adjustFund(
+                  (-1) * getDynamicPropertiesStore().getWitnessPayPerBlock()));
+          long percent = getDynamicPropertiesStore().getPercentToPayWitness();
+          long amountForWitness = BigInteger.valueOf(payPerBlock)
+                  .multiply(BigInteger.valueOf(percent))
+                  .divide(BigInteger.valueOf(100)).longValue();
+          int chargingType = getDynamicPropertiesStore().getSideChainChargingType();
+          logger.info("payPerBlock = {}, percent = {}, amountForWitness = {}", payPerBlock, percent,
+                  amountForWitness);
+
+          byte[] witness = block.getWitnessAddress().toByteArray();
+          AccountCapsule account = getAccountStore().get(witness);
+          account.setAllowance(account.getAllowance() + amountForWitness);
+          getAccountStore().put(account.createDbKey(), account);
+
+          adjustBalance(getDynamicPropertiesStore().getFundInjectAddress(),
+                  payPerBlock - amountForWitness, chargingType);
+        }
+      } catch (BalanceInsufficientException e) {
+        logger.warn(e.getMessage(), e);
+      }
     }
   }
 
@@ -1755,24 +1762,12 @@ public class Manager {
     }
   }
 
-  public AssetIssueStore getAssetIssueStore() {
-    return assetIssueStore;
-  }
-
-  public void setAssetIssueStore(AssetIssueStore assetIssueStore) {
-    this.assetIssueStore = assetIssueStore;
-  }
-
   public AssetIssueV2Store getAssetIssueV2Store() {
     return assetIssueV2Store;
   }
 
   public AssetIssueStore getAssetIssueStoreFinal() {
-    if (getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      return getAssetIssueStore();
-    } else {
       return getAssetIssueV2Store();
-    }
   }
 
   public void setBlockIndexStore(BlockIndexStore indexStore) {
@@ -1812,7 +1807,7 @@ public class Manager {
     closeOneStore(accountIndexStore);
     closeOneStore(witnessStore);
     closeOneStore(witnessScheduleStore);
-    closeOneStore(assetIssueStore);
+//    closeOneStore(assetIssueStore);
     closeOneStore(dynamicPropertiesStore);
     closeOneStore(transactionStore);
     closeOneStore(codeStore);
@@ -1826,7 +1821,7 @@ public class Manager {
     closeOneStore(votesStore);
     closeOneStore(delegatedResourceStore);
     closeOneStore(delegatedResourceAccountIndexStore);
-    closeOneStore(assetIssueV2Store);
+//    closeOneStore(assetIssueV2Store);
     closeOneStore(exchangeV2Store);
     closeOneStore(nullifierStore);
     closeOneStore(merkleTreeStore);
@@ -2112,9 +2107,7 @@ public class Manager {
     long fund = getDynamicPropertiesStore().getFund();
     long dayToSustain = getDynamicPropertiesStore().getDayToSustainByFund();
     long pay = fund / (86400 / 3 * dayToSustain);
-    logger
-            .info("[Modify Pay Per Block], fund = {}, daytosustain = {}, pay = {}", fund, dayToSustain,
-                    pay);
+    logger.info("[Modify Pay Per Block], fund = {}, daytosustain = {}, pay = {}", fund, dayToSustain, pay);
     getDynamicPropertiesStore().saveWitnessPayPerBlock(
             getDynamicPropertiesStore().getFund() / (86400 / 3 * getDynamicPropertiesStore()
                     .getDayToSustainByFund()));
