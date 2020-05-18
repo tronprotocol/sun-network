@@ -223,6 +223,8 @@ public class FullNodeHttpApiService implements Service {
   private CreateCommonTransactionServlet createCommonTransactionServlet;
   @Autowired
   private GetTransactionInfoByBlockNumServlet getTransactionInfoByBlockNumServlet;
+  @Autowired
+  private FundInjectServlet fundInjectServlet;
 
   private static String getParamsFile(String fileName) {
     InputStream in = Thread.currentThread().getContextClassLoader()

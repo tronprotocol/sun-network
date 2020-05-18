@@ -262,15 +262,15 @@ public class RpcApiServiceOnSolidity implements Service {
       );
     }
 
-    @Override
-    public void getExchangeById(BytesMessage request,
-        StreamObserver<Exchange> responseObserver) {
-      walletOnSolidity.futureGet(
-          () -> rpcApiService.getWalletSolidityApi().getExchangeById(
-              request, responseObserver
-          )
-      );
-    }
+    // @Override
+    // public void getExchangeById(BytesMessage request,
+    //     StreamObserver<Exchange> responseObserver) {
+    //   walletOnSolidity.futureGet(
+    //       () -> rpcApiService.getWalletSolidityApi().getExchangeById(
+    //           request, responseObserver
+    //       )
+    //   );
+    // }
 
     @Override
     public void getNowBlock(EmptyMessage request, StreamObserver<Block> responseObserver) {
@@ -348,13 +348,13 @@ public class RpcApiServiceOnSolidity implements Service {
 
     }
 
-    @Override
-    public void listExchanges(EmptyMessage request,
-        StreamObserver<ExchangeList> responseObserver) {
-      walletOnSolidity.futureGet(
-          () -> rpcApiService.getWalletSolidityApi().listExchanges(request, responseObserver)
-      );
-    }
+    // @Override
+    // public void listExchanges(EmptyMessage request,
+    //     StreamObserver<ExchangeList> responseObserver) {
+    //   walletOnSolidity.futureGet(
+    //       () -> rpcApiService.getWalletSolidityApi().listExchanges(request, responseObserver)
+    //   );
+    // }
 
     @Override
     public void triggerConstantContract(TriggerSmartContract request,

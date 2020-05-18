@@ -47,6 +47,7 @@ import org.tron.common.logsfilter.TriggerConfig;
 import org.tron.common.overlay.discover.node.Node;
 import org.tron.common.storage.rocksdb.RocksDbSettings;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.Sha256Hash;
 import org.tron.common.utils.Commons;
 import org.tron.common.utils.DBConfig;
 import org.tron.core.Constant;
@@ -348,21 +349,30 @@ public class Args {
   @Setter
   private long allowAdaptiveEnergy; //committee parameter
 
-  @Getter
-  @Setter
-  private long allowDelegateResource; //committee parameter
+  // remove in side-chain
+//  @Getter
+//  @Setter
+//  private long allowCreationOfContracts; //committee parameter
 
-  @Getter
-  @Setter
-  private long allowSameTokenName; //committee parameter
+  // remove in side-chain
+//  @Getter
+//  @Setter
+//  private long allowDelegateResource; //committee parameter
 
-  @Getter
-  @Setter
-  private long allowTvmTransferTrc10; //committee parameter
+  // remove in side-chain
+//  @Getter
+//  @Setter
+//  private long allowSameTokenName; //committee parameter
 
-  @Getter
-  @Setter
-  private long allowTvmConstantinople; //committee parameter
+  // remove in side-chain
+//  @Getter
+//  @Setter
+//  private long allowTvmTransferTrc10; //committee parameter
+
+  // remove in side-chain
+//  @Getter
+//  @Setter
+//  private long allowTvmConstantinople; //committee parameter
 
   @Getter
   @Setter
@@ -425,9 +435,10 @@ public class Args {
   @Setter
   private boolean isOpenFullTcpDisconnect;
 
-  @Getter
-  @Setter
-  private int allowMultiSign;
+//  remove in side-chain
+//  @Getter
+//  @Setter
+//  private int allowMultiSign;
 
   @Getter
   @Setter
@@ -639,12 +650,12 @@ public class Args {
     INSTANCE.maintenanceTimeInterval = 0;
     INSTANCE.proposalExpireTime = 0;
     INSTANCE.checkFrozenTime = 1;
-    INSTANCE.allowCreationOfContracts = 0;
+    // INSTANCE.allowCreationOfContracts = 0;
     INSTANCE.allowAdaptiveEnergy = 0;
-    INSTANCE.allowTvmTransferTrc10 = 0;
-    INSTANCE.allowTvmConstantinople = 0;
-    INSTANCE.allowDelegateResource = 0;
-    INSTANCE.allowSameTokenName = 0;
+    // INSTANCE.allowTvmTransferTrc10 = 0;
+    // INSTANCE.allowTvmConstantinople = 0;
+    // INSTANCE.allowDelegateResource = 0;
+    // INSTANCE.allowSameTokenName = 0;
     INSTANCE.allowTvmSolidity059 = 0;
     INSTANCE.forbidTransferToContract = 0;
     INSTANCE.tcpNettyWorkThreadNum = 0;
@@ -666,7 +677,7 @@ public class Args {
     INSTANCE.longRunningTime = 10;
 //    INSTANCE.allowShieldedTransaction = 0;
     INSTANCE.maxHttpConnectNumber = 50;
-    INSTANCE.allowMultiSign = 0;
+    // INSTANCE.allowMultiSign = 0;
     INSTANCE.trxExpirationTimeInMilliseconds = 0;
     INSTANCE.fullNodeAllowShieldedTransactionArgs = true;
     INSTANCE.zenTokenId = "000000";
@@ -814,6 +825,10 @@ public class Args {
       INSTANCE.supportConstant = config.getBoolean(Constant.VM_SUPPORT_CONSTANT);
     }
 
+    if(config.hasPath(Constant.VM_UPDATEGATEWAY_V1_0_2)) {
+      INSTANCE.updateGateway_v1_0_2 = config.getInt(Constant.VM_UPDATEGATEWAY_V1_0_2);
+    }
+
     if (config.hasPath(Constant.NODE_HTTP_FULLNODE_ENABLE)) {
       INSTANCE.fullNodeHttpEnable = config.getBoolean(Constant.NODE_HTTP_FULLNODE_ENABLE);
     }
@@ -886,7 +901,9 @@ public class Args {
       INSTANCE.genesisBlock = new GenesisBlock();
 
       INSTANCE.genesisBlock.setTimestamp(config.getString(Constant.GENESIS_BLOCK_TIMESTAMP));
-      INSTANCE.genesisBlock.setParentHash(config.getString(Constant.GENESIS_BLOCK_PARENTHASH));
+      byte[] chainId = ByteArray.fromHexString(config.getString("genesis.block.sideChainId"));
+      String parentHash = ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), chainId));
+      INSTANCE.genesisBlock.setParentHash(parentHash);
 
       if (config.hasPath(Constant.GENESIS_BLOCK_ASSETS)) {
         INSTANCE.genesisBlock.setAssets(getAccountsFromConfig(config));
@@ -1011,33 +1028,33 @@ public class Args {
         config.hasPath(Constant.BLOCK_CHECK_FROZEN_TIME) ? config
             .getInt(Constant.BLOCK_CHECK_FROZEN_TIME) : 1;
 
-    INSTANCE.allowCreationOfContracts =
-        config.hasPath(Constant.COMMITTEE_ALLOW_CREATION_OF_CONTRACTS) ? config
-            .getInt(Constant.COMMITTEE_ALLOW_CREATION_OF_CONTRACTS) : 0;
+    // INSTANCE.allowCreationOfContracts =
+    //     config.hasPath(Constant.COMMITTEE_ALLOW_CREATION_OF_CONTRACTS) ? config
+    //         .getInt(Constant.COMMITTEE_ALLOW_CREATION_OF_CONTRACTS) : 0;
 
-    INSTANCE.allowMultiSign =
-        config.hasPath(Constant.COMMITTEE_ALLOW_MULTI_SIGN) ? config
-            .getInt(Constant.COMMITTEE_ALLOW_MULTI_SIGN) : 0;
+    // INSTANCE.allowMultiSign =
+    //     config.hasPath(Constant.COMMITTEE_ALLOW_MULTI_SIGN) ? config
+    //         .getInt(Constant.COMMITTEE_ALLOW_MULTI_SIGN) : 0;
 
     INSTANCE.allowAdaptiveEnergy =
         config.hasPath(Constant.COMMITTEE_ALLOW_ADAPTIVE_ENERGY) ? config
             .getInt(Constant.COMMITTEE_ALLOW_ADAPTIVE_ENERGY) : 0;
 
-    INSTANCE.allowDelegateResource =
-        config.hasPath(Constant.COMMITTEE_ALLOW_DELEGATE_RESOURCE) ? config
-            .getInt(Constant.COMMITTEE_ALLOW_DELEGATE_RESOURCE) : 0;
+    // INSTANCE.allowDelegateResource =
+    //     config.hasPath(Constant.COMMITTEE_ALLOW_DELEGATE_RESOURCE) ? config
+    //         .getInt(Constant.COMMITTEE_ALLOW_DELEGATE_RESOURCE) : 0;
 
-    INSTANCE.allowSameTokenName =
-        config.hasPath(Constant.COMMITTEE_ALLOW_SAME_TOKEN_NAME) ? config
-            .getInt(Constant.COMMITTEE_ALLOW_SAME_TOKEN_NAME) : 0;
+    // INSTANCE.allowSameTokenName =
+    //     config.hasPath(Constant.COMMITTEE_ALLOW_SAME_TOKEN_NAME) ? config
+    //         .getInt(Constant.COMMITTEE_ALLOW_SAME_TOKEN_NAME) : 0;
 
-    INSTANCE.allowTvmTransferTrc10 =
-        config.hasPath(Constant.COMMITTEE_ALLOW_TVM_TRANSFER_TRC10) ? config
-            .getInt(Constant.COMMITTEE_ALLOW_TVM_TRANSFER_TRC10) : 0;
+    // INSTANCE.allowTvmTransferTrc10 =
+    //     config.hasPath(Constant.COMMITTEE_ALLOW_TVM_TRANSFER_TRC10) ? config
+    //         .getInt(Constant.COMMITTEE_ALLOW_TVM_TRANSFER_TRC10) : 0;
 
-    INSTANCE.allowTvmConstantinople =
-        config.hasPath(Constant.COMMITTEE_ALLOW_TVM_CONSTANTINOPLE) ? config
-            .getInt(Constant.COMMITTEE_ALLOW_TVM_CONSTANTINOPLE) : 0;
+    // INSTANCE.allowTvmConstantinople =
+    //     config.hasPath(Constant.COMMITTEE_ALLOW_TVM_CONSTANTINOPLE) ? config
+    //         .getInt(Constant.COMMITTEE_ALLOW_TVM_CONSTANTINOPLE) : 0;
 
     INSTANCE.allowTvmSolidity059 =
         config.hasPath(Constant.COMMITTEE_ALLOW_TVM_SOLIDITY059) ? config
@@ -1106,6 +1123,11 @@ public class Args {
 //    INSTANCE.allowShieldedTransaction =
 //        config.hasPath(Constant.COMMITTEE_ALLOW_SHIELDED_TRANSACTION) ? config
 //            .getInt(Constant.COMMITTEE_ALLOW_SHIELDED_TRANSACTION) : 0;
+
+    //    INSTANCE.sideChainGatewayList = getGateWayList(config,"sidechain.sideChainGateWayList");
+    INSTANCE.mainChainGateWayList = getGateWayList(config, "sidechain.mainChainGateWayList");
+    // mandatory to have sideChainId
+    INSTANCE.sideChainId = config.getString("genesis.block.sideChainId");
 
     INSTANCE.eventPluginConfig =
         config.hasPath(Constant.EVENT_SUBSCRIBE) ?
@@ -1627,15 +1649,15 @@ public class Args {
 
     DBConfig.setOutputDirectoryConfig(cfgArgs.getOutputDirectory());
     DBConfig.setRocksDbSettings(cfgArgs.getRocksDBCustomSettings());
-    DBConfig.setAllowMultiSign(cfgArgs.getAllowMultiSign());
+    // DBConfig.setAllowMultiSign(cfgArgs.getAllowMultiSign());
     DBConfig.setMaintenanceTimeInterval(cfgArgs.getMaintenanceTimeInterval());
     DBConfig.setAllowAdaptiveEnergy(cfgArgs.getAllowAdaptiveEnergy());
-    DBConfig.setAllowDelegateResource(cfgArgs.getAllowDelegateResource());
-    DBConfig.setAllowTvmTransferTrc10(cfgArgs.getAllowTvmTransferTrc10());
-    DBConfig.setAllowTvmConstantinople(cfgArgs.getAllowTvmConstantinople());
+    // DBConfig.setAllowDelegateResource(cfgArgs.getAllowDelegateResource());
+    // DBConfig.setAllowTvmTransferTrc10(cfgArgs.getAllowTvmTransferTrc10());
+    // DBConfig.setAllowTvmConstantinople(cfgArgs.getAllowTvmConstantinople());
     DBConfig.setAllowTvmSolidity059(cfgArgs.getAllowTvmSolidity059());
     DBConfig.setForbidTransferToContract(cfgArgs.getForbidTransferToContract());
-    DBConfig.setAllowSameTokenName(cfgArgs.getAllowSameTokenName());
+    // DBConfig.setAllowSameTokenName(cfgArgs.getAllowSameTokenName());
     DBConfig.setAllowCreationOfContracts(cfgArgs.getAllowCreationOfContracts());
 //    DBConfig.setAllowShieldedTransaction(cfgArgs.getAllowShieldedTransaction());
     DBConfig.setAllowAccountStateRoot(cfgArgs.getAllowAccountStateRoot());

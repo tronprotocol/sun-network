@@ -23,7 +23,6 @@ import org.tron.core.services.http.GetBlockByNumServlet;
 import org.tron.core.services.http.GetBrokerageServlet;
 import org.tron.core.services.http.GetDelegatedResourceAccountIndexServlet;
 import org.tron.core.services.http.GetDelegatedResourceServlet;
-import org.tron.core.services.http.GetExchangeByIdServlet;
 import org.tron.core.services.http.GetMerkleTreeVoucherInfoServlet;
 import org.tron.core.services.http.GetNodeInfoServlet;
 import org.tron.core.services.http.GetNowBlockServlet;
@@ -32,7 +31,6 @@ import org.tron.core.services.http.GetRewardServlet;
 import org.tron.core.services.http.GetTransactionCountByBlockNumServlet;
 import org.tron.core.services.http.GetTransactionInfoByBlockNumServlet;
 import org.tron.core.services.http.IsSpendServlet;
-import org.tron.core.services.http.ListExchangesServlet;
 import org.tron.core.services.http.ListWitnessesServlet;
 import org.tron.core.services.http.ScanAndMarkNoteByIvkServlet;
 import org.tron.core.services.http.ScanNoteByIvkServlet;
@@ -61,10 +59,6 @@ public class SolidityNodeHttpApiService implements Service {
   private GetDelegatedResourceServlet getDelegatedResourceServlet;
   @Autowired
   private GetDelegatedResourceAccountIndexServlet getDelegatedResourceAccountIndexServlet;
-  @Autowired
-  private GetExchangeByIdServlet getExchangeByIdServlet;
-  @Autowired
-  private ListExchangesServlet listExchangesServlet;
 
   @Autowired
   private ListWitnessesServlet listWitnessesServlet;
@@ -150,11 +144,11 @@ public class SolidityNodeHttpApiService implements Service {
           "/walletsolidity/getdelegatedresource");
       context.addServlet(new ServletHolder(getDelegatedResourceAccountIndexServlet),
           "/walletsolidity/getdelegatedresourceaccountindex");
-      context
-          .addServlet(new ServletHolder(getExchangeByIdServlet),
-              "/walletsolidity/getexchangebyid");
-      context.addServlet(new ServletHolder(listExchangesServlet),
-          "/walletsolidity/listexchanges");
+      // context
+      //     .addServlet(new ServletHolder(getExchangeByIdServlet),
+      //         "/walletsolidity/getexchangebyid");
+      // context.addServlet(new ServletHolder(listExchangesServlet),
+      //     "/walletsolidity/listexchanges");
 
       context.addServlet(new ServletHolder(getAccountByIdServlet),
           "/walletsolidity/getaccountbyid");

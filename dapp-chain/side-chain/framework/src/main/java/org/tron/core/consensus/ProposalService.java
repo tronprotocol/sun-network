@@ -77,10 +77,10 @@ public class ProposalService extends ProposalUtil {
           manager.getDynamicPropertiesStore().saveCreateNewAccountBandwidthRate(Long.valueOf(entry.getValue()));
           break;
         }
-        case ALLOW_CREATION_OF_CONTRACTS: {
-          manager.getDynamicPropertiesStore().saveAllowCreationOfContracts(Long.valueOf(entry.getValue()));
-          break;
-        }
+        // case ALLOW_CREATION_OF_CONTRACTS: {
+        //   manager.getDynamicPropertiesStore().saveAllowCreationOfContracts(Long.valueOf(entry.getValue()));
+        //   break;
+        // }
         case REMOVE_THE_POWER_OF_THE_GR: {
           if (manager.getDynamicPropertiesStore().getRemoveThePowerOfTheGr() == 0) {
             manager.getDynamicPropertiesStore().saveRemoveThePowerOfTheGr(Long.valueOf(entry.getValue()));
@@ -103,32 +103,32 @@ public class ProposalService extends ProposalUtil {
           manager.getDynamicPropertiesStore().saveAllowUpdateAccountName(Long.valueOf(entry.getValue()));
           break;
         }
-        case ALLOW_SAME_TOKEN_NAME: {
-          manager.getDynamicPropertiesStore().saveAllowSameTokenName(Long.valueOf(entry.getValue()));
-          break;
-        }
-        case ALLOW_DELEGATE_RESOURCE: {
-          manager.getDynamicPropertiesStore().saveAllowDelegateResource(Long.valueOf(entry.getValue()));
-          break;
-        }
+        // case ALLOW_SAME_TOKEN_NAME: {
+        //   manager.getDynamicPropertiesStore().saveAllowSameTokenName(Long.valueOf(entry.getValue()));
+        //   break;
+        // }
+        // case ALLOW_DELEGATE_RESOURCE: {
+        //   manager.getDynamicPropertiesStore().saveAllowDelegateResource(Long.valueOf(entry.getValue()));
+        //   break;
+        // }
         case TOTAL_ENERGY_LIMIT: {
           manager.getDynamicPropertiesStore().saveTotalEnergyLimit(Long.valueOf(entry.getValue()));
           break;
         }
-        case ALLOW_TVM_TRANSFER_TRC10: {
-          manager.getDynamicPropertiesStore().saveAllowTvmTransferTrc10(Long.valueOf(entry.getValue()));
-          break;
-        }
+        // case ALLOW_TVM_TRANSFER_TRC10: {
+        //   manager.getDynamicPropertiesStore().saveAllowTvmTransferTrc10(Long.valueOf(entry.getValue()));
+        //   break;
+        // }
         case TOTAL_CURRENT_ENERGY_LIMIT: {
           manager.getDynamicPropertiesStore().saveTotalEnergyLimit2(Long.valueOf(entry.getValue()));
           break;
         }
-        case ALLOW_MULTI_SIGN: {
-          if (manager.getDynamicPropertiesStore().getAllowMultiSign() == 0) {
-            manager.getDynamicPropertiesStore().saveAllowMultiSign(Long.valueOf(entry.getValue()));
-          }
-          break;
-        }
+        // case ALLOW_MULTI_SIGN: {
+        //   if (manager.getDynamicPropertiesStore().getAllowMultiSign() == 0) {
+        //     manager.getDynamicPropertiesStore().saveAllowMultiSign(Long.valueOf(entry.getValue()));
+        //   }
+        //   break;
+        // }
         case ALLOW_ADAPTIVE_ENERGY: {
           if (manager.getDynamicPropertiesStore().getAllowAdaptiveEnergy() == 0) {
             manager.getDynamicPropertiesStore().saveAllowAdaptiveEnergy(Long.valueOf(entry.getValue()));
@@ -158,12 +158,12 @@ public class ProposalService extends ProposalUtil {
           manager.getDynamicPropertiesStore().saveAllowAccountStateRoot(Long.valueOf(entry.getValue()));
           break;
         }
-        case ALLOW_TVM_CONSTANTINOPLE: {
-          manager.getDynamicPropertiesStore().saveAllowTvmConstantinople(Long.valueOf(entry.getValue()));
-          // TODO: sun-network
-          manager.getDynamicPropertiesStore().addSystemContractAndSetPermission(48);
-          break;
-        }
+        // case ALLOW_TVM_CONSTANTINOPLE: {
+        //   manager.getDynamicPropertiesStore().saveAllowTvmConstantinople(Long.valueOf(entry.getValue()));
+        //   TODO: sun-network
+          // manager.getDynamicPropertiesStore().addSystemContractAndSetPermission(48);
+          // break;
+        // }
         case ALLOW_TVM_SOLIDITY_059: {
           manager.getDynamicPropertiesStore().saveAllowTvmSolidity059(Long.valueOf(entry.getValue()));
           break;

@@ -43,7 +43,7 @@ public class DataWord implements Comparable<DataWord> {
   public static final BigInteger MAX_VALUE = _2_256.subtract(BigInteger.ONE);
   // TODO not safe
   public static final DataWord ZERO = new DataWord(
-      new byte[WORD_SIZE]);      // don't push it in to the stack
+          new byte[WORD_SIZE]);      // don't push it in to the stack
   private byte[] data = new byte[32];
 
   public DataWord() {
@@ -468,8 +468,8 @@ public class DataWord implements Comparable<DataWord> {
       return -1;
     }
     int result = FastByteComparisons.compareTo(
-        data, 0, data.length,
-        o.getData(), 0, o.getData().length);
+            data, 0, data.length,
+            o.getData(), 0, o.getData().length);
     // Convert result into -1, 0 or 1 as is the convention
     return (int) Math.signum(result);
   }
@@ -551,4 +551,5 @@ public class DataWord implements Comparable<DataWord> {
     BigInteger result = sValue().shiftRight(arg.intValueSafe());
     return new DataWord(ByteUtil.copyToArray(result.and(MAX_VALUE)));
   }
+
 }
