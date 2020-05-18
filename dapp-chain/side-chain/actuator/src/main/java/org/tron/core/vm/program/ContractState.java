@@ -35,6 +35,8 @@ import org.tron.core.vm.repository.Repository;
 import org.tron.core.vm.repository.Value;
 import org.tron.protos.Protocol.AccountType;
 
+import java.util.List;
+
 public class ContractState implements Repository, ProgramListenerAware {
 
   // contract address
@@ -82,12 +84,10 @@ public class ContractState implements Repository, ProgramListenerAware {
     return repository.createAccount(address, accountName, type);
   }
 
-
   @Override
   public AccountCapsule getAccount(byte[] addr) {
     return repository.getAccount(addr);
   }
-
 
   public BytesCapsule getDynamic(byte[] bytesKey) {
     return repository.getDynamic(bytesKey);
@@ -235,6 +235,31 @@ public class ContractState implements Repository, ProgramListenerAware {
   @Override
   public AccountCapsule createNormalAccount(byte[] address) {
     return repository.createNormalAccount(address);
+  }
+
+  @Override
+  public void putAssetIssue(Key key, Value value) {
+    repository.putAssetIssue(key, value);
+  }
+
+  @Override
+  public void putAssetIssue(byte[] tokenId, AssetIssueCapsule assetIssueCapsule) {
+    repository.putAssetIssue(tokenId, assetIssueCapsule);
+  }
+
+  @Override
+  public long getEnergyFee() {
+    return repository.getEnergyFee();
+  }
+
+  @Override
+  public List<byte[]> getSideChainGateWayList() {
+    return repository.getSideChainGateWayList();
+  }
+
+  @Override
+  public boolean isGatewayAddress(byte[] address) {
+    return repository.isGatewayAddress(address);
   }
 
 }

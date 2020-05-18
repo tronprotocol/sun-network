@@ -341,35 +341,27 @@ public class Args {
   @Setter
   private int checkFrozenTime; // for test only
 
-  @Getter
-  @Setter
-  private long allowCreationOfContracts; //committee parameter
-
-  @Getter
-  @Setter
-  private long allowAdaptiveEnergy; //committee parameter
-
   // remove in side-chain
 //  @Getter
 //  @Setter
 //  private long allowCreationOfContracts; //committee parameter
 
-  // remove in side-chain
+  @Getter
+  @Setter
+  private long allowAdaptiveEnergy; //committee parameter
+
 //  @Getter
 //  @Setter
 //  private long allowDelegateResource; //committee parameter
 
-  // remove in side-chain
 //  @Getter
 //  @Setter
 //  private long allowSameTokenName; //committee parameter
 
-  // remove in side-chain
 //  @Getter
 //  @Setter
 //  private long allowTvmTransferTrc10; //committee parameter
 
-  // remove in side-chain
 //  @Getter
 //  @Setter
 //  private long allowTvmConstantinople; //committee parameter
@@ -681,7 +673,7 @@ public class Args {
     INSTANCE.trxExpirationTimeInMilliseconds = 0;
     INSTANCE.fullNodeAllowShieldedTransactionArgs = true;
     INSTANCE.zenTokenId = "000000";
-    INSTANCE.allowProtoFilterNum = 0;
+//    INSTANCE.allowProtoFilterNum = 0;
     INSTANCE.allowAccountStateRoot = 0;
     INSTANCE.validContractProtoThreadNum = 1;
     INSTANCE.shieldedTransInPendingMaxCounts = 10;
@@ -1658,8 +1650,8 @@ public class Args {
     DBConfig.setAllowTvmSolidity059(cfgArgs.getAllowTvmSolidity059());
     DBConfig.setForbidTransferToContract(cfgArgs.getForbidTransferToContract());
     // DBConfig.setAllowSameTokenName(cfgArgs.getAllowSameTokenName());
-    DBConfig.setAllowCreationOfContracts(cfgArgs.getAllowCreationOfContracts());
-//    DBConfig.setAllowShieldedTransaction(cfgArgs.getAllowShieldedTransaction());
+    // DBConfig.setAllowCreationOfContracts(cfgArgs.getAllowCreationOfContracts());
+    // DBConfig.setAllowShieldedTransaction(cfgArgs.getAllowShieldedTransaction());
     DBConfig.setAllowAccountStateRoot(cfgArgs.getAllowAccountStateRoot());
     DBConfig.setAllowProtoFilterNum(cfgArgs.getAllowProtoFilterNum());
     DBConfig.setProposalExpireTime(cfgArgs.getProposalExpireTime());

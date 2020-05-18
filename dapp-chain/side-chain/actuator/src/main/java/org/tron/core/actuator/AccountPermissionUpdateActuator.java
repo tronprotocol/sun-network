@@ -33,12 +33,14 @@ public class AccountPermissionUpdateActuator extends AbstractActuator {
 
   @Override
   public boolean execute(Object object) throws ContractExeException {
+    int chargingType = chainBaseManager.getDynamicPropertiesStore().getSideChainChargingType();
     TransactionResultCapsule result = (TransactionResultCapsule)object;
     if (Objects.isNull(result)){
       throw new RuntimeException("TransactionResultCapsule is null");
     }
 
     AccountStore accountStore = chainBaseManager.getAccountStore();
+    DynamicPropertiesStore dynamicStore = chainBaseManager.getDynamicPropertiesStore();
     long fee = calcFee();
     final AccountPermissionUpdateContract accountPermissionUpdateContract;
     try {
@@ -51,8 +53,8 @@ public class AccountPermissionUpdateActuator extends AbstractActuator {
           accountPermissionUpdateContract.getActivesList());
       accountStore.put(ownerAddress, account);
 
-      Commons.adjustBalance(accountStore, ownerAddress, -fee);
-      Commons.adjustBalance(accountStore, accountStore.getBlackhole().createDbKey(), fee);
+      Commons.adjustBalance(accountStore, ownerAddress, -fee, chargingType);
+      Commons.adjustFund(dynamicStore, fee);
 
       result.setStatus(fee, code.SUCESS);
     } catch (BalanceInsufficientException e) {
@@ -159,10 +161,10 @@ public class AccountPermissionUpdateActuator extends AbstractActuator {
     AccountStore accountStore = chainBaseManager.getAccountStore();
     DynamicPropertiesStore dynamicStore = chainBaseManager.getDynamicPropertiesStore();
 
-    if (dynamicStore.getAllowMultiSign() != 1) {
-      throw new ContractValidateException("multi sign is not allowed, "
-          + "need to be opened by the committee");
-    }
+//    if (dynamicStore.getAllowMultiSign() != 1) {
+//      throw new ContractValidateException("multi sign is not allowed, "
+//          + "need to be opened by the committee");
+//    }
     if (!this.any.is(AccountPermissionUpdateContract.class)) {
       throw new ContractValidateException(
           "contract type error,expected type [AccountPermissionUpdateContract],real type["
@@ -241,6 +243,12 @@ public class AccountPermissionUpdateActuator extends AbstractActuator {
 
   @Override
   public long calcFee() {
-    return chainBaseManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee();
+    int chargingType = chainBaseManager.getDynamicPropertiesStore().getSideChainChargingType();
+
+    if(chargingType == 0) {
+      return chainBaseManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee();
+    } else {
+      return chainBaseManager.getDynamicPropertiesStore().getUpdateAccountPermissionTokenFee();
+    }
   }
 }

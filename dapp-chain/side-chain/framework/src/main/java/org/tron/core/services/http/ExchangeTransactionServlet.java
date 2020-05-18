@@ -21,21 +21,21 @@ public class ExchangeTransactionServlet extends RateLimiterServlet {
   private Wallet wallet;
 
   protected void doPost(HttpServletRequest request, HttpServletResponse response) {
-    try {
-      String contract = request.getReader().lines()
-          .collect(Collectors.joining(System.lineSeparator()));
-      Util.checkBodySize(contract);
-      boolean visible = Util.getVisiblePost(contract);
-      ExchangeTransactionContract.Builder build = ExchangeTransactionContract.newBuilder();
-      JsonFormat.merge(contract, build, visible);
-      Transaction tx = wallet
-          .createTransactionCapsule(build.build(), ContractType.ExchangeTransactionContract)
-          .getInstance();
-      JSONObject jsonObject = JSONObject.parseObject(contract);
-      tx = Util.setTransactionPermissionId(jsonObject, tx);
-      response.getWriter().println(Util.printCreateTransaction(tx, visible));
-    } catch (Exception e) {
-      Util.processError(e, response);
-    }
+//    try {
+//      String contract = request.getReader().lines()
+//          .collect(Collectors.joining(System.lineSeparator()));
+//      Util.checkBodySize(contract);
+//      boolean visible = Util.getVisiblePost(contract);
+//      ExchangeTransactionContract.Builder build = ExchangeTransactionContract.newBuilder();
+//      JsonFormat.merge(contract, build, visible);
+//      Transaction tx = wallet
+//          .createTransactionCapsule(build.build(), ContractType.ExchangeTransactionContract)
+//          .getInstance();
+//      JSONObject jsonObject = JSONObject.parseObject(contract);
+//      tx = Util.setTransactionPermissionId(jsonObject, tx);
+//      response.getWriter().println(Util.printCreateTransaction(tx, visible));
+//    } catch (Exception e) {
+//      Util.processError(e, response);
+//    }
   }
 }

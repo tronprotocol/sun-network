@@ -7,7 +7,9 @@ import org.tron.common.utils.Base58;
 import org.tron.common.utils.Commons;
 import org.tron.common.utils.DBConfig;
 import org.tron.common.utils.Sha256Hash;
+import org.tron.core.actuator.TransferAssetActuator;
 import org.tron.core.capsule.AccountCapsule;
+import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.vm.VMUtils;
 import org.tron.core.vm.repository.Repository;
@@ -20,13 +22,22 @@ public class MUtil {
   }
 
   public static void transfer(Repository deposit, byte[] fromAddress, byte[] toAddress, long amount)
-      throws ContractValidateException {
+      throws ContractValidateException, ContractExeException {
     if (0 == amount) {
       return;
     }
     VMUtils.validateForSmartContract(deposit, fromAddress, toAddress, amount);
-    deposit.addBalance(toAddress, amount);
-    deposit.addBalance(fromAddress, -amount);
+    VMUtils.executeForSmartContract(deposit, fromAddress, toAddress, amount);
+  }
+
+  public static void transferAssert(Repository deposit, byte[] fromAddress, byte[] toAddress, byte[] tokenId, long amount)
+          throws ContractValidateException, ContractExeException {
+    if (0 == amount) {
+      return;
+    }
+
+    VMUtils.validateForSmartContract(deposit, fromAddress, toAddress, tokenId, amount);
+    VMUtils.executeForSmartContract(deposit, fromAddress, toAddress, tokenId, amount);
   }
 
   public static void transferAllToken(Repository deposit, byte[] fromAddress, byte[] toAddress) {

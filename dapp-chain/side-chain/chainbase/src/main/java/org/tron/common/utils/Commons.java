@@ -3,8 +3,11 @@ package org.tron.common.utils;
 import static org.tron.common.utils.DecodeUtil.addressPreFixByte;
 import static org.tron.common.utils.Hash.sha3omit12;
 import static org.tron.core.Constant.ADD_PRE_FIX_BYTE_MAINNET;
+import static org.tron.core.Constant.SUN_TOKEN_ID;
 
 import java.util.Arrays;
+import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -93,6 +96,60 @@ public class Commons {
     adjustBalance(accountStore, account, amount);
   }
 
+  public static void adjustBalance(AccountStore accountStore, byte[] accountAddress, long amount, int chargingType)
+          throws BalanceInsufficientException {
+    AccountCapsule account = accountStore.getUnchecked(accountAddress);
+
+    if (chargingType == 0) {
+      adjustBalance(accountStore, account, amount);
+    } else {
+      adjustSunTokenBalance(accountStore, account, amount, chargingType);
+    }
+  }
+
+  public static void adjustBalance(AccountStore accountStore, AccountCapsule accountCapsule, long amount, int chargingType)
+          throws BalanceInsufficientException {
+    if (chargingType == 0) {
+      adjustBalance(accountStore, accountCapsule, amount);
+    } else {
+      adjustSunTokenBalance(accountStore, accountCapsule, amount, chargingType);
+    }
+  }
+
+  /**
+   * judge balance.
+   */
+  public void adjustBalance(AccountCapsule account, AccountStore accountStore, long amount)
+          throws BalanceInsufficientException {
+
+    long balance = account.getBalance();
+    if (amount == 0) {
+      return;
+    }
+
+    if (amount < 0 && balance < -amount) {
+      throw new BalanceInsufficientException(
+              StringUtil.createReadableString(account.createDbKey()) + " insufficient balance");
+    }
+    account.setBalance(Math.addExact(balance, amount));
+    accountStore.put(account.getAddress().toByteArray(), account);
+  }
+
+  private static void adjustSunTokenBalance(AccountStore accountStore, AccountCapsule account, long amount, int chargingType) throws BalanceInsufficientException {
+
+    long balance = account.getBalance();
+    if (amount == 0) {
+      return;
+    }
+
+    if (amount < 0 && balance < -amount) {
+      throw new BalanceInsufficientException(
+              createReadableString(account.createDbKey()) + " insufficient sun token balance");
+    }
+    account.addAssetAmountV2(SUN_TOKEN_ID.getBytes(), amount);
+    accountStore.put(account.getAddress().toByteArray(), account);
+  }
+
   public static String createReadableString(byte[] bytes) {
     return ByteArray.toHexString(bytes);
   }
@@ -126,7 +183,7 @@ public class Commons {
     }
   }
 
-  public static void putExchangeCapsule(ExchangeCapsule exchangeCapsule,
+/*  public static void putExchangeCapsule(ExchangeCapsule exchangeCapsule,
       DynamicPropertiesStore dynamicPropertiesStore, ExchangeStore exchangeStore,
       ExchangeV2Store exchangeV2Store, AssetIssueStore assetIssueStore) {
     if (dynamicPropertiesStore.getAllowSameTokenName() == 0) {
@@ -137,7 +194,7 @@ public class Commons {
     } else {
       exchangeV2Store.put(exchangeCapsule.createDbKey(), exchangeCapsule);
     }
-  }
+  }*/
 
   public static AssetIssueStore getAssetIssueStoreFinal(
       DynamicPropertiesStore dynamicPropertiesStore,
@@ -183,5 +240,31 @@ public class Commons {
     AccountCapsule account = accountStore.getUnchecked(accountAddress);
     adjustAssetBalanceV2(account, AssetID, amount, accountStore, assetIssueStore,
         dynamicPropertiesStore);
+  }
+
+  public static long adjustFund(DynamicPropertiesStore dynamicPropertiesStore, long num) {
+    long fund = dynamicPropertiesStore.getFund();
+    if (num == 0) {
+      return 0;
+    }
+
+    if (num < 0 && fund < -num) {//if |num| > fund, return all of fund
+      dynamicPropertiesStore.saveFund(0);
+      return fund * (-1);
+    }
+
+    dynamicPropertiesStore.saveFund(fund + num);
+    return num;
+  }
+
+  public static boolean isGatewayAddress(DynamicPropertiesStore dynamicPropertiesStore, byte[] ownerAddress) {
+    List<byte[]> gatewayList = dynamicPropertiesStore.getSideChainGateWayList();
+
+    for (byte[] gateway: gatewayList) {
+      if (ByteUtil.equals(gateway, ownerAddress)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

@@ -25,6 +25,10 @@ public class CodeCapsule implements ProtoCapsule<byte[]> {
 
   private byte[] code;
 
+  public void setCode(byte[] code) {
+    this.code = code;
+  }
+
   public CodeCapsule(byte[] code) {
     this.code = code;
   }

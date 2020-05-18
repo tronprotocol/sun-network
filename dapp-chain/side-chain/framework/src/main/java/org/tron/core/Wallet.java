@@ -152,6 +152,8 @@ import org.tron.core.store.AccountIdIndexStore;
 import org.tron.core.store.AccountStore;
 import org.tron.core.store.ContractStore;
 import org.tron.core.store.StoreFactory;
+import org.tron.core.utils.TransactionUtil;
+import org.tron.core.vm.config.VMConfig;
 import org.tron.core.zen.ZenTransactionBuilder;
 import org.tron.core.zen.address.DiversifierT;
 import org.tron.core.zen.address.ExpandedSpendingKey;
@@ -670,8 +672,8 @@ public class Wallet {
                 "Signature size is " + sig.size());
           }
           String base64 = TransactionCapsule.getBase64FromByteString(sig);
-          byte[] address = ECKey
-                  .signatureToAddress(TransactionCapsule.getHashWithSideChainId(hash), base64);
+          byte[] address = SignUtils.signatureToAddress(hash, base64, Args.getInstance()
+              .isECKeyCryptoEngine());
           approveList.add(ByteString.copyFrom(address)); //out put approve list.
         }
         tswBuilder.addAllApprovedList(approveList);
@@ -985,6 +987,12 @@ public class Wallet {
                     .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getChargingSwitch()))
                     .build());
 
+    builder.addChainParameter(
+            Protocol.SideChainParameters.SideChainParameter.newBuilder()
+                    .setKey("getChargingSwitch")
+                    .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getChargingSwitch()))
+                    .build());
+
     builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getMainChainGateWayList")
             .setValue(convertGateWayListToString(
@@ -1033,7 +1041,7 @@ public class Wallet {
     builder.addChainParameter(
             Protocol.SideChainParameters.SideChainParameter.newBuilder()
                     .setKey("getFundInjectAddress")
-                    .setValue(Base58.encode(dbManager.getDynamicPropertiesStore().getFundInjectAddress()))
+                    .setValue(WalletUtil.encode58Check(dbManager.getDynamicPropertiesStore().getFundInjectAddress()))
                     .build());
 
     // FundDistributeEnableSwitch 0,1
@@ -1133,6 +1141,22 @@ public class Wallet {
     long totalNetWeight = dbManager.getDynamicPropertiesStore().getTotalNetWeight();
 
     Map<String, Long> assetNetLimitMap = new HashMap<>();
+//    Map<String, Long> allFreeAssetNetUsage;
+//    if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
+//      allFreeAssetNetUsage = accountCapsule.getAllFreeAssetNetUsage();
+//      allFreeAssetNetUsage.keySet().forEach(asset -> {
+//        byte[] key = ByteArray.fromString(asset);
+//        assetNetLimitMap
+//            .put(asset, dbManager.getAssetIssueStore().get(key).getFreeAssetNetLimit());
+//      });
+//    } else {
+//      allFreeAssetNetUsage = accountCapsule.getAllFreeAssetNetUsageV2();
+//      allFreeAssetNetUsage.keySet().forEach(asset -> {
+//        byte[] key = ByteArray.fromString(asset);
+//        assetNetLimitMap
+//            .put(asset, dbManager.getAssetIssueV2Store().get(key).getFreeAssetNetLimit());
+//      });
+//    }
 
     builder.setFreeNetUsed(accountCapsule.getFreeNetUsage())
         .setFreeNetLimit(freeNetLimit)
@@ -1174,6 +1198,22 @@ public class Wallet {
     long storageUsage = accountCapsule.getAccountResource().getStorageUsage();
 
     Map<String, Long> assetNetLimitMap = new HashMap<>();
+//    Map<String, Long> allFreeAssetNetUsage;
+//    if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
+//      allFreeAssetNetUsage = accountCapsule.getAllFreeAssetNetUsage();
+//      allFreeAssetNetUsage.keySet().forEach(asset -> {
+//        byte[] key = ByteArray.fromString(asset);
+//        assetNetLimitMap
+//            .put(asset, dbManager.getAssetIssueStore().get(key).getFreeAssetNetLimit());
+//      });
+//    } else {
+//      allFreeAssetNetUsage = accountCapsule.getAllFreeAssetNetUsageV2();
+//      allFreeAssetNetUsage.keySet().forEach(asset -> {
+//        byte[] key = ByteArray.fromString(asset);
+//        assetNetLimitMap
+//            .put(asset, dbManager.getAssetIssueV2Store().get(key).getFreeAssetNetLimit());
+//      });
+//    }
 
     builder.setFreeNetUsed(accountCapsule.getFreeNetUsage())
         .setFreeNetLimit(freeNetLimit)
@@ -1196,49 +1236,49 @@ public class Wallet {
       return null;
     }
 
-      // get asset issue by name from new DB
-      List<AssetIssueCapsule> assetIssueCapsuleList =
-          dbManager.getAssetIssueV2Store().getAllAssetIssues();
-      AssetIssueList.Builder builder = AssetIssueList.newBuilder();
-      assetIssueCapsuleList
-          .stream()
-          .filter(assetIssueCapsule -> assetIssueCapsule.getName().equals(assetName))
-          .forEach(
-              issueCapsule -> {
-                builder.addAssetIssue(issueCapsule.getInstance());
-              });
+    // get asset issue by name from new DB
+    List<AssetIssueCapsule> assetIssueCapsuleList =
+        dbManager.getAssetIssueV2Store().getAllAssetIssues();
+    AssetIssueList.Builder builder = AssetIssueList.newBuilder();
+    assetIssueCapsuleList
+        .stream()
+        .filter(assetIssueCapsule -> assetIssueCapsule.getName().equals(assetName))
+        .forEach(
+            issueCapsule -> {
+              builder.addAssetIssue(issueCapsule.getInstance());
+            });
 
-      // check count
-      if (builder.getAssetIssueCount() > 1) {
-        throw new NonUniqueObjectException(
-            "To get more than one asset, please use getAssetIssuebyid syntax");
-      } else {
-        // fetch from DB by assetName as id
-        AssetIssueCapsule assetIssueCapsule =
-            dbManager.getAssetIssueV2Store().get(assetName.toByteArray());
+    // check count
+    if (builder.getAssetIssueCount() > 1) {
+      throw new NonUniqueObjectException(
+          "To get more than one asset, please use getAssetIssuebyid syntax");
+    } else {
+      // fetch from DB by assetName as id
+      AssetIssueCapsule assetIssueCapsule =
+          dbManager.getAssetIssueV2Store().get(assetName.toByteArray());
 
-        if (assetIssueCapsule != null) {
-          // check already fetch
-          if (builder.getAssetIssueCount() > 0
-              && builder.getAssetIssue(0).getId().equals(assetIssueCapsule.getInstance().getId())) {
-            return assetIssueCapsule.getInstance();
-          }
+      if (assetIssueCapsule != null) {
+        // check already fetch
+        if (builder.getAssetIssueCount() > 0
+            && builder.getAssetIssue(0).getId().equals(assetIssueCapsule.getInstance().getId())) {
+          return assetIssueCapsule.getInstance();
+        }
 
-          builder.addAssetIssue(assetIssueCapsule.getInstance());
-          // check count
-          if (builder.getAssetIssueCount() > 1) {
-            throw new NonUniqueObjectException(
-                "To get more than one asset, please use getAssetIssuebyid syntax");
-          }
+        builder.addAssetIssue(assetIssueCapsule.getInstance());
+        // check count
+        if (builder.getAssetIssueCount() > 1) {
+          throw new NonUniqueObjectException(
+              "To get more than one asset, please use getAssetIssuebyid syntax");
         }
       }
+    }
 
-      if (builder.getAssetIssueCount() > 0) {
-        return builder.getAssetIssue(0);
-      } else {
-        return null;
-     }
-   }
+    if (builder.getAssetIssueCount() > 0) {
+      return builder.getAssetIssue(0);
+    } else {
+      return null;
+    }
+  }
 
   public AssetIssueList getAssetIssueListByName(ByteString assetName) {
     if (assetName == null || assetName.isEmpty()) {
@@ -2379,6 +2419,7 @@ public class Wallet {
     VMActuator vmActuator = new VMActuator(true);
 
     vmActuator.validate(context);
+    // VMConfig.handleProposalInVM(vmActuator.getRepository());
     vmActuator.execute(context);
 
     ProgramResult result = context.getProgramResult();
@@ -2714,11 +2755,11 @@ public class Wallet {
     String gateWayStr = "";
     int i = 0;
     while (i < list.size() - 1) {
-      gateWayStr += Base58.encode(list.get(i)) + ",";
+      gateWayStr += WalletUtil.encode58Check(list.get(i)) + ",";
       i++;
     }
     if (i == list.size() - 1) {
-      gateWayStr += Base58.encode(list.get(i));
+      gateWayStr += WalletUtil.encode58Check(list.get(i));
     }
     return gateWayStr;
   }

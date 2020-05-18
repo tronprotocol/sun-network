@@ -41,9 +41,7 @@ public class Value {
       System.arraycopy(any, 0, this.any, 0, any.length);
       this.type = new Type(type);
     } else {
-      if (VMConfig.allowMultiSign()) {
-        this.type = new Type(Type.VALUE_TYPE_UNKNOWN);
-      }
+      this.type = new Type(Type.VALUE_TYPE_UNKNOWN);
     }
   }
 
@@ -56,9 +54,7 @@ public class Value {
       System.arraycopy(value.getAny(), 0, this.any, 0, value.getAny().length);
       this.type = value.getType().clone();
     } else {
-      if (VMConfig.allowMultiSign()) {
-        this.type = new Type(Type.VALUE_TYPE_UNKNOWN);
-      }
+      this.type = new Type(Type.VALUE_TYPE_UNKNOWN);
     }
   }
 

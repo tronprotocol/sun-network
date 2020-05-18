@@ -30,14 +30,7 @@ import org.tron.core.db.Manager;
 import org.tron.core.db.TransactionStore;
 import org.tron.core.exception.BadItemException;
 import org.tron.core.exception.ItemNotFoundException;
-import org.tron.core.store.AccountStore;
-import org.tron.core.store.CodeStore;
-import org.tron.core.store.ContractStore;
-import org.tron.core.store.DelegatedResourceStore;
-import org.tron.core.store.DynamicPropertiesStore;
-import org.tron.core.store.ProposalStore;
-import org.tron.core.store.VotesStore;
-import org.tron.core.store.WitnessStore;
+import org.tron.core.store.*;
 import org.tron.core.vm.config.VMConfig;
 import org.tron.core.vm.program.Storage;
 import org.tron.core.vm.repository.Key;
@@ -45,7 +38,6 @@ import org.tron.core.vm.repository.Type;
 import org.tron.core.vm.repository.Value;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.AccountType;
-import org.tron.core.store.AssetIssueV2Store;
 
 @Slf4j(topic = "deposit")
 public class DepositImpl implements Deposit {
@@ -127,7 +119,9 @@ public class DepositImpl implements Deposit {
     return dbManager.getCodeStore();
   }
 
-  private AssetIssueV2Store getAssetIssueV2Store() {return  dbManager.getAssetIssueV2Store();}
+  private AssetIssueV2Store getAssetIssueV2Store() {
+    return this.dbManager.getAssetIssueV2Store();
+  }
 
   private DelegatedResourceStore getDelegatedResourceStore() {
     return dbManager.getDelegatedResourceStore();
@@ -320,6 +314,7 @@ public class DepositImpl implements Deposit {
     Key key = Key.create(address);
     Value value = Value.create(code, Type.VALUE_TYPE_CREATE);
     codeCache.put(key, value);
+
     ContractCapsule contract = getContract(address);
     byte[] codeHash = Hash.sha3(code);
     contract.setCodeHash(codeHash);
@@ -358,10 +353,7 @@ public class DepositImpl implements Deposit {
     Storage storage;
     if (this.parent != null) {
       Storage parentStorage = parent.getStorage(address);
-
-      // deep copy
       storage = new Storage(parentStorage);
-
     } else {
       storage = new Storage(address, dbManager.getStorageRowStore());
     }
@@ -384,9 +376,7 @@ public class DepositImpl implements Deposit {
     if (this.parent != null) {
       assetIssueCapsule = parent.getAssetIssue(tokenIdWithoutLeadingZero);
     } else {
-      assetIssueCapsule = Commons.getAssetIssueStoreFinal(dbManager.getDynamicPropertiesStore(),
-          dbManager.getAssetIssueStore(), dbManager.getAssetIssueV2Store())
-          .get(tokenIdWithoutLeadingZero);
+      assetIssueCapsule = this.dbManager.getAssetIssueV2Store().get(tokenIdWithoutLeadingZero);
     }
     if (assetIssueCapsule != null) {
       assetIssueCache.put(key, Value.create(assetIssueCapsule.getData()));
@@ -460,11 +450,13 @@ public class DepositImpl implements Deposit {
               + " insufficient balance");
     }
     if (value >= 0) {
-      accountCapsule.addAssetAmountV2(tokenIdWithoutLeadingZero, value,
-          this.dbManager.getDynamicPropertiesStore(), this.dbManager.getAssetIssueStore());
+      accountCapsule.addAssetAmountV2(tokenIdWithoutLeadingZero, value);
+/*      accountCapsule.addAssetAmountV2(tokenIdWithoutLeadingZero, value,
+          this.dbManager.getDynamicPropertiesStore(), this.dbManager.getAssetIssueStore());*/
     } else {
-      accountCapsule.reduceAssetAmountV2(tokenIdWithoutLeadingZero, -value,
-          this.dbManager.getDynamicPropertiesStore(), this.dbManager.getAssetIssueStore());
+      accountCapsule.reduceAssetAmountV2(tokenIdWithoutLeadingZero, -value);
+/*      accountCapsule.reduceAssetAmountV2(tokenIdWithoutLeadingZero, -value,
+          this.dbManager.getDynamicPropertiesStore(), this.dbManager.getAssetIssueStore());*/
     }
 //    accountCapsule.getAssetMap().put(new String(tokenIdWithoutLeadingZero), Math.addExact(balance, value));
     Key key = Key.create(address);

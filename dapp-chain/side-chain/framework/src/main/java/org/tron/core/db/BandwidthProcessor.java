@@ -43,7 +43,7 @@ public class BandwidthProcessor extends ResourceProcessor {
 
   @Override
   public void consume(TransactionCapsule trx, TransactionTrace trace)
-          throws ContractValidateException, AccountResourceInsufficientException, TooBigTransactionResultException {
+      throws ContractValidateException, AccountResourceInsufficientException, TooBigTransactionResultException {
     List<Contract> contracts = trx.getInstance().getRawData().getContractList();
     if (trx.getResultSerializedSize() > Constant.MAX_RESULT_SIZE_IN_TX * contracts.size()) {
       throw new TooBigTransactionResultException();
@@ -73,10 +73,11 @@ public class BandwidthProcessor extends ResourceProcessor {
         continue;
       }
 
-      // if (contract.getType() == TransferAssetContract && useAssetAccountNet(contract,
-      //     accountCapsule, now, bytesSize)) {
-      //   continue;
-      // }
+      // side chain don't have asset issuers. So, don't support free asset bandwidth for transferAsset
+//      if (contract.getType() == TransferAssetContract && useAssetAccountNet(contract,
+//          accountCapsule, now, bytesSize)) {
+//        continue;
+//      }
 
       if (useAccountNet(accountCapsule, bytesSize, now)) {
         continue;
@@ -92,13 +93,13 @@ public class BandwidthProcessor extends ResourceProcessor {
 
       long fee = dbManager.getDynamicPropertiesStore().getTransactionFee(chargingType) * bytesSize;
       throw new AccountResourceInsufficientException(
-              "Account Insufficient bandwidth[" + bytesSize + "] and balance["
-                      + fee + "] to create new account");
+          "Account Insufficient bandwidth[" + bytesSize + "] and balance["
+              + fee + "] to create new account");
     }
   }
 
   private boolean useTransactionFee(AccountCapsule accountCapsule, long bytes,
-                                    TransactionTrace trace) {
+      TransactionTrace trace) {
     int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
     long fee = dbManager.getDynamicPropertiesStore().getTransactionFee(chargingType) * bytes;
     if (consumeFee(accountCapsule, fee)) {
@@ -111,8 +112,8 @@ public class BandwidthProcessor extends ResourceProcessor {
   }
 
   private void consumeForCreateNewAccount(AccountCapsule accountCapsule, long bytes,
-                                          long now, TransactionTrace trace)
-          throws AccountResourceInsufficientException {
+      long now, TransactionTrace trace)
+      throws AccountResourceInsufficientException {
     boolean ret = consumeBandwidthForCreateNewAccount(accountCapsule, bytes, now);
 
     if (!ret) {
@@ -124,10 +125,10 @@ public class BandwidthProcessor extends ResourceProcessor {
   }
 
   public boolean consumeBandwidthForCreateNewAccount(AccountCapsule accountCapsule, long bytes,
-                                                     long now) {
+      long now) {
 
     long createNewAccountBandwidthRatio = dbManager.getDynamicPropertiesStore()
-            .getCreateNewAccountBandwidthRate();
+        .getCreateNewAccountBandwidthRate();
 
     long netUsage = accountCapsule.getNetUsage();
     long latestConsumeTime = accountCapsule.getLatestConsumeTime();
@@ -139,7 +140,7 @@ public class BandwidthProcessor extends ResourceProcessor {
       latestConsumeTime = now;
       long latestOperationTime = dbManager.getHeadBlockTimeStamp();
       newNetUsage = increase(newNetUsage, bytes * createNewAccountBandwidthRatio, latestConsumeTime,
-              now);
+          now);
       accountCapsule.setLatestConsumeTime(latestConsumeTime);
       accountCapsule.setLatestOperationTime(latestOperationTime);
       accountCapsule.setNetUsage(newNetUsage);
@@ -150,7 +151,7 @@ public class BandwidthProcessor extends ResourceProcessor {
   }
 
   public boolean consumeFeeForCreateNewAccount(AccountCapsule accountCapsule,
-                                               TransactionTrace trace) {
+      TransactionTrace trace) {
     int chargingType = dbManager.getDynamicPropertiesStore().getSideChainChargingType();
     long fee = dbManager.getDynamicPropertiesStore().getCreateAccountFee(chargingType);
     if (consumeFee(accountCapsule, fee)) {
@@ -184,7 +185,7 @@ public class BandwidthProcessor extends ResourceProcessor {
           throw new RuntimeException(ex.getMessage());
         }
         toAccount = dbManager.getAccountStore()
-                .get(transferAssetContract.getToAddress().toByteArray());
+            .get(transferAssetContract.getToAddress().toByteArray());
         return toAccount == null;
       default:
         return false;
