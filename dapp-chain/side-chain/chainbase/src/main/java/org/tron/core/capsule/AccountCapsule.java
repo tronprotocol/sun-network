@@ -495,15 +495,9 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     Map<String, Long> assetMap;
     String nameKey;
     Long currentAmount;
-    if (dynamicPropertiesStore.getAllowSameTokenName() == 0) {
-      assetMap = this.account.getAssetMap();
-      nameKey = ByteArray.toStr(key);
-      currentAmount = assetMap.get(nameKey);
-    } else {
-      String tokenID = ByteArray.toStr(key);
-      assetMap = this.account.getAssetV2Map();
-      currentAmount = assetMap.get(tokenID);
-    }
+    String tokenID = ByteArray.toStr(key);
+    assetMap = this.account.getAssetV2Map();
+    currentAmount = assetMap.get(tokenID);
 
     return amount > 0 && null != currentAmount && amount <= currentAmount;
   }
@@ -527,6 +521,7 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
   /**
    * reduce asset amount.
    */
+/*
   public boolean reduceAssetAmountV2(byte[] key, long amount,
       DynamicPropertiesStore dynamicPropertiesStore, AssetIssueStore assetIssueStore) {
     //key is token name
@@ -559,10 +554,12 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
 
     return false;
   }
+ */
 
   /**
    * add asset amount.
    */
+/*
   public boolean addAssetAmount(byte[] key, long amount) {
     Map<String, Long> assetMap = this.account.getAssetMap();
     String nameKey = ByteArray.toStr(key);
@@ -574,10 +571,12 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
         .build();
     return true;
   }
+ */
 
   /**
    * add asset amount.
    */
+  /*
   public boolean addAssetAmountV2(byte[] key, long amount,
       DynamicPropertiesStore dynamicPropertiesStore, AssetIssueStore assetIssueStore) {
     //key is token name
@@ -609,6 +608,7 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     }
     return true;
   }
+ */
 
   /**
    * add asset.

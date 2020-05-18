@@ -81,13 +81,15 @@ public class TransferAssetActuator extends AbstractActuator {
 
       AccountCapsule ownerAccountCapsule = accountStore.get(ownerAddress);
       if (!ownerAccountCapsule
-          .reduceAssetAmountV2(assetName.toByteArray(), amount, dynamicStore, assetIssueStore)) {
+              //???
+          .reduceAssetAmountV2(assetName.toByteArray(), amount)) {
         throw new ContractExeException("reduceAssetAmount failed !");
       }
       accountStore.put(ownerAddress, ownerAccountCapsule);
 
       toAccountCapsule
-          .addAssetAmountV2(assetName.toByteArray(), amount, dynamicStore, assetIssueStore);
+              //???
+          .addAssetAmountV2(assetName.toByteArray(), amount);
       accountStore.put(toAddress, toAccountCapsule);
 
       ret.setStatus(fee, code.SUCESS);

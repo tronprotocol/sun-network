@@ -171,31 +171,6 @@ public class Sha256Hash implements Serializable, Comparable<Sha256Hash> {
   }
 
   /**
-   * Calculates the SHA-256 hash of the given bytes.
-   *
-   * @param input the bytes to hash
-   * @return the hash (in big-endian order)
-   */
-  public static byte[] hash(byte[] input) {
-    return hash(input, 0, input.length);
-  }
-
-  /**
-   * Calculates the SHA-256 hash of the given byte range.
-   *
-   * @param input the array containing the bytes to hash
-   * @param offset the offset within the array of the bytes to hash
-   * @param length the number of bytes to hash
-   * @return the hash (in big-endian order)
-   */
-  public static byte[] hash(byte[] input, int offset, int length) {
-    MessageDigest digest = newDigest();
-    digest.update(input, offset, length);
-    return digest.digest();
-  }
-
-
-  /**
    * Calculates the SHA-256 hash of the given byte range.
    *
    * @param input the array containing the bytes to hash

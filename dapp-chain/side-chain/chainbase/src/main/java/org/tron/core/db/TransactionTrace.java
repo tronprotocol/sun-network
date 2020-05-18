@@ -61,6 +61,7 @@ public class TransactionTrace {
 
   private EnergyProcessor energyProcessor;
 
+  @Setter
   private TrxType trxType;
 
   private long txStartTimeInMs;
@@ -88,7 +89,7 @@ public class TransactionTrace {
         .getContract(0).getType();
     switch (contractType.getNumber()) {
       case ContractType.TriggerSmartContract_VALUE:
-        if (this.trx.checkIfSideChainGateWayContractCall(storeFactory.getChainBaseManager())) {
+        if (this.trx.checkIfSideChainGateWayContractCall(storeFactory.getChainBaseManager().getDynamicPropertiesStore())) {
           isSideChainGateWayContractCall = true;
         }
         trxType = TRX_CONTRACT_CALL_TYPE;

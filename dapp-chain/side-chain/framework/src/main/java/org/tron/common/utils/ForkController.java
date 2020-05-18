@@ -30,6 +30,7 @@ public class ForkController extends ForkUtils {
     return ForkControllerEnum.INSTANCE.getInstance();
   }
 
+  //创建变量
   public void init(Manager manager) {
     this.manager = manager;
     super.init(manager.getDynamicPropertiesStore());

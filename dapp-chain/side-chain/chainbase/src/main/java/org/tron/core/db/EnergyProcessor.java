@@ -16,6 +16,7 @@ import org.tron.core.store.AccountStore;
 import org.tron.core.store.DynamicPropertiesStore;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Account.AccountResource;
+import org.tron.protos.Protocol.Transaction.Contract;
 
 import java.util.List;
 
@@ -159,7 +160,7 @@ public class EnergyProcessor extends ResourceProcessor {
 
   public void bandwidthEnergyConsume(TransactionCapsule trx, TransactionTrace trace)
           throws TooBigTransactionResultException, ContractValidateException, AccountResourceInsufficientException {
-    List<Protocol.Transaction.Contract> contracts = trx.getInstance().getRawData().getContractList();
+    List<Contract> contracts = trx.getInstance().getRawData().getContractList();
     if (trx.getResultSerializedSize() > Constant.MAX_RESULT_SIZE_IN_TX * contracts.size()) {
       throw new TooBigTransactionResultException();
     }
@@ -169,7 +170,7 @@ public class EnergyProcessor extends ResourceProcessor {
 
     bytesSize = trx.getInstance().toBuilder().clearRet().build().getSerializedSize();
 
-    for (Protocol.Transaction.Contract contract : contracts) {
+    for (Contract contract : contracts) {
 
       bytesSize += Constant.MAX_RESULT_SIZE_IN_TX;
 
@@ -206,7 +207,7 @@ public class EnergyProcessor extends ResourceProcessor {
   }
 
 
-  public boolean contractCreateNewAccount(Protocol.Transaction.Contract contract) {
+  public boolean contractCreateNewAccount(Contract contract) {
     switch (contract.getType()) {
       case AccountCreateContract:
         return true;
