@@ -18,7 +18,7 @@ public class GetChainParametersServlet extends RateLimiterServlet {
   protected void doPost(HttpServletRequest request, HttpServletResponse response) {
     try {
       boolean visible = Util.getVisible(request);
-      response.getWriter().println(JsonFormat.printToString(wallet.getChainParameters(), visible));
+      response.getWriter().println(JsonFormat.printToString(wallet.getSideChainParameters(), visible));
     } catch (Exception e) {
       Util.processError(e, response);
     }

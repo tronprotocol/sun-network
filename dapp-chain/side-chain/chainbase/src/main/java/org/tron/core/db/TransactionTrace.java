@@ -4,7 +4,11 @@ import static org.tron.common.runtime.InternalTransaction.TrxType.TRX_CONTRACT_C
 import static org.tron.common.runtime.InternalTransaction.TrxType.TRX_CONTRACT_CREATION_TYPE;
 import static org.tron.common.utils.DecodeUtil.addressPreFixByte;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+
+import com.google.protobuf.Any;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +18,8 @@ import org.tron.common.runtime.InternalTransaction.TrxType;
 import org.tron.common.runtime.ProgramResult;
 import org.tron.common.runtime.Runtime;
 import org.tron.common.runtime.vm.DataWord;
-import org.tron.common.utils.Commons;
-import org.tron.common.utils.DBConfig;
-import org.tron.common.utils.ForkUtils;
-import org.tron.common.utils.Sha256Hash;
-import org.tron.common.utils.WalletUtil;
+import org.tron.common.utils.*;
+import org.tron.core.ChainBaseManager;
 import org.tron.core.Constant;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.BlockCapsule;
@@ -69,6 +70,9 @@ public class TransactionTrace {
   private ForkUtils forkUtils;
 
   @Getter
+  private boolean isSideChainGateWayContractCall;
+
+  @Getter
   private TransactionContext transactionContext;
   @Getter
   @Setter
@@ -81,6 +85,9 @@ public class TransactionTrace {
         .getContract(0).getType();
     switch (contractType.getNumber()) {
       case ContractType.TriggerSmartContract_VALUE:
+        if (this.trx.checkIfSideChainGateWayContractCall(storeFactory.getChainBaseManager())) {
+          isSideChainGateWayContractCall = true;
+        }
         trxType = TRX_CONTRACT_CALL_TYPE;
         break;
       case ContractType.CreateSmartContract_VALUE:
@@ -122,28 +129,28 @@ public class TransactionTrace {
         eventPluginLoaded);
   }
 
-  public void checkIsConstant() throws ContractValidateException, VMIllegalException {
-    if (dynamicPropertiesStore.getAllowTvmConstantinople() == 1) {
-      return;
-    }
-    TriggerSmartContract triggerContractFromTransaction = ContractCapsule
-        .getTriggerContractFromTransaction(this.getTrx().getInstance());
-    if (TRX_CONTRACT_CALL_TYPE == this.trxType) {
-      ContractCapsule contract = contractStore
-          .get(triggerContractFromTransaction.getContractAddress().toByteArray());
-      if (contract == null) {
-        logger.info("contract: {} is not in contract store", WalletUtil
-            .encode58Check(triggerContractFromTransaction.getContractAddress().toByteArray()));
-        throw new ContractValidateException("contract: " + WalletUtil
-            .encode58Check(triggerContractFromTransaction.getContractAddress().toByteArray())
-            + " is not in contract store");
-      }
-      ABI abi = contract.getInstance().getAbi();
-      if (WalletUtil.isConstant(abi, triggerContractFromTransaction)) {
-        throw new VMIllegalException("cannot call constant method");
-      }
-    }
-  }
+//  public void checkIsConstant() throws ContractValidateException, VMIllegalException {
+//    if (dynamicPropertiesStore.getAllowTvmConstantinople() == 1) {
+//      return;
+//    }
+//    TriggerSmartContract triggerContractFromTransaction = ContractCapsule
+//        .getTriggerContractFromTransaction(this.getTrx().getInstance());
+//    if (TRX_CONTRACT_CALL_TYPE == this.trxType) {
+//      ContractCapsule contract = contractStore
+//          .get(triggerContractFromTransaction.getContractAddress().toByteArray());
+//      if (contract == null) {
+//        logger.info("contract: {} is not in contract store", WalletUtil
+//            .encode58Check(triggerContractFromTransaction.getContractAddress().toByteArray()));
+//        throw new ContractValidateException("contract: " + WalletUtil
+//            .encode58Check(triggerContractFromTransaction.getContractAddress().toByteArray())
+//            + " is not in contract store");
+//      }
+//      ABI abi = contract.getInstance().getAbi();
+//      if (WalletUtil.isConstant(abi, triggerContractFromTransaction)) {
+//        throw new VMIllegalException("cannot call constant method");
+//      }
+//    }
+//  }
 
   //set bill
   public void setBill(long energyUsage) {
@@ -305,4 +312,5 @@ public class TransactionTrace {
     LONG_RUNNING,
     OUT_OF_TIME
   }
+
 }

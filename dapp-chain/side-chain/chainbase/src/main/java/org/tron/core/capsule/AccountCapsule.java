@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.utils.ByteArray;
+import org.tron.core.ChainBaseManager;
 import org.tron.core.store.AssetIssueStore;
 import org.tron.core.store.DynamicPropertiesStore;
 import org.tron.protos.Protocol.Account;
@@ -36,6 +37,8 @@ import org.tron.protos.Protocol.Permission.PermissionType;
 import org.tron.protos.Protocol.Vote;
 import org.tron.protos.contract.AccountContract.AccountCreateContract;
 import org.tron.protos.contract.AccountContract.AccountUpdateContract;
+
+import static org.tron.core.Constant.SUN_TOKEN_ID;
 
 @Slf4j(topic = "capsule")
 public class AccountCapsule implements ProtoCapsule<Account>, Comparable<AccountCapsule> {
@@ -312,6 +315,13 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     return this.account.getBalance();
   }
 
+  public long getBalanceByChargeType(ChainBaseManager chainBaseManager) {
+    if (chainBaseManager.getDynamicPropertiesStore().getSideChainChargingType() == 1) {
+      return this.account.getAssetV2Map().getOrDefault(SUN_TOKEN_ID,0L);
+    }
+    return getBalance();
+  }
+
   public void setBalance(long balance) {
     this.account = this.account.toBuilder().setBalance(balance).build();
   }
@@ -501,7 +511,7 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
   /**
    * reduce asset amount.
    */
-  public boolean reduceAssetAmount(byte[] key, long amount) {
+/*  public boolean reduceAssetAmount(byte[] key, long amount) {
     Map<String, Long> assetMap = this.account.getAssetMap();
     String nameKey = ByteArray.toStr(key);
     Long currentAmount = assetMap.get(nameKey);
@@ -512,7 +522,7 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     }
 
     return false;
-  }
+  }*/
 
   /**
    * reduce asset amount.
@@ -1007,6 +1017,47 @@ public class AccountCapsule implements ProtoCapsule<Account>, Comparable<Account
     builder.setAccountResource(newAccountResource);
     builder.setAcquiredDelegatedFrozenBalanceForBandwidth(0L);
     this.account = builder.build();
+  }
+
+  /**
+   * reduce asset amount.
+   */
+  public boolean reduceAssetAmountV2(byte[] key, long amount) {
+    String tokenID = ByteArray.toStr(key);
+    Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
+    Long currentAmount = assetMapV2.get(tokenID);
+    if (amount > 0 && null != currentAmount && amount <= currentAmount) {
+      this.account = this.account.toBuilder()
+              .putAssetV2(tokenID, Math.subtractExact(currentAmount, amount))
+              .build();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * add asset amount.
+   */
+  public boolean addAssetAmountV2(byte[] key, long amount) {
+    String tokenIDStr = ByteArray.toStr(key);
+    Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
+    Long currentAmount = assetMapV2.get(tokenIDStr);
+    if (currentAmount == null) {
+      currentAmount = 0L;
+    }
+    this.account = this.account.toBuilder()
+            .putAssetV2(tokenIDStr, Math.addExact(currentAmount, amount))
+            .build();
+    return true;
+  }
+
+  public boolean setAssetAmountV2(byte[] key, long amount) {
+    String tokenIDStr = ByteArray.toStr(key);
+    Map<String, Long> assetMapV2 = this.account.getAssetV2Map();
+    this.account = this.account.toBuilder()
+            .putAssetV2(tokenIDStr,amount)
+            .build();
+    return true;
   }
 
 }

@@ -34,14 +34,19 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterOutputStream;
+
+import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.Commons;
 import org.tron.core.capsule.AccountCapsule;
+import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
+import org.tron.core.store.DynamicPropertiesStore;
 import org.tron.core.vm.config.VMConfig;
 import org.tron.core.vm.repository.Repository;
+import org.tron.protos.Protocol;
 
 
 @Slf4j(topic = "VM")
@@ -176,8 +181,11 @@ public final class VMUtils {
 
     AccountCapsule toAccount = deposit.getAccount(toAddress);
     if (toAccount == null) {
-      throw new ContractValidateException(
-          "Validate InternalTransfer error, no ToAccount. And not allowed to create an account in a smartContract.");
+      if(!deposit.isGatewayAddress(ownerAddress)) {
+        //only gateway address can transfer to account which is no exist.
+        throw new ContractValidateException(
+                "Validate InternalTransfer error, no ToAccount. And not allowed to create account in smart contract.");
+      }
     }
 
     long balance = ownerAccount.getBalance();
@@ -194,6 +202,8 @@ public final class VMUtils {
 
       if (toAccount != null) {
         long toAddressBalance = Math.addExact(toAccount.getBalance(), amount);
+      } else {
+        long toAddressBalance = Math.addExact(0, amount);
       }
     } catch (ArithmeticException e) {
       logger.debug(e.getMessage(), e);
@@ -237,18 +247,10 @@ public final class VMUtils {
     if (deposit.getAssetIssue(tokenIdWithoutLeadingZero) == null) {
       throw new ContractValidateException("No asset !");
     }
-    if (!Commons.getAssetIssueStoreFinal(deposit.getDynamicPropertiesStore(),
-        deposit.getAssetIssueStore(), deposit.getAssetIssueV2Store())
-        .has(tokenIdWithoutLeadingZero)) {
-      throw new ContractValidateException("No asset !");
-    }
 
     Map<String, Long> asset;
-    if (deposit.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      asset = ownerAccount.getAssetMap();
-    } else {
-      asset = ownerAccount.getAssetMapV2();
-    }
+    asset = ownerAccount.getAssetMapV2();
+
     if (asset.isEmpty()) {
       throw new ContractValidateException("Owner no asset!");
     }
@@ -263,11 +265,7 @@ public final class VMUtils {
 
     AccountCapsule toAccount = deposit.getAccount(toAddress);
     if (toAccount != null) {
-      if (deposit.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-        assetBalance = toAccount.getAssetMap().get(ByteArray.toStr(tokenIdWithoutLeadingZero));
-      } else {
-        assetBalance = toAccount.getAssetMapV2().get(ByteArray.toStr(tokenIdWithoutLeadingZero));
-      }
+      assetBalance = toAccount.getAssetMapV2().get(ByteArray.toStr(tokenIdWithoutLeadingZero));
       if (assetBalance != null) {
         try {
           assetBalance = Math.addExact(assetBalance, amount); //check if overflow
@@ -276,12 +274,88 @@ public final class VMUtils {
           throw new ContractValidateException(e.getMessage());
         }
       }
-    } else {
+    } else if (!deposit.isGatewayAddress(ownerAddress)) {
+      //only gateway address can transfer to account which is no exist.
       throw new ContractValidateException(
           "Validate InternalTransfer error, no ToAccount. And not allowed to create account in smart contract.");
     }
 
     return true;
+  }
+
+  public static boolean executeForSmartContract(Repository deposit, byte[] ownerAddress,
+                                                byte[] toAddress, long amount) throws ContractExeException {
+    try {
+      // if account with to_address does not exist, create it first.
+      AccountCapsule toAccount = deposit.getAccount(toAddress);
+      if (toAccount == null) {
+        if(deposit.isGatewayAddress(ownerAddress)) {
+          DynamicPropertiesStore dynamicStore = deposit.getDynamicPropertiesStore();
+          toAccount = new AccountCapsule(ByteString.copyFrom(toAddress), Protocol.AccountType.Normal,
+                  dynamicStore.getLatestBlockHeaderTimestamp(), true, dynamicStore);
+          deposit.putAccountValue(toAddress, toAccount);
+        } else {
+          throw new ContractExeException("no ToAccount. And not allowed to create account in smart contract.");
+        }
+      }
+      deposit.addBalance(toAddress, amount);
+      deposit.addBalance(ownerAddress, -amount);
+    } catch (ArithmeticException e) {
+      logger.debug(e.getMessage(), e);
+      throw new ContractExeException(e.getMessage());
+    }
+    return true;
+  }
+
+  public static boolean executeForSmartContract(Repository deposit, byte[] ownerAddress,
+                                                byte[] toAddress, byte[] tokenId, long amount) throws ContractExeException {
+    try {
+
+      // if account with to_address does not exist, create it first.
+      AccountCapsule toAccount = deposit.getAccount(toAddress);
+      if (toAccount == null ) {
+        if(deposit.isGatewayAddress(ownerAddress)) {
+          DynamicPropertiesStore dynamicStore = deposit.getDynamicPropertiesStore();
+          toAccount = new AccountCapsule(ByteString.copyFrom(toAddress), Protocol.AccountType.Normal,
+                  dynamicStore.getLatestBlockHeaderTimestamp(), true, dynamicStore);
+          deposit.putAccountValue(toAddress, toAccount);
+        } else {
+          throw new ContractExeException("no ToAccount. And not allowed to create account in smart contract.");
+        }
+      }
+
+      deposit.addTokenBalance(toAddress, tokenId, amount);
+      deposit.addTokenBalance(ownerAddress, tokenId,  -amount);
+    } catch (ArithmeticException e) {
+      logger.debug(e.getMessage(), e);
+      throw new ContractExeException(e.getMessage());
+    }
+    return true;
+  }
+
+  public static long executeAndReturnToAddressBalance(Repository deposit, byte[] ownerAddress,
+                                                      byte[] toAddress, long amount) throws ContractExeException {
+    long toBalance = 0;
+    try {
+      // if account with to_address does not exist, create it first.
+      AccountCapsule toAccount = deposit.getAccount(toAddress);
+      if (toAccount == null) {
+        if(deposit.isGatewayAddress(ownerAddress)) {
+          DynamicPropertiesStore dynamicStore = deposit.getDynamicPropertiesStore();
+          toAccount = new AccountCapsule(ByteString.copyFrom(toAddress), Protocol.AccountType.Normal,
+                  dynamicStore.getLatestBlockHeaderTimestamp(), true, dynamicStore);
+          deposit.putAccountValue(toAddress, toAccount);
+        } else {
+          throw new ContractExeException("no ToAccount. And not allowed to create account in smart contract.");
+        }
+      }
+      toBalance = deposit.addBalance(toAddress, amount);
+      deposit.addBalance(ownerAddress, -amount);
+    } catch (ArithmeticException e) {
+      logger.debug(e.getMessage(), e);
+      throw new ContractExeException(e.getMessage());
+    }
+    return toBalance;
   }
 
   public static String align(String s, char fillChar, int targetLen, boolean alignRight) {

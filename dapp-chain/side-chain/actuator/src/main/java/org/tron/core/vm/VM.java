@@ -104,19 +104,6 @@ public class VM {
         throw Program.Exception.invalidOpCode(program.getCurrentOp());
       }
 
-      // hard fork for 3.2
-      if (!VMConfig.allowTvmTransferTrc10()) {
-        if (op == CALLTOKEN || op == TOKENBALANCE || op == CALLTOKENVALUE || op == CALLTOKENID) {
-          throw Program.Exception.invalidOpCode(program.getCurrentOp());
-        }
-      }
-
-      if (!VMConfig.allowTvmConstantinople()) {
-        if (op == SHL || op == SHR || op == SAR || op == CREATE2 || op == EXTCODEHASH) {
-          throw Program.Exception.invalidOpCode(program.getCurrentOp());
-        }
-      }
-
       if (!VMConfig.allowTvmSolidity059() && op == ISCONTRACT) {
         throw Program.Exception.invalidOpCode(program.getCurrentOp());
       }
@@ -717,9 +704,7 @@ public class VM {
          */
         case ADDRESS: {
           DataWord address = program.getContractAddress();
-          if (VMConfig.allowMultiSign()) { // allowMultiSigns proposal
-            address = new DataWord(address.getLast20Bytes());
-          }
+          address = new DataWord(address.getLast20Bytes());
 
           if (logger.isDebugEnabled()) {
             hint = ADDRESS_LOG + Hex.toHexString(address.getLast20Bytes());
@@ -754,9 +739,7 @@ public class VM {
         case ORIGIN: {
           DataWord originAddress = program.getOriginAddress();
 
-          if (VMConfig.allowMultiSign()) { //allowMultiSign proposal
-            originAddress = new DataWord(originAddress.getLast20Bytes());
-          }
+          originAddress = new DataWord(originAddress.getLast20Bytes());
 
           if (logger.isDebugEnabled()) {
             hint = ADDRESS_LOG + Hex.toHexString(originAddress.getLast20Bytes());
@@ -942,8 +925,8 @@ public class VM {
           byte[] codeHash = program.getCodeHashAt(address);
           program.stackPush(codeHash);
           program.step();
+          break;
         }
-        break;
         case GASPRICE: {
           DataWord energyPrice = new DataWord(0);
 
@@ -1354,9 +1337,7 @@ public class VM {
           boolean isTokenTransferMsg = false;
           if (op == CALLTOKEN) {
             tokenId = program.stackPop();
-            if (VMConfig.allowMultiSign()) { // allowMultiSign proposal
-              isTokenTransferMsg = true;
-            }
+            isTokenTransferMsg = true;
           }
 
           DataWord inDataOffs = program.stackPop();
