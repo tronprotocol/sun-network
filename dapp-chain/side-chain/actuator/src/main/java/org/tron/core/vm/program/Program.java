@@ -50,7 +50,6 @@ import org.tron.common.utils.DBConfig;
 import org.tron.common.utils.FastByteComparisons;
 import org.tron.common.utils.Hash;
 import org.tron.common.utils.WalletUtil;
-import org.tron.core.actuator.TransferActuator;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.ContractCapsule;
@@ -75,7 +74,6 @@ import org.tron.core.vm.repository.Repository;
 import org.tron.core.vm.trace.ProgramTrace;
 import org.tron.core.vm.trace.ProgramTraceListener;
 import org.tron.core.vm.utils.MUtil;
-import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract.Builder;
@@ -1380,7 +1378,7 @@ public class Program {
       contract.setRepository(deposit);
       contract.setResult(this.result);
       contract.setConstantCall(isConstantCall());
-      //contract.setStaticCall(isStaticCall());
+      contract.setStaticCall(msg.getType().callIsStatic() || isStaticCall());
       contract.setVmShouldEndInUs(getVmShouldEndInUs());
       Pair<Boolean, byte[]> out = contract.execute(data);
 
