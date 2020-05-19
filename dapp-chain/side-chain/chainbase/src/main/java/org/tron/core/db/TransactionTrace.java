@@ -79,9 +79,6 @@ public class TransactionTrace {
   @Setter
   private TimeResultType timeResultType = TimeResultType.NORMAL;
 
-  @Getter
-  private boolean isSideChainGateWayContractCall;
-
   public TransactionTrace(TransactionCapsule trx, StoreFactory storeFactory,
       Runtime runtime) {
     this.trx = trx;

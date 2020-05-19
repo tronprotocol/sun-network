@@ -2138,30 +2138,4 @@ public class Manager {
     }
   }
 
-  public void modifyPayPerBlock() {
-    long fund = getDynamicPropertiesStore().getFund();
-    long dayToSustain = getDynamicPropertiesStore().getDayToSustainByFund();
-    long pay = fund / (86400 / 3 * dayToSustain);
-    logger.info("[Modify Pay Per Block], fund = {}, daytosustain = {}, pay = {}", fund, dayToSustain, pay);
-    getDynamicPropertiesStore().saveWitnessPayPerBlock(
-            getDynamicPropertiesStore().getFund() / (86400 / 3 * getDynamicPropertiesStore()
-                    .getDayToSustainByFund()));
-  }
-
-  public long adjustFund(long num) {
-
-    long fund = getDynamicPropertiesStore().getFund();
-    if (num == 0) {
-      return 0;
-    }
-
-    if (num < 0 && fund < -num) {//if |num| > fund, return all of fund
-      getDynamicPropertiesStore().saveFund(0);
-      return fund * (-1);
-    }
-
-    getDynamicPropertiesStore().saveFund(fund + num);
-    return num;
-  }
-
 }

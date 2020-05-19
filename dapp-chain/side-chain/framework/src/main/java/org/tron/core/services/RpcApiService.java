@@ -114,18 +114,11 @@ import org.tron.protos.contract.AccountContract.AccountPermissionUpdateContract;
 import org.tron.protos.contract.AccountContract.AccountUpdateContract;
 import org.tron.protos.contract.AccountContract.SetAccountIdContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.ParticipateAssetIssueContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.UnfreezeAssetContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.UpdateAssetContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.TransferContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.WithdrawBalanceContract;
-import org.tron.protos.contract.ExchangeContract.ExchangeCreateContract;
-import org.tron.protos.contract.ExchangeContract.ExchangeInjectContract;
-import org.tron.protos.contract.ExchangeContract.ExchangeTransactionContract;
-import org.tron.protos.contract.ExchangeContract.ExchangeWithdrawContract;
 import org.tron.protos.contract.IncentiveContract;
 import org.tron.protos.contract.ProposalContract.ProposalApproveContract;
 import org.tron.protos.contract.ProposalContract.ProposalDeleteContract;
@@ -541,25 +534,25 @@ public class RpcApiService implements Service {
       responseObserver.onCompleted();
     }
 
-    @Override
-    public void getExchangeById(BytesMessage request,
-        StreamObserver<Exchange> responseObserver) {
-      ByteString exchangeId = request.getValue();
-
-      if (Objects.nonNull(exchangeId)) {
-        responseObserver.onNext(wallet.getExchangeById(exchangeId));
-      } else {
-        responseObserver.onNext(null);
-      }
-      responseObserver.onCompleted();
-    }
-
-    @Override
-    public void listExchanges(EmptyMessage request,
-        StreamObserver<ExchangeList> responseObserver) {
-      responseObserver.onNext(wallet.getExchangeList());
-      responseObserver.onCompleted();
-    }
+    // @Override
+    // public void getExchangeById(BytesMessage request,
+    //     StreamObserver<Exchange> responseObserver) {
+    //   ByteString exchangeId = request.getValue();
+    //
+    //   if (Objects.nonNull(exchangeId)) {
+    //     responseObserver.onNext(wallet.getExchangeById(exchangeId));
+    //   } else {
+    //     responseObserver.onNext(null);
+    //   }
+    //   responseObserver.onCompleted();
+    // }
+    //
+    // @Override
+    // public void listExchanges(EmptyMessage request,
+    //     StreamObserver<ExchangeList> responseObserver) {
+    //   responseObserver.onNext(wallet.getExchangeList());
+    //   responseObserver.onCompleted();
+    // }
 
     @Override
     public void getTransactionCountByBlockNum(NumberMessage request,

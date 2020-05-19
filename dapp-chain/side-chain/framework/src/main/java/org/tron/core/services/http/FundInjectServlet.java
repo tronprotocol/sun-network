@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tron.core.Wallet;
-import org.tron.protos.contract.FundInjectContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
+import org.tron.protos.contract.IncentiveContract;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +28,7 @@ public class FundInjectServlet extends HttpServlet {
           .collect(Collectors.joining(System.lineSeparator()));
       Util.checkBodySize(contract);
       boolean visible = Util.getVisiblePost(contract);
-      FundInjectContract.Builder build = FundInjectContract.newBuilder();
+      IncentiveContract.FundInjectContract.Builder build = IncentiveContract.FundInjectContract.newBuilder();
       JsonFormat.merge(contract, build, visible);
       Transaction tx = wallet
           .createTransactionCapsule(build.build(), ContractType.FundInjectContract)

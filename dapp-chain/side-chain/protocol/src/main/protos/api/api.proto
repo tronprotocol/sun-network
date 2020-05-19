@@ -179,9 +179,6 @@ service Wallet {
   rpc TransferAsset2 (TransferAssetContract) returns (TransactionExtention) {
   }
 
-  //Use this function instead of ParticipateAssetIssue.
-  rpc ParticipateAssetIssue2 (ParticipateAssetIssueContract) returns (TransactionExtention) {
-  }
   //Please use FreezeBalance2 instead of this function.
   rpc FreezeBalance (FreezeBalanceContract) returns (Transaction) {
     option (google.api.http) = {
@@ -209,9 +206,6 @@ service Wallet {
   rpc UnfreezeBalance2 (UnfreezeBalanceContract) returns (TransactionExtention) {
   }
 
-  //Use this function instead of UnfreezeAsset.
-  rpc UnfreezeAsset2 (UnfreezeAssetContract) returns (TransactionExtention) {
-  }
   //Please use WithdrawBalance2 instead of this function.
   rpc WithdrawBalance (WithdrawBalanceContract) returns (Transaction) {
     option (google.api.http) = {
@@ -224,10 +218,6 @@ service Wallet {
   }
   //Use this function instead of WithdrawBalance.
   rpc WithdrawBalance2 (WithdrawBalanceContract) returns (TransactionExtention) {
-  }
-
-  //Use this function instead of UpdateAsset.
-  rpc UpdateAsset2 (UpdateAssetContract) returns (TransactionExtention) {
   }
 
   rpc SideChainProposalCreate (SideChainProposalCreateContract) returns (TransactionExtention) {

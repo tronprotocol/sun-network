@@ -576,7 +576,7 @@ public class Wallet {
       throws PermissionException, SignatureException, SignatureFormatException {
     byte[] privateKey = transactionSign.getPrivateKey().toByteArray();
     TransactionCapsule trx = new TransactionCapsule(transactionSign.getTransaction());
-    trx.addSign(privateKey, dbManager.getAccountStore(), dbManager);
+    trx.addSign(privateKey, dbManager.getAccountStore());
     return trx;
   }
 
@@ -617,7 +617,7 @@ public class Wallet {
         List<ByteString> approveList = new ArrayList<ByteString>();
         long currentWeight = TransactionCapsule.checkWeight(permission, trx.getSignatureList(),
             Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(),
-                trx.getRawData().toByteArray()), approveList, dbManager);
+                trx.getRawData().toByteArray()), approveList);
         tswBuilder.addAllApprovedList(approveList);
         tswBuilder.setCurrentWeight(currentWeight);
       }

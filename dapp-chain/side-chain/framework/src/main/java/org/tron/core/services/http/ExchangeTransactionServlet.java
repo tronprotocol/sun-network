@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
-import org.tron.protos.contract.ExchangeContract.ExchangeTransactionContract;
 
 
 @Component
