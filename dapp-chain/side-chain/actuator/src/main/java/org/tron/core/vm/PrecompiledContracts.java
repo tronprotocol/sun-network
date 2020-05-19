@@ -1029,7 +1029,7 @@ public class PrecompiledContracts {
       }
       int min = Math.min(cnt, DataWord.WORD_SIZE);
       byte[] res = new byte[DataWord.WORD_SIZE];
-      if (isStaticCall()) {
+      if (isConstantCall()) {
         //for static call not use thread pool to avoid potential effect
         for (int i = 0; i < min; i++) {
           if (validSign(signatures[i], hash, addresses[i])) {
@@ -1051,8 +1051,8 @@ public class PrecompiledContracts {
 
         for (Future<ValidateSignResult> future : futures) {
           if (future.get() == null) {
-            logger.info("MultiValidateSign timeout");
-            throw Program.Exception.notEnoughTime("call MultiValidateSign precompile method");
+            logger.info("BatchValidateSign timeout");
+            throw Program.Exception.notEnoughTime("call BatchValidateSign precompile method");
           }
           if (future.get().getRes()) {
             res[future.get().getNonce()] = 1;

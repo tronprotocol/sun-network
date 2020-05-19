@@ -134,7 +134,14 @@ public class TransferActuator extends AbstractActuator {
       if (toAccount == null) {
         fee = fee + dynamicStore.getCreateNewAccountFeeInSystemContract();
       }
+      //after ForbidTransferToContract proposal, send trx to smartContract by actuator is not allowed.
+      if (dynamicStore.getForbidTransferToContract() == 1
+          && toAccount != null
+          && toAccount.getType() == AccountType.Contract) {
 
+        throw new ContractValidateException("Cannot transfer TRX to a smartContract.");
+
+      }
       if (balance < Math.addExact(amount, fee)) {
         throw new ContractValidateException(
                 "Validate TransferContract error, balance is not sufficient.");
@@ -142,6 +149,8 @@ public class TransferActuator extends AbstractActuator {
 
       if (toAccount != null) {
         long toAddressBalance = Math.addExact(toAccount.getBalance(), amount);
+      } else {
+        long toAddressBalance = Math.addExact(0, amount);
       }
 
       //after ForbidTransferToContract proposal, send trx to smartContract by actuator is not allowed.

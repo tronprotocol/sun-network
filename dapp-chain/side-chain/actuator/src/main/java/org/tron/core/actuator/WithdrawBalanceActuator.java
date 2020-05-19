@@ -140,7 +140,7 @@ public class WithdrawBalanceActuator extends AbstractActuator {
         delegationService.queryReward(ownerAddress) <= 0) {
       throw new ContractValidateException("witnessAccount does not have any reward");
     }*/
-    if (accountCapsule.getAllowance() <= 0) {
+    if (accountCapsule.getAllowance() <= 0 && delegationService.queryReward(ownerAddress) <= 0) {
       throw new ContractValidateException("witnessAccount does not have any allowance");
     }
     try {

@@ -60,11 +60,6 @@ public class VMConfig {
   private VMConfig() {
   }
 
-  public static void handleProposalInVM(Repository repository) {
-    isVmResourceChargingOn = isChargingResourceProposalOn(repository);
-    isAllowUpdateGateway102 = isAllowUpdateGatewayV102(repository);
-  }
-
   public static VMConfig getInstance() {
     return SystemPropertiesInstance.INSTANCE;
   }

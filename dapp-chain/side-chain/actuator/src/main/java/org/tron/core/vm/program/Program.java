@@ -538,6 +538,7 @@ public class Program {
       getContractState().addBalance(blackHoleAddress, balance);
       MUtil.transferAllToken(getContractState(), owner, blackHoleAddress);
     } else {
+      createAccountIfNotExist(getContractState(), obtainer);
       try {
         MUtil.transfer(getContractState(), owner, obtainer, balance);
         MUtil.transferAllToken(getContractState(), owner, obtainer);
@@ -642,7 +643,9 @@ public class Program {
             new DataWord(0),
             newBalance, null, deposit, false, byTestingSuite(), vmStartInUs,
             getVmShouldEndInUs(), energyLimit.longValueSafe());
-
+    if (isConstantCall()) {
+      programInvoke.setConstantCall();
+    }
     ProgramResult createResult = ProgramResult.createEmpty();
 
     if (contractAlreadyExists) {
@@ -803,7 +806,7 @@ public class Program {
           msg.getEndowment().getNoLeadZeroesData());
     } else if (!ArrayUtils.isEmpty(senderAddress) && !ArrayUtils.isEmpty(contextAddress)
         && senderAddress != contextAddress && endowment > 0) {
-      //createAccountIfNotExist(deposit, contextAddress);
+      createAccountIfNotExist(deposit, contextAddress);
       if (!isTokenTransfer) {
         try {
           VMUtils
@@ -818,7 +821,7 @@ public class Program {
         //contextBalance = deposit.addBalance(contextAddress, endowment);
       } else {
         try {
-          MUtil.transferAssert(deposit, senderAddress, contextAddress, tokenId, endowment);
+          MUtil.transferAsset(deposit, senderAddress, contextAddress, tokenId, endowment);
         } catch (ContractValidateException | ContractExeException e) {
           refundEnergy(msg.getEnergy().longValue(), "refund energy from message call");
           throw new TransferException("transfer trc10 failed: %s", e.getMessage());
@@ -849,9 +852,9 @@ public class Program {
           !isTokenTransfer ? new DataWord(0) : msg.getTokenId(),
           contextBalance, data, deposit, msg.getType().callIsStatic() || isStaticCall(),
           byTestingSuite(), vmStartInUs, getVmShouldEndInUs(), msg.getEnergy().longValueSafe());
-/*      if (isConstantCall()) {
+      if (isConstantCall()) {
         programInvoke.setConstantCall();
-      }*/
+      }
       VM vm = new VM(config);
       Program program = new Program(programCode, programInvoke, internalTx, config);
       program.setRootTransactionId(this.rootTransactionId);
@@ -1354,7 +1357,7 @@ public class Program {
         }
       } else {
         try {
-          MUtil.transferAssert(deposit, senderAddress, contextAddress, tokenId, endowment);
+          MUtil.transferAsset(deposit, senderAddress, contextAddress, tokenId, endowment);
         } catch (ContractValidateException | ContractExeException e) {
           throw new BytecodeExecutionException("transfer asset failure");
         }

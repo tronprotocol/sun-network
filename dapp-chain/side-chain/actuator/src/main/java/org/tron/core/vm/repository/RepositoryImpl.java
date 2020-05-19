@@ -641,12 +641,12 @@ public class RepositoryImpl implements Repository {
   }
 
   @Override
-  public List<byte[]> getSideChainGateWayList() {
+  public List<byte[]> getSideChainGateWayList() {//tim remark todo cache
     return dynamicPropertiesStore.getSideChainGateWayList();
   }
 
   @Override
-  public boolean isGatewayAddress(byte[] address) {
+  public boolean isGatewayAddress(byte[] address) {//tim remark todo cache
     List<byte[]> gatewayList = dynamicPropertiesStore.getSideChainGateWayList();
 
     for (byte[] gateway: gatewayList) {

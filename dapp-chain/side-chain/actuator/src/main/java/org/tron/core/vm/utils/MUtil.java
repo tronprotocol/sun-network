@@ -17,7 +17,6 @@ import org.tron.protos.Protocol;
 
 public class MUtil {
 
-
   private MUtil() {
   }
 
@@ -30,7 +29,7 @@ public class MUtil {
     VMUtils.executeForSmartContract(deposit, fromAddress, toAddress, amount);
   }
 
-  public static void transferAssert(Repository deposit, byte[] fromAddress, byte[] toAddress, byte[] tokenId, long amount)
+  public static void transferAsset(Repository deposit, byte[] fromAddress, byte[] toAddress, byte[] tokenId, long amount)
           throws ContractValidateException, ContractExeException {
     if (0 == amount) {
       return;

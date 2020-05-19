@@ -77,7 +77,7 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
     }
 
     //
-    //delegationService.withdrawReward(ownerAddress);//3.7
+    delegationService.withdrawReward(ownerAddress);//3.7
 
     long unfreezeBalance = 0L;
 
