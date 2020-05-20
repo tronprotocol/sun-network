@@ -1786,7 +1786,7 @@ public class RpcApiService implements Service {
       responseObserver.onCompleted();
     }
 
-    //@Override
+    @Override
     public void listSideChainProposals(EmptyMessage request,
                                        StreamObserver<SideChainProposalList> responseObserver) {
       responseObserver.onNext(wallet.getProposalList());
@@ -1808,7 +1808,7 @@ public class RpcApiService implements Service {
       responseObserver.onCompleted();
     }
 
-    //@Override
+    @Override
     public void getPaginatedSideChainProposalList(PaginatedMessage request,
                                                   StreamObserver<SideChainProposalList> responseObserver) {
       responseObserver
@@ -1833,7 +1833,7 @@ public class RpcApiService implements Service {
 //      responseObserver.onCompleted();
 //    }
 
-    //@Override
+    @Override
     public void getSideChainParameters(EmptyMessage request,
                                        StreamObserver<Protocol.SideChainParameters> responseObserver) {
       responseObserver.onNext(wallet.getSideChainParameters());
