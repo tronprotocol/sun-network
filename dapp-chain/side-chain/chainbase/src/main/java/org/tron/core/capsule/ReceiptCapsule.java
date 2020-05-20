@@ -166,17 +166,17 @@ public class ReceiptCapsule {
     } else {
       energyProcessor.useEnergy(account, accountEnergyLeft, now);
 
+      if (dynamicPropertiesStore.getAllowAdaptiveEnergy() == 1) {
+        long blockEnergyUsage =
+                dynamicPropertiesStore.getBlockEnergyUsage() + (usage - accountEnergyLeft);
+        dynamicPropertiesStore.saveBlockEnergyUsage(blockEnergyUsage);
+      }
+
       long energyFee;
       int chargingType = dynamicPropertiesStore.getSideChainChargingType();
       long dynamicEnergyFee = dynamicPropertiesStore.getEnergyFee(chargingType);
 
       if(chargingType == 0) {
-//        if (forkUtils.pass(ForkBlockVersionEnum.VERSION_3_6_5) &&
-//                dynamicPropertiesStore.getAllowAdaptiveEnergy() == 1) {
-//          long blockEnergyUsage =
-//                  dynamicPropertiesStore.getBlockEnergyUsage() + (usage - accountEnergyLeft);
-//          dynamicPropertiesStore.saveBlockEnergyUsage(blockEnergyUsage);
-//        }
         long sunPerEnergy = Constant.SUN_PER_ENERGY;
         if (dynamicEnergyFee > 0) {
           sunPerEnergy = dynamicEnergyFee;
@@ -192,7 +192,6 @@ public class ReceiptCapsule {
         }
       } else {
         long sunPerEnergy = Constant.MICRO_SUN_TOKEN_PER_ENERGY;
-        dynamicEnergyFee = dynamicPropertiesStore.getEnergyFee();
         if (dynamicEnergyFee > 0) {
           sunPerEnergy = dynamicEnergyFee;
         }
@@ -200,19 +199,16 @@ public class ReceiptCapsule {
                 (usage - accountEnergyLeft) * sunPerEnergy;
         this.setEnergyUsage(accountEnergyLeft);
         this.setEnergyFee(energyFee);
-        //long balance = account.getBalance();
         long balance = account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L);
         if (balance < energyFee) {
           throw new BalanceInsufficientException(
-                  StringUtil.createReadableString(account.createDbKey()) + " insufficient balance");
+                  StringUtil.createReadableString(account.createDbKey()) + " insufficient token");
         }
-        //account.setBalance(balance - energyFee);
-
-        //send to blackHole
-        Commons.adjustBalance(accountStore, accountStore.getBlackhole().getAddress().toByteArray(),
-             energyFee, chargingType);
-        Commons.adjustFund(dynamicPropertiesStore, energyFee);
       }
+      Commons.adjustBalance(accountStore, account, -energyFee, chargingType);
+
+      //send to blackHole
+      Commons.adjustFund(dynamicPropertiesStore, energyFee);
     }
 
     accountStore.put(account.getAddress().toByteArray(), account);
