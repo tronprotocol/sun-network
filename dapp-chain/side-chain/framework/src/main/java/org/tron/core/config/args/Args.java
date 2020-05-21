@@ -673,7 +673,7 @@ public class Args {
     INSTANCE.trxExpirationTimeInMilliseconds = 0;
     INSTANCE.fullNodeAllowShieldedTransactionArgs = true;
     INSTANCE.zenTokenId = "000000";
-//    INSTANCE.allowProtoFilterNum = 0;
+    INSTANCE.allowProtoFilterNum = 0;
     INSTANCE.allowAccountStateRoot = 0;
     INSTANCE.validContractProtoThreadNum = 1;
     INSTANCE.shieldedTransInPendingMaxCounts = 10;

@@ -987,12 +987,6 @@ public class Wallet {
                     .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getChargingSwitch()))
                     .build());
 
-    builder.addChainParameter(
-            Protocol.SideChainParameters.SideChainParameter.newBuilder()
-                    .setKey("getChargingSwitch")
-                    .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getChargingSwitch()))
-                    .build());
-
     builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getMainChainGateWayList")
             .setValue(convertGateWayListToString(
