@@ -21,6 +21,9 @@ option go_package = "github.com/tronprotocol/grpc-gateway/api";
 
 service Wallet {
 
+  rpc FundInject (FundInjectContract) returns (TransactionExtention) {
+  }
+
   rpc GetAccount (Account) returns (Account) {
     option (google.api.http) = {
       post: "/wallet/getaccount"
@@ -825,8 +828,6 @@ service WalletSolidity {
   rpc GetTransactionInfoByBlockNum (NumberMessage) returns (TransactionInfoList) {
   }
 
-  rpc FundInject (FundInjectContract) returns (TransactionExtention) {
-  }
 };
 
 service WalletExtension {

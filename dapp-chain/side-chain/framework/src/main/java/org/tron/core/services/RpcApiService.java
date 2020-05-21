@@ -1384,6 +1384,7 @@ public class RpcApiService implements Service {
 //          responseObserver);
 //    }
 
+    @Override
     public void fundInject(IncentiveContract.FundInjectContract request,
                            StreamObserver<TransactionExtention> responseObserver) {
       createTransactionExtention(request, ContractType.FundInjectContract, responseObserver);
