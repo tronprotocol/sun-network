@@ -112,8 +112,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   //Note: there is a space in this key name. This space must not be deleted.
   private static final byte[] ALLOW_SAME_TOKEN_NAME = " ALLOW_SAME_TOKEN_NAME".getBytes();
   //If the parameter is larger than 0, the contract is allowed to be created.
-  private static final byte[] ALLOW_CREATION_OF_CONTRACTS = "ALLOW_CREATION_OF_CONTRACTS"
-      .getBytes();
+//  private static final byte[] ALLOW_CREATION_OF_CONTRACTS = "ALLOW_CREATION_OF_CONTRACTS".getBytes();
   //Used only for multi sign
   private static final byte[] TOTAL_SIGN_NUM = "TOTAL_SIGN_NUM".getBytes();
   //Used only for multi sign, once，value is {0,1}
@@ -127,7 +126,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   //If the parameter is larger than 0, allow ZKsnark Transaction
   private static final byte[] ALLOW_SHIELDED_TRANSACTION = "ALLOW_SHIELDED_TRANSACTION".getBytes();
   //??? this method should be removed, but it's used
-  private static final byte[] ALLOW_TVM_CONSTANTINOPLE = "ALLOW_TVM_CONSTANTINOPLE".getBytes();
+//  private static final byte[] ALLOW_TVM_CONSTANTINOPLE = "ALLOW_TVM_CONSTANTINOPLE".getBytes();
   private static final byte[] ALLOW_TVM_SOLIDITY_059 = "ALLOW_TVM_SOLIDITY_059".getBytes();
   private static final byte[] FORBID_TRANSFER_TO_CONTRACT = "FORBID_TRANSFER_TO_CONTRACT".getBytes();
   //Used only for protobuf data filter , once，value is 0,1
@@ -455,7 +454,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       this.getTotalEnergyLimit();
     } catch (IllegalArgumentException e) {
       this.saveTotalEnergyLimit(DBConfig.getTotalEnergyLimit());
-      //50_000_000_000
+      //100000000000L
     }
 
     try {
@@ -2061,19 +2060,19 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
 //??? this method should be removed, but it's used
-  public void saveAllowTvmConstantinople(long value) {
-    this.put(ALLOW_TVM_CONSTANTINOPLE,
-        new BytesCapsule(ByteArray.fromLong(value)));
-  }
+//  public void saveAllowTvmConstantinople(long value) {
+//    this.put(ALLOW_TVM_CONSTANTINOPLE,
+//        new BytesCapsule(ByteArray.fromLong(value)));
+//  }
 
 //??? this method should be removed, but it's used
-  public long getAllowTvmConstantinople() {
-    return Optional.ofNullable(getUnchecked(ALLOW_TVM_CONSTANTINOPLE))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toLong)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found ALLOW_TVM_CONSTANTINOPLE"));
-  }
+//  public long getAllowTvmConstantinople() {
+//    return Optional.ofNullable(getUnchecked(ALLOW_TVM_CONSTANTINOPLE))
+//        .map(BytesCapsule::getData)
+//        .map(ByteArray::toLong)
+//        .orElseThrow(
+//            () -> new IllegalArgumentException("not found ALLOW_TVM_CONSTANTINOPLE"));
+//  }
 
   public void saveAllowTvmSolidity059(long value) {
     this.put(ALLOW_TVM_SOLIDITY_059,
@@ -2158,25 +2157,25 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   //??? this method should be removed, but it's used
-  public void saveAllowSameTokenName(long rate) {
-    this.put(ALLOW_SAME_TOKEN_NAME,
-        new BytesCapsule(ByteArray.fromLong(rate)));
-  }
+//  public void saveAllowSameTokenName(long rate) {
+//    this.put(ALLOW_SAME_TOKEN_NAME,
+//        new BytesCapsule(ByteArray.fromLong(rate)));
+//  }
 
   //??? this method should be removed, but it's used
-  public long getAllowSameTokenName() {
-    return Optional.ofNullable(getUnchecked(ALLOW_SAME_TOKEN_NAME))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toLong)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found ALLOW_SAME_TOKEN_NAME"));
-  }
+//  public long getAllowSameTokenName() {
+//    return Optional.ofNullable(getUnchecked(ALLOW_SAME_TOKEN_NAME))
+//        .map(BytesCapsule::getData)
+//        .map(ByteArray::toLong)
+//        .orElseThrow(
+//            () -> new IllegalArgumentException("not found ALLOW_SAME_TOKEN_NAME"));
+//  }
 
   //??? this method should be removed, but it's used
-  public void saveAllowCreationOfContracts(long allowCreationOfContracts) {
-    this.put(ALLOW_CREATION_OF_CONTRACTS,
-        new BytesCapsule(ByteArray.fromLong(allowCreationOfContracts)));
-  }
+//  public void saveAllowCreationOfContracts(long allowCreationOfContracts) {
+//    this.put(ALLOW_CREATION_OF_CONTRACTS,
+//        new BytesCapsule(ByteArray.fromLong(allowCreationOfContracts)));
+//  }
 
   public void saveTotalSignNum(int num) {
     this.put(DynamicPropertiesStore.TOTAL_SIGN_NUM,
@@ -2205,18 +2204,18 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   //??? this method should be removed, but it's used
-  public long getAllowCreationOfContracts() {
-    return Optional.ofNullable(getUnchecked(ALLOW_CREATION_OF_CONTRACTS))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toLong)
-        .orElseThrow(
-            () -> new IllegalArgumentException("not found ALLOW_CREATION_OF_CONTRACTS"));
-  }
+//  public long getAllowCreationOfContracts() {
+//    return Optional.ofNullable(getUnchecked(ALLOW_CREATION_OF_CONTRACTS))
+//        .map(BytesCapsule::getData)
+//        .map(ByteArray::toLong)
+//        .orElseThrow(
+//            () -> new IllegalArgumentException("not found ALLOW_CREATION_OF_CONTRACTS"));
+//  }
 
   //??? this method should be removed, but it's used
-  public boolean supportVM() {
-    return getAllowCreationOfContracts() == 1L;
-  }
+//  public boolean supportVM() {
+//    return getAllowCreationOfContracts() == 1L;
+//  }
 
   public void saveAllowShieldedTransaction(long allowShieldedTransaction) {
     this.put(DynamicPropertiesStore.ALLOW_SHIELDED_TRANSACTION,

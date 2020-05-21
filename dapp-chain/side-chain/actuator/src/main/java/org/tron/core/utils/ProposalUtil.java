@@ -200,11 +200,11 @@ public class ProposalUtil {
           throw new ContractValidateException(
               "This value[ALLOW_TVM_SOLIDITY_059] is only allowed to be 1");
         }
-        if (manager.getDynamicPropertiesStore().getAllowCreationOfContracts() == 0) {
-          throw new ContractValidateException(
-              "[ALLOW_CREATION_OF_CONTRACTS] proposal must be approved "
-                  + "before [ALLOW_TVM_SOLIDITY_059] can be proposed");
-        }
+//        if (manager.getDynamicPropertiesStore().getAllowCreationOfContracts() == 0) {
+//          throw new ContractValidateException(
+//              "[ALLOW_CREATION_OF_CONTRACTS] proposal must be approved "
+//                  + "before [ALLOW_TVM_SOLIDITY_059] can be proposed");
+//        }
         break;
       }
       case ADAPTIVE_RESOURCE_LIMIT_TARGET_RATIO: {
@@ -290,11 +290,11 @@ public class ProposalUtil {
           throw new ContractValidateException(
               "This value[FORBID_TRANSFER_TO_CONTRACT] is only allowed to be 1");
         }
-        if (manager.getDynamicPropertiesStore().getAllowCreationOfContracts() == 0) {
-          throw new ContractValidateException(
-              "[ALLOW_CREATION_OF_CONTRACTS] proposal must be approved "
-                  + "before [FORBID_TRANSFER_TO_CONTRACT] can be proposed");
-        }
+//        if (manager.getDynamicPropertiesStore().getAllowCreationOfContracts() == 0) {
+//          throw new ContractValidateException(
+//              "[ALLOW_CREATION_OF_CONTRACTS] proposal must be approved "
+//                  + "before [FORBID_TRANSFER_TO_CONTRACT] can be proposed");
+//        }
         break;
       }
 

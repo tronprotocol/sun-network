@@ -18,7 +18,7 @@ public class Parameter {
     public static final int SINGLE_REPEAT = 1;
     public static final int BLOCK_FILLED_SLOTS_NUMBER = 128;
     public static final int MAX_FROZEN_NUMBER = 1;
-    public static final int BLOCK_VERSION = 10000;
+    public static final int BLOCK_VERSION = 10001;
   }
 
   public class NodeConstant {

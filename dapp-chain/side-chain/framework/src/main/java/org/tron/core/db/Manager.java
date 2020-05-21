@@ -1691,7 +1691,6 @@ public class Manager {
     //??? can't find in 3.7
     //updateSignedWitness(block);
     //updateLatestSolidifiedBlock();
-    //updateTransHashCache(block);
     updateTransHashCache(block);
     updateRecentBlock(block);
     updateDynamicProperties(block);
@@ -1828,7 +1827,7 @@ public class Manager {
     closeOneStore(votesStore);
     closeOneStore(delegatedResourceStore);
     closeOneStore(delegatedResourceAccountIndexStore);
-//    closeOneStore(assetIssueV2Store);
+    closeOneStore(assetIssueV2Store);
     closeOneStore(exchangeV2Store);
     closeOneStore(nullifierStore);
     closeOneStore(merkleTreeStore);
