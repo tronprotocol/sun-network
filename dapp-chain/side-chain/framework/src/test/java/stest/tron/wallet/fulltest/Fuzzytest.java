@@ -67,62 +67,62 @@ public class Fuzzytest {
    * constructor.
    */
 
-  public static Boolean createAssetIssue(byte[] address, String name, Long totalSupply,
-      Integer trxNum, Integer icoNum, Long startTime, Long endTime, Integer voteScore,
-      String description, String url, Long freeAssetNetLimit, Long publicFreeAssetNetLimit,
-      Long fronzenAmount, Long frozenDay, String priKey,
-      WalletGrpc.WalletBlockingStub blockingStubFull) {
-    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    ECKey ecKey = temKey;
-    //Protocol.Account search = queryAccount(ecKey, blockingStubFull);
-    try {
-      AssetIssueContractOuterClass.AssetIssueContract.Builder builder =
-          AssetIssueContractOuterClass.AssetIssueContract
-              .newBuilder();
-      builder.setOwnerAddress(ByteString.copyFrom(address));
-      builder.setName(ByteString.copyFrom(name.getBytes()));
-      builder.setTotalSupply(totalSupply);
-      builder.setTrxNum(trxNum);
-      builder.setNum(icoNum);
-      builder.setStartTime(startTime);
-      builder.setEndTime(endTime);
-      builder.setVoteScore(voteScore);
-      builder.setDescription(ByteString.copyFrom(description.getBytes()));
-      builder.setUrl(ByteString.copyFrom(url.getBytes()));
-      builder.setFreeAssetNetLimit(freeAssetNetLimit);
-      builder.setPublicFreeAssetNetLimit(publicFreeAssetNetLimit);
-      AssetIssueContractOuterClass.AssetIssueContract.FrozenSupply.Builder frozenBuilder =
-          AssetIssueContractOuterClass.AssetIssueContract.FrozenSupply.newBuilder();
-      frozenBuilder.setFrozenAmount(fronzenAmount);
-      frozenBuilder.setFrozenDays(frozenDay);
-      builder.addFrozenSupply(0, frozenBuilder);
-
-      Protocol.Transaction transaction = blockingStubFull.createAssetIssue(builder.build());
-      if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-        logger.info("transaction == null");
-        return false;
-      }
-      transaction = signTransaction(ecKey, transaction);
-
-      GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
-      if (response.getResult() == false) {
-        logger.info("failed reason is " + ByteArray.toStr(response.getMessage().toByteArray()));
-        return false;
-      } else {
-        return true;
-      }
-    } catch (Exception ex) {
-      ex.printStackTrace();
-      return false;
-    }
-  }
+  // public static Boolean createAssetIssue(byte[] address, String name, Long totalSupply,
+  //     Integer trxNum, Integer icoNum, Long startTime, Long endTime, Integer voteScore,
+  //     String description, String url, Long freeAssetNetLimit, Long publicFreeAssetNetLimit,
+  //     Long fronzenAmount, Long frozenDay, String priKey,
+  //     WalletGrpc.WalletBlockingStub blockingStubFull) {
+  //   Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+  //   ECKey temKey = null;
+  //   try {
+  //     BigInteger priK = new BigInteger(priKey, 16);
+  //     temKey = ECKey.fromPrivate(priK);
+  //   } catch (Exception ex) {
+  //     ex.printStackTrace();
+  //   }
+  //   ECKey ecKey = temKey;
+  //   //Protocol.Account search = queryAccount(ecKey, blockingStubFull);
+  //   try {
+  //     AssetIssueContractOuterClass.AssetIssueContract.Builder builder =
+  //         AssetIssueContractOuterClass.AssetIssueContract
+  //             .newBuilder();
+  //     builder.setOwnerAddress(ByteString.copyFrom(address));
+  //     builder.setName(ByteString.copyFrom(name.getBytes()));
+  //     builder.setTotalSupply(totalSupply);
+  //     builder.setTrxNum(trxNum);
+  //     builder.setNum(icoNum);
+  //     builder.setStartTime(startTime);
+  //     builder.setEndTime(endTime);
+  //     builder.setVoteScore(voteScore);
+  //     builder.setDescription(ByteString.copyFrom(description.getBytes()));
+  //     builder.setUrl(ByteString.copyFrom(url.getBytes()));
+  //     builder.setFreeAssetNetLimit(freeAssetNetLimit);
+  //     builder.setPublicFreeAssetNetLimit(publicFreeAssetNetLimit);
+  //     AssetIssueContractOuterClass.AssetIssueContract.FrozenSupply.Builder frozenBuilder =
+  //         AssetIssueContractOuterClass.AssetIssueContract.FrozenSupply.newBuilder();
+  //     frozenBuilder.setFrozenAmount(fronzenAmount);
+  //     frozenBuilder.setFrozenDays(frozenDay);
+  //     builder.addFrozenSupply(0, frozenBuilder);
+  //
+  //     Protocol.Transaction transaction = blockingStubFull.createAssetIssue(builder.build());
+  //     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+  //       logger.info("transaction == null");
+  //       return false;
+  //     }
+  //     transaction = signTransaction(ecKey, transaction);
+  //
+  //     GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
+  //     if (response.getResult() == false) {
+  //       logger.info("failed reason is " + ByteArray.toStr(response.getMessage().toByteArray()));
+  //       return false;
+  //     } else {
+  //       return true;
+  //     }
+  //   } catch (Exception ex) {
+  //     ex.printStackTrace();
+  //     return false;
+  //   }
+  // }
 
   /**
    * constructor.
@@ -175,9 +175,9 @@ public class Fuzzytest {
       now = System.currentTimeMillis();
       name = "AssetIssue017_" + Long.toString(now);
       totalSupply = now;
-      Assert.assertTrue(createAssetIssue(asset017Address, name, totalSupply, 1, 1,
-          start, end, 1, description, url, freeAssetNetLimit, publicFreeAssetNetLimit, 1L,
-          1L, testKeyForAssetIssue017, blockingStubFull));
+      // Assert.assertTrue(createAssetIssue(asset017Address, name, totalSupply, 1, 1,
+      //     start, end, 1, description, url, freeAssetNetLimit, publicFreeAssetNetLimit, 1L,
+      //     1L, testKeyForAssetIssue017, blockingStubFull));
 
       assetIssueList = blockingStubFull
           .getAssetIssueList(GrpcAPI.EmptyMessage.newBuilder().build());

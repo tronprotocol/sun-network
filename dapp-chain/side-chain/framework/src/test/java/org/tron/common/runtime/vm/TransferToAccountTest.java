@@ -99,9 +99,9 @@ public class TransferToAccountTest {
   }
 
   private long createAsset(String tokenName) {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+    // dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     dbManager.getDynamicPropertiesStore().saveAllowTvmTransferTrc10(1);
-    dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
+    // dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
     dbManager.getDynamicPropertiesStore().saveAllowTvmSolidity059(1);
 
     long id = dbManager.getDynamicPropertiesStore().getTokenIdNum() + 1;

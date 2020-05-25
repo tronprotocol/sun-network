@@ -266,51 +266,51 @@ public class WalletTestAccount003 {
    * constructor.
    */
 
-  public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
-      Integer icoNum, Long startTime, Long endTime,
-      Integer voteScore, String description, String url, String priKey) {
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    ECKey ecKey = temKey;
-
-    try {
-      AssetIssueContractOuterClass.AssetIssueContract.Builder builder = AssetIssueContractOuterClass.AssetIssueContract
-          .newBuilder();
-      builder.setOwnerAddress(ByteString.copyFrom(address));
-      builder.setName(ByteString.copyFrom(name.getBytes()));
-      builder.setTotalSupply(TotalSupply);
-      builder.setTrxNum(trxNum);
-      builder.setNum(icoNum);
-      builder.setStartTime(startTime);
-      builder.setEndTime(endTime);
-      builder.setVoteScore(voteScore);
-      builder.setDescription(ByteString.copyFrom(description.getBytes()));
-      builder.setUrl(ByteString.copyFrom(url.getBytes()));
-
-      Protocol.Transaction transaction = blockingStubFull.createAssetIssue(builder.build());
-      if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-        logger.info("Please check!!! transaction == null");
-        return false;
-      }
-      transaction = signTransaction(ecKey, transaction);
-      GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
-      if (response.getResult() == false) {
-        logger.info("Please check!!! response.getresult==false");
-        return false;
-      } else {
-        logger.info(name);
-        return true;
-      }
-    } catch (Exception ex) {
-      ex.printStackTrace();
-      return false;
-    }
-  }
+  // public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
+  //     Integer icoNum, Long startTime, Long endTime,
+  //     Integer voteScore, String description, String url, String priKey) {
+  //   ECKey temKey = null;
+  //   try {
+  //     BigInteger priK = new BigInteger(priKey, 16);
+  //     temKey = ECKey.fromPrivate(priK);
+  //   } catch (Exception ex) {
+  //     ex.printStackTrace();
+  //   }
+  //   ECKey ecKey = temKey;
+  //
+  //   try {
+  //     AssetIssueContractOuterClass.AssetIssueContract.Builder builder = AssetIssueContractOuterClass.AssetIssueContract
+  //         .newBuilder();
+  //     builder.setOwnerAddress(ByteString.copyFrom(address));
+  //     builder.setName(ByteString.copyFrom(name.getBytes()));
+  //     builder.setTotalSupply(TotalSupply);
+  //     builder.setTrxNum(trxNum);
+  //     builder.setNum(icoNum);
+  //     builder.setStartTime(startTime);
+  //     builder.setEndTime(endTime);
+  //     builder.setVoteScore(voteScore);
+  //     builder.setDescription(ByteString.copyFrom(description.getBytes()));
+  //     builder.setUrl(ByteString.copyFrom(url.getBytes()));
+  //
+  //     Protocol.Transaction transaction = blockingStubFull.createAssetIssue(builder.build());
+  //     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+  //       logger.info("Please check!!! transaction == null");
+  //       return false;
+  //     }
+  //     transaction = signTransaction(ecKey, transaction);
+  //     GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
+  //     if (response.getResult() == false) {
+  //       logger.info("Please check!!! response.getresult==false");
+  //       return false;
+  //     } else {
+  //       logger.info(name);
+  //       return true;
+  //     }
+  //   } catch (Exception ex) {
+  //     ex.printStackTrace();
+  //     return false;
+  //   }
+  // }
 
   public byte[] getAddress(ECKey ecKey) {
     return ecKey.getAddress();

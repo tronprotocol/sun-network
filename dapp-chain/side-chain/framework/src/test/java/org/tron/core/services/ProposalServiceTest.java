@@ -41,21 +41,21 @@ public class ProposalServiceTest {
       Assert.assertTrue(set.add(proposalType.getCode()));
     }
 
-    SideChainProposal proposal = SideChainProposal.newBuilder().putParameters(1, 1).build();
+    SideChainProposal proposal = SideChainProposal.newBuilder().putParameters(1, "1").build();
     ProposalCapsule proposalCapsule = new ProposalCapsule(proposal);
     boolean result = ProposalService.process(manager, proposalCapsule);
     Assert.assertTrue(result);
     //
-    proposal = SideChainProposal.newBuilder().putParameters(1000, 1).build();
+    proposal = SideChainProposal.newBuilder().putParameters(1000, "1").build();
     proposalCapsule = new ProposalCapsule(proposal);
     result = ProposalService.process(manager, proposalCapsule);
     Assert.assertFalse(result);
     //
     for (ProposalType proposalType : ProposalType.values()) {
       if (proposalType == WITNESS_127_PAY_PER_BLOCK) {
-        proposal = SideChainProposal.newBuilder().putParameters(proposalType.getCode(), 16160).build();
+        proposal = SideChainProposal.newBuilder().putParameters(proposalType.getCode(), "16160").build();
       } else {
-        proposal = SideChainProposal.newBuilder().putParameters(proposalType.getCode(), 1).build();
+        proposal = SideChainProposal.newBuilder().putParameters(proposalType.getCode(), "1").build();
       }
       proposalCapsule = new ProposalCapsule(proposal);
       result = ProposalService.process(manager, proposalCapsule);

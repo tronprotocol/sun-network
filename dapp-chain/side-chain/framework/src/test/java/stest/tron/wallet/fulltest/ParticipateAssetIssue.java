@@ -67,38 +67,38 @@ public class ParticipateAssetIssue {
    * constructor.
    */
 
-  public static boolean participateAssetIssue(byte[] to, byte[] assertName, long amount,
-      byte[] from, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    final ECKey ecKey = temKey;
-
-    AssetIssueContractOuterClass.ParticipateAssetIssueContract.Builder builder =
-        AssetIssueContractOuterClass.ParticipateAssetIssueContract
-            .newBuilder();
-    ByteString bsTo = ByteString.copyFrom(to);
-    ByteString bsName = ByteString.copyFrom(assertName);
-    ByteString bsOwner = ByteString.copyFrom(from);
-    builder.setToAddress(bsTo);
-    builder.setAssetName(bsName);
-    builder.setOwnerAddress(bsOwner);
-    builder.setAmount(amount);
-    AssetIssueContractOuterClass.ParticipateAssetIssueContract contract = builder.build();
-    Protocol.Transaction transaction = blockingStubFull.participateAssetIssue(contract);
-    transaction = signTransaction(ecKey, transaction);
-    GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
-    if (response.getResult() == false) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+  // public static boolean participateAssetIssue(byte[] to, byte[] assertName, long amount,
+  //     byte[] from, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+  //   Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+  //   ECKey temKey = null;
+  //   try {
+  //     BigInteger priK = new BigInteger(priKey, 16);
+  //     temKey = ECKey.fromPrivate(priK);
+  //   } catch (Exception ex) {
+  //     ex.printStackTrace();
+  //   }
+  //   final ECKey ecKey = temKey;
+  //
+  //   AssetIssueContractOuterClass.ParticipateAssetIssueContract.Builder builder =
+  //       AssetIssueContractOuterClass.ParticipateAssetIssueContract
+  //           .newBuilder();
+  //   ByteString bsTo = ByteString.copyFrom(to);
+  //   ByteString bsName = ByteString.copyFrom(assertName);
+  //   ByteString bsOwner = ByteString.copyFrom(from);
+  //   builder.setToAddress(bsTo);
+  //   builder.setAssetName(bsName);
+  //   builder.setOwnerAddress(bsOwner);
+  //   builder.setAmount(amount);
+  //   AssetIssueContractOuterClass.ParticipateAssetIssueContract contract = builder.build();
+  //   Protocol.Transaction transaction = blockingStubFull.participateAssetIssue(contract);
+  //   transaction = signTransaction(ecKey, transaction);
+  //   GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
+  //   if (response.getResult() == false) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
   /**
    * constructor.
@@ -221,25 +221,25 @@ public class ParticipateAssetIssue {
   }
 
   //@Test(enabled = false)
-  @Test(enabled = false, threadPoolSize = 250, invocationCount = 250)
-  public void testParticipateAssetIssue() throws InterruptedException {
-    Integer i = 0;
-    Integer randNum;
-
-    while (i < 20) {
-      randNum = i % 4;
-      i++;
-      fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-          .get(randNum);
-      channelFull = ManagedChannelBuilder.forTarget(fullnode)
-          .usePlaintext(true)
-          .build();
-      blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-
-      participateAssetIssue(createAddress, name.getBytes(),
-          1, participateAssetAddress, testKeyForParticipate, blockingStubFull);
-    }
-  }
+  // @Test(enabled = false, threadPoolSize = 250, invocationCount = 250)
+  // public void testParticipateAssetIssue() throws InterruptedException {
+  //   Integer i = 0;
+  //   Integer randNum;
+  //
+  //   while (i < 20) {
+  //     randNum = i % 4;
+  //     i++;
+  //     fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
+  //         .get(randNum);
+  //     channelFull = ManagedChannelBuilder.forTarget(fullnode)
+  //         .usePlaintext(true)
+  //         .build();
+  //     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+  //
+  //     participateAssetIssue(createAddress, name.getBytes(),
+  //         1, participateAssetAddress, testKeyForParticipate, blockingStubFull);
+  //   }
+  // }
 
   /**
    * constructor.

@@ -27,7 +27,6 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.UnfreezeAssetContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
@@ -246,43 +245,43 @@ public class WalletTestAssetIssue008 {
    * constructor.
    */
 
-  public boolean unFreezeAsset(byte[] addRess, String priKey) {
-    byte[] address = addRess;
-
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    final ECKey ecKey = temKey;
-    //Account search = queryAccount(ecKey, blockingStubFull);
-
-    UnfreezeAssetContract.Builder builder = UnfreezeAssetContract
-        .newBuilder();
-    ByteString byteAddreess = ByteString.copyFrom(address);
-
-    builder.setOwnerAddress(byteAddreess);
-
-    UnfreezeAssetContract contract = builder.build();
-
-    Transaction transaction = blockingStubFull.unfreezeAsset(contract);
-
-    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      return false;
-    }
-
-    transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
-    Return response = blockingStubFull.broadcastTransaction(transaction);
-    if (response.getResult() == false) {
-      logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
-      return false;
-    } else {
-      return true;
-    }
-  }
+  // public boolean unFreezeAsset(byte[] addRess, String priKey) {
+  //   byte[] address = addRess;
+  //
+  //   ECKey temKey = null;
+  //   try {
+  //     BigInteger priK = new BigInteger(priKey, 16);
+  //     temKey = ECKey.fromPrivate(priK);
+  //   } catch (Exception ex) {
+  //     ex.printStackTrace();
+  //   }
+  //   final ECKey ecKey = temKey;
+  //   //Account search = queryAccount(ecKey, blockingStubFull);
+  //
+  //   UnfreezeAssetContract.Builder builder = UnfreezeAssetContract
+  //       .newBuilder();
+  //   ByteString byteAddreess = ByteString.copyFrom(address);
+  //
+  //   builder.setOwnerAddress(byteAddreess);
+  //
+  //   UnfreezeAssetContract contract = builder.build();
+  //
+  //   Transaction transaction = blockingStubFull.unfreezeAsset(contract);
+  //
+  //   if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+  //     return false;
+  //   }
+  //
+  //   transaction = TransactionUtils.setTimestamp(transaction);
+  //   transaction = TransactionUtils.sign(transaction, ecKey);
+  //   Return response = blockingStubFull.broadcastTransaction(transaction);
+  //   if (response.getResult() == false) {
+  //     logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 }
 
 

@@ -26,9 +26,7 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.ParticipateAssetIssueContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.UnfreezeAssetContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
@@ -217,58 +215,58 @@ public class WalletTestAssetIssue010 {
    * constructor.
    */
 
-  public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
-      Integer icoNum, Long startTime, Long endTime,
-      Integer voteScore, String description, String url, Long fronzenAmount, Long frozenDay,
-      String priKey) {
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    ECKey ecKey = temKey;
-    Account search = PublicMethed.queryAccount(priKey, blockingStubFull);
-
-    try {
-      AssetIssueContract.Builder builder = AssetIssueContract.newBuilder();
-      builder.setOwnerAddress(ByteString.copyFrom(address));
-      builder.setName(ByteString.copyFrom(name.getBytes()));
-      builder.setTotalSupply(totalSupply);
-      builder.setTrxNum(trxNum);
-      builder.setNum(icoNum);
-      builder.setStartTime(startTime);
-      builder.setEndTime(endTime);
-      builder.setVoteScore(voteScore);
-      builder.setDescription(ByteString.copyFrom(description.getBytes()));
-      builder.setUrl(ByteString.copyFrom(url.getBytes()));
-      AssetIssueContract.FrozenSupply.Builder frozenBuilder =
-          AssetIssueContract.FrozenSupply
-              .newBuilder();
-      frozenBuilder.setFrozenAmount(fronzenAmount);
-      frozenBuilder.setFrozenDays(frozenDay);
-      builder.addFrozenSupply(0, frozenBuilder);
-
-      Transaction transaction = blockingStubFull.createAssetIssue(builder.build());
-      if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-        logger.info("transaction == null");
-        return false;
-      }
-      transaction = signTransaction(ecKey, transaction);
-      Return response = blockingStubFull.broadcastTransaction(transaction);
-      if (response.getResult() == false) {
-        logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
-        return false;
-      } else {
-        logger.info(name);
-        return true;
-      }
-    } catch (Exception ex) {
-      ex.printStackTrace();
-      return false;
-    }
-  }
+  // public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
+  //     Integer icoNum, Long startTime, Long endTime,
+  //     Integer voteScore, String description, String url, Long fronzenAmount, Long frozenDay,
+  //     String priKey) {
+  //   ECKey temKey = null;
+  //   try {
+  //     BigInteger priK = new BigInteger(priKey, 16);
+  //     temKey = ECKey.fromPrivate(priK);
+  //   } catch (Exception ex) {
+  //     ex.printStackTrace();
+  //   }
+  //   ECKey ecKey = temKey;
+  //   Account search = PublicMethed.queryAccount(priKey, blockingStubFull);
+  //
+  //   try {
+  //     AssetIssueContract.Builder builder = AssetIssueContract.newBuilder();
+  //     builder.setOwnerAddress(ByteString.copyFrom(address));
+  //     builder.setName(ByteString.copyFrom(name.getBytes()));
+  //     builder.setTotalSupply(totalSupply);
+  //     builder.setTrxNum(trxNum);
+  //     builder.setNum(icoNum);
+  //     builder.setStartTime(startTime);
+  //     builder.setEndTime(endTime);
+  //     builder.setVoteScore(voteScore);
+  //     builder.setDescription(ByteString.copyFrom(description.getBytes()));
+  //     builder.setUrl(ByteString.copyFrom(url.getBytes()));
+  //     AssetIssueContract.FrozenSupply.Builder frozenBuilder =
+  //         AssetIssueContract.FrozenSupply
+  //             .newBuilder();
+  //     frozenBuilder.setFrozenAmount(fronzenAmount);
+  //     frozenBuilder.setFrozenDays(frozenDay);
+  //     builder.addFrozenSupply(0, frozenBuilder);
+  //
+  //     Transaction transaction = blockingStubFull.createAssetIssue(builder.build());
+  //     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+  //       logger.info("transaction == null");
+  //       return false;
+  //     }
+  //     transaction = signTransaction(ecKey, transaction);
+  //     Return response = blockingStubFull.broadcastTransaction(transaction);
+  //     if (response.getResult() == false) {
+  //       logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
+  //       return false;
+  //     } else {
+  //       logger.info(name);
+  //       return true;
+  //     }
+  //   } catch (Exception ex) {
+  //     ex.printStackTrace();
+  //     return false;
+  //   }
+  // }
 
   /**
    * constructor.
@@ -367,80 +365,80 @@ public class WalletTestAssetIssue010 {
    * constructor.
    */
 
-  public boolean unFreezeAsset(byte[] addRess, String priKey) {
-    byte[] address = addRess;
-
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    final ECKey ecKey = temKey;
-
-    UnfreezeAssetContract.Builder builder = UnfreezeAssetContract
-        .newBuilder();
-    ByteString byteAddreess = ByteString.copyFrom(address);
-
-    builder.setOwnerAddress(byteAddreess);
-
-    UnfreezeAssetContract contract = builder.build();
-
-    Transaction transaction = blockingStubFull.unfreezeAsset(contract);
-
-    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      return false;
-    }
-
-    transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
-    Return response = blockingStubFull.broadcastTransaction(transaction);
-    if (response.getResult() == false) {
-      logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
-      return false;
-    } else {
-      return true;
-    }
-  }
+  // public boolean unFreezeAsset(byte[] addRess, String priKey) {
+  //   byte[] address = addRess;
+  //
+  //   ECKey temKey = null;
+  //   try {
+  //     BigInteger priK = new BigInteger(priKey, 16);
+  //     temKey = ECKey.fromPrivate(priK);
+  //   } catch (Exception ex) {
+  //     ex.printStackTrace();
+  //   }
+  //   final ECKey ecKey = temKey;
+  //
+  //   UnfreezeAssetContract.Builder builder = UnfreezeAssetContract
+  //       .newBuilder();
+  //   ByteString byteAddreess = ByteString.copyFrom(address);
+  //
+  //   builder.setOwnerAddress(byteAddreess);
+  //
+  //   UnfreezeAssetContract contract = builder.build();
+  //
+  //   Transaction transaction = blockingStubFull.unfreezeAsset(contract);
+  //
+  //   if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+  //     return false;
+  //   }
+  //
+  //   transaction = TransactionUtils.setTimestamp(transaction);
+  //   transaction = TransactionUtils.sign(transaction, ecKey);
+  //   Return response = blockingStubFull.broadcastTransaction(transaction);
+  //   if (response.getResult() == false) {
+  //     logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
   /**
    * constructor.
    */
 
-  public boolean participateAssetIssue(byte[] to, byte[] assertName, long amount, byte[] from,
-      String priKey) {
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    final ECKey ecKey = temKey;
-
-    ParticipateAssetIssueContract.Builder builder = ParticipateAssetIssueContract
-        .newBuilder();
-    ByteString bsTo = ByteString.copyFrom(to);
-    ByteString bsName = ByteString.copyFrom(assertName);
-    ByteString bsOwner = ByteString.copyFrom(from);
-    builder.setToAddress(bsTo);
-    builder.setAssetName(bsName);
-    builder.setOwnerAddress(bsOwner);
-    builder.setAmount(amount);
-    ParticipateAssetIssueContract contract = builder.build();
-
-    Transaction transaction = blockingStubFull.participateAssetIssue(contract);
-    transaction = signTransaction(ecKey, transaction);
-    Return response = blockingStubFull.broadcastTransaction(transaction);
-    if (response.getResult() == false) {
-      logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
-      return false;
-    } else {
-      logger.info(name);
-      return true;
-    }
-  }
+  // public boolean participateAssetIssue(byte[] to, byte[] assertName, long amount, byte[] from,
+  //     String priKey) {
+  //   ECKey temKey = null;
+  //   try {
+  //     BigInteger priK = new BigInteger(priKey, 16);
+  //     temKey = ECKey.fromPrivate(priK);
+  //   } catch (Exception ex) {
+  //     ex.printStackTrace();
+  //   }
+  //   final ECKey ecKey = temKey;
+  //
+  //   ParticipateAssetIssueContract.Builder builder = ParticipateAssetIssueContract
+  //       .newBuilder();
+  //   ByteString bsTo = ByteString.copyFrom(to);
+  //   ByteString bsName = ByteString.copyFrom(assertName);
+  //   ByteString bsOwner = ByteString.copyFrom(from);
+  //   builder.setToAddress(bsTo);
+  //   builder.setAssetName(bsName);
+  //   builder.setOwnerAddress(bsOwner);
+  //   builder.setAmount(amount);
+  //   ParticipateAssetIssueContract contract = builder.build();
+  //
+  //   Transaction transaction = blockingStubFull.participateAssetIssue(contract);
+  //   transaction = signTransaction(ecKey, transaction);
+  //   Return response = blockingStubFull.broadcastTransaction(transaction);
+  //   if (response.getResult() == false) {
+  //     logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
+  //     return false;
+  //   } else {
+  //     logger.info(name);
+  //     return true;
+  //   }
+  // }
 
 }
 
