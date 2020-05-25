@@ -277,12 +277,10 @@ public class RepositoryImpl implements Repository {
     Value value = Value.create(code, Type.VALUE_TYPE_CREATE);
     codeCache.put(key, value);
 
-    if (VMConfig.allowTvmConstantinople()) {
-      ContractCapsule contract = getContract(address);
-      byte[] codeHash = Hash.sha3(code);
-      contract.setCodeHash(codeHash);
-      updateContract(address, contract);
-    }
+    ContractCapsule contract = getContract(address);
+    byte[] codeHash = Hash.sha3(code);
+    contract.setCodeHash(codeHash);
+    updateContract(address, contract);
   }
 
   @Override
@@ -351,12 +349,8 @@ public class RepositoryImpl implements Repository {
     Storage storage;
     if (this.parent != null) {
       Storage parentStorage = parent.getStorage(address);
-      if (VMConfig.getEnergyLimitHardFork()) {
-        // deep copy
-        storage = new Storage(parentStorage);
-      } else {
-        storage = parentStorage;
-      }
+      // deep copy
+      storage = new Storage(parentStorage);
     } else {
       storage = new Storage(address, getStorageRowStore());
     }

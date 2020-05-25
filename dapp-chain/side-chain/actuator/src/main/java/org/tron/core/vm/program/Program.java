@@ -588,10 +588,6 @@ public class Program {
     boolean contractAlreadyExists =
         (existingAccount != null) && isContractExist(existingAccount, getContractState());
 
-/*    if (VMConfig.allowTvmConstantinople()) {
-      contractAlreadyExists =
-          contractAlreadyExists && isContractExist(existingAccount, getContractState());
-    }*/
     Repository deposit = getContractState().newRepositoryChild();
 
     if (existingAccount == null) {

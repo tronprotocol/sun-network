@@ -545,13 +545,10 @@ public class VMActuator implements Actuator2 {
     if (callValue > 0) {
       transfer(this.repository, callerAddress, contractAddress, callValue);
     }
-    if (VMConfig.allowTvmTransferTrc10()) {
-      if (tokenValue > 0) {
-        transferToken(this.repository, callerAddress, contractAddress, String.valueOf(tokenId),
-            tokenValue);
-      }
+    if (tokenValue > 0) {
+      transferToken(this.repository, callerAddress, contractAddress, String.valueOf(tokenId),
+          tokenValue);
     }
-
   }
 
 /*  public long getAccountEnergyLimitWithFixRatio(AccountCapsule account, long feeLimit,
