@@ -12,7 +12,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.EmptyMessage;
-import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.core.Wallet;
@@ -96,8 +96,8 @@ public class WalletTestCommittee003 {
         proposalMap, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     //Get proposal list
-    ProposalList proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
-    Optional<ProposalList> listProposals = Optional.ofNullable(proposalList);
+    SideChainProposalList sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    Optional<SideChainProposalList> listProposals = Optional.ofNullable(sideChainProposalList);
     final Integer proposalId = listProposals.get().getProposalsCount();
     logger.info(Integer.toString(proposalId));
 
@@ -105,8 +105,8 @@ public class WalletTestCommittee003 {
         true, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     //Get proposal list after approve
-    proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
-    listProposals = Optional.ofNullable(proposalList);
+    sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    listProposals = Optional.ofNullable(sideChainProposalList);
     logger.info(Integer.toString(listProposals.get().getProposals(0).getApprovalsCount()));
     Assert.assertTrue(listProposals.get().getProposals(0).getApprovalsCount() == 1);
     //logger.info(Base58.encode58Check(witness002Address));
@@ -122,8 +122,8 @@ public class WalletTestCommittee003 {
     //Success to change the option from true to false.
     Assert.assertTrue(PublicMethed.approveProposal(witness002Address, witnessKey002, proposalId,
         false, blockingStubFull));
-    proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
-    listProposals = Optional.ofNullable(proposalList);
+    sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    listProposals = Optional.ofNullable(sideChainProposalList);
     Assert.assertTrue(listProposals.get().getProposals(0).getApprovalsCount() == 0);
 
     //Failed to approvel proposal when you already approval this proposal
@@ -145,8 +145,8 @@ public class WalletTestCommittee003 {
     //    true,blockingStubFull));
     //Assert.assertTrue(PublicMethed.approveProposal(witness005Address,witnessKey005,proposalId,
     //    true,blockingStubFull));
-    proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
-    listProposals = Optional.ofNullable(proposalList);
+    sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    listProposals = Optional.ofNullable(sideChainProposalList);
     Assert.assertTrue(listProposals.get().getProposals(0).getApprovalsCount() == 2);
 
 

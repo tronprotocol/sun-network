@@ -36,7 +36,7 @@ import org.junit.Test;
 import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.GrpcAPI.BlockList;
 import org.tron.api.GrpcAPI.ExchangeList;
-import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.common.application.TronApplicationContext;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
@@ -58,7 +58,7 @@ import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.BlockHeader;
 import org.tron.protos.Protocol.BlockHeader.raw;
 import org.tron.protos.Protocol.Exchange;
-import org.tron.protos.Protocol.Proposal;
+import org.tron.protos.Protocol.SideChainProposal;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
@@ -249,7 +249,7 @@ public class WalletTest {
   }
 
   private static void buildProposal() {
-    Proposal.Builder builder = Proposal.newBuilder();
+    SideChainProposal.Builder builder = SideChainProposal.newBuilder();
     builder.setProposalId(1L).setProposerAddress(ByteString.copyFromUtf8("Address1"));
     ProposalCapsule proposalCapsule = new ProposalCapsule(builder.build());
     manager.getProposalStore().put(proposalCapsule.createDbKey(), proposalCapsule);
@@ -454,32 +454,32 @@ public class WalletTest {
   public void getPaginatedProposalList() {
     buildProposal();
     //
-    ProposalList proposalList = wallet.getPaginatedProposalList(0, 100);
+    SideChainProposalList sideChainProposalList = wallet.getPaginatedProposalList(0, 100);
 
-    Assert.assertEquals(2, proposalList.getProposalsCount());
+    Assert.assertEquals(2, sideChainProposalList.getProposalsCount());
     Assert.assertEquals("Address1",
-        proposalList.getProposalsList().get(0).getProposerAddress().toStringUtf8());
+        sideChainProposalList.getProposalsList().get(0).getProposerAddress().toStringUtf8());
     Assert.assertEquals("Address2",
-        proposalList.getProposalsList().get(1).getProposerAddress().toStringUtf8());
+        sideChainProposalList.getProposalsList().get(1).getProposerAddress().toStringUtf8());
 
     //
-    proposalList = wallet.getPaginatedProposalList(1, 100);
+    sideChainProposalList = wallet.getPaginatedProposalList(1, 100);
 
-    Assert.assertEquals(1, proposalList.getProposalsCount());
+    Assert.assertEquals(1, sideChainProposalList.getProposalsCount());
     Assert.assertEquals("Address2",
-        proposalList.getProposalsList().get(0).getProposerAddress().toStringUtf8());
+        sideChainProposalList.getProposalsList().get(0).getProposerAddress().toStringUtf8());
 
     //
-    proposalList = wallet.getPaginatedProposalList(-1, 100);
-    Assert.assertNull(proposalList);
+    sideChainProposalList = wallet.getPaginatedProposalList(-1, 100);
+    Assert.assertNull(sideChainProposalList);
 
     //
-    proposalList = wallet.getPaginatedProposalList(0, -1);
-    Assert.assertNull(proposalList);
+    sideChainProposalList = wallet.getPaginatedProposalList(0, -1);
+    Assert.assertNull(sideChainProposalList);
 
     //
-    proposalList = wallet.getPaginatedProposalList(0, 1000000000L);
-    Assert.assertEquals(2, proposalList.getProposalsCount());
+    sideChainProposalList = wallet.getPaginatedProposalList(0, 1000000000L);
+    Assert.assertEquals(2, sideChainProposalList.getProposalsCount());
 
   }
 
@@ -496,12 +496,12 @@ public class WalletTest {
   //@Test
   public void testChainParameters() {
 
-    Protocol.ChainParameters.Builder builder = Protocol.ChainParameters.newBuilder();
+    Protocol.SideChainParameters.Builder builder = Protocol.SideChainParameters.newBuilder();
 
     Arrays.stream(ProposalType.values()).forEach(parameters -> {
       String methodName = Wallet.makeUpperCamelMethod(parameters.name());
       try {
-        builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+        builder.addChainParameter(Protocol.SideChainParameters.ChainParameter.newBuilder()
             .setKey(methodName)
             .setValue((long) DynamicPropertiesStore.class.getDeclaredMethod(methodName)
                 .invoke(manager.getDynamicPropertiesStore()))

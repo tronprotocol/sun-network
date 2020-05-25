@@ -43,7 +43,7 @@ import org.tron.core.vm.PrecompiledContracts.PrecompiledContract;
 import org.tron.core.vm.repository.Repository;
 import org.tron.core.vm.repository.RepositoryImpl;
 import org.tron.protos.Protocol.AccountType;
-import org.tron.protos.Protocol.Proposal.State;
+import org.tron.protos.Protocol.SideChainProposal.State;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
 
 @Slf4j

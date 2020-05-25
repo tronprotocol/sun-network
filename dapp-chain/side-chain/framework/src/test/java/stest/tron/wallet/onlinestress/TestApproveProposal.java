@@ -13,12 +13,12 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.EmptyMessage;
-import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Block;
-import org.tron.protos.Protocol.ChainParameters;
+import org.tron.protos.Protocol.SideChainParameters;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.contract.BalanceContract.TransferContract;
 import stest.tron.wallet.common.client.Configuration;
@@ -101,14 +101,14 @@ public class TestApproveProposal {
       e.printStackTrace();
     }
     //Get proposal list
-    ProposalList proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
-    Optional<ProposalList> listProposals = Optional.ofNullable(proposalList);
+    SideChainProposalList sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    Optional<SideChainProposalList> listProposals = Optional.ofNullable(sideChainProposalList);
     final Integer proposalId = listProposals.get().getProposalsCount();
     logger.info(Integer.toString(proposalId));
 
     //Get proposal list after approve
-    proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
-    listProposals = Optional.ofNullable(proposalList);
+    sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    listProposals = Optional.ofNullable(sideChainProposalList);
     logger.info(Integer.toString(listProposals.get().getProposals(0).getApprovalsCount()));
 
     String[] witnessKey = {
@@ -203,9 +203,9 @@ public class TestApproveProposal {
     defaultCommitteeMap.put("CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT", 0L);
     defaultCommitteeMap.put("CREATE_NEW_ACCOUNT_BANDWIDTH_RATE", 1L);
 
-    ChainParameters chainParameters = blockingStubFull
-        .getChainParameters(EmptyMessage.newBuilder().build());
-    Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
+    SideChainParameters sideChainParameters = blockingStubFull
+        .getSideChainParameters(EmptyMessage.newBuilder().build());
+    Optional<SideChainParameters> getChainParameters = Optional.ofNullable(sideChainParameters);
     logger.info(Long.toString(getChainParameters.get().getChainParameterCount()));
     for (Integer i = 0; i < getChainParameters.get().getChainParameterCount(); i++) {
       logger.info("Index is:" + i);

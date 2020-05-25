@@ -108,7 +108,7 @@ import org.tron.protos.contract.ExchangeContract.ExchangeInjectContract;
 import org.tron.protos.contract.ExchangeContract.ExchangeTransactionContract;
 import org.tron.protos.contract.ExchangeContract.ExchangeWithdrawContract;
 import org.tron.protos.contract.ProposalContract.ProposalApproveContract;
-import org.tron.protos.contract.ProposalContract.ProposalCreateContract;
+import org.tron.protos.contract.ProposalContract.SideChainProposalCreateContract;
 import org.tron.protos.contract.ProposalContract.ProposalDeleteContract;
 import org.tron.protos.contract.ShieldContract.IncrementalMerkleVoucherInfo;
 import org.tron.protos.contract.ShieldContract.OutputPoint;
@@ -1957,11 +1957,11 @@ public class PublicMethed {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    ProposalCreateContract.Builder builder = ProposalCreateContract.newBuilder();
+    SideChainProposalCreateContract.Builder builder = SideChainProposalCreateContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.putAllParameters(parametersMap);
 
-    ProposalCreateContract contract = builder.build();
+    SideChainProposalCreateContract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.proposalCreate(contract);
     if (transactionExtention == null) {
       return false;
