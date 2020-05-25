@@ -134,14 +134,14 @@ public class RuntimeImplTest {
     long expectEnergyLimit1 = 10_000_000L;
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
-            .getAccountEnergyLimitWithFixRatio(creatorAccount, feeLimit, value),
+            .getAccountEnergyLimitWithFixRatio(creatorAccount, feeLimit, value, 0),
         expectEnergyLimit1);
 
     value = 2_500_000_000L;
     long expectEnergyLimit2 = 5_000_000L;
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
-            .getAccountEnergyLimitWithFixRatio(creatorAccount, feeLimit, value),
+            .getAccountEnergyLimitWithFixRatio(creatorAccount, feeLimit, value, 0),
         expectEnergyLimit2);
 
     value = 10L;
@@ -149,7 +149,7 @@ public class RuntimeImplTest {
     long expectEnergyLimit3 = 10_000L;
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
-            .getAccountEnergyLimitWithFixRatio(creatorAccount, feeLimit, value),
+            .getAccountEnergyLimitWithFixRatio(creatorAccount, feeLimit, value, 0),
         expectEnergyLimit3);
 
     long frozenBalance = 1_000_000_000L;
@@ -163,7 +163,7 @@ public class RuntimeImplTest {
     long expectEnergyLimit4 = 10_000_000L;
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
-            .getAccountEnergyLimitWithFixRatio(creatorAccount, feeLimit, value),
+            .getAccountEnergyLimitWithFixRatio(creatorAccount, feeLimit, value, 0),
         expectEnergyLimit4);
 
     feeLimit = 3_000_000_000L;
@@ -171,7 +171,7 @@ public class RuntimeImplTest {
     long expectEnergyLimit5 = 20_009_999L;
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
-            .getAccountEnergyLimitWithFixRatio(creatorAccount, feeLimit, value),
+            .getAccountEnergyLimitWithFixRatio(creatorAccount, feeLimit, value, 0),
         expectEnergyLimit5);
 
     feeLimit = 3_000L;
@@ -179,7 +179,7 @@ public class RuntimeImplTest {
     long expectEnergyLimit6 = 30L;
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
-            .getAccountEnergyLimitWithFixRatio(creatorAccount, feeLimit, value),
+            .getAccountEnergyLimitWithFixRatio(creatorAccount, feeLimit, value, 0),
         expectEnergyLimit6);
 
   }
@@ -234,7 +234,7 @@ public class RuntimeImplTest {
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
             .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
-                value),
+                value, 0),
         expectEnergyLimit1);
 
     long creatorFrozenBalance = 1_000_000_000L;
@@ -250,7 +250,7 @@ public class RuntimeImplTest {
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
             .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
-                value),
+                value, 0),
         expectEnergyLimit2);
 
     value = 3_500_000_000L;
@@ -258,7 +258,7 @@ public class RuntimeImplTest {
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
             .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
-                value),
+                value, 0),
         expectEnergyLimit3);
 
     value = 10L;
@@ -267,7 +267,7 @@ public class RuntimeImplTest {
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
             .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
-                value),
+                value, 0),
         expectEnergyLimit4);
 
     long callerFrozenBalance = 1_000_000_000L;
@@ -282,7 +282,7 @@ public class RuntimeImplTest {
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
             .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
-                value),
+                value, 0),
         expectEnergyLimit5);
 
   }
@@ -337,7 +337,7 @@ public class RuntimeImplTest {
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
             .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
-                value),
+                value, 0),
         expectEnergyLimit1);
 
     long creatorFrozenBalance = 1_000_000_000L;
@@ -353,7 +353,7 @@ public class RuntimeImplTest {
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
             .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
-                value),
+                value, 0),
         expectEnergyLimit2);
 
     value = 3_999_950_000L;
@@ -361,7 +361,7 @@ public class RuntimeImplTest {
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
             .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
-                value),
+                value, 0),
         expectEnergyLimit3);
 
   }
@@ -416,7 +416,7 @@ public class RuntimeImplTest {
     Assert.assertEquals(
         ((VMActuator) runtimeImpl.actuator2)
             .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
-                value),
+                value, 0),
         expectEnergyLimit1);
 
     long creatorFrozenBalance = 1_000_000_000L;
@@ -429,19 +429,19 @@ public class RuntimeImplTest {
     feeLimit = 1_000_000_000L;
     value = 0L;
     long expectEnergyLimit2 = 10_000_000L;
-//    Assert.assertEquals(
-//        ((VMActuator) runtimeImpl.actuator2)
-//            .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
-//                value),
-//        expectEnergyLimit2);
+    Assert.assertEquals(
+        ((VMActuator) runtimeImpl.actuator2)
+            .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
+                value, 0),
+        expectEnergyLimit2);
 
     value = 3_999_950_000L;
     long expectEnergyLimit3 = 500L;
-//    Assert.assertEquals(
-//        ((VMActuator) runtimeImpl.actuator2)
-//            .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
-//                value),
-//        expectEnergyLimit3);
+    Assert.assertEquals(
+        ((VMActuator) runtimeImpl.actuator2)
+            .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
+                value, 0),
+        expectEnergyLimit3);
 
   }
 

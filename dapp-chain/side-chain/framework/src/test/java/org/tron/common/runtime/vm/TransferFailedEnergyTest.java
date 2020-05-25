@@ -221,7 +221,7 @@ public class TransferFailedEnergyTest extends VMTestBase {
       VMIllegalException, ContractValidateException {
     ConfigLoader.disable = false;
     manager.getDynamicPropertiesStore().saveAllowTvmTransferTrc10(1);
-    manager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
+    // manager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
     manager.getDynamicPropertiesStore().saveAllowTvmSolidity059(0);
 
     String contractName = "EnergyOfTransferFailedTest";
@@ -260,7 +260,7 @@ public class TransferFailedEnergyTest extends VMTestBase {
       VMIllegalException, ContractValidateException {
     ConfigLoader.disable = false;
     manager.getDynamicPropertiesStore().saveAllowTvmTransferTrc10(1);
-    manager.getDynamicPropertiesStore().saveAllowTvmConstantinople(0);
+    // manager.getDynamicPropertiesStore().saveAllowTvmConstantinople(0);
     manager.getDynamicPropertiesStore().saveAllowTvmSolidity059(0);
 
     String contractName = "EnergyOfTransferFailedTest";

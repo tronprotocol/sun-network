@@ -144,7 +144,7 @@ public class SendCoinShieldTest {
   @Before
   public void createCapsule() {
     Args.getInstance().setZenTokenId(String.valueOf(tokenId));
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+    // dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     dbManager.getDynamicPropertiesStore().saveTokenIdNum(tokenId);
 
     AssetIssueContract assetIssueContract = AssetIssueContract.newBuilder()

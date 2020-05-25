@@ -74,10 +74,10 @@ public class BatchSendTest {
 
     ownerCapsule.setBalance(1000_1000_1000L);
     dbManager.getAccountStore().put(ownerCapsule.getAddress().toByteArray(), ownerCapsule);
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+    // dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     dbManager.getDynamicPropertiesStore().saveAllowMultiSign(1);
     dbManager.getDynamicPropertiesStore().saveAllowTvmTransferTrc10(1);
-    dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
+    // dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
     dbManager.getDynamicPropertiesStore().saveAllowTvmSolidity059(1);
 
   }
