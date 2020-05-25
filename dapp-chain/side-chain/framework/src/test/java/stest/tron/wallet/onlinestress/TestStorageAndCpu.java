@@ -135,9 +135,9 @@ public class TestStorageAndCpu {
             .getSideChainParameters(EmptyMessage.newBuilder().build());
         getChainParameters = Optional.ofNullable(sideChainParameters);
         logger.info(getChainParameters.get().getChainParameter(22).getKey());
-        logger.info(Long.toString(getChainParameters.get().getChainParameter(22).getValue()));
+        logger.info(getChainParameters.get().getChainParameter(22).getValue());
         logger.info(getChainParameters.get().getChainParameter(23).getKey());
-        logger.info(Long.toString(getChainParameters.get().getChainParameter(23).getValue()));
+        logger.info(getChainParameters.get().getChainParameter(23).getValue());
 
       }
     }

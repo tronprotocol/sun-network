@@ -340,20 +340,20 @@ public class WalletClient {
    * constructor.
    */
 
-  public static AssetIssueContractOuterClass.ParticipateAssetIssueContract participateAssetIssueContract(
-      byte[] to, byte[] assertName, byte[] owner, long amount) {
-    AssetIssueContractOuterClass.ParticipateAssetIssueContract.Builder builder = AssetIssueContractOuterClass.ParticipateAssetIssueContract
-        .newBuilder();
-    ByteString bsTo = ByteString.copyFrom(to);
-    ByteString bsName = ByteString.copyFrom(assertName);
-    ByteString bsOwner = ByteString.copyFrom(owner);
-    builder.setToAddress(bsTo);
-    builder.setAssetName(bsName);
-    builder.setOwnerAddress(bsOwner);
-    builder.setAmount(amount);
-
-    return builder.build();
-  }
+  // public static AssetIssueContractOuterClass.ParticipateAssetIssueContract participateAssetIssueContract(
+  //     byte[] to, byte[] assertName, byte[] owner, long amount) {
+  //   AssetIssueContractOuterClass.ParticipateAssetIssueContract.Builder builder = AssetIssueContractOuterClass.ParticipateAssetIssueContract
+  //       .newBuilder();
+  //   ByteString bsTo = ByteString.copyFrom(to);
+  //   ByteString bsName = ByteString.copyFrom(assertName);
+  //   ByteString bsOwner = ByteString.copyFrom(owner);
+  //   builder.setToAddress(bsTo);
+  //   builder.setAssetName(bsName);
+  //   builder.setOwnerAddress(bsOwner);
+  //   builder.setAmount(amount);
+  //
+  //   return builder.build();
+  // }
 
   public static Transaction createTransaction4Transfer(TransferContract contract) {
     Transaction transaction = rpcCli.createTransaction(contract);

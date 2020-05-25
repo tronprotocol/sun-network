@@ -31,7 +31,7 @@ import org.tron.protos.contract.AccountContract.AccountCreateContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass;
 import org.tron.protos.contract.BalanceContract;
 import org.tron.protos.contract.SmartContractOuterClass;
-import org.tron.protos.contract.VoteAssetContractOuterClass;
+// import org.tron.protos.contract.VoteAssetContractOuterClass;
 import org.tron.protos.contract.WitnessContract;
 
 //import org.tron.protos.Protocol.DeferredStage;
@@ -76,11 +76,11 @@ public class TransactionUtils {
           owner = contract.getParameter()
               .unpack(AssetIssueContractOuterClass.TransferAssetContract.class).getOwnerAddress();
           break;
-        case VoteAssetContract:
-          owner = contract.getParameter()
-              .unpack(VoteAssetContractOuterClass.VoteAssetContract.class)
-              .getOwnerAddress();
-          break;
+        // case VoteAssetContract:
+        //   owner = contract.getParameter()
+        //       .unpack(VoteAssetContractOuterClass.VoteAssetContract.class)
+        //       .getOwnerAddress();
+        //   break;
         case VoteWitnessContract:
           owner = contract.getParameter().unpack(WitnessContract.VoteWitnessContract.class)
               .getOwnerAddress();
@@ -89,16 +89,16 @@ public class TransactionUtils {
           owner = contract.getParameter()
               .unpack(WitnessContract.WitnessCreateContract.class).getOwnerAddress();
           break;
-        case AssetIssueContract:
-          owner = contract.getParameter()
-              .unpack(AssetIssueContractOuterClass.AssetIssueContract.class)
-              .getOwnerAddress();
-          break;
-        case ParticipateAssetIssueContract:
-          owner = contract.getParameter()
-              .unpack(AssetIssueContractOuterClass.ParticipateAssetIssueContract.class)
-              .getOwnerAddress();
-          break;
+        // case AssetIssueContract:
+        //   owner = contract.getParameter()
+        //       .unpack(AssetIssueContractOuterClass.AssetIssueContract.class)
+        //       .getOwnerAddress();
+        //   break;
+        // case ParticipateAssetIssueContract:
+        //   owner = contract.getParameter()
+        //       .unpack(AssetIssueContractOuterClass.ParticipateAssetIssueContract.class)
+        //       .getOwnerAddress();
+        //   break;
         case CreateSmartContract:
           owner = contract.getParameter().unpack(SmartContractOuterClass.CreateSmartContract.class)
               .getOwnerAddress();

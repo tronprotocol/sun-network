@@ -156,7 +156,7 @@ public class WalletTestCommittee004 {
     BytesMessage request = BytesMessage.newBuilder().setValue(ByteString.copyFrom(
         ByteArray.fromLong(Long.parseLong(proposalId.toString()))))
         .build();
-    SideChainProposal proposal = blockingStubFull.getProposalById(request);
+    SideChainProposal proposal = blockingStubFull.getSideChainProposalById(request);
     Optional<SideChainProposal> getProposal = Optional.ofNullable(proposal);
 
     Assert.assertTrue(getProposal.isPresent());
@@ -167,7 +167,7 @@ public class WalletTestCommittee004 {
     request = BytesMessage.newBuilder().setValue(ByteString.copyFrom(
         ByteArray.fromLong(Long.parseLong(wrongProposalId.toString()))))
         .build();
-    proposal = blockingStubFull.getProposalById(request);
+    proposal = blockingStubFull.getSideChainProposalById(request);
     getProposal = Optional.ofNullable(proposal);
     logger.info(Long.toString(getProposal.get().getCreateTime()));
     Assert.assertTrue(getProposal.get().getCreateTime() == 0);
@@ -193,15 +193,15 @@ public class WalletTestCommittee004 {
     logger.info(Long.toString(getChainParameters.get().getChainParameterCount()));
     for (Integer i = 0; i < getChainParameters.get().getChainParameterCount(); i++) {
       logger.info(getChainParameters.get().getChainParameter(i).getKey());
-      logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+      logger.info(getChainParameters.get().getChainParameter(i).getValue());
     }
     Assert.assertTrue(getChainParameters.get().getChainParameterCount() >= 10);
-    Assert.assertTrue(getChainParameters.get()
-        .getChainParameter(1).getValue() == 9999000000L);
-    Assert.assertTrue(getChainParameters.get().getChainParameter(4)
-        .getValue() == 1024000000L);
-    Assert.assertTrue(getChainParameters.get().getChainParameter(7).getValue() == 0);
-    Assert.assertTrue(getChainParameters.get().getChainParameter(8).getValue() == 1);
+    Assert.assertTrue(Long.valueOf(getChainParameters.get()
+            .getChainParameter(1).getValue()) == 9999000000L);
+    Assert.assertTrue(Long.valueOf(getChainParameters.get().getChainParameter(4)
+            .getValue()) == 1024000000L);
+    Assert.assertTrue(Integer.valueOf(getChainParameters.get().getChainParameter(7).getValue()) == 0);
+    Assert.assertTrue(Integer.valueOf(getChainParameters.get().getChainParameter(8).getValue()) == 1);
 
   }
 

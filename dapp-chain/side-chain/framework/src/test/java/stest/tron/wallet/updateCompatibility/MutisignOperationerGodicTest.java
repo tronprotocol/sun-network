@@ -474,10 +474,10 @@ public class MutisignOperationerGodicTest {
     for (Integer i = 0; i < getChainParameters.get().getChainParameterCount(); i++) {
       logger.info("Index is:" + i);
       logger.info(getChainParameters.get().getChainParameter(i).getKey());
-      logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+      logger.info(getChainParameters.get().getChainParameter(i).getValue());
       if (getChainParameters.get().getChainParameter(i).getKey()
           .equals("getMaintenanceTimeInterval")) {
-        MaintenanceTimeInterval = getChainParameters.get().getChainParameter(i).getValue();
+        MaintenanceTimeInterval = Long.valueOf(getChainParameters.get().getChainParameter(i).getValue());
         break;
       }
     }

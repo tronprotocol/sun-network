@@ -39,7 +39,7 @@ contract TestExtCodeHash {
   @Test
   public void testExtCodeHash()
       throws ContractExeException, ReceiptCheckErrException, VMIllegalException, ContractValidateException {
-    manager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
+    // manager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
     String contractName = "TestExtCodeHash";
     byte[] address = Hex.decode(OWNER_ADDRESS);
     String ABI = "[{\"constant\":true,\"inputs\":[{\"name\":\"_addr\",\"type\":\"uint256\"}],\"name\":\"getCodeHashByUint\",\"outputs\":[{\"name\":\"_hash\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_addr\",\"type\":\"address\"}],\"name\":\"getCodeHashByAddr\",\"outputs\":[{\"name\":\"_hash\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]";
