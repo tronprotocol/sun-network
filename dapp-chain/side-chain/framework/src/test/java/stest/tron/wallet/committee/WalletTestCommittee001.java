@@ -94,8 +94,8 @@ public class WalletTestCommittee001 {
 
     //CreateProposal
     final long now = System.currentTimeMillis();
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(0L, 1000000L);
+    HashMap<Long, String> proposalMap = new HashMap<>();
+    proposalMap.put(0L, "1000000");
     PublicMethed.createProposal(witness001Address, witnessKey001, proposalMap, blockingStubFull);
 
     //List proposals

@@ -96,8 +96,8 @@ public class WalletTestCommittee004 {
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     //Create a proposal and approval it
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(1L, 99999L);
+    HashMap<Long, String> proposalMap = new HashMap<Long, String>();
+    proposalMap.put(1L, "99999");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
     try {
@@ -144,8 +144,8 @@ public class WalletTestCommittee004 {
   @Test(enabled = true)
   public void test2GetProposal() {
     //Create a proposal and approval it
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(1L, 999999999L);
+    HashMap<Long, String> proposalMap = new HashMap<Long, String>();
+    proposalMap.put(1L, "999999999");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
     //Get proposal list

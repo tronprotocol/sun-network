@@ -88,28 +88,28 @@ public class WalletTestCommittee002 {
 
     //0:MAINTENANCE_TIME_INTERVAL,[3*27s,24h]
     //Minimum interval
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(0L, 81000L);
+    HashMap<Long, String> proposalMap = new HashMap<>();
+    proposalMap.put(0L, "81000");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum interval
-    proposalMap.put(0L, 86400000L);
+    proposalMap.put(0L, "86400000");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Minimum -1 interval, create failed.
-    proposalMap.put(0L, 80000L);
+    proposalMap.put(0L, "80000");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum + 1 interval
-    proposalMap.put(0L, 86401000L);
+    proposalMap.put(0L, "86401000");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Non witness account
-    proposalMap.put(0L, 86400000L);
+    proposalMap.put(0L, "86400000");
     Assert.assertFalse(PublicMethed.createProposal(toAddress, testKey003, proposalMap,
         blockingStubFull));
   }
@@ -118,28 +118,28 @@ public class WalletTestCommittee002 {
   public void testCreateProposalAccountUpgradeCost() {
     //1:ACCOUNT_UPGRADE_COST,[0,100 000 000 000 000 000]//drop
     //Minimum AccountUpgradeCost
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(1L, 0L);
+    HashMap<Long, String> proposalMap = new HashMap<>();
+    proposalMap.put(1L, "0");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum AccountUpgradeCost
-    proposalMap.put(1L, 100000000000000000L);
+    proposalMap.put(1L, "100000000000000000");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Minimum - 1 AccountUpgradeCost
-    proposalMap.put(1L, -1L);
+    proposalMap.put(1L, "-1");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum + 1 AccountUpgradeCost
-    proposalMap.put(1L, 100000000000000001L);
+    proposalMap.put(1L, "100000000000000001");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Non witness account
-    proposalMap.put(1L, 86400000L);
+    proposalMap.put(1L, "86400000");
     Assert.assertFalse(PublicMethed.createProposal(toAddress, testKey003,
         proposalMap, blockingStubFull));
   }
@@ -148,28 +148,28 @@ public class WalletTestCommittee002 {
   public void testCreateProposalCreateAccountFee() {
     //2:CREATE_ACCOUNT_FEE,[0,100 000 000 000 000 000]//drop
     //Minimum CreateAccountFee
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(2L, 0L);
+    HashMap<Long, String> proposalMap = new HashMap<>();
+    proposalMap.put(2L, "0");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum CreateAccountFee
-    proposalMap.put(2L, 100000000000000000L);
+    proposalMap.put(2L, "100000000000000000");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Minimum - 1 CreateAccountFee
-    proposalMap.put(2L, -1L);
+    proposalMap.put(2L, "-1");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum + 1 CreateAccountFee
-    proposalMap.put(2L, 100000000000000001L);
+    proposalMap.put(2L, "100000000000000001");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Non witness account
-    proposalMap.put(2L, 86400000L);
+    proposalMap.put(2L, "86400000");
     Assert.assertFalse(PublicMethed.createProposal(toAddress, testKey003,
         proposalMap, blockingStubFull));
 
@@ -179,28 +179,28 @@ public class WalletTestCommittee002 {
   public void testTransactionFee() {
     //3:TRANSACTION_FEE,[0,100 000 000 000 000 000]//drop
     //Minimum TransactionFee
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(3L, 0L);
+    HashMap<Long, String> proposalMap = new HashMap<>();
+    proposalMap.put(3L, "0");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum TransactionFee
-    proposalMap.put(3L, 100000000000000000L);
+    proposalMap.put(3L, "100000000000000000");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Minimum - 1 TransactionFee
-    proposalMap.put(3L, -1L);
+    proposalMap.put(3L, "-1");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum + 1 TransactionFee
-    proposalMap.put(3L, 100000000000000001L);
+    proposalMap.put(3L, "100000000000000001");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Non witness account
-    proposalMap.put(3L, 86400000L);
+    proposalMap.put(3L, "86400000");
     Assert.assertFalse(PublicMethed.createProposal(toAddress, testKey003,
         proposalMap, blockingStubFull));
 
@@ -210,33 +210,33 @@ public class WalletTestCommittee002 {
   public void testAssetIssueFee() {
     //4:ASSET_ISSUE_FEE,[0,100 000 000 000 000 000]//drop
     //Minimum AssetIssueFee
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(4L, 0L);
+    HashMap<Long, String> proposalMap = new HashMap<>();
+    proposalMap.put(4L, "0");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Duplicat proposals
-    proposalMap.put(4L, 0L);
+    proposalMap.put(4L, "0");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum AssetIssueFee
-    proposalMap.put(4L, 100000000000000000L);
+    proposalMap.put(4L, "100000000000000000");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Minimum - 1 AssetIssueFee
-    proposalMap.put(4L, -1L);
+    proposalMap.put(4L, "-1");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum + 1 AssetIssueFee
-    proposalMap.put(4L, 100000000000000001L);
+    proposalMap.put(4L, "100000000000000001");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Non witness account
-    proposalMap.put(4L, 86400000L);
+    proposalMap.put(4L, "86400000");
     Assert.assertFalse(PublicMethed.createProposal(toAddress, testKey003,
         proposalMap, blockingStubFull));
 
@@ -246,28 +246,28 @@ public class WalletTestCommittee002 {
   public void testWitnessPayPerBlock() {
     //5:WITNESS_PAY_PER_BLOCK,[0,100 000 000 000 000 000]//drop
     //Minimum WitnessPayPerBlock
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(5L, 0L);
+    HashMap<Long, String> proposalMap = new HashMap<Long, String>();
+    proposalMap.put(5L, "0");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum WitnessPayPerBlock
-    proposalMap.put(5L, 100000000000000000L);
+    proposalMap.put(5L, "100000000000000000");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Minimum - 1 WitnessPayPerBlock
-    proposalMap.put(5L, -1L);
+    proposalMap.put(5L, "-1");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum + 1 WitnessPayPerBlock
-    proposalMap.put(5L, 100000000000000001L);
+    proposalMap.put(5L, "100000000000000001");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Non witness account
-    proposalMap.put(5L, 86400000L);
+    proposalMap.put(5L, "86400000");
     Assert.assertFalse(PublicMethed.createProposal(toAddress, testKey003,
         proposalMap, blockingStubFull));
 
@@ -277,28 +277,28 @@ public class WalletTestCommittee002 {
   public void testWitnessStandbyAllowance() {
     //6:WITNESS_STANDBY_ALLOWANCE,[0,100 000 000 000 000 000]//drop
     //Minimum WitnessStandbyAllowance
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(6L, 0L);
+    HashMap<Long, String> proposalMap = new HashMap<Long, String>();
+    proposalMap.put(6L, "0");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum WitnessStandbyAllowance
-    proposalMap.put(6L, 100000000000000000L);
+    proposalMap.put(6L, "100000000000000000");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Minimum - 1 WitnessStandbyAllowance
-    proposalMap.put(6L, -1L);
+    proposalMap.put(6L, "-1");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum + 1 WitnessStandbyAllowance
-    proposalMap.put(6L, 100000000000000001L);
+    proposalMap.put(6L, "100000000000000001");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Non witness account
-    proposalMap.put(6L, 86400000L);
+    proposalMap.put(6L, "86400000");
     Assert.assertFalse(PublicMethed.createProposal(toAddress, testKey003,
         proposalMap, blockingStubFull));
 
@@ -307,28 +307,28 @@ public class WalletTestCommittee002 {
   @Test(enabled = true)
   public void testCreateNewAccountFeeInSystemControl() {
     //7:CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT,0 or 1
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(7L, 1L);
+    HashMap<Long, String> proposalMap = new HashMap<Long, String>();
+    proposalMap.put(7L, "1");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum WitnessStandbyAllowance
-    proposalMap.put(7L, 100000000000000000L);
+    proposalMap.put(7L, "100000000000000000");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Minimum - 1 WitnessStandbyAllowance
-    proposalMap.put(6L, -1L);
+    proposalMap.put(6L, "-1");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Maximum + 1 WitnessStandbyAllowance
-    proposalMap.put(6L, 100000000000000001L);
+    proposalMap.put(6L, "100000000000000001");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //Non witness account
-    proposalMap.put(6L, 86400000L);
+    proposalMap.put(6L, "86400000");
     Assert.assertFalse(PublicMethed.createProposal(toAddress, testKey003,
         proposalMap, blockingStubFull));
 
@@ -338,13 +338,13 @@ public class WalletTestCommittee002 {
   @Test(enabled = true)
   public void testInvalidProposals() {
     // The index isn't from 0-9
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(10L, 60L);
+    HashMap<Long, String> proposalMap = new HashMap<Long, String>();
+    proposalMap.put(10L, "60");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 
     //The index is -1
-    proposalMap.put(-1L, 6L);
+    proposalMap.put(-1L, "6");
     Assert.assertFalse(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
 

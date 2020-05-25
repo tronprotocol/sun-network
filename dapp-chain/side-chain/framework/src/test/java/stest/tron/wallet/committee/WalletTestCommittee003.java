@@ -90,8 +90,8 @@ public class WalletTestCommittee003 {
     PublicMethed.sendcoin(witness002Address, 1000000L,
         toAddress, testKey003, blockingStubFull);
 
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(0L, 81000L);
+    HashMap<Long, String> proposalMap = new HashMap<Long, String>();
+    proposalMap.put(0L, "81000");
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
