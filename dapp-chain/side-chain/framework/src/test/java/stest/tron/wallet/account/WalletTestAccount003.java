@@ -144,18 +144,18 @@ public class WalletTestAccount003 {
         lowBalTest, blockingStubFull));
   }
 
-  @Test(enabled = true)
-  public void test3NoBalanceCreateAssetIssue() {
-    Account lowaccount = PublicMethed.queryAccount(lowBalTest, blockingStubFull);
-    if (lowaccount.getBalance() > 0) {
-      Assert.assertTrue(sendCoin(toAddress, lowaccount.getBalance(), lowBalAddress, lowBalTest));
-    }
-    //Create AssetIssue failed when there is no enough balance.
-    Assert.assertFalse(PublicMethed.createAssetIssue(lowBalAddress, name, TotalSupply, 1, 1,
-        now + 100000000L, now + 10000000000L, 2, description, url, 10000L,
-        10000L, 1L, 1L, lowBalTest, blockingStubFull));
-    logger.info("nobalancecreateassetissue");
-  }
+//  @Test(enabled = true)
+//  public void test3NoBalanceCreateAssetIssue() {
+//    Account lowaccount = PublicMethed.queryAccount(lowBalTest, blockingStubFull);
+//    if (lowaccount.getBalance() > 0) {
+//      Assert.assertTrue(sendCoin(toAddress, lowaccount.getBalance(), lowBalAddress, lowBalTest));
+//    }
+//    //Create AssetIssue failed when there is no enough balance.
+//    Assert.assertFalse(PublicMethed.createAssetIssue(lowBalAddress, name, TotalSupply, 1, 1,
+//        now + 100000000L, now + 10000000000L, 2, description, url, 10000L,
+//        10000L, 1L, 1L, lowBalTest, blockingStubFull));
+//    logger.info("nobalancecreateassetissue");
+//  }
 
   @Test(enabled = true)
   public void test4NoBalanceTransferTrx() {

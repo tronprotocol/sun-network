@@ -98,9 +98,9 @@ public class TestTransferTokenInContract {
       logger.info("The token name: " + tokenName);
 
       //Create a new AssetIssue success.
-      Assert.assertTrue(PublicMethed.createAssetIssue(devAddress, tokenName, TotalSupply, 1,
-          100, start, end, 1, description, url, 10000L, 10000L,
-          1L, 1L, devKey, blockingStubFull));
+//      Assert.assertTrue(PublicMethed.createAssetIssue(devAddress, tokenName, TotalSupply, 1,
+//          100, start, end, 1, description, url, 10000L, 10000L,
+//          1L, 1L, devKey, blockingStubFull));
 
       Account getAssetIdFromThisAccount = PublicMethed.queryAccount(devAddress, blockingStubFull);
       assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();

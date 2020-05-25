@@ -95,9 +95,9 @@ public class TransferAsset2Test {
       Long start = System.currentTimeMillis() + 2000;
       Long end = System.currentTimeMillis() + 1000000000;
 
-      Return ret1 = PublicMethed.createAssetIssue2(noBandwitchAddress, name, totalSupply, 1,
-          100, start, end, 1, description, url, 10000L, 10000L,
-          1L, 1L, noBandwitch, blockingStubFull);
+//      Return ret1 = PublicMethed.createAssetIssue2(noBandwitchAddress, name, totalSupply, 1,
+//          100, start, end, 1, description, url, 10000L, 10000L,
+//          1L, 1L, noBandwitch, blockingStubFull);
     } else {
       logger.info("This account already create an assetisue");
       Optional<GrpcAPI.AssetIssueList> queryAssetByAccount1 = Optional.ofNullable(assetIssueList1);

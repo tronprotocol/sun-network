@@ -192,9 +192,9 @@ public class ParticipateAssetIssue {
     //Create an asset issue.
     Long start = System.currentTimeMillis() + 2000;
     Long end = System.currentTimeMillis() + 1000000000;
-    Assert.assertTrue(PublicMethed.createAssetIssue(createAddress, name, totalSupply, 1, 1,
-        start, end, 1, description, url, freeAssetNetLimit, publicFreeAssetNetLimit,
-        10L, 10L, testKeyForCreate, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.createAssetIssue(createAddress, name, totalSupply, 1, 1,
+//        start, end, 1, description, url, freeAssetNetLimit, publicFreeAssetNetLimit,
+//        10L, 10L, testKeyForCreate, blockingStubFull));
     try {
       Thread.sleep(5000);
     } catch (InterruptedException e) {

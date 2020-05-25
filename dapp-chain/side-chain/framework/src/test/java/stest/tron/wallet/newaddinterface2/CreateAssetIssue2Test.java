@@ -93,11 +93,11 @@ public class CreateAssetIssue2Test {
           fromAddress, testKey002, blockingStubFull));
       Long start = System.currentTimeMillis() + 2000000;
       Long end = System.currentTimeMillis() + 1000000000;
-      GrpcAPI.Return ret1 = PublicMethed.createAssetIssue2(noBandwitchAddress, name, totalSupply, 1,
-          100, start, end, 1, description, url, 10000L, 10000L,
-          1L, 1L, noBandwitch, blockingStubFull);
-      Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
-      Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
+//      GrpcAPI.Return ret1 = PublicMethed.createAssetIssue2(noBandwitchAddress, name, totalSupply, 1,
+//          100, start, end, 1, description, url, 10000L, 10000L,
+//          1L, 1L, noBandwitch, blockingStubFull);
+//      Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
+//      Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
     } else {
       logger.info("This account already create an assetisue");
       Optional<GrpcAPI.AssetIssueList> queryAssetByAccount1 = Optional.ofNullable(assetIssueList1);

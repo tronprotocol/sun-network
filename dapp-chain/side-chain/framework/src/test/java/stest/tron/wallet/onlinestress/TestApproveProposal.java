@@ -89,9 +89,9 @@ public class TestApproveProposal {
 
   @Test(enabled = true)
   public void testApproveProposal() {
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
+    HashMap<Long, String> proposalMap = new HashMap<Long, String>();
     //proposalMap.put(25L, 1L);
-    proposalMap.put(27L, 0L);
+    proposalMap.put(27L, String.valueOf(0L));
     //proposalMap.put(28L, 1L);
     Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));

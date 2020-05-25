@@ -114,9 +114,9 @@ public class MutisignOperationerGodicTest {
       Long totalSupply = 15000000000000001L;
       String description = "This asset issue is use for exchange transaction stress";
       String url = "This asset issue is use for exchange transaction stress";
-      PublicMethed.createAssetIssue(foundationZenTokenAddress, name, totalSupply, 1, 1,
-          start, end, 1, description, url, 1000L, 1000L,
-          1L, 1L, foundationZenTokenKey, blockingStubFull);
+//      PublicMethed.createAssetIssue(foundationZenTokenAddress, name, totalSupply, 1, 1,
+//          start, end, 1, description, url, 1000L, 1000L,
+//          1L, 1L, foundationZenTokenKey, blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       Account getAssetIdFromThisAccount =
           PublicMethed.queryAccount(foundationZenTokenAddress, blockingStubFull);
@@ -237,128 +237,128 @@ public class MutisignOperationerGodicTest {
 
   }
 
-  @Test(enabled = true)
-  public void test003MutiSignGodicTokenTypeTransaction() {
+//  @Test(enabled = true)
+//  public void test003MutiSignGodicTokenTypeTransaction() {
+//
+//    long now = System.currentTimeMillis();
+//    String name = "MutiSign001_" + Long.toString(now);
+//    long totalSupply = now;
+//    Long start = System.currentTimeMillis() + 5000;
+//    Long end = System.currentTimeMillis() + 1000000000;
+//    logger.info("try create asset issue");
+//
+//    Assert.assertTrue(PublicMethedForMutiSign
+//        .createAssetIssueWithpermissionId(mutisignAccountAddress, name, totalSupply, 1,
+//            1, start, end, 1, description, url, 2000L, 2000L,
+//            1L, 1L, mutisignAccountKey, blockingStubFull, 2, permissionKeyString));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//
+//    //Assert.assertTrue(PublicMethedForMutiSign.unFreezeAsset(mutisignAccountAddress,
+//    //    mutisignAccountKey,2,ownerKeyString,blockingStubFull));
+//
+//    Account getAssetIdFromOwnerAccount;
+//    getAssetIdFromOwnerAccount = PublicMethed.queryAccount(
+//        mutisignAccountAddress, blockingStubFull);
+//    assetAccountId1 = getAssetIdFromOwnerAccount.getAssetIssuedID();
+//
+//    Assert.assertTrue(PublicMethedForMutiSign.transferAssetWithpermissionId(manager1Address,
+//        assetAccountId1.toByteArray(), 10, mutisignAccountAddress,
+//        mutisignAccountKey, blockingStubFull, 2, permissionKeyString));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//
+//    Assert.assertTrue(PublicMethedForMutiSign
+//        .updateAssetWithPermissionId(mutisignAccountAddress, description.getBytes(), url.getBytes(),
+//            100L, 100L, mutisignAccountKey,
+//            2, blockingStubFull, permissionKeyString));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//
+//
+//  }
 
-    long now = System.currentTimeMillis();
-    String name = "MutiSign001_" + Long.toString(now);
-    long totalSupply = now;
-    Long start = System.currentTimeMillis() + 5000;
-    Long end = System.currentTimeMillis() + 1000000000;
-    logger.info("try create asset issue");
-
-    Assert.assertTrue(PublicMethedForMutiSign
-        .createAssetIssueWithpermissionId(mutisignAccountAddress, name, totalSupply, 1,
-            1, start, end, 1, description, url, 2000L, 2000L,
-            1L, 1L, mutisignAccountKey, blockingStubFull, 2, permissionKeyString));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    //Assert.assertTrue(PublicMethedForMutiSign.unFreezeAsset(mutisignAccountAddress,
-    //    mutisignAccountKey,2,ownerKeyString,blockingStubFull));
-
-    Account getAssetIdFromOwnerAccount;
-    getAssetIdFromOwnerAccount = PublicMethed.queryAccount(
-        mutisignAccountAddress, blockingStubFull);
-    assetAccountId1 = getAssetIdFromOwnerAccount.getAssetIssuedID();
-
-    Assert.assertTrue(PublicMethedForMutiSign.transferAssetWithpermissionId(manager1Address,
-        assetAccountId1.toByteArray(), 10, mutisignAccountAddress,
-        mutisignAccountKey, blockingStubFull, 2, permissionKeyString));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    Assert.assertTrue(PublicMethedForMutiSign
-        .updateAssetWithPermissionId(mutisignAccountAddress, description.getBytes(), url.getBytes(),
-            100L, 100L, mutisignAccountKey,
-            2, blockingStubFull, permissionKeyString));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-
-  }
-
-  @Test(enabled = true)
-  public void test004MutiSignGodicExchangeTypeTransaction() {
-
-    ECKey ecKey22 = new ECKey(Utils.getRandom());
-    byte[] secondExchange001Address = ecKey22.getAddress();
-    String secondExchange001Key = ByteArray.toHexString(ecKey22.getPrivKeyBytes());
-    Long secondTransferAssetToFirstAccountNum = 100000000L;
-
-    long now = System.currentTimeMillis();
-    String name2 = "exchange001_2_" + Long.toString(now);
-    String name1 = "exchange001_1_" + Long.toString(now);
-    final long totalSupply = 1000000001L;
-
-    org.junit.Assert
-        .assertTrue(PublicMethed.sendcoin(secondExchange001Address, 10240000000L, fromAddress,
-            testKey002, blockingStubFull));
-    org.junit.Assert.assertTrue(PublicMethed
-        .freezeBalanceForReceiver(fromAddress, 100000000000L, 0, 0,
-            ByteString.copyFrom(secondExchange001Address),
-            testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    Long start = System.currentTimeMillis() + 5000L;
-    Long end = System.currentTimeMillis() + 5000000L;
-    org.junit.Assert
-        .assertTrue(PublicMethed.createAssetIssue(secondExchange001Address, name2, totalSupply, 1,
-            1, start, end, 1, description, url, 10000L, 10000L,
-            1L, 1L, secondExchange001Key, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    listExchange = PublicMethed.getExchangeList(blockingStubFull);
-    exchangeId = listExchange.get().getExchangesCount();
-
-    Account getAssetIdFromThisAccount;
-    getAssetIdFromThisAccount = PublicMethed.queryAccount(mutisignAccountAddress, blockingStubFull);
-    assetAccountId1 = getAssetIdFromThisAccount.getAssetIssuedID();
-
-    getAssetIdFromThisAccount = PublicMethed
-        .queryAccount(secondExchange001Address, blockingStubFull);
-    assetAccountId2 = getAssetIdFromThisAccount.getAssetIssuedID();
-
-    firstAccount = PublicMethed.queryAccount(mutisignAccountAddress, blockingStubFull);
-    org.junit.Assert.assertTrue(PublicMethed.transferAsset(
-        mutisignAccountAddress, assetAccountId2.toByteArray(),
-        secondTransferAssetToFirstAccountNum, secondExchange001Address,
-        secondExchange001Key, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    org.junit.Assert.assertTrue(
-        PublicMethedForMutiSign.exchangeCreate1(
-            assetAccountId1.toByteArray(), firstTokenInitialBalance,
-            assetAccountId2.toByteArray(), secondTokenInitialBalance, mutisignAccountAddress,
-            mutisignAccountKey, blockingStubFull, 2, permissionKeyString));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    listExchange = PublicMethed.getExchangeList(blockingStubFull);
-    exchangeId = listExchange.get().getExchangesCount();
-
-    org.junit.Assert.assertTrue(
-        PublicMethedForMutiSign.injectExchange1(
-            exchangeId, assetAccountId1.toByteArray(), 100,
-            mutisignAccountAddress, mutisignAccountKey, blockingStubFull, 2, permissionKeyString));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    org.junit.Assert.assertTrue(
-        PublicMethedForMutiSign.exchangeWithdraw1(
-            exchangeId, assetAccountId1.toByteArray(), 200,
-            mutisignAccountAddress, mutisignAccountKey, blockingStubFull, 2, permissionKeyString));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    firstAccount = PublicMethed.queryAccount(mutisignAccountAddress, blockingStubFull);
-
-    org.junit.Assert.assertTrue(
-        PublicMethedForMutiSign
-            .exchangeTransaction1(exchangeId, assetAccountId1.toByteArray(), 50, 1,
-                mutisignAccountAddress, mutisignAccountKey, blockingStubFull,
-                2, permissionKeyString));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    firstAccount = PublicMethed.queryAccount(mutisignAccountAddress, blockingStubFull);
-
-    Assert.assertTrue(PublicMethedForMutiSign.participateAssetIssueWithPermissionId(
-        secondExchange001Address,
-        assetAccountId2.toByteArray(), 1, mutisignAccountAddress, mutisignAccountKey, 2,
-        blockingStubFull, ownerKeyString));
-
-  }
+//  @Test(enabled = true)
+//  public void test004MutiSignGodicExchangeTypeTransaction() {
+//
+//    ECKey ecKey22 = new ECKey(Utils.getRandom());
+//    byte[] secondExchange001Address = ecKey22.getAddress();
+//    String secondExchange001Key = ByteArray.toHexString(ecKey22.getPrivKeyBytes());
+//    Long secondTransferAssetToFirstAccountNum = 100000000L;
+//
+//    long now = System.currentTimeMillis();
+//    String name2 = "exchange001_2_" + Long.toString(now);
+//    String name1 = "exchange001_1_" + Long.toString(now);
+//    final long totalSupply = 1000000001L;
+//
+//    org.junit.Assert
+//        .assertTrue(PublicMethed.sendcoin(secondExchange001Address, 10240000000L, fromAddress,
+//            testKey002, blockingStubFull));
+//    org.junit.Assert.assertTrue(PublicMethed
+//        .freezeBalanceForReceiver(fromAddress, 100000000000L, 0, 0,
+//            ByteString.copyFrom(secondExchange001Address),
+//            testKey002, blockingStubFull));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//
+//    Long start = System.currentTimeMillis() + 5000L;
+//    Long end = System.currentTimeMillis() + 5000000L;
+//    org.junit.Assert
+//        .assertTrue(PublicMethed.createAssetIssue(secondExchange001Address, name2, totalSupply, 1,
+//            1, start, end, 1, description, url, 10000L, 10000L,
+//            1L, 1L, secondExchange001Key, blockingStubFull));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//
+//    listExchange = PublicMethed.getExchangeList(blockingStubFull);
+//    exchangeId = listExchange.get().getExchangesCount();
+//
+//    Account getAssetIdFromThisAccount;
+//    getAssetIdFromThisAccount = PublicMethed.queryAccount(mutisignAccountAddress, blockingStubFull);
+//    assetAccountId1 = getAssetIdFromThisAccount.getAssetIssuedID();
+//
+//    getAssetIdFromThisAccount = PublicMethed
+//        .queryAccount(secondExchange001Address, blockingStubFull);
+//    assetAccountId2 = getAssetIdFromThisAccount.getAssetIssuedID();
+//
+//    firstAccount = PublicMethed.queryAccount(mutisignAccountAddress, blockingStubFull);
+//    org.junit.Assert.assertTrue(PublicMethed.transferAsset(
+//        mutisignAccountAddress, assetAccountId2.toByteArray(),
+//        secondTransferAssetToFirstAccountNum, secondExchange001Address,
+//        secondExchange001Key, blockingStubFull));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//
+//    org.junit.Assert.assertTrue(
+//        PublicMethedForMutiSign.exchangeCreate1(
+//            assetAccountId1.toByteArray(), firstTokenInitialBalance,
+//            assetAccountId2.toByteArray(), secondTokenInitialBalance, mutisignAccountAddress,
+//            mutisignAccountKey, blockingStubFull, 2, permissionKeyString));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    listExchange = PublicMethed.getExchangeList(blockingStubFull);
+//    exchangeId = listExchange.get().getExchangesCount();
+//
+//    org.junit.Assert.assertTrue(
+//        PublicMethedForMutiSign.injectExchange1(
+//            exchangeId, assetAccountId1.toByteArray(), 100,
+//            mutisignAccountAddress, mutisignAccountKey, blockingStubFull, 2, permissionKeyString));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//
+//    org.junit.Assert.assertTrue(
+//        PublicMethedForMutiSign.exchangeWithdraw1(
+//            exchangeId, assetAccountId1.toByteArray(), 200,
+//            mutisignAccountAddress, mutisignAccountKey, blockingStubFull, 2, permissionKeyString));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    firstAccount = PublicMethed.queryAccount(mutisignAccountAddress, blockingStubFull);
+//
+//    org.junit.Assert.assertTrue(
+//        PublicMethedForMutiSign
+//            .exchangeTransaction1(exchangeId, assetAccountId1.toByteArray(), 50, 1,
+//                mutisignAccountAddress, mutisignAccountKey, blockingStubFull,
+//                2, permissionKeyString));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    firstAccount = PublicMethed.queryAccount(mutisignAccountAddress, blockingStubFull);
+//
+//    Assert.assertTrue(PublicMethedForMutiSign.participateAssetIssueWithPermissionId(
+//        secondExchange001Address,
+//        assetAccountId2.toByteArray(), 1, mutisignAccountAddress, mutisignAccountKey, 2,
+//        blockingStubFull, ownerKeyString));
+//
+//  }
 
   @Test(enabled = true)
   public void test005MutiSignGodicShieldTransaction() {
@@ -443,8 +443,8 @@ public class MutisignOperationerGodicTest {
   public void test007MutiSignGodicProposalTypeTransaction() {
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(0L, 81000L);
+    HashMap<Long, String> proposalMap = new HashMap<Long, String>();
+    proposalMap.put(0L, String.valueOf(81000L));
     Assert.assertTrue(
         PublicMethedForMutiSign.createProposalWithPermissionId(newAddress, newKey,
             proposalMap, 2, blockingStubFull, permissionKeyString));
