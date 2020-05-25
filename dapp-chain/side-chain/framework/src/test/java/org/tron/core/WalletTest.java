@@ -501,7 +501,7 @@ public class WalletTest {
     Arrays.stream(ProposalType.values()).forEach(parameters -> {
       String methodName = Wallet.makeUpperCamelMethod(parameters.name());
       try {
-        builder.addChainParameter(Protocol.SideChainParameters.ChainParameter.newBuilder()
+        builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey(methodName)
             .setValue(Long.toString((long) DynamicPropertiesStore.class.getDeclaredMethod(methodName)
                 .invoke(manager.getDynamicPropertiesStore())))
