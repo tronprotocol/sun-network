@@ -349,20 +349,20 @@ public class UnfreezeBalanceActuatorTest {
         .setAny(getDelegatedContractForBandwidth(OWNER_ADDRESS, RECEIVER_ADDRESS));
     TransactionResultCapsule ret = new TransactionResultCapsule();
 
-    dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(0);
-    dbManager.getAccountStore().delete(receiver.createDbKey());
-    try {
-      actuator.validate();
-      actuator.execute(ret);
-      Assert.fail();
-    } catch (ContractValidateException e) {
-      Assert.assertEquals(e.getMessage(),
-          "Receiver Account[a0abd4b9367799eaa3197fecb144eb71de1e049150] does not exist");
-    } catch (ContractExeException e) {
-      Assert.assertFalse(e instanceof ContractExeException);
-    }
+//    dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(0);
+//    dbManager.getAccountStore().delete(receiver.createDbKey());
+//    try {
+//      actuator.validate();
+//      actuator.execute(ret);
+//      Assert.fail();
+//    } catch (ContractValidateException e) {
+//      Assert.assertEquals(e.getMessage(),
+//          "Receiver Account[a0abd4b9367799eaa3197fecb144eb71de1e049150] does not exist");
+//    } catch (ContractExeException e) {
+//      Assert.assertFalse(e instanceof ContractExeException);
+//    }
 
-    dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
+    //dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
     try {
       actuator.validate();
       actuator.execute(ret);
@@ -399,8 +399,8 @@ public class UnfreezeBalanceActuatorTest {
 
   @Test
   public void testUnfreezeDelegatedBalanceForBandwidthWithRecreatedReceiver() {
-    dbManager.getDynamicPropertiesStore().saveAllowDelegateResource(1);
-    dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
+    //dbManager.getDynamicPropertiesStore().saveAllowDelegateResource(1);
+    //dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
 
     long now = System.currentTimeMillis();
     dbManager.getDynamicPropertiesStore().saveLatestBlockHeaderTimestamp(now);
@@ -661,21 +661,21 @@ public class UnfreezeBalanceActuatorTest {
         .setAny(getDelegatedContractForCpu(OWNER_ADDRESS, RECEIVER_ADDRESS));
     TransactionResultCapsule ret = new TransactionResultCapsule();
 
-    dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(0);
-    dbManager.getAccountStore().delete(receiver.createDbKey());
-
-    try {
-      actuator.validate();
-      actuator.execute(ret);
-      Assert.fail();
-    } catch (ContractValidateException e) {
-      Assert.assertEquals(e.getMessage(),
-          "Receiver Account[a0abd4b9367799eaa3197fecb144eb71de1e049150] does not exist");
-    } catch (ContractExeException e) {
-      Assert.assertFalse(e instanceof ContractExeException);
-    }
-
-    dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(0);
+//    dbManager.getAccountStore().delete(receiver.createDbKey());
+//
+//    try {
+//      actuator.validate();
+//      actuator.execute(ret);
+//      Assert.fail();
+//    } catch (ContractValidateException e) {
+//      Assert.assertEquals(e.getMessage(),
+//          "Receiver Account[a0abd4b9367799eaa3197fecb144eb71de1e049150] does not exist");
+//    } catch (ContractExeException e) {
+//      Assert.assertFalse(e instanceof ContractExeException);
+//    }
+//
+//    dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
 
     try {
       actuator.validate();
@@ -696,8 +696,8 @@ public class UnfreezeBalanceActuatorTest {
 
   @Test
   public void testUnfreezeDelegatedBalanceForCpuWithRecreatedReceiver() {
-    dbManager.getDynamicPropertiesStore().saveAllowDelegateResource(1);
-    dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
+    //dbManager.getDynamicPropertiesStore().saveAllowDelegateResource(1);
+    //dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
 
     long now = System.currentTimeMillis();
     dbManager.getDynamicPropertiesStore().saveLatestBlockHeaderTimestamp(now);

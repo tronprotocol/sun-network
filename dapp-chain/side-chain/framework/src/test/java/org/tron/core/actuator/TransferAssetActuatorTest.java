@@ -161,10 +161,10 @@ public class TransferAssetActuatorTest {
 
   private Any getContract(long sendCoin) {
     String assertName = ASSET_NAME;
-    if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 1) {
+    //if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 1) {
       long tokenIdNum = dbManager.getDynamicPropertiesStore().getTokenIdNum();
       assertName = String.valueOf(tokenIdNum);
-    }
+    //}
 
     return Any.pack(
         TransferAssetContract.newBuilder()
@@ -197,10 +197,10 @@ public class TransferAssetActuatorTest {
 
   private Any getContract(long sendCoin, String owner, String to) {
     String assertName = ASSET_NAME;
-    if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 1) {
+    //if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 1) {
       long tokenIdNum = dbManager.getDynamicPropertiesStore().getTokenIdNum();
       assertName = String.valueOf(tokenIdNum);
-    }
+    //}
     return Any.pack(
         TransferAssetContract.newBuilder()
             .setAssetName(ByteString.copyFrom(ByteArray.fromString(assertName)))
@@ -211,7 +211,7 @@ public class TransferAssetActuatorTest {
   }
 
   private void createAssertBeforSameTokenNameActive() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+    //dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     long id = dbManager.getDynamicPropertiesStore().getTokenIdNum() + 1;
     dbManager.getDynamicPropertiesStore().saveTokenIdNum(id);
     AssetIssueContract assetIssueContract =
@@ -244,7 +244,7 @@ public class TransferAssetActuatorTest {
   }
 
   private void createAssertSameTokenNameActive() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+    //dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     long id = dbManager.getDynamicPropertiesStore().getTokenIdNum() + 1;
     dbManager.getDynamicPropertiesStore().saveTokenIdNum(id);
     AssetIssueContract assetIssueContract =
@@ -393,7 +393,7 @@ public class TransferAssetActuatorTest {
   @Test
   public void OldNotUpdateSuccessTransfer2() {
     createAssertBeforSameTokenNameActive();
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+    //dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     TransferAssetActuator actuator = new TransferAssetActuator();
     actuator.setChainBaseManager(dbManager.getChainBaseManager())
         .setAny(getContract(OWNER_ASSET_BALANCE));
@@ -1221,45 +1221,45 @@ public class TransferAssetActuatorTest {
   /**
    * SameTokenName close, No owner account!
    */
-  @Test
-  public void sameTokenNameCloseNoOwnerAccount() {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
-    long id = dbManager.getDynamicPropertiesStore().getTokenIdNum() + 1;
-    dbManager.getDynamicPropertiesStore().saveTokenIdNum(id);
-    AssetIssueContract assetIssueContract =
-        AssetIssueContract.newBuilder()
-            .setOwnerAddress(ByteString.copyFrom(ByteArray.fromHexString(OWNER_ADDRESS)))
-            .setName(ByteString.copyFrom(ByteArray.fromString(ASSET_NAME)))
-            .setId(Long.toString(id))
-            .setTotalSupply(TOTAL_SUPPLY)
-            .setTrxNum(TRX_NUM)
-            .setNum(NUM)
-            .setStartTime(START_TIME)
-            .setEndTime(END_TIME)
-            .setVoteScore(VOTE_SCORE)
-            .setDescription(ByteString.copyFrom(ByteArray.fromString(DESCRIPTION)))
-            .setUrl(ByteString.copyFrom(ByteArray.fromString(URL)))
-            .build();
-    AssetIssueCapsule assetIssueCapsule = new AssetIssueCapsule(assetIssueContract);
-    dbManager.getAssetIssueStore().put(assetIssueCapsule.createDbKey(), assetIssueCapsule);
-
-    dbManager.getAccountStore().delete(ByteArray.fromHexString(OWNER_ADDRESS));
-
-    TransferAssetActuator actuator = new TransferAssetActuator();
-    actuator.setChainBaseManager(dbManager.getChainBaseManager()).setAny(getContract(100L));
-
-    TransactionResultCapsule ret = new TransactionResultCapsule();
-    try {
-      actuator.validate();
-      actuator.execute(ret);
-      Assert.assertTrue(false);
-    } catch (ContractValidateException e) {
-      Assert.assertTrue(e instanceof ContractValidateException);
-      Assert.assertTrue("No owner account!".equals(e.getMessage()));
-    } catch (ContractExeException e) {
-      Assert.assertFalse(e instanceof ContractExeException);
-    }
-  }
+//  @Test
+//  public void sameTokenNameCloseNoOwnerAccount() {
+//    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
+//    long id = dbManager.getDynamicPropertiesStore().getTokenIdNum() + 1;
+//    dbManager.getDynamicPropertiesStore().saveTokenIdNum(id);
+//    AssetIssueContract assetIssueContract =
+//        AssetIssueContract.newBuilder()
+//            .setOwnerAddress(ByteString.copyFrom(ByteArray.fromHexString(OWNER_ADDRESS)))
+//            .setName(ByteString.copyFrom(ByteArray.fromString(ASSET_NAME)))
+//            .setId(Long.toString(id))
+//            .setTotalSupply(TOTAL_SUPPLY)
+//            .setTrxNum(TRX_NUM)
+//            .setNum(NUM)
+//            .setStartTime(START_TIME)
+//            .setEndTime(END_TIME)
+//            .setVoteScore(VOTE_SCORE)
+//            .setDescription(ByteString.copyFrom(ByteArray.fromString(DESCRIPTION)))
+//            .setUrl(ByteString.copyFrom(ByteArray.fromString(URL)))
+//            .build();
+//    AssetIssueCapsule assetIssueCapsule = new AssetIssueCapsule(assetIssueContract);
+//    dbManager.getAssetIssueStore().put(assetIssueCapsule.createDbKey(), assetIssueCapsule);
+//
+//    dbManager.getAccountStore().delete(ByteArray.fromHexString(OWNER_ADDRESS));
+//
+//    TransferAssetActuator actuator = new TransferAssetActuator();
+//    actuator.setChainBaseManager(dbManager.getChainBaseManager()).setAny(getContract(100L));
+//
+//    TransactionResultCapsule ret = new TransactionResultCapsule();
+//    try {
+//      actuator.validate();
+//      actuator.execute(ret);
+//      Assert.assertTrue(false);
+//    } catch (ContractValidateException e) {
+//      Assert.assertTrue(e instanceof ContractValidateException);
+//      Assert.assertTrue("No owner account!".equals(e.getMessage()));
+//    } catch (ContractExeException e) {
+//      Assert.assertFalse(e instanceof ContractExeException);
+//    }
+//  }
 
 
   @Test
@@ -1460,10 +1460,10 @@ public class TransferAssetActuatorTest {
 
   private Any getContract(long sendCoin, byte[] toAddress) {
     String assertName = ASSET_NAME;
-    if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 1) {
+    //if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 1) {
       long tokenIdNum = dbManager.getDynamicPropertiesStore().getTokenIdNum();
       assertName = String.valueOf(tokenIdNum);
-    }
+    //}
 
     return Any.pack(
         TransferAssetContract.newBuilder()

@@ -123,7 +123,7 @@ public class ShieldedTransferActuatorTest {
   public void createCapsule() {
     Args.getInstance().setZenTokenId(String.valueOf(tokenId));
     Args.initDBConfig(Args.getInstance());
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+    //dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     dbManager.getDynamicPropertiesStore().saveTokenIdNum(tokenId);
 
     AssetIssueContract assetIssueContract =
@@ -202,11 +202,13 @@ public class ShieldedTransferActuatorTest {
     if (accountCapsule != null && amount >= 0) {
       long currentBalance = getAssertBalance(accountCapsule);
       if (currentBalance > amount) {
-        accountCapsule.reduceAssetAmountV2(token.getBytes(), (currentBalance - amount),
-            dbManager.getDynamicPropertiesStore(), dbManager.getAssetIssueStore());
+        accountCapsule.reduceAssetAmountV2(token.getBytes(), (currentBalance - amount));
+//        accountCapsule.reduceAssetAmountV2(token.getBytes(), (currentBalance - amount),
+//            dbManager.getDynamicPropertiesStore(), dbManager.getAssetIssueStore());
       } else {
-        accountCapsule.addAssetAmountV2(token.getBytes(), (amount - currentBalance),
-            dbManager.getDynamicPropertiesStore(), dbManager.getAssetIssueStore());
+        accountCapsule.addAssetAmountV2(token.getBytes(), (amount - currentBalance));
+//        accountCapsule.addAssetAmountV2(token.getBytes(), (amount - currentBalance),
+//            dbManager.getDynamicPropertiesStore(), dbManager.getAssetIssueStore());
       }
       dbManager.getAccountStore().put(accountCapsule.getAddress().toByteArray(), accountCapsule);
     }

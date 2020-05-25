@@ -210,7 +210,7 @@ public class FreezeBalanceActuatorTest {
             initBalance);
     dbManager.getAccountStore().put(receiverCapsule.getAddress().toByteArray(), receiverCapsule);
 
-    dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
+    //dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
 
     dbManager.getDynamicPropertiesStore().saveAllowDelegateResource(1);
     long frozenBalance = 1_000_000_000L;

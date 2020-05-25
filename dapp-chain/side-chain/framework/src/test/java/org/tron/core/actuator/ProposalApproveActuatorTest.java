@@ -29,7 +29,7 @@ import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.ItemNotFoundException;
 import org.tron.protos.Protocol.AccountType;
-import org.tron.protos.Protocol.Proposal.State;
+import org.tron.protos.Protocol.SideChainProposal.State;
 import org.tron.protos.Protocol.Transaction.Result.code;
 import org.tron.protos.contract.ProposalContract;
 
@@ -120,8 +120,8 @@ public class ProposalApproveActuatorTest {
     long id = 1;
     dbManager.getProposalStore().delete(ByteArray.fromLong(1));
     dbManager.getProposalStore().delete(ByteArray.fromLong(2));
-    HashMap<Long, Long> paras = new HashMap<>();
-    paras.put(0L, 6 * 27 * 1000L);
+    HashMap<Long, String> paras = new HashMap<>();
+    paras.put(0L, String.valueOf(6 * 27 * 1000L));
     ProposalCreateActuator actuator = new ProposalCreateActuator();
     actuator.setChainBaseManager(dbManager.getChainBaseManager())
         .setForkUtils(dbManager.getForkController())
@@ -150,9 +150,9 @@ public class ProposalApproveActuatorTest {
     }
   }
 
-  private Any getContract(String address, HashMap<Long, Long> paras) {
+  private Any getContract(String address, HashMap<Long, String> paras) {
     return Any.pack(
-        ProposalContract.ProposalCreateContract.newBuilder()
+        ProposalContract.SideChainProposalCreateContract.newBuilder()
             .setOwnerAddress(ByteString.copyFrom(ByteArray.fromHexString(address)))
             .putAllParameters(paras)
             .build());
