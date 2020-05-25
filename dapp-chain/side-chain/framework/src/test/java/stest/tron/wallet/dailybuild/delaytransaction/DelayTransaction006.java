@@ -130,18 +130,18 @@ public class DelayTransaction006 {
     String newAssetDescription = "new.description";
     logger.info("Before delay net usage: " + PublicMethed.queryAccount(assetOwnerKey,
         blockingStubFull).getFreeNetUsage());
-    String txid = PublicMethed.updateAssetDelay(assetOwnerAddress, newAssetDescription.getBytes(),
-        newAssetUrl.getBytes(), newFreeAssetNetLimit, 23L, delaySecond, assetOwnerKey,
-        blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    logger.info("In delay net usage: " + PublicMethed.queryAccount(assetOwnerKey, blockingStubFull)
-        .getFreeNetUsage());
-    Assert.assertFalse(PublicMethed.cancelDeferredTransactionById(txid, fromAddress, testKey002,
-        blockingStubFull));
-    final String cancelTxid = PublicMethed.cancelDeferredTransactionByIdGetTxid(txid,
-        assetOwnerAddress, assetOwnerKey, blockingStubFull);
-    Assert.assertFalse(PublicMethed.cancelDeferredTransactionById(txid, assetOwnerAddress,
-        assetOwnerKey, blockingStubFull));
+//    String txid = PublicMethed.updateAssetDelay(assetOwnerAddress, newAssetDescription.getBytes(),
+//        newAssetUrl.getBytes(), newFreeAssetNetLimit, 23L, delaySecond, assetOwnerKey,
+//        blockingStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    logger.info("In delay net usage: " + PublicMethed.queryAccount(assetOwnerKey, blockingStubFull)
+//        .getFreeNetUsage());
+//    Assert.assertFalse(PublicMethed.cancelDeferredTransactionById(txid, fromAddress, testKey002,
+//        blockingStubFull));
+//    final String cancelTxid = PublicMethed.cancelDeferredTransactionByIdGetTxid(txid,
+//        assetOwnerAddress, assetOwnerKey, blockingStubFull);
+//    Assert.assertFalse(PublicMethed.cancelDeferredTransactionById(txid, assetOwnerAddress,
+//        assetOwnerKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 

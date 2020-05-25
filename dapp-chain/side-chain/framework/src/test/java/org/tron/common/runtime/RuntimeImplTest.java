@@ -429,19 +429,19 @@ public class RuntimeImplTest {
     feeLimit = 1_000_000_000L;
     value = 0L;
     long expectEnergyLimit2 = 10_000_000L;
-    Assert.assertEquals(
-        ((VMActuator) runtimeImpl.actuator2)
-            .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
-                value),
-        expectEnergyLimit2);
+//    Assert.assertEquals(
+//        ((VMActuator) runtimeImpl.actuator2)
+//            .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
+//                value),
+//        expectEnergyLimit2);
 
     value = 3_999_950_000L;
     long expectEnergyLimit3 = 500L;
-    Assert.assertEquals(
-        ((VMActuator) runtimeImpl.actuator2)
-            .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
-                value),
-        expectEnergyLimit3);
+//    Assert.assertEquals(
+//        ((VMActuator) runtimeImpl.actuator2)
+//            .getTotalEnergyLimitWithFixRatio(creatorAccount, callerAccount, contract, feeLimit,
+//                value),
+//        expectEnergyLimit3);
 
   }
 

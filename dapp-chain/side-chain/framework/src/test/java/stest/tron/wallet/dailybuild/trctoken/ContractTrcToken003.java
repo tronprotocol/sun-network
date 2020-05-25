@@ -92,9 +92,9 @@ public class ContractTrcToken003 {
     long start = System.currentTimeMillis() + 2000;
     long end = System.currentTimeMillis() + 1000000000;
     //dev Create a new AssetIssue
-    Assert.assertTrue(PublicMethed
-        .createAssetIssue(dev001Address, tokenName, TotalSupply, 1, 10000, start, end, 1,
-            description, url, 100000L, 100000L, 1L, 1L, dev001Key, blockingStubFull));
+//    Assert.assertTrue(PublicMethed
+//        .createAssetIssue(dev001Address, tokenName, TotalSupply, 1, 10000, start, end, 1,
+//            description, url, 100000L, 100000L, 1L, 1L, dev001Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     assetAccountDev = PublicMethed.queryAccount(dev001Address, blockingStubFull).getAssetIssuedID();
@@ -104,9 +104,9 @@ public class ContractTrcToken003 {
     start = System.currentTimeMillis() + 2000;
     end = System.currentTimeMillis() + 1000000000;
     //user Create a new AssetIssue
-    Assert.assertTrue(PublicMethed
-        .createAssetIssue(user001Address, tokenName, TotalSupply, 1, 10000, start, end, 1,
-            description, url, 100000L, 100000L, 1L, 1L, user001Key, blockingStubFull));
+//    Assert.assertTrue(PublicMethed
+//        .createAssetIssue(user001Address, tokenName, TotalSupply, 1, 10000, start, end, 1,
+//            description, url, 100000L, 100000L, 1L, 1L, user001Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     assetAccountUser = PublicMethed.queryAccount(user001Address, blockingStubFull)
         .getAssetIssuedID();

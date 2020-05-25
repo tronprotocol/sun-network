@@ -129,8 +129,8 @@ public class WalletTestMutiSign015 {
     //Create a proposal
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(0L, 81000L);
+    HashMap<Long, String> proposalMap = new HashMap<Long, String>();
+    proposalMap.put(0L, "81000");
     Assert.assertTrue(
         PublicMethedForMutiSign.createProposalWithPermissionId(witness001Address, witnessKey001,
             proposalMap, 0, blockingStubFull, ownerKeyString));

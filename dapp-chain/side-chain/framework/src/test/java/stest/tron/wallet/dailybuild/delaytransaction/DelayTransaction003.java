@@ -96,10 +96,10 @@ public class DelayTransaction003 {
     //Create test token.
     Long start = System.currentTimeMillis() + 2000;
     Long end = System.currentTimeMillis() + 1000000000;
-    Assert.assertTrue(PublicMethed.createAssetIssue(assetOwnerAddress,
-        name, totalSupply, 1, 1, start, end, 1, description, url,
-        2000L, 2000L, 100000L, 1L,
-        assetOwnerKey, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.createAssetIssue(assetOwnerAddress,
+//        name, totalSupply, 1, 1, start, end, 1, description, url,
+//        2000L, 2000L, 100000L, 1L,
+//        assetOwnerKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account assetOwnerAccount = PublicMethed.queryAccount(assetOwnerKey, blockingStubFull);
     assetId = assetOwnerAccount.getAssetIssuedID();
@@ -178,8 +178,8 @@ public class DelayTransaction003 {
     final Long ownerAssetBalanceOfbeforeTransferAsset = PublicMethed
         .getAssetBalanceByAssetId(assetId, assetOwnerKey, blockingStubFull);
 
-    String txid = PublicMethed.unfreezeAssetDelayGetTxid(assetOwnerAddress, delaySecond,
-        assetOwnerKey, blockingStubFull);
+//    String txid = PublicMethed.unfreezeAssetDelayGetTxid(assetOwnerAddress, delaySecond,
+//        assetOwnerKey, blockingStubFull);
 
 
   }

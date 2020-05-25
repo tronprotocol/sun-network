@@ -123,14 +123,14 @@ public class WalletTestMutiSign010 {
             testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Long start = System.currentTimeMillis() + 5000L;
-    Long end = System.currentTimeMillis() + 5000000L;
-    Assert.assertTrue(PublicMethed.createAssetIssue(exchange001Address, name1, totalSupply, 1,
-        1, start, end, 1, description, url, 10000L, 10000L,
-        1L, 1L, exchange001Key, blockingStubFull));
-    Assert.assertTrue(PublicMethed.createAssetIssue(secondExchange001Address, name2, totalSupply, 1,
-        1, start, end, 1, description, url, 10000L, 10000L,
-        1L, 1L, secondExchange001Key, blockingStubFull));
+//    Long start = System.currentTimeMillis() + 5000L;
+//    Long end = System.currentTimeMillis() + 5000000L;
+//    Assert.assertTrue(PublicMethed.createAssetIssue(exchange001Address, name1, totalSupply, 1,
+//        1, start, end, 1, description, url, 10000L, 10000L,
+//        1L, 1L, exchange001Key, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.createAssetIssue(secondExchange001Address, name2, totalSupply, 1,
+//        1, start, end, 1, description, url, 10000L, 10000L,
+//        1L, 1L, secondExchange001Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
@@ -200,11 +200,11 @@ public class WalletTestMutiSign010 {
     //logger.info("first balance is " + Long.toString(token1BeforeBalance));
     //logger.info("second balance is " + token2BeforeBalance.toString());
     //CreateExchange
-    Assert.assertTrue(
-        PublicMethedForMutiSign.exchangeCreate1(
-            assetAccountId1.toByteArray(), firstTokenInitialBalance,
-            assetAccountId2.toByteArray(), secondTokenInitialBalance, exchange001Address,
-            exchange001Key, blockingStubFull, 2, permissionKeyString));
+//    Assert.assertTrue(
+//        PublicMethedForMutiSign.exchangeCreate1(
+//            assetAccountId1.toByteArray(), firstTokenInitialBalance,
+//            assetAccountId2.toByteArray(), secondTokenInitialBalance, exchange001Address,
+//            exchange001Key, blockingStubFull, 2, permissionKeyString));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     listExchange = PublicMethed.getExchangeList(blockingStubFull);
     exchangeId = listExchange.get().getExchangesCount();
@@ -239,11 +239,11 @@ public class WalletTestMutiSign010 {
     }
     logger.info("before token 1 balance is " + Long.toString(beforeToken1Balance));
     logger.info("before token 2 balance is " + Long.toString(beforeToken2Balance));
-    Integer injectBalance = 100;
-    Assert.assertTrue(
-        PublicMethedForMutiSign.injectExchange1(
-            exchangeId, assetAccountId1.toByteArray(), injectBalance,
-            exchange001Address, exchange001Key, blockingStubFull, 2, permissionKeyString));
+//    Integer injectBalance = 100;
+//    Assert.assertTrue(
+//        PublicMethedForMutiSign.injectExchange1(
+//            exchangeId, assetAccountId1.toByteArray(), injectBalance,
+//            exchange001Address, exchange001Key, blockingStubFull, 2, permissionKeyString));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     firstAccount = PublicMethed.queryAccount(exchange001Address, blockingStubFull);
     Long afterToken1Balance = 0L;
@@ -300,11 +300,11 @@ public class WalletTestMutiSign010 {
 
     logger.info("before token 1 balance is " + Long.toString(beforeToken1Balance));
     logger.info("before token 2 balance is " + Long.toString(beforeToken2Balance));
-    Integer withdrawNum = 200;
-    Assert.assertTrue(
-        PublicMethedForMutiSign.exchangeWithdraw1(
-            exchangeId, assetAccountId1.toByteArray(), withdrawNum,
-            exchange001Address, exchange001Key, blockingStubFull, 2, permissionKeyString));
+//    Integer withdrawNum = 200;
+//    Assert.assertTrue(
+//        PublicMethedForMutiSign.exchangeWithdraw1(
+//            exchangeId, assetAccountId1.toByteArray(), withdrawNum,
+//            exchange001Address, exchange001Key, blockingStubFull, 2, permissionKeyString));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     firstAccount = PublicMethed.queryAccount(exchange001Address, blockingStubFull);
     Long afterToken1Balance = 0L;
@@ -364,11 +364,11 @@ public class WalletTestMutiSign010 {
 
     logger.info("before token 1 balance is " + Long.toString(beforeToken1Balance));
     logger.info("before token 2 balance is " + Long.toString(beforeToken2Balance));
-    Integer transactionNum = 50;
-    Assert.assertTrue(
-        PublicMethedForMutiSign
-            .exchangeTransaction1(exchangeId, assetAccountId1.toByteArray(), transactionNum, 1,
-                exchange001Address, exchange001Key, blockingStubFull, 2, permissionKeyString));
+//    Integer transactionNum = 50;
+//    Assert.assertTrue(
+//        PublicMethedForMutiSign
+//            .exchangeTransaction1(exchangeId, assetAccountId1.toByteArray(), transactionNum, 1,
+//                exchange001Address, exchange001Key, blockingStubFull, 2, permissionKeyString));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     firstAccount = PublicMethed.queryAccount(exchange001Address, blockingStubFull);
     Long afterToken1Balance = 0L;
