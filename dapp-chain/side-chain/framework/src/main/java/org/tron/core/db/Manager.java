@@ -266,6 +266,7 @@ public class Manager {
   @Autowired
   @Getter
   private ChainBaseManager chainBaseManager;
+  // ??? should AssetIssueStore be used?
   @Autowired
   @Getter
   private AssetIssueStore assetIssueStore;

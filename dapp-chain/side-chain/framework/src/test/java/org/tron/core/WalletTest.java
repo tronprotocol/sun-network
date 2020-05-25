@@ -264,11 +264,11 @@ public class WalletTest {
     Exchange.Builder builder = Exchange.newBuilder();
     builder.setExchangeId(1L).setCreatorAddress(ByteString.copyFromUtf8("Address1"));
     ExchangeCapsule ExchangeCapsule = new ExchangeCapsule(builder.build());
-    manager.getExchangeStore().put(ExchangeCapsule.createDbKey(), ExchangeCapsule);
+    manager.getExchangeV2Store().put(ExchangeCapsule.createDbKey(), ExchangeCapsule);
 
     builder.setExchangeId(2L).setCreatorAddress(ByteString.copyFromUtf8("Address2"));
     ExchangeCapsule = new ExchangeCapsule(builder.build());
-    manager.getExchangeStore().put(ExchangeCapsule.createDbKey(), ExchangeCapsule);
+    manager.getExchangeV2Store().put(ExchangeCapsule.createDbKey(), ExchangeCapsule);
 
     manager.getDynamicPropertiesStore().saveLatestExchangeNum(2L);
 
@@ -503,8 +503,8 @@ public class WalletTest {
       try {
         builder.addChainParameter(Protocol.SideChainParameters.ChainParameter.newBuilder()
             .setKey(methodName)
-            .setValue((long) DynamicPropertiesStore.class.getDeclaredMethod(methodName)
-                .invoke(manager.getDynamicPropertiesStore()))
+            .setValue(Long.toString((long) DynamicPropertiesStore.class.getDeclaredMethod(methodName)
+                .invoke(manager.getDynamicPropertiesStore())))
             .build());
       } catch (Exception ex) {
         Assert.fail("get chainParameter : " + methodName + ", error : " + ex.getMessage());
