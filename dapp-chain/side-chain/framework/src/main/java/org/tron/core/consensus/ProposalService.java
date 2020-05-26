@@ -132,13 +132,11 @@ public class ProposalService extends ProposalUtil {
         case ALLOW_ADAPTIVE_ENERGY: {
           if (manager.getDynamicPropertiesStore().getAllowAdaptiveEnergy() == 0) {
             manager.getDynamicPropertiesStore().saveAllowAdaptiveEnergy(Long.valueOf(entry.getValue()));
-            if (manager.getForkController().pass(ForkBlockVersionEnum.DAPP_CHAIN_1_5_0)) {
-              //24 * 60 * 2 . one minute,1/2 total limit.
-              manager.getDynamicPropertiesStore().saveAdaptiveResourceLimitTargetRatio(2880);
-              manager.getDynamicPropertiesStore().saveTotalEnergyTargetLimit(
-                  manager.getDynamicPropertiesStore().getTotalEnergyLimit() / 2880);
-              manager.getDynamicPropertiesStore().saveAdaptiveResourceLimitMultiplier(50);
-            }
+            //24 * 60 * 2 . one minute,1/2 total limit.
+            manager.getDynamicPropertiesStore().saveAdaptiveResourceLimitTargetRatio(2880);
+            manager.getDynamicPropertiesStore().saveTotalEnergyTargetLimit(
+                manager.getDynamicPropertiesStore().getTotalEnergyLimit() / 2880);
+            manager.getDynamicPropertiesStore().saveAdaptiveResourceLimitMultiplier(50);
           }
           break;
         }
