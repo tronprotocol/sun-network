@@ -1,4 +1,4 @@
-package stest.tron.wallet.common.client.deploy;
+package stest.tron.wallet.common.deploy;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
