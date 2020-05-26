@@ -59,6 +59,7 @@ public class FreezeBalanceActuatorTest {
   @BeforeClass
   public static void init() {
     dbManager = context.getBean(Manager.class);
+    dbManager.getDynamicPropertiesStore().saveSideChainChargingType(0);
     //    Args.setParam(new String[]{"--output-directory", dbPath},
     //        "config-junit.conf");
     //    dbManager = new Manager();

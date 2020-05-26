@@ -483,15 +483,15 @@ public class WalletTest {
 
   }
 
-  @Test
-  public void getPaginatedExchangeList() {
-    buildExchange();
-    ExchangeList exchangeList = wallet.getPaginatedExchangeList(0, 100);
-    Assert.assertEquals("Address1",
-        exchangeList.getExchangesList().get(0).getCreatorAddress().toStringUtf8());
-    Assert.assertEquals("Address2",
-        exchangeList.getExchangesList().get(1).getCreatorAddress().toStringUtf8());
-  }
+//  @Test
+//  public void getPaginatedExchangeList() {
+//    buildExchange();
+//    ExchangeList exchangeList = wallet.getPaginatedExchangeList(0, 100);
+//    Assert.assertEquals("Address1",
+//        exchangeList.getExchangesList().get(0).getCreatorAddress().toStringUtf8());
+//    Assert.assertEquals("Address2",
+//        exchangeList.getExchangesList().get(1).getCreatorAddress().toStringUtf8());
+//  }
 
   //@Test
   public void testChainParameters() {

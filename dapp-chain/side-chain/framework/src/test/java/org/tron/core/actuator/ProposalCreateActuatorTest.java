@@ -243,7 +243,7 @@ public class ProposalCreateActuatorTest {
   @Test
   public void invalidPara() {
     HashMap<Long, String> paras = new HashMap<>();
-    paras.put(31L, String.valueOf(10000L));
+    paras.put(100L, String.valueOf(10000L));
     ProposalCreateActuator actuator = new ProposalCreateActuator();
     actuator.setChainBaseManager(dbManager.getChainBaseManager())
         .setForkUtils(dbManager.getForkController())
@@ -253,10 +253,10 @@ public class ProposalCreateActuatorTest {
     try {
       actuator.validate();
       actuator.execute(ret);
-      fail("Bad chain parameter id");
+      fail("non-exist proposal number");
     } catch (ContractValidateException e) {
       Assert.assertTrue(e instanceof ContractValidateException);
-      Assert.assertEquals("Bad chain parameter id",
+      Assert.assertEquals("non-exist proposal number",
           e.getMessage());
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);

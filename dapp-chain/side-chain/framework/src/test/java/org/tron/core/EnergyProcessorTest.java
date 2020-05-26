@@ -25,7 +25,7 @@ import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
 public class EnergyProcessorTest {
 
   private static final String dbPath = "EnergyProcessorTest";
-  private static final String ASSET_NAME;
+  private static final String ASSET_ID;
   private static final String CONTRACT_PROVIDER_ADDRESS;
   private static final String USER_ADDRESS;
   private static Manager dbManager;
@@ -34,7 +34,7 @@ public class EnergyProcessorTest {
   static {
     Args.setParam(new String[]{"--output-directory", dbPath}, Constant.TEST_CONF);
     context = new TronApplicationContext(DefaultConfig.class);
-    ASSET_NAME = "test_token";
+    ASSET_ID = "test_token";
     CONTRACT_PROVIDER_ADDRESS =
         Wallet.getAddressPreFixString() + "548794500882809695a8a687866e76d4271a1abc";
     USER_ADDRESS = Wallet.getAddressPreFixString() + "abd4b9367799eaa3197fecb144eb71de1e049abc";
@@ -73,20 +73,10 @@ public class EnergyProcessorTest {
             ByteString.copyFrom(ByteArray.fromHexString(CONTRACT_PROVIDER_ADDRESS)),
             AccountType.Normal,
             0L);
-    contractProvierCapsule.addAsset(ASSET_NAME.getBytes(), 100L);
-
-    AccountCapsule userCapsule =
-        new AccountCapsule(
-            ByteString.copyFromUtf8("asset"),
-            ByteString.copyFrom(ByteArray.fromHexString(USER_ADDRESS)),
-            AccountType.AssetIssue,
-            dbManager.getDynamicPropertiesStore().getAssetIssueFee());
 
     dbManager.getAccountStore().reset();
     dbManager.getAccountStore()
         .put(contractProvierCapsule.getAddress().toByteArray(), contractProvierCapsule);
-    dbManager.getAccountStore().put(userCapsule.getAddress().toByteArray(), userCapsule);
-
   }
 
 
@@ -94,7 +84,7 @@ public class EnergyProcessorTest {
   private AssetIssueContract getAssetIssueContract() {
     return AssetIssueContract.newBuilder()
         .setOwnerAddress(ByteString.copyFrom(ByteArray.fromHexString(USER_ADDRESS)))
-        .setName(ByteString.copyFromUtf8(ASSET_NAME))
+        .setName(ByteString.copyFromUtf8(ASSET_ID))
         .setFreeAssetNetLimit(1000L)
         .setPublicFreeAssetNetLimit(1000L)
         .build();
