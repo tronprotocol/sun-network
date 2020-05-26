@@ -640,6 +640,30 @@ public class TvmTestUtils {
     return contractDeployContract;
   }
 
+  public static CreateSmartContract createSmartContract(byte[] owner, String contractName,
+                                                        String abiString, String code, long value, long consumeUserResourcePercent, long originEnergyLimit) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+
+    SmartContract.ABI abi = PublicMethed.jsonStr2Abi(abiString);
+    if (abi == null) {
+      return null;
+    }
+    byte[] codeBytes = Hex.decode(code);
+    SmartContract.Builder builder = SmartContract.newBuilder();
+    builder.setName(contractName);
+    builder.setOriginAddress(ByteString.copyFrom(owner));
+    builder.setBytecode(ByteString.copyFrom(codeBytes));
+    builder.setAbi(abi);
+    builder.setOriginEnergyLimit(originEnergyLimit);
+    builder.setConsumeUserResourcePercent(consumeUserResourcePercent);
+    if (value != 0) {
+      builder.setCallValue(value);
+    }
+    CreateSmartContract contractDeployContract = CreateSmartContract.newBuilder()
+            .setOwnerAddress(ByteString.copyFrom(owner)).setNewContract(builder.build()).build();
+    return contractDeployContract;
+  }
+
   public static TriggerSmartContract createTriggerContract(byte[] contractAddress, String method,
       String argsStr,
       Boolean isHex, long callValue, byte[] ownerAddress) {

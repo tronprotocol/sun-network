@@ -301,7 +301,8 @@ public class BandwidthProcessorTest {
   }
 
 
-  @Test
+  // don't support asset bandwidth in side chain
+  //@Test
   public void testConsumeAssetAccount() throws Exception {
     // dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     dbManager.getDynamicPropertiesStore().saveLatestBlockHeaderTimestamp(1526647838000L);
@@ -363,7 +364,8 @@ public class BandwidthProcessorTest {
 
   }
 
-  @Test
+  // don't support asset bandwidth in side chain
+  //@Test
   public void testConsumeAssetAccountV2() throws Exception {
     // dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     dbManager.getDynamicPropertiesStore().saveLatestBlockHeaderTimestamp(1526647838000L);
@@ -533,7 +535,8 @@ public class BandwidthProcessorTest {
    * sameTokenName close, consume success assetIssueCapsule.getOwnerAddress() !=
    * fromAccount.getAddress()) contract.getType() = TransferAssetContract
    */
-  @Test
+  // don't support asset bandwidth in side chain
+  //@Test
   public void sameTokenNameCloseConsumeSuccess() {
     // dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(0);
     dbManager.getDynamicPropertiesStore().saveTotalNetWeight(10_000_000L);
@@ -646,7 +649,8 @@ public class BandwidthProcessorTest {
    * sameTokenName open, consume success assetIssueCapsule.getOwnerAddress() !=
    * fromAccount.getAddress()) contract.getType() = TransferAssetContract
    */
-  @Test
+  // don't support asset bandwidth in side chain
+  //@Test
   public void sameTokenNameOpenConsumeSuccess() {
     // dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
     dbManager.getDynamicPropertiesStore().saveTotalNetWeight(10_000_000L);

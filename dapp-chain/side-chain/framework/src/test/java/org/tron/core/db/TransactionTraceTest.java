@@ -100,7 +100,10 @@ public class TransactionTraceTest {
     dbManager.getDynamicPropertiesStore().saveLatestBlockHeaderTimestamp(1526647838000L);
     dbManager.getDynamicPropertiesStore().saveTotalEnergyWeight(100_000L);
     dbManager.getDynamicPropertiesStore().saveLatestBlockHeaderTimestamp(0);
-    VMConfig.initVmHardFork(false);
+
+    //VMConfig.initVmHardFork(false); ???
+    dbManager.getDynamicPropertiesStore().saveEnergyFee(100);
+    VMConfig.setVmResourceChargingOn(true);
 
   }
 
@@ -137,7 +140,7 @@ public class TransactionTraceTest {
         + "\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"pay"
         + "able\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]";
     CreateSmartContract smartContract = TvmTestUtils.createSmartContract(
-        Commons.decodeFromBase58Check(OwnerAddress), contractName, abi, code, 0, 100);
+        Commons.decodeFromBase58Check(OwnerAddress), contractName, abi, code, 0, 100, 1);
     Transaction transaction = Transaction.newBuilder().setRawData(raw.newBuilder().addContract(
         Contract.newBuilder().setParameter(Any.pack(smartContract))
             .setType(ContractType.CreateSmartContract)).setFeeLimit(1000000000)).build();
@@ -176,7 +179,7 @@ public class TransactionTraceTest {
         + ":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inpu"
         + "ts\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]";
     CreateSmartContract smartContract = TvmTestUtils.createSmartContract(
-        Commons.decodeFromBase58Check(OwnerAddress), contractName, abi, code, 0, 100);
+        Commons.decodeFromBase58Check(OwnerAddress), contractName, abi, code, 0, 100, 1);
     Transaction transaction = Transaction.newBuilder().setRawData(raw.newBuilder().addContract(
         Contract.newBuilder().setParameter(Any.pack(smartContract))
             .setType(ContractType.CreateSmartContract)).setFeeLimit(1000000000)
@@ -223,7 +226,7 @@ public class TransactionTraceTest {
         + ":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inpu"
         + "ts\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]";
     CreateSmartContract smartContract = TvmTestUtils.createSmartContract(
-        Commons.decodeFromBase58Check(OwnerAddress), contractName, abi, code, 0, 100);
+        Commons.decodeFromBase58Check(OwnerAddress), contractName, abi, code, 0, 100, 1);
     Transaction transaction = Transaction.newBuilder().setRawData(raw.newBuilder().addContract(
         Contract.newBuilder().setParameter(Any.pack(smartContract))
             .setType(ContractType.CreateSmartContract)).setFeeLimit(1000000000)
@@ -285,7 +288,7 @@ public class TransactionTraceTest {
         + "le\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\""
         + "payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]";
     CreateSmartContract smartContract = TvmTestUtils.createSmartContract(
-        Commons.decodeFromBase58Check(OwnerAddress), contractName, abi, code, 0, 100);
+        Commons.decodeFromBase58Check(OwnerAddress), contractName, abi, code, 0, 100, 1);
     Transaction transaction = Transaction.newBuilder().setRawData(raw.newBuilder().addContract(
         Contract.newBuilder().setParameter(Any.pack(smartContract))
             .setType(ContractType.CreateSmartContract)).setFeeLimit(1000000000)

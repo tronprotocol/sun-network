@@ -177,6 +177,19 @@ public class TransactionTrace {
     runtime.execute(transactionContext);
     setBill(transactionContext.getProgramResult().getEnergyUsed());
 
+    //tim
+//    if(!program.isConstantCall()){
+//      if (!VMConfig.isVmResourceChargingOn()
+//              || isSideChainGateWayContractCall() && this.isResultSuccess()) {
+//        setBill(0);
+//      }
+//      else {
+//        setBill(transactionContext.getProgramResult().getEnergyUsed());
+//      }
+//    } else {
+//      setBill(transactionContext.getProgramResult().getEnergyUsed());
+//    }
+
     if (TrxType.TRX_PRECOMPILED_TYPE != trxType) {
       if (contractResult.OUT_OF_TIME
           .equals(receipt.getResult())) {

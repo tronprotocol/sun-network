@@ -292,16 +292,17 @@ public class VMActuator implements Actuator2 {
       VMUtils.saveProgramTraceFile(txHash, traceContent);
     }
 
-    TransactionTrace trace = context.getTrxCap().getTrxTrace();
-    if(!program.isConstantCall()){
-      if (!VMConfig.isVmResourceChargingOn()
-              || trace.isSideChainGateWayContractCall() && this.isResultSuccess()) {
-        trace.setBill(0);
-      }
-      else {
-        trace.setBill(result.getEnergyUsed());
-      }
-    }
+    //tim
+//    TransactionTrace trace = context.getTrxCap().getTrxTrace();
+//    if(!program.isConstantCall()){
+//      if (!VMConfig.isVmResourceChargingOn()
+//              || trace.isSideChainGateWayContractCall() && this.isResultSuccess()) {
+//        trace.setBill(0);
+//      }
+//      else {
+//        trace.setBill(result.getEnergyUsed());
+//      }
+//    }
 
   }
 
