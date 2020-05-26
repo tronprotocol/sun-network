@@ -5,21 +5,22 @@
   <listeners>
     <listener class-name="stest.tron.wallet.common.client.utils.RetryListener"/>
   </listeners>
-  <test name="account,transfer">
-    <packages>
-      <package name="stest.tron.wallet.transfer">
-      </package>
-      <package name="stest.tron.wallet.account">
-      </package>
-    </packages>
+
+  <test name="beforeSuite">
+    <classes>
+      <class name="stest.tron.wallet.common.deploy.depositTokenFoundation"></class>
+    </classes>
   </test>
 
-  <test name="exchangeandtoken,mutisign">
+  <test name="sun-network">
     <packages>
-      <package name="stest.tron.wallet.exchangeandtoken">
-      </package>
-      <package name="stest.tron.wallet.mutisign">
-      </package>
+      <package name="stest.tron.wallet.sunnetwork"></package>
+    </packages>
+  </test>
+  <test name="account,transfer">
+    <packages>
+      <package name="stest.tron.wallet.transfer"></package>
+      <package name="stest.tron.wallet.account"></package>
     </packages>
   </test>
 
