@@ -43,4 +43,5 @@ public class BlockUtil {
     return blockCapsule1.getBlockId().equals(blockCapsule2.getParentHash());
   }
 
+  //the createTestBlockCapsule method is moved to ManagerForTest
 }

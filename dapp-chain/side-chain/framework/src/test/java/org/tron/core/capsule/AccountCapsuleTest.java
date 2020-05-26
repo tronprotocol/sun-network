@@ -104,43 +104,43 @@ public class AccountCapsuleTest {
     }
   }
 
-  @Test
-  public void AssetAmountTest() {
-    //test AssetAmount ,addAsset and reduceAssetAmount function
-
-    String nameAdd = "TokenX";
-    long amountAdd = 222L;
-    boolean addBoolean = accountCapsuleTest
-        .addAssetAmountV2(nameAdd.getBytes(), amountAdd);
-
-    Assert.assertTrue(addBoolean);
-
-    Map<String, Long> assetMap = accountCapsuleTest.getAssetMap();
-    for (Map.Entry<String, Long> entry : assetMap.entrySet()) {
-      Assert.assertEquals(nameAdd, entry.getKey());
-      Assert.assertEquals(amountAdd, entry.getValue().longValue());
-    }
-    long amountReduce = 22L;
-
-    boolean reduceBoolean = accountCapsuleTest
-        .reduceAssetAmountV2(ByteArray.fromString("TokenX"), amountReduce);
-    Assert.assertTrue(reduceBoolean);
-
-    Map<String, Long> assetMapAfter = accountCapsuleTest.getAssetMap();
-    for (Map.Entry<String, Long> entry : assetMapAfter.entrySet()) {
-      Assert.assertEquals(nameAdd, entry.getKey());
-      Assert.assertEquals(amountAdd - amountReduce, entry.getValue().longValue());
-    }
-    String key = nameAdd;
-    long value = 11L;
-    boolean addAsssetBoolean = accountCapsuleTest.addAsset(key.getBytes(), value);
-    Assert.assertFalse(addAsssetBoolean);
-
-    String keyName = "TokenTest";
-    long amountValue = 33L;
-    boolean addAsssetTrue = accountCapsuleTest.addAsset(keyName.getBytes(), amountValue);
-    Assert.assertTrue(addAsssetTrue);
-  }
+//  @Test
+//  public void AssetAmountTest() {
+//    //test AssetAmount ,addAsset and reduceAssetAmount function
+//
+//    String nameAdd = "TokenX";
+//    long amountAdd = 222L;
+//    boolean addBoolean = accountCapsuleTest
+//        .addAssetAmountV2(nameAdd.getBytes(), amountAdd);
+//
+//    Assert.assertTrue(addBoolean);
+//
+//    Map<String, Long> assetMap = accountCapsuleTest.getAssetMap();
+//    for (Map.Entry<String, Long> entry : assetMap.entrySet()) {
+//      Assert.assertEquals(nameAdd, entry.getKey());
+//      Assert.assertEquals(amountAdd, entry.getValue().longValue());
+//    }
+//    long amountReduce = 22L;
+//
+//    boolean reduceBoolean = accountCapsuleTest
+//        .reduceAssetAmountV2(ByteArray.fromString("TokenX"), amountReduce);
+//    Assert.assertTrue(reduceBoolean);
+//
+//    Map<String, Long> assetMapAfter = accountCapsuleTest.getAssetMap();
+//    for (Map.Entry<String, Long> entry : assetMapAfter.entrySet()) {
+//      Assert.assertEquals(nameAdd, entry.getKey());
+//      Assert.assertEquals(amountAdd - amountReduce, entry.getValue().longValue());
+//    }
+//    String key = nameAdd;
+//    long value = 11L;
+//    boolean addAsssetBoolean = accountCapsuleTest.addAsset(key.getBytes(), value);
+//    Assert.assertFalse(addAsssetBoolean);
+//
+//    String keyName = "TokenTest";
+//    long amountValue = 33L;
+//    boolean addAsssetTrue = accountCapsuleTest.addAsset(keyName.getBytes(), amountValue);
+//    Assert.assertTrue(addAsssetTrue);
+//  }
 
   /**
    * SameTokenName close, test assert amountV2 function
