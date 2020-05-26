@@ -26,6 +26,7 @@ import org.tron.core.exception.VMIllegalException;
 import org.tron.core.vm.program.Program.OutOfEnergyException;
 import org.tron.core.vm.program.Program.OutOfTimeException;
 import org.tron.protos.Protocol.AccountType;
+import org.tron.core.vm.config.VMConfig;
 
 @Slf4j
 public class EnergyWhenTimeoutStyleTest {
@@ -54,6 +55,8 @@ public class EnergyWhenTimeoutStyleTest {
     deposit.createAccount(Hex.decode(OWNER_ADDRESS), AccountType.Normal);
     deposit.addBalance(Hex.decode(OWNER_ADDRESS), totalBalance);
     deposit.commit();
+    dbManager.getDynamicPropertiesStore().saveEnergyFee(100);
+    VMConfig.setVmResourceChargingOn(true);
   }
 
   // solidity for endlessLoopTest

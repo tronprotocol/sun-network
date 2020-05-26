@@ -28,6 +28,7 @@ import org.tron.core.vm.program.Program.IllegalOperationException;
 import org.tron.core.vm.program.Program.OutOfMemoryException;
 import org.tron.core.vm.program.Program.PrecompiledContractException;
 import org.tron.protos.Protocol.AccountType;
+import org.tron.core.vm.config.VMConfig;
 
 
 @Slf4j
@@ -57,6 +58,8 @@ public class EnergyWhenAssertStyleTest {
     deposit.createAccount(Hex.decode(OWNER_ADDRESS), AccountType.Normal);
     deposit.addBalance(Hex.decode(OWNER_ADDRESS), totalBalance);
     deposit.commit();
+    VMConfig.setVmResourceChargingOn(true);
+    dbManager.getDynamicPropertiesStore().saveEnergyFee(100);
   }
 
   // An assert-style exception is generated in the following situations:

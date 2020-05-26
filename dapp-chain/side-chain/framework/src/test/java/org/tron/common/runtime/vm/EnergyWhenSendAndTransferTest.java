@@ -24,6 +24,8 @@ import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.ReceiptCheckErrException;
 import org.tron.core.exception.VMIllegalException;
 import org.tron.protos.Protocol.AccountType;
+import org.tron.core.vm.config.VMConfig;
+
 
 @Slf4j
 public class EnergyWhenSendAndTransferTest {
@@ -50,6 +52,8 @@ public class EnergyWhenSendAndTransferTest {
     deposit.createAccount(Hex.decode(OWNER_ADDRESS), AccountType.Normal);
     deposit.addBalance(Hex.decode(OWNER_ADDRESS), totalBalance);
     deposit.commit();
+    VMConfig.setVmResourceChargingOn(true);
+    dbManager.getDynamicPropertiesStore().saveEnergyFee(100);
   }
 
   // solidity for callValueTest

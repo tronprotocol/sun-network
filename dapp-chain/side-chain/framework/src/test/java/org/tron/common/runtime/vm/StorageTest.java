@@ -20,9 +20,15 @@ import org.tron.core.exception.ReceiptCheckErrException;
 import org.tron.core.exception.VMIllegalException;
 import org.tron.core.vm.config.VMConfig;
 import org.tron.protos.Protocol.Transaction;
+import org.junit.BeforeClass;
 
 @Slf4j
 public class StorageTest extends VMTestBase {
+
+  @BeforeClass
+  public static void preTest(){
+    VMConfig.setVmResourceChargingOn(true);
+  }
 
 
   @Test
@@ -99,7 +105,7 @@ public class StorageTest extends VMTestBase {
 
     // deploy contract
     Transaction trx = TvmTestUtils.generateDeploySmartContractAndGetTransaction(
-        contractName, address, ABI, code, value, fee, consumeUserResourcePercent, null);
+        contractName, address, ABI, code, value, fee, consumeUserResourcePercent, null, 1);
     byte[] contractAddress = WalletUtil.generateContractAddress(trx);
     runtime = TvmTestUtils.processTransactionAndReturnRuntime(trx, rootDeposit, null);
     Assert.assertNull(runtime.getRuntimeError());
@@ -156,7 +162,6 @@ public class StorageTest extends VMTestBase {
     Arrays.fill(stats, (byte) 1);
     this.manager.getDynamicPropertiesStore()
         .statsByVersion(ForkBlockVersionConsts.ENERGY_LIMIT, stats);
-    VMConfig.initVmHardFork(true);
     byte[] address = Hex.decode(OWNER_ADDRESS);
     DataWord storageKey1 = new DataWord("key1".getBytes());
     DataWord storageVal1 = new DataWord("val1".getBytes());
@@ -227,96 +232,96 @@ public class StorageTest extends VMTestBase {
         parentChangedVal);
     Assert
         .assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageParentZeroKey));
-    DBConfig.setENERGY_LIMIT_HARD_FORK(false);
+    // DBConfig.setENERGY_LIMIT_HARD_FORK(false);
   }
 
-  @Test
-  public void testParentChildOldVersion() {
-    byte[] stats = new byte[27];
-    Arrays.fill(stats, (byte) 0);
-    this.manager.getDynamicPropertiesStore()
-        .statsByVersion(ForkBlockVersionConsts.ENERGY_LIMIT, stats);
-    byte[] address = Hex.decode(OWNER_ADDRESS);
-    DataWord storageKey1 = new DataWord("key1".getBytes());
-    DataWord storageVal1 = new DataWord("val1".getBytes());
-    DataWord zeroKey = new DataWord("zero_key".getBytes());
-    DataWord zeroValue = new DataWord(0);
-    DataWord parentChangedVal = new DataWord("parent_changed_val".getBytes());
-
-    DataWord storageParentKey1 = new DataWord("parent_key1".getBytes());
-    DataWord storageParentVal1 = new DataWord("parent_val1".getBytes());
-    DataWord storageParentZeroKey = new DataWord("parent_zero_key1".getBytes());
-
-    Deposit chlidDeposit = rootDeposit.newDepositChild();
-
-    // write to root cache
-    rootDeposit.putStorageValue(address, storageParentKey1, storageParentVal1);
-    rootDeposit.putStorageValue(address, storageParentZeroKey, zeroValue);
-
-    // write to child cache
-    chlidDeposit.putStorageValue(address, storageKey1, storageVal1);
-    chlidDeposit.putStorageValue(address, zeroKey, zeroValue);
-
-    // check child cache
-    Assert.assertEquals(chlidDeposit.getStorageValue(address, storageKey1), storageVal1);
-    Assert.assertEquals(chlidDeposit.getStorageValue(address, zeroKey), zeroValue);
-    Assert
-        .assertEquals(chlidDeposit.getStorageValue(address, storageParentKey1), storageParentVal1);
-    Assert.assertEquals(chlidDeposit.getStorageValue(address, storageParentZeroKey), zeroValue);
-
-    chlidDeposit.putStorageValue(address, storageParentKey1, parentChangedVal);
-
-    // check root cache
-    Assert.assertEquals(chlidDeposit.getStorageValue(address, storageParentKey1), parentChangedVal);
-    Assert.assertEquals(rootDeposit.getStorageValue(address, storageParentKey1), parentChangedVal);
-
-    Assert.assertEquals(rootDeposit.getStorageValue(address, storageKey1), storageVal1);
-    Assert.assertEquals(rootDeposit.getStorageValue(address, zeroKey), zeroValue);
-    Assert.assertEquals(rootDeposit.getStorageValue(address, storageParentZeroKey), zeroValue);
-
-    // check parent deposit == child deposit
-    Assert.assertEquals(rootDeposit.getStorageValue(address, storageKey1),
-        chlidDeposit.getStorageValue(address, storageKey1));
-    Assert.assertEquals(rootDeposit.getStorageValue(address, zeroKey),
-        chlidDeposit.getStorageValue(address, zeroKey));
-    Assert.assertEquals(rootDeposit.getStorageValue(address, storageParentKey1),
-        chlidDeposit.getStorageValue(address, storageParentKey1));
-    Assert.assertEquals(rootDeposit.getStorageValue(address, storageParentZeroKey),
-        chlidDeposit.getStorageValue(address, storageParentZeroKey));
-
-    // check db
-    Assert.assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageKey1));
-    Assert.assertNull(DepositImpl.createRoot(manager).getStorageValue(address, zeroKey));
-    Assert.assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageParentKey1));
-    Assert
-        .assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageParentZeroKey));
-
-    // didn't commit child cache
-    //    chlidDeposit.commit();
-
-    // check root cache
-    Assert.assertEquals(rootDeposit.getStorageValue(address, storageKey1), storageVal1);
-    Assert.assertEquals(rootDeposit.getStorageValue(address, zeroKey), zeroValue);
-    Assert.assertEquals(rootDeposit.getStorageValue(address, storageParentKey1), parentChangedVal);
-
-    Assert.assertEquals(chlidDeposit.getStorageValue(address, storageParentKey1), parentChangedVal);
-    Assert.assertEquals(chlidDeposit.getStorageValue(address, storageParentZeroKey), zeroValue);
-
-    // check db
-    Assert.assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageKey1));
-    Assert.assertNull(DepositImpl.createRoot(manager).getStorageValue(address, zeroKey));
-    Assert.assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageParentKey1));
-    Assert
-        .assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageParentZeroKey));
-
-    rootDeposit.commit();
-    Assert.assertEquals(DepositImpl.createRoot(manager).getStorageValue(address, storageKey1),
-        storageVal1);
-    Assert.assertNull(DepositImpl.createRoot(manager).getStorageValue(address, zeroKey));
-    Assert.assertEquals(DepositImpl.createRoot(manager).getStorageValue(address, storageParentKey1),
-        parentChangedVal);
-    Assert
-        .assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageParentZeroKey));
-    DBConfig.setENERGY_LIMIT_HARD_FORK(false);
-  }
+  // @Test
+  // public void testParentChildOldVersion() {
+  //   byte[] stats = new byte[27];
+  //   Arrays.fill(stats, (byte) 0);
+  //   this.manager.getDynamicPropertiesStore()
+  //       .statsByVersion(ForkBlockVersionConsts.ENERGY_LIMIT, stats);
+  //   byte[] address = Hex.decode(OWNER_ADDRESS);
+  //   DataWord storageKey1 = new DataWord("key1".getBytes());
+  //   DataWord storageVal1 = new DataWord("val1".getBytes());
+  //   DataWord zeroKey = new DataWord("zero_key".getBytes());
+  //   DataWord zeroValue = new DataWord(0);
+  //   DataWord parentChangedVal = new DataWord("parent_changed_val".getBytes());
+  //
+  //   DataWord storageParentKey1 = new DataWord("parent_key1".getBytes());
+  //   DataWord storageParentVal1 = new DataWord("parent_val1".getBytes());
+  //   DataWord storageParentZeroKey = new DataWord("parent_zero_key1".getBytes());
+  //
+  //   Deposit chlidDeposit = rootDeposit.newDepositChild();
+  //
+  //   // write to root cache
+  //   rootDeposit.putStorageValue(address, storageParentKey1, storageParentVal1);
+  //   rootDeposit.putStorageValue(address, storageParentZeroKey, zeroValue);
+  //
+  //   // write to child cache
+  //   chlidDeposit.putStorageValue(address, storageKey1, storageVal1);
+  //   chlidDeposit.putStorageValue(address, zeroKey, zeroValue);
+  //
+  //   // check child cache
+  //   Assert.assertEquals(chlidDeposit.getStorageValue(address, storageKey1), storageVal1);
+  //   Assert.assertEquals(chlidDeposit.getStorageValue(address, zeroKey), zeroValue);
+  //   Assert
+  //       .assertEquals(chlidDeposit.getStorageValue(address, storageParentKey1), storageParentVal1);
+  //   Assert.assertEquals(chlidDeposit.getStorageValue(address, storageParentZeroKey), zeroValue);
+  //
+  //   chlidDeposit.putStorageValue(address, storageParentKey1, parentChangedVal);
+  //
+  //   // check root cache
+  //   Assert.assertEquals(chlidDeposit.getStorageValue(address, storageParentKey1), parentChangedVal);
+  //   Assert.assertEquals(rootDeposit.getStorageValue(address, storageParentKey1), parentChangedVal);
+  //
+  //   Assert.assertEquals(rootDeposit.getStorageValue(address, storageKey1), storageVal1);
+  //   Assert.assertEquals(rootDeposit.getStorageValue(address, zeroKey), zeroValue);
+  //   Assert.assertEquals(rootDeposit.getStorageValue(address, storageParentZeroKey), zeroValue);
+  //
+  //   // check parent deposit == child deposit
+  //   Assert.assertEquals(rootDeposit.getStorageValue(address, storageKey1),
+  //       chlidDeposit.getStorageValue(address, storageKey1));
+  //   Assert.assertEquals(rootDeposit.getStorageValue(address, zeroKey),
+  //       chlidDeposit.getStorageValue(address, zeroKey));
+  //   Assert.assertEquals(rootDeposit.getStorageValue(address, storageParentKey1),
+  //       chlidDeposit.getStorageValue(address, storageParentKey1));
+  //   Assert.assertEquals(rootDeposit.getStorageValue(address, storageParentZeroKey),
+  //       chlidDeposit.getStorageValue(address, storageParentZeroKey));
+  //
+  //   // check db
+  //   Assert.assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageKey1));
+  //   Assert.assertNull(DepositImpl.createRoot(manager).getStorageValue(address, zeroKey));
+  //   Assert.assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageParentKey1));
+  //   Assert
+  //       .assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageParentZeroKey));
+  //
+  //   // didn't commit child cache
+  //   //    chlidDeposit.commit();
+  //
+  //   // check root cache
+  //   Assert.assertEquals(rootDeposit.getStorageValue(address, storageKey1), storageVal1);
+  //   Assert.assertEquals(rootDeposit.getStorageValue(address, zeroKey), zeroValue);
+  //   Assert.assertEquals(rootDeposit.getStorageValue(address, storageParentKey1), parentChangedVal);
+  //
+  //   Assert.assertEquals(chlidDeposit.getStorageValue(address, storageParentKey1), parentChangedVal);
+  //   Assert.assertEquals(chlidDeposit.getStorageValue(address, storageParentZeroKey), zeroValue);
+  //
+  //   // check db
+  //   Assert.assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageKey1));
+  //   Assert.assertNull(DepositImpl.createRoot(manager).getStorageValue(address, zeroKey));
+  //   Assert.assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageParentKey1));
+  //   Assert
+  //       .assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageParentZeroKey));
+  //
+  //   rootDeposit.commit();
+  //   Assert.assertEquals(DepositImpl.createRoot(manager).getStorageValue(address, storageKey1),
+  //       storageVal1);
+  //   Assert.assertNull(DepositImpl.createRoot(manager).getStorageValue(address, zeroKey));
+  //   Assert.assertEquals(DepositImpl.createRoot(manager).getStorageValue(address, storageParentKey1),
+  //       parentChangedVal);
+  //   Assert
+  //       .assertNull(DepositImpl.createRoot(manager).getStorageValue(address, storageParentZeroKey));
+  //   DBConfig.setENERGY_LIMIT_HARD_FORK(false);
+  // }
 }

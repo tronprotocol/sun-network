@@ -121,7 +121,7 @@ public class RuntimeImplTest {
 
     Transaction trx = generateDeploySmartContractAndGetTransaction(contractName, creatorAddress,
         ABI,
-        code, value, feeLimit, consumeUserResourcePercent, libraryAddressPair);
+        code, value, feeLimit, consumeUserResourcePercent, libraryAddressPair, 1);
 
     RuntimeImpl runtimeImpl = new RuntimeImpl(dbManager);
     runtimeImpl.execute(

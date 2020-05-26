@@ -234,7 +234,7 @@ public class TransferFailedEnergyTest extends VMTestBase {
 
     // deploy contract
     Transaction trx = TvmTestUtils.generateDeploySmartContractAndGetTransaction(
-        contractName, address, ABI, code, value, fee, consumeUserResourcePercent, null);
+        contractName, address, ABI, code, value, fee, consumeUserResourcePercent, null, 1);
     byte[] addressWithSufficientBalance = WalletUtil.generateContractAddress(trx);
     runtime = TvmTestUtils.processTransactionAndReturnRuntime(trx, rootDeposit, null);
     Assert.assertNull(runtime.getRuntimeError());
@@ -244,7 +244,7 @@ public class TransferFailedEnergyTest extends VMTestBase {
     }
 
     trx = TvmTestUtils.generateDeploySmartContractAndGetTransaction(
-        contractName, address, ABI, code, 0, fee, consumeUserResourcePercent, null);
+        contractName, address, ABI, code, 0, fee, consumeUserResourcePercent, null, 1);
     byte[] addressWithoutBalance = WalletUtil.generateContractAddress(trx);
     runtime = TvmTestUtils.processTransactionAndReturnRuntime(trx, rootDeposit, null);
     Assert.assertNull(runtime.getRuntimeError());
