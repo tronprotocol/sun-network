@@ -13,6 +13,6 @@ public class BaseNetTest extends BaseNet {
     new NodeInfoServiceTest(context).test();
     new UdpTest(context).test();
     new TcpTest(context).test();
-    new DelegationServiceTest(context).test();
+    //??? new DelegationServiceTest(context).test();
   }
 }
