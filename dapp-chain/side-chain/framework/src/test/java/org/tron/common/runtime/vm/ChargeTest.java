@@ -190,7 +190,7 @@ public class ChargeTest {
               .triggerContractAndReturnTvmTestResult(Hex.decode(OWNER_ADDRESS),
                       contractAddress, triggerData, -100, feeLimit, dbManager, null);
     } catch (ContractValidateException e){
-      Assert.assertEquals(e.toString(),"org.tron.core.exception.ContractValidateException: callValue must >= 0");
+      Assert.assertEquals(e.toString(),"org.tron.core.exception.ContractValidateException: callValue must be >= 0");
     }
     // long expectEnergyUsageTotal3 = feeLimit / 100;
     // Assert.assertEquals(result.getReceipt().getEnergyUsageTotal(), expectEnergyUsageTotal3);
