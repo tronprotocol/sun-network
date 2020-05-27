@@ -694,83 +694,83 @@ public class UnfreezeBalanceActuatorTest {
 //    }
 //  }
 
-  @Test
-  public void testUnfreezeDelegatedBalanceForCpuWithRecreatedReceiver() {
-    //dbManager.getDynamicPropertiesStore().saveAllowDelegateResource(1);
-    //dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
-
-    long now = System.currentTimeMillis();
-    dbManager.getDynamicPropertiesStore().saveLatestBlockHeaderTimestamp(now);
-
-    AccountCapsule owner = dbManager.getAccountStore()
-        .get(ByteArray.fromHexString(OWNER_ADDRESS));
-    owner.addDelegatedFrozenBalanceForEnergy(frozenBalance);
-    Assert.assertEquals(frozenBalance, owner.getTronPower());
-
-    AccountCapsule receiver = dbManager.getAccountStore()
-        .get(ByteArray.fromHexString(RECEIVER_ADDRESS));
-    receiver.addAcquiredDelegatedFrozenBalanceForEnergy(frozenBalance);
-    Assert.assertEquals(0L, receiver.getTronPower());
-
-    dbManager.getAccountStore().put(owner.createDbKey(), owner);
-
-    DelegatedResourceCapsule delegatedResourceCapsule = new DelegatedResourceCapsule(
-        owner.getAddress(),
-        receiver.getAddress()
-    );
-    delegatedResourceCapsule.setFrozenBalanceForEnergy(
-        frozenBalance,
-        now - 100L);
-    dbManager.getDelegatedResourceStore().put(DelegatedResourceCapsule
-        .createDbKey(ByteArray.fromHexString(OWNER_ADDRESS),
-            ByteArray.fromHexString(RECEIVER_ADDRESS)), delegatedResourceCapsule);
-
-    UnfreezeBalanceActuator actuator = new UnfreezeBalanceActuator();
-    actuator.setChainBaseManager(dbManager.getChainBaseManager())
-        .setAny(getDelegatedContractForCpu(OWNER_ADDRESS, RECEIVER_ADDRESS));
-    TransactionResultCapsule ret = new TransactionResultCapsule();
-
-    dbManager.getDynamicPropertiesStore().saveAllowShieldedTransaction(0);
-    dbManager.getDynamicPropertiesStore().saveAllowTvmSolidity059(0);
-    dbManager.getAccountStore().delete(receiver.createDbKey());
-    receiver = new AccountCapsule(receiver.getAddress(), ByteString.EMPTY, AccountType.Normal);
-    receiver.setAcquiredDelegatedFrozenBalanceForEnergy(10L);
-    dbManager.getAccountStore().put(receiver.createDbKey(), receiver);
-    receiver = dbManager.getAccountStore().get(receiver.createDbKey());
-    Assert.assertEquals(10, receiver.getAcquiredDelegatedFrozenBalanceForEnergy());
-
-    try {
-      actuator.validate();
-      actuator.execute(ret);
-      Assert.fail();
-    } catch (ContractValidateException e) {
-      Assert.assertEquals(e.getMessage(),
-          "AcquiredDelegatedFrozenBalanceForEnergy[10] < delegatedEnergy[1000000000]");
-    } catch (ContractExeException e) {
-      Assert.assertFalse(e instanceof ContractExeException);
-    }
-
-    dbManager.getDynamicPropertiesStore().saveAllowShieldedTransaction(1);
-    dbManager.getDynamicPropertiesStore().saveAllowTvmSolidity059(1);
-
-    try {
-      actuator.validate();
-      actuator.execute(ret);
-      Assert.assertEquals(ret.getInstance().getRet(), code.SUCESS);
-      AccountCapsule ownerResult =
-          dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
-
-      Assert.assertEquals(initBalance + frozenBalance, ownerResult.getBalance());
-      Assert.assertEquals(0L, ownerResult.getTronPower());
-      Assert.assertEquals(0L, ownerResult.getDelegatedFrozenBalanceForEnergy());
-      receiver = dbManager.getAccountStore().get(receiver.createDbKey());
-      Assert.assertEquals(0, receiver.getAcquiredDelegatedFrozenBalanceForEnergy());
-    } catch (ContractValidateException e) {
-      Assert.fail();
-    } catch (ContractExeException e) {
-      Assert.fail();
-    }
-  }
+//  @Test
+//  public void testUnfreezeDelegatedBalanceForCpuWithRecreatedReceiver() {
+//    //dbManager.getDynamicPropertiesStore().saveAllowDelegateResource(1);
+//    //dbManager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
+//
+//    long now = System.currentTimeMillis();
+//    dbManager.getDynamicPropertiesStore().saveLatestBlockHeaderTimestamp(now);
+//
+//    AccountCapsule owner = dbManager.getAccountStore()
+//        .get(ByteArray.fromHexString(OWNER_ADDRESS));
+//    owner.addDelegatedFrozenBalanceForEnergy(frozenBalance);
+//    Assert.assertEquals(frozenBalance, owner.getTronPower());
+//
+//    AccountCapsule receiver = dbManager.getAccountStore()
+//        .get(ByteArray.fromHexString(RECEIVER_ADDRESS));
+//    receiver.addAcquiredDelegatedFrozenBalanceForEnergy(frozenBalance);
+//    Assert.assertEquals(0L, receiver.getTronPower());
+//
+//    dbManager.getAccountStore().put(owner.createDbKey(), owner);
+//
+//    DelegatedResourceCapsule delegatedResourceCapsule = new DelegatedResourceCapsule(
+//        owner.getAddress(),
+//        receiver.getAddress()
+//    );
+//    delegatedResourceCapsule.setFrozenBalanceForEnergy(
+//        frozenBalance,
+//        now - 100L);
+//    dbManager.getDelegatedResourceStore().put(DelegatedResourceCapsule
+//        .createDbKey(ByteArray.fromHexString(OWNER_ADDRESS),
+//            ByteArray.fromHexString(RECEIVER_ADDRESS)), delegatedResourceCapsule);
+//
+//    UnfreezeBalanceActuator actuator = new UnfreezeBalanceActuator();
+//    actuator.setChainBaseManager(dbManager.getChainBaseManager())
+//        .setAny(getDelegatedContractForCpu(OWNER_ADDRESS, RECEIVER_ADDRESS));
+//    TransactionResultCapsule ret = new TransactionResultCapsule();
+//
+//    dbManager.getDynamicPropertiesStore().saveAllowShieldedTransaction(0);
+//    dbManager.getDynamicPropertiesStore().saveAllowTvmSolidity059(0);
+//    dbManager.getAccountStore().delete(receiver.createDbKey());
+//    receiver = new AccountCapsule(receiver.getAddress(), ByteString.EMPTY, AccountType.Normal);
+//    receiver.setAcquiredDelegatedFrozenBalanceForEnergy(10L);
+//    dbManager.getAccountStore().put(receiver.createDbKey(), receiver);
+//    receiver = dbManager.getAccountStore().get(receiver.createDbKey());
+//    Assert.assertEquals(10, receiver.getAcquiredDelegatedFrozenBalanceForEnergy());
+//
+//    try {
+//      actuator.validate();
+//      actuator.execute(ret);
+//      Assert.fail();
+//    } catch (ContractValidateException e) {
+//      Assert.assertEquals(e.getMessage(),
+//          "AcquiredDelegatedFrozenBalanceForEnergy[10] < delegatedEnergy[1000000000]");
+//    } catch (ContractExeException e) {
+//      Assert.assertFalse(e instanceof ContractExeException);
+//    }
+//
+//    dbManager.getDynamicPropertiesStore().saveAllowShieldedTransaction(1);
+//    dbManager.getDynamicPropertiesStore().saveAllowTvmSolidity059(1);
+//
+//    try {
+//      actuator.validate();
+//      actuator.execute(ret);
+//      Assert.assertEquals(ret.getInstance().getRet(), code.SUCESS);
+//      AccountCapsule ownerResult =
+//          dbManager.getAccountStore().get(ByteArray.fromHexString(OWNER_ADDRESS));
+//
+//      Assert.assertEquals(initBalance + frozenBalance, ownerResult.getBalance());
+//      Assert.assertEquals(0L, ownerResult.getTronPower());
+//      Assert.assertEquals(0L, ownerResult.getDelegatedFrozenBalanceForEnergy());
+//      receiver = dbManager.getAccountStore().get(receiver.createDbKey());
+//      Assert.assertEquals(0, receiver.getAcquiredDelegatedFrozenBalanceForEnergy());
+//    } catch (ContractValidateException e) {
+//      Assert.fail();
+//    } catch (ContractExeException e) {
+//      Assert.fail();
+//    }
+//  }
 
   @Test
   public void invalidOwnerAddress() {

@@ -754,8 +754,8 @@ public class VMActuator implements Actuator2 {
         .getWitnessSignature().isEmpty();
   }
 
-  public boolean isResultSuccess() {
-    return !(program.getResult().getException() != null || program.getResult().isRevert());
-  }
+//  public boolean isResultSuccess() {
+//    return !(program.getResult().getException() != null || program.getResult().isRevert());
+//  }
 
 }

@@ -974,7 +974,9 @@ public class AccountPermissionUpdateActuatorTest {
 
     byte[] availableContractType = new byte[32];
     for (ContractType contractType : ContractType.values()) {
-      if (contractType == org.tron.protos.Protocol.Transaction.Contract.ContractType.UNRECOGNIZED) {
+      if (contractType == org.tron.protos.Protocol.Transaction.Contract.ContractType.UNRECOGNIZED
+              || contractType == ContractType.UpdateBrokerageContract
+              || contractType == ContractType.ShieldedTransferContract) {
         continue;
       }
       int id = contractType.getNumber();
@@ -1001,7 +1003,8 @@ public class AccountPermissionUpdateActuatorTest {
     for (ContractType contractType : ContractType.values()) {
       if (contractType == org.tron.protos.Protocol.Transaction.Contract.ContractType.UNRECOGNIZED
           || contractType == ContractType.AccountPermissionUpdateContract
-          || contractType == ContractType.UpdateBrokerageContract) {
+          || contractType == ContractType.UpdateBrokerageContract
+          || contractType == ContractType.ShieldedTransferContract) {
         continue;
       }
       int id = contractType.getNumber();

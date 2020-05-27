@@ -130,7 +130,7 @@ public class RuntimeTransferComplexTest {
 
     Transaction trx = TvmTestUtils
         .generateDeploySmartContractAndGetTransaction(contractName, address, ABI, code, value, fee,
-            consumeUserResourcePercent, null);
+            consumeUserResourcePercent, null, 1);
     byte[] contractAddress = WalletUtil.generateContractAddress(trx);
     runtime = TvmTestUtils.processTransactionAndReturnRuntime(trx, deposit, null);
     Assert.assertNotNull(runtime.getRuntimeError().contains("REVERT"));

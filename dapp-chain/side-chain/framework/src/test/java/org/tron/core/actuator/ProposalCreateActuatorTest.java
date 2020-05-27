@@ -256,7 +256,7 @@ public class ProposalCreateActuatorTest {
       fail("non-exist proposal number");
     } catch (ContractValidateException e) {
       Assert.assertTrue(e instanceof ContractValidateException);
-      Assert.assertEquals("non-exist proposal number",
+      Assert.assertEquals("non-exist proposal number 100",
           e.getMessage());
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
@@ -383,7 +383,7 @@ public class ProposalCreateActuatorTest {
     paras.put(6L, String.valueOf(64_000_000L));
     paras.put(7L, String.valueOf(64_000_000L));
     paras.put(8L, String.valueOf(64_000_000L));
-    paras.put(9L, String.valueOf(1L));
+    //paras.put(9L, String.valueOf(1L));
     paras.put(10L, String.valueOf(1L));
     paras.put(11L, String.valueOf(64L));
     paras.put(12L, String.valueOf(64L));

@@ -175,20 +175,19 @@ public class TransactionTrace {
       throws ContractExeException, ContractValidateException, VMIllegalException {
     /*  VM execute  */
     runtime.execute(transactionContext);
-    setBill(transactionContext.getProgramResult().getEnergyUsed());
+    //setBill(transactionContext.getProgramResult().getEnergyUsed());
 
     //tim
-//    if(!program.isConstantCall()){
-//      if (!VMConfig.isVmResourceChargingOn()
-//              || isSideChainGateWayContractCall() && this.isResultSuccess()) {
-//        setBill(0);
-//      }
-//      else {
-//        setBill(transactionContext.getProgramResult().getEnergyUsed());
-//      }
-//    } else {
-//      setBill(transactionContext.getProgramResult().getEnergyUsed());
-//    }
+    if(transactionContext.isStatic()){
+      if (!isChargingResourceProposalOn() || isSideChainGateWayContractCall() && isResultSuccess()) {
+        setBill(0);
+      }
+      else {
+        setBill(transactionContext.getProgramResult().getEnergyUsed());
+      }
+    } else {
+      setBill(transactionContext.getProgramResult().getEnergyUsed());
+    }
 
     if (TrxType.TRX_PRECOMPILED_TYPE != trxType) {
       if (contractResult.OUT_OF_TIME
@@ -320,6 +319,15 @@ public class TransactionTrace {
     return address;
   }
 
+  public boolean isResultSuccess() {
+    return !(transactionContext.getProgramResult().getException() != null
+            || transactionContext.getProgramResult().isRevert());
+  }
+
+  private boolean isChargingResourceProposalOn() {
+    return transactionContext.getStoreFactory().getChainBaseManager()
+            .getDynamicPropertiesStore().getChargingSwitch() == 1;
+  }
 
   public enum TimeResultType {
     NORMAL,

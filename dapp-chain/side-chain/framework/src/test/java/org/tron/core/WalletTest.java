@@ -431,24 +431,24 @@ public class WalletTest {
     Assert.assertTrue("getBlockByLatestNum2", blockByLatestNum.getBlockList().contains(block4));
   }
 
-  @Test
-  public void getPaginatedAssetIssueList() {
-    buildAssetIssue();
-    AssetIssueList assetList1 = wallet.getAssetIssueList(0, 100);
-    Assert.assertTrue("get Asset1", assetList1.getAssetIssue(0).getName().equals(Asset1.getName()));
-    try {
-      assetList1.getAssetIssue(1);
-    } catch (Exception e) {
-      Assert.assertTrue("AssetIssueList1 size should be 1", true);
-    }
-
-    AssetIssueList assetList2 = wallet.getAssetIssueList(0, 0);
-    try {
-      assetList2.getAssetIssue(0);
-    } catch (Exception e) {
-      Assert.assertTrue("AssetIssueList2 size should be 0", true);
-    }
-  }
+//  @Test
+//  public void getPaginatedAssetIssueList() {
+//    buildAssetIssue();
+//    AssetIssueList assetList1 = wallet.getAssetIssueList(0, 100);
+//    Assert.assertTrue("get Asset1", assetList1.getAssetIssue(0).getName().equals(Asset1.getName()));
+//    try {
+//      assetList1.getAssetIssue(1);
+//    } catch (Exception e) {
+//      Assert.assertTrue("AssetIssueList1 size should be 1", true);
+//    }
+//
+//    AssetIssueList assetList2 = wallet.getAssetIssueList(0, 0);
+//    try {
+//      assetList2.getAssetIssue(0);
+//    } catch (Exception e) {
+//      Assert.assertTrue("AssetIssueList2 size should be 0", true);
+//    }
+//  }
 
   @Test
   public void getPaginatedProposalList() {

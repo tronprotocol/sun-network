@@ -71,6 +71,9 @@ public class RuntimeImplTest {
     repository.createAccount(creatorAddress, AccountType.Normal);
     repository.addBalance(creatorAddress, creatorTotalBalance);
     repository.commit();
+    dbManager.getDynamicPropertiesStore().saveEnergyFee(100);
+    dbManager.getDynamicPropertiesStore().saveTotalEnergyLimit(50_000_000_000L);
+    dbManager.getDynamicPropertiesStore().saveTotalEnergyCurrentLimit(50_000_000_000L);
   }
 
   // // solidity src code

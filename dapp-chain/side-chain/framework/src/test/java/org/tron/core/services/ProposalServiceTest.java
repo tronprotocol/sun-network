@@ -1,7 +1,5 @@
 package org.tron.core.services;
 
-import static org.tron.core.utils.ProposalUtil.ProposalType.WITNESS_127_PAY_PER_BLOCK;
-
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,6 +17,8 @@ import org.tron.core.consensus.ProposalService;
 import org.tron.core.db.Manager;
 import org.tron.core.utils.ProposalUtil.ProposalType;
 import org.tron.protos.Protocol.SideChainProposal;
+
+import static org.tron.core.utils.ProposalUtil.ProposalType.*;
 
 public class ProposalServiceTest {
 
@@ -52,9 +52,21 @@ public class ProposalServiceTest {
     Assert.assertFalse(result);
     //
     for (ProposalType proposalType : ProposalType.values()) {
+      //tim
+      if (proposalType == ALLOW_UPDATE_SUN_NETWORK_150) {
+        continue;
+      }
+
       if (proposalType == WITNESS_127_PAY_PER_BLOCK) {
         proposal = SideChainProposal.newBuilder().putParameters(proposalType.getCode(), "16160").build();
-      } else {
+      } else if (proposalType == MAX_CPU_TIME_OF_ONE_TX) {
+        proposal = SideChainProposal.newBuilder().putParameters(proposalType.getCode(), "13").build();
+      } else if (proposalType == SIDE_CHAIN_GATEWAY || proposalType == MAIN_CHAIN_GATEWAY) {
+        proposal = SideChainProposal.newBuilder().putParameters(proposalType.getCode(), "27cu1ozb4mX3m2afY68FSAqn3HmMp815d48,").build();
+      } else if (proposalType == FUND_INJECT_ADDRESS) {
+        proposal = SideChainProposal.newBuilder().putParameters(proposalType.getCode(), "27cu1ozb4mX3m2afY68FSAqn3HmMp815d48").build();
+      }
+      else {
         proposal = SideChainProposal.newBuilder().putParameters(proposalType.getCode(), "1").build();
       }
       proposalCapsule = new ProposalCapsule(proposal);
