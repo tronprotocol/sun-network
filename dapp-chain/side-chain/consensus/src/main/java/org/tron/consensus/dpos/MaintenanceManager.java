@@ -59,29 +59,21 @@ public class MaintenanceManager {
 
     tryRemoveThePowerOfTheGr();
 
-    System.out.println("*******doMaintenance**********");
-
-
     Map<ByteString, Long> countWitness = countVote(votesStore);
 
-    System.out.println("countWitness:" + countWitness.size());
-    System.out.println("MaxActiveNum():" + dynamicPropertiesStore.getWitnessMaxActiveNum());
-    System.out.println("size():" + consensusDelegate.getActiveWitnesses().size());
-//    if (!countWitness.isEmpty() //"1.5.0_preview"
+//    if (!countWitness.isEmpty()
 //            && dynamicPropertiesStore.getWitnessMaxActiveNum() != consensusDelegate.getActiveWitnesses().size()) {
 //
 
-//   if (!countWitness.isEmpty()) //"3.7"
+//   if (!countWitness.isEmpty())
 
-    if (countWitness.isEmpty() //"sun-network"
+    if (countWitness.isEmpty()
             && dynamicPropertiesStore.getWitnessMaxActiveNum() == consensusDelegate.getActiveWitnesses()
             .size()) {
       logger.info("No vote, no change to witness.");
     } else {
     //if (!countWitness.isEmpty()) {
       List<ByteString> currentWits = consensusDelegate.getActiveWitnesses();
-
-      System.out.println("********1*********");
 
       List<ByteString> newWitnessAddressList = new ArrayList<>();
       consensusDelegate.getAllWitnesses()
@@ -130,7 +122,6 @@ public class MaintenanceManager {
 
     DelegationStore delegationStore = consensusDelegate.getDelegationStore();
     if (dynamicPropertiesStore.allowChangeDelegation()) {
-      System.out.println("********2*********");
       long nextCycle = dynamicPropertiesStore.getCurrentCycleNumber() + 1;
       dynamicPropertiesStore.saveCurrentCycleNumber(nextCycle);
       consensusDelegate.getAllWitnesses().forEach(witness -> {
