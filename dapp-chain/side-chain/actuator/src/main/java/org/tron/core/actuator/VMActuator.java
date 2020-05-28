@@ -82,7 +82,7 @@ public class VMActuator implements Actuator2 {
 
   @Getter
   @Setter
-  private boolean isConstanCall = false;
+  private boolean isConstantCall = false;
 
   @Setter
   private boolean enableEventLinstener;
@@ -93,8 +93,8 @@ public class VMActuator implements Actuator2 {
   private LogInfoTriggerParser logInfoTriggerParser;
 
 
-  public VMActuator(boolean isConstanCall) {
-    this.isConstanCall = isConstanCall;
+  public VMActuator(boolean isConstantCall) {
+    this.isConstantCall = isConstantCall;
     programInvokeFactory = new ProgramInvokeFactoryImpl();
   }
 
@@ -133,7 +133,7 @@ public class VMActuator implements Actuator2 {
       this.blockCap = new BlockCapsule(Block.newBuilder().build());
       this.executorType = ExecutorType.ET_PRE_TYPE;
     }
-    if (isConstanCall) {
+    if (isConstantCall) {
       this.executorType = ExecutorType.ET_PRE_TYPE;
     }
 
@@ -186,7 +186,7 @@ public class VMActuator implements Actuator2 {
         vm.play(program);
         result = program.getResult();
 
-        if (isConstanCall) {
+        if (isConstantCall) {
           long callValue = TransactionUtil.getCallValue(trx.getRawData().getContract(0));
           long callTokenValue = TransactionUtil
               .getCallTokenValue(trx.getRawData().getContract(0));
@@ -291,19 +291,6 @@ public class VMActuator implements Actuator2 {
       String txHash = Hex.toHexString(rootInternalTransaction.getHash());
       VMUtils.saveProgramTraceFile(txHash, traceContent);
     }
-
-    //tim
-//    TransactionTrace trace = context.getTrxCap().getTrxTrace();
-//    if(!program.isConstantCall()){
-//      if (!VMConfig.isVmResourceChargingOn()
-//              || trace.isSideChainGateWayContractCall() && this.isResultSuccess()) {
-//        trace.setBill(0);
-//      }
-//      else {
-//        trace.setBill(result.getEnergyUsed());
-//      }
-//    }
-
   }
 
   private void create()
@@ -500,7 +487,7 @@ public class VMActuator implements Actuator2 {
             .getAccount(deployedContract.getInstance().getOriginAddress().toByteArray());
         energyLimit = getTotalEnergyLimit(creator, caller, contract, feeLimit, callValue);
       }*/
-      if (isConstanCall) {
+      if (isConstantCall) {
         energyLimit = Constant.ENERGY_LIMIT_IN_CONSTANT_TX;
       } else if (!VMConfig.isVmResourceChargingOn()) {
         energyLimit = 10_000_000;
@@ -525,7 +512,7 @@ public class VMActuator implements Actuator2 {
           .createProgramInvoke(TrxType.TRX_CONTRACT_CALL_TYPE, executorType, trx,
               tokenValue, tokenId, blockCap.getInstance(), repository, vmStartInUs,
               vmShouldEndInUs, energyLimit);
-      if (isConstanCall) {
+      if (isConstantCall) {
         programInvoke.setConstantCall();
       }
       this.vm = new VM();

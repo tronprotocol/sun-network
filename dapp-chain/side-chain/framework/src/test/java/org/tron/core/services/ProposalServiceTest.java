@@ -52,11 +52,6 @@ public class ProposalServiceTest {
     Assert.assertFalse(result);
     //
     for (ProposalType proposalType : ProposalType.values()) {
-      //tim
-      if (proposalType == ALLOW_UPDATE_SUN_NETWORK_150) {
-        continue;
-      }
-
       if (proposalType == WITNESS_127_PAY_PER_BLOCK) {
         proposal = SideChainProposal.newBuilder().putParameters(proposalType.getCode(), "16160").build();
       } else if (proposalType == MAX_CPU_TIME_OF_ONE_TX) {

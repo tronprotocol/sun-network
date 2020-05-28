@@ -175,10 +175,8 @@ public class TransactionTrace {
       throws ContractExeException, ContractValidateException, VMIllegalException {
     /*  VM execute  */
     runtime.execute(transactionContext);
-    //setBill(transactionContext.getProgramResult().getEnergyUsed());
 
-    //tim
-    if(transactionContext.isStatic()){
+    if(transactionContext.isConstant()){
       if (!isChargingResourceProposalOn() || isSideChainGateWayContractCall() && isResultSuccess()) {
         setBill(0);
       }

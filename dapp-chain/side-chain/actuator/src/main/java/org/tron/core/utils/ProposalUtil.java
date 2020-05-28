@@ -528,8 +528,8 @@ public class ProposalUtil {
     FUND_DISTRIBUTION_DAYS(1_000_009), // 1, 1_000_009
     WITNESS_REWARD_PERCENTAGE(1_000_010), // number, 1_000_010
     WITNESS_MAX_NUMBER(1_000_011), // number, 1_000_011
-    ALLOW_UPDATE_GATEWAY102(1_000_012), // 1 (hard fork), 1_000_012
-    ALLOW_UPDATE_SUN_NETWORK_150(1_000_013); // 1 (hard fork), 1_000_013
+    ALLOW_UPDATE_GATEWAY102(1_000_012); // 1 (hard fork), 1_000_012
+    //ALLOW_UPDATE_SUN_NETWORK_150(1_000_013); // 1 (hard fork), 1_000_013
 
     private long code;
 
@@ -573,7 +573,6 @@ public class ProposalUtil {
       long value = 0;
       switch (proposalType) {
         case REMOVE_THE_POWER_OF_THE_GR:
-          //break;//tim
         case MAINTENANCE_TIME_INTERVAL:
         case ACCOUNT_UPGRADE_COST:
         case CREATE_ACCOUNT_FEE:
@@ -619,7 +618,7 @@ public class ProposalUtil {
         case WITNESS_REWARD_PERCENTAGE:
         case WITNESS_MAX_NUMBER:
         case ALLOW_UPDATE_GATEWAY102:
-        case ALLOW_UPDATE_SUN_NETWORK_150:
+        //case ALLOW_UPDATE_SUN_NETWORK_150:
           try {
             value = Long.valueOf(content);
           }

@@ -12,7 +12,8 @@ import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.store.AccountStore;
 import org.tron.core.store.DynamicPropertiesStore;
-import org.tron.protos.Protocol;
+import org.tron.protos.Protocol.Transaction.Contract.ContractType;
+
 import org.tron.protos.Protocol.Transaction.Result.code;
 import org.tron.protos.contract.IncentiveContract;
 
@@ -21,8 +22,8 @@ import java.util.Objects;
 @Slf4j(topic = "actuator")
 public class FundInjectActuator extends AbstractActuator {
 
-  FundInjectActuator() {
-    super(Protocol.Transaction.Contract.ContractType.FundInjectContract, IncentiveContract.FundInjectContract.class);
+  public FundInjectActuator() {
+    super(ContractType.FundInjectContract, IncentiveContract.FundInjectContract.class);
   }
 
   @Override

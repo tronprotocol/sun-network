@@ -13,17 +13,17 @@ public class TransactionContext {
   private TransactionCapsule trxCap;
   private StoreFactory storeFactory;
   private ProgramResult programResult = new ProgramResult();
-  private boolean isStatic;
+  private boolean isConstant;
   private boolean eventPluginLoaded;
 
   public TransactionContext(BlockCapsule blockCap, TransactionCapsule trxCap,
       StoreFactory storeFactory,
-      boolean isStatic,
+      boolean isConstant,
       boolean eventPluginLoaded) {
     this.blockCap = blockCap;
     this.trxCap = trxCap;
     this.storeFactory = storeFactory;
-    this.isStatic = isStatic;
+    this.isConstant = isConstant;
     this.eventPluginLoaded = eventPluginLoaded;
   }
 }
