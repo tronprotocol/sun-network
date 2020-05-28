@@ -56,23 +56,11 @@ public class MaintenanceManager {
   public void doMaintenance() {
     VotesStore votesStore = consensusDelegate.getVotesStore();
     DynamicPropertiesStore dynamicPropertiesStore = consensusDelegate.getDynamicPropertiesStore();
-
     tryRemoveThePowerOfTheGr();
 
     Map<ByteString, Long> countWitness = countVote(votesStore);
 
-//    if (!countWitness.isEmpty()
-//            && dynamicPropertiesStore.getWitnessMaxActiveNum() != consensusDelegate.getActiveWitnesses().size()) {
-//
-
-//   if (!countWitness.isEmpty())
-
-    if (countWitness.isEmpty()
-            && dynamicPropertiesStore.getWitnessMaxActiveNum() == consensusDelegate.getActiveWitnesses()
-            .size()) {
-      logger.info("No vote, no change to witness.");
-    } else {
-    //if (!countWitness.isEmpty()) {
+    if (!countWitness.isEmpty()) {
       List<ByteString> currentWits = consensusDelegate.getActiveWitnesses();
 
       List<ByteString> newWitnessAddressList = new ArrayList<>();
