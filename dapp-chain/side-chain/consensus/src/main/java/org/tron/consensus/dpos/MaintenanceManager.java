@@ -60,7 +60,12 @@ public class MaintenanceManager {
 
     Map<ByteString, Long> countWitness = countVote(votesStore);
 
-    if (!countWitness.isEmpty()) {
+    //Only possible during the initialization phase
+    if (countWitness.isEmpty()
+            && dynamicPropertiesStore.getWitnessMaxActiveNum() == consensusDelegate.getActiveWitnesses()
+            .size()) {
+      logger.info("No vote, no change to witness.");
+    } else {
       List<ByteString> currentWits = consensusDelegate.getActiveWitnesses();
 
       List<ByteString> newWitnessAddressList = new ArrayList<>();
