@@ -16,6 +16,8 @@ import org.tron.core.vm.repository.Key;
 import org.tron.core.vm.repository.Value;
 import org.tron.protos.Protocol;
 
+import java.util.List;
+
 public interface Deposit {
 
   Manager getDbManager();
@@ -92,6 +94,8 @@ public interface Deposit {
 
   void putDynamicPropertiesWithLatestProposalNum(long num);
 
+  void putAssetIssue(Key key, Value value);
+
   long getLatestProposalNum();
 
   long getWitnessAllowanceFrozenTime();
@@ -104,7 +108,11 @@ public interface Deposit {
 
   long getTokenBalance(byte[] address, byte[] tokenId);
 
+  void putAssetIssue(byte[] tokenId, AssetIssueCapsule assetIssueCapsule);
+
   AssetIssueCapsule getAssetIssue(byte[] tokenId);
+
+  long getEnergyFee();
 
   TransactionCapsule getTransaction(byte[] trxHash);
 
@@ -114,6 +122,8 @@ public interface Deposit {
 
   public AccountCapsule createNormalAccount(byte[] address);
 
+  List<byte[]> getSideChainGateWayList();
 
+  boolean isGatewayAddress(byte[] address);
 }
 

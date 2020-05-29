@@ -17,6 +17,7 @@ import org.tron.common.crypto.SignInterface;
 import org.tron.common.crypto.SignUtils;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.TransactionCapsule;
+import org.tron.core.db.Manager;
 import org.tron.core.config.args.Args;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.services.http.JsonFormat.ParseException;
@@ -58,7 +59,7 @@ public class EasyTransferAssetServlet extends RateLimiterServlet {
       TransactionCapsule transactionCapsule;
       transactionCapsule = wallet
           .createTransactionCapsule(builder.build(), ContractType.TransferAssetContract);
-      transactionCapsule.sign(privateKey);
+      transactionCapsule.signWithSideChainId(privateKey);
       GrpcAPI.Return result = wallet.broadcastTransaction(transactionCapsule.getInstance());
       responseBuild.setTransaction(transactionCapsule.getInstance());
       responseBuild.setResult(result);

@@ -27,7 +27,6 @@ import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.UnfreezeAssetContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
@@ -96,9 +95,9 @@ public class TransferAsset2Test {
       Long start = System.currentTimeMillis() + 2000;
       Long end = System.currentTimeMillis() + 1000000000;
 
-      Return ret1 = PublicMethed.createAssetIssue2(noBandwitchAddress, name, totalSupply, 1,
-          100, start, end, 1, description, url, 10000L, 10000L,
-          1L, 1L, noBandwitch, blockingStubFull);
+//      Return ret1 = PublicMethed.createAssetIssue2(noBandwitchAddress, name, totalSupply, 1,
+//          100, start, end, 1, description, url, 10000L, 10000L,
+//          1L, 1L, noBandwitch, blockingStubFull);
     } else {
       logger.info("This account already create an assetisue");
       Optional<GrpcAPI.AssetIssueList> queryAssetByAccount1 = Optional.ofNullable(assetIssueList1);
@@ -140,10 +139,10 @@ public class TransferAsset2Test {
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
 
     //No freeze asset, try to unfreeze asset failed.
-    Assert.assertFalse(unFreezeAsset(noBandwitchAddress, noBandwitch));
+    // Assert.assertFalse(unFreezeAsset(noBandwitchAddress, noBandwitch));
     logger.info("Test no asset frozen balance, try to unfreeze asset, no exception. Test OK!!!");
     //Not create asset, try to unfreeze asset failed.No exception.
-    Assert.assertFalse(unFreezeAsset(toAddress, testKey003));
+    // Assert.assertFalse(unFreezeAsset(toAddress, testKey003));
     logger.info("Test not create asset issue, try to unfreeze asset, no exception. Test OK!!!");
   }
 
@@ -162,51 +161,51 @@ public class TransferAsset2Test {
    * constructor.
    */
 
-  public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
-      Integer icoNum, Long startTime, Long endTime,
-      Integer voteScore, String description, String url, String priKey) {
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    ECKey ecKey = temKey;
-
-    try {
-      AssetIssueContract.Builder builder = AssetIssueContract.newBuilder();
-      builder.setOwnerAddress(ByteString.copyFrom(address));
-      builder.setName(ByteString.copyFrom(name.getBytes()));
-      builder.setTotalSupply(totalSupply);
-      builder.setTrxNum(trxNum);
-      builder.setNum(icoNum);
-      builder.setStartTime(startTime);
-      builder.setEndTime(endTime);
-      builder.setVoteScore(voteScore);
-      builder.setDescription(ByteString.copyFrom(description.getBytes()));
-      builder.setUrl(ByteString.copyFrom(url.getBytes()));
-      builder.setFreeAssetNetLimit(20000);
-      builder.setPublicFreeAssetNetLimit(20000);
-      Transaction transaction = blockingStubFull.createAssetIssue(builder.build());
-      if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-        logger.info("transaction == null");
-        return false;
-      }
-      transaction = signTransaction(ecKey, transaction);
-      Return response = blockingStubFull.broadcastTransaction(transaction);
-      if (response.getResult() == false) {
-        logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
-        return false;
-      } else {
-        logger.info(name);
-        return true;
-      }
-    } catch (Exception ex) {
-      ex.printStackTrace();
-      return false;
-    }
-  }
+  // public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
+  //     Integer icoNum, Long startTime, Long endTime,
+  //     Integer voteScore, String description, String url, String priKey) {
+  //   ECKey temKey = null;
+  //   try {
+  //     BigInteger priK = new BigInteger(priKey, 16);
+  //     temKey = ECKey.fromPrivate(priK);
+  //   } catch (Exception ex) {
+  //     ex.printStackTrace();
+  //   }
+  //   ECKey ecKey = temKey;
+  //
+  //   try {
+  //     AssetIssueContract.Builder builder = AssetIssueContract.newBuilder();
+  //     builder.setOwnerAddress(ByteString.copyFrom(address));
+  //     builder.setName(ByteString.copyFrom(name.getBytes()));
+  //     builder.setTotalSupply(totalSupply);
+  //     builder.setTrxNum(trxNum);
+  //     builder.setNum(icoNum);
+  //     builder.setStartTime(startTime);
+  //     builder.setEndTime(endTime);
+  //     builder.setVoteScore(voteScore);
+  //     builder.setDescription(ByteString.copyFrom(description.getBytes()));
+  //     builder.setUrl(ByteString.copyFrom(url.getBytes()));
+  //     builder.setFreeAssetNetLimit(20000);
+  //     builder.setPublicFreeAssetNetLimit(20000);
+  //     Transaction transaction = blockingStubFull.createAssetIssue(builder.build());
+  //     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+  //       logger.info("transaction == null");
+  //       return false;
+  //     }
+  //     transaction = signTransaction(ecKey, transaction);
+  //     Return response = blockingStubFull.broadcastTransaction(transaction);
+  //     if (response.getResult() == false) {
+  //       logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
+  //       return false;
+  //     } else {
+  //       logger.info(name);
+  //       return true;
+  //     }
+  //   } catch (Exception ex) {
+  //     ex.printStackTrace();
+  //     return false;
+  //   }
+  // }
 
   /**
    * constructor.
@@ -365,42 +364,42 @@ public class TransferAsset2Test {
    * constructor.
    */
 
-  public boolean unFreezeAsset(byte[] addRess, String priKey) {
-    byte[] address = addRess;
-
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    final ECKey ecKey = temKey;
-
-    UnfreezeAssetContract.Builder builder = UnfreezeAssetContract
-        .newBuilder();
-    ByteString byteAddreess = ByteString.copyFrom(address);
-
-    builder.setOwnerAddress(byteAddreess);
-
-    UnfreezeAssetContract contract = builder.build();
-
-    Transaction transaction = blockingStubFull.unfreezeAsset(contract);
-
-    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      return false;
-    }
-
-    transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
-    Return response = blockingStubFull.broadcastTransaction(transaction);
-    if (response.getResult() == false) {
-      logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
-      return false;
-    } else {
-      return true;
-    }
-  }
+  // public boolean unFreezeAsset(byte[] addRess, String priKey) {
+  //   byte[] address = addRess;
+  //
+  //   ECKey temKey = null;
+  //   try {
+  //     BigInteger priK = new BigInteger(priKey, 16);
+  //     temKey = ECKey.fromPrivate(priK);
+  //   } catch (Exception ex) {
+  //     ex.printStackTrace();
+  //   }
+  //   final ECKey ecKey = temKey;
+  //
+  //   UnfreezeAssetContract.Builder builder = UnfreezeAssetContract
+  //       .newBuilder();
+  //   ByteString byteAddreess = ByteString.copyFrom(address);
+  //
+  //   builder.setOwnerAddress(byteAddreess);
+  //
+  //   UnfreezeAssetContract contract = builder.build();
+  //
+  //   Transaction transaction = blockingStubFull.unfreezeAsset(contract);
+  //
+  //   if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+  //     return false;
+  //   }
+  //
+  //   transaction = TransactionUtils.setTimestamp(transaction);
+  //   transaction = TransactionUtils.sign(transaction, ecKey);
+  //   Return response = blockingStubFull.broadcastTransaction(transaction);
+  //   if (response.getResult() == false) {
+  //     logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 }
 
 

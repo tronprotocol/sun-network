@@ -9,9 +9,6 @@ public class Parameter {
     VERSION_3_2_2(6),
     VERSION_3_5(7),
     VERSION_3_6(8),
-    VERSION_3_6_5(9),
-    VERSION_3_6_6(10),
-    VERSION_4_0(15),
     DAPP_CHAIN_1_0_2(10000),
     DAPP_CHAIN_1_5_0(10001);
 

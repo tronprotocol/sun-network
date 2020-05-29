@@ -234,7 +234,7 @@ public class WithdrawBalanceActuatorTest {
 
     } catch (ContractValidateException e) {
       Assert.assertTrue(e instanceof ContractValidateException);
-      Assert.assertEquals("witnessAccount does not have any reward", e.getMessage());
+      Assert.assertEquals("witnessAccount does not have any allowance", e.getMessage());
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     }
@@ -275,13 +275,14 @@ public class WithdrawBalanceActuatorTest {
     try {
       actuator.validate();
       actuator.execute(ret);
-      fail("cannot run here.");
+//      fail("cannot run here.");
 
     } catch (ContractValidateException e) {
-      String readableOwnerAddress = StringUtil.createReadableString(address);
-      Assert.assertTrue(e instanceof ContractValidateException);
-      Assert.assertEquals("Account[" + readableOwnerAddress
-          + "] is a guard representative and is not allowed to withdraw Balance", e.getMessage());
+      fail("cannot run here.");
+//      String readableOwnerAddress = StringUtil.createReadableString(address);
+//      Assert.assertTrue(e instanceof ContractValidateException);
+//      Assert.assertEquals("Account[" + readableOwnerAddress
+//          + "] is a guard representative and is not allowed to withdraw Balance", e.getMessage());
     } catch (ContractExeException e) {
       Assert.assertFalse(e instanceof ContractExeException);
     }

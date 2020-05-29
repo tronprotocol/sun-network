@@ -13,7 +13,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.PaginatedMessage;
-import org.tron.api.GrpcAPI.ProposalList;
+import org.tron.api.GrpcAPI.SideChainProposalList;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.core.Wallet;
@@ -88,19 +88,19 @@ public class WalletTestCommittee001 {
   @Test
   public void testListProposals() {
     //List proposals
-    ProposalList proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
-    Optional<ProposalList> listProposals = Optional.ofNullable(proposalList);
+    SideChainProposalList sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    Optional<SideChainProposalList> listProposals = Optional.ofNullable(sideChainProposalList);
     final Integer beforeProposalCount = listProposals.get().getProposalsCount();
 
     //CreateProposal
     final long now = System.currentTimeMillis();
-    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(0L, 1000000L);
+    HashMap<Long, String> proposalMap = new HashMap<>();
+    proposalMap.put(0L, "1000000");
     PublicMethed.createProposal(witness001Address, witnessKey001, proposalMap, blockingStubFull);
 
     //List proposals
-    proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
-    listProposals = Optional.ofNullable(proposalList);
+    sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    listProposals = Optional.ofNullable(sideChainProposalList);
     Integer afterProposalCount = listProposals.get().getProposalsCount();
     Assert.assertTrue(beforeProposalCount + 1 == afterProposalCount);
     logger.info(Long.toString(listProposals.get().getProposals(0).getCreateTime()));
@@ -112,9 +112,9 @@ public class WalletTestCommittee001 {
     PaginatedMessage.Builder pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(0);
     pageMessageBuilder.setLimit(1);
-    ProposalList paginatedProposalList = blockingStubFull
-        .getPaginatedProposalList(pageMessageBuilder.build());
-    Assert.assertTrue(paginatedProposalList.getProposalsCount() >= 1);
+    SideChainProposalList paginatedSideChainProposalList = blockingStubFull
+        .getPaginatedSideChainProposalList(pageMessageBuilder.build());
+    Assert.assertTrue(paginatedSideChainProposalList.getProposalsCount() >= 1);
   }
 
   /**

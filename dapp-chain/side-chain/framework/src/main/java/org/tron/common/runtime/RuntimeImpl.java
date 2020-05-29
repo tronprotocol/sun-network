@@ -50,7 +50,7 @@ public class RuntimeImpl implements Runtime {
     switch (contractType.getNumber()) {
       case ContractType.TriggerSmartContract_VALUE:
       case ContractType.CreateSmartContract_VALUE:
-        actuator2 = new VMActuator(context.isStatic());
+        actuator2 = new VMActuator(context.isConstant());
         break;
       default:
 //      actuatorList = ActuatorFactory.createActuator(context.getTrxCap(), dbManger);

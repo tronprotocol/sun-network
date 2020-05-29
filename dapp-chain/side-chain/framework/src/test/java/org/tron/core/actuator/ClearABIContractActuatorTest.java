@@ -66,7 +66,6 @@ public class ClearABIContractActuatorTest {
    */
   @BeforeClass
   public static void init() {
-    VMConfig.initAllowTvmConstantinople(1);
     dbManager = context.getBean(Manager.class);
   }
 

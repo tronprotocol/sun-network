@@ -36,7 +36,7 @@ public class DelegationServiceTest {
             .usePlaintext(true)
             .build());
     BytesMessage.Builder builder = BytesMessage.newBuilder();
-    builder.setValue(ByteString.copyFromUtf8("TLTDZBcPoJ8tZ6TTEeEqEvwYFk2wgotSfD"));
+    builder.setValue(ByteString.copyFromUtf8("TVDmPWGYxgi5DNeW8hXrzrhY8Y6zgxPNg4"));
     System.out
         .println("getBrokerageInfo: " + walletStub.getBrokerageInfo(builder.build()).getNum());
     System.out.println("getRewardInfo: " + walletStub.getRewardInfo(builder.build()).getNum());
@@ -58,11 +58,11 @@ public class DelegationServiceTest {
     }
     delegationService.payStandbyWitness();
     Wallet.setAddressPreFixByte(ADD_PRE_FIX_BYTE_MAINNET);
-    byte[] sr1 = Wallet.decodeFromBase58Check("TLTDZBcPoJ8tZ6TTEeEqEvwYFk2wgotSfD");
+    byte[] sr1 = Wallet.decodeFromBase58Check("TVDmPWGYxgi5DNeW8hXrzrhY8Y6zgxPNg4");
     long value = manager.getDelegationStore().getReward(cycle, sr1);
     long tmp = 0;
-    for (int i = 0; i < 27; i++) {
-      tmp += 100000000 + i;
+    for (int i = 0; i < 5; i++) {
+      tmp += 100000022 + i;
     }
     double d = (double) 16000000 / tmp;
     long expect = (long) (d * 100000026);
@@ -85,7 +85,7 @@ public class DelegationServiceTest {
     testPay(2);
     byte[] sr1 = Wallet.decodeFromBase58Check("THKJYuUmMKKARNf7s2VT51g5uPY6KEqnat");
     AccountCapsule accountCapsule = manager.getAccountStore().get(sr1);
-    byte[] sr27 = Wallet.decodeFromBase58Check("TLTDZBcPoJ8tZ6TTEeEqEvwYFk2wgotSfD");
+    byte[] sr27 = Wallet.decodeFromBase58Check("TVDmPWGYxgi5DNeW8hXrzrhY8Y6zgxPNg4");
     accountCapsule.addVotes(ByteString.copyFrom(sr27), 10000000);
     manager.getAccountStore().put(sr1, accountCapsule);
     //
@@ -107,7 +107,7 @@ public class DelegationServiceTest {
 
   public void test() {
     manager.getDynamicPropertiesStore().saveChangeDelegation(1);
-    byte[] sr27 = Wallet.decodeFromBase58Check("TLTDZBcPoJ8tZ6TTEeEqEvwYFk2wgotSfD");
+    byte[] sr27 = Wallet.decodeFromBase58Check("TVDmPWGYxgi5DNeW8hXrzrhY8Y6zgxPNg4");
     manager.getDelegationStore().setBrokerage(0, sr27, 10);
     manager.getDelegationStore().setBrokerage(1, sr27, 20);
     manager.getDelegationStore().setWitnessVote(0, sr27, 100000000);

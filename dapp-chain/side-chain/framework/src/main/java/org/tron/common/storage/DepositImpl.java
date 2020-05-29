@@ -5,6 +5,8 @@ import static org.tron.core.vm.utils.MUtil.convertToTronAddress;
 import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
 import java.util.HashMap;
+import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.Strings;
 import org.spongycastle.util.encoders.Hex;
@@ -28,14 +30,7 @@ import org.tron.core.db.Manager;
 import org.tron.core.db.TransactionStore;
 import org.tron.core.exception.BadItemException;
 import org.tron.core.exception.ItemNotFoundException;
-import org.tron.core.store.AccountStore;
-import org.tron.core.store.CodeStore;
-import org.tron.core.store.ContractStore;
-import org.tron.core.store.DelegatedResourceStore;
-import org.tron.core.store.DynamicPropertiesStore;
-import org.tron.core.store.ProposalStore;
-import org.tron.core.store.VotesStore;
-import org.tron.core.store.WitnessStore;
+import org.tron.core.store.*;
 import org.tron.core.vm.config.VMConfig;
 import org.tron.core.vm.program.Storage;
 import org.tron.core.vm.repository.Key;
@@ -52,6 +47,7 @@ public class DepositImpl implements Deposit {
       .getBytes();
   private static final byte[] MAINTENANCE_TIME_INTERVAL = "MAINTENANCE_TIME_INTERVAL".getBytes();
   private static final byte[] NEXT_MAINTENANCE_TIME = "NEXT_MAINTENANCE_TIME".getBytes();
+  private static final byte[] ENERGY_FEE = "ENERGY_FEE".getBytes();
 
   private Manager dbManager;
   private Deposit parent = null;
@@ -123,6 +119,10 @@ public class DepositImpl implements Deposit {
     return dbManager.getCodeStore();
   }
 
+  private AssetIssueV2Store getAssetIssueV2Store() {
+    return this.dbManager.getAssetIssueV2Store();
+  }
+
   private DelegatedResourceStore getDelegatedResourceStore() {
     return dbManager.getDelegatedResourceStore();
   }
@@ -176,6 +176,23 @@ public class DepositImpl implements Deposit {
     // using dbManager directly, black hole address should not be changed
     // when executing smart contract.
     return getAccountStore().getBlackhole().getAddress().toByteArray();
+  }
+
+  @Override
+  public List<byte[]> getSideChainGateWayList() {
+    return this.dbManager.getDynamicPropertiesStore().getSideChainGateWayList();
+  }
+
+  @Override
+  public boolean isGatewayAddress(byte[] address) {
+    List<byte[]> gatewayList = this.dbManager.getDynamicPropertiesStore().getSideChainGateWayList();
+
+    for (byte[] gateway: gatewayList) {
+      if (ByteUtil.equals(gateway, address)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
@@ -298,12 +315,10 @@ public class DepositImpl implements Deposit {
     Value value = Value.create(code, Type.VALUE_TYPE_CREATE);
     codeCache.put(key, value);
 
-    if (VMConfig.allowTvmConstantinople()) {
-      ContractCapsule contract = getContract(address);
-      byte[] codeHash = Hash.sha3(code);
-      contract.setCodeHash(codeHash);
-      updateContract(address, contract);
-    }
+    ContractCapsule contract = getContract(address);
+    byte[] codeHash = Hash.sha3(code);
+    contract.setCodeHash(codeHash);
+    updateContract(address, contract);
   }
 
   @Override
@@ -338,12 +353,7 @@ public class DepositImpl implements Deposit {
     Storage storage;
     if (this.parent != null) {
       Storage parentStorage = parent.getStorage(address);
-      if (VMConfig.getEnergyLimitHardFork()) {
-        // deep copy
-        storage = new Storage(parentStorage);
-      } else {
-        storage = parentStorage;
-      }
+      storage = new Storage(parentStorage);
     } else {
       storage = new Storage(address, dbManager.getStorageRowStore());
     }
@@ -366,14 +376,19 @@ public class DepositImpl implements Deposit {
     if (this.parent != null) {
       assetIssueCapsule = parent.getAssetIssue(tokenIdWithoutLeadingZero);
     } else {
-      assetIssueCapsule = Commons.getAssetIssueStoreFinal(dbManager.getDynamicPropertiesStore(),
-          dbManager.getAssetIssueStore(), dbManager.getAssetIssueV2Store())
-          .get(tokenIdWithoutLeadingZero);
+      assetIssueCapsule = this.dbManager.getAssetIssueV2Store().get(tokenIdWithoutLeadingZero);
     }
     if (assetIssueCapsule != null) {
       assetIssueCache.put(key, Value.create(assetIssueCapsule.getData()));
     }
     return assetIssueCapsule;
+  }
+
+  @Override
+  public synchronized void putAssetIssue (byte[] tokenId, AssetIssueCapsule assetIssueCapsule) {
+    byte[] tokenIdWithoutLeadingZero = ByteUtil.stripLeadingZeroes(tokenId);
+    Key key = Key.create(tokenIdWithoutLeadingZero);
+    assetIssueCache.put(key,Value.create(assetIssueCapsule.getData(), Type.VALUE_TYPE_CREATE));
   }
 
   @Override
@@ -435,11 +450,13 @@ public class DepositImpl implements Deposit {
               + " insufficient balance");
     }
     if (value >= 0) {
-      accountCapsule.addAssetAmountV2(tokenIdWithoutLeadingZero, value,
-          this.dbManager.getDynamicPropertiesStore(), this.dbManager.getAssetIssueStore());
+      accountCapsule.addAssetAmountV2(tokenIdWithoutLeadingZero, value);
+/*      accountCapsule.addAssetAmountV2(tokenIdWithoutLeadingZero, value,
+          this.dbManager.getDynamicPropertiesStore(), this.dbManager.getAssetIssueStore());*/
     } else {
-      accountCapsule.reduceAssetAmountV2(tokenIdWithoutLeadingZero, -value,
-          this.dbManager.getDynamicPropertiesStore(), this.dbManager.getAssetIssueStore());
+      accountCapsule.reduceAssetAmountV2(tokenIdWithoutLeadingZero, -value);
+/*      accountCapsule.reduceAssetAmountV2(tokenIdWithoutLeadingZero, -value,
+          this.dbManager.getDynamicPropertiesStore(), this.dbManager.getAssetIssueStore());*/
     }
 //    accountCapsule.getAssetMap().put(new String(tokenIdWithoutLeadingZero), Math.addExact(balance, value));
     Key key = Key.create(address);
@@ -590,8 +607,16 @@ public class DepositImpl implements Deposit {
   }
 
   @Override
+  public void putAssetIssue(Key key, Value value) { assetIssueCache.put(key,value); }
+
+  @Override
   public long getLatestProposalNum() {
     return Longs.fromByteArray(getDynamic(LATEST_PROPOSAL_NUM).getData());
+  }
+
+  @Override
+  public long getEnergyFee() {
+    return Longs.fromByteArray(getDynamic(ENERGY_FEE).getData());
   }
 
   @Override
@@ -762,6 +787,18 @@ public class DepositImpl implements Deposit {
     }));
   }
 
+  private void commitAssetIssueCache(Deposit deposit) {
+    assetIssueCache.forEach(((key, value) -> {
+      if (value.getType().isDirty() || value.getType().isCreate()) {
+        if (deposit != null) {
+          deposit.putAssetIssue(key, value);
+        } else {
+          getAssetIssueV2Store().put(key.getData(), value.getAssetIssue());
+        }
+      }
+    }));
+  }
+
   @Override
   public void putAccountValue(byte[] address, AccountCapsule accountCapsule) {
     Key key = new Key(address);
@@ -804,6 +841,7 @@ public class DepositImpl implements Deposit {
     commitVoteCache(deposit);
     commitProposalCache(deposit);
     commitDynamicPropertiesCache(deposit);
+    commitAssetIssueCache(deposit);
   }
 
   @Override

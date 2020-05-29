@@ -148,36 +148,36 @@ public class WalletTestMutiSign006 {
     Assert.assertEquals(balanceBefore - balanceAfter, fee);
     Assert.assertEquals(fee, energyFee + netFee + updateAccountPermissionFee);
 
-    balanceBefore = balanceAfter;
-
-    Long start = System.currentTimeMillis() + 5000;
-    Long end = System.currentTimeMillis() + 1000000000;
-    logger.info("try create asset issue");
-
-    txid = PublicMethedForMutiSign
-        .createAssetIssueForTransactionId1(ownerAddress, name, totalSupply, 1,
-            1, start, end, 1, description, url, 2000L, 2000L,
-            1L, 1L, ownerKey, blockingStubFull, 2, permissionKeyString);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    Assert.assertNotNull(txid);
-
-    infoById = PublicMethed
-        .getTransactionInfoById(txid, blockingStubFull);
-    balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
-    energyFee = infoById.get().getReceipt().getEnergyFee();
-    netFee = infoById.get().getReceipt().getNetFee();
-    fee = infoById.get().getFee();
-
-    logger.info("balanceAfter: " + balanceAfter);
-    logger.info("energyFee: " + energyFee);
-    logger.info("netFee: " + netFee);
-    logger.info("fee: " + fee);
-
-    Assert.assertEquals(balanceBefore - balanceAfter, fee);
-    Assert.assertEquals(fee, energyFee + netFee + multiSignFee + 1024_000000L);
-
-    logger.info(" create asset end");
+//    balanceBefore = balanceAfter;
+//
+//    Long start = System.currentTimeMillis() + 5000;
+//    Long end = System.currentTimeMillis() + 1000000000;
+//    logger.info("try create asset issue");
+//
+//    txid = PublicMethedForMutiSign
+//        .createAssetIssueForTransactionId1(ownerAddress, name, totalSupply, 1,
+//            1, start, end, 1, description, url, 2000L, 2000L,
+//            1L, 1L, ownerKey, blockingStubFull, 2, permissionKeyString);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//
+//    Assert.assertNotNull(txid);
+//
+//    infoById = PublicMethed
+//        .getTransactionInfoById(txid, blockingStubFull);
+//    balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
+//    energyFee = infoById.get().getReceipt().getEnergyFee();
+//    netFee = infoById.get().getReceipt().getNetFee();
+//    fee = infoById.get().getFee();
+//
+//    logger.info("balanceAfter: " + balanceAfter);
+//    logger.info("energyFee: " + energyFee);
+//    logger.info("netFee: " + netFee);
+//    logger.info("fee: " + fee);
+//
+//    Assert.assertEquals(balanceBefore - balanceAfter, fee);
+//    Assert.assertEquals(fee, energyFee + netFee + multiSignFee + 1024_000000L);
+//
+//    logger.info(" create asset end");
   }
 
   /**
@@ -276,66 +276,66 @@ public class WalletTestMutiSign006 {
     Assert.assertEquals(balanceBefore - balanceAfter, fee);
     Assert.assertEquals(fee, energyFee + netFee + updateAccountPermissionFee);
 
-    balanceBefore = balanceAfter;
-
-    txid = PublicMethedForMutiSign.participateAssetIssueForTransactionId(ownerAddress,
-        assetAccountId1.toByteArray(), 10, participateAddress, participateKey, 2,
-        blockingStubFull, permissionKeyString);
-
-    Assert.assertNotNull(txid);
-
-    infoById = PublicMethed
-        .getTransactionInfoById(txid, blockingStubFull);
-    balanceAfter = PublicMethed.queryAccount(participateAddress, blockingStubFull)
-        .getBalance();
-    energyFee = infoById.get().getReceipt().getEnergyFee();
-    netFee = infoById.get().getReceipt().getNetFee();
-    fee = infoById.get().getFee();
-
-    logger.info("balanceAfter: " + balanceAfter);
-    logger.info("energyFee: " + energyFee);
-    logger.info("netFee: " + netFee);
-    logger.info("fee: " + fee);
-
-    Assert.assertEquals(balanceBefore - balanceAfter, fee + 10);
-    Assert.assertEquals(fee, energyFee + netFee + multiSignFee);
+//    balanceBefore = balanceAfter;
+//
+//    txid = PublicMethedForMutiSign.participateAssetIssueForTransactionId(ownerAddress,
+//        assetAccountId1.toByteArray(), 10, participateAddress, participateKey, 2,
+//        blockingStubFull, permissionKeyString);
+//
+//    Assert.assertNotNull(txid);
+//
+//    infoById = PublicMethed
+//        .getTransactionInfoById(txid, blockingStubFull);
+//    balanceAfter = PublicMethed.queryAccount(participateAddress, blockingStubFull)
+//        .getBalance();
+//    energyFee = infoById.get().getReceipt().getEnergyFee();
+//    netFee = infoById.get().getReceipt().getNetFee();
+//    fee = infoById.get().getFee();
+//
+//    logger.info("balanceAfter: " + balanceAfter);
+//    logger.info("energyFee: " + energyFee);
+//    logger.info("netFee: " + netFee);
+//    logger.info("fee: " + fee);
+//
+//    Assert.assertEquals(balanceBefore - balanceAfter, fee + 10);
+//    Assert.assertEquals(fee, energyFee + netFee + multiSignFee);
   }
 
   /**
    * constructor.
    */
 
-  @Test(enabled = false)
-  public void testMutiSign4updateAssetissue() {
-    url = "MutiSign001_update_url" + Long.toString(now);
-    ownerKeyString[0] = ownerKey;
-    description = "MutiSign001_update_description" + Long.toString(now);
-
-    Long balanceBefore = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
-    logger.info("balanceBefore: " + balanceBefore);
-
-    String txid = PublicMethedForMutiSign
-        .updateAssetForTransactionId(ownerAddress, description.getBytes(), url.getBytes(), 100L,
-            100L, ownerKey, 2, blockingStubFull, permissionKeyString);
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertNotNull(txid);
-
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(txid, blockingStubFull);
-    long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
-    long energyFee = infoById.get().getReceipt().getEnergyFee();
-    long netFee = infoById.get().getReceipt().getNetFee();
-    long fee = infoById.get().getFee();
-
-    logger.info("balanceAfter: " + balanceAfter);
-    logger.info("energyFee: " + energyFee);
-    logger.info("netFee: " + netFee);
-    logger.info("fee: " + fee);
-
-    Assert.assertEquals(balanceBefore - balanceAfter, fee);
-    Assert.assertEquals(fee, energyFee + netFee + multiSignFee);
-  }
+//  @Test(enabled = false)
+//  public void testMutiSign4updateAssetissue() {
+//    url = "MutiSign001_update_url" + Long.toString(now);
+//    ownerKeyString[0] = ownerKey;
+//    description = "MutiSign001_update_description" + Long.toString(now);
+//
+//    Long balanceBefore = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
+//    logger.info("balanceBefore: " + balanceBefore);
+//
+//    String txid = PublicMethedForMutiSign
+//        .updateAssetForTransactionId(ownerAddress, description.getBytes(), url.getBytes(), 100L,
+//            100L, ownerKey, 2, blockingStubFull, permissionKeyString);
+//
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    Assert.assertNotNull(txid);
+//
+//    Optional<TransactionInfo> infoById = PublicMethed
+//        .getTransactionInfoById(txid, blockingStubFull);
+//    long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
+//    long energyFee = infoById.get().getReceipt().getEnergyFee();
+//    long netFee = infoById.get().getReceipt().getNetFee();
+//    long fee = infoById.get().getFee();
+//
+//    logger.info("balanceAfter: " + balanceAfter);
+//    logger.info("energyFee: " + energyFee);
+//    logger.info("netFee: " + netFee);
+//    logger.info("fee: " + fee);
+//
+//    Assert.assertEquals(balanceBefore - balanceAfter, fee);
+//    Assert.assertEquals(fee, energyFee + netFee + multiSignFee);
+//  }
 
 
   /**

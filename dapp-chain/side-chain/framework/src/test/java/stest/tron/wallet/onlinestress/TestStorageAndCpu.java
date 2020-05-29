@@ -16,7 +16,7 @@ import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.WalletGrpc;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Block;
-import org.tron.protos.Protocol.ChainParameters;
+import org.tron.protos.Protocol.SideChainParameters;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
@@ -106,9 +106,9 @@ public class TestStorageAndCpu {
     SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     String txid;
 
-    ChainParameters chainParameters = blockingStubFull
-        .getChainParameters(EmptyMessage.newBuilder().build());
-    Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
+    SideChainParameters sideChainParameters = blockingStubFull
+        .getSideChainParameters(EmptyMessage.newBuilder().build());
+    Optional<SideChainParameters> getChainParameters = Optional.ofNullable(sideChainParameters);
 
     Integer i = 1;
     while (i++ < 8000) {
@@ -131,13 +131,13 @@ public class TestStorageAndCpu {
         e.printStackTrace();
       }
       if (i % 10 == 0) {
-        chainParameters = blockingStubFull
-            .getChainParameters(EmptyMessage.newBuilder().build());
-        getChainParameters = Optional.ofNullable(chainParameters);
+        sideChainParameters = blockingStubFull
+            .getSideChainParameters(EmptyMessage.newBuilder().build());
+        getChainParameters = Optional.ofNullable(sideChainParameters);
         logger.info(getChainParameters.get().getChainParameter(22).getKey());
-        logger.info(Long.toString(getChainParameters.get().getChainParameter(22).getValue()));
+        logger.info(getChainParameters.get().getChainParameter(22).getValue());
         logger.info(getChainParameters.get().getChainParameter(23).getKey());
-        logger.info(Long.toString(getChainParameters.get().getChainParameter(23).getValue()));
+        logger.info(getChainParameters.get().getChainParameter(23).getValue());
 
       }
     }

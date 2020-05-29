@@ -89,14 +89,14 @@ contract isTestCtr {
 
     // deploy contract
     Transaction trx = TvmTestUtils.generateDeploySmartContractAndGetTransaction(
-        contractName, address, ABI, factoryCode, value, fee, consumeUserResourcePercent, null);
+        contractName, address, ABI, factoryCode, value, fee, consumeUserResourcePercent, null, 1);
     byte[] factoryAddress = WalletUtil.generateContractAddress(trx);
     String factoryAddressStr = WalletUtil.encode58Check(factoryAddress);
     runtime = TvmTestUtils.processTransactionAndReturnRuntime(trx, rootDeposit, null);
     Assert.assertNull(runtime.getRuntimeError());
 
     trx = TvmTestUtils.generateDeploySmartContractAndGetTransaction(
-        "", address, ABI, factoryCode, value, fee, consumeUserResourcePercent, null);
+        "", address, ABI, factoryCode, value, fee, consumeUserResourcePercent, null, 1);
     byte[] factoryAddressOther = WalletUtil.generateContractAddress(trx);
     String factoryAddressStrOther = WalletUtil.encode58Check(factoryAddressOther);
     runtime = TvmTestUtils.processTransactionAndReturnRuntime(trx, rootDeposit, null);

@@ -31,6 +31,7 @@ import org.tron.core.vm.VM;
 import org.tron.core.vm.program.Program;
 import org.tron.core.vm.program.invoke.ProgramInvokeMockImpl;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.core.vm.config.VMConfig;
 
 @Slf4j
 public class InterpreterTest {
@@ -41,6 +42,7 @@ public class InterpreterTest {
   @BeforeClass
   public static void init() {
     DBConfig.setDebug(true);
+    VMConfig.setVmResourceChargingOn(true);
   }
 
   @AfterClass

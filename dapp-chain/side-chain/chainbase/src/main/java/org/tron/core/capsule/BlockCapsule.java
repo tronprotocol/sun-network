@@ -166,13 +166,9 @@ public class BlockCapsule implements ProtoCapsule<Block> {
       byte[] witnessAccountAddress = block.getBlockHeader().getRawData().getWitnessAddress()
           .toByteArray();
 
-      if (dynamicPropertiesStore.getAllowMultiSign() != 1) {
-        return Arrays.equals(sigAddress, witnessAccountAddress);
-      } else {
-        byte[] witnessPermissionAddress = accountStore.get(witnessAccountAddress)
-            .getWitnessPermissionAddress();
-        return Arrays.equals(sigAddress, witnessPermissionAddress);
-      }
+      byte[] witnessPermissionAddress = accountStore.get(witnessAccountAddress)
+          .getWitnessPermissionAddress();
+      return Arrays.equals(sigAddress, witnessPermissionAddress);
 
     } catch (SignatureException e) {
       throw new ValidateSignatureException(e.getMessage());

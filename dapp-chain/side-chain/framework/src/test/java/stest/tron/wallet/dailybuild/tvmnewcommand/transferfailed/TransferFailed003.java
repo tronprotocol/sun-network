@@ -101,10 +101,10 @@ public class TransferFailed003 {
     long end = System.currentTimeMillis() + 1000000000;
 
     //Create a new AssetIssue success.
-    Assert
-        .assertTrue(PublicMethed.createAssetIssue(contractExcAddress, tokenName, TotalSupply, 1,
-            10000, start, end, 1, description, url, 100000L,
-            100000L, 1L, 1L, contractExcKey, blockingStubFull));
+//    Assert
+//        .assertTrue(PublicMethed.createAssetIssue(contractExcAddress, tokenName, TotalSupply, 1,
+//            10000, start, end, 1, description, url, 100000L,
+//            100000L, 1L, 1L, contractExcKey, blockingStubFull));
 
     String filePath = "src/test/resources/soliditycode/TransferFailed001.sol";
     String contractName = "EnergyOfTransferFailedTest";

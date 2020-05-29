@@ -42,8 +42,8 @@ public class Constant {
   public static final int ONE_THOUSAND = 1000;
 
   public static final byte[] ZTRON_EXPANDSEED_PERSONALIZATION = {'Z', 't', 'r', 'o', 'n', '_', 'E',
-      'x',
-      'p', 'a', 'n', 'd', 'S', 'e', 'e', 'd'};
+          'x',
+          'p', 'a', 'n', 'd', 'S', 'e', 'e', 'd'};
   public static final int ZC_DIVERSIFIER_SIZE = 11;
   public static final int ZC_OUTPUT_DESC_MAX_SIZE = 10;
 
@@ -57,7 +57,6 @@ public class Constant {
   public static final int UNEXECUTEDDEFERREDTRANSACTION = 1;
   public static final int EXECUTINGDEFERREDTRANSACTION = 2;
 
-
   // Configuration items
   public static final String NET_TYPE = "net.type";
   public static final String TESTNET = "testnet";
@@ -65,6 +64,7 @@ public class Constant {
   public static final String LOCAL_WITNESS_ACCOUNT_ADDRESS = "localWitnessAccountAddress";
   public static final String LOCAL_WITNESS_KEYSTORE = "localwitnesskeystore";
   public static final String VM_SUPPORT_CONSTANT = "vm.supportConstant";
+  public static final String VM_UPDATEGATEWAY_V1_0_2 = "vm.updateGateway_v1_0_2";
   public static final String VM_MIN_TIME_RATIO = "vm.minTimeRatio";
   public static final String VM_MAX_TIME_RATIO = "vm.maxTimeRatio";
   public static final String VM_LONG_RUNNING_TIME = "vm.longRunningTime";

@@ -3,8 +3,11 @@ package org.tron.common.utils;
 import static org.tron.common.utils.DecodeUtil.addressPreFixByte;
 import static org.tron.common.utils.Hash.sha3omit12;
 import static org.tron.core.Constant.ADD_PRE_FIX_BYTE_MAINNET;
+import static org.tron.core.Constant.SUN_TOKEN_ID;
 
 import java.util.Arrays;
+import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -93,6 +96,60 @@ public class Commons {
     adjustBalance(accountStore, account, amount);
   }
 
+  public static void adjustBalance(AccountStore accountStore, byte[] accountAddress, long amount, int chargingType)
+          throws BalanceInsufficientException {
+    AccountCapsule account = accountStore.getUnchecked(accountAddress);
+
+    if (chargingType == 0) {
+      adjustBalance(accountStore, account, amount);
+    } else {
+      adjustSunTokenBalance(accountStore, account, amount);
+    }
+  }
+
+  public static void adjustBalance(AccountStore accountStore, AccountCapsule accountCapsule, long amount, int chargingType)
+          throws BalanceInsufficientException {
+    if (chargingType == 0) {
+      adjustBalance(accountStore, accountCapsule, amount);
+    } else {
+      adjustSunTokenBalance(accountStore, accountCapsule, amount);
+    }
+  }
+
+  /**
+   * judge balance.
+   */
+  public void adjustBalance(AccountCapsule account, AccountStore accountStore, long amount)
+          throws BalanceInsufficientException {
+
+    long balance = account.getBalance();
+    if (amount == 0) {
+      return;
+    }
+
+    if (amount < 0 && balance < -amount) {
+      throw new BalanceInsufficientException(
+              StringUtil.createReadableString(account.createDbKey()) + " insufficient balance");
+    }
+    account.setBalance(Math.addExact(balance, amount));
+    accountStore.put(account.getAddress().toByteArray(), account);
+  }
+
+  private static void adjustSunTokenBalance(AccountStore accountStore, AccountCapsule account, long amount) throws BalanceInsufficientException {
+
+    long sunTokenBalance = account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L);
+    if (amount == 0) {
+      return;
+    }
+
+    if (amount < 0 && sunTokenBalance < -amount) {
+      throw new BalanceInsufficientException(
+              createReadableString(account.createDbKey()) + " insufficient sun token balance");
+    }
+    account.addAssetAmountV2(SUN_TOKEN_ID.getBytes(), amount);
+    accountStore.put(account.getAddress().toByteArray(), account);
+  }
+
   public static String createReadableString(byte[] bytes) {
     return ByteArray.toHexString(bytes);
   }
@@ -119,34 +176,19 @@ public class Commons {
   public static ExchangeStore getExchangeStoreFinal(DynamicPropertiesStore dynamicPropertiesStore,
       ExchangeStore exchangeStore,
       ExchangeV2Store exchangeV2Store) {
-    if (dynamicPropertiesStore.getAllowSameTokenName() == 0) {
-      return exchangeStore;
-    } else {
       return exchangeV2Store;
-    }
   }
 
   public static void putExchangeCapsule(ExchangeCapsule exchangeCapsule,
       DynamicPropertiesStore dynamicPropertiesStore, ExchangeStore exchangeStore,
       ExchangeV2Store exchangeV2Store, AssetIssueStore assetIssueStore) {
-    if (dynamicPropertiesStore.getAllowSameTokenName() == 0) {
-      exchangeStore.put(exchangeCapsule.createDbKey(), exchangeCapsule);
-      ExchangeCapsule exchangeCapsuleV2 = new ExchangeCapsule(exchangeCapsule.getData());
-      exchangeCapsuleV2.resetTokenWithID(assetIssueStore, dynamicPropertiesStore);
-      exchangeV2Store.put(exchangeCapsuleV2.createDbKey(), exchangeCapsuleV2);
-    } else {
       exchangeV2Store.put(exchangeCapsule.createDbKey(), exchangeCapsule);
-    }
   }
 
   public static AssetIssueStore getAssetIssueStoreFinal(
       DynamicPropertiesStore dynamicPropertiesStore,
       AssetIssueStore assetIssueStore, AssetIssueV2Store assetIssueV2Store) {
-    if (dynamicPropertiesStore.getAllowSameTokenName() == 0) {
-      return assetIssueStore;
-    } else {
       return assetIssueV2Store;
-    }
   }
 
   public static void adjustAssetBalanceV2(AccountCapsule account, String AssetID, long amount,
@@ -154,13 +196,11 @@ public class Commons {
       DynamicPropertiesStore dynamicPropertiesStore)
       throws BalanceInsufficientException {
     if (amount < 0) {
-      if (!account.reduceAssetAmountV2(AssetID.getBytes(), -amount, dynamicPropertiesStore,
-          assetIssueStore)) {
+      if (!account.reduceAssetAmountV2(AssetID.getBytes(), -amount)) {
         throw new BalanceInsufficientException("reduceAssetAmount failed !");
       }
     } else if (amount > 0 &&
-        !account.addAssetAmountV2(AssetID.getBytes(), amount, dynamicPropertiesStore,
-            assetIssueStore)) {
+        !account.addAssetAmountV2(AssetID.getBytes(), amount)) {
       throw new BalanceInsufficientException("addAssetAmount failed !");
     }
     accountStore.put(account.getAddress().toByteArray(), account);
@@ -183,5 +223,31 @@ public class Commons {
     AccountCapsule account = accountStore.getUnchecked(accountAddress);
     adjustAssetBalanceV2(account, AssetID, amount, accountStore, assetIssueStore,
         dynamicPropertiesStore);
+  }
+
+  public static long adjustFund(DynamicPropertiesStore dynamicPropertiesStore, long num) {
+    long fund = dynamicPropertiesStore.getFund();
+    if (num == 0) {
+      return 0;
+    }
+
+    if (num < 0 && fund < -num) {//if |num| > fund, return all of fund
+      dynamicPropertiesStore.saveFund(0);
+      return fund * (-1);
+    }
+
+    dynamicPropertiesStore.saveFund(fund + num);
+    return num;
+  }
+
+  public static boolean isGatewayAddress(DynamicPropertiesStore dynamicPropertiesStore, byte[] ownerAddress) {
+    List<byte[]> gatewayList = dynamicPropertiesStore.getSideChainGateWayList();
+
+    for (byte[] gateway: gatewayList) {
+      if (ByteUtil.equals(gateway, ownerAddress)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

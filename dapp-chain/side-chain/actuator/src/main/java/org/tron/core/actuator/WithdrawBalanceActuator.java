@@ -1,5 +1,6 @@
 package org.tron.core.actuator;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
 import static org.tron.core.actuator.ActuatorConstant.ACCOUNT_EXCEPTION_STR;
 
 import com.google.common.math.LongMath;
@@ -54,12 +55,19 @@ public class WithdrawBalanceActuator extends AbstractActuator {
 
     AccountCapsule accountCapsule = accountStore.
         get(withdrawBalanceContract.getOwnerAddress().toByteArray());
+    int chargingType = chainBaseManager.getDynamicPropertiesStore().getSideChainChargingType();
     long oldBalance = accountCapsule.getBalance();
     long allowance = accountCapsule.getAllowance();
 
     long now = dynamicStore.getLatestBlockHeaderTimestamp();
+
+    accountCapsule.getInstance().toBuilder();
+    if (chargingType == 0) {
+      accountCapsule.setBalance(oldBalance + allowance);
+    } else {
+      accountCapsule.addAssetAmountV2(SUN_TOKEN_ID.getBytes(), allowance);
+    }
     accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
-        .setBalance(oldBalance + allowance)
         .setAllowance(0L)
         .setLatestWithdrawTime(now)
         .build());
@@ -106,14 +114,18 @@ public class WithdrawBalanceActuator extends AbstractActuator {
     }
 
     String readableOwnerAddress = StringUtil.createReadableString(ownerAddress);
-
-    boolean isGP = DBConfig.getGenesisBlock().getWitnesses().stream().anyMatch(witness ->
+    if (!chainBaseManager.getWitnessStore().has(ownerAddress)) {
+      throw new ContractValidateException(
+              ACCOUNT_EXCEPTION_STR + readableOwnerAddress + "] is not a witnessAccount");
+    }
+    //  allow withdraw allowance for GR on side-chain
+/*    boolean isGP = DBConfig.getGenesisBlock().getWitnesses().stream().anyMatch(witness ->
         Arrays.equals(ownerAddress, witness.getAddress()));
     if (isGP) {
       throw new ContractValidateException(
           ACCOUNT_EXCEPTION_STR + readableOwnerAddress
               + "] is a guard representative and is not allowed to withdraw Balance");
-    }
+    }*/
 
     long latestWithdrawTime = accountCapsule.getLatestWithdrawTime();
     long now = dynamicStore.getLatestBlockHeaderTimestamp();
@@ -124,12 +136,16 @@ public class WithdrawBalanceActuator extends AbstractActuator {
           + latestWithdrawTime + ", less than 24 hours");
     }
 
-    if (accountCapsule.getAllowance() <= 0 &&
+    /*if (accountCapsule.getAllowance() <= 0 &&
         delegationService.queryReward(ownerAddress) <= 0) {
       throw new ContractValidateException("witnessAccount does not have any reward");
+    }*/
+    if (accountCapsule.getAllowance() <= 0 && delegationService.queryReward(ownerAddress) <= 0) {
+      throw new ContractValidateException("witnessAccount does not have any allowance");
     }
     try {
-      LongMath.checkedAdd(accountCapsule.getBalance(), accountCapsule.getAllowance());
+      long balance = accountCapsule.getBalanceByChargeType(chainBaseManager);
+      LongMath.checkedAdd(balance, accountCapsule.getAllowance());
     } catch (ArithmeticException e) {
       logger.debug(e.getMessage(), e);
       throw new ContractValidateException(e.getMessage());

@@ -32,6 +32,8 @@ import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.protos.Protocol.Transaction.Result.code;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
+
 @Slf4j(topic = "actuator")
 public class UnfreezeBalanceActuator extends AbstractActuator {
 
@@ -64,11 +66,18 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
     }
     byte[] ownerAddress = unfreezeBalanceContract.getOwnerAddress().toByteArray();
 
-    //
-    delegationService.withdrawReward(ownerAddress);
+    AccountCapsule accountCapsule = chainBaseManager.getAccountStore().get(ownerAddress);
+    int chargingType = chainBaseManager.getDynamicPropertiesStore().getSideChainChargingType();
+    long oldBalance;
+    if (chargingType == 1) {
+      oldBalance = accountCapsule.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L);
+    }
+    else {
+      oldBalance = accountCapsule.getBalance();
+    }
 
-    AccountCapsule accountCapsule = accountStore.get(ownerAddress);
-    long oldBalance = accountCapsule.getBalance();
+    //
+    delegationService.withdrawReward(ownerAddress);//3.7
 
     long unfreezeBalance = 0L;
 
@@ -99,8 +108,7 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
       }
 
       AccountCapsule receiverCapsule = accountStore.get(receiverAddress);
-      if (dynamicStore.getAllowTvmConstantinople() == 0 ||
-          (receiverCapsule != null && receiverCapsule.getType() != AccountType.Contract)) {
+      if (receiverCapsule != null && receiverCapsule.getType() != AccountType.Contract) {
         switch (unfreezeBalanceContract.getResource()) {
           case BANDWIDTH:
             if (dynamicStore.getAllowTvmSolidity059() == 1
@@ -126,7 +134,12 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
         accountStore.put(receiverCapsule.createDbKey(), receiverCapsule);
       }
 
-      accountCapsule.setBalance(oldBalance + unfreezeBalance);
+      if (chargingType == 1) {
+        accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(), oldBalance + unfreezeBalance);
+      }
+      else {
+        accountCapsule.setBalance(oldBalance + unfreezeBalance);
+      }
 
       if (delegatedResourceCapsule.getFrozenBalanceForBandwidth() == 0
           && delegatedResourceCapsule.getFrozenBalanceForEnergy() == 0) {
@@ -178,9 +191,16 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
             }
           }
 
-          accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
-              .setBalance(oldBalance + unfreezeBalance)
-              .clearFrozen().addAllFrozen(frozenList).build());
+          if (chargingType == 1) {
+            accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
+                    .clearFrozen().addAllFrozen(frozenList).build());
+            accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(), oldBalance + unfreezeBalance);
+          }
+          else {
+            accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
+                    .setBalance(oldBalance + unfreezeBalance)
+                    .clearFrozen().addAllFrozen(frozenList).build());
+          }
 
           break;
         case ENERGY:
@@ -192,6 +212,18 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
           accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
               .setBalance(oldBalance + unfreezeBalance)
               .setAccountResource(newAccountResource).build());
+
+          if (chargingType == 1) {
+            accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
+//              .setBalance(oldBalance + unfreezeBalance)
+                    .setAccountResource(newAccountResource).build());
+            accountCapsule.setAssetAmountV2(SUN_TOKEN_ID.getBytes(), oldBalance + unfreezeBalance);
+          }
+          else {
+            accountCapsule.setInstance(accountCapsule.getInstance().toBuilder()
+                    .setBalance(oldBalance + unfreezeBalance)
+                    .setAccountResource(newAccountResource).build());
+          }
 
           break;
         default:
@@ -284,8 +316,7 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
       }
 
       AccountCapsule receiverCapsule = accountStore.get(receiverAddress);
-      if (dynamicStore.getAllowTvmConstantinople() == 0
-          && receiverCapsule == null) {
+      if (receiverCapsule == null) {
         String readableReceiverAddress = StringUtil.createReadableString(receiverAddress);
         throw new ContractValidateException(
             "Receiver Account[" + readableReceiverAddress + "] does not exist");
@@ -307,27 +338,16 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
             throw new ContractValidateException("no delegatedFrozenBalance(BANDWIDTH)");
           }
 
-          if (dynamicStore.getAllowTvmConstantinople() == 0) {
-            if (receiverCapsule.getAcquiredDelegatedFrozenBalanceForBandwidth()
-                < delegatedResourceCapsule.getFrozenBalanceForBandwidth()) {
-              throw new ContractValidateException(
-                  "AcquiredDelegatedFrozenBalanceForBandwidth[" + receiverCapsule
-                      .getAcquiredDelegatedFrozenBalanceForBandwidth() + "] < delegatedBandwidth["
-                      + delegatedResourceCapsule.getFrozenBalanceForBandwidth()
-                      + "]");
-            }
-          } else {
-            if (dynamicStore.getAllowTvmSolidity059() != 1
+          if (dynamicStore.getAllowTvmSolidity059() != 1
                 && receiverCapsule != null
                 && receiverCapsule.getType() != AccountType.Contract
                 && receiverCapsule.getAcquiredDelegatedFrozenBalanceForBandwidth()
                 < delegatedResourceCapsule.getFrozenBalanceForBandwidth()) {
-              throw new ContractValidateException(
+          throw new ContractValidateException(
                   "AcquiredDelegatedFrozenBalanceForBandwidth[" + receiverCapsule
-                      .getAcquiredDelegatedFrozenBalanceForBandwidth() + "] < delegatedBandwidth["
-                      + delegatedResourceCapsule.getFrozenBalanceForBandwidth()
-                      + "]");
-            }
+                          .getAcquiredDelegatedFrozenBalanceForBandwidth() + "] < delegatedBandwidth["
+                          + delegatedResourceCapsule.getFrozenBalanceForBandwidth()
+                          + "]");
           }
 
           if (delegatedResourceCapsule.getExpireTimeForBandwidth() > now) {
@@ -338,27 +358,16 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
           if (delegatedResourceCapsule.getFrozenBalanceForEnergy() <= 0) {
             throw new ContractValidateException("no delegateFrozenBalance(Energy)");
           }
-          if (dynamicStore.getAllowTvmConstantinople() == 0) {
-            if (receiverCapsule.getAcquiredDelegatedFrozenBalanceForEnergy()
-                < delegatedResourceCapsule.getFrozenBalanceForEnergy()) {
-              throw new ContractValidateException(
-                  "AcquiredDelegatedFrozenBalanceForEnergy[" + receiverCapsule
-                      .getAcquiredDelegatedFrozenBalanceForEnergy() + "] < delegatedEnergy["
-                      + delegatedResourceCapsule.getFrozenBalanceForEnergy() +
-                      "]");
-            }
-          } else {
-            if (dynamicStore.getAllowTvmSolidity059() != 1
-                && receiverCapsule != null
-                && receiverCapsule.getType() != AccountType.Contract
-                && receiverCapsule.getAcquiredDelegatedFrozenBalanceForEnergy()
-                < delegatedResourceCapsule.getFrozenBalanceForEnergy()) {
-              throw new ContractValidateException(
-                  "AcquiredDelegatedFrozenBalanceForEnergy[" + receiverCapsule
-                      .getAcquiredDelegatedFrozenBalanceForEnergy() + "] < delegatedEnergy["
-                      + delegatedResourceCapsule.getFrozenBalanceForEnergy() +
-                      "]");
-            }
+          if (dynamicStore.getAllowTvmSolidity059() != 1
+              && receiverCapsule != null
+              && receiverCapsule.getType() != AccountType.Contract
+              && receiverCapsule.getAcquiredDelegatedFrozenBalanceForEnergy()
+              < delegatedResourceCapsule.getFrozenBalanceForEnergy()) {
+            throw new ContractValidateException(
+                "AcquiredDelegatedFrozenBalanceForEnergy[" + receiverCapsule
+                    .getAcquiredDelegatedFrozenBalanceForEnergy() + "] < delegatedEnergy["
+                    + delegatedResourceCapsule.getFrozenBalanceForEnergy() +
+                    "]");
           }
 
           if (delegatedResourceCapsule.getExpireTimeForEnergy(dynamicStore) > now) {

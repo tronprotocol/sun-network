@@ -15,6 +15,7 @@ import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.WitnessCapsule;
 import org.tron.core.config.DefaultConfig;
 import org.tron.core.config.args.Args;
+import org.tron.core.consensus.ConsensusService;
 import org.tron.core.db.Manager;
 import org.tron.protos.Protocol.AccountType;
 
@@ -26,6 +27,7 @@ public class AccountVoteWitnessTest {
   private static Manager dbManager;
   private static MaintenanceManager maintenanceManager;
   private static String dbPath = "output_witness_test";
+  private static ConsensusService consensusService;
 
   static {
     Args.setParam(new String[]{"-d", dbPath}, Constant.TEST_CONF);
@@ -39,6 +41,8 @@ public class AccountVoteWitnessTest {
   public static void init() {
     dbManager = context.getBean(Manager.class);
     maintenanceManager = context.getBean(MaintenanceManager.class);
+    consensusService = context.getBean(ConsensusService.class);
+    consensusService.start();
     // Args.setParam(new String[]{}, Constant.TEST_CONF);
     //  dbManager = new Manager();
     //  dbManager.init();

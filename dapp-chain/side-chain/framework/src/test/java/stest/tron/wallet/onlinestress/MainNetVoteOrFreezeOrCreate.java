@@ -197,9 +197,9 @@ public class MainNetVoteOrFreezeOrCreate {
         totalSupply = System.currentTimeMillis();
         start = System.currentTimeMillis() + 2000;
         end = System.currentTimeMillis() + 1000000000;
-        ret = PublicMethed.createAssetIssue(accountAddress, name, totalSupply, 1, 1, start, end,
-            1, description, url, 3000L, 3000L, 1L, 1L,
-            testKeyAccount, blockingStubFull);
+//        ret = PublicMethed.createAssetIssue(accountAddress, name, totalSupply, 1, 1, start, end,
+//            1, description, url, 3000L, 3000L, 1L, 1L,
+//            testKeyAccount, blockingStubFull);
         logger.info("createAssetIssue");
       }
       ret = false;

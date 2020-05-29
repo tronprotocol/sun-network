@@ -82,9 +82,9 @@ public class WalletTestZenToken001 {
       Long totalSupply = 15000000000000001L;
       String description = "This asset issue is use for exchange transaction stress";
       String url = "This asset issue is use for exchange transaction stress";
-      PublicMethed.createAssetIssue(foundationZenTokenAddress, name, totalSupply, 1, 1,
-          start, end, 1, description, url, 1000L, 1000L,
-          1L, 1L, foundationZenTokenKey, blockingStubFull);
+//      PublicMethed.createAssetIssue(foundationZenTokenAddress, name, totalSupply, 1, 1,
+//          start, end, 1, description, url, 1000L, 1000L,
+//          1L, 1L, foundationZenTokenKey, blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       Account getAssetIdFromThisAccount =
           PublicMethed.queryAccount(foundationZenTokenAddress, blockingStubFull);

@@ -30,11 +30,15 @@ public class ProposalUtil {
       throws ContractValidateException {
     ProposalType proposalType = ProposalType.getEnum(code);
     long value = validateStringContent(proposalType, content);
+
+    Integer witnessMaxActiveNum = manager.getDynamicPropertiesStore()
+            .getWitnessMaxActiveNum();
     switch (proposalType) {
       case MAINTENANCE_TIME_INTERVAL: {
-        if (value < 3 * 27 * 1000 || value > 24 * 3600 * 1000) {
+        if (value < 3 * witnessMaxActiveNum * 1000
+                || value > 24 * 3600 * 1000) {
           throw new ContractValidateException(
-              "Bad chain parameter value, valid range is [3 * 27 * 1000,24 * 3600 * 1000]");
+              "Bad chain parameter value, valid range is [3 * " + witnessMaxActiveNum + " * 1000,24 * 3600 * 1000]");
         }
         return;
       }
@@ -51,13 +55,13 @@ public class ProposalUtil {
         }
         break;
       }
-      case ALLOW_CREATION_OF_CONTRACTS: {
-        if (value != 1) {
-          throw new ContractValidateException(
-              "This value[ALLOW_CREATION_OF_CONTRACTS] is only allowed to be 1");
-        }
-        break;
-      }
+//      case ALLOW_CREATION_OF_CONTRACTS: {
+//        if (value != 1) {
+//          throw new ContractValidateException(
+//              "This value[ALLOW_CREATION_OF_CONTRACTS] is only allowed to be 1");
+//        }
+//        break;
+//      }
       case REMOVE_THE_POWER_OF_THE_GR: {
         if (manager.getDynamicPropertiesStore().getRemoveThePowerOfTheGr() == -1) {
           throw new ContractValidateException(
@@ -70,6 +74,11 @@ public class ProposalUtil {
         break;
       }
       case ENERGY_FEE:
+        if (value <= 0) {
+          throw new ContractValidateException(
+              "Bad chain parameter value,valid range is greater than 0");
+        }
+        break;
       case EXCHANGE_CREATE_FEE:
         break;
       case MAX_CPU_TIME_OF_ONE_TX:
@@ -85,66 +94,54 @@ public class ProposalUtil {
         }
         break;
       }
-      case ALLOW_SAME_TOKEN_NAME: {
-        if (value != 1) {
-          throw new ContractValidateException(
-              "This value[ALLOW_SAME_TOKEN_NAME] is only allowed to be 1");
-        }
-        break;
-      }
-      case ALLOW_DELEGATE_RESOURCE: {
-        if (value != 1) {
-          throw new ContractValidateException(
-              "This value[ALLOW_DELEGATE_RESOURCE] is only allowed to be 1");
-        }
-        break;
-      }
-      case TOTAL_ENERGY_LIMIT: { // deprecated
-        if (!forkUtils.pass(ForkBlockVersionConsts.ENERGY_LIMIT)) {
-          throw new ContractValidateException(BAD_PARAM_ID);
-        }
-        if (forkUtils.pass(ForkBlockVersionEnum.VERSION_3_2_2)) {
-          throw new ContractValidateException(BAD_PARAM_ID);
-        }
+//      case ALLOW_SAME_TOKEN_NAME: {
+//        if (value != 1) {
+//          throw new ContractValidateException(
+//              "This value[ALLOW_SAME_TOKEN_NAME] is only allowed to be 1");
+//        }
+//        break;
+//      }
+//      case ALLOW_DELEGATE_RESOURCE: {
+//        if (value != 1) {
+//          throw new ContractValidateException(
+//              "This value[ALLOW_DELEGATE_RESOURCE] is only allowed to be 1");
+//        }
+//        break;
+//      }
+      case TOTAL_ENERGY_LIMIT: {
         if (value < 0 || value > LONG_VALUE) {
           throw new ContractValidateException(LONG_VALUE_ERROR);
         }
         break;
       }
-      case ALLOW_TVM_TRANSFER_TRC10: {
-        if (value != 1) {
-          throw new ContractValidateException(
-              "This value[ALLOW_TVM_TRANSFER_TRC10] is only allowed to be 1");
-        }
-        if (manager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-          throw new ContractValidateException("[ALLOW_SAME_TOKEN_NAME] proposal must be approved "
-              + "before [ALLOW_TVM_TRANSFER_TRC10] can be proposed");
-        }
-        break;
-      }
+//      case ALLOW_TVM_TRANSFER_TRC10: {
+//        if (value != 1) {
+//          throw new ContractValidateException(
+//              "This value[ALLOW_TVM_TRANSFER_TRC10] is only allowed to be 1");
+//        }
+//        if (manager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
+//          throw new ContractValidateException("[ALLOW_SAME_TOKEN_NAME] proposal must be approved "
+//              + "before [ALLOW_TVM_TRANSFER_TRC10] can be proposed");
+//        }
+//        break;
+//      }
       case TOTAL_CURRENT_ENERGY_LIMIT: {
-        if (!forkUtils.pass(ForkBlockVersionEnum.VERSION_3_2_2)) {
-          throw new ContractValidateException(BAD_PARAM_ID);
-        }
         if (value < 0 || value > LONG_VALUE) {
           throw new ContractValidateException(LONG_VALUE_ERROR);
         }
         break;
       }
-      case ALLOW_MULTI_SIGN: {
-        if (!forkUtils.pass(ForkBlockVersionEnum.VERSION_3_5)) {
-          throw new ContractValidateException("Bad chain parameter id: ALLOW_MULTI_SIGN");
-        }
-        if (value != 1) {
-          throw new ContractValidateException(
-              "This value[ALLOW_MULTI_SIGN] is only allowed to be 1");
-        }
-        break;
-      }
+//      case ALLOW_MULTI_SIGN: {
+//        if (!forkUtils.pass(ForkBlockVersionEnum.VERSION_3_5)) {
+//          throw new ContractValidateException("Bad chain parameter id: ALLOW_MULTI_SIGN");
+//        }
+//        if (value != 1) {
+//          throw new ContractValidateException(
+//              "This value[ALLOW_MULTI_SIGN] is only allowed to be 1");
+//        }
+//        break;
+//      }
       case ALLOW_ADAPTIVE_ENERGY: {
-        if (!forkUtils.pass(ForkBlockVersionEnum.VERSION_3_5)) {
-          throw new ContractValidateException("Bad chain parameter id: ALLOW_ADAPTIVE_ENERGY");
-        }
         if (value != 1) {
           throw new ContractValidateException(
               "This value[ALLOW_ADAPTIVE_ENERGY] is only allowed to be 1");
@@ -152,10 +149,6 @@ public class ProposalUtil {
         break;
       }
       case UPDATE_ACCOUNT_PERMISSION_FEE: {
-        if (!forkUtils.pass(ForkBlockVersionEnum.VERSION_3_5)) {
-          throw new ContractValidateException(
-              "Bad chain parameter id: UPDATE_ACCOUNT_PERMISSION_FEE");
-        }
         if (value < 0 || value > 100_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value, valid range is [0,100_000_000_000L]");
@@ -163,9 +156,6 @@ public class ProposalUtil {
         break;
       }
       case MULTI_SIGN_FEE: {
-        if (!forkUtils.pass(ForkBlockVersionEnum.VERSION_3_5)) {
-          throw new ContractValidateException("Bad chain parameter id: MULTI_SIGN_FEE");
-        }
         if (value < 0 || value > 100_000_000_000L) {
           throw new ContractValidateException(
               "Bad chain parameter value, valid range is [0,100_000_000_000L]");
@@ -173,9 +163,6 @@ public class ProposalUtil {
         break;
       }
       case ALLOW_PROTO_FILTER_NUM: {
-        if (!forkUtils.pass(ForkBlockVersionEnum.VERSION_3_6)) {
-          throw new ContractValidateException(BAD_PARAM_ID);
-        }
         if (value != 1 && value != 0) {
           throw new ContractValidateException(
               "This value[ALLOW_PROTO_FILTER_NUM] is only allowed to be 1 or 0");
@@ -183,30 +170,27 @@ public class ProposalUtil {
         break;
       }
       case ALLOW_ACCOUNT_STATE_ROOT: {
-        if (!forkUtils.pass(ForkBlockVersionEnum.VERSION_3_6)) {
-          throw new ContractValidateException(BAD_PARAM_ID);
-        }
         if (value != 1 && value != 0) {
           throw new ContractValidateException(
               "This value[ALLOW_ACCOUNT_STATE_ROOT] is only allowed to be 1 or 0");
         }
         break;
       }
-      case ALLOW_TVM_CONSTANTINOPLE: {
-        if (!forkUtils.pass(ForkBlockVersionEnum.VERSION_3_6)) {
-          throw new ContractValidateException(BAD_PARAM_ID);
-        }
-        if (value != 1) {
-          throw new ContractValidateException(
-              "This value[ALLOW_TVM_CONSTANTINOPLE] is only allowed to be 1");
-        }
-        if (manager.getDynamicPropertiesStore().getAllowTvmTransferTrc10() == 0) {
-          throw new ContractValidateException(
-              "[ALLOW_TVM_TRANSFER_TRC10] proposal must be approved "
-                  + "before [ALLOW_TVM_CONSTANTINOPLE] can be proposed");
-        }
-        break;
-      }
+//      case ALLOW_TVM_CONSTANTINOPLE: {
+//        if (!forkUtils.pass(ForkBlockVersionEnum.VERSION_3_6)) {
+//          throw new ContractValidateException(BAD_PARAM_ID);
+//        }
+//        if (value != 1) {
+//          throw new ContractValidateException(
+//              "This value[ALLOW_TVM_CONSTANTINOPLE] is only allowed to be 1");
+//        }
+//        if (manager.getDynamicPropertiesStore().getAllowTvmTransferTrc10() == 0) {
+//          throw new ContractValidateException(
+//              "[ALLOW_TVM_TRANSFER_TRC10] proposal must be approved "
+//                  + "before [ALLOW_TVM_CONSTANTINOPLE] can be proposed");
+//        }
+//        break;
+//      }
       case ALLOW_TVM_SOLIDITY_059: {
         if (!forkUtils.pass(ForkBlockVersionEnum.DAPP_CHAIN_1_5_0)) {
 
@@ -216,11 +200,11 @@ public class ProposalUtil {
           throw new ContractValidateException(
               "This value[ALLOW_TVM_SOLIDITY_059] is only allowed to be 1");
         }
-        if (manager.getDynamicPropertiesStore().getAllowCreationOfContracts() == 0) {
-          throw new ContractValidateException(
-              "[ALLOW_CREATION_OF_CONTRACTS] proposal must be approved "
-                  + "before [ALLOW_TVM_SOLIDITY_059] can be proposed");
-        }
+//        if (manager.getDynamicPropertiesStore().getAllowCreationOfContracts() == 0) {
+//          throw new ContractValidateException(
+//              "[ALLOW_CREATION_OF_CONTRACTS] proposal must be approved "
+//                  + "before [ALLOW_TVM_SOLIDITY_059] can be proposed");
+//        }
         break;
       }
       case ADAPTIVE_RESOURCE_LIMIT_TARGET_RATIO: {
@@ -306,11 +290,11 @@ public class ProposalUtil {
           throw new ContractValidateException(
               "This value[FORBID_TRANSFER_TO_CONTRACT] is only allowed to be 1");
         }
-        if (manager.getDynamicPropertiesStore().getAllowCreationOfContracts() == 0) {
-          throw new ContractValidateException(
-              "[ALLOW_CREATION_OF_CONTRACTS] proposal must be approved "
-                  + "before [FORBID_TRANSFER_TO_CONTRACT] can be proposed");
-        }
+//        if (manager.getDynamicPropertiesStore().getAllowCreationOfContracts() == 0) {
+//          throw new ContractValidateException(
+//              "[ALLOW_CREATION_OF_CONTRACTS] proposal must be approved "
+//                  + "before [FORBID_TRANSFER_TO_CONTRACT] can be proposed");
+//        }
         break;
       }
 
@@ -442,8 +426,8 @@ public class ProposalUtil {
         break;
       }
       case WITNESS_MAX_NUMBER: {
-        Integer witnessMaxActiveNum = manager.getDynamicPropertiesStore()
-            .getWitnessMaxActiveNum();
+//        Integer witnessMaxActiveNum = manager.getDynamicPropertiesStore()
+//            .getWitnessMaxActiveNum();
         if (!forkUtils.pass(ForkBlockVersionEnum.DAPP_CHAIN_1_0_2)) {
           throw new ContractValidateException("Bad chain parameter id [WITNESS_MAX_ACTIVE_NUM]");
         }
@@ -502,24 +486,24 @@ public class ProposalUtil {
     WITNESS_STANDBY_ALLOWANCE(6), //drop ,6
     CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT(7), //drop ,7
     CREATE_NEW_ACCOUNT_BANDWIDTH_RATE(8), // 1 ~ ,8
-    ALLOW_CREATION_OF_CONTRACTS(9), // 0 / >0 ,9
+    //ALLOW_CREATION_OF_CONTRACTS(9), // 0 / >0 ,9
     REMOVE_THE_POWER_OF_THE_GR(10),  // 1 ,10
     ENERGY_FEE(11), // drop, 11
     EXCHANGE_CREATE_FEE(12), // drop, 12
     MAX_CPU_TIME_OF_ONE_TX(13), // ms, 13
     ALLOW_UPDATE_ACCOUNT_NAME(14), // 1, 14
-    ALLOW_SAME_TOKEN_NAME(15), // 1, 15
-    ALLOW_DELEGATE_RESOURCE(16), // 0, 16
+    //ALLOW_SAME_TOKEN_NAME(15), // 1, 15
+    //ALLOW_DELEGATE_RESOURCE(16), // 0, 16
     TOTAL_ENERGY_LIMIT(17), // 50,000,000,000, 17
-    ALLOW_TVM_TRANSFER_TRC10(18), // 1, 18
+    //ALLOW_TVM_TRANSFER_TRC10(18), // 1, 18
     TOTAL_CURRENT_ENERGY_LIMIT(19), // 50,000,000,000, 19
-    ALLOW_MULTI_SIGN(20), // 1, 20
+    //ALLOW_MULTI_SIGN(20), // 1, 20
     ALLOW_ADAPTIVE_ENERGY(21), // 1, 21
     UPDATE_ACCOUNT_PERMISSION_FEE(22), // 100, 22
     MULTI_SIGN_FEE(23), // 1, 23
     ALLOW_PROTO_FILTER_NUM(24), // 1, 24
     ALLOW_ACCOUNT_STATE_ROOT(25), // 1, 25
-    ALLOW_TVM_CONSTANTINOPLE(26), // 1, 26
+    //ALLOW_TVM_CONSTANTINOPLE(26), // 1, 26
     //    ALLOW_SHIELDED_TRANSACTION(27), // 27
 //    SHIELDED_TRANSACTION_FEE(28), // 28
     ADAPTIVE_RESOURCE_LIMIT_MULTIPLIER(29), // 1000, 29
@@ -544,8 +528,8 @@ public class ProposalUtil {
     FUND_DISTRIBUTION_DAYS(1_000_009), // 1, 1_000_009
     WITNESS_REWARD_PERCENTAGE(1_000_010), // number, 1_000_010
     WITNESS_MAX_NUMBER(1_000_011), // number, 1_000_011
-    ALLOW_UPDATE_GATEWAY102(1_000_012), // 1 (hard fork), 1_000_012
-    ALLOW_UPDATE_SUN_NETWORK_150(1_000_013); // 1 (hard fork), 1_000_013
+    ALLOW_UPDATE_GATEWAY102(1_000_012); // 1 (hard fork), 1_000_012
+    //ALLOW_UPDATE_SUN_NETWORK_150(1_000_013); // 1 (hard fork), 1_000_013
 
     private long code;
 
@@ -568,7 +552,8 @@ public class ProposalUtil {
           return parameters;
         }
       }
-      throw new ContractValidateException("Does not support code : " + code);
+
+      throw new ContractValidateException("non-exist proposal number " + code);
     }
 
     public static ProposalType getEnumOrNull(long code) {
@@ -588,7 +573,6 @@ public class ProposalUtil {
       long value = 0;
       switch (proposalType) {
         case REMOVE_THE_POWER_OF_THE_GR:
-          break;
         case MAINTENANCE_TIME_INTERVAL:
         case ACCOUNT_UPGRADE_COST:
         case CREATE_ACCOUNT_FEE:
@@ -598,23 +582,23 @@ public class ProposalUtil {
         case WITNESS_STANDBY_ALLOWANCE:
         case CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT:
         case CREATE_NEW_ACCOUNT_BANDWIDTH_RATE:
-        case ALLOW_CREATION_OF_CONTRACTS:
+        //case ALLOW_CREATION_OF_CONTRACTS:
         case ENERGY_FEE:
         case EXCHANGE_CREATE_FEE:
         case MAX_CPU_TIME_OF_ONE_TX:
         case ALLOW_UPDATE_ACCOUNT_NAME:
-        case ALLOW_SAME_TOKEN_NAME:
-        case ALLOW_DELEGATE_RESOURCE:
+        //case ALLOW_SAME_TOKEN_NAME:
+        //case ALLOW_DELEGATE_RESOURCE:
         case TOTAL_ENERGY_LIMIT:
-        case ALLOW_TVM_TRANSFER_TRC10:
+        //case ALLOW_TVM_TRANSFER_TRC10:
         case TOTAL_CURRENT_ENERGY_LIMIT:
-        case ALLOW_MULTI_SIGN:
+        //case ALLOW_MULTI_SIGN:
         case ALLOW_ADAPTIVE_ENERGY:
         case UPDATE_ACCOUNT_PERMISSION_FEE:
         case MULTI_SIGN_FEE:
         case ALLOW_PROTO_FILTER_NUM:
         case ALLOW_ACCOUNT_STATE_ROOT:
-        case ALLOW_TVM_CONSTANTINOPLE:
+        //case ALLOW_TVM_CONSTANTINOPLE:
         case ALLOW_TVM_SOLIDITY_059:
         case ADAPTIVE_RESOURCE_LIMIT_TARGET_RATIO:
         case ADAPTIVE_RESOURCE_LIMIT_MULTIPLIER:
@@ -634,7 +618,7 @@ public class ProposalUtil {
         case WITNESS_REWARD_PERCENTAGE:
         case WITNESS_MAX_NUMBER:
         case ALLOW_UPDATE_GATEWAY102:
-        case ALLOW_UPDATE_SUN_NETWORK_150:
+        //case ALLOW_UPDATE_SUN_NETWORK_150:
           try {
             value = Long.valueOf(content);
           }

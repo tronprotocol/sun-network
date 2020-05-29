@@ -107,9 +107,9 @@ public class Create2Test021 {
     //Create 3 the same name token.
     Long start = System.currentTimeMillis() + 2000;
     Long end = System.currentTimeMillis() + 1000000000;
-    Assert.assertTrue(PublicMethed.createAssetIssue(resourceOnwerAddress,
-        name, totalSupply, 1, 1, start, end, 1, description, url,
-        2000L, 2000L, 1L, 1L, resourceOnwerKey, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.createAssetIssue(resourceOnwerAddress,
+//        name, totalSupply, 1, 1, start, end, 1, description, url,
+//        2000L, 2000L, 1L, 1L, resourceOnwerKey, blockingStubFull));
     String filePath = "src/test/resources/soliditycode/create2contractn.sol";
     String contractName = "Factory";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);

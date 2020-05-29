@@ -31,7 +31,7 @@ import org.tron.protos.contract.AccountContract.AccountCreateContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass;
 import org.tron.protos.contract.BalanceContract;
 import org.tron.protos.contract.SmartContractOuterClass;
-import org.tron.protos.contract.VoteAssetContractOuterClass;
+// import org.tron.protos.contract.VoteAssetContractOuterClass;
 import org.tron.protos.contract.WitnessContract;
 
 //import org.tron.protos.Protocol.DeferredStage;
@@ -76,11 +76,11 @@ public class TransactionUtils {
           owner = contract.getParameter()
               .unpack(AssetIssueContractOuterClass.TransferAssetContract.class).getOwnerAddress();
           break;
-        case VoteAssetContract:
-          owner = contract.getParameter()
-              .unpack(VoteAssetContractOuterClass.VoteAssetContract.class)
-              .getOwnerAddress();
-          break;
+        // case VoteAssetContract:
+        //   owner = contract.getParameter()
+        //       .unpack(VoteAssetContractOuterClass.VoteAssetContract.class)
+        //       .getOwnerAddress();
+        //   break;
         case VoteWitnessContract:
           owner = contract.getParameter().unpack(WitnessContract.VoteWitnessContract.class)
               .getOwnerAddress();
@@ -89,16 +89,16 @@ public class TransactionUtils {
           owner = contract.getParameter()
               .unpack(WitnessContract.WitnessCreateContract.class).getOwnerAddress();
           break;
-        case AssetIssueContract:
-          owner = contract.getParameter()
-              .unpack(AssetIssueContractOuterClass.AssetIssueContract.class)
-              .getOwnerAddress();
-          break;
-        case ParticipateAssetIssueContract:
-          owner = contract.getParameter()
-              .unpack(AssetIssueContractOuterClass.ParticipateAssetIssueContract.class)
-              .getOwnerAddress();
-          break;
+        // case AssetIssueContract:
+        //   owner = contract.getParameter()
+        //       .unpack(AssetIssueContractOuterClass.AssetIssueContract.class)
+        //       .getOwnerAddress();
+        //   break;
+        // case ParticipateAssetIssueContract:
+        //   owner = contract.getParameter()
+        //       .unpack(AssetIssueContractOuterClass.ParticipateAssetIssueContract.class)
+        //       .getOwnerAddress();
+        //   break;
         case CreateSmartContract:
           owner = contract.getParameter().unpack(SmartContractOuterClass.CreateSmartContract.class)
               .getOwnerAddress();
@@ -163,6 +163,30 @@ public class TransactionUtils {
       }
     }
     return true;
+  }
+
+  /**
+   * constructor.
+   */
+  public static Transaction sign(Transaction transaction, ECKey myKey, byte[] chainId,
+                                 boolean isMainChain) {
+    Transaction.Builder transactionBuilderSigned = transaction.toBuilder();
+    byte[] hash = Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray());
+
+    byte[] newHash;
+    if (isMainChain) {
+      newHash = hash;
+    } else {
+      byte[] hashWithChainId = Arrays.copyOf(hash, hash.length + chainId.length);
+      System.arraycopy(chainId, 0, hashWithChainId, hash.length, chainId.length);
+      newHash = Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), hashWithChainId);
+    }
+
+    ECDSASignature signature = myKey.sign(newHash);
+    ByteString bsSign = ByteString.copyFrom(signature.toByteArray());
+    transactionBuilderSigned.addSignature(bsSign);
+    transaction = transactionBuilderSigned.build();
+    return transaction;
   }
 
   /**

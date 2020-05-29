@@ -30,7 +30,7 @@ public class DisconnectMessageTest extends com.google.protobuf.GeneratedMessageV
   private byte memoizedIsInitialized = -1;
   // Use DisconnectMessage.newBuilder() to construct.
 
-  private DisconnectMessageTest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+  private DisconnectMessageTest(Builder<?> builder) {
     super(builder);
   }
 
@@ -45,7 +45,7 @@ public class DisconnectMessageTest extends com.google.protobuf.GeneratedMessageV
       throws com.google.protobuf.InvalidProtocolBufferException {
     this();
     if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
+      throw new NullPointerException();
     }
     int mutable_bitField0_ = 0;
     com.google.protobuf.UnknownFieldSet.Builder unknownFields = com.google.protobuf.UnknownFieldSet
@@ -92,12 +92,12 @@ public class DisconnectMessageTest extends com.google.protobuf.GeneratedMessageV
     return PARSER;
   }
 
-  @java.lang.Override
+  @Override
   public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
     return this.unknownFields;
   }
 
-  protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+  protected FieldAccessorTable
   internalGetFieldAccessorTable() {
     return null;
   }
@@ -183,7 +183,7 @@ public class DisconnectMessageTest extends com.google.protobuf.GeneratedMessageV
     return null;
   }
 
-  @java.lang.Override
+  @Override
   public com.google.protobuf.Parser<DisconnectMessageTest> getParserForType() {
     return PARSER;
   }

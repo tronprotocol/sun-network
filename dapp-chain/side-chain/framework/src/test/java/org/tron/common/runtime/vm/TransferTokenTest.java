@@ -88,8 +88,8 @@ public class TransferTokenTest {
   }
 
   private long createAsset(String tokenName) {
-    dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
-    dbManager.getDynamicPropertiesStore().saveAllowTvmTransferTrc10(1);
+    // dbManager.getDynamicPropertiesStore().saveAllowSameTokenName(1);
+    // dbManager.getDynamicPropertiesStore().saveAllowTvmTransferTrc10(1);
     long id = dbManager.getDynamicPropertiesStore().getTokenIdNum() + 1;
     dbManager.getDynamicPropertiesStore().saveTokenIdNum(id);
     AssetIssueContract assetIssueContract =
@@ -168,8 +168,7 @@ public class TransferTokenTest {
     long id2 = createAsset("testToken2");
     // add token balance for last created contract
     AccountCapsule changeAccountCapsule = dbManager.getAccountStore().get(contractAddress);
-    changeAccountCapsule.addAssetAmountV2(String.valueOf(id2).getBytes(), 99,
-        dbManager.getDynamicPropertiesStore(), dbManager.getAssetIssueStore());
+    changeAccountCapsule.addAssetAmountV2(String.valueOf(id2).getBytes(), 99);
     dbManager.getAccountStore().put(contractAddress, changeAccountCapsule);
     String selectorStr2 = "suicide(address)";
     //TRANSFER_TO

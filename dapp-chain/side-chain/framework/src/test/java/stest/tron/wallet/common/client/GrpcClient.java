@@ -123,18 +123,18 @@ public class GrpcClient {
     return blockingStubFull.transferAsset(contract);
   }
 
-  public Transaction createParticipateAssetIssueTransaction(
-      AssetIssueContractOuterClass.ParticipateAssetIssueContract contract) {
-    return blockingStubFull.participateAssetIssue(contract);
-  }
+  // public Transaction createParticipateAssetIssueTransaction(
+  //     AssetIssueContractOuterClass.ParticipateAssetIssueContract contract) {
+  //   return blockingStubFull.participateAssetIssue(contract);
+  // }
 
   public Transaction createAccount(AccountCreateContract contract) {
     return blockingStubFull.createAccount(contract);
   }
 
-  public Transaction createAssetIssue(AssetIssueContract contract) {
-    return blockingStubFull.createAssetIssue(contract);
-  }
+  // public Transaction createAssetIssue(AssetIssueContract contract) {
+  //   return blockingStubFull.createAssetIssue(contract);
+  // }
 
   public Transaction voteWitnessAccount(WitnessContract.VoteWitnessContract contract) {
     return blockingStubFull.voteWitnessAccount(contract);

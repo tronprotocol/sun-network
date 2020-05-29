@@ -74,38 +74,38 @@ public class TransferAssetIssue {
    */
 
 
-  public static boolean participateAssetIssue(byte[] to, byte[] assertName, long amount,
-      byte[] from, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    final ECKey ecKey = temKey;
-
-    AssetIssueContractOuterClass.ParticipateAssetIssueContract.Builder builder =
-        AssetIssueContractOuterClass.ParticipateAssetIssueContract
-            .newBuilder();
-    ByteString bsTo = ByteString.copyFrom(to);
-    ByteString bsName = ByteString.copyFrom(assertName);
-    ByteString bsOwner = ByteString.copyFrom(from);
-    builder.setToAddress(bsTo);
-    builder.setAssetName(bsName);
-    builder.setOwnerAddress(bsOwner);
-    builder.setAmount(amount);
-    AssetIssueContractOuterClass.ParticipateAssetIssueContract contract = builder.build();
-    Protocol.Transaction transaction = blockingStubFull.participateAssetIssue(contract);
-    transaction = signTransaction(ecKey, transaction);
-    GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
-    if (response.getResult() == false) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+//  public static boolean participateAssetIssue(byte[] to, byte[] assertName, long amount,
+//      byte[] from, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+//    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+//    ECKey temKey = null;
+//    try {
+//      BigInteger priK = new BigInteger(priKey, 16);
+//      temKey = ECKey.fromPrivate(priK);
+//    } catch (Exception ex) {
+//      ex.printStackTrace();
+//    }
+//    final ECKey ecKey = temKey;
+//
+//    AssetIssueContractOuterClass.ParticipateAssetIssueContract.Builder builder =
+//        AssetIssueContractOuterClass.ParticipateAssetIssueContract
+//            .newBuilder();
+//    ByteString bsTo = ByteString.copyFrom(to);
+//    ByteString bsName = ByteString.copyFrom(assertName);
+//    ByteString bsOwner = ByteString.copyFrom(from);
+//    builder.setToAddress(bsTo);
+//    builder.setAssetName(bsName);
+//    builder.setOwnerAddress(bsOwner);
+//    builder.setAmount(amount);
+//    AssetIssueContractOuterClass.ParticipateAssetIssueContract contract = builder.build();
+//    Protocol.Transaction transaction = blockingStubFull.participateAssetIssue(contract);
+//    transaction = signTransaction(ecKey, transaction);
+//    GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
+//    if (response.getResult() == false) {
+//      return false;
+//    } else {
+//      return true;
+//    }
+//  }
 
   /**
    * constructor.
@@ -199,9 +199,9 @@ public class TransferAssetIssue {
     //Create an asset issue.
     Long start = System.currentTimeMillis() + 2000;
     Long end = System.currentTimeMillis() + 1000000000;
-    Assert.assertTrue(PublicMethed.createAssetIssue(createAddress, name, totalSupply, 1, 1,
-        start, end, 1, description, url, freeAssetNetLimit, publicFreeAssetNetLimit,
-        10L, 10L, testKeyForCreate, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.createAssetIssue(createAddress, name, totalSupply, 1, 1,
+//        start, end, 1, description, url, freeAssetNetLimit, publicFreeAssetNetLimit,
+//        10L, 10L, testKeyForCreate, blockingStubFull));
     try {
       Thread.sleep(5000);
     } catch (InterruptedException e) {

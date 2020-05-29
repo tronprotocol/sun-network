@@ -248,13 +248,13 @@ public class WalletClient {
    * constructor.
    */
 
-  public static Transaction participateAssetIssueTransaction(byte[] to, byte[] assertName,
-      byte[] owner, long amount) {
-    AssetIssueContractOuterClass.ParticipateAssetIssueContract contract = participateAssetIssueContract(
-        to, assertName,
-        owner, amount);
-    return rpcCli.createParticipateAssetIssueTransaction(contract);
-  }
+  // public static Transaction participateAssetIssueTransaction(byte[] to, byte[] assertName,
+  //     byte[] owner, long amount) {
+  //   AssetIssueContractOuterClass.ParticipateAssetIssueContract contract = participateAssetIssueContract(
+  //       to, assertName,
+  //       owner, amount);
+  //   return rpcCli.createParticipateAssetIssueTransaction(contract);
+  // }
 
   /**
    * constructor.
@@ -294,9 +294,9 @@ public class WalletClient {
     return rpcCli.voteWitnessAccount(contract);
   }
 
-  public static Transaction createAssetIssueTransaction(AssetIssueContract contract) {
-    return rpcCli.createAssetIssue(contract);
-  }
+  // public static Transaction createAssetIssueTransaction(AssetIssueContract contract) {
+  //   return rpcCli.createAssetIssue(contract);
+  // }
 
   public static Block getGetBlock(long blockNum) {
     return rpcCli.getBlock(blockNum);
@@ -340,20 +340,20 @@ public class WalletClient {
    * constructor.
    */
 
-  public static AssetIssueContractOuterClass.ParticipateAssetIssueContract participateAssetIssueContract(
-      byte[] to, byte[] assertName, byte[] owner, long amount) {
-    AssetIssueContractOuterClass.ParticipateAssetIssueContract.Builder builder = AssetIssueContractOuterClass.ParticipateAssetIssueContract
-        .newBuilder();
-    ByteString bsTo = ByteString.copyFrom(to);
-    ByteString bsName = ByteString.copyFrom(assertName);
-    ByteString bsOwner = ByteString.copyFrom(owner);
-    builder.setToAddress(bsTo);
-    builder.setAssetName(bsName);
-    builder.setOwnerAddress(bsOwner);
-    builder.setAmount(amount);
-
-    return builder.build();
-  }
+  // public static AssetIssueContractOuterClass.ParticipateAssetIssueContract participateAssetIssueContract(
+  //     byte[] to, byte[] assertName, byte[] owner, long amount) {
+  //   AssetIssueContractOuterClass.ParticipateAssetIssueContract.Builder builder = AssetIssueContractOuterClass.ParticipateAssetIssueContract
+  //       .newBuilder();
+  //   ByteString bsTo = ByteString.copyFrom(to);
+  //   ByteString bsName = ByteString.copyFrom(assertName);
+  //   ByteString bsOwner = ByteString.copyFrom(owner);
+  //   builder.setToAddress(bsTo);
+  //   builder.setAssetName(bsName);
+  //   builder.setOwnerAddress(bsOwner);
+  //   builder.setAmount(amount);
+  //
+  //   return builder.build();
+  // }
 
   public static Transaction createTransaction4Transfer(TransferContract contract) {
     Transaction transaction = rpcCli.createTransaction(contract);
@@ -861,15 +861,15 @@ public class WalletClient {
    * constructor.
    */
 
-  public boolean participateAssetIssue(byte[] to, byte[] assertName, long amount) {
-    byte[] owner = getAddress();
-    Transaction transaction = participateAssetIssueTransaction(to, assertName, owner, amount);
-    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      return false;
-    }
-    transaction = signTransaction(transaction);
-    return rpcCli.broadcastTransaction(transaction);
-  }
+  // public boolean participateAssetIssue(byte[] to, byte[] assertName, long amount) {
+  //   byte[] owner = getAddress();
+  //   Transaction transaction = participateAssetIssueTransaction(to, assertName, owner, amount);
+  //   if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+  //     return false;
+  //   }
+  //   transaction = signTransaction(transaction);
+  //   return rpcCli.broadcastTransaction(transaction);
+  // }
 
   /*    public static Optional<Transaction> getTransactionById(String txID) {
         return rpcCli.getTransactionById(txID);
@@ -879,14 +879,14 @@ public class WalletClient {
    * constructor.
    */
 
-  public boolean createAssetIssue(AssetIssueContract contract) {
-    Transaction transaction = rpcCli.createAssetIssue(contract);
-    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      return false;
-    }
-    transaction = signTransaction(transaction);
-    return rpcCli.broadcastTransaction(transaction);
-  }
+  // public boolean createAssetIssue(AssetIssueContract contract) {
+  //   Transaction transaction = rpcCli.createAssetIssue(contract);
+  //   if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+  //     return false;
+  //   }
+  //   transaction = signTransaction(transaction);
+  //   return rpcCli.broadcastTransaction(transaction);
+  // }
 
   /**
    * constructor.

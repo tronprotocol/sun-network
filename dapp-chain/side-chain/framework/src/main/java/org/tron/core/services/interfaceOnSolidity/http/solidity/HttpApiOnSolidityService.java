@@ -70,10 +70,10 @@ public class HttpApiOnSolidityService implements Service {
   @Autowired
   private GetDelegatedResourceAccountIndexOnSolidityServlet
       getDelegatedResourceAccountIndexOnSolidityServlet;
-  @Autowired
-  private GetExchangeByIdOnSolidityServlet getExchangeByIdOnSolidityServlet;
-  @Autowired
-  private ListExchangesOnSolidityServlet listExchangesOnSolidityServlet;
+  // @Autowired
+  // private GetExchangeByIdOnSolidityServlet getExchangeByIdOnSolidityServlet;
+  // @Autowired
+  // private ListExchangesOnSolidityServlet listExchangesOnSolidityServlet;
   @Autowired
   private GetTransactionCountByBlockNumOnSolidityServlet
       getTransactionCountByBlockNumOnSolidityServlet;
@@ -150,10 +150,10 @@ public class HttpApiOnSolidityService implements Service {
           "/walletsolidity/getdelegatedresource");
       context.addServlet(new ServletHolder(getDelegatedResourceAccountIndexOnSolidityServlet),
           "/walletsolidity/getdelegatedresourceaccountindex");
-      context.addServlet(new ServletHolder(getExchangeByIdOnSolidityServlet),
-          "/walletsolidity/getexchangebyid");
-      context.addServlet(new ServletHolder(listExchangesOnSolidityServlet),
-          "/walletsolidity/listexchanges");
+      // context.addServlet(new ServletHolder(getExchangeByIdOnSolidityServlet),
+      //     "/walletsolidity/getexchangebyid");
+      // context.addServlet(new ServletHolder(listExchangesOnSolidityServlet),
+      //     "/walletsolidity/listexchanges");
       context.addServlet(new ServletHolder(getAccountByIdOnSolidityServlet),
           "/walletsolidity/getaccountbyid");
       context.addServlet(new ServletHolder(getBlockByIdOnSolidityServlet),

@@ -114,18 +114,12 @@ import org.tron.protos.contract.AccountContract.AccountPermissionUpdateContract;
 import org.tron.protos.contract.AccountContract.AccountUpdateContract;
 import org.tron.protos.contract.AccountContract.SetAccountIdContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.ParticipateAssetIssueContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.UnfreezeAssetContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.UpdateAssetContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.TransferContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.WithdrawBalanceContract;
-import org.tron.protos.contract.ExchangeContract.ExchangeCreateContract;
-import org.tron.protos.contract.ExchangeContract.ExchangeInjectContract;
-import org.tron.protos.contract.ExchangeContract.ExchangeTransactionContract;
-import org.tron.protos.contract.ExchangeContract.ExchangeWithdrawContract;
+import org.tron.protos.contract.IncentiveContract;
 import org.tron.protos.contract.ProposalContract.ProposalApproveContract;
 import org.tron.protos.contract.ProposalContract.ProposalDeleteContract;
 import org.tron.protos.contract.ProposalContract.SideChainProposalCreateContract;
@@ -540,25 +534,25 @@ public class RpcApiService implements Service {
       responseObserver.onCompleted();
     }
 
-    @Override
-    public void getExchangeById(BytesMessage request,
-        StreamObserver<Exchange> responseObserver) {
-      ByteString exchangeId = request.getValue();
-
-      if (Objects.nonNull(exchangeId)) {
-        responseObserver.onNext(wallet.getExchangeById(exchangeId));
-      } else {
-        responseObserver.onNext(null);
-      }
-      responseObserver.onCompleted();
-    }
-
-    @Override
-    public void listExchanges(EmptyMessage request,
-        StreamObserver<ExchangeList> responseObserver) {
-      responseObserver.onNext(wallet.getExchangeList());
-      responseObserver.onCompleted();
-    }
+    // @Override
+    // public void getExchangeById(BytesMessage request,
+    //     StreamObserver<Exchange> responseObserver) {
+    //   ByteString exchangeId = request.getValue();
+    //
+    //   if (Objects.nonNull(exchangeId)) {
+    //     responseObserver.onNext(wallet.getExchangeById(exchangeId));
+    //   } else {
+    //     responseObserver.onNext(null);
+    //   }
+    //   responseObserver.onCompleted();
+    // }
+    //
+    // @Override
+    // public void listExchanges(EmptyMessage request,
+    //     StreamObserver<ExchangeList> responseObserver) {
+    //   responseObserver.onNext(wallet.getExchangeList());
+    //   responseObserver.onCompleted();
+    // }
 
     @Override
     public void getTransactionCountByBlockNum(NumberMessage request,
@@ -945,7 +939,7 @@ public class RpcApiService implements Service {
         builder.setAmount(amount);
         transactionCapsule = createTransactionCapsule(builder.build(),
             ContractType.TransferContract);
-        transactionCapsule.sign(privateKey);
+        transactionCapsule.signWithSideChainId(privateKey);
         GrpcAPI.Return retur = wallet.broadcastTransaction(transactionCapsule.getInstance());
         responseBuild.setTransaction(transactionCapsule.getInstance());
         responseBuild.setTxid(transactionCapsule.getTransactionId().getByteString());
@@ -979,7 +973,7 @@ public class RpcApiService implements Service {
         builder.setAmount(amount);
         transactionCapsule = createTransactionCapsule(builder.build(),
             ContractType.TransferAssetContract);
-        transactionCapsule.sign(privateKey);
+        transactionCapsule.signWithSideChainId(privateKey);
         GrpcAPI.Return retur = wallet.broadcastTransaction(transactionCapsule.getInstance());
         responseBuild.setTransaction(transactionCapsule.getInstance());
         responseBuild.setTxid(transactionCapsule.getTransactionId().getByteString());
@@ -1043,43 +1037,43 @@ public class RpcApiService implements Service {
       responseObserver.onCompleted();
     }
 
-    @Override
-    public void createAssetIssue(AssetIssueContract request,
-        StreamObserver<Transaction> responseObserver) {
-      try {
-        responseObserver.onNext(
-            createTransactionCapsule(request, ContractType.AssetIssueContract).getInstance());
-      } catch (ContractValidateException e) {
-        responseObserver.onNext(null);
-        logger.debug(CONTRACT_VALIDATE_EXCEPTION, e.getMessage());
-      }
-      responseObserver.onCompleted();
-    }
+//    @Override
+//    public void createAssetIssue(AssetIssueContract request,
+//        StreamObserver<Transaction> responseObserver) {
+//      try {
+//        responseObserver.onNext(
+//            createTransactionCapsule(request, ContractType.AssetIssueContract).getInstance());
+//      } catch (ContractValidateException e) {
+//        responseObserver.onNext(null);
+//        logger.debug(CONTRACT_VALIDATE_EXCEPTION, e.getMessage());
+//      }
+//      responseObserver.onCompleted();
+//    }
 
-    @Override
-    public void createAssetIssue2(AssetIssueContract request,
-        StreamObserver<TransactionExtention> responseObserver) {
-      createTransactionExtention(request, ContractType.AssetIssueContract, responseObserver);
-    }
+//    @Override
+//    public void createAssetIssue2(AssetIssueContract request,
+//        StreamObserver<TransactionExtention> responseObserver) {
+//      createTransactionExtention(request, ContractType.AssetIssueContract, responseObserver);
+//    }
 
-    @Override
-    public void unfreezeAsset(UnfreezeAssetContract request,
-        StreamObserver<Transaction> responseObserver) {
-      try {
-        responseObserver.onNext(
-            createTransactionCapsule(request, ContractType.UnfreezeAssetContract).getInstance());
-      } catch (ContractValidateException e) {
-        responseObserver.onNext(null);
-        logger.debug(CONTRACT_VALIDATE_EXCEPTION, e.getMessage());
-      }
-      responseObserver.onCompleted();
-    }
+//    @Override
+//    public void unfreezeAsset(UnfreezeAssetContract request,
+//        StreamObserver<Transaction> responseObserver) {
+//      try {
+//        responseObserver.onNext(
+//            createTransactionCapsule(request, ContractType.UnfreezeAssetContract).getInstance());
+//      } catch (ContractValidateException e) {
+//        responseObserver.onNext(null);
+//        logger.debug(CONTRACT_VALIDATE_EXCEPTION, e.getMessage());
+//      }
+//      responseObserver.onCompleted();
+//    }
 
-    @Override
-    public void unfreezeAsset2(UnfreezeAssetContract request,
-        StreamObserver<TransactionExtention> responseObserver) {
-      createTransactionExtention(request, ContractType.UnfreezeAssetContract, responseObserver);
-    }
+//    @Override
+//    public void unfreezeAsset2(UnfreezeAssetContract request,
+//        StreamObserver<TransactionExtention> responseObserver) {
+//      createTransactionExtention(request, ContractType.UnfreezeAssetContract, responseObserver);
+//    }
 
     //refactor、test later
     private void checkVoteWitnessAccount(VoteWitnessContract req) {
@@ -1244,26 +1238,26 @@ public class RpcApiService implements Service {
       createTransactionExtention(request, ContractType.AccountUpdateContract, responseObserver);
     }
 
-    @Override
-    public void updateAsset(UpdateAssetContract request,
-        StreamObserver<Transaction> responseObserver) {
-      try {
-        responseObserver.onNext(
-            createTransactionCapsule(request,
-                ContractType.UpdateAssetContract).getInstance());
-      } catch (ContractValidateException e) {
-        responseObserver
-            .onNext(null);
-        logger.debug("ContractValidateException", e.getMessage());
-      }
-      responseObserver.onCompleted();
-    }
+//    @Override
+//    public void updateAsset(UpdateAssetContract request,
+//        StreamObserver<Transaction> responseObserver) {
+//      try {
+//        responseObserver.onNext(
+//            createTransactionCapsule(request,
+//                ContractType.UpdateAssetContract).getInstance());
+//      } catch (ContractValidateException e) {
+//        responseObserver
+//            .onNext(null);
+//        logger.debug("ContractValidateException", e.getMessage());
+//      }
+//      responseObserver.onCompleted();
+//    }
 
-    @Override
-    public void updateAsset2(UpdateAssetContract request,
-        StreamObserver<TransactionExtention> responseObserver) {
-      createTransactionExtention(request, ContractType.UpdateAssetContract, responseObserver);
-    }
+//    @Override
+//    public void updateAsset2(UpdateAssetContract request,
+//        StreamObserver<TransactionExtention> responseObserver) {
+//      createTransactionExtention(request, ContractType.UpdateAssetContract, responseObserver);
+//    }
 
     @Override
     public void freezeBalance(FreezeBalanceContract request,
@@ -1364,30 +1358,36 @@ public class RpcApiService implements Service {
 //      createTransactionExtention(request, ContractType.SellStorageContract, responseObserver);
 //    }
 
-    @Override
-    public void exchangeCreate(ExchangeCreateContract request,
-        StreamObserver<TransactionExtention> responseObserver) {
-      createTransactionExtention(request, ContractType.ExchangeCreateContract, responseObserver);
-    }
+//    @Override
+//    public void exchangeCreate(ExchangeCreateContract request,
+//        StreamObserver<TransactionExtention> responseObserver) {
+//      createTransactionExtention(request, ContractType.ExchangeCreateContract, responseObserver);
+//    }
+//
+//
+//    @Override
+//    public void exchangeInject(ExchangeInjectContract request,
+//        StreamObserver<TransactionExtention> responseObserver) {
+//      createTransactionExtention(request, ContractType.ExchangeInjectContract, responseObserver);
+//    }
+//
+//    @Override
+//    public void exchangeWithdraw(ExchangeWithdrawContract request,
+//        StreamObserver<TransactionExtention> responseObserver) {
+//      createTransactionExtention(request, ContractType.ExchangeWithdrawContract, responseObserver);
+//    }
+//
+//    @Override
+//    public void exchangeTransaction(ExchangeTransactionContract request,
+//        StreamObserver<TransactionExtention> responseObserver) {
+//      createTransactionExtention(request, ContractType.ExchangeTransactionContract,
+//          responseObserver);
+//    }
 
-
     @Override
-    public void exchangeInject(ExchangeInjectContract request,
-        StreamObserver<TransactionExtention> responseObserver) {
-      createTransactionExtention(request, ContractType.ExchangeInjectContract, responseObserver);
-    }
-
-    @Override
-    public void exchangeWithdraw(ExchangeWithdrawContract request,
-        StreamObserver<TransactionExtention> responseObserver) {
-      createTransactionExtention(request, ContractType.ExchangeWithdrawContract, responseObserver);
-    }
-
-    @Override
-    public void exchangeTransaction(ExchangeTransactionContract request,
-        StreamObserver<TransactionExtention> responseObserver) {
-      createTransactionExtention(request, ContractType.ExchangeTransactionContract,
-          responseObserver);
+    public void fundInject(IncentiveContract.FundInjectContract request,
+                           StreamObserver<TransactionExtention> responseObserver) {
+      createTransactionExtention(request, ContractType.FundInjectContract, responseObserver);
     }
 
     @Override
@@ -1479,27 +1479,27 @@ public class RpcApiService implements Service {
       createTransactionExtention(request, ContractType.TransferAssetContract, responseObserver);
     }
 
-    @Override
-    public void participateAssetIssue(ParticipateAssetIssueContract request,
-        StreamObserver<Transaction> responseObserver) {
-      try {
-        responseObserver
-            .onNext(createTransactionCapsule(request, ContractType.ParticipateAssetIssueContract)
-                .getInstance());
-      } catch (ContractValidateException e) {
-        responseObserver
-            .onNext(null);
-        logger.debug(CONTRACT_VALIDATE_EXCEPTION, e.getMessage());
-      }
-      responseObserver.onCompleted();
-    }
+//    @Override
+//    public void participateAssetIssue(ParticipateAssetIssueContract request,
+//        StreamObserver<Transaction> responseObserver) {
+//      try {
+//        responseObserver
+//            .onNext(createTransactionCapsule(request, ContractType.ParticipateAssetIssueContract)
+//                .getInstance());
+//      } catch (ContractValidateException e) {
+//        responseObserver
+//            .onNext(null);
+//        logger.debug(CONTRACT_VALIDATE_EXCEPTION, e.getMessage());
+//      }
+//      responseObserver.onCompleted();
+//    }
 
-    @Override
-    public void participateAssetIssue2(ParticipateAssetIssueContract request,
-        StreamObserver<TransactionExtention> responseObserver) {
-      createTransactionExtention(request, ContractType.ParticipateAssetIssueContract,
-          responseObserver);
-    }
+//    @Override
+//    public void participateAssetIssue2(ParticipateAssetIssueContract request,
+//        StreamObserver<TransactionExtention> responseObserver) {
+//      createTransactionExtention(request, ContractType.ParticipateAssetIssueContract,
+//          responseObserver);
+//    }
 
     @Override
     public void getAssetIssueByAccount(Account request,
@@ -1608,18 +1608,18 @@ public class RpcApiService implements Service {
       responseObserver.onCompleted();
     }
 
-    @Override
-    public void getExchangeById(BytesMessage request,
-        StreamObserver<Exchange> responseObserver) {
-      ByteString exchangeId = request.getValue();
-
-      if (Objects.nonNull(exchangeId)) {
-        responseObserver.onNext(wallet.getExchangeById(exchangeId));
-      } else {
-        responseObserver.onNext(null);
-      }
-      responseObserver.onCompleted();
-    }
+//    @Override
+//    public void getExchangeById(BytesMessage request,
+//        StreamObserver<Exchange> responseObserver) {
+//      ByteString exchangeId = request.getValue();
+//
+//      if (Objects.nonNull(exchangeId)) {
+//        responseObserver.onNext(wallet.getExchangeById(exchangeId));
+//      } else {
+//        responseObserver.onNext(null);
+//      }
+//      responseObserver.onCompleted();
+//    }
 
     @Override
     public void getBlockByLimitNext(BlockLimit request,
@@ -1788,12 +1788,11 @@ public class RpcApiService implements Service {
     }
 
     @Override
-    public void listProposals(EmptyMessage request,
-        StreamObserver<SideChainProposalList> responseObserver) {
+    public void listSideChainProposals(EmptyMessage request,
+                                       StreamObserver<SideChainProposalList> responseObserver) {
       responseObserver.onNext(wallet.getProposalList());
       responseObserver.onCompleted();
     }
-
 
     @Override
     public void getDelegatedResource(DelegatedResourceMessage request,
@@ -1811,34 +1810,34 @@ public class RpcApiService implements Service {
     }
 
     @Override
-    public void getPaginatedProposalList(PaginatedMessage request,
-        StreamObserver<SideChainProposalList> responseObserver) {
+    public void getPaginatedSideChainProposalList(PaginatedMessage request,
+                                                  StreamObserver<SideChainProposalList> responseObserver) {
       responseObserver
-          .onNext(wallet.getPaginatedProposalList(request.getOffset(), request.getLimit()));
+              .onNext(wallet.getPaginatedProposalList(request.getOffset(), request.getLimit()));
       responseObserver.onCompleted();
 
     }
 
-    @Override
-    public void getPaginatedExchangeList(PaginatedMessage request,
-        StreamObserver<ExchangeList> responseObserver) {
-      responseObserver
-          .onNext(wallet.getPaginatedExchangeList(request.getOffset(), request.getLimit()));
-      responseObserver.onCompleted();
+//    @Override
+//    public void getPaginatedExchangeList(PaginatedMessage request,
+//        StreamObserver<ExchangeList> responseObserver) {
+//      responseObserver
+//          .onNext(wallet.getPaginatedExchangeList(request.getOffset(), request.getLimit()));
+//      responseObserver.onCompleted();
+//
+//    }
+//
+//    @Override
+//    public void listExchanges(EmptyMessage request,
+//        StreamObserver<ExchangeList> responseObserver) {
+//      responseObserver.onNext(wallet.getExchangeList());
+//      responseObserver.onCompleted();
+//    }
 
-    }
-
     @Override
-    public void listExchanges(EmptyMessage request,
-        StreamObserver<ExchangeList> responseObserver) {
-      responseObserver.onNext(wallet.getExchangeList());
-      responseObserver.onCompleted();
-    }
-
-    @Override
-    public void getChainParameters(EmptyMessage request,
-        StreamObserver<Protocol.SideChainParameters> responseObserver) {
-      responseObserver.onNext(wallet.getChainParameters());
+    public void getSideChainParameters(EmptyMessage request,
+                                       StreamObserver<Protocol.SideChainParameters> responseObserver) {
+      responseObserver.onNext(wallet.getSideChainParameters());
       responseObserver.onCompleted();
     }
 

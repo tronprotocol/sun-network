@@ -50,6 +50,8 @@ public class EventPluginLoader {
 
   private boolean useNativeQueue = false;
 
+  private final String solidity_topic = "solidity";
+
   public static EventPluginLoader getInstance() {
     if (Objects.isNull(instance)) {
       synchronized (EventPluginLoader.class) {
@@ -64,7 +66,7 @@ public class EventPluginLoader {
   private boolean launchNativeQueue(EventPluginConfig config) {
 
     if (!NativeMessageQueue.getInstance()
-        .start(config.getBindPort(), config.getSendQueueLength())) {
+            .start(config.getBindPort(), config.getSendQueueLength())) {
       return false;
     }
 
@@ -149,7 +151,7 @@ public class EventPluginLoader {
       }
 
     } else if (EventPluginConfig.TRANSACTION_TRIGGER_NAME
-        .equalsIgnoreCase(triggerConfig.getTriggerName())) {
+            .equalsIgnoreCase(triggerConfig.getTriggerName())) {
       if (triggerConfig.isEnabled()) {
         transactionLogTriggerEnable = true;
       } else {
@@ -161,7 +163,7 @@ public class EventPluginLoader {
       }
 
     } else if (EventPluginConfig.CONTRACTEVENT_TRIGGER_NAME
-        .equalsIgnoreCase(triggerConfig.getTriggerName())) {
+            .equalsIgnoreCase(triggerConfig.getTriggerName())) {
       if (triggerConfig.isEnabled()) {
         contractEventTriggerEnable = true;
       } else {
@@ -173,7 +175,7 @@ public class EventPluginLoader {
       }
 
     } else if (EventPluginConfig.CONTRACTLOG_TRIGGER_NAME
-        .equalsIgnoreCase(triggerConfig.getTriggerName())) {
+            .equalsIgnoreCase(triggerConfig.getTriggerName())) {
       if (triggerConfig.isEnabled()) {
         contractLogTriggerEnable = true;
       } else {
@@ -184,7 +186,7 @@ public class EventPluginLoader {
         setPluginTopic(Trigger.CONTRACTLOG_TRIGGER, triggerConfig.getTopic());
       }
     } else if (EventPluginConfig.SOLIDITY_TRIGGER_NAME
-        .equalsIgnoreCase(triggerConfig.getTriggerName())) {
+            .equalsIgnoreCase(triggerConfig.getTriggerName())) {
       if (triggerConfig.isEnabled()) {
         solidityLogTriggerEnable = true;
       } else {
@@ -199,10 +201,10 @@ public class EventPluginLoader {
   public void postSolidityTrigger(SolidityTrigger trigger) {
     if (useNativeQueue) {
       NativeMessageQueue.getInstance()
-          .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
+              .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
     } else {
       eventListeners.forEach(listener ->
-          listener.handleSolidityTrigger(toJsonString(trigger)));
+              listener.handleSolidityTrigger(toJsonString(trigger)));
     }
   }
 
@@ -246,7 +248,7 @@ public class EventPluginLoader {
         @Override
         protected CompoundPluginDescriptorFinder createPluginDescriptorFinder() {
           return new CompoundPluginDescriptorFinder()
-              .add(new ManifestPluginDescriptorFinder());
+                  .add(new ManifestPluginDescriptorFinder());
         }
       };
     }
@@ -286,17 +288,17 @@ public class EventPluginLoader {
   public void postBlockTrigger(BlockLogTrigger trigger) {
     if (useNativeQueue) {
       NativeMessageQueue.getInstance()
-          .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
+              .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
     } else {
       eventListeners.forEach(listener ->
-          listener.handleBlockEvent(toJsonString(trigger)));
+              listener.handleBlockEvent(toJsonString(trigger)));
     }
   }
 
   public void postTransactionTrigger(TransactionLogTrigger trigger) {
     if (useNativeQueue) {
       NativeMessageQueue.getInstance()
-          .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
+              .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
     } else {
       eventListeners.forEach(listener -> listener.handleTransactionTrigger(toJsonString(trigger)));
     }
@@ -305,20 +307,20 @@ public class EventPluginLoader {
   public void postContractLogTrigger(ContractLogTrigger trigger) {
     if (useNativeQueue) {
       NativeMessageQueue.getInstance()
-          .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
+              .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
     } else {
       eventListeners.forEach(listener ->
-          listener.handleContractLogTrigger(toJsonString(trigger)));
+              listener.handleContractLogTrigger(toJsonString(trigger)));
     }
   }
 
   public void postContractEventTrigger(ContractEventTrigger trigger) {
     if (useNativeQueue) {
       NativeMessageQueue.getInstance()
-          .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
+              .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
     } else {
       eventListeners.forEach(listener ->
-          listener.handleContractEventTrigger(toJsonString(trigger)));
+              listener.handleContractEventTrigger(toJsonString(trigger)));
     }
   }
 

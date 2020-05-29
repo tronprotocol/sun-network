@@ -83,9 +83,9 @@ public class MainNetTransferSendOrAsset {
     if (fromAccount.getAssetCount() == 0) {
       start = System.currentTimeMillis() + 2000;
       end = System.currentTimeMillis() + 1000000000;
-      PublicMethed.createAssetIssue(fromAddress, "testNetAsset", 1000000000000L,
-          1, 1, start, end, 1, "wwwwww", "wwwwwwww", 100000L,
-          100000L, 1L, 1L, testKey001, blockingStubFull);
+//      PublicMethed.createAssetIssue(fromAddress, "testNetAsset", 1000000000000L,
+//          1, 1, start, end, 1, "wwwwww", "wwwwwwww", 100000L,
+//          100000L, 1L, 1L, testKey001, blockingStubFull);
     }
     beforeToBalance = toAccount.getBalance();
     beforeToAssetBalance = toAccount.getAssetMap().get("testNetAsset");

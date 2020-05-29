@@ -74,7 +74,7 @@ public class Create2Test extends VMTestBase {
       throws ContractExeException, ReceiptCheckErrException,
       VMIllegalException, ContractValidateException {
     manager.getDynamicPropertiesStore().saveAllowTvmTransferTrc10(1);
-    manager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
+    // manager.getDynamicPropertiesStore().saveAllowTvmConstantinople(1);
     String contractName = "Factory_0";
     byte[] address = Hex.decode(OWNER_ADDRESS);
     String ABI = "[{\"constant\":false,\"inputs\":[{\"name\":\"code\",\"type\":\"bytes\"},{\"name\":\"salt\",\"type\":\"uint256\"}],\"name\":\"deploy\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"addr\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"salt\",\"type\":\"uint256\"}],\"name\":\"Deployed\",\"type\":\"event\"}]";
@@ -87,7 +87,7 @@ public class Create2Test extends VMTestBase {
 
     // deploy contract
     Transaction trx = TvmTestUtils.generateDeploySmartContractAndGetTransaction(
-        contractName, address, ABI, factoryCode, value, fee, consumeUserResourcePercent, null);
+            contractName, address, ABI, factoryCode, value, fee, consumeUserResourcePercent, null, 1);
     byte[] factoryAddress = WalletUtil.generateContractAddress(trx);
     runtime = TvmTestUtils.processTransactionAndReturnRuntime(trx, rootDeposit, null);
     Assert.assertNull(runtime.getRuntimeError());

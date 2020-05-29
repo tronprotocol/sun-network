@@ -4,6 +4,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static org.apache.commons.lang3.ArrayUtils.getLength;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
+import static org.tron.core.Constant.SUN_TOKEN_ID;
 import static org.tron.core.vm.utils.MUtil.transfer;
 import static org.tron.core.vm.utils.MUtil.transferToken;
 
@@ -24,12 +25,16 @@ import org.tron.common.runtime.InternalTransaction.TrxType;
 import org.tron.common.runtime.ProgramResult;
 import org.tron.common.utils.DBConfig;
 import org.tron.common.utils.WalletUtil;
+import org.tron.core.Constant;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.ContractCapsule;
+import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.db.TransactionContext;
+import org.tron.core.db.TransactionTrace;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
+import org.tron.core.exception.VMIllegalException;
 import org.tron.core.utils.TransactionUtil;
 import org.tron.core.vm.EnergyCost;
 import org.tron.core.vm.LogInfoTriggerParser;
@@ -63,10 +68,8 @@ public class VMActuator implements Actuator2 {
 
   private Transaction trx;
   private BlockCapsule blockCap;
-  private Repository repository;
   private InternalTransaction rootInternalTransaction;
   private ProgramInvokeFactory programInvokeFactory;
-
 
   private VM vm;
   private Program program;
@@ -79,16 +82,19 @@ public class VMActuator implements Actuator2 {
 
   @Getter
   @Setter
-  private boolean isConstanCall = false;
+  private boolean isConstantCall = false;
 
   @Setter
   private boolean enableEventLinstener;
 
+  @Getter
+  private Repository repository;
+
   private LogInfoTriggerParser logInfoTriggerParser;
 
 
-  public VMActuator(boolean isConstanCall) {
-    this.isConstanCall = isConstanCall;
+  public VMActuator(boolean isConstantCall) {
+    this.isConstantCall = isConstantCall;
     programInvokeFactory = new ProgramInvokeFactoryImpl();
   }
 
@@ -127,18 +133,28 @@ public class VMActuator implements Actuator2 {
       this.blockCap = new BlockCapsule(Block.newBuilder().build());
       this.executorType = ExecutorType.ET_PRE_TYPE;
     }
-    if (isConstanCall) {
+    if (isConstantCall) {
       this.executorType = ExecutorType.ET_PRE_TYPE;
     }
 
     switch (contractType.getNumber()) {
       case ContractType.TriggerSmartContract_VALUE:
         trxType = TrxType.TRX_CONTRACT_CALL_TYPE;
-        call();
+        try {
+          call();
+        } catch (ContractExeException e) {
+          e.printStackTrace();
+        }
         break;
       case ContractType.CreateSmartContract_VALUE:
         trxType = TrxType.TRX_CONTRACT_CREATION_TYPE;
-        create();
+        try {
+          create();
+        } catch (VMIllegalException e) {
+          e.printStackTrace();
+        } catch (ContractExeException e) {
+          e.printStackTrace();
+        }
         break;
       default:
         throw new ContractValidateException("Unknown contract type");
@@ -170,7 +186,7 @@ public class VMActuator implements Actuator2 {
         vm.play(program);
         result = program.getResult();
 
-        if (isConstanCall) {
+        if (isConstantCall) {
           long callValue = TransactionUtil.getCallValue(trx.getRawData().getContract(0));
           long callTokenValue = TransactionUtil
               .getCallTokenValue(trx.getRawData().getContract(0));
@@ -198,9 +214,7 @@ public class VMActuator implements Actuator2 {
             }
           } else {
             result.spendEnergy(saveCodeEnergy);
-            if (VMConfig.allowTvmConstantinople()) {
-              repository.saveCode(program.getContractAddress().getNoLeadZeroesData(), code);
-            }
+            repository.saveCode(program.getContractAddress().getNoLeadZeroesData(), code);
           }
         }
 
@@ -277,15 +291,10 @@ public class VMActuator implements Actuator2 {
       String txHash = Hex.toHexString(rootInternalTransaction.getHash());
       VMUtils.saveProgramTraceFile(txHash, traceContent);
     }
-
   }
 
   private void create()
-      throws ContractValidateException {
-    if (!repository.getDynamicPropertiesStore().supportVM()) {
-      throw new ContractValidateException("vm work is off, need to be opened by the committee");
-    }
-
+      throws ContractValidateException, VMIllegalException, ContractExeException {
     CreateSmartContract contract = ContractCapsule.getSmartContractFromTransaction(trx);
     if (contract == null) {
       throw new ContractValidateException("Cannot get CreateSmartContract from transaction");
@@ -318,12 +327,8 @@ public class VMActuator implements Actuator2 {
     newSmartContract = newSmartContract.toBuilder()
         .setContractAddress(ByteString.copyFrom(contractAddress)).build();
     long callValue = newSmartContract.getCallValue();
-    long tokenValue = 0;
-    long tokenId = 0;
-    if (VMConfig.allowTvmTransferTrc10()) {
-      tokenValue = contract.getCallTokenValue();
-      tokenId = contract.getTokenId();
-    }
+    long tokenValue = contract.getCallTokenValue();
+    long tokenId = contract.getTokenId();
     byte[] callerAddress = contract.getOwnerAddress().toByteArray();
     // create vm to constructor smart contract
     try {
@@ -336,25 +341,40 @@ public class VMActuator implements Actuator2 {
       AccountCapsule creator = this.repository
           .getAccount(newSmartContract.getOriginAddress().toByteArray());
 
+      if (creator == null) {
+        throw new ContractValidateException("callerAddress account does not exist");
+      }
+
       long energyLimit;
       // according to version
 
-      if (VMConfig.getEnergyLimitHardFork()) {
-        if (callValue < 0) {
-          throw new ContractValidateException("callValue must be >= 0");
-        }
-        if (tokenValue < 0) {
-          throw new ContractValidateException("tokenValue must be >= 0");
-        }
-        if (newSmartContract.getOriginEnergyLimit() <= 0) {
-          throw new ContractValidateException("The originEnergyLimit must be > 0");
-        }
-        energyLimit = getAccountEnergyLimitWithFixRatio(creator, feeLimit, callValue);
-      } else {
-        energyLimit = getAccountEnergyLimitWithFloatRatio(creator, feeLimit, callValue);
+      if (callValue < 0) {
+        throw new ContractValidateException("callValue must >= 0");
+      }
+      if (tokenValue < 0) {
+        throw new ContractValidateException("tokenValue must >= 0");
+      }
+      if (newSmartContract.getOriginEnergyLimit() <= 0) {
+        throw new ContractValidateException("The originEnergyLimit must be > 0");
       }
 
       checkTokenValueAndId(tokenValue, tokenId);
+
+      long sunTokenCallTokenValue = 0;
+      if (tokenId == Long.parseLong(SUN_TOKEN_ID)) {
+        sunTokenCallTokenValue = tokenValue;
+      }
+
+      if (!VMConfig.isVmResourceChargingOn()) {
+        energyLimit = 10_000_000;
+      } else {
+        energyLimit = getAccountEnergyLimitWithFixRatio(creator, feeLimit, callValue,
+                sunTokenCallTokenValue);
+      }
+
+      if (energyLimit < 0) {
+        throw new ContractValidateException("not enough energy to initialize vm");
+      }
 
       byte[] ops = newSmartContract.getBytecode().toByteArray();
       rootInternalTransaction = new InternalTransaction(trx, trxType);
@@ -388,20 +408,16 @@ public class VMActuator implements Actuator2 {
 
     repository.createContract(contractAddress, new ContractCapsule(newSmartContract));
     byte[] code = newSmartContract.getBytecode().toByteArray();
-    if (!VMConfig.allowTvmConstantinople()) {
-      repository.saveCode(contractAddress, ProgramPrecompile.getCode(code));
-    }
+    repository.saveCode(contractAddress, ProgramPrecompile.getCode(code));
+
     // transfer from callerAddress to contractAddress according to callValue
     if (callValue > 0) {
       transfer(this.repository, callerAddress, contractAddress, callValue);
     }
-    if (VMConfig.allowTvmTransferTrc10()) {
-      if (tokenValue > 0) {
-        transferToken(this.repository, callerAddress, contractAddress, String.valueOf(tokenId),
-            tokenValue);
-      }
+    if (tokenValue > 0) {
+      transferToken(this.repository, callerAddress, contractAddress, String.valueOf(tokenId),
+          tokenValue);
     }
-
   }
 
   /**
@@ -409,12 +425,7 @@ public class VMActuator implements Actuator2 {
    */
 
   private void call()
-      throws ContractValidateException {
-
-    if (!repository.getDynamicPropertiesStore().supportVM()) {
-      logger.info("vm work is off, need to be opened by the committee");
-      throw new ContractValidateException("VM work is off, need to be opened by the committee");
-    }
+      throws ContractValidateException, ContractExeException {
 
     TriggerSmartContract contract = ContractCapsule.getTriggerContractFromTransaction(trx);
     if (contract == null) {
@@ -434,42 +445,61 @@ public class VMActuator implements Actuator2 {
     }
 
     long callValue = contract.getCallValue();
-    long tokenValue = 0;
-    long tokenId = 0;
-    if (VMConfig.allowTvmTransferTrc10()) {
-      tokenValue = contract.getCallTokenValue();
-      tokenId = contract.getTokenId();
-    }
+    long tokenValue = contract.getCallTokenValue();
+    long tokenId = contract.getTokenId();
 
-    if (VMConfig.getEnergyLimitHardFork()) {
-      if (callValue < 0) {
-        throw new ContractValidateException("callValue must be >= 0");
-      }
-      if (tokenValue < 0) {
-        throw new ContractValidateException("tokenValue must be >= 0");
-      }
+    if (callValue < 0) {
+      throw new ContractValidateException("callValue must be >= 0");
+    }
+    if (tokenValue < 0) {
+      throw new ContractValidateException("tokenValue must be >= 0");
     }
 
     byte[] callerAddress = contract.getOwnerAddress().toByteArray();
+
     checkTokenValueAndId(tokenValue, tokenId);
 
+    long sunTokenCallTokenValue = 0;
+    if (tokenId == Long.parseLong(SUN_TOKEN_ID)) {
+      sunTokenCallTokenValue = tokenValue;
+    }
     byte[] code = repository.getCode(contractAddress);
-    if (isNotEmpty(code)) {
 
+    if (isNotEmpty(code)) {
+      // feeLimit check
       long feeLimit = trx.getRawData().getFeeLimit();
       if (feeLimit < 0 || feeLimit > VMConfig.MAX_FEE_LIMIT) {
         logger.info("invalid feeLimit {}", feeLimit);
         throw new ContractValidateException(
             "feeLimit must be >= 0 and <= " + VMConfig.MAX_FEE_LIMIT);
       }
+
       AccountCapsule caller = repository.getAccount(callerAddress);
+      if (caller == null) {
+        throw new ContractValidateException("callerAddress account does not exist");
+      }
+
       long energyLimit;
-      if (isConstanCall) {
+/*      if (isConstanCall) {
         energyLimit = VMConstant.ENERGY_LIMIT_IN_CONSTANT_TX;
       } else {
         AccountCapsule creator = repository
             .getAccount(deployedContract.getInstance().getOriginAddress().toByteArray());
         energyLimit = getTotalEnergyLimit(creator, caller, contract, feeLimit, callValue);
+      }*/
+      if (isConstantCall) {
+        energyLimit = Constant.ENERGY_LIMIT_IN_CONSTANT_TX;
+      } else if (!VMConfig.isVmResourceChargingOn()) {
+        energyLimit = 10_000_000;
+      } else {
+        AccountCapsule creator = repository
+                .getAccount(deployedContract.getInstance().getOriginAddress().toByteArray());
+
+        energyLimit = getTotalEnergyLimitWithFixRatio(creator, caller, contract, feeLimit,
+                callValue, sunTokenCallTokenValue);
+        if (energyLimit < 0) {
+          throw new ContractValidateException("not enough energy to initialize vm");
+        }
       }
 
       long maxCpuTimeOfOneTx = repository.getDynamicPropertiesStore()
@@ -482,7 +512,7 @@ public class VMActuator implements Actuator2 {
           .createProgramInvoke(TrxType.TRX_CONTRACT_CALL_TYPE, executorType, trx,
               tokenValue, tokenId, blockCap.getInstance(), repository, vmStartInUs,
               vmShouldEndInUs, energyLimit);
-      if (isConstanCall) {
+      if (isConstantCall) {
         programInvoke.setConstantCall();
       }
       this.vm = new VM();
@@ -503,16 +533,13 @@ public class VMActuator implements Actuator2 {
     if (callValue > 0) {
       transfer(this.repository, callerAddress, contractAddress, callValue);
     }
-    if (VMConfig.allowTvmTransferTrc10()) {
-      if (tokenValue > 0) {
-        transferToken(this.repository, callerAddress, contractAddress, String.valueOf(tokenId),
-            tokenValue);
-      }
+    if (tokenValue > 0) {
+      transferToken(this.repository, callerAddress, contractAddress, String.valueOf(tokenId),
+          tokenValue);
     }
-
   }
 
-  public long getAccountEnergyLimitWithFixRatio(AccountCapsule account, long feeLimit,
+/*  public long getAccountEnergyLimitWithFixRatio(AccountCapsule account, long feeLimit,
       long callValue) {
 
     long sunPerEnergy = VMConstant.SUN_PER_ENERGY;
@@ -528,6 +555,42 @@ public class VMActuator implements Actuator2 {
     long energyFromFeeLimit = feeLimit / sunPerEnergy;
     return min(availableEnergy, energyFromFeeLimit);
 
+  }*/
+
+  public long getAccountEnergyLimitWithFixRatio(AccountCapsule account, long feeLimit,
+                                                long callValue, long sunTokenCallValue) {
+
+    long energyFromBalance;
+    long energyFromFeeLimit;
+
+    int chargingType = repository.getDynamicPropertiesStore()
+            .getSideChainChargingType();
+    if (chargingType == 0) {
+      // charging by trx
+      long sunPerEnergy = Constant.SUN_PER_ENERGY;
+      if (repository.getDynamicPropertiesStore().getEnergyFee() > 0) {
+        sunPerEnergy = repository.getDynamicPropertiesStore().getEnergyFee();
+      }
+
+      energyFromFeeLimit = feeLimit / sunPerEnergy;
+      energyFromBalance = max(account.getBalance() - callValue, 0) / sunPerEnergy;
+    } else {
+      // charging by suntoken
+      long sunTokenPerEnergy = Constant.MICRO_SUN_TOKEN_PER_ENERGY;
+      if (repository.getDynamicPropertiesStore().getEnergyTokenFee() > 0) {
+        sunTokenPerEnergy = repository.getDynamicPropertiesStore().getEnergyTokenFee();
+      }
+
+      energyFromFeeLimit = feeLimit / sunTokenPerEnergy;
+      energyFromBalance =
+              max(account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L) - sunTokenCallValue, 0)
+                      / sunTokenPerEnergy;
+    }
+
+    long leftFrozenEnergy = repository.getAccountLeftEnergyFromFreeze(account);
+    long availableEnergy = Math.addExact(leftFrozenEnergy, energyFromBalance);
+
+    return min(availableEnergy, energyFromFeeLimit);
   }
 
   private long getAccountEnergyLimitWithFloatRatio(AccountCapsule account, long feeLimit,
@@ -569,36 +632,17 @@ public class VMActuator implements Actuator2 {
     return min(Math.addExact(leftEnergyFromFreeze, energyFromBalance), energyFromFeeLimit);
   }
 
-  public long getTotalEnergyLimit(AccountCapsule creator, AccountCapsule caller,
-      TriggerSmartContract contract, long feeLimit, long callValue)
-      throws ContractValidateException {
-    if (Objects.isNull(creator) && VMConfig.allowTvmConstantinople()) {
-      return getAccountEnergyLimitWithFixRatio(caller, feeLimit, callValue);
-    }
-    //  according to version
-    if (VMConfig.getEnergyLimitHardFork()) {
-      return getTotalEnergyLimitWithFixRatio(creator, caller, contract, feeLimit, callValue);
-    } else {
-      return getTotalEnergyLimitWithFloatRatio(creator, caller, contract, feeLimit, callValue);
-    }
-  }
-
-
   public void checkTokenValueAndId(long tokenValue, long tokenId) throws ContractValidateException {
-    if (VMConfig.allowTvmTransferTrc10()) {
-      if (VMConfig.allowMultiSign()) { //allowMultiSigns
-        // tokenid can only be 0
-        // or (MIN_TOKEN_ID, Long.Max]
-        if (tokenId <= VMConstant.MIN_TOKEN_ID && tokenId != 0) {
-          throw new ContractValidateException("tokenId must be > " + VMConstant.MIN_TOKEN_ID);
-        }
-        // tokenid can only be 0 when tokenvalue = 0,
-        // or (MIN_TOKEN_ID, Long.Max]
-        if (tokenValue > 0 && tokenId == 0) {
-          throw new ContractValidateException("invalid arguments with tokenValue = " + tokenValue +
-              ", tokenId = " + tokenId);
-        }
-      }
+    // tokenid can only be 0
+    // or (MIN_TOKEN_ID, Long.Max]
+    if (tokenId <= VMConstant.MIN_TOKEN_ID && tokenId != 0) {
+      throw new ContractValidateException("tokenId must be > " + VMConstant.MIN_TOKEN_ID);
+    }
+    // tokenid can only be 0 when tokenvalue = 0,
+    // or (MIN_TOKEN_ID, Long.Max]
+    if (tokenValue > 0 && tokenId == 0) {
+      throw new ContractValidateException("invalid arguments with tokenValue = " + tokenValue +
+          ", tokenId = " + tokenId);
     }
   }
 
@@ -629,11 +673,11 @@ public class VMActuator implements Actuator2 {
   }
 
   public long getTotalEnergyLimitWithFixRatio(AccountCapsule creator, AccountCapsule caller,
-      TriggerSmartContract contract, long feeLimit, long callValue)
+      TriggerSmartContract contract, long feeLimit, long callValue, long sunTokenCallValue)
       throws ContractValidateException {
 
-    long callerEnergyLimit = getAccountEnergyLimitWithFixRatio(caller, feeLimit, callValue);
-    if (Arrays.equals(creator.getAddress().toByteArray(), caller.getAddress().toByteArray())) {
+    long callerEnergyLimit = getAccountEnergyLimitWithFixRatio(caller, feeLimit, callValue, sunTokenCallValue);
+    if (Objects.isNull(creator) || Arrays.equals(creator.getAddress().toByteArray(), caller.getAddress().toByteArray())) {
       // when the creator calls his own contract, this logic will be used.
       // so, the creator must use a BIG feeLimit to call his own contract,
       // which will cost the feeLimit TRX when the creator's frozen energy is 0.
@@ -697,5 +741,8 @@ public class VMActuator implements Actuator2 {
         .getWitnessSignature().isEmpty();
   }
 
+//  public boolean isResultSuccess() {
+//    return !(program.getResult().getException() != null || program.getResult().isRevert());
+//  }
 
 }

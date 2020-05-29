@@ -26,6 +26,7 @@ import org.tron.core.exception.ReceiptCheckErrException;
 import org.tron.core.exception.VMIllegalException;
 import org.tron.core.vm.program.Program.OutOfEnergyException;
 import org.tron.protos.Protocol.AccountType;
+import org.tron.core.vm.config.VMConfig;
 
 @Slf4j
 
@@ -54,6 +55,8 @@ public class EnergyWhenRequireStyleTest {
     deposit.createAccount(Hex.decode(OWNER_ADDRESS), AccountType.Normal);
     deposit.addBalance(Hex.decode(OWNER_ADDRESS), totalBalance);
     deposit.commit();
+    VMConfig.setVmResourceChargingOn(true);
+    dbManager.getDynamicPropertiesStore().saveEnergyFee(100);
   }
 
   // A require-style exception is generated in the following situations:

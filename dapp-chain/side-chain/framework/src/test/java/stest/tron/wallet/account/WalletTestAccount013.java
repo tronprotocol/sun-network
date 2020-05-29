@@ -317,10 +317,10 @@ public class WalletTestAccount013 {
     long totalSupply = 100000000000L;
     String description = "zfbnb";
     String url = "aaa.com";
-    Assert.assertTrue(PublicMethed
-        .createAssetIssue(accountForAssetIssueAddress, name, totalSupply, 1, 1,
-            System.currentTimeMillis() + 2000, System.currentTimeMillis() + 1000000000, 1,
-            description, url, 2000L, 2000L, 500L, 1L, accountForAssetIssueKey, blockingStubFull));
+//    Assert.assertTrue(PublicMethed
+//        .createAssetIssue(accountForAssetIssueAddress, name, totalSupply, 1, 1,
+//            System.currentTimeMillis() + 2000, System.currentTimeMillis() + 1000000000, 1,
+//            description, url, 2000L, 2000L, 500L, 1L, accountForAssetIssueKey, blockingStubFull));
 
   }
 
@@ -334,9 +334,9 @@ public class WalletTestAccount013 {
         .queryAccount(accountForAssetIssueAddress, blockingStubFull);
     ByteString assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
     //Account5 Participate AssetIssue
-    Assert.assertTrue(PublicMethed
-        .participateAssetIssue(accountForAssetIssueAddress, assetAccountId.toByteArray(), 1000000,
-            account5DelegatedResourceAddress, account5DelegatedResourceKey, blockingStubFull));
+//    Assert.assertTrue(PublicMethed
+//        .participateAssetIssue(accountForAssetIssueAddress, assetAccountId.toByteArray(), 1000000,
+//            account5DelegatedResourceAddress, account5DelegatedResourceKey, blockingStubFull));
     //get account013，accountForAssetIssue，Account5 account resources before transferAssets
     final long account013CurrentBandwidth = PublicMethed
         .getAccountResource(account013Address, blockingStubFull).getNetUsed();

@@ -17,6 +17,8 @@ import org.tron.core.store.DynamicPropertiesStore;
 import org.tron.protos.Protocol.ResourceReceipt;
 import org.tron.protos.Protocol.Transaction.Result.contractResult;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
+
 public class ReceiptCapsule {
 
   private ResourceReceipt receipt;
@@ -120,7 +122,7 @@ public class ReceiptCapsule {
       return;
     }
 
-    if (Objects.isNull(origin) && dynamicPropertiesStore.getAllowTvmConstantinople() == 1) {
+    if (Objects.isNull(origin)) {
       payEnergyBill(dynamicPropertiesStore, accountStore, forkUtils, caller,
           receipt.getEnergyUsageTotal(), energyProcessor, now);
       return;
@@ -147,11 +149,8 @@ public class ReceiptCapsule {
       long originEnergyLimit,
       EnergyProcessor energyProcessor, long originUsage) {
 
-    if (checkForEnergyLimit(dynamicPropertiesStore)) {
-      return Math.min(originUsage,
-          Math.min(energyProcessor.getAccountLeftEnergyFromFreeze(origin), originEnergyLimit));
-    }
-    return Math.min(originUsage, energyProcessor.getAccountLeftEnergyFromFreeze(origin));
+    return Math.min(originUsage,
+            Math.min(energyProcessor.getAccountLeftEnergyFromFreeze(origin), originEnergyLimit));
   }
 
   private void payEnergyBill(
@@ -167,32 +166,49 @@ public class ReceiptCapsule {
     } else {
       energyProcessor.useEnergy(account, accountEnergyLeft, now);
 
-      if (forkUtils.pass(ForkBlockVersionEnum.VERSION_3_6_5) &&
-          dynamicPropertiesStore.getAllowAdaptiveEnergy() == 1) {
+      if (dynamicPropertiesStore.getAllowAdaptiveEnergy() == 1) {
         long blockEnergyUsage =
-            dynamicPropertiesStore.getBlockEnergyUsage() + (usage - accountEnergyLeft);
+                dynamicPropertiesStore.getBlockEnergyUsage() + (usage - accountEnergyLeft);
         dynamicPropertiesStore.saveBlockEnergyUsage(blockEnergyUsage);
       }
 
-      long sunPerEnergy = Constant.SUN_PER_ENERGY;
-      long dynamicEnergyFee = dynamicPropertiesStore.getEnergyFee();
-      if (dynamicEnergyFee > 0) {
-        sunPerEnergy = dynamicEnergyFee;
+      long energyFee;
+      int chargingType = dynamicPropertiesStore.getSideChainChargingType();
+      long dynamicEnergyFee = dynamicPropertiesStore.getEnergyFee(chargingType);
+
+      if(chargingType == 0) {
+        long sunPerEnergy = Constant.SUN_PER_ENERGY;
+        if (dynamicEnergyFee > 0) {
+          sunPerEnergy = dynamicEnergyFee;
+        }
+        energyFee = (usage - accountEnergyLeft) * sunPerEnergy;
+        this.setEnergyUsage(accountEnergyLeft);
+        this.setEnergyFee(energyFee);
+
+        long balance = account.getBalance();
+        if (balance < energyFee) {
+          throw new BalanceInsufficientException(
+                  StringUtil.createReadableString(account.createDbKey()) + " insufficient balance");
+        }
+      } else {
+        long sunPerEnergy = Constant.MICRO_SUN_TOKEN_PER_ENERGY;
+        if (dynamicEnergyFee > 0) {
+          sunPerEnergy = dynamicEnergyFee;
+        }
+        energyFee =
+                (usage - accountEnergyLeft) * sunPerEnergy;
+        this.setEnergyUsage(accountEnergyLeft);
+        this.setEnergyFee(energyFee);
+        long balance = account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L);
+        if (balance < energyFee) {
+          throw new BalanceInsufficientException(
+                  StringUtil.createReadableString(account.createDbKey()) + " insufficient token");
+        }
       }
-      long energyFee =
-          (usage - accountEnergyLeft) * sunPerEnergy;
-      this.setEnergyUsage(accountEnergyLeft);
-      this.setEnergyFee(energyFee);
-      long balance = account.getBalance();
-      if (balance < energyFee) {
-        throw new BalanceInsufficientException(
-            StringUtil.createReadableString(account.createDbKey()) + " insufficient balance");
-      }
-      account.setBalance(balance - energyFee);
+      Commons.adjustBalance(accountStore, account, -energyFee, chargingType);
 
       //send to blackHole
-      Commons.adjustBalance(accountStore, accountStore.getBlackhole().getAddress().toByteArray(),
-          energyFee);
+      Commons.adjustFund(dynamicPropertiesStore, energyFee);
     }
 
     accountStore.put(account.getAddress().toByteArray(), account);

@@ -210,10 +210,10 @@ public class ShieldedTransferActuator extends AbstractActuator {
       throw new ContractValidateException(e.getMessage());
     }
 
-    if (dynamicStore.getAllowSameTokenName() != 1) {
-      throw new ContractValidateException("shielded transaction is not allowed before "
-          + "ALLOW_SAME_TOKEN_NAME is opened by the committee");
-    }
+//    if (dynamicStore.getAllowSameTokenName() != 1) {
+//      throw new ContractValidateException("shielded transaction is not allowed before "
+//          + "ALLOW_SAME_TOKEN_NAME is opened by the committee");
+//    }
 
     if (!dynamicStore.supportShieldedTransaction()) {
       throw new ContractValidateException("Not support Shielded Transaction, need to be opened by"

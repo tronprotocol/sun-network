@@ -16,7 +16,6 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.ParticipateAssetIssueContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
 import org.tron.protos.contract.BalanceContract.TransferContract;
 import org.tron.protos.contract.WitnessContract.VoteWitnessContract;
@@ -59,15 +58,6 @@ public class WalletGrpcClient {
     return walletBlockingStub.transferAsset(contract);
   }
 
-  public Transaction createParticipateAssetIssueTransaction(
-      ParticipateAssetIssueContract contract) {
-    return walletBlockingStub.participateAssetIssue(contract);
-  }
-
-  public Transaction createAssetIssue(AssetIssueContract contract) {
-    return walletBlockingStub.createAssetIssue(contract);
-  }
-
   public Transaction voteWitnessAccount(VoteWitnessContract contract) {
     return walletBlockingStub.voteWitnessAccount(contract);
   }
@@ -95,17 +85,6 @@ public class WalletGrpcClient {
         .listNodes(EmptyMessage.newBuilder().build());
     if (nodeList != null) {
       return Optional.of(nodeList);
-    }
-    return Optional.empty();
-  }
-
-  public Optional<AssetIssueList> getAssetIssueByAccount(byte[] address) {
-    ByteString addressByteString = ByteString.copyFrom(address);
-    Account request = Account.newBuilder().setAddress(addressByteString).build();
-    AssetIssueList assetIssueList = walletBlockingStub
-        .getAssetIssueByAccount(request);
-    if (assetIssueList != null) {
-      return Optional.of(assetIssueList);
     }
     return Optional.empty();
   }

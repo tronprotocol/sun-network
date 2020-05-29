@@ -1,5 +1,6 @@
 package org.tron.core.db;
 
+import static org.tron.core.Constant.SUN_TOKEN_ID;
 import static org.tron.core.config.Parameter.NodeConstant.MAX_TRANSACTION_PENDING;
 import static org.tron.core.config.args.Parameter.ChainConstant.BLOCK_PRODUCED_INTERVAL;
 
@@ -13,6 +14,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
+
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,24 +71,17 @@ import org.tron.core.ChainBaseManager;
 import org.tron.core.Constant;
 import org.tron.core.actuator.AbstractActuator;
 import org.tron.core.actuator.ActuatorCreator;
-import org.tron.core.capsule.AccountCapsule;
-import org.tron.core.capsule.BlockCapsule;
+import org.tron.core.capsule.*;
 import org.tron.core.capsule.BlockCapsule.BlockId;
-import org.tron.core.capsule.BytesCapsule;
-import org.tron.core.capsule.ExchangeCapsule;
-import org.tron.core.capsule.TransactionCapsule;
-import org.tron.core.capsule.TransactionInfoCapsule;
-import org.tron.core.capsule.TransactionRetCapsule;
-import org.tron.core.capsule.WitnessCapsule;
 import org.tron.core.capsule.utils.BlockUtil;
 import org.tron.core.config.Parameter.ChainConstant;
 import org.tron.core.config.args.Args;
 import org.tron.core.config.args.GenesisBlock;
+import org.tron.core.config.args.Witness;
 import org.tron.core.consensus.ProposalController;
 import org.tron.core.db.KhaosDatabase.KhaosBlock;
 import org.tron.core.db.accountstate.TrieService;
 import org.tron.core.db.accountstate.callback.AccountStateCallBack;
-import org.tron.core.db.api.AssetUpdateHelper;
 import org.tron.core.db2.core.ISession;
 import org.tron.core.db2.core.ITronChainBase;
 import org.tron.core.db2.core.SnapshotManager;
@@ -136,10 +132,13 @@ import org.tron.core.store.WitnessScheduleStore;
 import org.tron.core.store.WitnessStore;
 import org.tron.core.store.ZKProofStore;
 import org.tron.core.utils.TransactionRegister;
+import org.tron.core.vm.config.VMConfig;
+import org.tron.core.vm.repository.Repository;
 import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
 import org.tron.protos.Protocol.TransactionInfo;
+import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
 
 
 @Slf4j(topic = "DB")
@@ -166,8 +165,6 @@ public class Manager {
   private BlockStore blockStore;
   @Autowired
   private WitnessStore witnessStore;
-  @Autowired
-  private AssetIssueStore assetIssueStore;
   @Autowired
   private AssetIssueV2Store assetIssueV2Store;
   @Autowired
@@ -269,6 +266,9 @@ public class Manager {
   @Autowired
   @Getter
   private ChainBaseManager chainBaseManager;
+  @Autowired
+  @Getter
+  private AssetIssueStore assetIssueStore;
   // transactions cache
   private List<TransactionCapsule> pendingTransactions;
   @Getter
@@ -371,31 +371,21 @@ public class Manager {
     return this.proposalStore;
   }
 
-  public ExchangeStore getExchangeStore() {
-    return this.exchangeStore;
-  }
+
+//  public ExchangeStore getExchangeStore() {
+//    return this.exchangeStore;
+//  }
 
   public ExchangeV2Store getExchangeV2Store() {
     return this.exchangeV2Store;
   }
 
   public ExchangeStore getExchangeStoreFinal() {
-    if (getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      return getExchangeStore();
-    } else {
-      return getExchangeV2Store();
-    }
+    return getExchangeV2Store();
   }
 
   public void putExchangeCapsule(ExchangeCapsule exchangeCapsule) {
-    if (getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      getExchangeStore().put(exchangeCapsule.createDbKey(), exchangeCapsule);
-      ExchangeCapsule exchangeCapsuleV2 = new ExchangeCapsule(exchangeCapsule.getData());
-      exchangeCapsuleV2.resetTokenWithID(this.getAssetIssueStore(), this.dynamicPropertiesStore);
-      getExchangeV2Store().put(exchangeCapsuleV2.createDbKey(), exchangeCapsuleV2);
-    } else {
       getExchangeV2Store().put(exchangeCapsule.createDbKey(), exchangeCapsule);
-    }
   }
 
   public List<TransactionCapsule> getPendingTransactions() {
@@ -508,12 +498,12 @@ public class Manager {
     }
     forkController.init(this);
 
-    if (Args.getInstance().isNeedToUpdateAsset() && needToUpdateAsset()) {
-      new AssetUpdateHelper(this).doWork();
-    }
+//    if (Args.getInstance().isNeedToUpdateAsset() && needToUpdateAsset()) {
+//      new AssetUpdateHelper(this).doWork();
+//    }
 
     //for test only
-    dynamicPropertiesStore.updateDynamicStoreByConfig();
+//    dynamicPropertiesStore.updateDynamicStoreByConfig();
 
     initCacheTxs();
     revokingStore.enable();
@@ -574,12 +564,29 @@ public class Manager {
             this.genesisBlock.getBlockId().getByteString());
         this.dynamicPropertiesStore.saveLatestBlockHeaderTimestamp(
             this.genesisBlock.getTimeStamp());
+
+        if (this.dynamicPropertiesStore.getSideChainChargingType() == 1) {
+          // new trc20 token id start from 2000000L
+          this.dynamicPropertiesStore.saveTokenIdNum(2000000L);
+          this.initAssetIssue();
+        }
+
         this.initAccount();
         this.initWitness();
         this.khaosDb.start(genesisBlock);
         this.updateRecentBlock(genesisBlock);
       }
     }
+  }
+  /**
+   * init sunToken asset on side-chain
+   */
+  public void initAssetIssue() {
+    AssetIssueContract.Builder assetBuilder = AssetIssueContract.newBuilder();
+    assetBuilder.setId(SUN_TOKEN_ID)
+            .setPrecision(6);
+    AssetIssueCapsule assetIssueCapsuleV2 = new AssetIssueCapsule(assetBuilder.build());
+    this.assetIssueV2Store.put(assetIssueCapsuleV2.createDbV2Key(), assetIssueCapsuleV2);
   }
 
   /**
@@ -611,10 +618,17 @@ public class Manager {
   private void initWitness() {
     final Args args = Args.getInstance();
     final GenesisBlock genesisBlockArg = args.getGenesisBlock();
-    genesisBlockArg
-        .getWitnesses()
-        .forEach(
-            key -> {
+    List<Witness> genesisBlockArgWitnesses = genesisBlockArg.getWitnesses();
+    if (genesisBlockArgWitnesses.size() < args.getWitnessMaxActiveNum()) {
+      logger.error("genesisBlockWitnessesSize must greater than witnessMaxActiveNum");
+      System.exit(1);
+    }
+    if (args.getWitnessMaxActiveNum() <= 0) {
+      logger.error("getWitnessMaxActiveNum must greater than zero");
+      System.exit(1);
+    }
+    List<Witness> witnessList = genesisBlockArgWitnesses.subList(0, args.getWitnessMaxActiveNum());
+    witnessList.forEach(key -> {
               byte[] keyAddress = key.getAddress();
               ByteString address = ByteString.copyFrom(keyAddress);
 
@@ -714,26 +728,63 @@ public class Manager {
     this.getAccountStore().put(account.getAddress().toByteArray(), account);
   }
 
-  public void adjustAssetBalanceV2(byte[] accountAddress, String AssetID, long amount)
-      throws BalanceInsufficientException {
-    AccountCapsule account = getAccountStore().getUnchecked(accountAddress);
-    adjustAssetBalanceV2(account, AssetID, amount);
+  public void adjustSunTokenBalance(AccountCapsule account, long amount)
+          throws BalanceInsufficientException {
+
+    long sunTokenBalance = account.getAssetMapV2().getOrDefault(SUN_TOKEN_ID, 0L);
+    if (amount == 0) {
+      return;
+    }
+
+    if (amount < 0 && sunTokenBalance < -amount) {
+      throw new BalanceInsufficientException(
+              StringUtil.createReadableString(account.createDbKey())
+                      + " insufficient sun token balance");
+    }
+
+    account.addAssetAmountV2(SUN_TOKEN_ID.getBytes(), amount);
+    this.getAccountStore().put(account.getAddress().toByteArray(), account);
   }
 
-  public void adjustAssetBalanceV2(AccountCapsule account, String AssetID, long amount)
-      throws BalanceInsufficientException {
-    if (amount < 0) {
-      if (!account.reduceAssetAmountV2(AssetID.getBytes(), -amount,
-          this.getDynamicPropertiesStore(), this.getAssetIssueStore())) {
-        throw new BalanceInsufficientException("reduceAssetAmount failed !");
-      }
-    } else if (amount > 0 &&
-        !account.addAssetAmountV2(AssetID.getBytes(), amount,
-            this.getDynamicPropertiesStore(), this.getAssetIssueStore())) {
-      throw new BalanceInsufficientException("addAssetAmount failed !");
+  public void adjustBalance(byte[] accountAddress, long amount, int chargingType)
+          throws BalanceInsufficientException {
+    AccountCapsule account = getAccountStore().getUnchecked(accountAddress);
+    if (chargingType == 0) {
+      adjustBalance(account, amount);
+    } else {
+      adjustSunTokenBalance(account, amount);
     }
-    accountStore.put(account.getAddress().toByteArray(), account);
   }
+
+  public void adjustBalance(AccountCapsule account, long amount, int chargingType)
+          throws BalanceInsufficientException {
+    if (chargingType == 0) {
+      adjustBalance(account, amount);
+    } else {
+      adjustSunTokenBalance(account, amount);
+    }
+  }
+
+//  public void adjustAssetBalanceV2(byte[] accountAddress, String AssetID, long amount)
+//      throws BalanceInsufficientException {
+//    AccountCapsule account = getAccountStore().getUnchecked(accountAddress);
+//    adjustAssetBalanceV2(account, AssetID, amount);
+//  }
+//
+//  public void adjustAssetBalanceV2(AccountCapsule account, String AssetID, long amount)
+//      throws BalanceInsufficientException {
+//    if (amount < 0) {
+//      if (!account.reduceAssetAmountV2(AssetID.getBytes(), -amount,
+//          this.getDynamicPropertiesStore(), this.getAssetIssueStore())) {
+//        throw new BalanceInsufficientException("reduceAssetAmount failed !");
+//      }
+//    } else if (amount > 0 &&
+//        !account.addAssetAmountV2(AssetID.getBytes(), amount,
+//            this.getDynamicPropertiesStore(), this.getAssetIssueStore())) {
+//      throw new BalanceInsufficientException("addAssetAmount failed !");
+//    }
+//    accountStore.put(account.getAddress().toByteArray(), account);
+//  }
 
   public void adjustTotalShieldedPoolValue(long valueBalance) throws BalanceInsufficientException {
     long totalShieldedPoolValue = Math
@@ -790,6 +841,18 @@ public class Manager {
     if (containsTransaction(transactionCapsule)) {
       logger.debug(ByteArray.toHexString(transactionCapsule.getTransactionId().getBytes()));
       throw new DupTransactionException("dup trans");
+    }
+  }
+
+  void validateResultConsistence(byte[] originData, TransactionCapsule trxCap,
+                                 BlockCapsule blockCapsule)
+          throws ContractExeException {
+    if (trxCap.getBlockNum() >= 0 && blockCapsule != null
+            && !blockCapsule.generatedByMyself
+            && blockCapsule.getTransactions().contains(trxCap)) {
+      if (!Arrays.equals(trxCap.getInstance().getRet(0).toByteArray(), originData)) {
+        throw new ContractExeException("consistence check fail");
+      }
     }
   }
 
@@ -851,7 +914,9 @@ public class Manager {
   public void consumeMultiSignFee(TransactionCapsule trx, TransactionTrace trace)
       throws AccountResourceInsufficientException {
     if (trx.getInstance().getSignatureCount() > 1) {
-      long fee = getDynamicPropertiesStore().getMultiSignFee();
+      //long fee = getDynamicPropertiesStore().getMultiSignFee();
+      int chargingType = getDynamicPropertiesStore().getSideChainChargingType();
+      long fee = getDynamicPropertiesStore().getMultiSignFee(chargingType);
 
       List<Contract> contracts = trx.getInstance().getRawData().getContractList();
       for (Contract contract : contracts) {
@@ -859,8 +924,8 @@ public class Manager {
         AccountCapsule accountCapsule = getAccountStore().get(address);
         try {
           if (accountCapsule != null) {
-            adjustBalance(accountCapsule, -fee);
-            adjustBalance(this.getAccountStore().getBlackhole().createDbKey(), +fee);
+            adjustBalance(accountCapsule, -fee, chargingType);
+            adjustFund(fee);
           }
         } catch (BalanceInsufficientException e) {
           throw new AccountResourceInsufficientException(
@@ -878,6 +943,31 @@ public class Manager {
     processor.consume(trx, trace);
   }
 
+  public void consumeBandwidthEnergy(TransactionCapsule trx, TransactionTrace trace)
+          throws ContractValidateException, TooBigTransactionResultException, AccountResourceInsufficientException {
+    EnergyProcessor processor = new EnergyProcessor(getDynamicPropertiesStore(), getAccountStore());
+    processor.bandwidthEnergyConsume(trx, trace);
+  }
+
+  public void checkTransactionSize(TransactionCapsule trx)
+          throws TooBigTransactionResultException, TooBigTransactionException {
+    List<Contract> contracts = trx.getInstance().getRawData().getContractList();
+    if (trx.getResultSerializedSize() > Constant.MAX_RESULT_SIZE_IN_TX * contracts.size()) {
+      throw new TooBigTransactionResultException();
+    }
+
+    long bytesSize;
+
+    bytesSize = trx.getInstance().toBuilder().clearRet().build().getSerializedSize();
+
+    for (Contract contract : contracts) {
+      bytesSize += Constant.MAX_RESULT_SIZE_IN_TX;
+      if (bytesSize > this.getDynamicPropertiesStore().getMaxGateWayContractSize()) {
+        throw new TooBigTransactionException(
+                "too big transaction, the size is " + bytesSize + " bytes");
+      }
+    }
+  }
 
   /**
    * when switch fork need erase blocks on fork branch.
@@ -1279,23 +1369,34 @@ public class Manager {
       throw new ValidateSignatureException("trans sig validate failed");
     }
 
+    byte[] originData = null;
+    if (trxCap.getInstance().getRetCount() > 0) {
+      originData = trxCap.getInstance().getRet(0).toByteArray();
+    }
+
     TransactionTrace trace = new TransactionTrace(trxCap, StoreFactory.getInstance(),
         new RuntimeImpl(this));
     trxCap.setTrxTrace(trace);
 
-    consumeBandwidth(trxCap, trace);
-    consumeMultiSignFee(trxCap, trace);
+    boolean isSideChainGateWayCall = trace.isSideChainGateWayContractCall();
+    if (isSideChainGateWayCall) {
+      this.checkTransactionSize(trxCap);
+    }
 
-/*
-    VMConfig.initVmHardFork(ForkController.instance().pass(ForkBlockVersionConsts.ENERGY_LIMIT));
-    VMConfig.initAllowMultiSign(dynamicPropertiesStore.getAllowMultiSign());
-    VMConfig.initAllowTvmTransferTrc10(dynamicPropertiesStore.getAllowTvmTransferTrc10());
-    VMConfig.initAllowTvmConstantinople(dynamicPropertiesStore.getAllowTvmConstantinople());
-    VMConfig.initAllowTvmSolidity059(dynamicPropertiesStore.getAllowTvmSolidity059());
-*/
+    if (dynamicPropertiesStore.getChargingSwitch() == 1
+            && !isSideChainGateWayCall) {
+      //
+      if (dynamicPropertiesStore.getSideChainChargingBandwidth() == 1) {
+        consumeBandwidth(trxCap, trace);
+      } else {
+        consumeBandwidthEnergy(trxCap, trace);
+      }
+      consumeMultiSignFee(trxCap, trace);
+    }
 
     trace.init(blockCap, eventPluginLoaded);
-    trace.checkIsConstant();
+    // no need to check after constantinople
+    // trace.checkIsConstant();
     trace.exec();
 
     if (Objects.nonNull(blockCap)) {
@@ -1305,7 +1406,8 @@ public class Manager {
           String txId = Hex.toHexString(trxCap.getTransactionId().getBytes());
           logger.info("Retry for tx id: {}", txId);
           trace.init(blockCap, eventPluginLoaded);
-          trace.checkIsConstant();
+          // no need to check after constantinople
+          // trace.checkIsConstant();
           trace.exec();
           trace.setResult();
           logger.info("Retry result for tx id: {}, tx resultCode in receipt: {}",
@@ -1316,9 +1418,10 @@ public class Manager {
     }
 
     trace.finalization();
-    if (Objects.nonNull(blockCap) && getDynamicPropertiesStore().supportVM()) {
+    if (Objects.nonNull(blockCap)) {
       trxCap.setResult(trace.getTransactionContext());
     }
+    validateResultConsistence(originData, trxCap, blockCap);
     transactionStore.put(trxCap.getTransactionId().getBytes(), trxCap);
 
     Optional.ofNullable(transactionCache)
@@ -1542,6 +1645,7 @@ public class Manager {
     } finally {
       accountStateCallBack.exceptionFinish();
     }
+
     merkleContainer.saveCurrentMerkleTreeAsBestMerkleTree(block.getNum());
     block.setResult(transationRetCapsule);
     if (getDynamicPropertiesStore().getAllowAdaptiveEnergy() == 1) {
@@ -1554,6 +1658,7 @@ public class Manager {
 
     if (dynamicPropertiesStore.getNextMaintenanceTime() <= block.getTimeStamp()) {
       proposalController.processProposals();
+      modifyPayPerBlock();
       forkController.reset();
     }
 
@@ -1574,10 +1679,29 @@ public class Manager {
           getDynamicPropertiesStore().getWitnessPayPerBlock());
       delegationService.payStandbyWitness();
     } else {
-      byte[] witness = block.getWitnessAddress().toByteArray();
-      AccountCapsule account = getAccountStore().get(witness);
-      account.setAllowance(account.getAllowance() + dynamicPropertiesStore.getWitnessPayPerBlock());
-      getAccountStore().put(account.createDbKey(), account);
+      try {
+        if (dynamicPropertiesStore.getFundDistributeEnableSwitch() == 1) {
+          long payPerBlock = (-1) * (adjustFund(
+                  (-1) * getDynamicPropertiesStore().getWitnessPayPerBlock()));
+          long percent = getDynamicPropertiesStore().getPercentToPayWitness();
+          long amountForWitness = BigInteger.valueOf(payPerBlock)
+                  .multiply(BigInteger.valueOf(percent))
+                  .divide(BigInteger.valueOf(100)).longValue();
+          int chargingType = getDynamicPropertiesStore().getSideChainChargingType();
+          logger.info("payPerBlock = {}, percent = {}, amountForWitness = {}", payPerBlock, percent,
+                  amountForWitness);
+
+          byte[] witness = block.getWitnessAddress().toByteArray();
+          AccountCapsule account = getAccountStore().get(witness);
+          account.setAllowance(account.getAllowance() + amountForWitness);
+          getAccountStore().put(account.createDbKey(), account);
+
+          adjustBalance(getDynamicPropertiesStore().getFundInjectAddress(),
+                  payPerBlock - amountForWitness, chargingType);
+        }
+      } catch (BalanceInsufficientException e) {
+        logger.warn(e.getMessage(), e);
+      }
     }
   }
 
@@ -1615,24 +1739,16 @@ public class Manager {
     }
   }
 
-  public AssetIssueStore getAssetIssueStore() {
-    return assetIssueStore;
-  }
-
-  public void setAssetIssueStore(AssetIssueStore assetIssueStore) {
-    this.assetIssueStore = assetIssueStore;
-  }
+//  public void setAssetIssueStore(AssetIssueStore assetIssueStore) {
+//    this.assetIssueStore = assetIssueStore;
+//  }
 
   public AssetIssueV2Store getAssetIssueV2Store() {
     return assetIssueV2Store;
   }
 
   public AssetIssueStore getAssetIssueStoreFinal() {
-    if (getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
-      return getAssetIssueStore();
-    } else {
-      return getAssetIssueV2Store();
-    }
+    return getAssetIssueV2Store();
   }
 
   public void setBlockIndexStore(BlockIndexStore indexStore) {
@@ -1672,7 +1788,7 @@ public class Manager {
     closeOneStore(accountIndexStore);
     closeOneStore(witnessStore);
     closeOneStore(witnessScheduleStore);
-    closeOneStore(assetIssueStore);
+//    closeOneStore(assetIssueStore);
     closeOneStore(dynamicPropertiesStore);
     closeOneStore(transactionStore);
     closeOneStore(codeStore);
@@ -1799,6 +1915,7 @@ public class Manager {
   }
 
   private void postBlockTrigger(final BlockCapsule newBlock) {
+    postSolidityTrigger(getDynamicPropertiesStore().getLatestSolidifiedBlockNum());
     if (eventPluginLoaded && EventPluginLoader.getInstance().isBlockLogTriggerEnable()) {
       BlockLogTriggerCapsule blockLogTriggerCapsule = new BlockLogTriggerCapsule(newBlock);
       blockLogTriggerCapsule.setLatestSolidifiedBlockNumber(latestSolidifiedBlockNumber);
@@ -1890,4 +2007,109 @@ public class Manager {
       return true;
     }
   }
+
+  public void modifyPayPerBlock() {
+    long fund = getDynamicPropertiesStore().getFund();
+    long dayToSustain = getDynamicPropertiesStore().getDayToSustainByFund();
+    long pay = fund / (86400 / 3 * dayToSustain);
+    logger
+            .info("[Modify Pay Per Block], fund = {}, daytosustain = {}, pay = {}", fund, dayToSustain,
+                    pay);
+    getDynamicPropertiesStore().saveWitnessPayPerBlock(
+            getDynamicPropertiesStore().getFund() / (86400 / 3 * getDynamicPropertiesStore()
+                    .getDayToSustainByFund()));
+  }
+
+  public long adjustFund(long num) {
+
+    long fund = getDynamicPropertiesStore().getFund();
+    if (num == 0) {
+      return 0;
+    }
+
+    if (num < 0 && fund < -num) {//if |num| > fund, return all of fund
+      getDynamicPropertiesStore().saveFund(0);
+      return fund * (-1);
+    }
+
+    getDynamicPropertiesStore().saveFund(fund + num);
+    return num;
+  }
+
+  /**
+   * Determine if the current time is maintenance time.
+   */
+  public boolean needMaintenance(long blockTime) {
+    return this.dynamicPropertiesStore.getNextMaintenanceTime() <= blockTime;
+  }
+
+  /**
+   * Perform maintenance.
+   */
+/*  private void processMaintenance(BlockCapsule block) {
+    proposalController.processProposals();
+    modifyPayPerBlock();
+    witnessController.updateWitness();
+    this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
+    forkController.reset();
+  }*/
+
+  /**
+   * @param block the block update signed witness. set witness who signed block the 1. the latest
+   * block num 2. pay the trx to witness. 3. the latest slot num.
+   */
+/*  public void updateSignedWitness(BlockCapsule block) {
+    // TODO: add verification
+    WitnessCapsule witnessCapsule =
+            witnessStore.getUnchecked(
+                    block.getInstance().getBlockHeader().getRawData().getWitnessAddress()
+                            .toByteArray());
+    witnessCapsule.setTotalProduced(witnessCapsule.getTotalProduced() + 1);
+    witnessCapsule.setLatestBlockNum(block.getNum());
+    witnessCapsule.setLatestSlotNum(witnessController.getAbSlotAtTime(block.getTimeStamp()));
+
+    // Update memory witness status
+    WitnessCapsule wit = witnessController.getWitnesseByAddress(block.getWitnessAddress());
+    if (wit != null) {
+      wit.setTotalProduced(witnessCapsule.getTotalProduced() + 1);
+      wit.setLatestBlockNum(block.getNum());
+      wit.setLatestSlotNum(witnessController.getAbSlotAtTime(block.getTimeStamp()));
+    }
+
+    this.getWitnessStore().put(witnessCapsule.getAddress().toByteArray(), witnessCapsule);
+
+    try {
+      if (dynamicPropertiesStore.getFundDistributeEnableSwitch() == 1) {
+        long payPerBlock = (-1) * (adjustFund(
+                (-1) * getDynamicPropertiesStore().getWitnessPayPerBlock()));
+        long percent = getDynamicPropertiesStore().getPercentToPayWitness();
+        long amountForWitness = BigInteger.valueOf(payPerBlock)
+                .multiply(BigInteger.valueOf(percent))
+                .divide(BigInteger.valueOf(100)).longValue();
+        int chargingType = getDynamicPropertiesStore().getSideChainChargingType();
+        logger.info("payPerBlock = {}, percent = {}, amountForWitness = {}", payPerBlock, percent,
+                amountForWitness);
+        adjustAllowance(witnessCapsule.getAddress().toByteArray(), amountForWitness);
+        adjustBalance(getDynamicPropertiesStore().getFundInjectAddress(),
+                payPerBlock - amountForWitness, chargingType);
+      }
+    } catch (BalanceInsufficientException e) {
+      logger.warn(e.getMessage(), e);
+    }
+
+    logger.debug(
+            "updateSignedWitness. witness address:{}, blockNum:{}, totalProduced:{}",
+            witnessCapsule.createReadableString(),
+            block.getNum(),
+            witnessCapsule.getTotalProduced());
+  }*/
+
+  public void updateMaintenanceState(boolean needMaint) {
+    if (needMaint) {
+      getDynamicPropertiesStore().saveStateFlag(1);
+    } else {
+      getDynamicPropertiesStore().saveStateFlag(0);
+    }
+  }
+
 }

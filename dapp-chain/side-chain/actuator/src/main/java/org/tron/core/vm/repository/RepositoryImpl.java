@@ -3,8 +3,11 @@ package org.tron.core.vm.repository;
 import static java.lang.Long.max;
 import static org.tron.core.config.args.Parameter.ChainConstant.BLOCK_PRODUCED_INTERVAL;
 
+import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
 import java.util.HashMap;
+import java.util.List;
+
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.Strings;
@@ -85,6 +88,9 @@ public class RepositoryImpl implements Repository {
   private HashMap<Key, Storage> storageCache = new HashMap<>();
 
   private HashMap<Key, Value> assetIssueCache = new HashMap<>();
+
+  private static final byte[] ENERGY_FEE = "ENERGY_FEE".getBytes();
+
 
   public RepositoryImpl(StoreFactory storeFactory, RepositoryImpl repository) {
     init(storeFactory, repository);
@@ -271,12 +277,10 @@ public class RepositoryImpl implements Repository {
     Value value = Value.create(code, Type.VALUE_TYPE_CREATE);
     codeCache.put(key, value);
 
-    if (VMConfig.allowTvmConstantinople()) {
-      ContractCapsule contract = getContract(address);
-      byte[] codeHash = Hash.sha3(code);
-      contract.setCodeHash(codeHash);
-      updateContract(address, contract);
-    }
+    ContractCapsule contract = getContract(address);
+    byte[] codeHash = Hash.sha3(code);
+    contract.setCodeHash(codeHash);
+    updateContract(address, contract);
   }
 
   @Override
@@ -345,12 +349,8 @@ public class RepositoryImpl implements Repository {
     Storage storage;
     if (this.parent != null) {
       Storage parentStorage = parent.getStorage(address);
-      if (VMConfig.getEnergyLimitHardFork()) {
-        // deep copy
-        storage = new Storage(parentStorage);
-      } else {
-        storage = parentStorage;
-      }
+      // deep copy
+      storage = new Storage(parentStorage);
     } else {
       storage = new Storage(address, getStorageRowStore());
     }
@@ -454,12 +454,10 @@ public class RepositoryImpl implements Repository {
               + " insufficient balance");
     }
     if (value >= 0) {
-      accountCapsule.addAssetAmountV2(tokenIdWithoutLeadingZero, value, getDynamicPropertiesStore(),
-          getAssetIssueStore());
+      accountCapsule.addAssetAmountV2(tokenIdWithoutLeadingZero, value);
     } else {
       accountCapsule
-          .reduceAssetAmountV2(tokenIdWithoutLeadingZero, -value, getDynamicPropertiesStore(),
-              getAssetIssueStore());
+          .reduceAssetAmountV2(tokenIdWithoutLeadingZero, -value);
     }
     Key key = Key.create(address);
     Value V = Value.create(accountCapsule.getData(),
@@ -615,6 +613,40 @@ public class RepositoryImpl implements Repository {
 
     accountCache.put(key, new Value(account.getData(), Type.VALUE_TYPE_CREATE));
     return account;
+  }
+
+  @Override
+  public void putAssetIssue(Key key, Value value) {
+    assetIssueCache.put(key, value);
+  }
+
+  @Override
+  public void putAssetIssue(byte[] tokenId, AssetIssueCapsule assetIssueCapsule) {
+    byte[] tokenIdWithoutLeadingZero = ByteUtil.stripLeadingZeroes(tokenId);
+    Key key = Key.create(tokenIdWithoutLeadingZero);
+    assetIssueCache.put(key,Value.create(assetIssueCapsule.getData(), Type.VALUE_TYPE_CREATE));
+  }
+
+  @Override
+  public long getEnergyFee() {
+    return Longs.fromByteArray(getDynamic(ENERGY_FEE).getData());
+  }
+
+  @Override
+  public List<byte[]> getSideChainGateWayList() {//tim remark todo cache
+    return dynamicPropertiesStore.getSideChainGateWayList();
+  }
+
+  @Override
+  public boolean isGatewayAddress(byte[] address) {//tim remark todo cache
+    List<byte[]> gatewayList = dynamicPropertiesStore.getSideChainGateWayList();
+
+    for (byte[] gateway: gatewayList) {
+      if (ByteUtil.equals(gateway, address)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

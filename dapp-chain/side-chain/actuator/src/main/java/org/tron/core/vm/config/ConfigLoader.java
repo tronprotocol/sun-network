@@ -20,7 +20,7 @@ public class ConfigLoader {
         VMConfig.initVmHardFork(checkForEnergyLimit(ds));
         VMConfig.initAllowMultiSign(ds.getAllowMultiSign());
         VMConfig.initAllowTvmTransferTrc10(ds.getAllowTvmTransferTrc10());
-        VMConfig.initAllowTvmConstantinople(ds.getAllowTvmConstantinople());
+//        VMConfig.initAllowTvmConstantinople(ds.getAllowTvmConstantinople());
         VMConfig.initAllowTvmSolidity059(ds.getAllowTvmSolidity059());
 
       }

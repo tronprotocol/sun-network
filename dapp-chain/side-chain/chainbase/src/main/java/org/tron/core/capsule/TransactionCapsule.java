@@ -29,6 +29,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
 import java.security.SignatureException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -45,6 +46,7 @@ import org.tron.common.crypto.SignInterface;
 import org.tron.common.crypto.SignUtils;
 import org.tron.common.overlay.message.Message;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.DBConfig;
 import org.tron.common.utils.ReflectUtils;
 import org.tron.common.utils.Sha256Hash;
@@ -69,7 +71,6 @@ import org.tron.protos.Protocol.Transaction.Result.contractResult;
 import org.tron.protos.Protocol.Transaction.raw;
 import org.tron.protos.contract.AccountContract.AccountCreateContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.ParticipateAssetIssueContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
 import org.tron.protos.contract.BalanceContract.TransferContract;
 import org.tron.protos.contract.ShieldContract.ShieldedTransferContract;
@@ -79,6 +80,7 @@ import org.tron.protos.contract.SmartContractOuterClass.TriggerSmartContract;
 import org.tron.protos.contract.WitnessContract.VoteWitnessContract;
 import org.tron.protos.contract.WitnessContract.WitnessCreateContract;
 import org.tron.protos.contract.WitnessContract.WitnessUpdateContract;
+import org.tron.protos.contract.SmartContractOuterClass.TriggerSmartContract;
 
 @Slf4j(topic = "capsule")
 public class TransactionCapsule implements ProtoCapsule<Transaction> {
@@ -180,25 +182,32 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
     createTransaction(transferAssetContract, ContractType.TransferAssetContract);
   }
 
-  public TransactionCapsule(ParticipateAssetIssueContract participateAssetIssueContract) {
-    createTransaction(participateAssetIssueContract, ContractType.ParticipateAssetIssueContract);
-  }
+//  public TransactionCapsule(ParticipateAssetIssueContract participateAssetIssueContract) {
+//    createTransaction(participateAssetIssueContract, ContractType.ParticipateAssetIssueContract);
+//  }
 
   public TransactionCapsule(raw rawData, List<ByteString> signatureList) {
     this.transaction = Transaction.newBuilder().setRawData(rawData).addAllSignature(signatureList)
         .build();
   }
 
-  @Deprecated
-  public TransactionCapsule(AssetIssueContract assetIssueContract) {
-    createTransaction(assetIssueContract, ContractType.AssetIssueContract);
-  }
+//  @Deprecated
+//  public TransactionCapsule(AssetIssueContract assetIssueContract) {
+//    createTransaction(assetIssueContract, ContractType.AssetIssueContract);
+//  }
 
   public TransactionCapsule(com.google.protobuf.Message message, ContractType contractType) {
     Transaction.raw.Builder transactionBuilder = Transaction.raw.newBuilder().addContract(
         Transaction.Contract.newBuilder().setType(contractType).setParameter(
             (message instanceof Any ? (Any) message : Any.pack(message))).build());
     transaction = Transaction.newBuilder().setRawData(transactionBuilder.build()).build();
+  }
+
+  public void signWithSideChainId(byte[] privateKey) {
+    ECKey ecKey = ECKey.fromPrivate(privateKey);
+    ECDSASignature signature = ecKey.sign(getHashWithSideChainId(getRawHash().getBytes()));
+    ByteString sig = ByteString.copyFrom(signature.toByteArray());
+    this.transaction = this.transaction.toBuilder().addSignature(sig).build();
   }
 
   public static long getWeight(Permission permission, byte[] address) {
@@ -230,7 +239,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
             "Signature size is " + sig.size());
       }
       String base64 = TransactionCapsule.getBase64FromByteString(sig);
-      byte[] address = SignUtils.signatureToAddress(hash, base64, DBConfig.isECKeyCryptoEngine());
+      byte[] address = SignUtils.signatureToAddress(getHashWithSideChainId(hash), base64, DBConfig.isECKeyCryptoEngine());
       long weight = getWeight(permission, address);
       if (weight == 0) {
         throw new PermissionException(
@@ -387,9 +396,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
         case TransferAssetContract:
           to = contractParameter.unpack(TransferAssetContract.class).getToAddress();
           break;
-        case ParticipateAssetIssueContract:
-          to = contractParameter.unpack(ParticipateAssetIssueContract.class).getToAddress();
-          break;
+//        case ParticipateAssetIssueContract:
+//          to = contractParameter.unpack(ParticipateAssetIssueContract.class).getToAddress();
+//          break;
         // todo add other contract
 
         default:
@@ -603,7 +612,7 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
               + " but it is not contained of permission.");
     }
     ByteString sig = ByteString.copyFrom(cryptoEngine.Base64toBytes(cryptoEngine
-        .signHash(getRawHash().getBytes())));
+        .signHash(getHashWithSideChainId(getRawHash().getBytes()))));
     this.transaction = this.transaction.toBuilder().addSignature(sig).build();
   }
 
@@ -772,5 +781,35 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
       return null;
     }
     return this.transaction.getRet(0).getContractRet();
+  }
+
+  public boolean checkIfSideChainGateWayContractCall(DynamicPropertiesStore dynamicPropertiesStore) {
+    try {
+      Transaction.Contract contract = this.transaction.getRawData().getContract(0);
+      if (contract.getType() == ContractType.TriggerSmartContract) {
+        Any contractParameter = contract.getParameter();
+        TriggerSmartContract smartContract =
+                contractParameter.unpack(TriggerSmartContract.class);
+        List<byte[]> gatewayList = dynamicPropertiesStore.getSideChainGateWayList();
+        for (byte[] gateway : gatewayList) {
+          if (ByteUtil.equals(gateway, smartContract.getContractAddress().toByteArray())) {
+            return true;
+          }
+        }
+        return false;
+
+      }
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
+    return false;
+  }
+
+  public static byte[] getHashWithSideChainId(byte[] hash) {
+    byte[] sideChainIdByteArray = ByteArray.fromHexString(DBConfig.getSideChainId());
+    byte[] hashWithSideChainId = Arrays.copyOf(hash, hash.length + sideChainIdByteArray.length);
+    System.arraycopy(sideChainIdByteArray, 0, hashWithSideChainId, hash.length,
+            sideChainIdByteArray.length);
+    return Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), hashWithSideChainId);
   }
 }

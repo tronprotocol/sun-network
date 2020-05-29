@@ -5,14 +5,20 @@ import static org.tron.core.config.args.Parameter.ChainConstant.BLOCK_PRODUCED_I
 
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.utils.DBConfig;
+import org.tron.core.Constant;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.config.Parameter.AdaptiveResourceLimitConstants;
 import org.tron.core.exception.AccountResourceInsufficientException;
 import org.tron.core.exception.ContractValidateException;
+import org.tron.core.exception.TooBigTransactionResultException;
 import org.tron.core.store.AccountStore;
 import org.tron.core.store.DynamicPropertiesStore;
+import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Account.AccountResource;
+import org.tron.protos.Protocol.Transaction.Contract;
+
+import java.util.List;
 
 @Slf4j(topic = "DB")
 public class EnergyProcessor extends ResourceProcessor {
@@ -152,6 +158,162 @@ public class EnergyProcessor extends ResourceProcessor {
     return getHeadSlot(dynamicPropertiesStore);
   }
 
+  public void bandwidthEnergyConsume(TransactionCapsule trx, TransactionTrace trace)
+          throws TooBigTransactionResultException, ContractValidateException, AccountResourceInsufficientException {
+    List<Contract> contracts = trx.getInstance().getRawData().getContractList();
+    if (trx.getResultSerializedSize() > Constant.MAX_RESULT_SIZE_IN_TX * contracts.size()) {
+      throw new TooBigTransactionResultException();
+    }
+
+    int chargingType = dynamicPropertiesStore.getSideChainChargingType();
+    long bytesSize;
+
+    bytesSize = trx.getInstance().toBuilder().clearRet().build().getSerializedSize();
+
+    for (Contract contract : contracts) {
+
+      bytesSize += Constant.MAX_RESULT_SIZE_IN_TX;
+
+      logger.debug("trxId {},bandwidth cost :{}", trx.getTransactionId(), bytesSize);
+      //trace.setNetBill(bytesSize, 0);
+      byte[] address = TransactionCapsule.getOwner(contract);
+      AccountCapsule accountCapsule = accountStore.get(address);
+      if (accountCapsule == null) {
+        throw new ContractValidateException("account not exists");
+      }
+
+      long now = getHeadSlot();
+
+      if (contractCreateNewAccount(contract)) {
+        consumeEnergyForCreateNewAccount(accountCapsule, bytesSize, now, trace);
+        continue;
+      }
+
+      if (useAccountFrozenEnergy(accountCapsule, bytesSize, now, trace)) {
+        continue;
+      }
+
+      if (useTransactionFee(accountCapsule, bytesSize, trace)) {
+        continue;
+      }
+
+      long fee = dynamicPropertiesStore.getTransactionFee(chargingType) * bytesSize;
+      throw new AccountResourceInsufficientException(
+              "Account Insufficient energy[" + bytesSize + "] and balance["
+                      + fee + "] to create new account");
+
+    }
+
+  }
+
+
+  public boolean contractCreateNewAccount(Contract contract) {
+    switch (contract.getType()) {
+      case AccountCreateContract:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  public void consumeEnergyForCreateNewAccount(AccountCapsule accountCapsule, long bytes,
+                                               long now, TransactionTrace trace) throws AccountResourceInsufficientException {
+    boolean ret = consumeFreezeEnergyForCreateNewAccount(accountCapsule, bytes, now, trace);
+
+    if (!ret) {
+      ret =consumeFeeForCreateNewAccount(accountCapsule, trace);
+      if (!ret) {
+        throw new AccountResourceInsufficientException();
+      }
+    }
+  }
+
+
+  public boolean consumeFreezeEnergyForCreateNewAccount(AccountCapsule accountCapsule, long bytes,
+                                                        long now, TransactionTrace trace) {
+
+    long energyUsage = accountCapsule.getEnergyUsage();
+    long latestConsumeTime = accountCapsule.getAccountResource().getLatestConsumeTimeForEnergy();
+    long energyLimit = calculateGlobalEnergyLimit(accountCapsule);
+
+    long newEnergyUsage = increase(energyUsage, 0, latestConsumeTime, now);
+
+    int chargingType = dynamicPropertiesStore.getSideChainChargingType();
+    long createNewAccountEnergyRatio = divideCeil(1 , dynamicPropertiesStore.
+            getCreateNewAccountEnergyRate(chargingType));
+
+    long usage = bytes * createNewAccountEnergyRatio;
+    if (usage <= energyLimit - newEnergyUsage) {
+      latestConsumeTime = now;
+      long latestOperationTime = dynamicPropertiesStore.getLatestBlockHeaderTimestamp();
+      newEnergyUsage = increase(newEnergyUsage, usage, latestConsumeTime,
+              now);
+      accountCapsule.setLatestConsumeTime(latestConsumeTime);
+      accountCapsule.setLatestOperationTime(latestOperationTime);
+      accountCapsule.setEnergyUsage(newEnergyUsage);
+      accountStore.put(accountCapsule.createDbKey(), accountCapsule);
+      trace.setNetBill(usage, 0);
+      return true;
+    }
+    return false;
+  }
+
+  public boolean consumeFeeForCreateNewAccount(AccountCapsule accountCapsule,
+                                               TransactionTrace trace) {
+    int chargingType = dynamicPropertiesStore.getSideChainChargingType();
+    long fee = dynamicPropertiesStore.getCreateAccountFee(chargingType);
+    if (consumeFee(accountCapsule, fee)) {
+      trace.setNetBill(0, fee);
+      dynamicPropertiesStore.addTotalCreateAccountCost(fee);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private boolean useTransactionFee(AccountCapsule accountCapsule, long bytes,
+                                    TransactionTrace trace) {
+    int chargingType = dynamicPropertiesStore.getSideChainChargingType();
+    long fee = dynamicPropertiesStore.getTransactionFee(chargingType) * bytes;
+    if (consumeFee(accountCapsule, fee)) {
+      trace.setNetBill(0, fee);
+      dynamicPropertiesStore.addTotalTransactionCost(fee);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private boolean useAccountFrozenEnergy(AccountCapsule accountCapsule, long bytes, long now,
+                                         TransactionTrace trace) {
+    int chargingType = dynamicPropertiesStore.getSideChainChargingType();
+    long rate = dynamicPropertiesStore.getTransactionEnergyByteRate(chargingType);
+    long usage= ((rate == 0) ? 0 : divideCeil(bytes, rate)) ;
+    long energyUsage = accountCapsule.getEnergyUsage();
+    long latestConsumeTime = accountCapsule.getAccountResource().getLatestConsumeTimeForEnergy();
+    long energyLimit = calculateGlobalEnergyLimit(accountCapsule);
+
+    long newEnergyUsage = increase(energyUsage, 0, latestConsumeTime, now);
+
+    if (usage > (energyLimit - newEnergyUsage)) {
+      return false;
+    }
+
+    latestConsumeTime = now;
+    long latestOperationTime = dynamicPropertiesStore.getLatestBlockHeaderTimestamp();
+    newEnergyUsage = increase(newEnergyUsage, usage, latestConsumeTime, now);
+    accountCapsule.setEnergyUsage(newEnergyUsage);
+    accountCapsule.setLatestOperationTime(latestOperationTime);
+    accountCapsule.setLatestConsumeTimeForEnergy(latestConsumeTime);
+    trace.setNetBill(usage, 0);
+    accountStore.put(accountCapsule.createDbKey(), accountCapsule);
+
+    if (dynamicPropertiesStore.getAllowAdaptiveEnergy() == 1) {
+      long blockEnergyUsage = dynamicPropertiesStore.getBlockEnergyUsage() + usage;
+      dynamicPropertiesStore.saveBlockEnergyUsage(blockEnergyUsage);
+    }
+    return true;
+  }
 
 }
 

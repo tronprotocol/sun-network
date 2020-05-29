@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
-import org.tron.protos.contract.AssetIssueContractOuterClass.UnfreezeAssetContract;
 
 
 @Component
@@ -25,21 +24,21 @@ public class UnFreezeAssetServlet extends RateLimiterServlet {
   }
 
   protected void doPost(HttpServletRequest request, HttpServletResponse response) {
-    try {
-      String contract = request.getReader().lines()
-          .collect(Collectors.joining(System.lineSeparator()));
-      Util.checkBodySize(contract);
-      boolean visible = Util.getVisiblePost(contract);
-      UnfreezeAssetContract.Builder build = UnfreezeAssetContract.newBuilder();
-      JsonFormat.merge(contract, build, visible);
-      Transaction tx = wallet
-          .createTransactionCapsule(build.build(), ContractType.UnfreezeAssetContract)
-          .getInstance();
-      JSONObject jsonObject = JSONObject.parseObject(contract);
-      tx = Util.setTransactionPermissionId(jsonObject, tx);
-      response.getWriter().println(Util.printCreateTransaction(tx, visible));
-    } catch (Exception e) {
-      Util.processError(e, response);
-    }
+//    try {
+//      String contract = request.getReader().lines()
+//          .collect(Collectors.joining(System.lineSeparator()));
+//      Util.checkBodySize(contract);
+//      boolean visible = Util.getVisiblePost(contract);
+//      UnfreezeAssetContract.Builder build = UnfreezeAssetContract.newBuilder();
+//      JsonFormat.merge(contract, build, visible);
+//      Transaction tx = wallet
+//          .createTransactionCapsule(build.build(), ContractType.UnfreezeAssetContract)
+//          .getInstance();
+//      JSONObject jsonObject = JSONObject.parseObject(contract);
+//      tx = Util.setTransactionPermissionId(jsonObject, tx);
+//      response.getWriter().println(Util.printCreateTransaction(tx, visible));
+//    } catch (Exception e) {
+//      Util.processError(e, response);
+//    }
   }
 }

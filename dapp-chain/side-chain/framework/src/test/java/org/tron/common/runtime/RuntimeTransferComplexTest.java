@@ -99,7 +99,7 @@ public class RuntimeTransferComplexTest {
 
     Transaction trx = TvmTestUtils
         .generateDeploySmartContractAndGetTransaction(contractName, address, ABI, code, value, fee,
-            consumeUserResourcePercent, null);
+            consumeUserResourcePercent, null, 1);
     byte[] contractAddress = WalletUtil.generateContractAddress(trx);
     runtime = TvmTestUtils.processTransactionAndReturnRuntime(trx, deposit, null);
     Assert.assertNull(runtime.getRuntimeError());
@@ -130,7 +130,7 @@ public class RuntimeTransferComplexTest {
 
     Transaction trx = TvmTestUtils
         .generateDeploySmartContractAndGetTransaction(contractName, address, ABI, code, value, fee,
-            consumeUserResourcePercent, null);
+            consumeUserResourcePercent, null, 1);
     byte[] contractAddress = WalletUtil.generateContractAddress(trx);
     runtime = TvmTestUtils.processTransactionAndReturnRuntime(trx, deposit, null);
     Assert.assertNotNull(runtime.getRuntimeError().contains("REVERT"));
@@ -170,7 +170,7 @@ public class RuntimeTransferComplexTest {
 
     byte[] contractAddress = TvmTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, address, ABI, code, value,
-            feeLimit, consumeUserResourcePercent, null, deposit, null);
+            feeLimit, consumeUserResourcePercent, null, deposit, null, 1);
 
     String selectorStr = "transferTo(address)";
     String params =
@@ -397,7 +397,7 @@ public class RuntimeTransferComplexTest {
 
     byte[] contractAddress = TvmTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, address, ABI, code, value,
-            feeLimit, consumeUserResourcePercent, null, deposit, null);
+            feeLimit, consumeUserResourcePercent, null, deposit, null, 1);
     return contractAddress;
   }
 
@@ -478,7 +478,7 @@ public class RuntimeTransferComplexTest {
     long consumeUserResourcePercent = 0;
     byte[] contractAddress = TvmTestUtils
         .deployContractWholeProcessReturnContractAddress(contractName, callerAddress, callerABI,
-            callerCode, value, feeLimit, consumeUserResourcePercent, null, deposit, null);
+            callerCode, value, feeLimit, consumeUserResourcePercent, null, deposit, null, 1);
     return contractAddress;
   }
 

@@ -642,10 +642,10 @@ public class TransferFailed001 {
     String tokenName = "testAssetIssue_" + Long.toString(now);
 
     //Create a new AssetIssue success.
-    Assert
-        .assertTrue(PublicMethed.createAssetIssue(contractExcAddress, tokenName, TotalSupply, 1,
-            10000, start, end, 1, description, url, 100000L,
-            100000L, 1L, 1L, contractExcKey, blockingStubFull));
+//    Assert
+//        .assertTrue(PublicMethed.createAssetIssue(contractExcAddress, tokenName, TotalSupply, 1,
+//            10000, start, end, 1, description, url, 100000L,
+//            100000L, 1L, 1L, contractExcKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     assetAccountId = PublicMethed.queryAccount(contractExcAddress, blockingStubFull)
         .getAssetIssuedID();
@@ -757,11 +757,11 @@ public class TransferFailed001 {
     String tokenName = "testAssetIssue_" + Long.toString(now);
 
     //Create a new AssetIssue success.
-    Assert
-        .assertTrue(PublicMethed.createAssetIssue(contractExcAddress, tokenName, TotalSupply, 1,
-            10000, start, end, 1, description, url, 100000L,
-            100000L, 1L, 1L, contractExcKey, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    Assert
+//        .assertTrue(PublicMethed.createAssetIssue(contractExcAddress, tokenName, TotalSupply, 1,
+//            10000, start, end, 1, description, url, 100000L,
+//            100000L, 1L, 1L, contractExcKey, blockingStubFull));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
     assetAccountId = PublicMethed.queryAccount(contractExcAddress, blockingStubFull)
         .getAssetIssuedID();
 
