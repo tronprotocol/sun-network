@@ -454,10 +454,8 @@ public class RepositoryImpl implements Repository {
               + " insufficient balance");
     }
     if (value >= 0) {
-      //???
       accountCapsule.addAssetAmountV2(tokenIdWithoutLeadingZero, value);
     } else {
-      //???
       accountCapsule
           .reduceAssetAmountV2(tokenIdWithoutLeadingZero, -value);
     }

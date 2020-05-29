@@ -266,7 +266,6 @@ public class Manager {
   @Autowired
   @Getter
   private ChainBaseManager chainBaseManager;
-  // ??? should AssetIssueStore be used?
   @Autowired
   @Getter
   private AssetIssueStore assetIssueStore;
@@ -1395,17 +1394,6 @@ public class Manager {
       consumeMultiSignFee(trxCap, trace);
     }
 
-    //??? -> Deposit
-    //VMConfig.handleProposalInVM(this);
-
-/*
-    VMConfig.initVmHardFork(ForkController.instance().pass(ForkBlockVersionConsts.ENERGY_LIMIT));
-    VMConfig.initAllowMultiSign(dynamicPropertiesStore.getAllowMultiSign());
-    VMConfig.initAllowTvmTransferTrc10(dynamicPropertiesStore.getAllowTvmTransferTrc10());
-    VMConfig.initAllowTvmConstantinople(dynamicPropertiesStore.getAllowTvmConstantinople());
-    VMConfig.initAllowTvmSolidity059(dynamicPropertiesStore.getAllowTvmSolidity059());
-*/
-
     trace.init(blockCap, eventPluginLoaded);
     // no need to check after constantinople
     // trace.checkIsConstant();
@@ -1658,17 +1646,6 @@ public class Manager {
       accountStateCallBack.exceptionFinish();
     }
 
-    //??? can't find in 3.7
-/*    boolean needMaint = needMaintenance(block.getTimeStamp());
-    if (needMaint) {
-      if (block.getNum() == 1) {
-        this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
-        modifyPayPerBlock();
-      } else {
-        this.processMaintenance(block);
-      }
-    }*/
-
     merkleContainer.saveCurrentMerkleTreeAsBestMerkleTree(block.getNum());
     block.setResult(transationRetCapsule);
     if (getDynamicPropertiesStore().getAllowAdaptiveEnergy() == 1) {
@@ -1689,9 +1666,6 @@ public class Manager {
       throw new BadBlockException("consensus apply block failed");
     }
 
-    //??? can't find in 3.7
-    //updateSignedWitness(block);
-    //updateLatestSolidifiedBlock();
     updateTransHashCache(block);
     updateRecentBlock(block);
     updateDynamicProperties(block);
