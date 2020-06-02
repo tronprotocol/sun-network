@@ -165,10 +165,10 @@ public class DposService implements ConsensusInterface {
         consensusDelegate.getWitness(b.toByteArray()).getVoteCount())
         .reversed()
         .thenComparing(Comparator.comparingInt(ByteString::hashCode).reversed()));
-
-    if (list.size() > MAX_ACTIVE_WITNESS_NUM) {
+    Integer witnessMaxActiveNum = consensusDelegate.getDynamicPropertiesStore().getWitnessMaxActiveNum();
+    if (list.size() > witnessMaxActiveNum) {
       consensusDelegate
-          .saveActiveWitnesses(list.subList(0, MAX_ACTIVE_WITNESS_NUM));
+          .saveActiveWitnesses(list.subList(0, witnessMaxActiveNum));
     } else {
       consensusDelegate.saveActiveWitnesses(list);
     }

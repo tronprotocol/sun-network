@@ -6,10 +6,8 @@ import static org.tron.core.config.args.Parameter.ChainConstant.MAX_ACTIVE_WITNE
 
 import com.google.common.collect.Maps;
 import com.google.protobuf.ByteString;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.Map.Entry;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -161,10 +159,13 @@ public class MaintenanceManager {
     if (consensusDelegate.getRemoveThePowerOfTheGr() != 1) {
       return;
     }
-    dposService.getGenesisBlock().getWitnesses().forEach(witness -> {
+    int GrNum = consensusDelegate.getDynamicPropertiesStore().getWitnessMaxActiveNum();
+    dposService.getGenesisBlock().getWitnesses().subList(0, GrNum).forEach(witness -> {
       WitnessCapsule witnessCapsule = consensusDelegate.getWitness(witness.getAddress());
-      witnessCapsule.setVoteCount(witnessCapsule.getVoteCount() - witness.getVoteCount());
-      consensusDelegate.saveWitness(witnessCapsule);
+      if (Objects.nonNull(witnessCapsule)) {
+        witnessCapsule.setVoteCount(witnessCapsule.getVoteCount() - witness.getVoteCount());
+        consensusDelegate.saveWitness(witnessCapsule);
+      }
     });
     consensusDelegate.saveRemoveThePowerOfTheGr(-1);
   }

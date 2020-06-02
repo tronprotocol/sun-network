@@ -33,7 +33,7 @@ public class StateManager {
 
   private AtomicLong dupBlockTime = new AtomicLong(0);
 
-  private long blockCycle = BLOCK_PRODUCED_INTERVAL * MAX_ACTIVE_WITNESS_NUM;
+  private long blockCycle;
 
 
   public State getState() {
@@ -102,6 +102,9 @@ public class StateManager {
   }
 
   private boolean isDupWitness() {
+    blockCycle = BLOCK_PRODUCED_INTERVAL * consensusDelegate.getDynamicPropertiesStore()
+            .getWitnessMaxActiveNum();
+
     if (dupBlockCount.get() == 0) {
       return false;
     }
