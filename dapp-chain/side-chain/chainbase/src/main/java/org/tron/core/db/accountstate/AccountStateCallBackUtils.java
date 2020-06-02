@@ -9,6 +9,7 @@ public class AccountStateCallBackUtils {
   protected volatile boolean execute = false;
   protected volatile boolean allowGenerateRoot = false;
   protected List<TrieEntry> trieEntryList = new ArrayList<>();
+  protected List<TrieEntry> storageList = new ArrayList<>();
 
   public void accountCallBack(byte[] key, AccountCapsule item) {
     if (!exe()) {
@@ -19,6 +20,17 @@ public class AccountStateCallBackUtils {
     }
     trieEntryList
         .add(TrieEntry.build(key, new AccountStateEntity(item.getInstance()).toByteArrays()));
+  }
+
+  public void storageCallBack(byte[] key, byte[] value) {
+    if (!exe()) {
+      return;
+    }
+    if (value == null) {
+      return;
+    }
+    storageList
+            .add(TrieEntry.build(key, value));
   }
 
   protected boolean exe() {

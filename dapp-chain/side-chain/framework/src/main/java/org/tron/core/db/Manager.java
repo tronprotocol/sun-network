@@ -239,6 +239,12 @@ public class Manager {
   @Getter
   @Setter
   private MerkleContainer merkleContainer;
+
+  @Autowired
+  @Getter
+  @Setter
+  private StateCompair stateCompair;
+
   @Autowired
   @Getter
   @Setter
@@ -1542,6 +1548,7 @@ public class Manager {
     }
 
     accountStateCallBack.executeGenerateFinish();
+
 
     session.reset();
 
