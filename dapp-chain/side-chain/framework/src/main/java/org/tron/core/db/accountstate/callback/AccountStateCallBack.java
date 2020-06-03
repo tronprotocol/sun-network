@@ -118,7 +118,10 @@ public class AccountStateCallBack extends AccountStateCallBackUtils {
     }
     logger.info("[STATEHASH] block {} stateHash {}", blockCapsule.getBlockId().getNum(),
             Hex.toHexString(newRoot));
+    logger.info("[STORAGEHASH] block {} stateHash {}", blockCapsule.getBlockId().getNum(),
+            Hex.toHexString(newStorage));
     manager.getStateCompair().fill(Hex.toHexString(newRoot));
+    manager.getStateCompair().fill(Hex.toHexString(newStorage));
   }
 
   public void executeGenerateFinish() {
