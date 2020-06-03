@@ -8,12 +8,14 @@ import java.util.List;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
+import org.spongycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tron.common.crypto.Hash;
 import org.tron.common.utils.ByteUtil;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.BlockCapsule;
+import org.tron.core.capsule.StorageRowCapsule;
 import org.tron.core.capsule.utils.RLP;
 import org.tron.core.db.Manager;
 import org.tron.core.db.fast.AccountStateEntity;
@@ -31,6 +33,8 @@ public class FastSyncCallBack {
   private volatile boolean execute = false;
   private volatile boolean allowGenerateRoot = false;
   private TrieImpl trie;
+  private TrieImpl storageTrie;
+  private StorageRowCapsule storageRowCapsule;
 
   @Setter
   private Manager manager;
@@ -39,6 +43,7 @@ public class FastSyncCallBack {
   private AccountStateStoreTrie db;
 
   private List<TrieEntry> trieEntryList = new ArrayList<>();
+  private List<TrieEntry> storageList = new ArrayList<>();
 
   private static class TrieEntry {
 
@@ -80,15 +85,31 @@ public class FastSyncCallBack {
         .add(TrieEntry.build(key, new AccountStateEntity(item.getInstance()).toByteArrays()));
   }
 
+  public void storageCallBack(byte[] key, byte[] value) {
+    if (!exe()) {
+      return;
+    }
+    if (value == null) {
+      return;
+    }
+    storageList
+            .add(TrieEntry.build(key, value));
+  }
+
   public void preExeTrans() {
     trieEntryList.clear();
+    storageList.clear();
   }
 
   public void exeTransFinish() {
     for (TrieEntry trieEntry : trieEntryList) {
       trie.put(RLP.encodeElement(trieEntry.getKey()), trieEntry.getData());
     }
+    for (TrieEntry trieEntry : storageList) {
+      storageTrie.put(RLP.encodeElement(trieEntry.getKey()), trieEntry.getData());
+    }
     trieEntryList.clear();
+    storageList.clear();
   }
 
   public void deleteAccount(byte[] key) {
@@ -101,22 +122,30 @@ public class FastSyncCallBack {
   public void preExecute(BlockCapsule blockCapsule) {
     this.blockCapsule = blockCapsule;
     this.execute = true;
-    this.allowGenerateRoot = manager.getDynamicPropertiesStore().allowAccountStateRoot();
+    this.allowGenerateRoot = true;
+    // this.allowGenerateRoot = manager.getDynamicPropertiesStore().allowAccountStateRoot();
     if (!exe()) {
       return;
     }
     byte[] rootHash = null;
+    byte[] storageHash = null;
     try {
       BlockCapsule parentBlockCapsule = manager.getBlockById(blockCapsule.getParentBlockId());
       rootHash = parentBlockCapsule.getInstance().getBlockHeader().getRawData()
           .getAccountStateRoot().toByteArray();
+      storageHash = parentBlockCapsule.getInstance().getBlockHeader().getRawData()
+              .getStorageRoot().toByteArray();
     } catch (Exception e) {
       logger.error("", e);
     }
     if (Arrays.equals(Internal.EMPTY_BYTE_ARRAY, rootHash)) {
       rootHash = Hash.EMPTY_TRIE_HASH;
     }
+    if (Arrays.equals(Internal.EMPTY_BYTE_ARRAY, storageHash)) {
+      storageHash = Hash.EMPTY_TRIE_HASH;
+    }
     trie = new TrieImpl(db, rootHash);
+    storageTrie = new TrieImpl(db, storageHash);
   }
 
   public void executePushFinish() throws BadBlockException {
@@ -125,19 +154,30 @@ public class FastSyncCallBack {
     }
     ByteString oldRoot = blockCapsule.getInstance().getBlockHeader().getRawData()
         .getAccountStateRoot();
+    ByteString oldStorage = blockCapsule.getInstance().getBlockHeader().getRawData()
+            .getStorageRoot();
     execute = false;
     //
     byte[] newRoot = trie.getRootHash();
+    byte[] newStorage = storageTrie.getRootHash();
     if (ArrayUtils.isEmpty(newRoot)) {
       newRoot = Hash.EMPTY_TRIE_HASH;
     }
     if (!oldRoot.isEmpty() && !Arrays.equals(oldRoot.toByteArray(), newRoot)) {
-      logger.error("the accountStateRoot hash is error. {}, oldRoot: {}, newRoot: {}",
-          blockCapsule.getBlockId().getString(), ByteUtil.toHexString(oldRoot.toByteArray()),
-          ByteUtil.toHexString(newRoot));
-      printErrorLog(trie);
-      throw new BadBlockException("the accountStateRoot hash is error");
+      logger.error("the accountStateRoot hash is error. block num : {}, {}, oldRoot: {}, newRoot: {}",
+              blockCapsule.getBlockId().getNum(), blockCapsule, ByteUtil.toHexString(oldRoot.toByteArray()),
+              ByteUtil.toHexString(newRoot));
+      // throw new BadBlockException("the accountStateRoot hash is error");
     }
+    if (!oldStorage.isEmpty() && !Arrays.equals(oldStorage.toByteArray(), newStorage)) {
+      logger.error("the storage hash is error. block num : {}, {}, oldStorage: {}, newStorage: {}",
+              blockCapsule.getBlockId().getNum(), blockCapsule, ByteUtil.toHexString(oldRoot.toByteArray()),
+              ByteUtil.toHexString(newRoot));
+      // throw new BadBlockException("the accountStateRoot hash is error");
+    }
+    logger.info("[STATEHASH] block {} stateHash {}", blockCapsule.getBlockId().getNum(),
+            Hex.toHexString(newRoot));
+    manager.getStateCompair().fill(Hex.toHexString(newRoot));
   }
 
   public void executeGenerateFinish() {
@@ -146,10 +186,15 @@ public class FastSyncCallBack {
     }
     //
     byte[] newRoot = trie.getRootHash();
+    byte[] newStorage = storageTrie.getRootHash();
     if (ArrayUtils.isEmpty(newRoot)) {
       newRoot = Hash.EMPTY_TRIE_HASH;
     }
+    if (ArrayUtils.isEmpty(newStorage)) {
+      newStorage = Hash.EMPTY_TRIE_HASH;
+    }
     blockCapsule.setAccountStateRoot(newRoot);
+    blockCapsule.setAccountStateRoot(newStorage);
     execute = false;
   }
 

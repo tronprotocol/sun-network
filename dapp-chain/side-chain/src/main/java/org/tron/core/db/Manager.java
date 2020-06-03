@@ -202,6 +202,11 @@ public class Manager {
   @Setter
   private ProposalController proposalController;
 
+  @Autowired
+  @Getter
+  @Setter
+  private StateCompair stateCompair;
+
   private ExecutorService validateSignService;
 
   private boolean isRunRepushThread = true;
