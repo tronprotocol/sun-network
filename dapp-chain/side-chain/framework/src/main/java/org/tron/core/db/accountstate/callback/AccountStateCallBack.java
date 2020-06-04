@@ -45,9 +45,11 @@ public class AccountStateCallBack extends AccountStateCallBackUtils {
   public void exeTransFinish() {
     for (TrieEntry trieEntry : trieEntryList) {
       trie.put(RLP.encodeElement(trieEntry.getKey()), trieEntry.getData());
+      logger.info("[account trieEntry] key is {}, value is {}", trieEntry.getKey(), trieEntry.getData());
     }
     for (TrieEntry trieEntry : storageList) {
       storageTrie.put(RLP.encodeElement(trieEntry.getKey()), trieEntry.getData());
+      logger.info("[storage trieEntry] key is {}, value is {}", trieEntry.getKey(), trieEntry.getData());
     }
     trieEntryList.clear();
     storageList.clear();
