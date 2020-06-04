@@ -176,7 +176,7 @@ public class TransactionTrace {
     /*  VM execute  */
     runtime.execute(transactionContext);
 
-    if(transactionContext.isConstant()){
+    if(!transactionContext.isConstant()){
       if (!isChargingResourceProposalOn() || isSideChainGateWayContractCall() && isResultSuccess()) {
         setBill(0);
       }
