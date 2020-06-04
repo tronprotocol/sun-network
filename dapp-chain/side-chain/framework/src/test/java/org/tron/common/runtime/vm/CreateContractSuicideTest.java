@@ -129,7 +129,8 @@ contract D {
   public void testAAfterAllowMultiSignProposal()
       throws ContractExeException, ReceiptCheckErrException,
       VMIllegalException, ContractValidateException {
-    VMConfig.setVmResourceChargingOn(true);
+    manager.getDynamicPropertiesStore().saveChargingSwitch(1);
+    // VMConfig.setVmResourceChargingOn(true);
     byte[] stats = new byte[27];
     Arrays.fill(stats, (byte) 1);
     //VMConfig.initAllowTvmTransferTrc10(1);

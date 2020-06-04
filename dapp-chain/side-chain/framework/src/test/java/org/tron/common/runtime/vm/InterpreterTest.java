@@ -26,6 +26,7 @@ import org.tron.common.runtime.InternalTransaction;
 import org.tron.common.runtime.InternalTransaction.TrxType;
 import org.tron.common.utils.DBConfig;
 import org.tron.core.config.args.Args;
+import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.vm.VM;
 import org.tron.core.vm.program.Program;
