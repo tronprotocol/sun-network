@@ -113,8 +113,18 @@ public class AccountStateCallBack extends AccountStateCallBackUtils {
     if (!oldStorage.isEmpty() && !Arrays.equals(oldStorage.toByteArray(), newStorage)) {
       logger.error("the storage hash is error. block num : {}, {}, oldStorage: {}, newStorage: {}",
               blockCapsule.getBlockId().getNum(), blockCapsule, ByteUtil.toHexString(oldRoot.toByteArray()),
-              ByteUtil.toHexString(newRoot));
+              ByteUtil.toHexString(newStorage));
       // throw new BadBlockException("the accountStateRoot hash is error");
+    }
+    if(oldRoot.isEmpty()) {
+      logger.error("the accountStateRoot hash is empty. block num : {}, {}, oldRoot: {}, newRoot: {}",
+              blockCapsule.getBlockId().getNum(), blockCapsule, ByteUtil.toHexString(oldRoot.toByteArray()),
+              ByteUtil.toHexString(newRoot));
+    }
+    if(oldStorage.isEmpty()) {
+      logger.error("the storage hash is empty. block num : {}, {}, oldStorage: {}, newStorage: {}",
+              blockCapsule.getBlockId().getNum(), blockCapsule, ByteUtil.toHexString(oldRoot.toByteArray()),
+              ByteUtil.toHexString(newStorage));
     }
     logger.info("[STATEHASH] block {} stateHash {}", blockCapsule.getBlockId().getNum(),
             Hex.toHexString(newRoot));
