@@ -45,11 +45,9 @@ public class AccountStateCallBack extends AccountStateCallBackUtils {
   public void exeTransFinish() {
     for (TrieEntry trieEntry : trieEntryList) {
       trie.put(RLP.encodeElement(trieEntry.getKey()), trieEntry.getData());
-      logger.info("[account trieEntry] key is {}, value is {}", trieEntry.getKey(), trieEntry.getData());
     }
     for (TrieEntry trieEntry : storageList) {
       storageTrie.put(RLP.encodeElement(trieEntry.getKey()), trieEntry.getData());
-      logger.info("[storage trieEntry] key is {}, value is {}", trieEntry.getKey(), trieEntry.getData());
     }
     trieEntryList.clear();
     storageList.clear();
@@ -107,30 +105,30 @@ public class AccountStateCallBack extends AccountStateCallBackUtils {
       newRoot = Hash.EMPTY_TRIE_HASH;
     }
     if (!oldRoot.isEmpty() && !Arrays.equals(oldRoot.toByteArray(), newRoot)) {
-      logger.error("the accountStateRoot hash is error. block num : {}, {}, oldRoot: {}, newRoot: {}",
+      logger.error("forTest150 the accountStateRoot hash is error. block num : {}, {}, oldRoot: {}, newRoot: {}",
               blockCapsule.getBlockId().getNum(), blockCapsule, ByteUtil.toHexString(oldRoot.toByteArray()),
           ByteUtil.toHexString(newRoot));
       // throw new BadBlockException("the accountStateRoot hash is error");
     }
     if (!oldStorage.isEmpty() && !Arrays.equals(oldStorage.toByteArray(), newStorage)) {
-      logger.error("the storage hash is error. block num : {}, {}, oldStorage: {}, newStorage: {}",
+      logger.error("forTest150 the storage hash is error. block num : {}, {}, oldStorage: {}, newStorage: {}",
               blockCapsule.getBlockId().getNum(), blockCapsule, ByteUtil.toHexString(oldRoot.toByteArray()),
               ByteUtil.toHexString(newStorage));
       // throw new BadBlockException("the accountStateRoot hash is error");
     }
     if(oldRoot.isEmpty()) {
-      logger.error("the accountStateRoot hash is empty. block num : {}, {}, oldRoot: {}, newRoot: {}",
+      logger.error("forTest150 the accountStateRoot hash is empty. block num : {}, {}, oldRoot: {}, newRoot: {}",
               blockCapsule.getBlockId().getNum(), blockCapsule, ByteUtil.toHexString(oldRoot.toByteArray()),
               ByteUtil.toHexString(newRoot));
     }
     if(oldStorage.isEmpty()) {
-      logger.error("the storage hash is empty. block num : {}, {}, oldStorage: {}, newStorage: {}",
+      logger.error("forTest150 the storage hash is empty. block num : {}, {}, oldStorage: {}, newStorage: {}",
               blockCapsule.getBlockId().getNum(), blockCapsule, ByteUtil.toHexString(oldRoot.toByteArray()),
               ByteUtil.toHexString(newStorage));
     }
-    logger.info("[STATEHASH] block {} stateHash {}", blockCapsule.getBlockId().getNum(),
+    logger.info("forTest150 [STATEHASH] block {} stateHash {}", blockCapsule.getBlockId().getNum(),
             Hex.toHexString(newRoot));
-    logger.info("[STORAGEHASH] block {} stateHash {}", blockCapsule.getBlockId().getNum(),
+    logger.info("forTest150 [STORAGEHASH] block {} stateHash {}", blockCapsule.getBlockId().getNum(),
             Hex.toHexString(newStorage));
     manager.getStateCompair().fill(Hex.toHexString(newRoot));
     manager.getStateCompair().fill(Hex.toHexString(newStorage));

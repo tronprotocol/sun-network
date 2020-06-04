@@ -1,9 +1,13 @@
 package org.tron.core.db.accountstate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.tron.core.capsule.AccountCapsule;
 
+@Slf4j(topic = "AccountState")
 public class AccountStateCallBackUtils {
 
   protected volatile boolean execute = false;
@@ -18,6 +22,7 @@ public class AccountStateCallBackUtils {
     if (item == null) {
       return;
     }
+    logger.info("forTest150 [account trieEntry] key is {}, value is {}", Arrays.toString(key), item.getInstance());
     trieEntryList
         .add(TrieEntry.build(key, new AccountStateEntity(item.getInstance()).toByteArrays()));
   }
@@ -29,6 +34,7 @@ public class AccountStateCallBackUtils {
     if (value == null) {
       return;
     }
+    logger.info("forTest150 [storage trieEntry] key is {}, value is {}", Arrays.toString(key), Arrays.toString(value));
     storageList
             .add(TrieEntry.build(key, value));
   }
