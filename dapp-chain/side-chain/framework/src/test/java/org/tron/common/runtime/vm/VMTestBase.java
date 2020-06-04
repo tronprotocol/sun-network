@@ -38,7 +38,7 @@ public class VMTestBase {
     rootDeposit = DepositImpl.createRoot(manager);
     rootDeposit.createAccount(Hex.decode(OWNER_ADDRESS), AccountType.Normal);
     rootDeposit.addBalance(Hex.decode(OWNER_ADDRESS), 30000000000000L);
-
+    manager.getDynamicPropertiesStore().saveChargingSwitch(1);
     rootDeposit.commit();
   }
 

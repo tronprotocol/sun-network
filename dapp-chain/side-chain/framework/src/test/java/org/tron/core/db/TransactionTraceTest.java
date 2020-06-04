@@ -102,7 +102,8 @@ public class TransactionTraceTest {
     dbManager.getDynamicPropertiesStore().saveLatestBlockHeaderTimestamp(0);
 
     dbManager.getDynamicPropertiesStore().saveEnergyFee(100);
-    VMConfig.setVmResourceChargingOn(true);
+    dbManager.getDynamicPropertiesStore().saveChargingSwitch(1);
+    // VMConfig.setVmResourceChargingOn(true);
 
   }
 

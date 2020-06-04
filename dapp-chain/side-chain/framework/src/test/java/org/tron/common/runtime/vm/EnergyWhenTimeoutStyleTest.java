@@ -56,7 +56,8 @@ public class EnergyWhenTimeoutStyleTest {
     deposit.addBalance(Hex.decode(OWNER_ADDRESS), totalBalance);
     deposit.commit();
     dbManager.getDynamicPropertiesStore().saveEnergyFee(100);
-    VMConfig.setVmResourceChargingOn(true);
+    dbManager.getDynamicPropertiesStore().saveChargingSwitch(1);
+    //VMConfig.setVmResourceChargingOn(true);
   }
 
   // solidity for endlessLoopTest

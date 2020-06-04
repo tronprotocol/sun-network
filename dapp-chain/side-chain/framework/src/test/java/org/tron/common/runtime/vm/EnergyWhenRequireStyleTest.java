@@ -55,8 +55,10 @@ public class EnergyWhenRequireStyleTest {
     deposit.createAccount(Hex.decode(OWNER_ADDRESS), AccountType.Normal);
     deposit.addBalance(Hex.decode(OWNER_ADDRESS), totalBalance);
     deposit.commit();
-    VMConfig.setVmResourceChargingOn(true);
+    // VMConfig.setVmResourceChargingOn(true);
     dbManager.getDynamicPropertiesStore().saveEnergyFee(100);
+    dbManager.getDynamicPropertiesStore().saveChargingSwitch(1);
+
   }
 
   // A require-style exception is generated in the following situations:
