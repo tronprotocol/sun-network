@@ -81,6 +81,7 @@ public class FastSyncCallBack {
     if (item == null) {
       return;
     }
+    logger.info("forTest150 [account trieEntry] key is {}, value is {}", Arrays.toString(key), item.getInstance());
     trieEntryList
         .add(TrieEntry.build(key, new AccountStateEntity(item.getInstance()).toByteArrays()));
   }
@@ -92,6 +93,7 @@ public class FastSyncCallBack {
     if (value == null) {
       return;
     }
+    logger.info("forTest150 [storage trieEntry] key is {}, value is {}", Arrays.toString(key), Arrays.toString(value));
     storageList
             .add(TrieEntry.build(key, value));
   }
@@ -164,20 +166,30 @@ public class FastSyncCallBack {
       newRoot = Hash.EMPTY_TRIE_HASH;
     }
     if (!oldRoot.isEmpty() && !Arrays.equals(oldRoot.toByteArray(), newRoot)) {
-      logger.error("the accountStateRoot hash is error. block num : {}, {}, oldRoot: {}, newRoot: {}",
+      logger.error("forTest150 the accountStateRoot hash is error. block num : {}, {}, oldRoot: {}, newRoot: {}",
               blockCapsule.getBlockId().getNum(), blockCapsule, ByteUtil.toHexString(oldRoot.toByteArray()),
               ByteUtil.toHexString(newRoot));
       // throw new BadBlockException("the accountStateRoot hash is error");
     }
     if (!oldStorage.isEmpty() && !Arrays.equals(oldStorage.toByteArray(), newStorage)) {
-      logger.error("the storage hash is error. block num : {}, {}, oldStorage: {}, newStorage: {}",
+      logger.error("forTest150 the storage hash is error. block num : {}, {}, oldStorage: {}, newStorage: {}",
               blockCapsule.getBlockId().getNum(), blockCapsule, ByteUtil.toHexString(oldRoot.toByteArray()),
               ByteUtil.toHexString(newRoot));
       // throw new BadBlockException("the accountStateRoot hash is error");
     }
-    logger.info("[STATEHASH] block {} stateHash {}", blockCapsule.getBlockId().getNum(),
+    if(oldRoot.isEmpty()) {
+      logger.error("forTest150 the accountStateRoot hash is empty. block num : {}, {}, oldRoot: {}, newRoot: {}",
+              blockCapsule.getBlockId().getNum(), blockCapsule, ByteUtil.toHexString(oldRoot.toByteArray()),
+              ByteUtil.toHexString(newRoot));
+    }
+    if(oldStorage.isEmpty()) {
+      logger.error("forTest150 the storage hash is empty. block num : {}, {}, oldStorage: {}, newStorage: {}",
+              blockCapsule.getBlockId().getNum(), blockCapsule, ByteUtil.toHexString(oldRoot.toByteArray()),
+              ByteUtil.toHexString(newStorage));
+    }
+    logger.info("forTest150 [STATEHASH] block {} stateHash {}", blockCapsule.getBlockId().getNum(),
             Hex.toHexString(newRoot));
-    logger.info("[STORAGEHASH] block {} stateHash {}", blockCapsule.getBlockId().getNum(),
+    logger.info("forTest150 [STORAGEHASH] block {} stateHash {}", blockCapsule.getBlockId().getNum(),
             Hex.toHexString(newStorage));
     manager.getStateCompair().fill(Hex.toHexString(newRoot));
     manager.getStateCompair().fill(Hex.toHexString(newStorage));
