@@ -17,7 +17,11 @@ public class AccountStateEntity {
     Account.Builder builder = Account.newBuilder();
     builder.setAddress(account.getAddress());
     builder.setBalance(account.getBalance());
+    builder.putAllAssetV2(account.getAssetV2Map());
     builder.setAllowance(account.getAllowance());
+    builder.setAccountResource(account.getAccountResource());
+    builder.addAllFrozen(account.getFrozenList());
+    builder.setNetUsage(account.getNetUsage());
     this.account = builder.build();
   }
 
