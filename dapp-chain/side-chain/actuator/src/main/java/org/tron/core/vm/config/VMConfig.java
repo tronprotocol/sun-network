@@ -21,7 +21,8 @@ import static org.tron.common.utils.DBConfig.ENERGY_LIMIT_HARD_FORK;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.tron.core.vm.repository.Repository;
+import org.tron.core.store.DynamicPropertiesStore;
+
 
 /**
  * For developer only
@@ -72,6 +73,11 @@ public class VMConfig {
     return vmTraceCompressed;
   }
 
+  public static void handleProposalInVM(DynamicPropertiesStore dynamicPropertiesStore) {
+    isVmResourceChargingOn = isChargingResourceProposalOn(dynamicPropertiesStore);
+    isAllowUpdateGateway102 = isAllowUpdateGatewayV102(dynamicPropertiesStore);
+  }
+
   public static void initVmHardFork(boolean pass) {
     ENERGY_LIMIT_HARD_FORK = pass;
   }
@@ -117,12 +123,12 @@ public class VMConfig {
     private static final VMConfig INSTANCE = new VMConfig();
   }
 
-  private static boolean isChargingResourceProposalOn(Repository repository) {
-    return repository.getDynamicPropertiesStore().getChargingSwitch() == 1;
+  private static boolean isChargingResourceProposalOn(DynamicPropertiesStore dynamicPropertiesStore) {
+    return dynamicPropertiesStore.getChargingSwitch() == 1;
   }
 
-  private static boolean isAllowUpdateGatewayV102(Repository repository) {
-    return repository.getDynamicPropertiesStore().getAllowUpdateGatewayV102() == 1;
+  private static boolean isAllowUpdateGatewayV102(DynamicPropertiesStore dynamicPropertiesStore) {
+    return dynamicPropertiesStore.getAllowUpdateGatewayV102() == 1;
   }
 
 }

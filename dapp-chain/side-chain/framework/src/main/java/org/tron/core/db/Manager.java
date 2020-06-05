@@ -1399,7 +1399,7 @@ public class Manager {
       }
       consumeMultiSignFee(trxCap, trace);
     }
-
+    VMConfig.handleProposalInVM(dynamicPropertiesStore);
     trace.init(blockCap, eventPluginLoaded);
     // no need to check after constantinople
     // trace.checkIsConstant();
