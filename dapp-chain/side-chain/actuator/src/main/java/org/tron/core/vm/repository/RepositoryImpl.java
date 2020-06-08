@@ -407,6 +407,7 @@ public class RepositoryImpl implements Repository {
     commitCodeCache(repository);
     commitContractCache(repository);
     commitStorageCache(repository);
+    commitAssetIssueCache(repository);
   }
 
   @Override
@@ -647,6 +648,18 @@ public class RepositoryImpl implements Repository {
       }
     }
     return false;
+  }
+
+  private void commitAssetIssueCache(Repository repository) {
+    assetIssueCache.forEach(((key, value) -> {
+      if (value.getType().isDirty() || value.getType().isCreate()) {
+        if (repository != null) {
+          repository.putAssetIssue(key, value);
+        } else {
+          getAssetIssueV2Store().put(key.getData(), value.getAssetIssue());
+        }
+      }
+    }));
   }
 
 }
