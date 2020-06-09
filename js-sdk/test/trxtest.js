@@ -88,44 +88,50 @@ describe('SunWeb Instance', function() {
             it('deposit trx from main chain to side chain', async function () {
                 const mdepositBalancebefore = await sunWeb.mainchain.trx.getBalance();
                 const sdepositBalancebefore = await sunWeb.sidechain.trx.getBalance();
-                console.log('mBefore:' + mdepositBalancebefore);
-                console.log('sBefore:' + sdepositBalancebefore);
                 const callValue = 100;
                 const txID = await sunWeb.depositTrx(callValue, DEPOSIT_FEE,FEE_LIMIT);
                 await TIMEOUT(80000);
                 const result =await sunWeb.mainchain.trx.getTransactionInfo(txID);
                 console.log(result)
                 const fee = result.fee;
-                console.log('fee:' + fee)
+                console.log('fee: ' + fee)
 
 
                 const mdepositBalanceafter = await sunWeb.mainchain.trx.getBalance();
                 const sdepositBalanceafter = await sunWeb.sidechain.trx.getBalance();
 
+                console.log('mBefore: ' + mdepositBalancebefore);
+                console.log('sBefore: ' + sdepositBalancebefore);
                 console.log('mdepositBalanceafter: ' +  mdepositBalanceafter)
                 console.log('sdepositBalanceafter: ' +  sdepositBalanceafter)
                 assert.equal(txID.length, 64);
-                assert.equal(mdepositBalanceafter, mdepositBalancebefore - callValue - fee);
+                assert.equal(mdepositBalanceafter, mdepositBalancebefore - callValue - fee - DEPOSIT_FEE);
                 assert.equal(sdepositBalanceafter, sdepositBalancebefore + callValue);
             });
+        });
 
-            describe('#withdrawTrx()', function () {
-                const sunWeb = sunBuilder.createInstance();
-                it('withdraw trx from side chain to main chain', async function () {
-                    const mwithdrawBalancebefore = await sunWeb.mainchain.trx.getBalance();
-                    const swithdrawBalancebefore = await sunWeb.sidechain.trx.getBalance();
-                    const callValue = 100;
-                    const txID = await sunWeb.withdrawTrx(callValue, WITHDRAW_FEE,100000000);
-                    await TIMEOUT(80000);
-                    const mwithdrawBalanceafter = await sunWeb.mainchain.trx.getBalance();
-                    const swithdrawBalanceafter = await sunWeb.sidechain.trx.getBalance();
+        describe('#withdrawTrx()', function () {
+            const sunWeb = sunBuilder.createInstance();
+            it('withdraw trx from side chain to main chain', async function () {
+                const mwithdrawBalancebefore = await sunWeb.mainchain.trx.getBalance();
+                const swithdrawBalancebefore = await sunWeb.sidechain.trx.getBalance();
+                const callValue = 100;
+                const txID = await sunWeb.withdrawTrx(callValue, WITHDRAW_FEE,FEE_LIMIT);
+                await TIMEOUT(80000);
+                console.log("txID: "+txID);
 
-                    assert.equal(txID.length, 64);
-                    assert.equal(mwithdrawBalancebefore +callValue, mwithdrawBalanceafter);
-                    assert.equal(swithdrawBalanceafter, swithdrawBalancebefore -callValue);
-                });
+                const mwithdrawBalanceafter = await sunWeb.mainchain.trx.getBalance();
+                const swithdrawBalanceafter = await sunWeb.sidechain.trx.getBalance();
+                console.log('mBefore: ' + mwithdrawBalancebefore);
+                console.log('sBefore: ' + swithdrawBalancebefore);
+                console.log('mwithdrawBalanceafter: ' +  mwithdrawBalanceafter)
+                console.log('swithdrawBalanceafter: ' +  swithdrawBalanceafter)
 
+                assert.equal(txID.length, 64);
+                assert.equal(mwithdrawBalancebefore +callValue, mwithdrawBalanceafter);
+                assert.equal(swithdrawBalanceafter, swithdrawBalancebefore - callValue - WITHDRAW_FEE);
             });
+
         });
     });
 });

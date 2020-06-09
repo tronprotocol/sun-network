@@ -1,4 +1,4 @@
-const { PRIVATE_KEY, CONSUME_USER_RESOURCE_PERCENT, DEPOSIT_FEE, WITHDRAW_FEE, MAPPING_FEE, FEE_LIMIT, MAIN_FULL_NODE_API, MAIN_SOLIDITY_NODE_API, MAIN_EVENT_API, SIDE_FULL_NODE_API, SIDE_SOLIDITY_NODE_API, SIDE_EVENT_API, MAIN_GATEWAY_ADDRESS, SIDE_GATEWAY_ADDRESS, ADDRESS_HEX, ADDRESS_BASE58, TOKEN_ID, CONTRACT_ADDRESS20, HASH20, HASH721, CONTRACT_ADDRESS721, ADDRESS20_MAPPING, ADDRESS721_MAPPING, SIDE_CHAIN_ID, FEE} = require('./helpers/config');
+const {TIMEOUT, PRIVATE_KEY, CONSUME_USER_RESOURCE_PERCENT, DEPOSIT_FEE, WITHDRAW_FEE, MAPPING_FEE, FEE_LIMIT, MAIN_FULL_NODE_API, MAIN_SOLIDITY_NODE_API, MAIN_EVENT_API, SIDE_FULL_NODE_API, SIDE_SOLIDITY_NODE_API, SIDE_EVENT_API, MAIN_GATEWAY_ADDRESS, SIDE_GATEWAY_ADDRESS, ADDRESS_HEX, ADDRESS_BASE58, TOKEN_ID, CONTRACT_ADDRESS20, HASH20, HASH721, CONTRACT_ADDRESS721, ADDRESS20_MAPPING, ADDRESS721_MAPPING, SIDE_CHAIN_ID, FEE} = require('./helpers/config');
 
 const sunBuilder = require('./helpers/sunWebBuilder');
 const SunWeb = sunBuilder.SunWeb;
@@ -98,15 +98,17 @@ describe('SunWeb Instance', function() {
 
             it('depositTrx with permissionId in options object', async function() {
                 const callValue = 10000000;
-                const options = { permissionId: 0 };
+                const options = { permissionId: 2 };
                 const txID = await sunWeb.depositTrx(callValue, DEPOSIT_FEE, FEE_LIMIT, options);
+                console.log("depositTrx with permissionId---txTD: "+txID);
                 assert.equal(txID.length, 64);
             });
 
             it('depositTrx with permissionId in options object and the defined private key', async function() {
                 const callValue = 10000000;
-                const options = { permissionId: 0 };
+                const options = { permissionId: 2 };
                 const txID = await sunWeb.depositTrx(callValue, DEPOSIT_FEE, FEE_LIMIT, options, PRIVATE_KEY);
+                console.log("depositTrx with permissionId and private key---txTD: "+txID);
                 assert.equal(txID.length, 64);
             });
 
@@ -142,15 +144,17 @@ describe('SunWeb Instance', function() {
 
             it('depositTrc10 with permissionId in options object', async function() {
                 const tokenValue = 10;
-                const options = { permissionId: 0 };
+                const options = { permissionId: 2 };
                 const txID = await sunWeb.depositTrc10(TOKEN_ID, tokenValue, DEPOSIT_FEE, FEE_LIMIT, options);
+                console.log("depositTrc10 with permissionId---txTD: "+txID);
                 assert.equal(txID.length, 64);
             });
 
             it('depositTrc10 with permissionId in options object and the defined private key', async function() {
                 const tokenValue = 10;
-                const options = { permissionId: 0 };
+                const options = { permissionId: 2 };
                 const txID = await sunWeb.depositTrc10(TOKEN_ID, tokenValue, DEPOSIT_FEE, FEE_LIMIT, options, PRIVATE_KEY);
+                console.log("depositTrc10 with permissionId and private key---txTD: "+txID);
                 assert.equal(txID.length, 64);
             });
 
@@ -194,17 +198,25 @@ describe('SunWeb Instance', function() {
                 assert.equal(txID.length, 64);
             });
 
+
             it('depositTrc20 with permissionId in options object', async function() {
                 const num = 100;
-                const options = { permissionId: 0 };
+                const txid = sunWeb.approveTrc20(num, FEE_LIMIT, CONTRACT_ADDRESS20)
+                await  TIMEOUT(10000);
+                console.log("txid: "+txid);
+                const options = { permissionId: 2 };
                 const txID = await sunWeb.depositTrc20(num, DEPOSIT_FEE, FEE_LIMIT, CONTRACT_ADDRESS20, options);
+                console.log("depositTrc20 with permissionId---txTD: "+txID);
                 assert.equal(txID.length, 64);
             });
 
             it('depositTrc20 with permissionId in options object and the defined private key', async function() {
                 const num = 100;
-                const options = { permissionId: 0 };
+                const txid = sunWeb.approveTrc20(num, FEE_LIMIT, CONTRACT_ADDRESS20)
+                await  TIMEOUT(10000);
+                const options = { permissionId: 2 };
                 const txID = await sunWeb.depositTrc20(num, DEPOSIT_FEE, FEE_LIMIT, CONTRACT_ADDRESS20, options, PRIVATE_KEY);
+                console.log("depositTrc20 with permissionId and private key---txTD: "+txID);
                 assert.equal(txID.length, 64);
             });
 
@@ -235,41 +247,87 @@ describe('SunWeb Instance', function() {
 
         describe('#depositTrc721', function() {
             const sunWeb = sunBuilder.createInstance();
-            it('deposit trc721 from main chain to side chain', async function () {
-                const id = 100;
-                const txID = await sunWeb.depositTrc20(id, DEPOSIT_FEE, FEE_LIMIT, CONTRACT_ADDRESS721);
+            it('depositTrc721 from main chain to side chain', async function () {
+                const id = 1001;
+                const txID = await sunWeb.depositTrc721(id, DEPOSIT_FEE, FEE_LIMIT, CONTRACT_ADDRESS721);
                 assert.equal(txID.length, 64);
+                console.log("depositTrc721 from main chain to side chain---txTD: "+txID);
+            });
+
+            it('depositTrc721 with permissionId in options object', async function() {
+                const id = 1001;
+                sunWeb.approveTrc721(id, FEE_LIMIT, CONTRACT_ADDRESS721)
+                await TIMEOUT(20000)
+                const options = { permissionId: 2 };
+                const txID = await sunWeb.depositTrc721(id, DEPOSIT_FEE, FEE_LIMIT, CONTRACT_ADDRESS721, options);
+                console.log("depositTrc721 with permissionId---txTD: "+txID);
+                assert.equal(txID.length, 64);
+            });
+
+            it('depositTrc721 with permissionId in options object and the defined private key', async function() {
+                const id = 1001;
+                sunWeb.approveTrc721(id, FEE_LIMIT, CONTRACT_ADDRESS721)
+                await TIMEOUT(20000)
+                const options = { permissionId: 2 };
+                const txID = await sunWeb.depositTrc721(id, DEPOSIT_FEE, FEE_LIMIT, CONTRACT_ADDRESS721, options, PRIVATE_KEY);
+                console.log("depositTrc721 with permissionId and private key---txTD: "+txID);
+                assert.equal(txID.length, 64);
+            });
+
+            it('should throw if an invalid num is passed', async function() {
+                const id = 1001.01;
+                await assertThrow(
+                    sunWeb.depositTrc721(id, DEPOSIT_FEE, FEE_LIMIT, CONTRACT_ADDRESS721),
+                    'Invalid num provided'
+                );
+            });
+
+            it('should throw if an invalid fee limit is passed', async function() {
+                const id = 1001;
+                const feeLimit = 100000000000;
+                await assertThrow(
+                    sunWeb.depositTrc721(id, DEPOSIT_FEE, feeLimit, CONTRACT_ADDRESS721),
+                    'Invalid feeLimit provided'
+                );
+            });
+
+            it('should throw if an invalid contract address is passed', async function() {
+                const id = 1001;
+                await assertThrow(
+                    sunWeb.depositTrc721(id, DEPOSIT_FEE, FEE_LIMIT, 'aaaaaaaaaa'),
+                    'Invalid contractAddress address provided'
+                );
             });
         });
     });
 
-    describe('#mappingTrc', function() {
+    describe('#mappingTrc20', function() {
         const sunWeb = sunBuilder.createInstance();
         it('mappingTrc20', async function() {
             const txID = await sunWeb.mappingTrc20(HASH20, MAPPING_FEE, FEE_LIMIT);
             assert.equal(txID.length, 64);
-            console.log("mappingTrc20--txID:"+txID);
+            console.log("mappingTrc20--txID: "+txID);
         });
 
         it('mappingTrc20 with the defined private key', async function() {
             const options = {};
             const txID = await sunWeb.mappingTrc20(HASH20, MAPPING_FEE, FEE_LIMIT, options, PRIVATE_KEY);
             assert.equal(txID.length, 64);
-            console.log("mappingTrc20 with the defined private key--txID:"+txID);
+            console.log("mappingTrc20 with the defined private key--txID: "+txID);
         });
 
         it('mappingTrc20 with permissionId in options object', async function() {
-            const options = { permissionId: 0 };
+            const options = { permissionId: 2 };
             const txID = await sunWeb.mappingTrc20(HASH20, MAPPING_FEE, FEE_LIMIT, options);
             assert.equal(txID.length, 64);
-            console.log("mappingTrc20 with permissionId in options object--txID:"+txID);
+            console.log("mappingTrc20 with permissionId in options object--txID: "+txID);
         });
 
         it('mappingTrc20 with permissionId in options object and the defined private key', async function() {
-            const options = { permissionId: 0 };
+            const options = { permissionId: 2 };
             const txID = await sunWeb.mappingTrc20(HASH20, MAPPING_FEE, FEE_LIMIT, options, PRIVATE_KEY);
             assert.equal(txID.length, 64);
-            console.log("mappingTrc20 with permissionId in options object and the defined private key--txID:"+txID);
+            console.log("mappingTrc20 with permissionId in options object and the defined private key--txID: "+txID);
         });
 
         it('should throw if an invalid trxHash', async function() {
@@ -287,12 +345,52 @@ describe('SunWeb Instance', function() {
                 'Invalid feeLimit provided'
             );
         });
+    });
 
+    describe('#mappingTrc721', function() {
+        const sunWeb = sunBuilder.createInstance();
         it('mappingTrc721', async function() {
             const txID = await sunWeb.mappingTrc721(HASH721, MAPPING_FEE, FEE_LIMIT);
-            console.log("mappingTrc721---txTD:"+txID);
             assert.equal(txID.length, 64);
-        })
+            console.log("mappingTrc721--txID: "+txID);
+        });
+
+        it('mappingTrc721 with the defined private key', async function() {
+            const options = {};
+            const txID = await sunWeb.mappingTrc721(HASH721, MAPPING_FEE, FEE_LIMIT, options, PRIVATE_KEY);
+            assert.equal(txID.length, 64);
+            console.log("mappingTrc721 with the defined private key--txID: "+txID);
+        });
+
+        it('mappingTrc721 with permissionId in options object', async function() {
+            const options = { permissionId: 2 };
+            const txID = await sunWeb.mappingTrc721(HASH721, MAPPING_FEE, FEE_LIMIT, options);
+            assert.equal(txID.length, 64);
+            console.log("mappingTrc721 with permissionId in options object--txID: "+txID);
+        });
+
+        it('mappingTrc721 with permissionId in options object and the defined private key', async function() {
+            const options = { permissionId: 2 };
+            const txID = await sunWeb.mappingTrc721(HASH721, MAPPING_FEE, FEE_LIMIT, options, PRIVATE_KEY);
+            assert.equal(txID.length, 64);
+            console.log("mappingTrc721 with permissionId in options object and the defined private key--txID: "+txID);
+        });
+
+        it('should throw if an invalid trxHash', async function() {
+            const trxHash = '';
+            await assertThrow(
+                sunWeb.mappingTrc721(trxHash, MAPPING_FEE, FEE_LIMIT),
+                'Invalid trxHash provided'
+            );
+        });
+
+        it('should throw if an invalid fee limit is passed', async function() {
+            const feeLimit = 100000000000;
+            await assertThrow(
+                sunWeb.mappingTrc721(HASH721, MAPPING_FEE, feeLimit),
+                'Invalid feeLimit provided'
+            );
+        });
     });
 
     describe('#withdraw', function() {
@@ -312,16 +410,18 @@ describe('SunWeb Instance', function() {
 
             it('withdrawTrx with permissionId in options object', async function() {
                 const callValue = 10000000;
-                const options = { permissionId: 0 };
+                const options = { permissionId: 2 };
                 const txID = await sunWeb.withdrawTrx(callValue, WITHDRAW_FEE, FEE_LIMIT, options);
                 assert.equal(txID.length, 64);
+                console.log("withdrawTrx with permissionId in options object--txID: "+txID);
             });
 
             it('withdrawTrx with permissionId in options object and the defined private key', async function() {
                 const callValue = 10000000;
-                const options = { permissionId: 0 };
+                const options = { permissionId: 2 };
                 const txID = await sunWeb.withdrawTrx(callValue, WITHDRAW_FEE, FEE_LIMIT, options, PRIVATE_KEY);
                 assert.equal(txID.length, 64);
+                console.log("withdrawTrx with permissionId in options object and the defined private key--txID: "+txID);
             });
 
             it('should throw if an invalid trx number is passed', async function() {
@@ -356,16 +456,18 @@ describe('SunWeb Instance', function() {
 
             it('withdrawTrc10 with permissionId in options object', async function() {
                 const tokenValue = 10;
-                const options = { permissionId: 0 };
+                const options = { permissionId: 2 };
                 const txID = await sunWeb.withdrawTrc10(TOKEN_ID, tokenValue, WITHDRAW_FEE, FEE_LIMIT, options);
                 assert.equal(txID.length, 64);
+                console.log("withdrawTrc10 with permissionId in options object--txID: "+txID);
             });
 
             it('withdrawTrc10 with permissionId in options object and the defined private key', async function() {
                 const tokenValue = 10;
-                const options = { permissionId: 0 };
+                const options = { permissionId: 2 };
                 const txID = await sunWeb.withdrawTrc10(TOKEN_ID, tokenValue, WITHDRAW_FEE, FEE_LIMIT, options, PRIVATE_KEY);
                 assert.equal(txID.length, 64);
+                console.log("withdrawTrc10 with permissionId in options object and the defined private key--txID: "+txID);
             });
 
             it('should throw if an invalid token id is passed', async function() {
@@ -411,16 +513,18 @@ describe('SunWeb Instance', function() {
 
                 it('withdrawTrc20 with permissionId in options object', async function() {
                     const num = 10;
-                    const options = { permissionId: 0 };
+                    const options = { permissionId: 2 };
                     const txID = await sunWeb.withdrawTrc20(num, WITHDRAW_FEE, FEE_LIMIT, ADDRESS20_MAPPING, options);
                     assert.equal(txID.length, 64);
+                    console.log("withdrawTrc20 with permissionId in options object--txID: "+txID);
                 });
 
                 it('withdrawTrc20 with permissionId in options object and the defined private key', async function() {
                     const num = 10;
-                    const options = { permissionId: 0 };
+                    const options = { permissionId: 2 };
                     const txID = await sunWeb.withdrawTrc20(num, WITHDRAW_FEE, FEE_LIMIT, ADDRESS20_MAPPING, options, PRIVATE_KEY);
                     assert.equal(txID.length, 64);
+                    console.log("withdrawTrc20 with permissionId in options object and the defined private key--txID: "+txID);
                 });
 
                 it('should throw if an invalid num is passed', async function() {
@@ -449,10 +553,52 @@ describe('SunWeb Instance', function() {
 
             describe('#withdrawTrc721', async function() {
                 const sunWeb = sunBuilder.createInstance();
-                it('withdraw trc721 from side chain to main chain', async function() {
+                it('withdrawTrc721 from side chain to main chain', async function() {
                     const id = 100;
-                    const txID = await sunWeb.withdrawTrc721(id, WITHDRAW_FEE, FEE_LIMIT, ADDRESS20_MAPPING);
+                    const txID = await sunWeb.withdrawTrc721(id, WITHDRAW_FEE, FEE_LIMIT, ADDRESS721_MAPPING);
                     assert.equal(txID.length, 64);
+                    console.log("withdrawTrc721 from side chain to main chain--txID: "+txID);
+                });
+
+                it('withdrawTrc721 with permissionId in options object', async function() {
+                    const id = 1001;
+                    const options = { permissionId: 2 };
+                    const txID = await sunWeb.withdrawTrc721(id, WITHDRAW_FEE, FEE_LIMIT, ADDRESS721_MAPPING, options);
+                    assert.equal(txID.length, 64);
+                    console.log("withdrawTrc721 with permissionId in options object--txID: "+txID);
+                });
+
+                it('withdrawTrc721 with permissionId in options object and the defined private key', async function() {
+                    const id = 1001;
+                    const options = { permissionId: 2 };
+                    const txID = await sunWeb.withdrawTrc721(id, WITHDRAW_FEE, FEE_LIMIT, ADDRESS721_MAPPING, options, PRIVATE_KEY);
+                    assert.equal(txID.length, 64);
+                    console.log("withdrawTrc721 with permissionId in options object and the defined private key--txID: "+txID);
+                });
+
+                it('should throw if an invalid num is passed', async function() {
+                    const id = 1001.01;
+                    await assertThrow(
+                        sunWeb.withdrawTrc721(id, WITHDRAW_FEE, FEE_LIMIT, ADDRESS721_MAPPING),
+                        'Invalid numOrId provided'
+                    );
+                });
+
+                it('should throw if an invalid fee limit is passed', async function() {
+                    const id = 1001;
+                    const feeLimit = 100000000000;
+                    await assertThrow(
+                        sunWeb.withdrawTrc721(id, WITHDRAW_FEE, feeLimit, ADDRESS721_MAPPING),
+                        'Invalid feeLimit provided'
+                    );
+                });
+
+                it('should throw if an invalid contract address is passed', async function() {
+                    const id = 1001;
+                    await assertThrow(
+                        sunWeb.withdrawTrc721(id, WITHDRAW_FEE, FEE_LIMIT, 'aaaaaaaaaa'),
+                        'Invalid contractAddress address provided'
+                    );
                 });
             });
         });

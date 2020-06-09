@@ -1,4 +1,4 @@
-const {TIMEOUT, PRIVATE_KEY, ACCOUNTADDRESS,ADDRESS_HEX1,MAIN_GATEWAY_ADDRESS_HEX,ADDRESS_HEX2,CONTRACT_ADDRESS20,ADDRESS20_MAPPING,ADDRESS721_MAPPING,CONTRACT_ADDRESS721, FEE_LIMIT, MAIN_FULL_NODE_API, MAIN_SOLIDITY_NODE_API, MAIN_EVENT_API, SIDE_FULL_NODE_API, SIDE_SOLIDITY_NODE_API, SIDE_EVENT_API, MAIN_GATEWAY_ADDRESS, SIDE_GATEWAY_ADDRESS, ADDRESS_HEX, ADDRESS_BASE58, TOKEN_ID,  HASH20, HASH721, SIDE_CHAIN_ID} = require('./helpers/config');
+const {TIMEOUT, PRIVATE_KEY, ACCOUNTADDRESS,ADDRESS_HEX1,MAIN_GATEWAY_ADDRESS_HEX,ADDRESS_HEX2,CONTRACT_ADDRESS20,ADDRESS20_MAPPING,ADDRESS721_MAPPING,CONTRACT_ADDRESS721, DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, MAIN_FULL_NODE_API, MAIN_SOLIDITY_NODE_API, MAIN_EVENT_API, SIDE_FULL_NODE_API, SIDE_SOLIDITY_NODE_API, SIDE_EVENT_API, MAIN_GATEWAY_ADDRESS, SIDE_GATEWAY_ADDRESS, ADDRESS_HEX, ADDRESS_BASE58, TOKEN_ID,  HASH20, HASH721, SIDE_CHAIN_ID} = require('./helpers/config');
 
 const sunBuilder = require('./helpers/sunWebBuilder');
 const SunWeb = sunBuilder.SunWeb;
@@ -88,11 +88,24 @@ describe('SunWeb Instance', function() {
             sunWeb.approveTrc721(1001, 1000000000, CONTRACT_ADDRESS721)
             await TIMEOUT(20000)
             const tokenid = 1001;
-            const txID = await sunWeb.depositTrc721(tokenid, 0,FEE_LIMIT, CONTRACT_ADDRESS721);
-            assert.equal(txID.length, 64);
+            const mdepositBalancebefore = await sunWeb.mainchain.trx.getBalance();
+            const sdepositBalancebefore = await sunWeb.sidechain.trx.getBalance();
+
+            const txID = await sunWeb.depositTrc721(tokenid, DEPOSIT_FEE,FEE_LIMIT, CONTRACT_ADDRESS721);
             await TIMEOUT(60000)
+
+            assert.equal(txID.length, 64);
+            console.log("txID: "+txID)
+
+            const mdepositBalanceafter = await sunWeb.mainchain.trx.getBalance();
+            const sdepositBalanceafter = await sunWeb.sidechain.trx.getBalance();
+            console.log('mBefore: ' + mdepositBalancebefore);
+            console.log('sBefore: ' + sdepositBalancebefore);
+            console.log('mdepositBalanceafter: ' +  mdepositBalanceafter)
+            console.log('sdepositBalanceafter: ' +  sdepositBalanceafter)
+
             mdeposittrc721address1 = await sunWeb.mainchain.contract().at(CONTRACT_ADDRESS721);
-            console.log(mdeposittrc721address1)
+            // console.log(mdeposittrc721address1)
 
             mdeposittrc721address2 = await mdeposittrc721address1.ownerOf('1001').call()
             console.log("mdeposittrc721address2："+mdeposittrc721address2);
@@ -119,7 +132,6 @@ describe('SunWeb Instance', function() {
             sdeposittrc721inforesult= sdeposittrc721info.contractResult;
             console.log({sdeposittrc721inforesult: sdeposittrc721inforesult})
 
-
             // const g= '000000000000000000000000431684a4f6bd07dacffac4bcc89c0af1c0016f19'
             // g1=g.substr(24,40)
             //
@@ -127,28 +139,32 @@ describe('SunWeb Instance', function() {
 
             assert.equal(mdeposittrc721address2.toLocaleString().toUpperCase(),MAIN_GATEWAY_ADDRESS_HEX)
             // alert(sdeposittrc721inforesult.substring(4))
-
-
             assert.equal(ADDRESS_HEX1,sdeposittrc721inforesult)
-
-
-
         });
     });
     describe('#withdrawTrc721', async function () {
         const sunWeb = sunBuilder.createInstance();
         it('withdraw trc721 from side chain to main chain', async function () {
+            const mwithdrawBalancebefore = await sunWeb.mainchain.trx.getBalance();
+            const swithdrawBalancebefore = await sunWeb.sidechain.trx.getBalance();
 
             const tokenid = 1001;
-            const txID = await sunWeb.withdrawTrc721(tokenid,0, FEE_LIMIT, ADDRESS721_MAPPING);
-            assert.equal(txID.length, 64);
+            const txID = await sunWeb.withdrawTrc721(tokenid,WITHDRAW_FEE, FEE_LIMIT, ADDRESS721_MAPPING);
             await TIMEOUT(60000)
+
+            console.log("txID: "+txID)
+            assert.equal(txID.length, 64);
+            const mwithdrawBalanceafter = await sunWeb.mainchain.trx.getBalance();
+            const swithdrawBalanceafter = await sunWeb.sidechain.trx.getBalance();
+            console.log('mBefore: ' + mwithdrawBalancebefore);
+            console.log('sBefore: ' + swithdrawBalancebefore);
+            console.log('mwithdrawBalanceafter: ' +  mwithdrawBalanceafter)
+            console.log('swithdrawBalanceafter: ' +  swithdrawBalanceafter)
 
             mwithdrawtrc721address1 = await sunWeb.mainchain.contract().at(CONTRACT_ADDRESS721);
 
             mwithdrawtrc721address2 = await mwithdrawtrc721address1.ownerOf('1001').call()
-            console.log("mdeposittrc721address2："+mwithdrawtrc721address2);
-
+            console.log("mwithdrawtrc721address2："+mwithdrawtrc721address2);
 
             swithdrawtrc721address1 = await sunWeb.sidechain.transactionBuilder.triggerSmartContract(ADDRESS721_MAPPING, 'ownerOf(uint256)'
                 , {feeLimit: 10000000}, [{type: 'uint256', value: '1001'}]);
@@ -167,14 +183,8 @@ describe('SunWeb Instance', function() {
             swithdrawtrc721inforesult= swithdrawtrc721info.result;
             console.log({swithdrawtrc721inforesult: swithdrawtrc721inforesult})
 
-
             assert.equal(mwithdrawtrc721address2,ADDRESS_HEX2)
             assert.equal('FAILED',swithdrawtrc721inforesult)
-
-
-
-
-
     });
     });
 });
