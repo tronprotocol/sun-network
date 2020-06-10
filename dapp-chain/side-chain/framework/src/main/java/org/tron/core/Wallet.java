@@ -1076,6 +1076,30 @@ public class Wallet {
                     .setKey("getAllowTvmSolidity059")
                     .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowTvmSolidity059()))
                     .build());
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getForbidTransferToContract")
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getForbidTransferToContract()))
+            .build());
+
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getAdaptiveResourceLimitTargetRatio")
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAdaptiveResourceLimitTargetRatio() / (24 * 60)))
+            .build());
+
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getAdaptiveResourceLimitMultiplier")
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAdaptiveResourceLimitMultiplier()))
+            .build());
+
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getChangeDelegation")
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getChangeDelegation()))
+            .build());
+
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getWitness127PayPerBlock")
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getWitness127PayPerBlock()))
+            .build());
 
     return builder.build();
   }
