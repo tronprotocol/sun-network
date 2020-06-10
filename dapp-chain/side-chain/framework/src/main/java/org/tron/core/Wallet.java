@@ -1071,6 +1071,12 @@ public class Wallet {
                     .setValue(String
                             .valueOf(dbManager.getDynamicPropertiesStore().getAllowUpdateGatewayV102()))
                     .build());
+    builder.addChainParameter(
+            Protocol.SideChainParameters.SideChainParameter.newBuilder()
+                    .setKey("getAllowTvmSolidity059")
+                    .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowTvmSolidity059()))
+                    .build());
+
     return builder.build();
   }
 
