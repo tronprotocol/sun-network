@@ -227,16 +227,16 @@ public class ProposalUtil {
         }
         break;
       }
-      case ALLOW_CHANGE_DELEGATION: {
-        if (!forkUtils.pass(ForkBlockVersionEnum.DAPP_CHAIN_1_5_0)) {
-          throw new ContractValidateException(BAD_PARAM_ID);
-        }
-        if (value != 1 && value != 0) {
-          throw new ContractValidateException(
-              "This value[ALLOW_CHANGE_DELEGATION] is only allowed to be 1 or 0");
-        }
-        break;
-      }
+//      case ALLOW_CHANGE_DELEGATION: {
+//        if (!forkUtils.pass(ForkBlockVersionEnum.DAPP_CHAIN_1_5_0)) {
+//          throw new ContractValidateException(BAD_PARAM_ID);
+//        }
+//        if (value != 1 && value != 0) {
+//          throw new ContractValidateException(
+//              "This value[ALLOW_CHANGE_DELEGATION] is only allowed to be 1 or 0");
+//        }
+//        break;
+//      }
       case WITNESS_127_PAY_PER_BLOCK: {
         if (!forkUtils.pass(ForkBlockVersionEnum.DAPP_CHAIN_1_5_0)) {
           throw new ContractValidateException(BAD_PARAM_ID);
@@ -507,7 +507,7 @@ public class ProposalUtil {
     //    ALLOW_SHIELDED_TRANSACTION(27), // 27
 //    SHIELDED_TRANSACTION_FEE(28), // 28
     ADAPTIVE_RESOURCE_LIMIT_MULTIPLIER(29), // 1000, 29
-    ALLOW_CHANGE_DELEGATION(30), //1, 30
+//    ALLOW_CHANGE_DELEGATION(30), //1, 30
     WITNESS_127_PAY_PER_BLOCK(31), //drop, 31
     ALLOW_TVM_SOLIDITY_059(32), // 1, 32
     ADAPTIVE_RESOURCE_LIMIT_TARGET_RATIO(33), // 10, 33
@@ -602,7 +602,7 @@ public class ProposalUtil {
         case ALLOW_TVM_SOLIDITY_059:
         case ADAPTIVE_RESOURCE_LIMIT_TARGET_RATIO:
         case ADAPTIVE_RESOURCE_LIMIT_MULTIPLIER:
-        case ALLOW_CHANGE_DELEGATION:
+//        case ALLOW_CHANGE_DELEGATION:
         case WITNESS_127_PAY_PER_BLOCK:
         case FORBID_TRANSFER_TO_CONTRACT:
 

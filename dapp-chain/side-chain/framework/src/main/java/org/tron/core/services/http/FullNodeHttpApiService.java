@@ -217,8 +217,8 @@ public class FullNodeHttpApiService implements Service {
   private GetBrokerageServlet getBrokerageServlet;
   @Autowired
   private GetRewardServlet getRewardServlet;
-  @Autowired
-  private UpdateBrokerageServlet updateBrokerageServlet;
+//  @Autowired
+//  private UpdateBrokerageServlet updateBrokerageServlet;
   @Autowired
   private CreateCommonTransactionServlet createCommonTransactionServlet;
   @Autowired
@@ -396,7 +396,7 @@ public class FullNodeHttpApiService implements Service {
       context.addServlet(new ServletHolder(broadcastHexServlet), "/broadcasthex");
       context.addServlet(new ServletHolder(getBrokerageServlet), "/getBrokerage");
       context.addServlet(new ServletHolder(getRewardServlet), "/getReward");
-      context.addServlet(new ServletHolder(updateBrokerageServlet), "/updateBrokerage");
+//      context.addServlet(new ServletHolder(updateBrokerageServlet), "/updateBrokerage");
       context.addServlet(new ServletHolder(createCommonTransactionServlet),
           "/createCommonTransaction");
       context.addServlet(new ServletHolder(getTransactionInfoByBlockNumServlet),

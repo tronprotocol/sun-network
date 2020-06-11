@@ -153,7 +153,7 @@ public class VoteWitnessActuator extends AbstractActuator {
     VotesCapsule votesCapsule;
 
     //
-    delegationService.withdrawReward(ownerAddress);
+//    delegationService.withdrawReward(ownerAddress);
 
     AccountCapsule accountCapsule = accountStore.get(ownerAddress);
 

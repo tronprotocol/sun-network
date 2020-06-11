@@ -1091,10 +1091,10 @@ public class Wallet {
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAdaptiveResourceLimitMultiplier()))
             .build());
 
-    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
-            .setKey("getChangeDelegation")
-            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getChangeDelegation()))
-            .build());
+//    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
+//            .setKey("getChangeDelegation")
+//            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getChangeDelegation()))
+//            .build());
 
     builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getWitness127PayPerBlock")
