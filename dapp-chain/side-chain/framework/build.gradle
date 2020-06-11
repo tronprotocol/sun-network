@@ -134,7 +134,7 @@ run {
 }
 
 shadowJar {
-    baseName = 'java-tron'
+    baseName = 'side-chain'
     classifier = null
     version = null
 }
