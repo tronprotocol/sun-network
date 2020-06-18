@@ -18,7 +18,7 @@ import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class WalletTestAccount007 {
@@ -31,10 +31,10 @@ public class WalletTestAccount007 {
   private static String name = "AssetIssue012_" + Long.toString(now);
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   //owner account
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] account007Address = ecKey1.getAddress();
@@ -71,22 +71,22 @@ public class WalletTestAccount007 {
 
   @Test(enabled = true)
   public void testCreateAccount() {
-    Assert.assertTrue(PublicMethed.sendcoin(account007Address, 10000000,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(account007Address, 10000000,
         fromAddress, testKey002, blockingStubFull));
-    Account accountInfo = PublicMethed.queryAccount(account007Key, blockingStubFull);
+    Account accountInfo = PublicMethedForDailybuild.queryAccount(account007Key, blockingStubFull);
     final Long beforeBalance = accountInfo.getBalance();
 
-    AccountNetMessage accountNetInfo = PublicMethed.getAccountNet(account007Address,
+    AccountNetMessage accountNetInfo = PublicMethedForDailybuild.getAccountNet(account007Address,
         blockingStubFull);
     final Long beforeFreeNet = accountNetInfo.getFreeNetUsed();
 
-    Assert.assertTrue(PublicMethed.createAccount(account007Address, newAccountAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.createAccount(account007Address, newAccountAddress,
         account007Key, blockingStubFull));
 
-    accountInfo = PublicMethed.queryAccount(account007Key, blockingStubFull);
+    accountInfo = PublicMethedForDailybuild.queryAccount(account007Key, blockingStubFull);
     Long afterBalance = accountInfo.getBalance();
 
-    accountNetInfo = PublicMethed.getAccountNet(account007Address,
+    accountNetInfo = PublicMethedForDailybuild.getAccountNet(account007Address,
         blockingStubFull);
     Long afterFreeNet = accountNetInfo.getFreeNetUsed();
 
@@ -104,13 +104,15 @@ public class WalletTestAccount007 {
   public void testExceptionCreateAccount() {
     //Try to create an exist account
     Assert
-        .assertFalse(PublicMethed.createAccount(account007Address, account007Address, account007Key,
-            blockingStubFull));
+        .assertFalse(PublicMethedForDailybuild
+            .createAccount(account007Address, account007Address, account007Key,
+                blockingStubFull));
 
     //Try to create an invalid account
     byte[] wrongAddress = "wrongAddress".getBytes();
-    Assert.assertFalse(PublicMethed.createAccount(account007Address, wrongAddress, account007Key,
-        blockingStubFull));
+    Assert.assertFalse(
+        PublicMethedForDailybuild.createAccount(account007Address, wrongAddress, account007Key,
+            blockingStubFull));
   }
 
   /**

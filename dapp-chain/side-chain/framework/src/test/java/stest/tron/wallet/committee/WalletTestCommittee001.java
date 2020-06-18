@@ -20,6 +20,7 @@ import org.tron.core.Wallet;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 
 @Slf4j
@@ -28,10 +29,10 @@ public class WalletTestCommittee001 {
   private static final long now = System.currentTimeMillis();
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   //Witness 47.93.9.236
   private final String witnessKey001 = Configuration.getByPath("testng.conf")
       .getString("witness.key1");
@@ -47,11 +48,11 @@ public class WalletTestCommittee001 {
   //Witness 47.93.184.2
   private final String witnessKey005 = Configuration.getByPath("testng.conf")
       .getString("witness.key5");
-  private final byte[] witness001Address = PublicMethed.getFinalAddress(witnessKey001);
-  private final byte[] witness002Address = PublicMethed.getFinalAddress(witnessKey002);
-  private final byte[] witness003Address = PublicMethed.getFinalAddress(witnessKey003);
-  private final byte[] witness004Address = PublicMethed.getFinalAddress(witnessKey004);
-  private final byte[] witness005Address = PublicMethed.getFinalAddress(witnessKey005);
+  private final byte[] witness001Address = PublicMethedForDailybuild.getFinalAddress(witnessKey001);
+  private final byte[] witness002Address = PublicMethedForDailybuild.getFinalAddress(witnessKey002);
+  private final byte[] witness003Address = PublicMethedForDailybuild.getFinalAddress(witnessKey003);
+  private final byte[] witness004Address = PublicMethedForDailybuild.getFinalAddress(witnessKey004);
+  private final byte[] witness005Address = PublicMethedForDailybuild.getFinalAddress(witnessKey005);
   private ManagedChannel channelFull = null;
   private ManagedChannel channelSolidity = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -88,19 +89,21 @@ public class WalletTestCommittee001 {
   @Test
   public void testListProposals() {
     //List proposals
-    SideChainProposalList sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
-    Optional<SideChainProposalList> listProposals = Optional.ofNullable(sideChainProposalList);
+    SideChainProposalList proposalList = blockingStubFull
+        .listSideChainProposals(EmptyMessage.newBuilder().build());
+    Optional<SideChainProposalList> listProposals = Optional.ofNullable(proposalList);
     final Integer beforeProposalCount = listProposals.get().getProposalsCount();
 
     //CreateProposal
     final long now = System.currentTimeMillis();
-    HashMap<Long, String> proposalMap = new HashMap<>();
-    proposalMap.put(0L, "1000000");
-    PublicMethed.createProposal(witness001Address, witnessKey001, proposalMap, blockingStubFull);
+    HashMap<Long, String> proposalMap = new HashMap<Long, String>();
+    proposalMap.put(0L, "1000006");
+    PublicMethed
+        .sideChainProposalCreate(witness001Address, witnessKey001, proposalMap, blockingStubFull);
 
     //List proposals
-    sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
-    listProposals = Optional.ofNullable(sideChainProposalList);
+    proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    listProposals = Optional.ofNullable(proposalList);
     Integer afterProposalCount = listProposals.get().getProposalsCount();
     Assert.assertTrue(beforeProposalCount + 1 == afterProposalCount);
     logger.info(Long.toString(listProposals.get().getProposals(0).getCreateTime()));
@@ -112,9 +115,9 @@ public class WalletTestCommittee001 {
     PaginatedMessage.Builder pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(0);
     pageMessageBuilder.setLimit(1);
-    SideChainProposalList paginatedSideChainProposalList = blockingStubFull
+    SideChainProposalList paginatedProposalList = blockingStubFull
         .getPaginatedSideChainProposalList(pageMessageBuilder.build());
-    Assert.assertTrue(paginatedSideChainProposalList.getProposalsCount() >= 1);
+    Assert.assertTrue(paginatedProposalList.getProposalsCount() >= 1);
   }
 
   /**
