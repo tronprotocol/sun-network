@@ -184,7 +184,7 @@ public class TransferFailed005 {
     Assert.assertEquals(infoById.get().getResultValue(), 1);
     Assert.assertEquals("FAILED", infoById.get().getResult().toString());
     Assert.assertEquals("TRANSFER_FAILED", infoById.get().getReceipt().getResult().toString());
-    Assert.assertEquals("transfer trx failed: Cannot transfer trx to yourself.",
+    Assert.assertEquals("transfer trx failed: Cannot transfer TRX to yourself.",
         infoById.get().getResMessage().toStringUtf8());
     Assert.assertEquals(1000100L,
         PublicMethedForDailybuild.queryAccount(contractAddress, blockingStubFull).getBalance());

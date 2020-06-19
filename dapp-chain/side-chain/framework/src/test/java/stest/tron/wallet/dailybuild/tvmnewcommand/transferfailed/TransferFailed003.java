@@ -27,6 +27,7 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class TransferFailed003 {
@@ -42,6 +43,11 @@ public class TransferFailed003 {
       .getString("defaultParameter.assetDescription");
   String url = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.assetUrl");
+  private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
+      .getString("tokenFoundationAccount.slideTokenOwnerKey");
+  private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
+  private final String tokenId = Configuration.getByPath("testng.conf")
+      .getString("tokenFoundationAccount.slideTokenId");
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
@@ -87,12 +93,17 @@ public class TransferFailed003 {
         .usePlaintext(true)
         .build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
+    assetAccountId = ByteString.copyFromUtf8(tokenId);
+    Assert.assertTrue(
+        PublicMethedForDailybuild.transferAsset(contractExcAddress, assetAccountId.toByteArray(),
+            10000000L, tokenOnwerAddress, tokenOwnerKey, blockingStubFull));
+    PublicMethedForDailybuild.printAddress(contractExcKey);
   }
 
 
   @Test(enabled = true, description = "TransferToken enough tokenBalance")
   public void test1TransferTokenEnough() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(contractExcAddress, 10000_000_000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);

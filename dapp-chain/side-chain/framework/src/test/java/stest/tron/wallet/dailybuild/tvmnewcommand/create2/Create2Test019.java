@@ -259,7 +259,7 @@ public class Create2Test019 {
             containsString("CONTRACT_VALIDATE_ERROR"));
     Assert
         .assertThat(transactionExtention.getResult().getMessage().toStringUtf8(),
-            containsString("contract validate error : No contract or not a smart contract"));
+            containsString("contract validate error : No contract or not a valid smart contract"));
 
     txid = PublicMethedForDailybuild
         .triggerContract(contractAddress,

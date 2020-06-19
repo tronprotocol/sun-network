@@ -4405,4 +4405,10 @@ public class PublicMethedForDailybuild {
     }
   }
 
+  public static void freedResource(byte[] fromAddress, String priKey, byte[] toAddress,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    long balance = PublicMethed.queryAccount(fromAddress, blockingStubFull).getBalance();
+    sendcoin(toAddress, balance - 500000, fromAddress, priKey, blockingStubFull);
+  }
+
 }

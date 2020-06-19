@@ -29,14 +29,14 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class TransferFailed001 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
@@ -68,7 +68,7 @@ public class TransferFailed001 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(contractExcKey);
+    PublicMethedForDailybuild.printAddress(contractExcKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -86,25 +86,25 @@ public class TransferFailed001 {
 
   @Test(enabled = true, description = "Transfer trx insufficient balance")
   public void test001TransferTrxInsufficientBalance() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(contractExcAddress, 10000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
     String filePath = "src/test/resources/soliditycode/TransferFailed001.sol";
     String contractName = "EnergyOfTransferFailedTest";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         2000000L, 100, null, contractExcKey,
         contractExcAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -115,12 +115,12 @@ public class TransferFailed001 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
     String num = "2000001";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testTransferTrxInsufficientBalance(uint256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -132,8 +132,8 @@ public class TransferFailed001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -162,15 +162,15 @@ public class TransferFailed001 {
   @Test(enabled = true, description = "Transfer balance enough")
   public void test002TransferEnough() {
 
-    //Assert.assertTrue(PublicMethed
+    //Assert.assertTrue(PublicMethedForDailybuild
     //    .sendcoin(contractAddress, 3000000L, testNetAccountAddress, testNetAccountKey,
     //        blockingStubFull));
-    //PublicMethed.waitProduceNextBlock(blockingStubFull);
+    //PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -181,12 +181,12 @@ public class TransferFailed001 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
     String num = "1";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testTransferTrxInsufficientBalance(uint256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -198,8 +198,8 @@ public class TransferFailed001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -224,15 +224,15 @@ public class TransferFailed001 {
   @Test(enabled = true, description = "Transfer trx nonexistent target")
   public void test003TransferTrxNonexistentTarget() {
 
-    //Assert.assertTrue(PublicMethed
+    //Assert.assertTrue(PublicMethedForDailybuild
     //    .sendcoin(contractAddress, 1000000L, testNetAccountAddress, testNetAccountKey,
     //        blockingStubFull));
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -246,12 +246,12 @@ public class TransferFailed001 {
     String txid = "";
     String num = "1" + ",\"" + Base58.encode58Check(nonexistentAddress) + "\"";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testTransferTrxNonexistentTarget(uint256,address)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid : --- " + infoById);
 
     Long fee = infoById.get().getFee();
@@ -265,8 +265,8 @@ public class TransferFailed001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -277,7 +277,7 @@ public class TransferFailed001 {
     logger.info("afterNetUsed:" + afterNetUsed);
     logger.info("afterFreeNetUsed:" + afterFreeNetUsed);
 
-    Account nonexistentAddressAccount = PublicMethed
+    Account nonexistentAddressAccount = PublicMethedForDailybuild
         .queryAccount(nonexistentAddress, blockingStubFull1);
     Assert.assertEquals(1, nonexistentAddressAccount.getBalance());
     Assert.assertEquals(0, infoById.get().getResultValue());
@@ -288,12 +288,12 @@ public class TransferFailed001 {
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
     Assert.assertNotEquals(10000000, energyUsageTotal);
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testTransferTrxNonexistentTarget(uint256,address)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid : --- " + infoById);
 
     fee = infoById.get().getFee();
@@ -307,8 +307,8 @@ public class TransferFailed001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal2);
 
-    infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull1);
     afterBalance = infoafter.getBalance();
     afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -319,7 +319,7 @@ public class TransferFailed001 {
     logger.info("afterNetUsed:" + afterNetUsed);
     logger.info("afterFreeNetUsed:" + afterFreeNetUsed);
 
-    nonexistentAddressAccount = PublicMethed
+    nonexistentAddressAccount = PublicMethedForDailybuild
         .queryAccount(nonexistentAddress, blockingStubFull1);
     Assert.assertEquals(2, nonexistentAddressAccount.getBalance());
     Assert.assertEquals(0, infoById.get().getResultValue());
@@ -335,9 +335,9 @@ public class TransferFailed001 {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -349,12 +349,12 @@ public class TransferFailed001 {
     String txid = "";
     String num = "1";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testTransferTrxSelf(uint256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid : --- " + infoById);
 
     Long fee = infoById.get().getFee();
@@ -368,8 +368,8 @@ public class TransferFailed001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -400,9 +400,9 @@ public class TransferFailed001 {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -416,12 +416,12 @@ public class TransferFailed001 {
     String txid = "";
     String num = "10000000" + ",\"" + Base58.encode58Check(nonexistentAddress) + "\"";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testTransferTrxNonexistentTarget(uint256,address)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid : --- " + infoById);
 
     Long fee = infoById.get().getFee();
@@ -435,8 +435,8 @@ public class TransferFailed001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -468,9 +468,9 @@ public class TransferFailed001 {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -483,12 +483,12 @@ public class TransferFailed001 {
     String txid = "";
     String num = "1000000000";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testTransferTrxSelf(uint256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid : --- " + infoById);
 
     Long fee = infoById.get().getFee();
@@ -502,8 +502,8 @@ public class TransferFailed001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -533,9 +533,9 @@ public class TransferFailed001 {
       + " long.max < value or long.min > value")
   public void test007TransferTrckenPreCompiled() {
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    Account info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    Account info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -548,15 +548,15 @@ public class TransferFailed001 {
     String txid = "";
     String num = "1";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testTransferTokenCompiledLongMax1()", "#", false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid : --- " + infoById);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -568,9 +568,9 @@ public class TransferFailed001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     beforeBalance = info.getBalance();
     beforeEnergyUsed = resourceInfo.getEnergyUsed();
     beforeNetUsed = resourceInfo.getNetUsed();
@@ -584,13 +584,13 @@ public class TransferFailed001 {
     Assert.assertTrue(energyUsageTotal < maxFeeLimit / 10);
     Assert.assertEquals("REVERT opcode executed", infoById.get().getResMessage().toStringUtf8());
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testTransferTokenCompiledLongMin1()", "#", false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid : --- " + infoById);
     fee = infoById.get().getFee();
     netUsed = infoById.get().getReceipt().getNetUsage();
@@ -603,9 +603,9 @@ public class TransferFailed001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     beforeBalance = info.getBalance();
     beforeEnergyUsed = resourceInfo.getEnergyUsed();
     beforeNetUsed = resourceInfo.getNetUsed();
@@ -624,10 +624,10 @@ public class TransferFailed001 {
   @Test(enabled = false, description = "PreCompiled tokenbalance")
   public void test008TransferTrctoken() {
 
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(contractExcAddress, 10000_000_000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     long start = System.currentTimeMillis() + 2000;
     long end = System.currentTimeMillis() + 1000000000;
@@ -643,42 +643,42 @@ public class TransferFailed001 {
 
     //Create a new AssetIssue success.
 //    Assert
-//        .assertTrue(PublicMethed.createAssetIssue(contractExcAddress, tokenName, TotalSupply, 1,
+//        .assertTrue(PublicMethedForDailybuild.createAssetIssue(contractExcAddress, tokenName, TotalSupply, 1,
 //            10000, start, end, 1, description, url, 100000L,
 //            100000L, 1L, 1L, contractExcKey, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    assetAccountId = PublicMethed.queryAccount(contractExcAddress, blockingStubFull)
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    assetAccountId = PublicMethedForDailybuild.queryAccount(contractExcAddress, blockingStubFull)
         .getAssetIssuedID();
 
     String filePath = "src/test/resources/soliditycode/TransferFailed001.sol";
     String contractName = "EnergyOfTransferFailedTest";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, contractExcKey,
         contractExcAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.transferAsset(contractAddress,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild.transferAsset(contractAddress,
         assetAccountId.toByteArray(), 100L, contractExcAddress, contractExcKey,
         blockingStubFull));
 
-    Long returnAddressBytesAccountCountBefore = PublicMethed
+    Long returnAddressBytesAccountCountBefore = PublicMethedForDailybuild
         .getAssetIssueValue(contractAddress, assetAccountId, blockingStubFull);
     logger.info("returnAddressBytesAccountCountBefore : " + returnAddressBytesAccountCountBefore);
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
     Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
-    Long testNetAccountCountBefore = PublicMethed
+    Long testNetAccountCountBefore = PublicMethedForDailybuild
         .getAssetIssueValue(contractExcAddress, assetAccountId, blockingStubFull);
-    Long contractAccountCountBefore = PublicMethed
+    Long contractAccountCountBefore = PublicMethedForDailybuild
         .getAssetIssueValue(contractAddress, assetAccountId, blockingStubFull);
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
@@ -691,12 +691,12 @@ public class TransferFailed001 {
         "\"" + Base58.encode58Check(contractAddress) + "\"," + "\"" + assetAccountId.toStringUtf8()
             + "\"";
     //String num = "\""+Base58.encode58Check(contractAddress) +"\","+ "\"" + -1 + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testTransferTokenTest(address,uint256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -708,16 +708,16 @@ public class TransferFailed001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
     Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
-    Long testNetAccountCountAfter = PublicMethed
+    Long testNetAccountCountAfter = PublicMethedForDailybuild
         .getAssetIssueValue(contractExcAddress, assetAccountId, blockingStubFull);
-    Long contractAccountCountAfter = PublicMethed
+    Long contractAccountCountAfter = PublicMethedForDailybuild
         .getAssetIssueValue(contractAddress, assetAccountId, blockingStubFull);
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
@@ -740,7 +740,7 @@ public class TransferFailed001 {
     String addressx = "T9yD14Nj9j7xAB4dbGeiX9h8unkKLxmGkn";
     byte[] addressxx = WalletClient.decodeFromBase58Check(addressx);
 
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(addressxx, 1000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
 
@@ -758,32 +758,32 @@ public class TransferFailed001 {
 
     //Create a new AssetIssue success.
 //    Assert
-//        .assertTrue(PublicMethed.createAssetIssue(contractExcAddress, tokenName, TotalSupply, 1,
+//        .assertTrue(PublicMethedForDailybuild.createAssetIssue(contractExcAddress, tokenName, TotalSupply, 1,
 //            10000, start, end, 1, description, url, 100000L,
 //            100000L, 1L, 1L, contractExcKey, blockingStubFull));
-//    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    assetAccountId = PublicMethed.queryAccount(contractExcAddress, blockingStubFull)
+//    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    assetAccountId = PublicMethedForDailybuild.queryAccount(contractExcAddress, blockingStubFull)
         .getAssetIssuedID();
 
-    Assert.assertTrue(PublicMethed.transferAsset(addressxx,
+    Assert.assertTrue(PublicMethedForDailybuild.transferAsset(addressxx,
         assetAccountId.toByteArray(), 100L, contractExcAddress, contractExcKey,
         blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Long returnAddressBytesAccountCountBefore = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Long returnAddressBytesAccountCountBefore = PublicMethedForDailybuild
         .getAssetIssueValue(addressxx, assetAccountId, blockingStubFull);
     logger.info("returnAddressBytesAccountCountBefore : " + returnAddressBytesAccountCountBefore);
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
     Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
-    Long testNetAccountCountBefore = PublicMethed
+    Long testNetAccountCountBefore = PublicMethedForDailybuild
         .getAssetIssueValue(contractExcAddress, assetAccountId, blockingStubFull);
-    Long contractAccountCountBefore = PublicMethed
+    Long contractAccountCountBefore = PublicMethedForDailybuild
         .getAssetIssueValue(contractAddress, assetAccountId, blockingStubFull);
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
@@ -796,12 +796,12 @@ public class TransferFailed001 {
     // +"\","+ "\"" + assetAccountId.toStringUtf8() + "\"";
     String num = "\"" + assetAccountId.toStringUtf8() + "\"";
     //String num = "\""+Base58.encode58Check(contractAddress) +"\","+ "\"" + -1 + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testTransferTokenCompiledTokenId(uint256)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -813,16 +813,16 @@ public class TransferFailed001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
     Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
-    Long testNetAccountCountAfter = PublicMethed
+    Long testNetAccountCountAfter = PublicMethedForDailybuild
         .getAssetIssueValue(contractExcAddress, assetAccountId, blockingStubFull);
-    Long contractAccountCountAfter = PublicMethed
+    Long contractAccountCountAfter = PublicMethedForDailybuild
         .getAssetIssueValue(contractAddress, assetAccountId, blockingStubFull);
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
@@ -842,9 +842,9 @@ public class TransferFailed001 {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -858,12 +858,12 @@ public class TransferFailed001 {
     String txid = "";
     String num = "1" + ",\"" + Base58.encode58Check(nonexistentAddress) + "\"";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testTransferTrxrevert(uint256,address)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid : --- " + infoById);
 
     Long fee = infoById.get().getFee();
@@ -877,8 +877,8 @@ public class TransferFailed001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild.getAccountResource(contractExcAddress,
         blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -889,7 +889,7 @@ public class TransferFailed001 {
     logger.info("afterNetUsed:" + afterNetUsed);
     logger.info("afterFreeNetUsed:" + afterFreeNetUsed);
 
-    Account nonexistentAddressAccount = PublicMethed
+    Account nonexistentAddressAccount = PublicMethedForDailybuild
         .queryAccount(nonexistentAddress, blockingStubFull1);
     Assert.assertEquals(0, nonexistentAddressAccount.getBalance());
     Assert.assertEquals(1, infoById.get().getResultValue());
@@ -906,7 +906,7 @@ public class TransferFailed001 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethed
+    PublicMethedForDailybuild
         .freedResource(contractAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
