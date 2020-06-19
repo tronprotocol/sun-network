@@ -414,8 +414,12 @@ public class ContractGrammar004 {
     String abi = retMap.get("abI").toString();
 
     contractAddress = PublicMethed
-        .deployContract(contractName, abi, code, "", maxFeeLimit, 1000000L, 100, null,
+        .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null,
             testKeyForGrammarAddress, grammarAddress, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethed
+        .sendcoin(contractAddress, 1000000L, testNetAccountAddress, testNetAccountKey,
+            blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account info;
 

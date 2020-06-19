@@ -42,6 +42,8 @@ public class HttpTestMutiSign001 {
   private final String manager4Key = Configuration.getByPath("testng.conf")
       .getString("witness.key2");
   private final byte[] manager4Address = PublicMethed.getFinalAddress(manager4Key);
+  private final String operations = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.operations");
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] ownerAddress = ecKey1.getAddress();
   String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -127,12 +129,14 @@ public class HttpTestMutiSign001 {
     activeObject.addProperty("type", 2);
     activeObject.addProperty("permission_name", "active0");
     activeObject.addProperty("threshold", 2);
-    activeObject.addProperty("operations",
-        "7fff1fc0037e0000000000000000000000000000000000000000000000000000");
+    activeObject.addProperty("operations", operations);
     activeObject.add("keys", activeKeys);
 
     response = HttpMethed.accountPermissionUpdate(httpnode, ownerAddress, ownerObject,
         witnessObject, activeObject, ownerKey);
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    logger.info("response code:" + response.getStatusLine().getStatusCode());
     Assert.assertTrue(HttpMethed.verificationResult(response));
   }
 
@@ -153,34 +157,41 @@ public class HttpTestMutiSign001 {
 
     response = HttpMethed
         .sendCoin(httpnode, ownerAddress, fromAddress, 10L, 0, permissionKeyString);
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    logger.info("response code:" + response.getStatusLine().getStatusCode());
     Assert.assertTrue(HttpMethed.verificationResult(response));
 
     response = HttpMethed
         .sendCoin(httpnode, ownerAddress, fromAddress, 10L, 2, permissionKeyString);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     Assert.assertFalse(HttpMethed.verificationResult(response));
 
     logger.info("start permission id 2");
     response = HttpMethed
         .sendCoin(httpnode, ownerAddress, fromAddress, 12L, 2, permissionKeyActive);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     Assert.assertTrue(HttpMethed.verificationResult(response));
 
     response = HttpMethed
         .sendCoin(httpnode, ownerAddress, fromAddress, 12L, 0, permissionKeyActive);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     Assert.assertFalse(HttpMethed.verificationResult(response));
 
     response = HttpMethed
         .sendCoin(httpnode, ownerAddress, fromAddress, 11L, 1, permissionKeyActive);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     Assert.assertFalse(HttpMethed.verificationResult(response));
 
     response = HttpMethed
         .sendCoin(httpnode, ownerAddress, fromAddress, 11L, 3, permissionKeyString);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     Assert.assertFalse(HttpMethed.verificationResult(response));
   }
 
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Add broadcasthex http interface to "
+  @Test(enabled = false, description = "Add broadcasthex http interface to "
       + "broadcast hex transaction string")
   public void test3Broadcasthex() {
     PublicMethed.printAddress(hexTestKey);
