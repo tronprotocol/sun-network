@@ -24,14 +24,15 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class TestResourceReceiver {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
@@ -63,7 +64,7 @@ public class TestResourceReceiver {
 
   @BeforeClass(enabled = false)
   public void beforeClass() {
-    PublicMethed.printAddress(contractExcKey);
+    PublicMethedForDailybuild.printAddress(contractExcKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -82,31 +83,33 @@ public class TestResourceReceiver {
 
   @Test(enabled = false, description = "Suicide existent Target")
   public void test1SuicideExistentTarget() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(contractExcAddress, 10000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/TransferFailed001.sol";
     String contractName = "EnergyOfTransferFailedTest";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            0L, 100, null, contractExcKey,
+            contractExcAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(contractAddress, 3000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(testNetAccountAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceForReceiver(testNetAccountAddress,
         1000000, 0, 1,
         ByteString.copyFrom(contractAddress), testNetAccountKey, blockingStubFull));
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(contractExcAddress,
+            blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -117,20 +120,20 @@ public class TestResourceReceiver {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     ECKey ecKey2 = new ECKey(Utils.getRandom());
     byte[] existentAddress = ecKey2.getAddress();
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(contractAddress, 1000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String txid = "";
     String num = "\"" + Base58.encode58Check(contractAddress) + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testSuicideNonexistentTarget(address)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -142,9 +145,10 @@ public class TestResourceReceiver {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(contractExcAddress,
-        blockingStubFull1);
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
+        .getAccountResource(contractExcAddress,
+            blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
     Long afterNetUsed = resourceInfoafter.getNetUsed();
@@ -153,18 +157,19 @@ public class TestResourceReceiver {
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
     logger.info("afterFreeNetUsed:" + afterFreeNetUsed);
-    Account contractafter = PublicMethed.queryAccount(contractAddress, blockingStubFull1);
+    Account contractafter = PublicMethedForDailybuild
+        .queryAccount(contractAddress, blockingStubFull1);
     long contractBalance = contractafter.getBalance();
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     Assert.assertEquals(contractBalance, 0);
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testSuicideNonexistentTarget(address)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Assert.assertNull(txid);
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    PublicMethed.unFreezeBalance(testNetAccountAddress, testNetAccountKey, 1,
+    PublicMethedForDailybuild.unFreezeBalance(testNetAccountAddress, testNetAccountKey, 1,
         contractAddress, blockingStubFull);
 
 
@@ -176,8 +181,6 @@ public class TestResourceReceiver {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethed
-        .freedResource(contractAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

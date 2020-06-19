@@ -44,17 +44,12 @@ import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
-import org.tron.common.crypto.Hash;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ByteUtil;
+import org.tron.common.utils.DBConfig;
+import org.tron.common.utils.Hash;
 import org.tron.core.Wallet;
 import org.tron.keystore.WalletFile;
-import org.tron.protos.Contract;
-import org.tron.protos.Contract.CreateSmartContract;
-import org.tron.protos.Contract.CreateSmartContract.Builder;
-import org.tron.protos.Contract.TriggerSmartContract;
-import org.tron.protos.Contract.UpdateEnergyLimitContract;
-import org.tron.protos.Contract.UpdateSettingContract;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
@@ -62,10 +57,30 @@ import org.tron.protos.Protocol.DelegatedResourceAccountIndex;
 import org.tron.protos.Protocol.Exchange;
 import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
-import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.TransactionInfo;
+import org.tron.protos.contract.AccountContract.AccountCreateContract;
+import org.tron.protos.contract.AccountContract.AccountPermissionUpdateContract;
+import org.tron.protos.contract.AccountContract.AccountUpdateContract;
+import org.tron.protos.contract.AccountContract.SetAccountIdContract;
+import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
+import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
+import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
+import org.tron.protos.contract.BalanceContract.TransferContract;
+import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
+import org.tron.protos.contract.ProposalContract.ProposalApproveContract;
+import org.tron.protos.contract.ProposalContract.ProposalDeleteContract;
+import org.tron.protos.contract.SmartContractOuterClass.ClearABIContract;
+import org.tron.protos.contract.SmartContractOuterClass.CreateSmartContract;
+import org.tron.protos.contract.SmartContractOuterClass.CreateSmartContract.Builder;
+import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
+import org.tron.protos.contract.SmartContractOuterClass.SmartContract.ABI;
+import org.tron.protos.contract.SmartContractOuterClass.TriggerSmartContract;
+import org.tron.protos.contract.SmartContractOuterClass.UpdateEnergyLimitContract;
+import org.tron.protos.contract.SmartContractOuterClass.UpdateSettingContract;
+import org.tron.protos.contract.StorageContract.BuyStorageContract;
+import org.tron.protos.contract.StorageContract.SellStorageContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
@@ -227,7 +242,8 @@ public class PublicMethedForDailybuild {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    logger.info("Txid in sign is " + ByteArray.toHexString(Sha256Hash.hash(transaction
+    logger.info("Txid in sign is " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction
         .getRawData().toByteArray())));
     boolean isSideChain = false;
     return TransactionUtils
@@ -246,7 +262,8 @@ public class PublicMethedForDailybuild {
       //logger.warn("Warning: Can't sign,there is no private key !!");
       return null;
     }
-    logger.info("Txid in sign is " + ByteArray.toHexString(Sha256Hash.hash(transaction
+    logger.info("Txid in sign is " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction
         .getRawData().toByteArray())));
     return TransactionUtils.sign(transaction, ecKey);
   }
@@ -292,13 +309,13 @@ public class PublicMethedForDailybuild {
       logger.info(Long.toString(beforeFronzen.getFrozen(0).getFrozenBalance()));
     }
 
-    Contract.FreezeBalanceContract.Builder builder = Contract.FreezeBalanceContract.newBuilder();
+    FreezeBalanceContract.Builder builder = FreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddreess).setFrozenBalance(frozenBalance)
         .setFrozenDuration(frozenDuration);
 
-    Contract.FreezeBalanceContract contract = builder.build();
+    FreezeBalanceContract contract = builder.build();
     Protocol.Transaction transaction = blockingStubFull.freezeBalance(contract);
 
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
@@ -359,13 +376,13 @@ public class PublicMethedForDailybuild {
       logger.info(Long.toString(beforeFronzen.getFrozen(0).getFrozenBalance()));
     }
 
-    Contract.FreezeBalanceContract.Builder builder = Contract.FreezeBalanceContract.newBuilder();
+    FreezeBalanceContract.Builder builder = FreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddreess).setFrozenBalance(frozenBalance)
         .setFrozenDuration(frozenDuration);
 
-    Contract.FreezeBalanceContract contract = builder.build();
+    FreezeBalanceContract contract = builder.build();
 
     GrpcAPI.TransactionExtention transactionExtention = blockingStubFull.freezeBalance2(contract);
     if (transactionExtention == null) {
@@ -428,7 +445,7 @@ public class PublicMethedForDailybuild {
       ex.printStackTrace();
     }
     final ECKey ecKey = temKey;
-    Contract.UnfreezeBalanceContract.Builder builder = Contract.UnfreezeBalanceContract
+    UnfreezeBalanceContract.Builder builder = UnfreezeBalanceContract
         .newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
     builder.setOwnerAddress(byteAddreess).setResourceValue(resourceCode);
@@ -437,7 +454,7 @@ public class PublicMethedForDailybuild {
       builder.setReceiverAddress(receiverAddressBytes);
     }
 
-    Contract.UnfreezeBalanceContract contract = builder.build();
+    UnfreezeBalanceContract contract = builder.build();
     Transaction transaction = blockingStubFull.unfreezeBalance(contract);
     transaction = signTransaction(ecKey, transaction);
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
@@ -465,14 +482,14 @@ public class PublicMethedForDailybuild {
     Integer times = 0;
     while (times++ <= 2) {
 
-      Contract.TransferContract.Builder builder = Contract.TransferContract.newBuilder();
+      TransferContract.Builder builder = TransferContract.newBuilder();
       ByteString bsTo = ByteString.copyFrom(to);
       ByteString bsOwner = ByteString.copyFrom(owner);
       builder.setToAddress(bsTo);
       builder.setOwnerAddress(bsOwner);
       builder.setAmount(amount);
 
-      Contract.TransferContract contract = builder.build();
+      TransferContract contract = builder.build();
       Protocol.Transaction transaction = blockingStubFull.createTransaction(contract);
       if (transaction == null || transaction.getRawData().getContractCount() == 0) {
         logger.info("transaction ==null");
@@ -503,14 +520,14 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     Integer times = 0;
-    Contract.TransferContract.Builder builder = Contract.TransferContract.newBuilder();
+    TransferContract.Builder builder = TransferContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsOwner = ByteString.copyFrom(owner);
     builder.setToAddress(bsTo);
     builder.setOwnerAddress(bsOwner);
     builder.setAmount(amount);
 
-    Contract.TransferContract contract = builder.build();
+    TransferContract contract = builder.build();
     Protocol.Transaction transaction = blockingStubFull.createTransaction(contract);
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       logger.info("transaction ==null");
@@ -544,7 +561,7 @@ public class PublicMethedForDailybuild {
     builder.setTransactionId(ByteString.copyFrom(ByteArray.fromHexString(txid)));
     builder.setOwnerAddress(ByteString.copyFrom(owner));
 
-    Contract.CancelDeferredTransactionContract contract = builder.build();
+    CancelDeferredTransactionContract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull
      .createCancelDeferredTransactionContract(contract);
 
@@ -591,12 +608,12 @@ public class PublicMethedForDailybuild {
       ex.printStackTrace();
     }
     final ECKey ecKey = temKey;
-    /* Contract.CancelDeferredTransactionContract.Builder builder = Contract
+    /* CancelDeferredTransactionContract.Builder builder = Contract
       .CancelDeferredTransactionContract.newBuilder();
     builder.setTransactionId(ByteString.copyFrom(ByteArray.fromHexString(txid)));
     builder.setOwnerAddress(ByteString.copyFrom(owner));
 
-    Contract.CancelDeferredTransactionContract contract = builder.build();
+    CancelDeferredTransactionContract contract = builder.build();
    TransactionExtention transactionExtention = blockingStubFull
      .createCancelDeferredTransactionContract(contract);
 
@@ -624,7 +641,8 @@ public class PublicMethedForDailybuild {
         .getTxid().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
 
-    return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));*/
+    return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));*/
     return null;
   }
 
@@ -645,14 +663,14 @@ public class PublicMethedForDailybuild {
     }
     final ECKey ecKey = temKey;
 
-    Contract.TransferContract.Builder builder = Contract.TransferContract.newBuilder();
+    TransferContract.Builder builder = TransferContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsOwner = ByteString.copyFrom(owner);
     builder.setToAddress(bsTo);
     builder.setOwnerAddress(bsOwner);
     builder.setAmount(amount);
 
-    Contract.TransferContract contract = builder.build();
+    TransferContract contract = builder.build();
     Protocol.Transaction transaction = blockingStubFull.createTransaction(contract);
 
     //transaction = TransactionUtils.setDelaySeconds(transaction, delaySeconds);
@@ -662,8 +680,8 @@ public class PublicMethedForDailybuild {
       return false;
     }
     transaction = signTransaction(ecKey, transaction);
-    logger.info("Txid is " + ByteArray.toHexString(Sha256Hash.hash(transaction
-        .getRawData().toByteArray())));
+    logger.info("Txid is " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(),transaction.getRawData().toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }
@@ -685,7 +703,7 @@ public class PublicMethedForDailybuild {
     }
     final ECKey ecKey = temKey;
 
-    Contract.TransferAssetContract.Builder builder = Contract.TransferAssetContract.newBuilder();
+    TransferAssetContract.Builder builder = TransferAssetContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsName = ByteString.copyFrom(assertName);
     ByteString bsOwner = ByteString.copyFrom(address);
@@ -694,7 +712,7 @@ public class PublicMethedForDailybuild {
     builder.setOwnerAddress(bsOwner);
     builder.setAmount(amount);
 
-    Contract.TransferAssetContract contract = builder.build();
+    TransferAssetContract contract = builder.build();
     Protocol.Transaction transaction = blockingStubFull.transferAsset(contract);
     //transaction = TransactionUtils.setDelaySeconds(transaction, delaySeconds);
 
@@ -707,7 +725,8 @@ public class PublicMethedForDailybuild {
       return false;
     }
     transaction = signTransaction(ecKey, transaction);
-    logger.info("Txid is " + ByteArray.toHexString(Sha256Hash.hash(transaction
+    logger.info("Txid is " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction
         .getRawData().toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
@@ -730,20 +749,22 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    Contract.AccountCreateContract.Builder builder = Contract.AccountCreateContract.newBuilder();
+    AccountCreateContract.Builder builder = AccountCreateContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setAccountAddress(ByteString.copyFrom(newAddress));
-    Contract.AccountCreateContract contract = builder.build();
+    AccountCreateContract contract = builder.build();
     Transaction transaction = blockingStubFull.createAccount(contract);
     //transaction = TransactionUtils.setDelaySeconds(transaction, delaySeconds);
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       logger.info("transaction == null");
     }
     transaction = signTransaction(ecKey, transaction);
-    logger.info("Txid is " + ByteArray.toHexString(Sha256Hash.hash(transaction
+    logger.info("Txid is " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction
         .getRawData().toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
-    return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+    return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
 
   }
 
@@ -763,14 +784,14 @@ public class PublicMethedForDailybuild {
     }
     final ECKey ecKey = temKey;
 
-    Contract.AccountUpdateContract.Builder builder = Contract.AccountUpdateContract.newBuilder();
+    AccountUpdateContract.Builder builder = AccountUpdateContract.newBuilder();
     ByteString basAddreess = ByteString.copyFrom(addressBytes);
     ByteString bsAccountName = ByteString.copyFrom(accountNameBytes);
 
     builder.setAccountName(bsAccountName);
     builder.setOwnerAddress(basAddreess);
 
-    Contract.AccountUpdateContract contract = builder.build();
+    AccountUpdateContract contract = builder.build();
     Protocol.Transaction transaction = blockingStubFull.updateAccount(contract);
     //transaction = TransactionUtils.setDelaySeconds(transaction, delaySeconds);
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
@@ -778,10 +799,12 @@ public class PublicMethedForDailybuild {
       return null;
     }
     transaction = signTransaction(ecKey, transaction);
-    logger.info("Txid is " + ByteArray.toHexString(Sha256Hash.hash(transaction
+    logger.info("Txid is " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction
         .getRawData().toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
-    return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+    return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
   }
 
   /**
@@ -806,7 +829,7 @@ public class PublicMethedForDailybuild {
     }
     final ECKey ecKey = temKey;
 
-    Contract.TransferAssetContract.Builder builder = Contract.TransferAssetContract.newBuilder();
+    TransferAssetContract.Builder builder = TransferAssetContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsName = ByteString.copyFrom(assertName);
     ByteString bsOwner = ByteString.copyFrom(address);
@@ -815,7 +838,7 @@ public class PublicMethedForDailybuild {
     builder.setOwnerAddress(bsOwner);
     builder.setAmount(amount);
 
-    Contract.TransferAssetContract contract = builder.build();
+    TransferAssetContract contract = builder.build();
     Protocol.Transaction transaction = blockingStubFull.transferAsset(contract);
     //transaction = TransactionUtils.setDelaySeconds(transaction, delaySeconds);
 
@@ -828,10 +851,12 @@ public class PublicMethedForDailybuild {
       return null;
     }
     transaction = signTransaction(ecKey, transaction);
-    logger.info("Txid is " + ByteArray.toHexString(Sha256Hash.hash(transaction
+    logger.info("Txid is " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction
         .getRawData().toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
-    return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+    return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
   }
 
 
@@ -851,14 +876,14 @@ public class PublicMethedForDailybuild {
     }
     final ECKey ecKey = temKey;
 
-    Contract.TransferContract.Builder builder = Contract.TransferContract.newBuilder();
+    TransferContract.Builder builder = TransferContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsOwner = ByteString.copyFrom(owner);
     builder.setToAddress(bsTo);
     builder.setOwnerAddress(bsOwner);
     builder.setAmount(amount);
 
-    Contract.TransferContract contract = builder.build();
+    TransferContract contract = builder.build();
     Protocol.Transaction transaction = blockingStubFull.createTransaction(contract);
 
     //transaction = TransactionUtils.setDelaySeconds(transaction, delaySeconds);
@@ -868,10 +893,12 @@ public class PublicMethedForDailybuild {
       return null;
     }
     transaction = signTransaction(ecKey, transaction);
-    logger.info("Txid is " + ByteArray.toHexString(Sha256Hash.hash(transaction
+    logger.info("Txid is " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction
         .getRawData().toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
-    return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+    return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
   }
 
   /**
@@ -892,12 +919,12 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    Contract.SetAccountIdContract.Builder builder = Contract.SetAccountIdContract.newBuilder();
+    SetAccountIdContract.Builder builder = SetAccountIdContract.newBuilder();
     ByteString bsAddress = ByteString.copyFrom(owner);
     ByteString bsAccountId = ByteString.copyFrom(accountIdBytes);
     builder.setAccountId(bsAccountId);
     builder.setOwnerAddress(bsAddress);
-    Contract.SetAccountIdContract contract = builder.build();
+    SetAccountIdContract contract = builder.build();
     Transaction transaction = blockingStubFull.setAccountId(contract);
     //transaction = TransactionUtils.setDelaySeconds(transaction, delaySeconds);
 
@@ -905,10 +932,12 @@ public class PublicMethedForDailybuild {
       logger.info("transaction == null");
     }
     transaction = signTransaction(ecKey, transaction);
-    logger.info("Txid is " + ByteArray.toHexString(Sha256Hash.hash(transaction
+    logger.info("Txid is " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction
         .getRawData().toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
-    return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+    return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
   }
 
   /**
@@ -933,14 +962,14 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
     //Protocol.Account search = queryAccount(priKey, blockingStubFull);
 
-    Contract.TransferContract.Builder builder = Contract.TransferContract.newBuilder();
+    TransferContract.Builder builder = TransferContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsOwner = ByteString.copyFrom(owner);
     builder.setToAddress(bsTo);
     builder.setOwnerAddress(bsOwner);
     builder.setAmount(amount);
 
-    Contract.TransferContract contract = builder.build();
+    TransferContract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.createTransaction2(contract);
     if (transactionExtention == null) {
       return transactionExtention.getResult();
@@ -991,14 +1020,14 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
     //Protocol.Account search = queryAccount(priKey, blockingStubFull);
 
-    Contract.TransferContract.Builder builder = Contract.TransferContract.newBuilder();
+    TransferContract.Builder builder = TransferContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsOwner = ByteString.copyFrom(owner);
     builder.setToAddress(bsTo);
     builder.setOwnerAddress(bsOwner);
     builder.setAmount(amount);
 
-    Contract.TransferContract contract = builder.build();
+    TransferContract contract = builder.build();
     Protocol.Transaction transaction = blockingStubFull.createTransaction(contract);
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       logger.info("transaction ==null");
@@ -1017,7 +1046,8 @@ public class PublicMethedForDailybuild {
       //logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
       return null;
     } else {
-      return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
   }
 
@@ -1099,11 +1129,13 @@ public class PublicMethedForDailybuild {
     String result = "";
     result += "hash: ";
     result += "\n";
-    result += ByteArray.toHexString(Sha256Hash.hash(transaction.toByteArray()));
+    result += ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.toByteArray()));
     result += "\n";
     result += "txid: ";
     result += "\n";
-    result += ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+    result += ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     result += "\n";
 
     if (transaction.getRawData() != null) {
@@ -1153,7 +1185,7 @@ public class PublicMethedForDailybuild {
     }
     final ECKey ecKey = temKey;
 
-    Contract.TransferAssetContract.Builder builder = Contract.TransferAssetContract.newBuilder();
+    TransferAssetContract.Builder builder = TransferAssetContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsName = ByteString.copyFrom(assertName);
     ByteString bsOwner = ByteString.copyFrom(address);
@@ -1162,7 +1194,7 @@ public class PublicMethedForDailybuild {
     builder.setOwnerAddress(bsOwner);
     builder.setAmount(amount);
 
-    Contract.TransferAssetContract contract = builder.build();
+    TransferAssetContract contract = builder.build();
     Protocol.Transaction transaction = blockingStubFull.transferAsset(contract);
 
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
@@ -1196,14 +1228,14 @@ public class PublicMethedForDailybuild {
     }
     final ECKey ecKey = temKey;
 
-    Contract.AccountUpdateContract.Builder builder = Contract.AccountUpdateContract.newBuilder();
+    AccountUpdateContract.Builder builder = AccountUpdateContract.newBuilder();
     ByteString basAddreess = ByteString.copyFrom(addressBytes);
     ByteString bsAccountName = ByteString.copyFrom(accountNameBytes);
 
     builder.setAccountName(bsAccountName);
     builder.setOwnerAddress(basAddreess);
 
-    Contract.AccountUpdateContract contract = builder.build();
+    AccountUpdateContract contract = builder.build();
     Protocol.Transaction transaction = blockingStubFull.updateAccount(contract);
 
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
@@ -1344,10 +1376,10 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    Contract.AccountCreateContract.Builder builder = Contract.AccountCreateContract.newBuilder();
+    AccountCreateContract.Builder builder = AccountCreateContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setAccountAddress(ByteString.copyFrom(newAddress));
-    Contract.AccountCreateContract contract = builder.build();
+    AccountCreateContract contract = builder.build();
     Transaction transaction = blockingStubFull.createAccount(contract);
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       logger.info("transaction == null");
@@ -1374,10 +1406,10 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    Contract.AccountCreateContract.Builder builder = Contract.AccountCreateContract.newBuilder();
+    AccountCreateContract.Builder builder = AccountCreateContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setAccountAddress(ByteString.copyFrom(newAddress));
-    Contract.AccountCreateContract contract = builder.build();
+    AccountCreateContract contract = builder.build();
 
     TransactionExtention transactionExtention = blockingStubFull.createAccount2(contract);
 
@@ -1432,12 +1464,12 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    Contract.ProposalApproveContract.Builder builder = Contract.ProposalApproveContract
+    ProposalApproveContract.Builder builder = ProposalApproveContract
         .newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setProposalId(id);
     builder.setIsAddApproval(isAddApproval);
-    Contract.ProposalApproveContract contract = builder.build();
+    ProposalApproveContract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.proposalApprove(contract);
     if (transactionExtention == null) {
       return false;
@@ -1477,11 +1509,11 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    Contract.ProposalDeleteContract.Builder builder = Contract.ProposalDeleteContract.newBuilder();
+    ProposalDeleteContract.Builder builder = ProposalDeleteContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setProposalId(id);
 
-    Contract.ProposalDeleteContract contract = builder.build();
+    ProposalDeleteContract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.proposalDelete(contract);
     if (transactionExtention == null) {
       return false;
@@ -1556,12 +1588,12 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    Contract.SetAccountIdContract.Builder builder = Contract.SetAccountIdContract.newBuilder();
+    SetAccountIdContract.Builder builder = SetAccountIdContract.newBuilder();
     ByteString bsAddress = ByteString.copyFrom(owner);
     ByteString bsAccountId = ByteString.copyFrom(accountIdBytes);
     builder.setAccountId(bsAccountId);
     builder.setOwnerAddress(bsAddress);
-    Contract.SetAccountIdContract contract = builder.build();
+    SetAccountIdContract contract = builder.build();
     Transaction transaction = blockingStubFull.setAccountId(contract);
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       logger.info("transaction == null");
@@ -1591,13 +1623,13 @@ public class PublicMethedForDailybuild {
     }
     final ECKey ecKey = temKey;
 
-    Contract.FreezeBalanceContract.Builder builder = Contract.FreezeBalanceContract.newBuilder();
+    FreezeBalanceContract.Builder builder = FreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddreess).setFrozenBalance(frozenBalance)
         .setFrozenDuration(frozenDuration).setResourceValue(resourceCode);
 
-    Contract.FreezeBalanceContract contract = builder.build();
+    FreezeBalanceContract contract = builder.build();
     Protocol.Transaction transaction = blockingStubFull.freezeBalance(contract);
 
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
@@ -1638,10 +1670,10 @@ public class PublicMethedForDailybuild {
     }
     final ECKey ecKey = temKey;
 
-    Contract.BuyStorageContract.Builder builder = Contract.BuyStorageContract.newBuilder();
+    BuyStorageContract.Builder builder = BuyStorageContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(address);
     builder.setOwnerAddress(byteAddress).setQuant(quantity);
-    Contract.BuyStorageContract contract = builder.build();
+    BuyStorageContract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.buyStorage(contract);
     if (transactionExtention == null) {
       return false;
@@ -1680,10 +1712,10 @@ public class PublicMethedForDailybuild {
     }
     final ECKey ecKey = temKey;
 
-    Contract.SellStorageContract.Builder builder = Contract.SellStorageContract.newBuilder();
+    SellStorageContract.Builder builder = SellStorageContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(address);
     builder.setOwnerAddress(byteAddress).setStorageBytes(quantity);
-    Contract.SellStorageContract contract = builder.build();
+    SellStorageContract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.sellStorage(contract);
     if (transactionExtention == null) {
       return false;
@@ -1725,7 +1757,7 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    SmartContract.ABI abi = jsonStr2Abi(abiString);
+    ABI abi = jsonStr2Abi(abiString);
     if (abi == null) {
       logger.error("abi is null");
       return null;
@@ -1808,7 +1840,8 @@ public class PublicMethedForDailybuild {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "txid = " + ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray())));
+        "txid = " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
     contractAddress = generateContractAddress(transaction, owner);
     System.out.println(
         "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
@@ -1854,7 +1887,7 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    SmartContract.ABI abi = jsonStr2Abi(abiString);
+    ABI abi = jsonStr2Abi(abiString);
     if (abi == null) {
       logger.error("abi is null");
       return null;
@@ -1943,7 +1976,8 @@ public class PublicMethedForDailybuild {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "txid = " + ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray())));
+        "txid = " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
     contractAddress = generateContractAddress(transaction, owner);
     System.out.println(
         "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
@@ -1991,7 +2025,7 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    SmartContract.ABI abi = jsonStr2Abi(abiString);
+    ABI abi = jsonStr2Abi(abiString);
     if (abi == null) {
       logger.error("abi is null");
       return null;
@@ -2071,7 +2105,8 @@ public class PublicMethedForDailybuild {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "txid = " + ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray())));
+        "txid = " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
     byte[] contractAddress = generateContractAddress(transaction, owner);
     System.out.println(
         "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
@@ -2080,7 +2115,8 @@ public class PublicMethedForDailybuild {
       return null;
     } else {
       //logger.info("brodacast succesfully");
-      return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
   }
 
@@ -2088,7 +2124,7 @@ public class PublicMethedForDailybuild {
    * constructor.
    */
 
-  public static SmartContract.ABI jsonStr2Abi(String jsonStr) {
+  public static ABI jsonStr2Abi(String jsonStr) {
     if (jsonStr == null) {
       return null;
     }
@@ -2096,7 +2132,7 @@ public class PublicMethedForDailybuild {
     JsonParser jsonParser = new JsonParser();
     JsonElement jsonElementRoot = jsonParser.parse(jsonStr);
     JsonArray jsonRoot = jsonElementRoot.getAsJsonArray();
-    SmartContract.ABI.Builder abiBuilder = SmartContract.ABI.newBuilder();
+    ABI.Builder abiBuilder = ABI.newBuilder();
     for (int index = 0; index < jsonRoot.size(); index++) {
       JsonElement abiItem = jsonRoot.get(index);
       boolean anonymous = abiItem.getAsJsonObject().get("anonymous") != null
@@ -2124,7 +2160,7 @@ public class PublicMethedForDailybuild {
         return null;
       }
 
-      SmartContract.ABI.Entry.Builder entryBuilder = SmartContract.ABI.Entry.newBuilder();
+      ABI.Entry.Builder entryBuilder = ABI.Entry.newBuilder();
       entryBuilder.setAnonymous(anonymous);
       entryBuilder.setConstant(constant);
       if (name != null) {
@@ -2142,7 +2178,7 @@ public class PublicMethedForDailybuild {
           }
           String inputName = inputItem.getAsJsonObject().get("name").getAsString();
           String inputType = inputItem.getAsJsonObject().get("type").getAsString();
-          SmartContract.ABI.Entry.Param.Builder paramBuilder = SmartContract.ABI.Entry.Param
+          ABI.Entry.Param.Builder paramBuilder = ABI.Entry.Param
               .newBuilder();
           JsonElement indexed = inputItem.getAsJsonObject().get("indexed");
 
@@ -2164,7 +2200,7 @@ public class PublicMethedForDailybuild {
           }
           String outputName = outputItem.getAsJsonObject().get("name").getAsString();
           String outputType = outputItem.getAsJsonObject().get("type").getAsString();
-          SmartContract.ABI.Entry.Param.Builder paramBuilder = SmartContract.ABI.Entry.Param
+          ABI.Entry.Param.Builder paramBuilder = ABI.Entry.Param
               .newBuilder();
           JsonElement indexed = outputItem.getAsJsonObject().get("indexed");
 
@@ -2191,18 +2227,18 @@ public class PublicMethedForDailybuild {
    * constructor.
    */
 
-  public static SmartContract.ABI.Entry.EntryType getEntryType(String type) {
+  public static ABI.Entry.EntryType getEntryType(String type) {
     switch (type) {
       case "constructor":
-        return SmartContract.ABI.Entry.EntryType.Constructor;
+        return ABI.Entry.EntryType.Constructor;
       case "function":
-        return SmartContract.ABI.Entry.EntryType.Function;
+        return ABI.Entry.EntryType.Function;
       case "event":
-        return SmartContract.ABI.Entry.EntryType.Event;
+        return ABI.Entry.EntryType.Event;
       case "fallback":
-        return SmartContract.ABI.Entry.EntryType.Fallback;
+        return ABI.Entry.EntryType.Fallback;
       default:
-        return SmartContract.ABI.Entry.EntryType.UNRECOGNIZED;
+        return ABI.Entry.EntryType.UNRECOGNIZED;
     }
   }
 
@@ -2210,19 +2246,19 @@ public class PublicMethedForDailybuild {
    * constructor.
    */
 
-  public static SmartContract.ABI.Entry.StateMutabilityType getStateMutability(
+  public static ABI.Entry.StateMutabilityType getStateMutability(
       String stateMutability) {
     switch (stateMutability) {
       case "pure":
-        return SmartContract.ABI.Entry.StateMutabilityType.Pure;
+        return ABI.Entry.StateMutabilityType.Pure;
       case "view":
-        return SmartContract.ABI.Entry.StateMutabilityType.View;
+        return ABI.Entry.StateMutabilityType.View;
       case "nonpayable":
-        return SmartContract.ABI.Entry.StateMutabilityType.Nonpayable;
+        return ABI.Entry.StateMutabilityType.Nonpayable;
       case "payable":
-        return SmartContract.ABI.Entry.StateMutabilityType.Payable;
+        return ABI.Entry.StateMutabilityType.Payable;
       default:
-        return SmartContract.ABI.Entry.StateMutabilityType.UNRECOGNIZED;
+        return ABI.Entry.StateMutabilityType.UNRECOGNIZED;
     }
   }
 
@@ -2237,7 +2273,7 @@ public class PublicMethedForDailybuild {
     byte[] ownerAddress = owneraddress;
 
     // get tx hash
-    byte[] txRawDataHash = Sha256Hash.of(trx.getRawData().toByteArray()).getBytes();
+    byte[] txRawDataHash = Sha256Hash.of(DBConfig.isECKeyCryptoEngine(),trx.getRawData().toByteArray()).getBytes();
 
     // combine
     byte[] combined = new byte[txRawDataHash.length + ownerAddress.length];
@@ -2365,7 +2401,7 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    Contract.UpdateSettingContract.Builder builder = Contract.UpdateSettingContract.newBuilder();
+    UpdateSettingContract.Builder builder = UpdateSettingContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
     builder.setConsumeUserResourcePercent(consumeUserResourcePercent);
@@ -2421,7 +2457,7 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    Contract.UpdateSettingContract.Builder builder = Contract.UpdateSettingContract.newBuilder();
+    UpdateSettingContract.Builder builder = UpdateSettingContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
     builder.setConsumeUserResourcePercent(consumeUserResourcePercent);
@@ -2481,7 +2517,7 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    Contract.UpdateSettingContract.Builder builder = Contract.UpdateSettingContract.newBuilder();
+    UpdateSettingContract.Builder builder = UpdateSettingContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
     builder.setConsumeUserResourcePercent(consumeUserResourcePercent);
@@ -2519,7 +2555,8 @@ public class PublicMethedForDailybuild {
     transaction = signTransaction(ecKey, transaction);
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
 
-    return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));*/
+    return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));*/
     return null;
   }
 
@@ -2540,7 +2577,7 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    Contract.UpdateEnergyLimitContract.Builder builder = Contract.UpdateEnergyLimitContract
+    UpdateEnergyLimitContract.Builder builder = UpdateEnergyLimitContract
         .newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
@@ -2578,7 +2615,8 @@ public class PublicMethedForDailybuild {
         "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
     transaction = signTransaction(ecKey, transaction);
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
-    return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+    return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
   }
 
 
@@ -2628,14 +2666,14 @@ public class PublicMethedForDailybuild {
     byte[] input = Hex.decode(AbiUtilForDailyBuild.parseMethod(method, argsStr, isHex));
     logger.info("input:" + Hex.toHexString(input));
 
-    Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
+    TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
     builder.setData(ByteString.copyFrom(input));
     builder.setCallValue(callValue);
     builder.setTokenId(Long.parseLong(tokenId));
     builder.setCallTokenValue(tokenValue);
-    Contract.TriggerSmartContract triggerContract = builder.build();
+    TriggerSmartContract triggerContract = builder.build();
 
     TransactionExtention transactionExtention = blockingStubFull.triggerContract(triggerContract);
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
@@ -2691,13 +2729,15 @@ public class PublicMethedForDailybuild {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "trigger txid = " + ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData()
+        "trigger txid = " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData()
             .toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     if (response.getResult() == false) {
       return null;
     } else {
-      return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
   }
   /**
@@ -2800,14 +2840,16 @@ public class PublicMethedForDailybuild {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "trigger txid = " + ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData()
+        "trigger txid = " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData()
             .toByteArray())));
     GrpcAPI.Return response = broadcastTransactionBoth(transaction, blockingStubFull,
         blockingStubFull1);
     if (response.getResult() == false) {
       return null;
     } else {
-      return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
   }
 
@@ -2863,14 +2905,14 @@ public class PublicMethedForDailybuild {
     byte[] owner = ownerAddress;
     byte[] input = Hex.decode(AbiUtilForDailyBuild.parseMethod(method, params));
 
-    Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
+    TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
     builder.setData(ByteString.copyFrom(input));
     builder.setCallValue(callValue);
     builder.setTokenId(Long.parseLong(tokenId));
     builder.setCallTokenValue(tokenValue);
-    Contract.TriggerSmartContract triggerContract = builder.build();
+    TriggerSmartContract triggerContract = builder.build();
 
     TransactionExtention transactionExtention = blockingStubFull.triggerContract(triggerContract);
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
@@ -2926,13 +2968,15 @@ public class PublicMethedForDailybuild {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "trigger txid = " + ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData()
+        "trigger txid = " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData()
             .toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     if (response.getResult() == false) {
       return null;
     } else {
-      return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
 
 
@@ -3024,7 +3068,7 @@ public class PublicMethedForDailybuild {
     }
     final ECKey ecKey = temKey;
 
-    SmartContract.ABI abi = jsonStr2Abi(abiString);
+    ABI abi = jsonStr2Abi(abiString);
     if (abi == null) {
       logger.error("abi is null");
       return null;
@@ -3106,7 +3150,8 @@ public class PublicMethedForDailybuild {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "txid = " + ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray())));
+        "txid = " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
     byte[] contractAddress = generateContractAddress(transaction, owner);
     System.out.println(
         "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
@@ -3115,7 +3160,8 @@ public class PublicMethedForDailybuild {
       return null;
     } else {
       //logger.info("brodacast succesfully");
-      return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
   }
 
@@ -3139,13 +3185,13 @@ public class PublicMethedForDailybuild {
     }
     final ECKey ecKey = temKey;
 
-    Contract.FreezeBalanceContract.Builder builder = Contract.FreezeBalanceContract.newBuilder();
+    FreezeBalanceContract.Builder builder = FreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddreess).setFrozenBalance(frozenBalance)
         .setFrozenDuration(frozenDuration).setResourceValue(resourceCode);
     builder.setReceiverAddress(receiverAddressBytes);
-    Contract.FreezeBalanceContract contract = builder.build();
+    FreezeBalanceContract contract = builder.build();
     Protocol.Transaction transaction = blockingStubFull.freezeBalance(contract);
 
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
@@ -3197,7 +3243,7 @@ public class PublicMethedForDailybuild {
    * constructor.
    */
 
-  public static Contract.AssetIssueContract getAssetIssueByName(String assetName,
+  public static AssetIssueContract getAssetIssueByName(String assetName,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     ByteString assetNameBs = ByteString.copyFrom(assetName.getBytes());
@@ -3222,7 +3268,7 @@ public class PublicMethedForDailybuild {
    * constructor.
    */
 
-  public static Contract.AssetIssueContract getAssetIssueById(String assetId,
+  public static AssetIssueContract getAssetIssueById(String assetId,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     ByteString assetIdBs = ByteString.copyFrom(assetId.getBytes());
@@ -3287,8 +3333,8 @@ public class PublicMethedForDailybuild {
     }
     final ECKey ecKey = temKey;
 
-    Contract.AccountPermissionUpdateContract.Builder builder =
-        Contract.AccountPermissionUpdateContract.newBuilder();
+    AccountPermissionUpdateContract.Builder builder =
+        AccountPermissionUpdateContract.newBuilder();
 
     JSONObject permissions = JSONObject.parseObject(permissionJson);
     JSONObject ownerpermission = permissions.getJSONObject("owner_permission");
@@ -3313,7 +3359,7 @@ public class PublicMethedForDailybuild {
     }
     builder.setOwnerAddress(ByteString.copyFrom(owner));
 
-    Contract.AccountPermissionUpdateContract contract = builder.build();
+    AccountPermissionUpdateContract contract = builder.build();
 
     TransactionExtention transactionExtention = blockingStubFull.accountPermissionUpdate(contract);
     if (transactionExtention == null) {
@@ -3440,7 +3486,8 @@ public class PublicMethedForDailybuild {
     ECKey ecKey = temKey;
 
     Transaction.Builder transactionBuilderSigned = transaction.toBuilder();
-    byte[] hash = Sha256Hash.hash(transaction.getRawData().toByteArray());
+    byte[] hash =  Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray());
 
 /*    ECDSASignature signature = ecKey.sign(hash);
     ByteString bsSign = ByteString.copyFrom(signature.toByteArray());
@@ -3471,7 +3518,7 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    SmartContract.ABI abi = jsonStr2Abi(abiString);
+    ABI abi = jsonStr2Abi(abiString);
     if (abi == null) {
       logger.error("abi is null");
       return null;
@@ -3551,7 +3598,8 @@ public class PublicMethedForDailybuild {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "txid = " + ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray())));
+        "txid = " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
     byte[] contractAddress = generateContractAddress(transaction, owner);
     System.out.println(
         "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
@@ -3585,14 +3633,14 @@ public class PublicMethedForDailybuild {
     byte[] owner = ownerAddress;
     byte[] input = Hex.decode(AbiUtilForDailyBuild.parseMethod(method, argsStr, isHex));
 
-    Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
+    TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
     builder.setData(ByteString.copyFrom(input));
     builder.setCallValue(callValue);
     builder.setTokenId(Long.parseLong(tokenId));
     builder.setCallTokenValue(tokenValue);
-    Contract.TriggerSmartContract triggerContract = builder.build();
+    TriggerSmartContract triggerContract = builder.build();
 
     TransactionExtention transactionExtention = blockingStubFull.triggerContract(triggerContract);
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
@@ -3648,7 +3696,8 @@ public class PublicMethedForDailybuild {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "trigger txid = " + ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData()
+        "trigger txid = " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData()
             .toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response;
@@ -3671,7 +3720,7 @@ public class PublicMethedForDailybuild {
     final ECKey ecKey = temKey;
 
     byte[] owner = ownerAddress;
-    Contract.UpdateEnergyLimitContract.Builder builder = Contract.UpdateEnergyLimitContract
+    UpdateEnergyLimitContract.Builder builder = UpdateEnergyLimitContract
         .newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
@@ -3726,8 +3775,8 @@ public class PublicMethedForDailybuild {
     }
     final ECKey ecKey = temKey;
 
-    Contract.AccountPermissionUpdateContract.Builder builder =
-        Contract.AccountPermissionUpdateContract.newBuilder();
+    AccountPermissionUpdateContract.Builder builder =
+        AccountPermissionUpdateContract.newBuilder();
 
     JSONObject permissions = JSONObject.parseObject(permissionJson);
     JSONObject ownerpermission = permissions.getJSONObject("owner_permission");
@@ -3752,7 +3801,7 @@ public class PublicMethedForDailybuild {
     }
     builder.setOwnerAddress(ByteString.copyFrom(owner));
 
-    Contract.AccountPermissionUpdateContract contract = builder.build();
+    AccountPermissionUpdateContract contract = builder.build();
 
     TransactionExtention transactionExtention = blockingStubFull.accountPermissionUpdate(contract);
     if (transactionExtention == null) {
@@ -4005,14 +4054,14 @@ public class PublicMethedForDailybuild {
     byte[] owner = ownerAddress;
     byte[] input = Hex.decode(AbiUtilForDailyBuild.parseMethod(method, argsStr, isHex));
 
-    Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
+    TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
     builder.setData(ByteString.copyFrom(input));
     builder.setCallValue(callValue);
     builder.setTokenId(Long.parseLong(tokenId));
     builder.setCallTokenValue(tokenValue);
-    Contract.TriggerSmartContract triggerContract = builder.build();
+    TriggerSmartContract triggerContract = builder.build();
 
     TransactionExtention transactionExtention = blockingStubFull
         .triggerConstantContract(triggerContract);
@@ -4069,13 +4118,15 @@ public class PublicMethedForDailybuild {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "trigger txid = " + ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData()
+        "trigger txid = " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData()
             .toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     if (response.getResult() == false) {
       return null;
     } else {
-      return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
   }
 
@@ -4097,12 +4148,12 @@ public class PublicMethedForDailybuild {
 
     byte[] owner = ownerAddress;
 
-    Contract.ClearABIContract.Builder builder = Contract.ClearABIContract
+    ClearABIContract.Builder builder = ClearABIContract
         .newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
 
-    Contract.ClearABIContract clearAbiContract = builder.build();
+    ClearABIContract clearAbiContract = builder.build();
 
     TransactionExtention transactionExtention = blockingStubFull
         .clearContractABI(clearAbiContract);
@@ -4158,13 +4209,15 @@ public class PublicMethedForDailybuild {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "trigger txid = " + ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData()
+        "trigger txid = " + ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData()
             .toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     if (response.getResult() == false) {
       return null;
     } else {
-      return ByteArray.toHexString(Sha256Hash.hash(transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString( Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
   }
 
@@ -4186,12 +4239,12 @@ public class PublicMethedForDailybuild {
 
     byte[] owner = ownerAddress;
 
-    Contract.ClearABIContract.Builder builder = Contract.ClearABIContract
+    ClearABIContract.Builder builder = ClearABIContract
         .newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
 
-    Contract.ClearABIContract clearAbiContract = builder.build();
+    ClearABIContract clearAbiContract = builder.build();
 
     TransactionExtention transactionExtention = blockingStubFull
         .clearContractABI(clearAbiContract);
@@ -4225,14 +4278,14 @@ public class PublicMethedForDailybuild {
     byte[] owner = ownerAddress;
     byte[] input = Hex.decode(AbiUtilForDailyBuild.parseMethod(method, argsStr, isHex));
 
-    Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
+    TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
     builder.setData(ByteString.copyFrom(input));
     builder.setCallValue(callValue);
     builder.setTokenId(Long.parseLong(tokenId));
     builder.setCallTokenValue(tokenValue);
-    Contract.TriggerSmartContract triggerContract = builder.build();
+    TriggerSmartContract triggerContract = builder.build();
 
     TransactionExtention transactionExtention = blockingStubFull
         .triggerConstantContract(triggerContract);
@@ -4266,14 +4319,14 @@ public class PublicMethedForDailybuild {
     byte[] owner = ownerAddress;
     byte[] input = Hex.decode(AbiUtilForDailyBuild.parseMethod(method, argsStr, isHex));
 
-    Contract.TriggerSmartContract.Builder builder = Contract.TriggerSmartContract.newBuilder();
+    TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
     builder.setData(ByteString.copyFrom(input));
     builder.setCallValue(callValue);
     builder.setTokenId(Long.parseLong(tokenId));
     builder.setCallTokenValue(tokenValue);
-    Contract.TriggerSmartContract triggerContract = builder.build();
+    TriggerSmartContract triggerContract = builder.build();
 
     TransactionExtention transactionExtention = blockingStubFull.triggerContract(triggerContract);
     return transactionExtention;

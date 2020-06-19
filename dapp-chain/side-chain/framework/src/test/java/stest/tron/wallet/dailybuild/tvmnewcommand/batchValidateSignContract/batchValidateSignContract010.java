@@ -24,14 +24,14 @@ import org.tron.common.utils.WalletUtil;
 import org.tron.core.Wallet;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class batchValidateSignContract010 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
@@ -60,24 +60,24 @@ public class batchValidateSignContract010 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(contractExcKey);
+    PublicMethedForDailybuild.printAddress(contractExcKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext(true).build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
             testNetAccountKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/batchvalidatesign001.sol";
     String contractName = "Demo";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed
+    contractAddress = PublicMethedForDailybuild
         .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null, contractExcKey,
             contractExcAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
   }
 
   @Test(enabled = true, description = "Correct 50 signatures test multivalidatesign")
@@ -92,8 +92,8 @@ public class batchValidateSignContract010 {
       addresses.add(WalletUtil.encode58Check(key.getAddress()));
     }
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    TransactionExtention transactionExtention = PublicMethed
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddress, "testPure(bytes32,bytes[],address[])",
             input, false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -105,7 +105,7 @@ public class batchValidateSignContract010 {
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("00000000000000000000000000000000",
-          PublicMethed.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -126,8 +126,8 @@ public class batchValidateSignContract010 {
     byte[] sign = new ECKey().sign(Hash.sha3("sdifhsdfihyw888w7".getBytes())).toByteArray();
     signatures.set(0, Hex.toHexString(sign));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    TransactionExtention transactionExtention = PublicMethed
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddress, "testPure(bytes32,bytes[],address[])",
             input, false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -139,7 +139,7 @@ public class batchValidateSignContract010 {
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("01000000000000000000000000000000",
-          PublicMethed.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -159,8 +159,8 @@ public class batchValidateSignContract010 {
     }
     addresses.set(0, WalletUtil.encode58Check(new ECKey().getAddress()));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    TransactionExtention transactionExtention = PublicMethed
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddress, "testPure(bytes32,bytes[],address[])",
             input, false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -172,7 +172,7 @@ public class batchValidateSignContract010 {
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("01100000000000000000000000000000",
-          PublicMethed.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -193,8 +193,8 @@ public class batchValidateSignContract010 {
     byte[] sign = new ECKey().sign(Hash.sha3("sdifhsdfihyw888w7".getBytes())).toByteArray();
     signatures.set(6, Hex.toHexString(sign));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    TransactionExtention transactionExtention = PublicMethed
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddress, "testPure(bytes32,bytes[],address[])",
             input, false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -206,7 +206,7 @@ public class batchValidateSignContract010 {
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("11111101100000000000000000000000",
-          PublicMethed.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -228,8 +228,8 @@ public class batchValidateSignContract010 {
       addresses.set(i, WalletUtil.encode58Check(new ECKey().getAddress()));
     }
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    TransactionExtention transactionExtention = PublicMethed
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddress, "testPure(bytes32,bytes[],address[])",
             input, false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -241,7 +241,7 @@ public class batchValidateSignContract010 {
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("10001000000000000000000000000000",
-          PublicMethed.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -265,8 +265,8 @@ public class batchValidateSignContract010 {
       addresses.add(WalletUtil.encode58Check(key.getAddress()));
     }
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    TransactionExtention transactionExtention = PublicMethed
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddress, "testPure(bytes32,bytes[],address[])",
             input, false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -278,7 +278,7 @@ public class batchValidateSignContract010 {
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("00000000000000000000000000000000",
-          PublicMethed.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -301,8 +301,8 @@ public class batchValidateSignContract010 {
     addresses.set(27, WalletUtil.encode58Check(new ECKey().getAddress()));
     addresses.set(31, WalletUtil.encode58Check(new ECKey().getAddress()));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    TransactionExtention transactionExtention = PublicMethed
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddress, "testPure(bytes32,bytes[],address[])",
             input, false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -314,7 +314,7 @@ public class batchValidateSignContract010 {
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("00000000000000000000000000000000",
-          PublicMethed.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -322,10 +322,10 @@ public class batchValidateSignContract010 {
 
   @Test(enabled = true, description = "105 signatures with Incorrect hash test multivalidatesign")
   public void test08IncorrectHash() {
-    String incorrecttxid = PublicMethed
+    String incorrecttxid = PublicMethedForDailybuild
         .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
             testNetAccountKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     List<Object> signatures = new ArrayList<>();
     List<Object> addresses = new ArrayList<>();
     byte[] hash = Hash.sha3(txid.getBytes());
@@ -337,8 +337,8 @@ public class batchValidateSignContract010 {
     }
     List<Object> parameters = Arrays
         .asList("0x" + Hex.toHexString(Hash.sha3(incorrecttxid.getBytes())), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    TransactionExtention transactionExtention = PublicMethed
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddress, "testPure(bytes32,bytes[],address[])",
             input, false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -350,7 +350,7 @@ public class batchValidateSignContract010 {
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("00000000000000000000000000000000",
-          PublicMethed.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -361,8 +361,9 @@ public class batchValidateSignContract010 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    long balance = PublicMethed.queryAccount(contractExcKey, blockingStubFull).getBalance();
-    PublicMethed.sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
+    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull).getBalance();
+    PublicMethedForDailybuild
+        .sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
         blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);

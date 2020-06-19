@@ -27,14 +27,14 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter;
 import stest.tron.wallet.common.client.utils.AbiUtil;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class batchValidateSignContract012 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   String txid;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -64,24 +64,24 @@ public class batchValidateSignContract012 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(contractExcKey);
+    PublicMethedForDailybuild.printAddress(contractExcKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext(true).build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .sendcoinGetTransactionId(contractExcAddress, 10000000000L, testNetAccountAddress,
             testNetAccountKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/batchvalidatesign005.sol";
     String contractName = "Demo";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed
+    contractAddress = PublicMethedForDailybuild
         .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null, contractExcKey,
             contractExcAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
   }
 
   @Test(enabled = true, description = "Trigger precompile multivalisign function with correct data")
@@ -96,17 +96,17 @@ public class batchValidateSignContract012 {
       addresses.add(WalletUtil.encode58Check(key.getAddress()));
     }
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String argsStr = PublicMethed.parametersString(parameters);
+    String argsStr = PublicMethedForDailybuild.parametersString(parameters);
 
     String input = AbiUtil.parseParameters("batchvalidatesign(bytes32,bytes[],address[])", argsStr);
     String method = "testArray2(bytes)";
-    txid = PublicMethed.triggerContractBoth(contractAddress, method,
+    txid = PublicMethedForDailybuild.triggerContractBoth(contractAddress, method,
         AbiUtil.parseParameters(method, Arrays.asList(input)), true, 0, maxFeeLimit,
         contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
-    PublicMethed.getTransactionById(txid, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.getTransactionById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(0, infoById.get().getResultValue());
     logger.info(
         "infoById:" + ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
@@ -132,17 +132,17 @@ public class batchValidateSignContract012 {
     byte[] sign = new ECKey().sign(Hash.sha3("sdifhsdfihyw888w7".getBytes())).toByteArray();
     signatures.set(0, Hex.toHexString(sign));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String argsStr = PublicMethed.parametersString(parameters);
+    String argsStr = PublicMethedForDailybuild.parametersString(parameters);
 
     String input = AbiUtil.parseParameters("batchvalidatesign(bytes32,bytes[],address[])", argsStr);
     String method = "testArray2(bytes)";
-    txid = PublicMethed.triggerContractBoth(contractAddress, method,
+    txid = PublicMethedForDailybuild.triggerContractBoth(contractAddress, method,
         AbiUtil.parseParameters(method, Arrays.asList(input)), true, 0, maxFeeLimit,
         contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
-    PublicMethed.getTransactionById(txid, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.getTransactionById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(0, infoById.get().getResultValue());
     logger.info(
         "infoById:" + ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray()));
@@ -158,8 +158,9 @@ public class batchValidateSignContract012 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    long balance = PublicMethed.queryAccount(contractExcKey, blockingStubFull).getBalance();
-    PublicMethed.sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
+    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull).getBalance();
+    PublicMethedForDailybuild
+        .sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
         blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);

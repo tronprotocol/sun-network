@@ -27,14 +27,14 @@ import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ExtCodeHashTest011 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -73,32 +73,34 @@ public class ExtCodeHashTest011 {
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    PublicMethed.printAddress(dev001Key);
-    PublicMethed.printAddress(user001Key);
+    PublicMethedForDailybuild.printAddress(dev001Key);
+    PublicMethedForDailybuild.printAddress(user001Key);
   }
 
   @Test(enabled = true, description = "Deploy extcodehash contract")
   public void test01DeployExtCodeHashContract() {
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(dev001Address, 100_000_000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(user001Address, 100_000_000L, fromAddress,
         testKey002, blockingStubFull));
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(dev001Address,
+            blockingStubFull);
     long energyLimit = accountResource.getEnergyLimit();
     long energyUsage = accountResource.getEnergyUsed();
-    long balanceBefore = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
+    long balanceBefore = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull)
+        .getBalance();
     logger.info("before energyLimit is " + Long.toString(energyLimit));
     logger.info("before energyUsage is " + Long.toString(energyUsage));
     logger.info("before balanceBefore is " + Long.toString(balanceBefore));
 
     String filePath = "./src/test/resources/soliditycode/extCodeHash11.sol";
     String contractName = "Counter";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
@@ -106,30 +108,31 @@ public class ExtCodeHashTest011 {
     expectedCodeHash = ByteArray.toHexString(Hash.sha3(Hex.decode(code)));
     logger.info("expectedCodeHash: " + expectedCodeHash);
 
-    String transferTokenTxid = PublicMethed
+    String transferTokenTxid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
             "0", 0, null, dev001Key,
             dev001Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Optional<TransactionInfo> infoById = PublicMethedForDailybuild
         .getTransactionInfoById(transferTokenTxid, blockingStubFull);
     extCodeHashContractAddress = infoById.get().getContractAddress().toByteArray();
 
-    accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
-    long balanceAfter = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
+    long balanceAfter = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull)
+        .getBalance();
 
     logger.info("after energyLimit is " + Long.toString(energyLimit));
     logger.info("after energyUsage is " + Long.toString(energyUsage));
     logger.info("after balanceAfter is " + Long.toString(balanceAfter));
-    transferTokenTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
+    transferTokenTxid = PublicMethedForDailybuild.triggerContract(extCodeHashContractAddress,
         "getCodeHashByAddr()", "#", false, 0,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild
         .getTransactionInfoById(transferTokenTxid, blockingStubFull);
 
     Assert.assertTrue(infoById.get().getResultValue() != 0);
@@ -142,26 +145,28 @@ public class ExtCodeHashTest011 {
 
   @Test(enabled = true, description = "Deploy extcodehash contract")
   public void test01DeployExtCodeHashContract1() {
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(dev001Address, 100_000_000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(user001Address, 100_000_000L, fromAddress,
         testKey002, blockingStubFull));
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(dev001Address,
+            blockingStubFull);
     long energyLimit = accountResource.getEnergyLimit();
     long energyUsage = accountResource.getEnergyUsed();
-    long balanceBefore = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
+    long balanceBefore = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull)
+        .getBalance();
     logger.info("before energyLimit is " + Long.toString(energyLimit));
     logger.info("before energyUsage is " + Long.toString(energyUsage));
     logger.info("before balanceBefore is " + Long.toString(balanceBefore));
 
     String filePath = "./src/test/resources/soliditycode/extCodeHash11.sol";
     String contractName = "Counter1";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
@@ -169,35 +174,36 @@ public class ExtCodeHashTest011 {
     expectedCodeHash = ByteArray.toHexString(Hash.sha3(Hex.decode(code)));
     logger.info("expectedCodeHash: " + expectedCodeHash);
 
-    String transferTokenTxid = PublicMethed
+    String transferTokenTxid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
             "0", 0, null, dev001Key,
             dev001Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Optional<TransactionInfo> infoById = PublicMethedForDailybuild
         .getTransactionInfoById(transferTokenTxid, blockingStubFull);
     extCodeHashContractAddress = infoById.get().getContractAddress().toByteArray();
 
-    accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
-    long balanceAfter = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
+    long balanceAfter = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull)
+        .getBalance();
 
     logger.info("after energyLimit is " + Long.toString(energyLimit));
     logger.info("after energyUsage is " + Long.toString(energyUsage));
     logger.info("after balanceAfter is " + Long.toString(balanceAfter));
-    transferTokenTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
+    transferTokenTxid = PublicMethedForDailybuild.triggerContract(extCodeHashContractAddress,
         "getCodeHashByAddr()", "#", false, 0,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    infoById = PublicMethed
+    infoById = PublicMethedForDailybuild
         .getTransactionInfoById(transferTokenTxid, blockingStubFull);
 
     TransactionInfo transactionInfo = infoById.get();
-    List<String> retList = PublicMethed
+    List<String> retList = PublicMethedForDailybuild
         .getStrings(transactionInfo.getContractResult(0).toByteArray());
 
     logger.info(
@@ -209,7 +215,7 @@ public class ExtCodeHashTest011 {
     logger.info("NetUsage: " + transactionInfo.getReceipt().getNetUsage());
 
     extCodeHashContractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(extCodeHashContractAddress,
+    SmartContract smartContract = PublicMethedForDailybuild.getContract(extCodeHashContractAddress,
         blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
   }
@@ -217,26 +223,28 @@ public class ExtCodeHashTest011 {
 
   @Test(enabled = true, description = "Deploy extcodehash contract")
   public void test01DeployExtCodeHashContract2() {
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(dev001Address, 100_000_000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(user001Address, 100_000_000L, fromAddress,
         testKey002, blockingStubFull));
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(dev001Address,
+            blockingStubFull);
     long energyLimit = accountResource.getEnergyLimit();
     long energyUsage = accountResource.getEnergyUsed();
-    long balanceBefore = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
+    long balanceBefore = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull)
+        .getBalance();
     logger.info("before energyLimit is " + Long.toString(energyLimit));
     logger.info("before energyUsage is " + Long.toString(energyUsage));
     logger.info("before balanceBefore is " + Long.toString(balanceBefore));
 
     String filePath = "./src/test/resources/soliditycode/extCodeHash11.sol";
     String contractName = "Counter2";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
@@ -244,20 +252,21 @@ public class ExtCodeHashTest011 {
     expectedCodeHash = ByteArray.toHexString(Hash.sha3(Hex.decode(code)));
     logger.info("expectedCodeHash: " + expectedCodeHash);
 
-    String transferTokenTxid = PublicMethed
+    String transferTokenTxid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
             "0", 0, null, dev001Key,
             dev001Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Optional<TransactionInfo> infoById = PublicMethedForDailybuild
         .getTransactionInfoById(transferTokenTxid, blockingStubFull);
     extCodeHashContractAddress = infoById.get().getContractAddress().toByteArray();
 
-    accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
-    long balanceAfter = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
+    long balanceAfter = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull)
+        .getBalance();
 
     logger.info("after energyLimit is " + Long.toString(energyLimit));
     logger.info("after energyUsage is " + Long.toString(energyUsage));
@@ -265,16 +274,16 @@ public class ExtCodeHashTest011 {
 
     String num = "\"" + Base58.encode58Check(dev001Address) + "\"";
 
-    transferTokenTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
+    transferTokenTxid = PublicMethedForDailybuild.triggerContract(extCodeHashContractAddress,
         "getCodeHashByAddr(address)", num, false, 0,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild
         .getTransactionInfoById(transferTokenTxid, blockingStubFull);
 
     TransactionInfo transactionInfo = infoById.get();
-    List<String> retList = PublicMethed
+    List<String> retList = PublicMethedForDailybuild
         .getStrings(transactionInfo.getContractResult(0).toByteArray());
 
     logger.info(
@@ -286,26 +295,28 @@ public class ExtCodeHashTest011 {
 
   @Test(enabled = true, description = "Deploy extcodehash contract")
   public void test01DeployExtCodeHashContract3() {
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(dev001Address, 100_000_000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(user001Address, 100_000_000L, fromAddress,
         testKey002, blockingStubFull));
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethedForDailybuild
+        .getAccountResource(dev001Address,
+            blockingStubFull);
     long energyLimit = accountResource.getEnergyLimit();
     long energyUsage = accountResource.getEnergyUsed();
-    long balanceBefore = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
+    long balanceBefore = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull)
+        .getBalance();
     logger.info("before energyLimit is " + Long.toString(energyLimit));
     logger.info("before energyUsage is " + Long.toString(energyUsage));
     logger.info("before balanceBefore is " + Long.toString(balanceBefore));
 
     String filePath = "./src/test/resources/soliditycode/extCodeHash11.sol";
     String contractName = "Counter2";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
@@ -313,20 +324,21 @@ public class ExtCodeHashTest011 {
     expectedCodeHash = ByteArray.toHexString(Hash.sha3(Hex.decode(code)));
     logger.info("expectedCodeHash: " + expectedCodeHash);
 
-    String transferTokenTxid = PublicMethed
+    String transferTokenTxid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
             "0", 0, null, dev001Key,
             dev001Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Optional<TransactionInfo> infoById = PublicMethedForDailybuild
         .getTransactionInfoById(transferTokenTxid, blockingStubFull);
     extCodeHashContractAddress = infoById.get().getContractAddress().toByteArray();
 
-    accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
+    accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
-    long balanceAfter = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
+    long balanceAfter = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull)
+        .getBalance();
 
     logger.info("after energyLimit is " + Long.toString(energyLimit));
     logger.info("after energyUsage is " + Long.toString(energyUsage));
@@ -334,19 +346,19 @@ public class ExtCodeHashTest011 {
 
     String num = "\"" + Base58.encode58Check(dev001Address) + "\"";
 
-    transferTokenTxid = PublicMethed.triggerContract(extCodeHashContractAddress,
+    transferTokenTxid = PublicMethedForDailybuild.triggerContract(extCodeHashContractAddress,
         "getCodeHashByAddr(address)", num, false, 0,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild
         .getTransactionInfoById(transferTokenTxid, blockingStubFull);
-    infoById = PublicMethed
+    infoById = PublicMethedForDailybuild
         .getTransactionInfoById(transferTokenTxid, blockingStubFull);
 
     TransactionInfo transactionInfo = infoById.get();
-    List<String> retList = PublicMethed
+    List<String> retList = PublicMethedForDailybuild
         .getStrings(transactionInfo.getContractResult(0).toByteArray());
 
     logger.info(
@@ -360,10 +372,6 @@ public class ExtCodeHashTest011 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethed.freedResource(user001Address, user001Key, fromAddress, blockingStubFull);
-    PublicMethed.freedResource(dev001Address, dev001Key, fromAddress, blockingStubFull);
-    PublicMethed.unFreezeBalance(fromAddress, testKey002, 0, user001Address, blockingStubFull);
-    PublicMethed.unFreezeBalance(fromAddress, testKey002, 0, dev001Address, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
