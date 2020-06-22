@@ -125,7 +125,7 @@ public class ContractTrcToken012 {
     final String transferTokenTxid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
-            assetAccountId.toStringUtf8(), 100, null, dev001Key,
+            assetAccountId.toStringUtf8(), 200, null, dev001Key,
             dev001Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 

@@ -130,7 +130,7 @@ public class ContractTrcToken028 {
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Assert
-        .assertTrue(PublicMethedForDailybuild
+        .assertFalse(PublicMethedForDailybuild
             .sendcoin(transferTokenContractAddress, 1000000000L, fromAddress,
                 testKey002, blockingStubFull));
 

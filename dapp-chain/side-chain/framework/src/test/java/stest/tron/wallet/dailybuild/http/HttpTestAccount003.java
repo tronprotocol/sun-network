@@ -181,11 +181,11 @@ public class HttpTestAccount003 {
    */
   @Test(enabled = true, description = "Withdraw by http")
   public void test8Withdraw() {
-    response = HttpMethed.withdrawBalance(httpnode, witness1Address);
+    response = HttpMethed.withdrawBalance(httpnode, witness2Address, witnessKey002);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
-    Assert.assertTrue(
-        responseContent.getString("Error").indexOf("is a guard representative") != -1);
+    Assert.assertTrue(!responseContent.getString("txid").isEmpty());
+
   }
 
   /**

@@ -144,7 +144,7 @@ public class ContractTrcToken023 {
             .sendcoin(transferTokenContractAddress, 1000000000L, fromAddress,
                 testKey002, blockingStubFull));
     Assert
-        .assertTrue(PublicMethedForDailybuild.sendcoin(btestAddress, 1000000000L, fromAddress,
+        .assertFalse(PublicMethedForDailybuild.sendcoin(btestAddress, 1000000000L, fromAddress,
             testKey002, blockingStubFull));
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 

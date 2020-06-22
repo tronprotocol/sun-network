@@ -1,6 +1,6 @@
 package stest.tron.wallet.dailybuild.trctoken;
 
-import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
+import static org.tron.protos.Protocol.TransactionInfo.code.SUCESS;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
@@ -138,7 +138,7 @@ public class ContractTrcToken018 {
     String transferTokenTxid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
-            assetAccountId.toStringUtf8(), 100, null, dev001Key,
+            assetAccountId.toStringUtf8(), 200, null, dev001Key,
             dev001Address, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
@@ -269,11 +269,13 @@ public class ContractTrcToken018 {
         .getTransactionInfoById(triggerTxid, blockingStubFull);
     logger.info("Trigger energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
-    Assert.assertEquals(FAILED, infoById.get().getResult());
-    Assert.assertEquals(
+    Assert.assertEquals(SUCESS, infoById.get().getResult());
+    logger.info("infoById.get().getResMessage().toStringUtf8(): " + infoById.get().getResMessage()
+        .toStringUtf8());
+    /*Assert.assertEquals(
         "transfer trc10 failed: Validate InternalTransfer error, no ToAccount. "
             + "And not allowed to create account in smart contract.",
-        infoById.get().getResMessage().toStringUtf8());
+        infoById.get().getResMessage().toStringUtf8());*/
 
     Long transferAssetAfter = PublicMethedForDailybuild
         .getAssetIssueValue(transferTokenContractAddress,
@@ -286,8 +288,8 @@ public class ContractTrcToken018 {
     logger.info("after trigger, receiveTokenContractAddress has AssetId "
         + assetAccountId.toStringUtf8() + ", receiveAssetAfter is " + receiveAssetAfter);
 
-    Assert.assertEquals(receiveAssetAfter, receiveAssetBefore);
-    Assert.assertEquals(transferAssetBefore, transferAssetAfter);
+    Assert.assertEquals(receiveAssetAfter, Long.valueOf(receiveAssetBefore + 1));
+    Assert.assertEquals(transferAssetBefore, Long.valueOf(transferAssetAfter - 1));
 
     // unfreeze resource
     PublicMethedForDailybuild.unFreezeBalance(fromAddress, testKey002, 1,

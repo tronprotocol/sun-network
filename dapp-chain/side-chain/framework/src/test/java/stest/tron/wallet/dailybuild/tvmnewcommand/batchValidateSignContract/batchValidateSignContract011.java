@@ -111,9 +111,9 @@ public class batchValidateSignContract011 {
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
     String input = PublicMethedForDailybuild.parametersString(parameters);
     txid = PublicMethedForDailybuild
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -142,7 +142,7 @@ public class batchValidateSignContract011 {
     logger.info("afterFreeNetUsed:" + afterFreeNetUsed);
 
     if (infoById.get().getResultValue() == 0) {
-      Assert.assertEquals("11111111111111111000000000000000",
+      Assert.assertEquals("00000000000000000000000000000000",
           PublicMethedForDailybuild
               .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
       Assert.assertTrue(afterBalance + fee == beforeBalance);
@@ -191,9 +191,9 @@ public class batchValidateSignContract011 {
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
     String input = PublicMethedForDailybuild.parametersString(parameters);
     txid = PublicMethedForDailybuild
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -265,9 +265,9 @@ public class batchValidateSignContract011 {
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
     String input = PublicMethedForDailybuild.parametersString(parameters);
     txid = PublicMethedForDailybuild
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -340,9 +340,9 @@ public class batchValidateSignContract011 {
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
     String input = PublicMethedForDailybuild.parametersString(parameters);
     txid = PublicMethedForDailybuild
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -416,9 +416,9 @@ public class batchValidateSignContract011 {
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
     String input = PublicMethedForDailybuild.parametersString(parameters);
     txid = PublicMethedForDailybuild
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -494,9 +494,9 @@ public class batchValidateSignContract011 {
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
     String input = PublicMethedForDailybuild.parametersString(parameters);
     txid = PublicMethedForDailybuild
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
@@ -527,7 +527,7 @@ public class batchValidateSignContract011 {
     logger.info("afterFreeNetUsed:" + afterFreeNetUsed);
 
     if (infoById.get().getResultValue() == 0) {
-      Assert.assertEquals("10111111111111111111111111111110",
+      Assert.assertEquals("00000000000000000000000000000000",
           PublicMethedForDailybuild
               .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
       Assert.assertTrue(afterBalance + fee == beforeBalance);
@@ -578,9 +578,9 @@ public class batchValidateSignContract011 {
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
     String input = PublicMethedForDailybuild.parametersString(parameters);
     txid = PublicMethedForDailybuild
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -609,7 +609,7 @@ public class batchValidateSignContract011 {
     logger.info("afterFreeNetUsed:" + afterFreeNetUsed);
 
     if (infoById.get().getResultValue() == 0) {
-      Assert.assertEquals("11111111010111111111111111101110",
+      Assert.assertEquals("00000000000000000000000000000000",
           PublicMethedForDailybuild
               .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
       Assert.assertTrue(afterBalance + fee == beforeBalance);
@@ -660,9 +660,9 @@ public class batchValidateSignContract011 {
         .asList("0x" + Hex.toHexString(Hash.sha3(incorrecttxid.getBytes())), signatures, addresses);
     String input = PublicMethedForDailybuild.parametersString(parameters);
     txid = PublicMethedForDailybuild
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;

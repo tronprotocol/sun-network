@@ -34,7 +34,8 @@ public class batchValidateSignContract012 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   String txid;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -100,9 +101,9 @@ public class batchValidateSignContract012 {
 
     String input = AbiUtil.parseParameters("batchvalidatesign(bytes32,bytes[],address[])", argsStr);
     String method = "testArray2(bytes)";
-    txid = PublicMethedForDailybuild.triggerContractBoth(contractAddress, method,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress, method,
         AbiUtil.parseParameters(method, Arrays.asList(input)), true, 0, maxFeeLimit,
-        contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+        contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethedForDailybuild.getTransactionById(txid, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -136,9 +137,9 @@ public class batchValidateSignContract012 {
 
     String input = AbiUtil.parseParameters("batchvalidatesign(bytes32,bytes[],address[])", argsStr);
     String method = "testArray2(bytes)";
-    txid = PublicMethedForDailybuild.triggerContractBoth(contractAddress, method,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress, method,
         AbiUtil.parseParameters(method, Arrays.asList(input)), true, 0, maxFeeLimit,
-        contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+        contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethedForDailybuild.getTransactionById(txid, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -158,10 +159,11 @@ public class batchValidateSignContract012 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull).getBalance();
+    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull)
+        .getBalance();
     PublicMethedForDailybuild
         .sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
-        blockingStubFull);
+            blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

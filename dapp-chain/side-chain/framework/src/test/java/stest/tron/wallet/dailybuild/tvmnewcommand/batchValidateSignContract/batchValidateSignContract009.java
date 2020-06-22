@@ -29,7 +29,8 @@ public class batchValidateSignContract009 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
@@ -108,9 +109,9 @@ public class batchValidateSignContract009 {
         + "0000000000020000000000000000000000410d6b1de9e84c1d7a9a5b43d93dbe4a5aae79b18900000000000"
         + "00000000000123456";
     txid = PublicMethedForDailybuild
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, true,
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, true,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -171,9 +172,9 @@ public class batchValidateSignContract009 {
         + "000000000000000000000000000000000000000000000001000000000000000000000000000000000000000"
         + "0000000000000000000000000";
     txid = PublicMethedForDailybuild
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, true,
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, true,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -214,10 +215,11 @@ public class batchValidateSignContract009 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull).getBalance();
+    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull)
+        .getBalance();
     PublicMethedForDailybuild
         .sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
-        blockingStubFull);
+            blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
