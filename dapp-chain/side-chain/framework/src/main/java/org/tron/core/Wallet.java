@@ -672,7 +672,7 @@ public class Wallet {
                 "Signature size is " + sig.size());
           }
           String base64 = TransactionCapsule.getBase64FromByteString(sig);
-          byte[] address = SignUtils.signatureToAddress(hash, base64, Args.getInstance()
+          byte[] address = SignUtils.signatureToAddress(TransactionCapsule.getHashWithSideChainId(hash), base64, Args.getInstance()
               .isECKeyCryptoEngine());
           approveList.add(ByteString.copyFrom(address)); //out put approve list.
         }
