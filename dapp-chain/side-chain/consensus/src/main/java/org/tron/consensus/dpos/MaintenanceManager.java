@@ -112,15 +112,15 @@ public class MaintenanceManager {
     }
 
     DelegationStore delegationStore = consensusDelegate.getDelegationStore();
-    if (dynamicPropertiesStore.allowChangeDelegation()) {
-      long nextCycle = dynamicPropertiesStore.getCurrentCycleNumber() + 1;
-      dynamicPropertiesStore.saveCurrentCycleNumber(nextCycle);
-      consensusDelegate.getAllWitnesses().forEach(witness -> {
-        delegationStore.setBrokerage(nextCycle, witness.createDbKey(),
-            delegationStore.getBrokerage(witness.createDbKey()));
-        delegationStore.setWitnessVote(nextCycle, witness.createDbKey(), witness.getVoteCount());
-      });
-    }
+//    if (dynamicPropertiesStore.allowChangeDelegation()) {
+//      long nextCycle = dynamicPropertiesStore.getCurrentCycleNumber() + 1;
+//      dynamicPropertiesStore.saveCurrentCycleNumber(nextCycle);
+//      consensusDelegate.getAllWitnesses().forEach(witness -> {
+//        delegationStore.setBrokerage(nextCycle, witness.createDbKey(),
+//            delegationStore.getBrokerage(witness.createDbKey()));
+//        delegationStore.setWitnessVote(nextCycle, witness.createDbKey(), witness.getVoteCount());
+//      });
+//    }
   }
 
   private Map<ByteString, Long> countVote(VotesStore votesStore) {

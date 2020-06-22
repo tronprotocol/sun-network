@@ -1674,11 +1674,11 @@ public class Manager {
   private void payReward(BlockCapsule block) {
     WitnessCapsule witnessCapsule = witnessStore.getUnchecked(block.getInstance().getBlockHeader()
         .getRawData().getWitnessAddress().toByteArray());
-    if (getDynamicPropertiesStore().allowChangeDelegation()) {
-      delegationService.payBlockReward(witnessCapsule.getAddress().toByteArray(),
-          getDynamicPropertiesStore().getWitnessPayPerBlock());
-      delegationService.payStandbyWitness();
-    } else {
+//    if (getDynamicPropertiesStore().allowChangeDelegation()) {
+//      delegationService.payBlockReward(witnessCapsule.getAddress().toByteArray(),
+//          getDynamicPropertiesStore().getWitnessPayPerBlock());
+//      delegationService.payStandbyWitness();
+//    } else {
       try {
         if (dynamicPropertiesStore.getFundDistributeEnableSwitch() == 1) {
           long payPerBlock = (-1) * (adjustFund(
@@ -1702,7 +1702,7 @@ public class Manager {
       } catch (BalanceInsufficientException e) {
         logger.warn(e.getMessage(), e);
       }
-    }
+//    }
   }
 
   private void updateTransHashCache(BlockCapsule block) {

@@ -601,9 +601,9 @@ service Wallet {
   rpc GetBrokerageInfo (BytesMessage) returns (NumberMessage) {
   };
 
-  rpc UpdateBrokerage (UpdateBrokerageContract) returns (TransactionExtention) {
-
-  };
+//  rpc UpdateBrokerage (UpdateBrokerageContract) returns (TransactionExtention) {
+//
+//  };
 
   // for shiededTransaction
   rpc CreateShieldedTransaction (PrivateParameters) returns (TransactionExtention) {

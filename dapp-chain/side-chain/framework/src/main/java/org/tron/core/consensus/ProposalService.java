@@ -177,12 +177,12 @@ public class ProposalService extends ProposalUtil {
           manager.getDynamicPropertiesStore().saveAdaptiveResourceLimitMultiplier(Long.valueOf(entry.getValue()));
           break;
         }
-        case ALLOW_CHANGE_DELEGATION: {
-          manager.getDynamicPropertiesStore().saveChangeDelegation(Long.valueOf(entry.getValue()));
-          // TODO: sun-network
-          manager.getDynamicPropertiesStore().addSystemContractAndSetPermission(49);
-          break;
-        }
+//        case ALLOW_CHANGE_DELEGATION: {
+//          manager.getDynamicPropertiesStore().saveChangeDelegation(Long.valueOf(entry.getValue()));
+//          // TODO: sun-network
+//          manager.getDynamicPropertiesStore().addSystemContractAndSetPermission(49);
+//          break;
+//        }
         case WITNESS_127_PAY_PER_BLOCK: {
           manager.getDynamicPropertiesStore().saveWitness127PayPerBlock(Long.valueOf(entry.getValue()));
           break;

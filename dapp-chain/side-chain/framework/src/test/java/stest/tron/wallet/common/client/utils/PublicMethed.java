@@ -119,7 +119,7 @@ import org.tron.protos.contract.SmartContractOuterClass.UpdateEnergyLimitContrac
 import org.tron.protos.contract.SmartContractOuterClass.UpdateSettingContract;
 import org.tron.protos.contract.StorageContract.BuyStorageContract;
 import org.tron.protos.contract.StorageContract.SellStorageContract;
-import org.tron.protos.contract.StorageContract.UpdateBrokerageContract;
+//import org.tron.protos.contract.StorageContract.UpdateBrokerageContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
@@ -6286,36 +6286,36 @@ public class PublicMethed {
   /**
    * constructor.
    */
-  public boolean updateBrokerage(byte[] owner, int brokerage, String priKey,
-      WalletGrpc.WalletBlockingStub blockingStubFull) {
-
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    ECKey ecKey = temKey;
-
-    UpdateBrokerageContract.Builder updateBrokerageContract = UpdateBrokerageContract.newBuilder();
-    updateBrokerageContract.setOwnerAddress(ByteString.copyFrom(owner)).setBrokerage(brokerage);
-    TransactionExtention transactionExtention = blockingStubFull
-        .updateBrokerage(updateBrokerageContract.build());
-    Protocol.Transaction transaction = transactionExtention.getTransaction();
-    if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
-      if (transactionExtention != null) {
-        System.out.println("Code = " + transactionExtention.getResult().getCode());
-        System.out
-            .println("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
-      }
-      return false;
-    }
-    transaction = signTransaction(ecKey, transaction);
-    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
-
-    return response.getResult();
-  }
+//  public boolean updateBrokerage(byte[] owner, int brokerage, String priKey,
+//      WalletGrpc.WalletBlockingStub blockingStubFull) {
+//
+//    ECKey temKey = null;
+//    try {
+//      BigInteger priK = new BigInteger(priKey, 16);
+//      temKey = ECKey.fromPrivate(priK);
+//    } catch (Exception ex) {
+//      ex.printStackTrace();
+//    }
+//    ECKey ecKey = temKey;
+//
+//    UpdateBrokerageContract.Builder updateBrokerageContract = UpdateBrokerageContract.newBuilder();
+//    updateBrokerageContract.setOwnerAddress(ByteString.copyFrom(owner)).setBrokerage(brokerage);
+//    TransactionExtention transactionExtention = blockingStubFull
+//        .updateBrokerage(updateBrokerageContract.build());
+//    Protocol.Transaction transaction = transactionExtention.getTransaction();
+//    if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
+//      if (transactionExtention != null) {
+//        System.out.println("Code = " + transactionExtention.getResult().getCode());
+//        System.out
+//            .println("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
+//      }
+//      return false;
+//    }
+//    transaction = signTransaction(ecKey, transaction);
+//    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+//
+//    return response.getResult();
+//  }
 
   /**
    * constructor.

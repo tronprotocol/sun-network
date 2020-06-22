@@ -85,90 +85,90 @@ public class DelegationService {
     adjustAllowance(witnessAddress, brokerageAmount);
   }
 
-  public void withdrawReward(byte[] address) {
-    if (!dynamicPropertiesStore.allowChangeDelegation()) {
-      return;
-    }
-    AccountCapsule accountCapsule = accountStore.get(address);
-    long beginCycle = delegationStore.getBeginCycle(address);
-    long endCycle = delegationStore.getEndCycle(address);
-    long currentCycle = dynamicPropertiesStore.getCurrentCycleNumber();
-    long reward = 0;
-    if (beginCycle > currentCycle || accountCapsule == null) {
-      return;
-    }
-    if (beginCycle == currentCycle) {
-      AccountCapsule account = delegationStore.getAccountVote(beginCycle, address);
-      if (account != null) {
-        return;
-      }
-    }
-    //withdraw the latest cycle reward
-    if (beginCycle + 1 == endCycle && beginCycle < currentCycle) {
-      AccountCapsule account = delegationStore.getAccountVote(beginCycle, address);
-      if (account != null) {
-        reward = computeReward(beginCycle, account);
-        adjustAllowance(address, reward);
-        reward = 0;
-        logger.info("latest cycle reward {},{}", beginCycle, account.getVotesList());
-      }
-      beginCycle += 1;
-    }
-    //
-    endCycle = currentCycle;
-    if (CollectionUtils.isEmpty(accountCapsule.getVotesList())) {
-      delegationStore.setBeginCycle(address, endCycle + 1);
-      return;
-    }
-    if (beginCycle < endCycle) {
-      for (long cycle = beginCycle; cycle < endCycle; cycle++) {
-        reward += computeReward(cycle, accountCapsule);
-      }
-      adjustAllowance(address, reward);
-    }
-    delegationStore.setBeginCycle(address, endCycle);
-    delegationStore.setEndCycle(address, endCycle + 1);
-    delegationStore.setAccountVote(endCycle, address, accountCapsule);
-    logger.info("adjust {} allowance {}, now currentCycle {}, beginCycle {}, endCycle {}, "
-            + "account vote {},", Hex.toHexString(address), reward, currentCycle,
-        beginCycle, endCycle, accountCapsule.getVotesList());
-  }
+//  public void withdrawReward(byte[] address) {
+//    if (!dynamicPropertiesStore.allowChangeDelegation()) {
+//      return;
+//    }
+//    AccountCapsule accountCapsule = accountStore.get(address);
+//    long beginCycle = delegationStore.getBeginCycle(address);
+//    long endCycle = delegationStore.getEndCycle(address);
+//    long currentCycle = dynamicPropertiesStore.getCurrentCycleNumber();
+//    long reward = 0;
+//    if (beginCycle > currentCycle || accountCapsule == null) {
+//      return;
+//    }
+//    if (beginCycle == currentCycle) {
+//      AccountCapsule account = delegationStore.getAccountVote(beginCycle, address);
+//      if (account != null) {
+//        return;
+//      }
+//    }
+//    //withdraw the latest cycle reward
+//    if (beginCycle + 1 == endCycle && beginCycle < currentCycle) {
+//      AccountCapsule account = delegationStore.getAccountVote(beginCycle, address);
+//      if (account != null) {
+//        reward = computeReward(beginCycle, account);
+//        adjustAllowance(address, reward);
+//        reward = 0;
+//        logger.info("latest cycle reward {},{}", beginCycle, account.getVotesList());
+//      }
+//      beginCycle += 1;
+//    }
+//    //
+//    endCycle = currentCycle;
+//    if (CollectionUtils.isEmpty(accountCapsule.getVotesList())) {
+//      delegationStore.setBeginCycle(address, endCycle + 1);
+//      return;
+//    }
+//    if (beginCycle < endCycle) {
+//      for (long cycle = beginCycle; cycle < endCycle; cycle++) {
+//        reward += computeReward(cycle, accountCapsule);
+//      }
+//      adjustAllowance(address, reward);
+//    }
+//    delegationStore.setBeginCycle(address, endCycle);
+//    delegationStore.setEndCycle(address, endCycle + 1);
+//    delegationStore.setAccountVote(endCycle, address, accountCapsule);
+//    logger.info("adjust {} allowance {}, now currentCycle {}, beginCycle {}, endCycle {}, "
+//            + "account vote {},", Hex.toHexString(address), reward, currentCycle,
+//        beginCycle, endCycle, accountCapsule.getVotesList());
+//  }
 
   public long queryReward(byte[] address) {
-    if (!dynamicPropertiesStore.allowChangeDelegation()) {
+//    if (!dynamicPropertiesStore.allowChangeDelegation()) {
       return 0;
-    }
+//    }
 
-    AccountCapsule accountCapsule = accountStore.get(address);
-    long beginCycle = delegationStore.getBeginCycle(address);
-    long endCycle = delegationStore.getEndCycle(address);
-    long currentCycle = dynamicPropertiesStore.getCurrentCycleNumber();
-    long reward = 0;
-    if (accountCapsule == null) {
-      return 0;
-    }
-    if (beginCycle > currentCycle) {
-      return accountCapsule.getAllowance();
-    }
-    //withdraw the latest cycle reward
-    if (beginCycle + 1 == endCycle && beginCycle < currentCycle) {
-      AccountCapsule account = delegationStore.getAccountVote(beginCycle, address);
-      if (account != null) {
-        reward = computeReward(beginCycle, account);
-      }
-      beginCycle += 1;
-    }
-    //
-    endCycle = currentCycle;
-    if (CollectionUtils.isEmpty(accountCapsule.getVotesList())) {
-      return reward + accountCapsule.getAllowance();
-    }
-    if (beginCycle < endCycle) {
-      for (long cycle = beginCycle; cycle < endCycle; cycle++) {
-        reward += computeReward(cycle, accountCapsule);
-      }
-    }
-    return reward + accountCapsule.getAllowance();
+//    AccountCapsule accountCapsule = accountStore.get(address);
+//    long beginCycle = delegationStore.getBeginCycle(address);
+//    long endCycle = delegationStore.getEndCycle(address);
+//    long currentCycle = dynamicPropertiesStore.getCurrentCycleNumber();
+//    long reward = 0;
+//    if (accountCapsule == null) {
+//      return 0;
+//    }
+//    if (beginCycle > currentCycle) {
+//      return accountCapsule.getAllowance();
+//    }
+//    //withdraw the latest cycle reward
+//    if (beginCycle + 1 == endCycle && beginCycle < currentCycle) {
+//      AccountCapsule account = delegationStore.getAccountVote(beginCycle, address);
+//      if (account != null) {
+//        reward = computeReward(beginCycle, account);
+//      }
+//      beginCycle += 1;
+//    }
+//    //
+//    endCycle = currentCycle;
+//    if (CollectionUtils.isEmpty(accountCapsule.getVotesList())) {
+//      return reward + accountCapsule.getAllowance();
+//    }
+//    if (beginCycle < endCycle) {
+//      for (long cycle = beginCycle; cycle < endCycle; cycle++) {
+//        reward += computeReward(cycle, accountCapsule);
+//      }
+//    }
+//    return reward + accountCapsule.getAllowance();
   }
 
   private long computeReward(long cycle, AccountCapsule accountCapsule) {
