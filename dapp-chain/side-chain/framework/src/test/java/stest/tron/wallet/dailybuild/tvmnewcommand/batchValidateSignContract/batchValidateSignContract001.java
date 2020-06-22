@@ -33,7 +33,8 @@ public class batchValidateSignContract001 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
@@ -101,12 +102,13 @@ public class batchValidateSignContract001 {
 
     logger.info("transactionExtention:" + transactionExtention);
     if (transactionExtention.getResult().getCode().toString().equals("CONTRACT_EXE_ERROR")) {
-      Assert.assertEquals("class org.tron.common.runtime.vm.program.Program$OutOfTimeException "
-              + ": CPU timeout for 'ISZERO' operation executing",
+      Assert.assertEquals(
+          "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for 'ISZERO' operation executing",
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("11111111111111110000000000000000",
-          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -139,7 +141,8 @@ public class batchValidateSignContract001 {
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("01111111111111000000000000000000",
-          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -171,7 +174,8 @@ public class batchValidateSignContract001 {
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("01111111111110000000000000000000",
-          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -207,7 +211,8 @@ public class batchValidateSignContract001 {
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("11111111111111010000000000000000",
-          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -241,7 +246,8 @@ public class batchValidateSignContract001 {
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("11111111100000100000000000000000",
-          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -272,12 +278,13 @@ public class batchValidateSignContract001 {
 
     logger.info("transactionExtention:" + transactionExtention);
     if (transactionExtention.getResult().getCode().toString().equals("CONTRACT_EXE_ERROR")) {
-      Assert.assertEquals("class org.tron.common.runtime.vm.program.Program$OutOfTimeException"
-              + " : CPU timeout for 'ISZERO' operation executing",
+      Assert.assertEquals(
+          "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for 'ISZERO' operation executing",
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("10111111111111100000000000000000",
-          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -307,12 +314,13 @@ public class batchValidateSignContract001 {
 
     logger.info("transactionExtention:" + transactionExtention);
     if (transactionExtention.getResult().getCode().toString().equals("CONTRACT_EXE_ERROR")) {
-      Assert.assertEquals("class org.tron.common.runtime.vm.program.Program$OutOfTimeException "
-              + ": CPU timeout for 'ISZERO' operation executing",
+      Assert.assertEquals("class org.tron.core.vm.program.Program$OutOfTimeException : CPU"
+              + " timeout for 'ISZERO' operation executing",
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("11111011010101110000000000000000",
-          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -346,12 +354,13 @@ public class batchValidateSignContract001 {
 
     logger.info("transactionExtention:" + transactionExtention);
     if (transactionExtention.getResult().getCode().toString().equals("CONTRACT_EXE_ERROR")) {
-      Assert.assertEquals("class org.tron.common.runtime.vm.program.Program$OutOfTimeException "
-              + ": CPU timeout for 'ISZERO' operation executing",
+      Assert.assertEquals(
+          "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for 'ISZERO' operation executing",
           transactionExtention.getResult().getMessage().toStringUtf8());
     } else {
       Assert.assertEquals("00000000000000000000000000000000",
-          PublicMethedForDailybuild.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
       Assert.assertEquals("SUCESS",
           transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
@@ -362,10 +371,11 @@ public class batchValidateSignContract001 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull).getBalance();
+    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull)
+        .getBalance();
     PublicMethedForDailybuild
         .sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
-        blockingStubFull);
+            blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

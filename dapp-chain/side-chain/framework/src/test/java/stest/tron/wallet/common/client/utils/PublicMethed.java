@@ -557,7 +557,8 @@ public class PublicMethed {
 //    System.out.println(Utils.printTransaction(transactionExtention));
     transaction = signTransaction(ecKey, transaction);
 
-    ByteString txid = ByteString.copyFrom(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+    ByteString txid = ByteString.copyFrom(
+        Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     transactionExtention = transactionExtention.toBuilder().setTransaction(transaction)
         .setTxid(txid).build();
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
@@ -679,7 +680,8 @@ public class PublicMethed {
 
     transaction = signTransaction(ecKey, transaction, mainGateWay, false);
 
-    ByteString txid = ByteString.copyFrom(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+    ByteString txid = ByteString.copyFrom(
+        Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     transactionExtention = transactionExtention.toBuilder().setTransaction(transaction)
         .setTxid(txid).build();
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
@@ -779,7 +781,8 @@ public class PublicMethed {
 //    System.out.println(Utils.printTransaction(transactionExtention));
     transaction = signTransaction(ecKey, transaction, sideChainId, false);
 
-    ByteString txid = ByteString.copyFrom(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+    ByteString txid = ByteString.copyFrom(
+        Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     transactionExtention = transactionExtention.toBuilder().setTransaction(transaction)
         .setTxid(txid).build();
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
@@ -878,7 +881,8 @@ public class PublicMethed {
 //    System.out.println(Utils.printTransaction(transactionExtention));
     transaction = signTransaction(ecKey, transaction, sideChainId, false);
 
-    ByteString txid = ByteString.copyFrom(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+    ByteString txid = ByteString.copyFrom(
+        Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     transactionExtention = transactionExtention.toBuilder().setTransaction(transaction)
         .setTxid(txid).build();
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
@@ -1007,7 +1011,8 @@ public class PublicMethed {
 //    System.out.println(Utils.printTransaction(transactionExtention));
     transaction = signTransaction(ecKey, transaction);
 
-    ByteString txid = ByteString.copyFrom(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+    ByteString txid = ByteString.copyFrom(
+        Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     transactionExtention = transactionExtention.toBuilder().setTransaction(transaction)
         .setTxid(txid).build();
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
@@ -1129,7 +1134,8 @@ public class PublicMethed {
     }
     transaction = signTransaction(ecKey, transaction, getMaingatewayByteAddr(), false);
     System.out.println(
-        "txid = " + ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(),transaction.getRawData().toByteArray())));
+        "txid = " + ByteArray.toHexString(Sha256Hash
+            .hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
     byte[] contractAddress = generateContractAddress(transaction, owner);
     System.out.println(
         "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
@@ -1138,7 +1144,8 @@ public class PublicMethed {
       return null;
     } else {
       //logger.info("brodacast succesfully");
-      return ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString(
+          Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
   }
 
@@ -1180,7 +1187,8 @@ public class PublicMethed {
     byte[] ownerAddress = owneraddress;
 
     // get tx hash
-    byte[] txRawDataHash = Sha256Hash.of(DBConfig.isECKeyCryptoEngine(),trx.getRawData().toByteArray()).getBytes();
+    byte[] txRawDataHash = Sha256Hash
+        .of(DBConfig.isECKeyCryptoEngine(), trx.getRawData().toByteArray()).getBytes();
 
     // combine
     byte[] combined = new byte[txRawDataHash.length + ownerAddress.length];
@@ -1434,7 +1442,7 @@ public class PublicMethed {
 
       if (address.length == 20) {
         byte[] newAddress = new byte[21];
-        byte[] temp = new byte[] {0x41};
+        byte[] temp = new byte[]{0x41};
         System.arraycopy(temp, 0, newAddress, 0, temp.length);
         System.arraycopy(address, 0, newAddress, temp.length, address.length);
         address = newAddress;
@@ -1587,7 +1595,8 @@ public class PublicMethed {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "txid = " + ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
+        "txid = " + ByteArray.toHexString(Sha256Hash
+            .hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
     byte[] contractAddress = generateContractAddress(transaction, owner);
     System.out.println(
         "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
@@ -1596,7 +1605,8 @@ public class PublicMethed {
       return null;
     } else {
       //logger.info("brodacast succesfully");
-      return ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString(
+          Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
   }
 
@@ -1703,7 +1713,8 @@ public class PublicMethed {
     transaction = signTransaction(ecKey, transaction,
         WalletClient.decodeFromBase58Check(mainGateway), false);
     System.out.println(
-        "txid = " + ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
+        "txid = " + ByteArray.toHexString(Sha256Hash
+            .hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
     byte[] contractAddress = generateContractAddress(transaction, owner);
     System.out.println(
         "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
@@ -1712,7 +1723,8 @@ public class PublicMethed {
       return null;
     } else {
       //logger.info("brodacast succesfully");
-      return ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString(
+          Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
   }
 
@@ -1995,7 +2007,8 @@ public class PublicMethed {
 //    System.out.println(Utils.printTransaction(transactionExtention));
     transaction = signTransaction(ecKey, transaction, sideChainId, false);
 
-    ByteString txid = ByteString.copyFrom(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+    ByteString txid = ByteString.copyFrom(
+        Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     transactionExtention = transactionExtention.toBuilder().setTransaction(transaction)
         .setTxid(txid).build();
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
@@ -2318,13 +2331,15 @@ public class PublicMethed {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "trigger txid = " + ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData()
-            .toByteArray())));
+        "trigger txid = " + ByteArray
+            .toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData()
+                .toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     if (response.getResult() == false) {
       return null;
     } else {
-      return ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString(
+          Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
   }
 
@@ -2515,8 +2530,9 @@ public class PublicMethed {
     }
     transaction = signTransaction(ecKey, transaction);
     logger.info("Txid is " + ByteArray
-        .toHexString(stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction
-            .getRawData().toByteArray())));
+        .toHexString(stest.tron.wallet.common.client.utils.Sha256Hash
+            .hash(DBConfig.isECKeyCryptoEngine(), transaction
+                .getRawData().toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return ByteArray.toHexString(stest.tron.wallet.common.client.utils.Sha256Hash
         .hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
@@ -2660,8 +2676,9 @@ public class PublicMethed {
     }
     transaction = signTransaction(ecKey, transaction);
     logger.info("Txid is " + ByteArray
-        .toHexString(stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction
-            .getRawData().toByteArray())));
+        .toHexString(stest.tron.wallet.common.client.utils.Sha256Hash
+            .hash(DBConfig.isECKeyCryptoEngine(), transaction
+                .getRawData().toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }
@@ -2699,8 +2716,9 @@ public class PublicMethed {
     }
     transaction = signTransaction(ecKey, transaction, getMaingatewayByteAddr(), false);
     logger.info("Txid is " + ByteArray
-        .toHexString(stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction
-            .getRawData().toByteArray())));
+        .toHexString(stest.tron.wallet.common.client.utils.Sha256Hash
+            .hash(DBConfig.isECKeyCryptoEngine(), transaction
+                .getRawData().toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return ByteArray.toHexString(stest.tron.wallet.common.client.utils.Sha256Hash
         .hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
@@ -3048,7 +3066,8 @@ public class PublicMethed {
     }
     transaction = signTransaction(ecKey, transaction, getMaingatewayByteAddr(), false);
     System.out.println(
-        "txid = " + ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
+        "txid = " + ByteArray.toHexString(Sha256Hash
+            .hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
     contractAddress = generateContractAddress(transaction, owner);
     System.out.println(
         "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
@@ -3438,13 +3457,15 @@ public class PublicMethed {
     transaction = signTransaction(ecKey, transaction, getMaingatewayByteAddr(), false);
     System.out.println(
         "trigger txid = " + ByteArray.toHexString(
-            stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData()
-                .toByteArray())));
+            stest.tron.wallet.common.client.utils.Sha256Hash
+                .hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData()
+                    .toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     if (response.getResult() == false) {
       return null;
     } else {
-      return ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(),transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString(
+          Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
   }
 
@@ -3557,7 +3578,8 @@ public class PublicMethed {
       //logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
       return null;
     } else {
-      return ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString(
+          Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
   }
 
@@ -3774,10 +3796,12 @@ public class PublicMethed {
     }
     transaction = signTransaction(ecKey, transaction, getMaingatewayByteAddr(), false);
     logger.info("Txid is " + ByteArray
-        .toHexString(stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction
-            .getRawData().toByteArray())));
+        .toHexString(stest.tron.wallet.common.client.utils.Sha256Hash
+            .hash(DBConfig.isECKeyCryptoEngine(), transaction
+                .getRawData().toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
-    return ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+    return ByteArray.toHexString(
+        Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
   }
 
 
@@ -3836,7 +3860,8 @@ public class PublicMethed {
         "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
     transaction = signTransaction(ecKey, transaction, getMaingatewayByteAddr(), false);
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
-    return ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+    return ByteArray.toHexString(
+        Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
   }
 
 
@@ -3925,10 +3950,12 @@ public class PublicMethed {
     }
     transaction = signTransaction(ecKey, transaction, getMaingatewayByteAddr(), false);
     logger.info("Txid is " + ByteArray
-        .toHexString(stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction
-            .getRawData().toByteArray())));
+        .toHexString(stest.tron.wallet.common.client.utils.Sha256Hash
+            .hash(DBConfig.isECKeyCryptoEngine(), transaction
+                .getRawData().toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
-    return ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(),transaction.getRawData().toByteArray()));
+    return ByteArray.toHexString(
+        Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
 
   }
 
@@ -4123,7 +4150,8 @@ public class PublicMethed {
     ECKey ecKey = temKey;
 
     Transaction.Builder transactionBuilderSigned = transaction.toBuilder();
-    byte[] hash = Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(),transaction.getRawData().toByteArray());
+    byte[] hash = Sha256Hash
+        .hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray());
 
     ECKey.ECDSASignature signature = ecKey.sign(hash);
     ByteString bsSign = ByteString.copyFrom(signature.toByteArray());
@@ -4708,13 +4736,15 @@ public class PublicMethed {
     transaction = signTransaction(ecKey, transaction, getMaingatewayByteAddr(), false);
     System.out.println(
         "trigger txid = " + ByteArray.toHexString(
-            stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData()
-                .toByteArray())));
+            stest.tron.wallet.common.client.utils.Sha256Hash
+                .hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData()
+                    .toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     if (response.getResult() == false) {
       return null;
     } else {
-      return ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+      return ByteArray.toHexString(
+          Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     }
 
 
@@ -5466,7 +5496,8 @@ public class PublicMethed {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "txid = " + ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
+        "txid = " + ByteArray.toHexString(Sha256Hash
+            .hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
     contractAddress = generateContractAddress(transaction, owner);
     System.out.println(
         "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
@@ -5688,7 +5719,7 @@ public class PublicMethed {
     logger.info("return1: " + return1);
     logger.info(Hex.toHexString(return1.getConstantResult(0).toByteArray()));
     String ContractRestule = Hex.toHexString(return1.getConstantResult(0).toByteArray());
-    logger.info("ContractRestule:"+ContractRestule);
+    logger.info("ContractRestule:" + ContractRestule);
     String ownerAddress = ContractRestule.substring(24, 64);
     logger.info(ownerAddress);
     String addressHex = "41" + ownerAddress;
@@ -5812,7 +5843,8 @@ public class PublicMethed {
     }
     transaction = signTransaction(ecKey, transaction, sideChainId, false);
     System.out.println(
-        "txid = " + ByteArray.toHexString(Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
+        "txid = " + ByteArray.toHexString(Sha256Hash
+            .hash(DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
     contractAddress = generateContractAddress(transaction, owner);
     System.out.println(
         "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));
@@ -6270,8 +6302,9 @@ public class PublicMethed {
       System.out.println(e);
     }
     System.out.println(
-        "trigger txid = " + ByteArray.toHexString(stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(),
-            transaction1.getRawData().toByteArray())));
+        "trigger txid = " + ByteArray.toHexString(
+            stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(),
+                transaction1.getRawData().toByteArray())));
     return broadcastTransaction(transaction1, blockingStubFull).getResult();
   }
 
@@ -6808,8 +6841,9 @@ public class PublicMethed {
       System.out.println(e);
     }
     broadcastTransaction(transaction, blockingStubFull);
-    return ByteArray.toHexString(stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(),
-        transaction.getRawData().toByteArray()));
+    return ByteArray.toHexString(
+        stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(),
+            transaction.getRawData().toByteArray()));
   }
 
   public static Protocol.Transaction signTransactionForShield(ECKey ecKey,
@@ -6846,6 +6880,7 @@ public class PublicMethed {
     String input = StringUtils.join(inputArr, ',');
     return input;
   }
+
   public static GrpcAPI.Return triggerContractAndGetResponse(byte[] contractAddress, String method,
       String argsStr,
       Boolean isHex, long callValue, long feeLimit, String tokenId, long tokenValue,
@@ -6931,9 +6966,10 @@ public class PublicMethed {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "trigger txid = " + ByteArray.toHexString(stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(),
-            transaction.getRawData()
-                .toByteArray())));
+        "trigger txid = " + ByteArray.toHexString(
+            stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(),
+                transaction.getRawData()
+                    .toByteArray())));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response;
   }
@@ -7037,6 +7073,7 @@ public class PublicMethed {
         .toHexString(transaction.toByteArray()));
     return ByteArray.toHexString(transaction.toByteArray());
   }
+
   public static GrpcAPI.Return deployContractAndGetResponse(String contractName,
       String abiString, String code, String data, Long feeLimit, long value,
       long consumeUserResourcePercent, long originEnergyLimit, String tokenId, long tokenValue,
@@ -7133,8 +7170,9 @@ public class PublicMethed {
     }
     transaction = signTransaction(ecKey, transaction);
     System.out.println(
-        "txid = " + ByteArray.toHexString(stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(),
-            transaction.getRawData().toByteArray())));
+        "txid = " + ByteArray.toHexString(
+            stest.tron.wallet.common.client.utils.Sha256Hash.hash(DBConfig.isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray())));
     byte[] contractAddress = generateContractAddress(transaction, owner);
     System.out.println(
         "Your smart contract address will be: " + WalletClient.encode58Check(contractAddress));

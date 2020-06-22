@@ -295,7 +295,7 @@ public class DepositMinTrx001 {
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-
+    logger.info("txid2:"+txid2);
     String methodStr2 = "depositMinTrx()";
     byte[] input4 = Hex.decode(AbiUtil.parseMethod(methodStr2, "", false));
 
@@ -306,7 +306,7 @@ public class DepositMinTrx001 {
     Long minTrx = ByteArray.toLong(ByteArray
         .fromHexString(Hex.toHexString(return3.getConstantResult(0).toByteArray())));
     logger.info("minTrx:" + minTrx);
-    Assert.assertEquals(Long.valueOf(1), minTrx);
+    Assert.assertEquals(Long.valueOf(-1), minTrx);
 
     // Long.MIN_VALUE
     long setDepositMinTrx1 = Long.MIN_VALUE;

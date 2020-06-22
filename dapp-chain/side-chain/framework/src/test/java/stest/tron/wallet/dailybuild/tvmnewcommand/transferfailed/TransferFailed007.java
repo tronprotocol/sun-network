@@ -193,6 +193,9 @@ public class TransferFailed007 {
   @AfterClass
 
   public void shutdown() throws InterruptedException {
+    PublicMethedForDailybuild
+        .freedResource(accountExcAddress, accountExcKey, testNetAccountAddress, blockingStubFull);
+
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

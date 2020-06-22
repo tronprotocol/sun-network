@@ -316,6 +316,7 @@ public class DepositMinTrc10001 {
             0,
             input1,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    logger.info("txid1:"+txid1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
@@ -333,7 +334,7 @@ public class DepositMinTrc10001 {
     Long minTrc10 = ByteArray.toLong(ByteArray
         .fromHexString(Hex.toHexString(return1.getConstantResult(0).toByteArray())));
     logger.info("minTrc10:"+minTrc10);
-    Assert.assertEquals(Long.valueOf(1), minTrc10);
+    Assert.assertEquals(Long.valueOf(-1), minTrc10);
 
     // Long.MIN_VALUE
     long setDepositMinTrc101 = Long.MIN_VALUE;

@@ -1705,7 +1705,7 @@ public class HttpMethed {
       return null;
     }
     responseContent = HttpMethed.parseResponseContent(response);
-    //HttpMethed.printJsonContent(responseContent);
+    HttpMethed.printJsonContent(responseContent);
     //httppost.releaseConnection();
     return Long.parseLong(responseContent.get("balance").toString());
   }

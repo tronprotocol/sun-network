@@ -698,7 +698,7 @@ public class DelegateCallSide001 {
     Assert.assertTrue(0L == Long.valueOf(isOracle1));
 
     // is not legal address
-    String parame4 = "\"" + "T11dff" + "\"";
+    String parame4 = "\"" + "T11df89f8jf82ks929jhsdnf" + "\"";
     byte[] input4 = Hex.decode(AbiUtil.parseMethod(methodStr2, parame4, false));
 
     TransactionExtention return4 = PublicMethed

@@ -19,14 +19,14 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractScenario015 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   byte[] contractAddress1 = null;
   byte[] contractAddress2 = null;
   byte[] contractAddress3 = null;
@@ -73,46 +73,48 @@ public class ContractScenario015 {
     ecKey2 = new ECKey(Utils.getRandom());
     receiverAddress = ecKey2.getAddress();
     receiverKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-    PublicMethed.printAddress(contract014Key);
-    PublicMethed.printAddress(receiverKey);
+    PublicMethedForDailybuild.printAddress(contract014Key);
+    PublicMethedForDailybuild.printAddress(receiverKey);
 
-    Assert.assertTrue(PublicMethed.sendcoin(contract014Address, 500000000L, fromAddress,
-        testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert
+        .assertTrue(PublicMethedForDailybuild.sendcoin(contract014Address, 500000000L, fromAddress,
+            testKey002, blockingStubFull));
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     //Deploy contract1, contract1 has a function to transaction 5 sun to target account
     String contractName = "TRON TRC20";
     String code = Configuration.getByPath("testng.conf")
         .getString("code.code_Scenario015_TRC20_TRON");
     String abi = Configuration.getByPath("testng.conf")
         .getString("abi.abi_Scenario015_TRC20_TRON");
-    txid = PublicMethed.deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-        maxFeeLimit, 0L, 100, null, contract014Key, contract014Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    txid = PublicMethedForDailybuild
+        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
+            maxFeeLimit, 0L, 100, null, contract014Key, contract014Address, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     logger.info(txid);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     contractAddress1 = infoById.get().getContractAddress().toByteArray();
     //Set SiringAuctionAddress to kitty core.
     String siringContractString = "\"" + Base58.encode58Check(fromAddress) + "\"";
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .triggerContract(contractAddress1, "balanceOf(address)", siringContractString,
             false, 0, 10000000L, contract014Address, contract014Key, blockingStubFull);
     logger.info(txid);
 
     siringContractString = "\"" + Base58.encode58Check(fromAddress) + "\",\"" + 17 + "\"";
-    txid = PublicMethed.triggerContract(contractAddress1, "transfer(address,uint256)",
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress1, "transfer(address,uint256)",
         siringContractString, false, 0, 10000000L, contract014Address,
         contract014Key, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
 
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
 
     siringContractString = "\"" + Base58.encode58Check(fromAddress) + "\"";
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .triggerContract(contractAddress1, "balanceOf(address)",
             siringContractString, false, 0, 10000000L, contract014Address,
             contract014Key, blockingStubFull);
@@ -126,7 +128,8 @@ public class ContractScenario015 {
 
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethed.freedResource(contract014Address, contract014Key, fromAddress, blockingStubFull);
+    PublicMethedForDailybuild
+        .freedResource(contract014Address, contract014Key, fromAddress, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

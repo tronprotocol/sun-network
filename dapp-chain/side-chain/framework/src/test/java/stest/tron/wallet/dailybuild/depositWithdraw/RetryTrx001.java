@@ -1474,15 +1474,15 @@ public class RetryTrx001 {
             0,
             input1,
             maxFeeLimit, 0, "", gateWatOwnerAddress, gateWatOwnerAddressKey, blockingStubFull);
+    logger.info("param is -1 --txid:" + txid1);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById1 = PublicMethed
-        .getTransactionInfoById(txid1, blockingStubFull);
-    Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
-    Assert.assertEquals(0, infoById1.get().getResultValue());
-    //msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
-    //msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
-    //Assert.assertEquals("\u0001less than 100 TRX", msg);
+    infoById1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
+    Assert.assertEquals("FAILED", infoById1.get().getResult().name());
+    Assert.assertEquals(1, infoById1.get().getResultValue());
+    msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
+    Assert.assertEquals("\u0001less than 100 TRX", msg);
 
     setRetryFee = 100_000_001;
     parame1 = String.valueOf(setRetryFee);

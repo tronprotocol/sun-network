@@ -187,9 +187,9 @@ public class HttpTestBlock001 {
     Assert.assertTrue(jsonArray.size() >= 26);
     Boolean exsistDelegated = false;
     for (int i = 0; i < jsonArray.size(); i++) {
-      if (jsonArray.getJSONObject(i).getString("key").equals("getAllowDelegateResource")) {
+      if (jsonArray.getJSONObject(i).getString("key").equals("getCreateAccountFee")) {
         exsistDelegated = true;
-        Assert.assertTrue(jsonArray.getJSONObject(i).getString("value").equals("1"));
+        Assert.assertTrue(jsonArray.getJSONObject(i).getString("value").equals("100000"));
       }
     }
     Assert.assertTrue(exsistDelegated);

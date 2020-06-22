@@ -338,6 +338,9 @@ public class WithdrawTrc10001 {
             sideGatewayAddress,
             0,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingSideStubFull);
     Assert.assertTrue(infoById.get().getResultValue() != 0);

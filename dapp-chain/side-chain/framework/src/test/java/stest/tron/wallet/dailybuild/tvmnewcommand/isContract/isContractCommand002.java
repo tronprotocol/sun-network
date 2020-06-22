@@ -22,7 +22,7 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 
 @Slf4j
@@ -30,7 +30,7 @@ public class isContractCommand002 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   byte[] selfdestructContractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -61,8 +61,8 @@ public class isContractCommand002 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(contractExcKey);
-    PublicMethed.printAddress(selfdestructContractKey);
+    PublicMethedForDailybuild.printAddress(contractExcKey);
+    PublicMethedForDailybuild.printAddress(selfdestructContractKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -76,44 +76,44 @@ public class isContractCommand002 {
 
   @Test(enabled = true, description = "Selfdestruct contract test isContract Command")
   public void test01SelfdestructContract() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(contractExcAddress, 10000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/TvmIsContract001.sol";
     String contractName = "testIsContract";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, contractExcKey,
         contractExcAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String txid = "";
     String num = "\"" + Base58.encode58Check(contractAddress) + "\"";
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(selfdestructContractExcAddress, 10000000000L, testNetAccountAddress,
             testNetAccountKey,
             blockingStubFull));
 
-    selfdestructContractAddress = PublicMethed
+    selfdestructContractAddress = PublicMethedForDailybuild
         .deployContract(contractName, abi, code, "", maxFeeLimit,
             0L, 100, null, selfdestructContractKey,
             selfdestructContractExcAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    txid = PublicMethed.triggerContract(selfdestructContractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(selfdestructContractAddress,
         "testIsContractCommand(address)", num, false,
         0, maxFeeLimit, selfdestructContractExcAddress, selfdestructContractKey, blockingStubFull);
     Optional<Protocol.TransactionInfo> infoById1 = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById1 = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById1 = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(1, ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray()));
     logger.info(infoById1.toString());
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(selfdestructContractAddress,
             "testIsContractView(address)", num, false,
             0, 0, "0", 0, selfdestructContractExcAddress, selfdestructContractKey,
@@ -123,22 +123,22 @@ public class isContractCommand002 {
         .assertEquals(1, ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray()));
 
     String txid1 = "";
-    txid1 = PublicMethed.triggerContract(contractAddress,
+    txid1 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "selfdestructContract(address)", num, false,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById1 = PublicMethedForDailybuild.getTransactionInfoById(txid1, blockingStubFull);
     logger.info(infoById1.toString());
 
-    txid1 = PublicMethed.triggerContract(selfdestructContractAddress,
+    txid1 = PublicMethedForDailybuild.triggerContract(selfdestructContractAddress,
         "testIsContractCommand(address)", num, false,
         0, maxFeeLimit, selfdestructContractExcAddress, selfdestructContractKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById1 = PublicMethedForDailybuild.getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertEquals(0, ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray()));
     logger.info(infoById1.toString());
 
-    transactionExtention = PublicMethed
+    transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(selfdestructContractAddress,
             "testIsContractView(address)", num, false,
             0, 0, "0", 0, selfdestructContractExcAddress, selfdestructContractKey,
@@ -151,21 +151,21 @@ public class isContractCommand002 {
 
   @Test(enabled = true, description = "No constructor test isContract Command")
   public void test02NoConstructorContract() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(contractExcAddress, 10000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/TvmIsContract002.sol";
     String contractName = "testIsContract";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    String txid = PublicMethed
+    String txid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
             0L, 100, null, contractExcKey,
             contractExcAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> info = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Optional<TransactionInfo> info = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info(info.get().toString());
     Assert.assertEquals(0, info.get().getResultValue());
   }
@@ -175,8 +175,8 @@ public class isContractCommand002 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    long balance = PublicMethed.queryAccount(contractExcKey, blockingStubFull).getBalance();
-    PublicMethed.sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
+    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull).getBalance();
+    PublicMethedForDailybuild.sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
         blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);

@@ -163,7 +163,7 @@ public class MappingTrc20001 {
             depositAddress2, testKeyFordeposit2, blockingStubFull);
 
 //not exist txid
-    String deployTxidFake = "1111111";
+    String deployTxidFake = "1273479279729334";
 
     String mapTxid2 = PublicMethed
         .mappingTrc20(mainChainAddressKey, deployTxidFake, 1000000000,

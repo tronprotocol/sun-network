@@ -132,6 +132,7 @@ public class AbiUtil {
       } else {
         value = parameter.toString();
       }
+      System.out.println("value:" + value);
       byte[] encoded = coder.encode(value);
       encodedList.add(encoded);
 

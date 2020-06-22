@@ -214,6 +214,8 @@ public class WithdrawTrc721002 {
             1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     tmpAddress = ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray());
@@ -278,6 +280,8 @@ public class WithdrawTrc721002 {
         .withdrawTrc(ChainIdAddress, sideContractAddress, "1001",
             maxFeeLimit,
             foundationAddress001, foundationKey001, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(withdrawtxid, blockingSideStubFull);
     Assert.assertEquals(1, infoById.get().getResultValue());
     Assert.assertEquals("FAILED", infoById.get().getResult().name());
@@ -289,6 +293,8 @@ public class WithdrawTrc721002 {
         .withdrawTrc(ChainIdAddress, sideContractAddress, "1002",
             maxFeeLimit,
             testAddress001, testKey001, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(withdrawtxid2, blockingSideStubFull);
     Assert.assertEquals(1, infoById.get().getResultValue());
     Assert.assertEquals("FAILED", infoById.get().getResult().name());

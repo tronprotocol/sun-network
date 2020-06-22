@@ -24,6 +24,7 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
+import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
@@ -200,6 +201,9 @@ public class TriggerConstant003 {
 
   @AfterClass
   public void shutdown() throws InterruptedException {
+    PublicMethed
+        .freedResource(contractExcAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
+
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

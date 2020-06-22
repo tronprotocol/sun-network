@@ -933,10 +933,10 @@ public class RetryTrc20001 {
         .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1, 1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("sideChainTxid : " + sideChainTxid);
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(sideChainTxid, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById = PublicMethed
+        .getTransactionInfoById(sideChainTxid, blockingSideStubFull);
     int beforerDepositSideChain = ByteArray
         .toInt(infoById.get().getContractResult(0).toByteArray());
     Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(testOracleAddress, 100000000,
@@ -978,10 +978,10 @@ public class RetryTrc20001 {
         .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1, 1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("sideChainTxid1 : " + sideChainTxid1);
-    Optional<TransactionInfo> infoById1 = PublicMethed
-        .getTransactionInfoById(sideChainTxid1, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById1 = PublicMethed
+        .getTransactionInfoById(sideChainTxid1, blockingSideStubFull);
     int afterDepositSideChain = ByteArray.toInt(infoById1.get().getContractResult(0).toByteArray());
     Assert.assertEquals(0, infoById1.get().getResultValue());
     Assert.assertEquals(beforerDepositSideChain + 1000, afterDepositSideChain);
@@ -1013,10 +1013,10 @@ public class RetryTrc20001 {
         .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1, 1000000000,
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     logger.info("sideChainTxid2 : " + sideChainTxid2);
-    Optional<TransactionInfo> infoById2 = PublicMethed
-        .getTransactionInfoById(sideChainTxid2, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    Optional<TransactionInfo> infoById2 = PublicMethed
+        .getTransactionInfoById(sideChainTxid2, blockingSideStubFull);
     int afterDepositSideChain2 = ByteArray
         .toInt(infoById2.get().getContractResult(0).toByteArray());
     Assert.assertEquals(0, infoById2.get().getResultValue());
@@ -1400,11 +1400,12 @@ public class RetryTrc20001 {
     retryWithdrawTxid = PublicMethed.retryWithdrawForRetryFee(chainIdAddress, sideChainAddress,
         nonceWithdraw, setRetryFeeSide + 1,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
-    try {
-      Thread.sleep(60000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     logger.info("retryWithdrawTxid:" + retryWithdrawTxid);
     infoByIdretryWithdraw1 = PublicMethed
@@ -1427,12 +1428,12 @@ public class RetryTrc20001 {
             0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    logger.info("sideChainTxid3 : " + sideChainTxid4);
+    logger.info("sideChainTxid4 : " + sideChainTxid4);
     Optional<TransactionInfo> infoById4 = PublicMethed
         .getTransactionInfoById(sideChainTxid4, blockingSideStubFull);
     int afterDepositSideChain4 = ByteArray
         .toInt(infoById4.get().getContractResult(0).toByteArray());
-    logger.info("afterDepositSideChain3:" + afterDepositSideChain4);
+    logger.info("afterDepositSideChain4:" + afterDepositSideChain4);
     Assert.assertEquals(0, infoById4.get().getResultValue());
     Assert.assertEquals(afterDepositSideChain3, afterDepositSideChain4);
 

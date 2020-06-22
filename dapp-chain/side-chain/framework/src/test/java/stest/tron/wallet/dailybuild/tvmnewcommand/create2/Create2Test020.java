@@ -533,9 +533,6 @@ public class Create2Test020 {
   @Test(enabled = true, description = "TriggerContract a constant function created by create2")
   public void testTriggerContract4() {
     Account info;
-    Assert.assertTrue(PublicMethedForDailybuild
-        .sendcoin(contractAddress, 1000000L, testNetAccountAddress, testNetAccountKey,
-            blockingStubFull));
     AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress,
             blockingStubFull);
@@ -658,9 +655,6 @@ public class Create2Test020 {
   public void testTriggerContract5() {
 
     Account info;
-    Assert.assertTrue(PublicMethedForDailybuild
-        .sendcoin(contractAddress, 1000000000L, testNetAccountAddress, testNetAccountKey,
-            blockingStubFull));
     AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress,
             blockingStubFull);
@@ -784,9 +778,6 @@ public class Create2Test020 {
   public void testTriggerContract6() {
 
     Account info;
-    Assert.assertTrue(PublicMethedForDailybuild
-        .sendcoin(contractAddress, 1000000000000L, testNetAccountAddress, testNetAccountKey,
-            blockingStubFull));
     AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress,
             blockingStubFull);

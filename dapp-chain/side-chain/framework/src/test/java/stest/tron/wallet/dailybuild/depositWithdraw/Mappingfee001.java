@@ -295,7 +295,7 @@ public class Mappingfee001 {
   }
 
   @Test(enabled = true, description = "Deposit Trc721")
-  public void mappingfeetrc20002() {
+  public void mappingfeetrc721002() {
 
     PublicMethed.printAddress(testKeyFordeposit);
 
@@ -711,7 +711,6 @@ public class Mappingfee001 {
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
 
-
     //setDepositMinTrx is -1
     parame1 = "-1";
     byte[] input2 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
@@ -721,11 +720,18 @@ public class Mappingfee001 {
             0,
             input2,
             maxFeeLimit, 0, "", mainGateWayOwnerAddress, mainGateWayOwner, blockingStubFull);
+    logger.info("param is -1 --txid:" + txid2);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid2, blockingStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() == 0);
+    Assert.assertTrue(infoById1.get().getResultValue() == 1);
+    Assert.assertEquals("FAILED", infoById1.get().getResult().name());
+    Assert.assertEquals(1, infoById1.get().getResultValue());
+    String msg = Hex.toHexString(infoById1.get().getContractResult(0).toByteArray());
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
+    Assert.assertEquals("\u0002less than 1000 TR", msg);
+
     String methodStr2 = "depositFee()";
     byte[] input4 = Hex.decode(AbiUtil.parseMethod(methodStr2, "", false));
 

@@ -184,7 +184,7 @@ public class MappingTrc721001 {
 //    Assert.assertNotNull(mapTxid);
 
 //not exist txid
-    String deployTxidFake = "1111111";
+    String deployTxidFake = "1823997238784420";
     String mapTxid2 = PublicMethed
         .mappingTrc721(mainChainAddressKey, deployTxidFake, 1000000000,
             testDepositAddress, testDepositTrx, blockingStubFull);

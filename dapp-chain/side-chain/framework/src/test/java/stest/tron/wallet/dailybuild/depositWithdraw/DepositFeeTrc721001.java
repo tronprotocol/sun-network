@@ -208,6 +208,7 @@ public class DepositFeeTrc721001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById = PublicMethed.getTransactionInfoById(deposittrx, blockingStubFull);
     Assert.assertNotNull(deposittrx);
     Assert.assertEquals(0, infoById.get().getResultValue());
@@ -222,6 +223,8 @@ public class DepositFeeTrc721001 {
             1000000000,
             0l, "0", testAddress001, testKey001, blockingSideStubFull);
     logger.info("ownerTrx : " + ownerTrx);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById2 = PublicMethed
         .getTransactionInfoById(ownerTrx, blockingSideStubFull);
     tmpAddress = ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray());
@@ -255,7 +258,7 @@ public class DepositFeeTrc721001 {
             WalletClient.decodeFromBase58Check(ChainIdAddress), 0, input,
             maxFeeLimit,
             0, "0", testAddress001, testKey001, blockingSideStubFull);
-    logger.info("withdrawTxid: " + withdrawTxid1);
+    logger.info("withdrawTxid1: " + withdrawTxid1);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);

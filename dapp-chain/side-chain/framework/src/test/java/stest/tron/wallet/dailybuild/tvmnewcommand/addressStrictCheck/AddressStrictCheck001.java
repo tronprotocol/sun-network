@@ -21,7 +21,7 @@ import org.tron.core.Wallet;
 import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 
 @Slf4j
@@ -29,7 +29,7 @@ public class AddressStrictCheck001 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
@@ -58,7 +58,7 @@ public class AddressStrictCheck001 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(contractExcKey);
+    PublicMethedForDailybuild.printAddress(contractExcKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -72,47 +72,47 @@ public class AddressStrictCheck001 {
 
   @Test(enabled = true, description = "Open experimental check address ")
   public void test01CheckAddressNew() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(contractExcAddress, 10000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/addressCheckNew.sol";
     String contractName = "testIsContract";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, contractExcKey,
         contractExcAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String txid = "";
     String num = "00000000000000000000004108362A6DB594586C035758ECA382A49FDF13EF61";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "checkAddress(address)", num, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     Optional<Protocol.TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddress,
             "checkAddress2(address)", num, true,
             0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     Assert.assertEquals("SUCCESS", transactionExtention.getResult().getCode().toString());
 
     num = "10000000000000000000004108362A6DB594586C035758ECA382A49FDF13EF61";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "checkAddress(address)", num, true,
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(1, infoById.get().getResultValue());
     Assert.assertEquals("REVERT opcode executed", infoById.get().getResMessage().toStringUtf8());
 
-    transactionExtention = PublicMethed.triggerConstantContractForExtention(contractAddress,
+    transactionExtention = PublicMethedForDailybuild.triggerConstantContractForExtention(contractAddress,
         "checkAddress2(address)", num, true,
         0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     logger.info("AAAAA:" + transactionExtention.toString());
@@ -128,8 +128,8 @@ public class AddressStrictCheck001 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    long balance = PublicMethed.queryAccount(contractExcKey, blockingStubFull).getBalance();
-    PublicMethed.sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
+    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull).getBalance();
+    PublicMethedForDailybuild.sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
         blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);

@@ -262,7 +262,7 @@ public class Withdrawfee001 {
     Assert.assertEquals("SUCESS", infoById2.get().getResult().name());
     Assert.assertEquals(0, infoById2.get().getResultValue());
 
-    Account accountBefore = PublicMethed.queryAccount(depositAddress,blockingSideStubFull);
+    Account accountBefore = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
     Long balanceBeforeWithdraw = accountBefore.getBalance();
 
     //value<fee
@@ -279,10 +279,9 @@ public class Withdrawfee001 {
     Assert.assertEquals(1, infoByIdwithdrawTrc20.get().getResultValue());
 
     Long balanceAfterWithdraw =
-        PublicMethed.queryAccount(depositAddress,blockingSideStubFull).getBalance();
+        PublicMethed.queryAccount(depositAddress, blockingSideStubFull).getBalance();
     Assert.assertEquals(balanceAfterWithdraw.longValue(),
         balanceBeforeWithdraw - infoByIdwithdrawTrc20.get().getFee());
-
 
     byte[] input14 = Hex.decode(AbiUtil.parseMethod("bonus()", "", false));
 
@@ -444,10 +443,16 @@ public class Withdrawfee001 {
             sideGatewayAddress,
             withdrawValue, 100,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById14 = PublicMethed
         .getTransactionInfoById(txid4, blockingSideStubFull);
     Assert.assertEquals(1, infoById14.get().getResultValue());
+    String msg = ByteArray.toStr(ByteArray.fromHexString(
+        Hex.toHexString(infoById14.get().getContractResult(0).toByteArray()).substring(136, 222)));
+    Assert.assertEquals("value must be >= withdrawMinTrx+withdrawFee", msg);
 
 //value=fee
     Account accountBefore1 = PublicMethed.queryAccount(depositAddress, blockingStubFull);
@@ -677,26 +682,18 @@ public class Withdrawfee001 {
 
     // TRC721`s owner in sideChain should be Depositor
     String arg = "1001";
-    byte[] input1 = Hex.decode(AbiUtil.parseMethod("ownerOf(uint256)", arg, false));
-    String ownerTrx = PublicMethed
-        .triggerContractSideChain(sideContractAddress,
-            WalletClient.decodeFromBase58Check(ChainIdAddress), 0l, input1,
-            1000000000,
-            0l, "0", depositAddress, testKeyFordeposit, blockingSideStubFull);
-    logger.info("ownerTrx : " + ownerTrx);
-    Optional<TransactionInfo> infoById2 = PublicMethed
-        .getTransactionInfoById(ownerTrx, blockingSideStubFull);
-    tmpAddress = ByteArray.toHexString(infoById2.get().getContractResult(0).toByteArray());
+    TransactionExtention transactionExtention = PublicMethed
+        .triggerConstantContractForExtention(sideContractAddress, "ownerOf(uint256)", arg, false,
+            0l, maxFeeLimit, "0", 0l, depositAddress, testKeyFordeposit, blockingSideStubFull);
+    tmpAddress = ByteArray.toHexString(transactionExtention.getConstantResult(0).toByteArray());
     tmpAddress = tmpAddress.substring(24);
     addressHex = "41" + tmpAddress;
     logger.info("address_hex: " + addressHex);
     addressFinal = Base58.encode58Check(ByteArray.fromHexString(addressHex));
     logger.info("address_final: " + addressFinal);
-    Assert.assertEquals("SUCESS", infoById2.get().getResult().name());
-    Assert.assertEquals(0, infoById2.get().getResultValue());
-    Assert.assertNotNull(ownerTrx);
     Assert.assertEquals(Base58.encode58Check(depositAddress), addressFinal);
 
+    byte[] input1 = Hex.decode(AbiUtil.parseMethod("ownerOf(uint256)", arg, false));
     // TRC721`s owner in mainChain should be mainGateway
     TransactionExtention return2 = PublicMethed
         .triggerContractForTransactionExtention(trc20Contract, 0l, input1, 1000000000,
@@ -734,7 +731,7 @@ public class Withdrawfee001 {
 
     // value<fee
 
-    Account account = PublicMethed.queryAccount(depositAddress,blockingSideStubFull);
+    Account account = PublicMethed.queryAccount(depositAddress, blockingSideStubFull);
     Long balanceBefore = account.getBalance();
 
     methodStr = "withdrawal(uint256)";
@@ -751,10 +748,8 @@ public class Withdrawfee001 {
     Assert.assertNotNull(withdrawTxid1);
     Assert.assertEquals(1, infoById.get().getResultValue());
 
-
-    Long balnceAfter = PublicMethed.queryAccount(depositAddress,blockingSideStubFull).getBalance();
-    Assert.assertEquals(balanceBefore - infoById.get().getFee(),balnceAfter.longValue());
-
+    Long balnceAfter = PublicMethed.queryAccount(depositAddress, blockingSideStubFull).getBalance();
+    Assert.assertEquals(balanceBefore - infoById.get().getFee(), balnceAfter.longValue());
 
     // value=fee
     methodStr = "withdrawal(uint256)";
@@ -906,14 +901,16 @@ public class Withdrawfee001 {
         .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideGatewayAddress),
             ChainIdAddressKey, 0l, input6, 1000000000,
             0l, "0", sideGateWayOwnerAddress, sideGateWayOwner, blockingSideStubFull);
+    logger.info("param is -1 --txid:" + txid6);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById6 = PublicMethed
         .getTransactionInfoById(txid6, blockingSideStubFull);
-    Assert.assertEquals("SUCESS", infoById6.get().getResult().name());
-    Assert.assertEquals(0, infoById6.get().getResultValue());
-    //String msg = Hex.toHexString(infoById6.get().getContractResult(0).toByteArray());
-    //msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
-    //Assert.assertEquals("\u0001less than 100 TRX", msg);
+    Assert.assertEquals("FAILED", infoById6.get().getResult().name());
+    Assert.assertEquals(1, infoById6.get().getResultValue());
+    String msg = Hex.toHexString(infoById6.get().getContractResult(0).toByteArray());
+    msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
+    Assert.assertEquals("\u0001less than 100 TRX", msg);
 
     //fee=100000001L
     input6 = Hex.decode(AbiUtil.parseMethod("setWithdrawFee(uint256)",
@@ -922,11 +919,13 @@ public class Withdrawfee001 {
         .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideGatewayAddress),
             ChainIdAddressKey, 0l, input6, 1000000000,
             0l, "0", sideGateWayOwnerAddress, sideGateWayOwner, blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById6 = PublicMethed
         .getTransactionInfoById(txid6, blockingSideStubFull);
     Assert.assertEquals("FAILED", infoById6.get().getResult().name());
     Assert.assertEquals(1, infoById6.get().getResultValue());
-    String msg = Hex.toHexString(infoById6.get().getContractResult(0).toByteArray());
+    msg = Hex.toHexString(infoById6.get().getContractResult(0).toByteArray());
     msg = ByteArray.toStr(ByteArray.fromHexString(msg.substring(135, 170)));
     Assert.assertEquals("\u0001less than 100 TRX", msg);
 

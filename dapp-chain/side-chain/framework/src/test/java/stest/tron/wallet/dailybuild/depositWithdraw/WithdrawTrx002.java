@@ -223,7 +223,8 @@ public class WithdrawTrx002 {
             callValue3,
             maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull,
             blockingSideStubFull);
-
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txidn, blockingSideStubFull);
     Assert.assertTrue(infoById.get().getResultValue() != 0);

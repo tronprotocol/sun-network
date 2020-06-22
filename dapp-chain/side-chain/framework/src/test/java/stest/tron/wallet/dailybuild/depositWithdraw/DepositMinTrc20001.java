@@ -390,7 +390,7 @@ public class DepositMinTrc20001 {
     Long minTrc20 = ByteArray.toLong(ByteArray
         .fromHexString(Hex.toHexString(return5.getConstantResult(0).toByteArray())));
     logger.info("minTrc20:" + minTrc20);
-    Assert.assertEquals(Long.valueOf(1), minTrc20);
+    Assert.assertEquals(Long.valueOf(-1), minTrc20);
 
     // Long.MIN_VALUE
     long setDepositMinTrc201 = Long.MIN_VALUE;
