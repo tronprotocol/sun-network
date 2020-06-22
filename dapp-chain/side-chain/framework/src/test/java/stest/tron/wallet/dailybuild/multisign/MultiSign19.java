@@ -273,8 +273,8 @@ public class MultiSign19 {
     ownerPermissionKeys.add(ownerKey);
 
     // operation include invalid 99 contract
-    Integer[] ints = {0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30, 31,
-        32, 33, 41, 42, 43, 44, 45, 99};
+    Integer[] ints = {0, 1, 2, 3, 4, 5, 8, 10, 11, 12, 13, 17, 18, 19, 20, 30, 31,
+        32, 33, 45, 48, 99, 254};
     String operations = PublicMethedForMutiSign.getOperations(ints);
 
     String accountPermissionJson =
@@ -333,7 +333,7 @@ public class MultiSign19 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : 21 isn't a validate ContractType",
+    Assert.assertEquals("contract validate error : 9 isn't a validate ContractType",
         response.getMessage().toStringUtf8());
 
     // operation's length is less then 64,
@@ -462,7 +462,7 @@ public class MultiSign19 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : 21 isn't a validate ContractType",
+    Assert.assertEquals("contract validate error : 9 isn't a validate ContractType",
         response.getMessage().toStringUtf8());
 
     // operation = ""

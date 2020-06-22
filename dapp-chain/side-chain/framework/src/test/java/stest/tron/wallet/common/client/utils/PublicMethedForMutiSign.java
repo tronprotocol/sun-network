@@ -109,6 +109,12 @@ public class PublicMethedForMutiSign {
       WalletGrpc.WalletBlockingStub blockingStubFull) {
 
     Return response = PublicMethed.broadcastTransaction(transaction, blockingStubFull);
+
+    System.out.println(
+        "txid1 = " + ByteArray
+            .toHexString(Sha256Hash.hash(
+                DBConfig.isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
+
     return response.getResult();
   }
 

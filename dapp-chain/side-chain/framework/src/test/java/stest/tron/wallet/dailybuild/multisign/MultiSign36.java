@@ -134,6 +134,7 @@ public class MultiSign36 {
         .addTransactionSign(transaction1, sendAccountKey2, blockingStubFull);
     TransactionApprovedList transactionApprovedList = PublicMethedForDailybuild
         .getTransactionApprovedList(transaction2, blockingStubFull);
+    logger.info("transactionApprovedList: " + transactionApprovedList);
     logger.info("test001Address:" + Base58.encode58Check(test001Address));
     logger.info(
         "transactionApprovedList:" + Base58

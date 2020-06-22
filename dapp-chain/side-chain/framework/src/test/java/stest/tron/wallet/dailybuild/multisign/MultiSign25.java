@@ -37,8 +37,9 @@ import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 @Slf4j
 public class MultiSign25 {
 
-  private static final String AVAILABLE_OPERATION
-      = "7fff1fc0037e0000000000000000000000000000000000000000000000000000";
+  private static Integer[] ints = {0, 1, 2, 3, 4, 5, 8, 10, 11, 12, 13, 17, 18, 19, 20, 30, 31,
+      32, 33, 45, 48, 254};
+  private static final String AVAILABLE_OPERATION = PublicMethedForMutiSign.getOperations(ints);
   private static final String DEFAULT_OPERATION
       = "3f3d1ec0036001000000000000000000000000000000000000000000000000c0";
   private final String testKey002 = Configuration.getByPath("testng.conf")

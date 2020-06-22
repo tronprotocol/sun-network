@@ -82,7 +82,7 @@ public class MultiSign35 {
   }
 
   @Test(enabled = true, description = "Test perimissionID is "
-      + "7fff1fc0037e0000000000000000000000000000000000000000000000000000")
+      + "3f3d1ec0036001000000000000000000000000000000000000000000000000c0")
   public void testMultiUpdatepermissions_45() {
     ECKey ecKey = new ECKey(Utils.getRandom());
     test001Address = ecKey.getAddress();
@@ -117,7 +117,7 @@ public class MultiSign35 {
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
             + "\"threshold\":1,\"operations\":\""
-            + "7fff1fc0037e0000000000000000000000000000000000000000000000000000\","
+            + "3f3d1ec0036001000000000000000000000000000000000000000000000000c0\","
             + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
             .getAddressString(sendAccountKey4)
             + "\",\"weight\":1}]}]} ";
@@ -181,7 +181,7 @@ public class MultiSign35 {
   }
 
   @Test(enabled = true, description = "Test perimissionID is "
-      + "3f3d1ec0036001000000000000000000000000000000000000000000000000c0")
+      + "3f3d1ec003200100000000000000000000000000000000000000000000000040")
   public void testMultiUpdatepermissions_46() {
     ECKey ecKey = new ECKey(Utils.getRandom());
     test001Address = ecKey.getAddress();
@@ -216,7 +216,7 @@ public class MultiSign35 {
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
             + "\"threshold\":1,\"operations\":\""
-            + "3f3d1ec0036001000000000000000000000000000000000000000000000000c0\","
+            + "3f3d1ec003200100000000000000000000000000000000000000000000000040\","
             + "\"keys\":[{\"address\":\"" + PublicMethedForDailybuild
             .getAddressString(sendAccountKey4)
             + "\",\"weight\":1}]}]} ";
