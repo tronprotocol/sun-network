@@ -959,12 +959,6 @@ public class Wallet {
             .build());
 
     builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
-            .setKey("getUpdateAccountPermissionFee")
-            .setValue(
-                    String.valueOf(dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee()))
-            .build());
-
-    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getAllowAccountStateRoot")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowAccountStateRoot()))
             .build());
