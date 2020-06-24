@@ -50,6 +50,8 @@ public class WalletTestTransfer003 {
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
+  public static final String mainGateWay = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.chainIdAddress");
   private final Long createUseFee = 100000L;
   //get account
   ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -83,13 +85,21 @@ public class WalletTestTransfer003 {
     return String.valueOf(buf, 32, 130);
   }
 
-  private static Transaction signTransaction(ECKey ecKey, Transaction transaction) {
+  public static Protocol.Transaction signTransaction(ECKey ecKey,
+      Protocol.Transaction transaction) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     if (ecKey == null || ecKey.getPrivKey() == null) {
-      logger.warn("Warning: Can't sign,there is no private key !!");
+      //logger.warn("Warning: Can't sign,there is no private key !!");
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    logger.info("Txid in sign is " + ByteArray.toHexString(Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction
+            .getRawData().toByteArray())));
+    boolean isSideChain = false;
+    return TransactionUtils
+        .sign(transaction, ecKey, Wallet.decodeFromBase58Check(mainGateWay), isSideChain);
+    //return TransactionUtils.sign(transaction, ecKey);
   }
 
   /**

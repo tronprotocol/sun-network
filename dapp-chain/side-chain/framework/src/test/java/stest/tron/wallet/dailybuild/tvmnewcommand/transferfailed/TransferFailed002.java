@@ -393,8 +393,9 @@ public class TransferFailed002 {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     ECKey ecKey2 = new ECKey(Utils.getRandom());
-    PublicMethedForDailybuild.printAddress(contractExcKey);
     byte[] nonexistentAddress = ecKey2.getAddress();
+    String contractKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+    PublicMethedForDailybuild.printAddress(contractKey);
     String txid = "";
 
     String num = "100000000" + ",\"" + Base58.encode58Check(nonexistentAddress) + "\"";

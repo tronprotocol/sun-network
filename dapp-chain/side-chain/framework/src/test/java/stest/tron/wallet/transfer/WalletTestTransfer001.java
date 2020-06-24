@@ -25,10 +25,12 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.contract.BalanceContract;
+import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
 @Slf4j
 public class WalletTestTransfer001 {
@@ -178,14 +180,13 @@ public class WalletTestTransfer001 {
       logger.info(Long.toString(beforeFronzen.getFrozen(0).getFrozenBalance()));
     }
 
-    BalanceContract.FreezeBalanceContract.Builder builder = BalanceContract.FreezeBalanceContract
-        .newBuilder();
+    FreezeBalanceContract.Builder builder = FreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddreess).setFrozenBalance(frozenBalance)
         .setFrozenDuration(frozenDuration);
 
-    BalanceContract.FreezeBalanceContract contract = builder.build();
+    FreezeBalanceContract contract = builder.build();
     Transaction transaction = blockingStubFull.freezeBalance(contract);
 
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
@@ -194,7 +195,7 @@ public class WalletTestTransfer001 {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     Return response = blockingStubFull.broadcastTransaction(transaction);
 
     if (response.getResult() == false) {
@@ -322,7 +323,7 @@ public class WalletTestTransfer001 {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    return TransactionUtilsForDailybuild.sign(transaction, ecKey);
   }
 }
 
