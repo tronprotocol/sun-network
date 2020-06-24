@@ -30,7 +30,8 @@ public class isContractCommand002 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   byte[] selfdestructContractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -86,9 +87,10 @@ public class isContractCommand002 {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethedForDailybuild.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            0L, 100, null, contractExcKey,
+            contractExcAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String txid = "";
@@ -107,6 +109,7 @@ public class isContractCommand002 {
     txid = PublicMethedForDailybuild.triggerContract(selfdestructContractAddress,
         "testIsContractCommand(address)", num, false,
         0, maxFeeLimit, selfdestructContractExcAddress, selfdestructContractKey, blockingStubFull);
+    logger.info("txid:" + txid);
     Optional<Protocol.TransactionInfo> infoById1 = null;
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     infoById1 = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
@@ -165,7 +168,8 @@ public class isContractCommand002 {
             0L, 100, null, contractExcKey,
             contractExcAddress, blockingStubFull);
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> info = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
+    Optional<TransactionInfo> info = PublicMethedForDailybuild
+        .getTransactionInfoById(txid, blockingStubFull);
     logger.info(info.get().toString());
     Assert.assertEquals(0, info.get().getResultValue());
   }
@@ -175,9 +179,11 @@ public class isContractCommand002 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull).getBalance();
-    PublicMethedForDailybuild.sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
-        blockingStubFull);
+    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull)
+        .getBalance();
+    PublicMethedForDailybuild
+        .sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
+            blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

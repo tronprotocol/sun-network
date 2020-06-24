@@ -393,10 +393,11 @@ public class TransferFailed002 {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     ECKey ecKey2 = new ECKey(Utils.getRandom());
+    PublicMethedForDailybuild.printAddress(contractExcKey);
     byte[] nonexistentAddress = ecKey2.getAddress();
     String txid = "";
 
-    String num = "100000000" + ",\"" + Base58.encode58Check(contractExcAddress) + "\"";
+    String num = "100000000" + ",\"" + Base58.encode58Check(nonexistentAddress) + "\"";
 
     txid = PublicMethedForDailybuild
         .triggerContract(contractAddress, "testSendTrxNonexistentTarget(uint256,address)", num,

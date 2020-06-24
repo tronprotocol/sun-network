@@ -729,18 +729,6 @@ public class DelegateCallMain001 {
     Long isOracle1 = ByteArray.toLong(ByteArray
         .fromHexString(Hex.toHexString(return3.getConstantResult(0).toByteArray())));
     Assert.assertTrue(0L == Long.valueOf(isOracle1));
-
-    // is not legal address
-    String parame4 = "\"" + "T11dff53fsdsf3242xf234234" + "\"";
-    byte[] input4 = Hex.decode(AbiUtil.parseMethod(methodStr2, parame4, false));
-
-    TransactionExtention return4 = PublicMethed
-        .triggerContractForTransactionExtention(
-            mainGateWayAddress, 0l, input4, 1000000000,
-            0l, "0", mainGateWayOwnerAddress, mainGateWayOwnerKey, blockingStubFull);
-    Long isOracle2 = ByteArray.toLong(ByteArray
-        .fromHexString(Hex.toHexString(return4.getConstantResult(0).toByteArray())));
-    Assert.assertTrue(0L == Long.valueOf(isOracle2));
   }
 
   @Test(enabled = true, description = "DelegateCall for transferOwnership in sideChain")

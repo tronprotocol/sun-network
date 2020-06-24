@@ -30,7 +30,8 @@ public class isContractCommand001 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethedForDailybuild.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
@@ -102,6 +103,7 @@ public class isContractCommand001 {
     txid = PublicMethedForDailybuild
         .triggerContract(contractAddress, "testIsContractCommand(address)", num, false, 0,
             maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    logger.info("txid:" + txid);
     Optional<Protocol.TransactionInfo> infoById = null;
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
@@ -117,7 +119,8 @@ public class isContractCommand001 {
     logger.info("energyUsed:" + energyUsed);
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
-    Protocol.Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    Protocol.Account infoafter = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull1);
     GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
@@ -161,6 +164,7 @@ public class isContractCommand001 {
     txid = PublicMethedForDailybuild
         .triggerContract(contractAddress, "testIsContractCommand(address)", num, false, 0,
             maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    logger.info("txid:" + txid);
     Optional<Protocol.TransactionInfo> infoById = null;
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
@@ -177,7 +181,8 @@ public class isContractCommand001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Protocol.Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    Protocol.Account infoafter = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull1);
     GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
@@ -221,6 +226,7 @@ public class isContractCommand001 {
     txid = PublicMethedForDailybuild
         .triggerContract(contractAddress, "testIsContractCommand(address)", num, false, 0,
             maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    logger.info("txid:" + txid);
     Optional<Protocol.TransactionInfo> infoById = null;
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
@@ -236,7 +242,8 @@ public class isContractCommand001 {
     logger.info("energyUsed:" + energyUsed);
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
-    Protocol.Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    Protocol.Account infoafter = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull1);
     GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
@@ -279,6 +286,7 @@ public class isContractCommand001 {
     txid = PublicMethedForDailybuild
         .triggerContract(contractAddress, "testConstructor()", "", false, 0, maxFeeLimit,
             contractExcAddress, contractExcKey, blockingStubFull);
+    logger.info("txid:" + txid);
     Optional<Protocol.TransactionInfo> infoById = null;
     PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
@@ -295,7 +303,8 @@ public class isContractCommand001 {
     logger.info("energyUsed:" + energyUsed);
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
-    Protocol.Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull1);
+    Protocol.Account infoafter = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull1);
     GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
@@ -325,9 +334,11 @@ public class isContractCommand001 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull).getBalance();
-    PublicMethedForDailybuild.sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
-        blockingStubFull);
+    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull)
+        .getBalance();
+    PublicMethedForDailybuild
+        .sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
+            blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
