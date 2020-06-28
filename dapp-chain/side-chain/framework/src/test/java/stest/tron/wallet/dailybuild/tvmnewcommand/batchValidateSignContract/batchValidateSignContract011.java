@@ -27,14 +27,15 @@ import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class batchValidateSignContract011 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
@@ -63,31 +64,32 @@ public class batchValidateSignContract011 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(contractExcKey);
+    PublicMethedForDailybuild.printAddress(contractExcKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext(true).build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
             testNetAccountKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/batchvalidatesign001.sol";
     String contractName = "Demo";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed
+    contractAddress = PublicMethedForDailybuild
         .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null, contractExcKey,
             contractExcAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
   }
 
   @Test(enabled = true, description = "Correct 17 signatures test multivalidatesign")
   public void test01Correct33Signatures() {
-    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethed
+    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
-    Protocol.Account info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    Protocol.Account info = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -107,15 +109,15 @@ public class batchValidateSignContract011 {
       addresses.add(WalletUtil.encode58Check(key.getAddress()));
     }
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    txid = PublicMethed
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    txid = PublicMethedForDailybuild
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -126,8 +128,9 @@ public class batchValidateSignContract011 {
     logger.info("energyUsed:" + energyUsed);
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
-    Protocol.Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethed
+    Protocol.Account infoafter = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull1);
+    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -140,17 +143,18 @@ public class batchValidateSignContract011 {
 
     if (infoById.get().getResultValue() == 0) {
       Assert.assertEquals("00000000000000000000000000000000",
-          PublicMethed.bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
       Assert.assertTrue(afterBalance + fee == beforeBalance);
     } else {
       Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
           .equals(infoById.get().getResMessage().toStringUtf8()) || "Already Time Out"
           .equals(infoById.get().getResMessage().toStringUtf8()));
       Assert.assertTrue(afterBalance == 0);
-      txid = PublicMethed
+      txid = PublicMethedForDailybuild
           .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
               testNetAccountKey, blockingStubFull);
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     }
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
@@ -160,9 +164,10 @@ public class batchValidateSignContract011 {
   @Test(enabled = true, description = "14 signatures with 1st incorrect signatures"
       + " test multivalidatesign")
   public void test02Incorrect1stSignatures() {
-    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethed
+    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
-    Protocol.Account info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    Protocol.Account info = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -184,23 +189,24 @@ public class batchValidateSignContract011 {
     byte[] sign = new ECKey().sign(Hash.sha3("sdifhsdfihyw888w7".getBytes())).toByteArray();
     signatures.set(0, Hex.toHexString(sign));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    txid = PublicMethed
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    txid = PublicMethedForDailybuild
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     if (infoById.get().getResultValue() == 0) {
       Assert.assertEquals("01111111111111000000000000000000",
-          PublicMethed.bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
     } else {
       Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
           .equals(infoById.get().getResMessage().toStringUtf8()) || "Already Time Out"
           .equals(infoById.get().getResMessage().toStringUtf8()));
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     }
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
@@ -212,8 +218,9 @@ public class batchValidateSignContract011 {
     logger.info("energyUsed:" + energyUsed);
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
-    Protocol.Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethed
+    Protocol.Account infoafter = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull1);
+    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -232,9 +239,10 @@ public class batchValidateSignContract011 {
   @Test(enabled = true, description = "8 signatures with 1st incorrect address"
       + " test multivalidatesign")
   public void test03Incorrect1stAddress() {
-    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethed
+    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
-    Protocol.Account info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    Protocol.Account info = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -255,23 +263,24 @@ public class batchValidateSignContract011 {
     }
     addresses.set(0, WalletUtil.encode58Check(new ECKey().getAddress()));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    txid = PublicMethed
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    txid = PublicMethedForDailybuild
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     if (infoById.get().getResultValue() == 0) {
       Assert.assertEquals("01111111000000000000000000000000",
-          PublicMethed.bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
     } else {
       Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
           .equals(infoById.get().getResMessage().toStringUtf8()) || "Already Time Out"
           .equals(infoById.get().getResMessage().toStringUtf8()));
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     }
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
@@ -283,8 +292,9 @@ public class batchValidateSignContract011 {
     logger.info("energyUsed:" + energyUsed);
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
-    Protocol.Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethed
+    Protocol.Account infoafter = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull1);
+    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -303,9 +313,10 @@ public class batchValidateSignContract011 {
   @Test(enabled = true, description = "6 signatures with 3th incorrect signatures"
       + " test multivalidatesign")
   public void test04Incorrect15thSignatures() {
-    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethed
+    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
-    Protocol.Account info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    Protocol.Account info = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -327,23 +338,24 @@ public class batchValidateSignContract011 {
     byte[] sign = new ECKey().sign(Hash.sha3("sdifhsdfihyw888w7".getBytes())).toByteArray();
     signatures.set(2, Hex.toHexString(sign));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    txid = PublicMethed
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    txid = PublicMethedForDailybuild
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     if (infoById.get().getResultValue() == 0) {
       Assert.assertEquals("11011100000000000000000000000000",
-          PublicMethed.bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
     } else {
       Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
           .equals(infoById.get().getResMessage().toStringUtf8()) || "Already Time Out"
           .equals(infoById.get().getResMessage().toStringUtf8()));
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     }
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
@@ -355,8 +367,9 @@ public class batchValidateSignContract011 {
     logger.info("energyUsed:" + energyUsed);
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
-    Protocol.Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethed
+    Protocol.Account infoafter = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull1);
+    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -375,9 +388,10 @@ public class batchValidateSignContract011 {
   @Test(enabled = true, description = "11 signatures with 7th-9th incorrect address"
       + " test multivalidatesign")
   public void test05Incorrect15thTo30thAddress() {
-    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethed
+    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
-    Protocol.Account info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    Protocol.Account info = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -400,23 +414,24 @@ public class batchValidateSignContract011 {
       addresses.set(i, WalletUtil.encode58Check(new ECKey().getAddress()));
     }
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    txid = PublicMethed
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    txid = PublicMethedForDailybuild
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     if (infoById.get().getResultValue() == 0) {
       Assert.assertEquals("11111100011000000000000000000000",
-          PublicMethed.bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
     } else {
       Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
           .equals(infoById.get().getResMessage().toStringUtf8()) || "Already Time Out"
           .equals(infoById.get().getResMessage().toStringUtf8()));
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     }
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
@@ -428,8 +443,9 @@ public class batchValidateSignContract011 {
     logger.info("energyUsed:" + energyUsed);
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
-    Protocol.Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethed
+    Protocol.Account infoafter = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull1);
+    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -448,9 +464,10 @@ public class batchValidateSignContract011 {
   @Test(enabled = true, description = "40 signatures with 2nd、32nd incorrect signatures"
       + " test multivalidatesign")
   public void test06Incorrect2ndAnd32ndIncorrectSignatures() {
-    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethed
+    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
-    Protocol.Account info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    Protocol.Account info = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -475,16 +492,16 @@ public class batchValidateSignContract011 {
       addresses.add(WalletUtil.encode58Check(key.getAddress()));
     }
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    txid = PublicMethed
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    txid = PublicMethedForDailybuild
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
 
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
@@ -496,8 +513,9 @@ public class batchValidateSignContract011 {
     logger.info("energyUsed:" + energyUsed);
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
-    Protocol.Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethed
+    Protocol.Account infoafter = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull1);
+    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -510,17 +528,18 @@ public class batchValidateSignContract011 {
 
     if (infoById.get().getResultValue() == 0) {
       Assert.assertEquals("00000000000000000000000000000000",
-          PublicMethed.bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
       Assert.assertTrue(afterBalance + fee == beforeBalance);
     } else {
       Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
           .equals(infoById.get().getResMessage().toStringUtf8()) || "Already Time Out"
           .equals(infoById.get().getResMessage().toStringUtf8()));
       Assert.assertTrue(afterBalance == 0);
-      txid = PublicMethed
+      txid = PublicMethedForDailybuild
           .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
               testNetAccountKey, blockingStubFull);
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     }
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
@@ -530,9 +549,10 @@ public class batchValidateSignContract011 {
   @Test(enabled = true, description = "44 signatures with 9th、11th、28th、32nd incorrect address"
       + " test multivalidatesign")
   public void test07IncorrectAddress() {
-    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethed
+    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
-    Protocol.Account info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    Protocol.Account info = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -556,15 +576,15 @@ public class batchValidateSignContract011 {
     addresses.set(27, WalletUtil.encode58Check(new ECKey().getAddress()));
     addresses.set(31, WalletUtil.encode58Check(new ECKey().getAddress()));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    txid = PublicMethed
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    txid = PublicMethedForDailybuild
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -575,8 +595,9 @@ public class batchValidateSignContract011 {
     logger.info("energyUsed:" + energyUsed);
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
-    Protocol.Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethed
+    Protocol.Account infoafter = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull1);
+    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -589,17 +610,18 @@ public class batchValidateSignContract011 {
 
     if (infoById.get().getResultValue() == 0) {
       Assert.assertEquals("00000000000000000000000000000000",
-          PublicMethed.bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
       Assert.assertTrue(afterBalance + fee == beforeBalance);
     } else {
       Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
           .equals(infoById.get().getResMessage().toStringUtf8()) || "Already Time Out"
           .equals(infoById.get().getResMessage().toStringUtf8()));
       Assert.assertTrue(afterBalance == 0);
-      txid = PublicMethed
+      txid = PublicMethedForDailybuild
           .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
               testNetAccountKey, blockingStubFull);
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     }
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
@@ -608,13 +630,14 @@ public class batchValidateSignContract011 {
 
   @Test(enabled = true, description = "16 signatures with Incorrect hash test multivalidatesign")
   public void test08IncorrectHash() {
-    String incorrecttxid = PublicMethed
+    String incorrecttxid = PublicMethedForDailybuild
         .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
             testNetAccountKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
-    Protocol.Account info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    Protocol.Account info = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -635,15 +658,15 @@ public class batchValidateSignContract011 {
     }
     List<Object> parameters = Arrays
         .asList("0x" + Hex.toHexString(Hash.sha3(incorrecttxid.getBytes())), signatures, addresses);
-    String input = PublicMethed.parametersString(parameters);
-    txid = PublicMethed
-        .triggerContractBoth(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
+    String input = PublicMethedForDailybuild.parametersString(parameters);
+    txid = PublicMethedForDailybuild
+        .triggerContract(contractAddress, "testArray(bytes32,bytes[],address[])", input, false,
             0,
-            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull, blockingStubFull1);
+            maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -654,8 +677,9 @@ public class batchValidateSignContract011 {
     logger.info("energyUsed:" + energyUsed);
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
-    Protocol.Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull1);
-    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethed
+    Protocol.Account infoafter = PublicMethedForDailybuild
+        .queryAccount(contractExcKey, blockingStubFull1);
+    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -668,17 +692,18 @@ public class batchValidateSignContract011 {
 
     if (infoById.get().getResultValue() == 0) {
       Assert.assertEquals("00000000000000000000000000000000",
-          PublicMethed.bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
+          PublicMethedForDailybuild
+              .bytes32ToString(infoById.get().getContractResult(0).toByteArray()));
       Assert.assertTrue(afterBalance + fee == beforeBalance);
     } else {
       Assert.assertTrue("CPU timeout for 'PUSH1' operation executing"
           .equals(infoById.get().getResMessage().toStringUtf8()) || "Already Time Out"
           .equals(infoById.get().getResMessage().toStringUtf8()));
       Assert.assertTrue(afterBalance == 0);
-      txid = PublicMethed
+      txid = PublicMethedForDailybuild
           .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
               testNetAccountKey, blockingStubFull);
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     }
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
@@ -690,9 +715,11 @@ public class batchValidateSignContract011 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    long balance = PublicMethed.queryAccount(contractExcKey, blockingStubFull).getBalance();
-    PublicMethed.sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
-        blockingStubFull);
+    long balance = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull)
+        .getBalance();
+    PublicMethedForDailybuild
+        .sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
+            blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

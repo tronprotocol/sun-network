@@ -18,7 +18,7 @@ import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class WalletTestAccount009 {
@@ -31,10 +31,10 @@ public class WalletTestAccount009 {
   private static String name = "AssetIssue012_" + Long.toString(now);
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] account009Address = ecKey1.getAddress();
   String account009Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -61,8 +61,8 @@ public class WalletTestAccount009 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(account009Key);
-    PublicMethed.printAddress(account009SecondKey);
+    PublicMethedForDailybuild.printAddress(account009Key);
+    PublicMethedForDailybuild.printAddress(account009SecondKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -72,29 +72,31 @@ public class WalletTestAccount009 {
 
   @Test(enabled = true)
   public void testGetEnergy() {
-    Assert.assertTrue(PublicMethed.sendcoin(account009Address, 10000000,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(account009Address, 10000000,
         fromAddress, testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(account009SecondAddress, 10000000,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(account009SecondAddress, 10000000,
         fromAddress, testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(account009InvalidAddress, 10000000,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(account009InvalidAddress, 10000000,
         fromAddress, testKey002, blockingStubFull));
 
-    Account account009Info = PublicMethed.queryAccount(account009Key, blockingStubFull);
+    Account account009Info = PublicMethedForDailybuild
+        .queryAccount(account009Key, blockingStubFull);
     logger.info(Long.toString(
         account009Info.getAccountResource().getFrozenBalanceForEnergy().getExpireTime()));
     Assert.assertTrue(account009Info.getAccountResource().getEnergyUsage() == 0);
     Assert.assertTrue(account009Info.getAccountResource().getFrozenBalanceForEnergy()
         .getExpireTime() == 0);
 
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(account009Address, 1000000L,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(account009Address, 1000000L,
         3, 1, account009Key, blockingStubFull));
-    account009Info = PublicMethed.queryAccount(account009Key, blockingStubFull);
+    account009Info = PublicMethedForDailybuild.queryAccount(account009Key, blockingStubFull);
     Assert.assertTrue(account009Info.getAccountResource().getEnergyUsage() == 0);
     Assert.assertTrue(account009Info.getAccountResource().getFrozenBalanceForEnergy()
         .getFrozenBalance() == 1000000L);
 
-    AccountResourceMessage account009Resource = PublicMethed.getAccountResource(account009Address,
-        blockingStubFull);
+    AccountResourceMessage account009Resource = PublicMethedForDailybuild
+        .getAccountResource(account009Address,
+            blockingStubFull);
     Assert.assertTrue(account009Resource.getTotalEnergyLimit() >= 50000000000L);
     Assert.assertTrue(account009Resource.getEnergyLimit() > 0);
     Assert.assertTrue(account009Resource.getTotalEnergyWeight() >= 1);
@@ -103,12 +105,14 @@ public class WalletTestAccount009 {
   @Test(enabled = true)
   public void testGetEnergyInvalid() {
     //The resourceCode can only be 0 or 1
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(account009InvalidAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceGetEnergy(account009InvalidAddress,
         1000000L, 3, 0, account009InvalidKey, blockingStubFull));
-    Assert.assertFalse(PublicMethed.freezeBalanceGetEnergy(account009InvalidAddress, 1000000L,
-        3, -1, account009InvalidKey, blockingStubFull));
-    Assert.assertFalse(PublicMethed.freezeBalanceGetEnergy(account009InvalidAddress, 1000000L,
-        3, 2, account009InvalidKey, blockingStubFull));
+    Assert.assertFalse(
+        PublicMethedForDailybuild.freezeBalanceGetEnergy(account009InvalidAddress, 1000000L,
+            3, -1, account009InvalidKey, blockingStubFull));
+    Assert.assertFalse(
+        PublicMethedForDailybuild.freezeBalanceGetEnergy(account009InvalidAddress, 1000000L,
+            3, 2, account009InvalidKey, blockingStubFull));
 
   }
 

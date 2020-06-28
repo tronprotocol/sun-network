@@ -12,19 +12,23 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.HttpMethed;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class HttpTestSmartContract001 {
 
   private static final long now = System.currentTimeMillis();
+  private final static String tokenId = Configuration.getByPath("testng.conf")
+      .getString("tokenFoundationAccount.slideTokenId");
   private static final long totalSupply = now;
   private static String name = "testAssetIssue002_" + Long.toString(now);
-  private static String assetIssueId;
   private static String contractName;
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
+  private final String tokenOwnerKey = Configuration.getByPath("testng.conf")
+      .getString("tokenFoundationAccount.slideTokenOwnerKey");
+  private final byte[] tokenOnwerAddress = PublicMethedForDailybuild.getFinalAddress(tokenOwnerKey);
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] assetOwnerAddress = ecKey2.getAddress();
   String assetOwnerKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
@@ -53,7 +57,7 @@ public class HttpTestSmartContract001 {
    */
   @Test(enabled = true, description = "Deploy smart contract by http")
   public void test1DeployContract() {
-    PublicMethed.printAddress(assetOwnerKey);
+    PublicMethedForDailybuild.printAddress(assetOwnerKey);
     HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.sendCoin(httpnode, fromAddress, assetOwnerAddress, amount, testKey002);
     response = HttpMethed.sendCoin(httpnode, fromAddress, assetReceiverAddress, amount, testKey002);
@@ -63,18 +67,10 @@ public class HttpTestSmartContract001 {
     response = HttpMethed
         .freezeBalance(httpnode, assetOwnerAddress, 100000000L, 3, 1, assetOwnerKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
-    response = HttpMethed.assetIssue(httpnode, assetOwnerAddress, name, name, totalSupply, 1, 1,
-        System.currentTimeMillis() + 5000, System.currentTimeMillis() + 50000000,
-        2, 3, description, url, 1000L, 1000L, assetOwnerKey);
-    Assert.assertTrue(HttpMethed.verificationResult(response));
 
+    HttpMethed.transferAsset(httpnode, tokenOnwerAddress, assetOwnerAddress, tokenId, 10000000L,
+        tokenOwnerKey);
     HttpMethed.waitToProduceOneBlock(httpnode);
-
-    response = HttpMethed.getAccount(httpnode, assetOwnerAddress);
-    responseContent = HttpMethed.parseResponseContent(response);
-    HttpMethed.printJsonContent(responseContent);
-
-    assetIssueId = responseContent.getString("asset_issued_ID");
 
     contractName = "transferTokenContract";
     String code = Configuration.getByPath("testng.conf")
@@ -86,15 +82,10 @@ public class HttpTestSmartContract001 {
     long callValue = 5000;
 
     //This deploy is test too large call_token_value will made the witness node cpu 100%
-    /*response = HttpMethed.deployContractGetTxidWithTooBigLong(httpnode,
-    contractName, abi, code, 1000000L,1000000000L, 100, 11111111111111L,
-        callValue, Integer.parseInt(assetIssueId), tokenValue, assetOwnerAddress, assetOwnerKey);
-    responseContent = HttpMethed.parseResponseContent(response);
-    Assert.assertTrue(responseContent.getString("Error").contains("Overflow"));*/
 
     String txid = HttpMethed.deployContractGetTxid(httpnode, contractName, abi, code, 1000000L,
         1000000000L, 100, 11111111111111L,
-        callValue, Integer.parseInt(assetIssueId), tokenValue, assetOwnerAddress, assetOwnerKey);
+        callValue, Integer.parseInt(tokenId), tokenValue, assetOwnerAddress, assetOwnerKey);
 
     HttpMethed.waitToProduceOneBlock(httpnode);
     logger.info(txid);
@@ -138,7 +129,7 @@ public class HttpTestSmartContract001 {
     String addressParam = "000000000000000000000000" + hexReceiverAddress.substring(2);//[0,3)
 
     String tokenIdParam = "00000000000000000000000000000000000000000000000000000000000"
-        + Integer.toHexString(Integer.parseInt(assetIssueId));
+        + Integer.toHexString(Integer.parseInt(tokenId));
 
     String tokenValueParam = "0000000000000000000000000000000000000000000000000000000000000001";
     logger.info(addressParam);
@@ -149,10 +140,9 @@ public class HttpTestSmartContract001 {
     Long callValue = 10L;
     String txid = HttpMethed.triggerContractGetTxid(httpnode, assetOwnerAddress, contractAddress,
         "TransferTokenTo(address,trcToken,uint256)",
-        param, 1000000000L, callValue, Integer.parseInt(assetIssueId), 20L, assetOwnerKey);
+        param, 1000000000L, callValue, Integer.parseInt(tokenId), 20L, assetOwnerKey);
 
     HttpMethed.waitToProduceOneBlock(httpnode);
-    //String txid = "49a30653d6e648da1e9a104b051b1b55c185fcaa0c2885405ae1d2fb258e3b3c";
     logger.info(txid);
     response = HttpMethed.getTransactionById(httpnode, txid);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -188,16 +178,16 @@ public class HttpTestSmartContract001 {
     String hexReceiverAddress = ByteArray.toHexString(assetReceiverAddress);
     String addressParam = "000000000000000000000000" + hexReceiverAddress.substring(2);//[0,3)
     String tokenIdParam = "00000000000000000000000000000000000000000000000000000000000"
-        + Integer.toHexString(Integer.parseInt(assetIssueId));
+        + Integer.toHexString(Integer.parseInt(tokenId));
     String tokenValueParam = "0000000000000000000000000000000000000000000000000000000000000001";
     String param = addressParam + tokenIdParam + tokenValueParam;
     Long callValue = 10L;
     String txid1 = HttpMethed.triggerContractGetTxid(httpnode, assetOwnerAddress, contractAddress,
         "TransferTokenTo(address,trcToken,uint256)",
-        param, 1000000000L, callValue, Integer.parseInt(assetIssueId), 20L, assetOwnerKey);
+        param, 1000000000L, callValue, Integer.parseInt(tokenId), 20L, assetOwnerKey);
     String txid2 = HttpMethed.triggerContractGetTxid(httpnode, assetOwnerAddress, contractAddress,
         "TransferTokenTo(address,trcToken,uint256)",
-        param, 1000000000L, callValue, Integer.parseInt(assetIssueId), 20L, assetOwnerKey);
+        param, 1000000000L, callValue, Integer.parseInt(tokenId), 20L, assetOwnerKey);
     HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.getTransactionInfoById(httpnode, txid1);
     HttpResponse response2 = HttpMethed.getTransactionInfoById(httpnode, txid2);
@@ -232,16 +222,16 @@ public class HttpTestSmartContract001 {
     String hexReceiverAddress = ByteArray.toHexString(assetReceiverAddress);
     String addressParam = "000000000000000000000000" + hexReceiverAddress.substring(2);//[0,3)
     String tokenIdParam = "00000000000000000000000000000000000000000000000000000000000"
-        + Integer.toHexString(Integer.parseInt(assetIssueId));
+        + Integer.toHexString(Integer.parseInt(tokenId));
     String tokenValueParam = "0000000000000000000000000000000000000000000000000000000000000001";
     String param = addressParam + tokenIdParam + tokenValueParam;
     Long callValue = 10L;
     String txid1 = HttpMethed.triggerContractGetTxid(httpnode, assetOwnerAddress, contractAddress,
         "TransferTokenTo(address,trcToken,uint256)",
-        param, 1000000000L, callValue, Integer.parseInt(assetIssueId), 20L, assetOwnerKey);
+        param, 1000000000L, callValue, Integer.parseInt(tokenId), 20L, assetOwnerKey);
     String txid2 = HttpMethed.triggerContractGetTxid(httpnode, assetOwnerAddress, contractAddress,
         "TransferTokenTo(address,trcToken,uint256)",
-        param, 1000000000L, callValue, Integer.parseInt(assetIssueId), 20L, assetOwnerKey);
+        param, 1000000000L, callValue, Integer.parseInt(tokenId), 20L, assetOwnerKey);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
     response = HttpMethed.getTransactionInfoById(httpnode, txid1);
     HttpResponse response2 = HttpMethed.getTransactionInfoById(httpnode, txid2);
@@ -277,16 +267,16 @@ public class HttpTestSmartContract001 {
     String hexReceiverAddress = ByteArray.toHexString(assetReceiverAddress);
     String addressParam = "000000000000000000000000" + hexReceiverAddress.substring(2);//[0,3)
     String tokenIdParam = "00000000000000000000000000000000000000000000000000000000000"
-        + Integer.toHexString(Integer.parseInt(assetIssueId));
+        + Integer.toHexString(Integer.parseInt(tokenId));
     String tokenValueParam = "0000000000000000000000000000000000000000000000000000000000000001";
     String param = addressParam + tokenIdParam + tokenValueParam;
     Long callValue = 10L;
     String txid1 = HttpMethed.triggerContractGetTxid(httpnode, assetOwnerAddress, contractAddress,
         "TransferTokenTo(address,trcToken,uint256)",
-        param, 1000000000L, callValue, Integer.parseInt(assetIssueId), 20L, assetOwnerKey);
+        param, 1000000000L, callValue, Integer.parseInt(tokenId), 20L, assetOwnerKey);
     String txid2 = HttpMethed.triggerContractGetTxid(httpnode, assetOwnerAddress, contractAddress,
         "TransferTokenTo(address,trcToken,uint256)",
-        param, 1000000000L, callValue, Integer.parseInt(assetIssueId), 20L, assetOwnerKey);
+        param, 1000000000L, callValue, Integer.parseInt(tokenId), 20L, assetOwnerKey);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpRealSolidityNode);
     response = HttpMethed.getTransactionInfoById(httpnode, txid1);
     HttpResponse response2 = HttpMethed.getTransactionInfoById(httpnode, txid2);
@@ -368,8 +358,6 @@ public class HttpTestSmartContract001 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    HttpMethed.freedResource(httpnode, assetOwnerAddress, fromAddress, assetOwnerKey);
-    HttpMethed.freedResource(httpnode, assetReceiverAddress, fromAddress, assetReceiverKey);
     HttpMethed.disConnect();
   }
 }

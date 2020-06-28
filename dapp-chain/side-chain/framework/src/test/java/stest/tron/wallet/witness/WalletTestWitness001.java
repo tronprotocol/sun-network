@@ -20,7 +20,9 @@ import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.DBConfig;
 import org.tron.core.Wallet;
+import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Transaction;
@@ -31,7 +33,8 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
+import stest.tron.wallet.common.client.utils.Sha256Hash;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
 
 @Slf4j
@@ -39,14 +42,15 @@ public class WalletTestWitness001 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   private final String witnessKey001 = Configuration.getByPath("testng.conf")
       .getString("witness.key1");
-  private final byte[] witnessAddress = PublicMethed.getFinalAddress(witnessKey001);
-
+  private final byte[] witnessAddress = PublicMethedForDailybuild.getFinalAddress(witnessKey001);
+  public static final String mainGateWay = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.chainIdAddress");
 
   private ManagedChannel channelFull = null;
   private ManagedChannel searchChannelFull = null;
@@ -107,9 +111,9 @@ public class WalletTestWitness001 {
     //Assert.assertFalse(VoteWitness(smallVoteMap, NO_FROZEN_ADDRESS, no_frozen_balance_testKey));
 
     //Freeze balance to get vote ability.
-    Assert.assertTrue(PublicMethed.freezeBalance(fromAddress, 1200000L, 3L,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(fromAddress, 1200000L, 3L,
         testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     //Vote failed when the vote is large than the freeze balance.
     Assert.assertFalse(voteWitness(veryLargeMap, fromAddress, testKey002));
     //Vote failed due to 0 vote.
@@ -394,13 +398,21 @@ public class WalletTestWitness001 {
 
   }
 
-  private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
+  public static Protocol.Transaction signTransaction(ECKey ecKey,
+      Protocol.Transaction transaction) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     if (ecKey == null || ecKey.getPrivKey() == null) {
-      logger.warn("Warning: Can't sign,there is no private key !!");
+      //logger.warn("Warning: Can't sign,there is no private key !!");
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    return TransactionUtils.sign(transaction, ecKey);
+    logger.info("Txid in sign is " + ByteArray.toHexString(Sha256Hash.hash(
+        DBConfig.isECKeyCryptoEngine(), transaction
+            .getRawData().toByteArray())));
+    boolean isSideChain = false;
+    return TransactionUtils
+        .sign(transaction, ecKey, Wallet.decodeFromBase58Check(mainGateWay), isSideChain);
+    //return TransactionUtils.sign(transaction, ecKey);
   }
 }
 

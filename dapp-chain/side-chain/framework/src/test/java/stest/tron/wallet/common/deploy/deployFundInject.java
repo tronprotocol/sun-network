@@ -2,6 +2,8 @@ package stest.tron.wallet.common.deploy;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.util.HashMap;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -13,9 +15,6 @@ import org.tron.protos.Protocol.SideChainParameters;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.PublicMethed;
-
-import java.util.HashMap;
-import java.util.Optional;
 
 @Slf4j
 public class deployFundInject {

@@ -20,14 +20,14 @@ import org.tron.core.Wallet;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class constructorDefaultsTest {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] dev001Address = ecKey1.getAddress();
   String dev001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -50,7 +50,7 @@ public class constructorDefaultsTest {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(dev001Key);
+    PublicMethedForDailybuild.printAddress(dev001Key);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -59,32 +59,32 @@ public class constructorDefaultsTest {
 
   @Test(enabled = true, description = "Constructor default test")
   public void Test01ConstructorDefault() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(dev001Address, 200000000L, fromAddress, testKey002, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address,
         blockingStubFull);
     String filePath = "./src/test/resources/soliditycode/ConstructorDefaults.sol";
     String contractName = "testIsContract";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
     String constructorStr = "constructor(bool)";
     String data = "0";
-    String txid = PublicMethed
+    String txid = PublicMethedForDailybuild
         .deployContractWithConstantParame(contractName, abi, code, constructorStr, data, "",
             maxFeeLimit, 0L, 100, null, dev001Key, dev001Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     byte[] contractaddress = null;
-    Optional<TransactionInfo> info = PublicMethed
+    Optional<TransactionInfo> info = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
     logger.info(info.toString());
     Assert.assertTrue(info.get().getResultValue() == 0);
     data = "false";
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .deployContractWithConstantParame(contractName, abi, code, constructorStr, data, "",
             maxFeeLimit, 0L, 100, null, dev001Key, dev001Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    info = PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    info = PublicMethedForDailybuild
         .getTransactionInfoById(txid, blockingStubFull);
     logger.info(info.toString());
     Assert.assertTrue(info.get().getResultValue() == 0);
@@ -97,8 +97,8 @@ public class constructorDefaultsTest {
 
   @AfterClass
   public void shutdown() throws InterruptedException {
-    long balance = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
-    PublicMethed.sendcoin(fromAddress, balance, dev001Address, dev001Key,
+    long balance = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull).getBalance();
+    PublicMethedForDailybuild.sendcoin(fromAddress, balance, dev001Address, dev001Key,
         blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);

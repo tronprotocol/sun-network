@@ -28,14 +28,15 @@ import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class TriggerConstant001 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
   byte[] contractAddressNoAbi = null;
   byte[] contractAddressWithAbi = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -72,7 +73,7 @@ public class TriggerConstant001 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(contractExcKey);
+    PublicMethedForDailybuild.printAddress(contractExcKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext(true).build();
@@ -86,31 +87,31 @@ public class TriggerConstant001 {
     blockingStubRealSolidity = WalletSolidityGrpc.newBlockingStub(channelRealSolidity);
 
     {
-      Assert.assertTrue(PublicMethed
+      Assert.assertTrue(PublicMethedForDailybuild
           .sendcoin(contractExcAddress, 10000_000_000L, testNetAccountAddress, testNetAccountKey,
               blockingStubFull));
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
       String filePath = "src/test/resources/soliditycode/TriggerConstant001.sol";
       String contractName = "testConstantContract";
-      HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+      HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
       String code = retMap.get("byteCode").toString();
       final String abi = retMap.get("abI").toString();
 
-      contractAddressNoAbi = PublicMethed
+      contractAddressNoAbi = PublicMethedForDailybuild
           .deployContract(contractName, "[]", code, "", maxFeeLimit, 0L, 100, null, contractExcKey,
               contractExcAddress, blockingStubFull);
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
-      SmartContract smartContract = PublicMethed
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+      SmartContract smartContract = PublicMethedForDailybuild
           .getContract(contractAddressNoAbi, blockingStubFull);
       Assert.assertTrue(smartContract.getAbi().toString().isEmpty());
       Assert.assertTrue(smartContract.getName().equalsIgnoreCase(contractName));
       Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
 
-      contractAddressWithAbi = PublicMethed
+      contractAddressWithAbi = PublicMethedForDailybuild
           .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null, contractExcKey,
               contractExcAddress, blockingStubFull);
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
-      SmartContract smartContract2 = PublicMethed
+      PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+      SmartContract smartContract2 = PublicMethedForDailybuild
           .getContract(contractAddressWithAbi, blockingStubFull);
       Assert.assertFalse(smartContract2.getAbi().toString().isEmpty());
       Assert.assertTrue(smartContract2.getName().equalsIgnoreCase(contractName));
@@ -124,7 +125,7 @@ public class TriggerConstant001 {
 
     String txid = "";
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressNoAbi, "testPayable()", "#", false, 0,
             0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     System.out.println("Code = " + transactionExtention.getResult().getCode());
@@ -139,7 +140,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a payable function"
       + " without ABI on solidity")
   public void test01TriggerConstantContractOnSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressNoAbi, "testPayable()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
     System.out.println("Code = " + transactionExtention.getResult().getCode());
@@ -154,7 +155,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a payable function"
       + " without ABI on real solidity")
   public void test01TriggerConstantContractOnRealSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressNoAbi, "testPayable()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubRealSolidity);
     System.out.println("Code = " + transactionExtention.getResult().getCode());
@@ -170,7 +171,7 @@ public class TriggerConstant001 {
       + " without ABI")
   public void test02TriggerConstantContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressNoAbi, "testNoPayable()", "#", false, 0,
             0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     System.out.println("Code = " + transactionExtention.getResult().getCode());
@@ -185,7 +186,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a non-payable function"
       + " without ABI on solidity")
   public void test02TriggerConstantContractOnSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressNoAbi, "testNoPayable()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
     System.out.println("Code = " + transactionExtention.getResult().getCode());
@@ -200,7 +201,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a non-payable function"
       + " without ABI on real solidity")
   public void test02TriggerConstantContractOnRealSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressNoAbi, "testNoPayable()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubRealSolidity);
     System.out.println("Code = " + transactionExtention.getResult().getCode());
@@ -215,7 +216,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a view function without ABI")
   public void test03TriggerConstantContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressNoAbi, "testView()", "#", false, 0, 0,
             "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -233,7 +234,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a view function"
       + " without ABI on solidity")
   public void test03TriggerConstantContractOnSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressNoAbi, "testView()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
 
@@ -251,7 +252,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a view function"
       + " without ABI on real solidity")
   public void test03TriggerConstantContractOnRealSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressNoAbi, "testView()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubRealSolidity);
 
@@ -269,7 +270,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a pure function without ABI")
   public void test04TriggerConstantContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressNoAbi, "testPure()", "#", false, 0, 0,
             "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -291,7 +292,7 @@ public class TriggerConstant001 {
       + " without ABI on solidity")
   public void test04TriggerConstantContractOnSolidity() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressNoAbi, "testPure()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
 
@@ -312,7 +313,7 @@ public class TriggerConstant001 {
       + " without ABI on real solidity")
   public void test04TriggerConstantContractOnRealSolidity() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressNoAbi, "testPure()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubRealSolidity);
 
@@ -332,7 +333,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a payable function with ABI")
   public void test05TriggerConstantContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressNoAbi, "testPayable()", "#", false, 0,
             0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     System.out.println("Code = " + transactionExtention.getResult().getCode());
@@ -342,7 +343,7 @@ public class TriggerConstant001 {
         containsString("SUCCESS"));
     /*Assert.assertThat(transactionExtention.getResult().getMessage().toStringUtf8(),
         containsString("Attempt to call a state modifying opcode inside STATICCALL"));*/
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
 
   }
@@ -350,7 +351,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a payable function"
       + " with ABI on solidity")
   public void test05TriggerConstantContractOnSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressNoAbi, "testPayable()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
     System.out.println("Code = " + transactionExtention.getResult().getCode());
@@ -360,13 +361,13 @@ public class TriggerConstant001 {
         containsString("SUCCESS"));
     /*Assert.assertThat(transactionExtention.getResult().getMessage().toStringUtf8(),
         containsString("Attempt to call a state modifying opcode inside STATICCALL"));*/
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
   }
 
   @Test(enabled = true, description = "TriggerConstantContract a payable function"
       + " with ABI on real solidity")
   public void test05TriggerConstantContractOnRealSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressNoAbi, "testPayable()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubRealSolidity);
     System.out.println("Code = " + transactionExtention.getResult().getCode());
@@ -376,13 +377,13 @@ public class TriggerConstant001 {
         containsString("SUCCESS"));
     /*Assert.assertThat(transactionExtention.getResult().getMessage().toStringUtf8(),
         containsString("Attempt to call a state modifying opcode inside STATICCALL"));*/
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
   }
 
   @Test(enabled = true, description = "TriggerConstantContract a non-payable function with ABI")
   public void test06TriggerConstantContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressWithAbi, "testNoPayable()", "#", false,
             0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
     System.out.println("Code = " + transactionExtention.getResult().getCode());
@@ -392,7 +393,7 @@ public class TriggerConstant001 {
         containsString("SUCCESS"));
     /*Assert.assertThat(transactionExtention.getResult().getMessage().toStringUtf8(),
         containsString("Attempt to call a state modifying opcode inside STATICCALL"));*/
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
 
   }
@@ -400,7 +401,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a non-payable function"
       + " with ABI on solidity")
   public void test06TriggerConstantContractOnSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressWithAbi, "testNoPayable()",
             "#", false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
     System.out.println("Code = " + transactionExtention.getResult().getCode());
@@ -410,13 +411,13 @@ public class TriggerConstant001 {
         containsString("SUCCESS"));
     /*Assert.assertThat(transactionExtention.getResult().getMessage().toStringUtf8(),
         containsString("Attempt to call a state modifying opcode inside STATICCALL"));*/
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
   }
 
   @Test(enabled = true, description = "TriggerConstantContract a non-payable function"
       + " with ABI on real solidity")
   public void test06TriggerConstantContractOnRealSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressWithAbi, "testNoPayable()",
             "#", false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubRealSolidity);
     System.out.println("Code = " + transactionExtention.getResult().getCode());
@@ -426,13 +427,13 @@ public class TriggerConstant001 {
         containsString("SUCCESS"));
     /*Assert.assertThat(transactionExtention.getResult().getMessage().toStringUtf8(),
         containsString("Attempt to call a state modifying opcode inside STATICCALL"));*/
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
   }
 
   @Test(enabled = true, description = "TriggerConstantContract a view function with ABI")
   public void test07TriggerConstantContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressWithAbi, "testView()", "#", false, 0, 0,
             "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -452,7 +453,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a view function"
       + " with ABI on solidity")
   public void test07TriggerConstantContractOnSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressWithAbi, "testView()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
 
@@ -470,7 +471,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a view function"
       + " with ABI on real solidity")
   public void test07TriggerConstantContractOnRealSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressWithAbi, "testView()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubRealSolidity);
 
@@ -488,47 +489,10 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a pure function with ABI")
   public void test08TriggerConstantContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
-        .triggerConstantContractForExtention(contractAddressWithAbi, "testPure()", "#", false, 0, 0,
-            "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
-
-    Transaction transaction = transactionExtention.getTransaction();
-
-    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
-    System.out.println("message:" + transaction.getRet(0).getRet());
-    System.out.println(
-        ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
-    System.out.println("Result:" + Hex.toHexString(result));
-
-    Assert.assertEquals(1, ByteArray.toLong(ByteArray.fromHexString(Hex.toHexString(result))));
-
-
-  }
-
-  @Test(enabled = true, description = "TriggerConstantContract a pure function"
-      + " with ABI on solidity")
-  public void test08TriggerConstantContractOnSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
-        .triggerConstantContractForExtentionOnSolidity(contractAddressWithAbi, "testPure()", "#",
-            false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
-
-    Transaction transaction = transactionExtention.getTransaction();
-
-    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
-    System.out.println("message:" + transaction.getRet(0).getRet());
-    System.out.println(
-        ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
-    System.out.println("Result:" + Hex.toHexString(result));
-
-    Assert.assertEquals(1, ByteArray.toLong(ByteArray.fromHexString(Hex.toHexString(result))));
-  }
-
-  @Test(enabled = true, description = "TriggerConstantContract a pure function"
-      + " with ABI on real solidity")
-  public void test08TriggerConstantContractOnRealSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
-        .triggerConstantContractForExtentionOnSolidity(contractAddressWithAbi, "testPure()", "#",
-            false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubRealSolidity);
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
+        .triggerConstantContractForExtention(contractAddressWithAbi,
+            "testPure()", "#", false,
+            0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
     Transaction transaction = transactionExtention.getTransaction();
 
@@ -545,9 +509,9 @@ public class TriggerConstant001 {
   public void test09TriggerContract() {
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -558,13 +522,13 @@ public class TriggerConstant001 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .triggerContract(contractAddressNoAbi, "testPayable()", "#", false, 0, maxFeeLimit, "0", 0,
             contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -577,8 +541,8 @@ public class TriggerConstant001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -605,9 +569,9 @@ public class TriggerConstant001 {
   public void test10TriggerContract() {
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -618,13 +582,13 @@ public class TriggerConstant001 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .triggerContract(contractAddressNoAbi, "testNoPayable()", "#", false, 0, maxFeeLimit, "0",
             0, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -637,8 +601,8 @@ public class TriggerConstant001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -666,9 +630,9 @@ public class TriggerConstant001 {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -679,13 +643,13 @@ public class TriggerConstant001 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .triggerContract(contractAddressNoAbi, "testView()", "#", false, 0, maxFeeLimit, "0", 0,
             contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -698,8 +662,8 @@ public class TriggerConstant001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -727,9 +691,9 @@ public class TriggerConstant001 {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -740,13 +704,13 @@ public class TriggerConstant001 {
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
 
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .triggerContract(contractAddressNoAbi, "testPure()", "#", false, 0, maxFeeLimit, "0", 0,
             contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -759,8 +723,8 @@ public class TriggerConstant001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -786,7 +750,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerContract a pure function with ABI")
   public void test18TriggerContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerContractForExtention(contractAddressWithAbi, "testPure()", "#", false, 0,
             maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -807,9 +771,9 @@ public class TriggerConstant001 {
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -819,13 +783,13 @@ public class TriggerConstant001 {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .triggerContract(contractAddressWithAbi, "testPayable()", "#", false, 0, maxFeeLimit, "0",
             0, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -838,8 +802,8 @@ public class TriggerConstant001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -865,9 +829,9 @@ public class TriggerConstant001 {
   public void test20TriggerContract() {
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
-    info = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -877,13 +841,13 @@ public class TriggerConstant001 {
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
     String txid = "";
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .triggerContract(contractAddressNoAbi, "testNoPayable()", "#", false, 0, maxFeeLimit, "0",
             0, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
     Long netUsed = infoById.get().getReceipt().getNetUsage();
     Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
@@ -896,8 +860,8 @@ public class TriggerConstant001 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed
+    Account infoafter = PublicMethedForDailybuild.queryAccount(contractExcKey, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(contractExcAddress, blockingStubFull);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -922,7 +886,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerContract a view function with ABI")
   public void test21TriggerConstantContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerContractForExtention(contractAddressWithAbi, "testView()", "#", false, 0,
             maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -940,7 +904,7 @@ public class TriggerConstant001 {
 
   @Test(enabled = true, description = "TriggerContract a view function with ABI on solidity")
   public void test21TriggerConstantContractOnSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressWithAbi, "testView()", "#",
             false, 0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey,
             blockingStubSolidity);
@@ -958,7 +922,7 @@ public class TriggerConstant001 {
 
   @Test(enabled = true, description = "TriggerContract a view function with ABI on real solidity")
   public void test21TriggerConstantContractOnRealSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressWithAbi, "testView()", "#",
             false, 0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey,
             blockingStubRealSolidity);
@@ -978,7 +942,7 @@ public class TriggerConstant001 {
       + "revert()")
   public void test24TriggerConstantContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressWithAbi, "testView2()", "#", false, 0,
             0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -999,7 +963,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a view method with ABI ,method has "
       + "revert() on solidity")
   public void test24TriggerConstantContractOnSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressWithAbi, "testView2()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
 
@@ -1018,7 +982,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a view method with ABI ,method has "
       + "revert() on real solidity")
   public void test24TriggerConstantContractOnRealSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressWithAbi, "testView2()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubRealSolidity);
 
@@ -1038,7 +1002,7 @@ public class TriggerConstant001 {
       + "revert()")
   public void test25TriggerConstantContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerContractForExtention(contractAddressWithAbi, "testView2()", "#", false, 0, 0, "0",
             0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -1057,7 +1021,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerContract a view method with ABI ,method has "
       + "revert() on solidity")
   public void test25TriggerConstantContractOnSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressWithAbi, "testView2()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
 
@@ -1076,7 +1040,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerContract a view method with ABI ,method has "
       + "revert() on real solidity")
   public void test25TriggerConstantContractOnRealSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressWithAbi, "testView2()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubRealSolidity);
 
@@ -1096,7 +1060,7 @@ public class TriggerConstant001 {
       + "revert()")
   public void testTriggerConstantContract() {
 
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtention(contractAddressNoAbi, "testView2()", "#", false, 0, 0,
             "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
@@ -1118,7 +1082,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a view method without ABI,method has"
       + "revert() on solidity")
   public void testTriggerConstantContractOnSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressNoAbi, "testView2()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
 
@@ -1138,7 +1102,7 @@ public class TriggerConstant001 {
   @Test(enabled = true, description = "TriggerConstantContract a view method without ABI,method has"
       + "revert() on real solidity")
   public void testTriggerConstantContractOnRealSolidity() {
-    TransactionExtention transactionExtention = PublicMethed
+    TransactionExtention transactionExtention = PublicMethedForDailybuild
         .triggerConstantContractForExtentionOnSolidity(contractAddressNoAbi, "testView2()", "#",
             false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubRealSolidity);
 

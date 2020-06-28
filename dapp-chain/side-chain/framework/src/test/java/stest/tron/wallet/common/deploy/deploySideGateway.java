@@ -31,13 +31,13 @@ public class deploySideGateway {
 
 
     private final String oracleKey = Configuration.getByPath("testng.conf")
-            .getString("oralceAccountKey.key1");
+        .getString("oralceAccountKey.key1");
     private final byte[] oracleAddress = PublicMethed.getFinalAddress(oracleKey);
     private final String foundationKey003 = Configuration.getByPath("testng.conf")
-            .getString("foundationAccount.key3");
+        .getString("foundationAccount.key3");
     private final byte[] foundationAddress003 = PublicMethed.getFinalAddress(foundationKey003);
     private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-            .getLong("defaultParameter.maxFeeLimit");
+        .getLong("defaultParameter.maxFeeLimit");
     private ManagedChannel channelFull = null;
     private WalletGrpc.WalletBlockingStub blockingStubFull = null;
 
@@ -45,7 +45,7 @@ public class deploySideGateway {
     private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
 
     private String fullnode = Configuration.getByPath("testng.conf")
-            .getStringList("fullnode.ip.list").get(1);
+        .getStringList("fullnode.ip.list").get(1);
 
     @BeforeSuite
     public void beforeSuite() {
@@ -60,15 +60,15 @@ public class deploySideGateway {
     @BeforeClass(enabled = true)
     public void beforeClass() {
         channelFull = ManagedChannelBuilder.forTarget(fullnode)
-                .usePlaintext(true)
-                .build();
+            .usePlaintext(true)
+            .build();
         blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     }
 
     @Test(enabled = true, description = "deploy Side Chain Gateway")
     public void test1DepositTrc20001() {
         String mainChainAddress = Configuration.getByPath("testng.conf")
-                .getString("gateway_address.chainIdAddress");
+            .getString("gateway_address.chainIdAddress");
     /*try {
       File mainChainFile = new File("/home/mainChainGatewayAddress");
       FileReader reader = new FileReader(mainChainFile);
@@ -101,14 +101,14 @@ public class deploySideGateway {
             }
 
             String deployTxid = PublicMethed
-                    .deploySideContractWithConstantParame(contractName, abi, code, "#",
-                            "#", "", maxFeeLimit, 0L, 100,
-                            null, foundationKey003, foundationAddress003, mainChainAddress, blockingStubFull);
+                .deploySideContractWithConstantParame(contractName, abi, code, "#",
+                    "#", "", maxFeeLimit, 0L, 100,
+                    null, foundationKey003, foundationAddress003, mainChainAddress, blockingStubFull);
             PublicMethed.waitProduceNextBlock(blockingStubFull);
             PublicMethed.waitProduceNextBlock(blockingStubFull);
 
             Optional<TransactionInfo> infoById = PublicMethed
-                    .getTransactionInfoById(deployTxid, blockingStubFull);
+                .getTransactionInfoById(deployTxid, blockingStubFull);
             logger.info("infoById: " + infoById);
             byte[] sideChainGateway = infoById.get().getContractAddress().toByteArray();
             sideChainGatewayAddress = WalletClient.encode58Check(sideChainGateway);
@@ -118,11 +118,11 @@ public class deploySideGateway {
             } else {
                 byte[] input = Hex.decode(AbiUtil.parseMethod("addOracle(address)", parame, false));
                 String triggerTxid1 = PublicMethed.triggerContractSideChain(sideChainGateway,
-                        WalletClient.decodeFromBase58Check(mainChainAddress), 0, input, maxFeeLimit,
-                        0, "0", foundationAddress003, foundationKey003, blockingStubFull);
+                    WalletClient.decodeFromBase58Check(mainChainAddress), 0, input, maxFeeLimit,
+                    0, "0", foundationAddress003, foundationKey003, blockingStubFull);
                 PublicMethed.waitProduceNextBlock(blockingStubFull);
                 Optional<TransactionInfo> infoById1 = PublicMethed
-                        .getTransactionInfoById(triggerTxid1, blockingStubFull);
+                    .getTransactionInfoById(triggerTxid1, blockingStubFull);
                 if (triggerTxid1 == null || infoById1.get().getResultValue() == 1) {
                     count += 1;
                     continue;

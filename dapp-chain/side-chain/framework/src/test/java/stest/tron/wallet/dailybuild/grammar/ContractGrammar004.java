@@ -35,7 +35,7 @@ import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractGrammar004 {
@@ -43,7 +43,8 @@ public class ContractGrammar004 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] grammarAddress = ecKey1.getAddress();
@@ -75,7 +76,7 @@ public class ContractGrammar004 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(testKeyForGrammarAddress);
+    PublicMethedForDailybuild.printAddress(testKeyForGrammarAddress);
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext(true).build();
@@ -84,35 +85,37 @@ public class ContractGrammar004 {
 
   @Test(enabled = true, description = "ContractResult is OUT_OF_TIME")
   public void test1Grammar001() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(grammarAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
     String filePath = "./src/test/resources/soliditycode/walletTestMutiSign004.sol";
     String contractName = "timeoutTest";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    byte[] contractAddress = PublicMethed
+    byte[] contractAddress = PublicMethedForDailybuild
         .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null,
             testKeyForGrammarAddress, grammarAddress, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(contractAddress, blockingStubFull);
     org.testng.Assert.assertTrue(smartContract.getAbi().toString() != null);
     String txid = null;
     Optional<TransactionInfo> infoById = null;
     String initParmes = "\"" + "100000" + "\"";
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .triggerContract(contractAddress, "testUseCpu(uint256)", initParmes, false, 0, maxFeeLimit,
             grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("Txid is " + txid);
     logger.info("Trigger energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
-    Optional<Transaction> byId = PublicMethed.getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> byId = PublicMethedForDailybuild
+        .getTransactionById(txid, blockingStubFull);
     logger.info("getRet：" + byId.get().getRet(0));
     logger.info("getNumber：" + byId.get().getRet(0).getContractRet().getNumber());
     logger.info("getContractRetValue：" + byId.get().getRet(0).getContractRetValue());
@@ -137,30 +140,32 @@ public class ContractGrammar004 {
   public void test2Grammar002() {
     String filePath = "./src/test/resources/soliditycode/testOutOfMem.sol";
     String contractName = "Test";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    byte[] contractAddress = PublicMethed
+    byte[] contractAddress = PublicMethedForDailybuild
         .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null,
             testKeyForGrammarAddress, grammarAddress, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(contractAddress, blockingStubFull);
     org.testng.Assert.assertTrue(smartContract.getAbi().toString() != null);
     String txid = null;
     Optional<TransactionInfo> infoById = null;
     String initParmes = "\"" + "31457280" + "\"";
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .triggerContract(contractAddress, "testOutOfMem(uint256)", initParmes, false, 0,
             maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("Txid is " + txid);
     logger.info("Trigger energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
-    Optional<Transaction> byId = PublicMethed.getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> byId = PublicMethedForDailybuild
+        .getTransactionById(txid, blockingStubFull);
     logger.info("getRet：" + byId.get().getRet(0));
     logger.info("getNumber：" + byId.get().getRet(0).getContractRet().getNumber());
     logger.info("getContractRetValue：" + byId.get().getRet(0).getContractRetValue());
@@ -202,24 +207,26 @@ public class ContractGrammar004 {
         + "\":[],\"name\":\"testBadJumpDestination\",\"outputs\":[],\"payable\":false,\"stateMutab"
         + "ility\":\"nonpayable\",\"type\":\"function\"}]";
 
-    byte[] contractAddress = PublicMethed
+    byte[] contractAddress = PublicMethedForDailybuild
         .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null,
             testKeyForGrammarAddress, grammarAddress, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    SmartContract smartContract = PublicMethedForDailybuild
+        .getContract(contractAddress, blockingStubFull);
     org.testng.Assert.assertTrue(smartContract.getAbi().toString() != null);
     String txid = null;
     Optional<TransactionInfo> infoById = null;
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .triggerContract(contractAddress, "testBadJumpDestination()", "#", false, 0, maxFeeLimit,
             grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("Txid is " + txid);
     logger.info("Trigger energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
-    Optional<Transaction> byId = PublicMethed.getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> byId = PublicMethedForDailybuild
+        .getTransactionById(txid, blockingStubFull);
     logger.info("getRet：" + byId.get().getRet(0));
     logger.info("getNumber：" + byId.get().getRet(0).getContractRet().getNumber());
     logger.info("getContractRetValue：" + byId.get().getRet(0).getContractRetValue());
@@ -248,19 +255,20 @@ public class ContractGrammar004 {
 
     String filePath = "src/test/resources/soliditycode/contractUnknownException.sol";
     String contractName = "testC";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    String txid = PublicMethed
+    String txid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit, 20L, 100,
             null, testKeyForGrammarAddress, grammarAddress, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("Txid is " + txid);
     logger.info("Trigger energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
-    Optional<Transaction> byId = PublicMethed.getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> byId = PublicMethedForDailybuild
+        .getTransactionById(txid, blockingStubFull);
     logger.info("getRet：" + byId.get().getRet(0));
     logger.info("getNumber：" + byId.get().getRet(0).getContractRet().getNumber());
     logger.info("getContractRetValue：" + byId.get().getRet(0).getContractRetValue());
@@ -287,27 +295,28 @@ public class ContractGrammar004 {
 
     String filePath = "src/test/resources/soliditycode/assertExceptiontest1DivideInt.sol";
     String contractName = "divideIHaveArgsReturnStorage";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed
+    contractAddress = PublicMethedForDailybuild
         .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null,
             testKeyForGrammarAddress, grammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String txid = "";
     String num = "4" + "," + "0";
 
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .triggerContract(contractAddress, "divideIHaveArgsReturn(int256,int256)", num, false, 0,
             maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infoById：" + infoById);
-    Optional<Transaction> byId = PublicMethed.getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> byId = PublicMethedForDailybuild
+        .getTransactionById(txid, blockingStubFull);
     logger.info("getRet：" + byId.get().getRet(0));
     logger.info("getNumber：" + byId.get().getRet(0).getContractRet().getNumber());
     logger.info("getContractRetValue：" + byId.get().getRet(0).getContractRetValue());
@@ -330,22 +339,23 @@ public class ContractGrammar004 {
     String filePath =
         "src/test/resources/soliditycode/requireExceptiontest1TestRequireContract.sol";
     String contractName = "TestThrowsContract";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed
+    contractAddress = PublicMethedForDailybuild
         .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null,
             testKeyForGrammarAddress, grammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    final String txid = PublicMethed
+    final String txid = PublicMethedForDailybuild
         .triggerContract(contractAddress, "testRequire()", "#", false, 0, maxFeeLimit,
             grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infoById：" + infoById);
-    Optional<Transaction> byId = PublicMethed.getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> byId = PublicMethedForDailybuild
+        .getTransactionById(txid, blockingStubFull);
     logger.info("getRet：" + byId.get().getRet(0));
     logger.info("getNumber：" + byId.get().getRet(0).getContractRet().getNumber());
     logger.info("getContractRetValue：" + byId.get().getRet(0).getContractRetValue());
@@ -366,27 +376,28 @@ public class ContractGrammar004 {
 
     String filePath = "src/test/resources/soliditycode/assertExceptiontest1DivideInt.sol";
     String contractName = "divideIHaveArgsReturnStorage";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed
+    contractAddress = PublicMethedForDailybuild
         .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null,
             testKeyForGrammarAddress, grammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String txid = "";
     String num = "4" + "," + "2";
 
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .triggerContract(contractAddress, "divideIHaveArgsReturn(int256,int256)", num, false, 0,
             maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infoById：" + infoById);
-    Optional<Transaction> byId = PublicMethed.getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> byId = PublicMethedForDailybuild
+        .getTransactionById(txid, blockingStubFull);
     logger.info("getRet：" + byId.get().getRet(0));
     logger.info("getNumber：" + byId.get().getRet(0).getContractRet().getNumber());
     logger.info("getContractRetValue：" + byId.get().getRet(0).getContractRetValue());
@@ -409,19 +420,23 @@ public class ContractGrammar004 {
   public void test8Grammar008() {
     String filePath = "src/test/resources/soliditycode/TransferFailed001.sol";
     String contractName = "EnergyOfTransferFailedTest";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethed
+    contractAddress = PublicMethedForDailybuild
         .deployContract(contractName, abi, code, "", maxFeeLimit, 1000000L, 100, null,
             testKeyForGrammarAddress, grammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertFalse(PublicMethedForDailybuild
+        .sendcoin(contractAddress, 1000000L, testNetAccountAddress, testNetAccountKey,
+            blockingStubFull));
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethed
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
         .getAccountResource(grammarAddress, blockingStubFull);
-    info = PublicMethed.queryAccount(testKeyForGrammarAddress, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(testKeyForGrammarAddress, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
     Long beforeNetUsed = resourceInfo.getNetUsed();
@@ -435,12 +450,12 @@ public class ContractGrammar004 {
     String txid = "";
     String num = "1" + ",\"" + Base58.encode58Check(nonexistentAddress) + "\"";
 
-    txid = PublicMethed
+    txid = PublicMethedForDailybuild
         .triggerContract(contractAddress, "testTransferTrxNonexistentTarget(uint256,address)", num,
             false, 0, maxFeeLimit, grammarAddress, testKeyForGrammarAddress, blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid : --- " + infoById);
 
     Long fee = infoById.get().getFee();
@@ -454,8 +469,9 @@ public class ContractGrammar004 {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Account infoafter = PublicMethed.queryAccount(testKeyForGrammarAddress, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed
+    Account infoafter = PublicMethedForDailybuild
+        .queryAccount(testKeyForGrammarAddress, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(grammarAddress, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -495,19 +511,20 @@ public class ContractGrammar004 {
     String code = "60606040523415600b57fe5b5b60608060196000396000f300606060405263ffffffff60e060020"
         + "a6000350416632f3a24cc81146020575bfe5b3415602757fe5b602d602f565b005b50505b5600a165627a7a"
         + "723058208184f2ff2627a8a490bfd1233a891f2f4605375d0fec375e237ffc188cdd7ec70029";
-    contractAddress = PublicMethed
+    contractAddress = PublicMethedForDailybuild
         .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null,
             testKeyForGrammarAddress, grammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    final String txid = PublicMethed
+    final String txid = PublicMethedForDailybuild
         .triggerContract(contractAddress, "testStackTooSmall()", "#", false, 0, maxFeeLimit,
             grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infoById：" + infoById);
-    Optional<Transaction> byId = PublicMethed.getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> byId = PublicMethedForDailybuild
+        .getTransactionById(txid, blockingStubFull);
     logger.info("getRet：" + byId.get().getRet(0));
     logger.info("getNumber：" + byId.get().getRet(0).getContractRet().getNumber());
     logger.info("getContractRetValue：" + byId.get().getRet(0).getContractRetValue());
@@ -597,19 +614,20 @@ public class ContractGrammar004 {
         + "76103e86103e96103ea6103eb6103ec6103ed6103ee6103ef6103f06103f16103f26103f36103f46103f561"
         + "03f66103f76103f86103f96103fa6103fb6103fc6103fd6103fe6103ff6104005b5600a165627a7a7230582"
         + "0998f09cc267db91352a3d0a4ab60ea08fc306fa8bc6dd78dc324a06109dcf0420029";
-    contractAddress = PublicMethed
+    contractAddress = PublicMethedForDailybuild
         .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null,
             testKeyForGrammarAddress, grammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    final String txid = PublicMethed
+    final String txid = PublicMethedForDailybuild
         .triggerContract(contractAddress, "testStackTooLarge()", "#", false, 0, maxFeeLimit,
             grammarAddress, testKeyForGrammarAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infoById：" + infoById);
-    Optional<Transaction> byId = PublicMethed.getTransactionById(txid, blockingStubFull);
+    Optional<Transaction> byId = PublicMethedForDailybuild
+        .getTransactionById(txid, blockingStubFull);
     logger.info("getRet：" + byId.get().getRet(0));
     logger.info("getNumber：" + byId.get().getRet(0).getContractRet().getNumber());
     logger.info("getContractRetValue：" + byId.get().getRet(0).getContractRetValue());
@@ -630,8 +648,9 @@ public class ContractGrammar004 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethed.freedResource(grammarAddress, testKeyForGrammarAddress, testNetAccountAddress,
-        blockingStubFull);
+    PublicMethedForDailybuild
+        .freedResource(grammarAddress, testKeyForGrammarAddress, testNetAccountAddress,
+            blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

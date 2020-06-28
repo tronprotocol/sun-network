@@ -28,23 +28,25 @@ import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TransactionUtilsForDailybuild;
 
 @Slf4j
 public class WalletTestAccount004 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   private final String noFrozenBalanceTestKey =
       "8CB4480194192F30907E14B52498F594BD046E21D7C4D8FE866563A6760AC891";
 
 
-  private final byte[] noFrozenAddress = PublicMethed.getFinalAddress(noFrozenBalanceTestKey);
+  private final byte[] noFrozenAddress = PublicMethedForDailybuild
+      .getFinalAddress(noFrozenBalanceTestKey);
   Long freezeAmount = 2000000L;
   private ManagedChannel channelFull = null;
   private ManagedChannel searchChannelFull = null;
@@ -92,7 +94,7 @@ public class WalletTestAccount004 {
     byte[] account004AddressForFreeze = ecKey2.getAddress();
     String account004KeyForFreeze = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
-    Assert.assertTrue(PublicMethed.sendcoin(account004AddressForFreeze, 10000000,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(account004AddressForFreeze, 10000000,
         fromAddress, testKey002, blockingStubFull));
     //Freeze failed when freeze amount is large than currently balance.
     Assert.assertFalse(freezeBalance(account004AddressForFreeze, 9000000000000000000L,
@@ -103,7 +105,7 @@ public class WalletTestAccount004 {
     //Freeze failed when freeze duration isn't 3 days.
     //Assert.assertFalse(freezeBalance(fromAddress, 1000000L, 2L, testKey002));
     //Unfreeze balance failed when 3 days hasn't come.
-    Assert.assertFalse(PublicMethed.unFreezeBalance(account004AddressForFreeze,
+    Assert.assertFalse(PublicMethedForDailybuild.unFreezeBalance(account004AddressForFreeze,
         account004KeyForFreeze, 0, null, blockingStubFull));
     //Freeze failed when freeze amount is 0.
     Assert.assertFalse(freezeBalance(account004AddressForFreeze, 0L, 3L,
@@ -123,36 +125,40 @@ public class WalletTestAccount004 {
     //Unfreeze failed when there is no freeze balance.
     //Wait to be create account
 
-    Assert.assertFalse(PublicMethed.unFreezeBalance(noFrozenAddress, noFrozenBalanceTestKey, 1,
-        null, blockingStubFull));
+    Assert.assertFalse(
+        PublicMethedForDailybuild.unFreezeBalance(noFrozenAddress, noFrozenBalanceTestKey, 1,
+            null, blockingStubFull));
     logger.info("Test unfreezebalance");
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] account004Address = ecKey1.getAddress();
     String account004Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
     Assert
-        .assertTrue(PublicMethed.sendcoin(account004Address, freezeAmount, fromAddress, testKey002,
-            blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalance(account004Address, freezeAmount, 0,
+        .assertTrue(PublicMethedForDailybuild
+            .sendcoin(account004Address, freezeAmount, fromAddress, testKey002,
+                blockingStubFull));
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(account004Address, freezeAmount, 0,
         account004Key, blockingStubFull));
     Account account004;
-    account004 = PublicMethed.queryAccount(account004Address, blockingStubFull);
+    account004 = PublicMethedForDailybuild.queryAccount(account004Address, blockingStubFull);
     Assert.assertTrue(account004.getBalance() == 0);
-    Assert.assertTrue(PublicMethed.unFreezeBalance(account004Address, account004Key, 0,
+    Assert.assertTrue(PublicMethedForDailybuild.unFreezeBalance(account004Address, account004Key, 0,
         null, blockingStubFull));
-    account004 = PublicMethed.queryAccount(account004Address, blockingStubFull);
+    account004 = PublicMethedForDailybuild.queryAccount(account004Address, blockingStubFull);
     Assert.assertTrue(account004.getBalance() == freezeAmount);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(account004Address, freezeAmount, 0,
-        1, account004Key, blockingStubFull));
-    account004 = PublicMethed.queryAccount(account004Address, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(
+        PublicMethedForDailybuild.freezeBalanceGetEnergy(account004Address, freezeAmount, 0,
+            1, account004Key, blockingStubFull));
+    account004 = PublicMethedForDailybuild.queryAccount(account004Address, blockingStubFull);
     Assert.assertTrue(account004.getBalance() == 0);
 
-    Assert.assertFalse(PublicMethed.unFreezeBalance(account004Address, account004Key, 0,
+    Assert
+        .assertFalse(PublicMethedForDailybuild.unFreezeBalance(account004Address, account004Key, 0,
+            null, blockingStubFull));
+    Assert.assertTrue(PublicMethedForDailybuild.unFreezeBalance(account004Address, account004Key, 1,
         null, blockingStubFull));
-    Assert.assertTrue(PublicMethed.unFreezeBalance(account004Address, account004Key, 1,
-        null, blockingStubFull));
-    account004 = PublicMethed.queryAccount(account004Address, blockingStubFull);
+    account004 = PublicMethedForDailybuild.queryAccount(account004Address, blockingStubFull);
     Assert.assertTrue(account004.getBalance() == freezeAmount);
 
   }
@@ -216,7 +222,7 @@ public class WalletTestAccount004 {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     Return response = blockingStubFull.broadcastTransaction(transaction);
 
     if (response.getResult() == false) {
@@ -225,7 +231,7 @@ public class WalletTestAccount004 {
 
     Long afterBlockNum = 0L;
     Integer wait = 0;
-    PublicMethed.waitProduceNextBlock(searchBlockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(searchBlockingStubFull);
     /*    while (afterBlockNum < beforeBlockNum + 1 && wait < 10) {
       Block currentBlock1 = searchBlockingStubFull.getNowBlock(EmptyMessage.newBuilder().build());
       afterBlockNum = currentBlock1.getBlockHeader().getRawData().getNumber();
@@ -286,7 +292,7 @@ public class WalletTestAccount004 {
     }
 
     transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
+    transaction = TransactionUtilsForDailybuild.sign(transaction, ecKey);
     Return response = blockingStubFull.broadcastTransaction(transaction);
     if (response.getResult() == false) {
       return false;

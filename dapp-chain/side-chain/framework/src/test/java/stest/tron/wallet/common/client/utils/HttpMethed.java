@@ -204,16 +204,17 @@ public class HttpMethed {
   /**
    * constructor.
    */
-  public static HttpResponse withdrawBalance(String httpNode, byte[] witnessAddress) {
+  public static HttpResponse withdrawBalance(String httpNode, byte[] witnessAddress,
+      String fromKey) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/withdrawbalance";
       JsonObject userBaseObj2 = new JsonObject();
       userBaseObj2.addProperty("owner_address", ByteArray.toHexString(witnessAddress));
       response = createConnect(requestUrl, userBaseObj2);
       logger.info(userBaseObj2.toString());
-      //transactionString = EntityUtils.toString(response.getEntity());
-      //transactionSignString = gettransactionsign(httpNode,transactionString,fromKey);
-      //response = broadcastTransaction(httpNode,transactionSignString);
+      transactionString = EntityUtils.toString(response.getEntity());
+      transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
+      response = broadcastTransaction(httpNode, transactionSignString);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
@@ -347,7 +348,7 @@ public class HttpMethed {
       JsonObject userBaseObj2 = new JsonObject();
       JsonObject proposalMap = new JsonObject();
       proposalMap.addProperty("key", proposalKey);
-      proposalMap.addProperty("value", proposalValue);
+      proposalMap.addProperty("value", String.valueOf(proposalValue));
       userBaseObj2.addProperty("owner_address", ByteArray.toHexString(ownerAddress));
       userBaseObj2.add("parameters", proposalMap);
 
@@ -1705,7 +1706,7 @@ public class HttpMethed {
       return null;
     }
     responseContent = HttpMethed.parseResponseContent(response);
-    //HttpMethed.printJsonContent(responseContent);
+    HttpMethed.printJsonContent(responseContent);
     //httppost.releaseConnection();
     return Long.parseLong(responseContent.get("balance").toString());
   }

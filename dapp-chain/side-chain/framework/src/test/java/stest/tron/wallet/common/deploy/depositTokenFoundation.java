@@ -73,9 +73,9 @@ public class depositTokenFoundation {
       byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, inputParam, false));
       String txid = PublicMethed
           .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
-                  methodStr,
-                  inputParam, false,
-              maxFeeLimit, inputTokenValue, tokenFoundationAddress001,
+              0,
+              input,
+              maxFeeLimit, inputTokenValue, tokenFoundationId001, tokenFoundationAddress001,
               tokenFoundationKey001,
               blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -109,9 +109,9 @@ public class depositTokenFoundation {
       byte[] input2 = Hex.decode(AbiUtil.parseMethod(methodStr, inputParam2, false));
       String txid2 = PublicMethed
           .triggerContract(WalletClient.decodeFromBase58Check(mainGateWayAddress),
-              methodStr,
-                  inputParam2,false,
-                  inputTokenValue, maxFeeLimit, tokenFoundationAddress002,
+              0,
+              input2,
+              maxFeeLimit, inputTokenValue, tokenFoundationId002, tokenFoundationAddress002,
               tokenFoundationKey002,
               blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
