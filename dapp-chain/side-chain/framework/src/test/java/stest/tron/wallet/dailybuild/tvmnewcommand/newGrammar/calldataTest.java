@@ -23,14 +23,14 @@ import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class calldataTest {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -62,21 +62,21 @@ public class calldataTest {
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    PublicMethed.printAddress(dev001Key);
+    PublicMethedForDailybuild.printAddress(dev001Key);
   }
 
   @Test(enabled = true, description = "Deploy contract")
   public void test01DeployContract() {
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 1000_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(dev001Address, 1000_000_000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 100_000_000L,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceForReceiver(fromAddress, 100_000_000L,
         0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address,
         blockingStubFull);
-    Protocol.Account info = PublicMethed.queryAccount(dev001Key, blockingStubFull);
+    Protocol.Account info = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = accountResource.getEnergyUsed();
     Long beforeNetUsed = accountResource.getNetUsed();
@@ -88,20 +88,20 @@ public class calldataTest {
 
     String filePath = "./src/test/resources/soliditycode/calldata.sol";
     String contractName = "C";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    final String txid = PublicMethed
+    final String txid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
             "0", 0, null, dev001Key,
             dev001Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     if (infoById.get().getResultValue() != 0) {
       Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
     }
@@ -111,7 +111,7 @@ public class calldataTest {
     logger.info("NetUsage: " + transactionInfo.getReceipt().getNetUsage());
 
     contractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(contractAddress,
+    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress,
         blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
 
@@ -126,8 +126,8 @@ public class calldataTest {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
-    Protocol.Account infoafter = PublicMethed.queryAccount(dev001Key, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethed
+    Protocol.Account infoafter = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
         .getAccountResource(dev001Address,
             blockingStubFull);
     Long afterBalance = infoafter.getBalance();
@@ -147,8 +147,8 @@ public class calldataTest {
 
   @AfterClass
   public void shutdown() throws InterruptedException {
-    long balance = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
-    PublicMethed.sendcoin(fromAddress, balance, dev001Address, dev001Key,
+    long balance = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull).getBalance();
+    PublicMethedForDailybuild.sendcoin(fromAddress, balance, dev001Address, dev001Key,
         blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);

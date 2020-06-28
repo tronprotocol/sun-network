@@ -67,7 +67,7 @@ public class HttpTestMortgageMechanism01 {
 
     //update brokerage
     response = HttpMethed.updateBrokerage(httpnode, witnessAddress, 30L, witnessKey);
-    Assert.assertTrue(HttpMethed.verificationResult(response));
+    Assert.assertFalse(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
   }
 

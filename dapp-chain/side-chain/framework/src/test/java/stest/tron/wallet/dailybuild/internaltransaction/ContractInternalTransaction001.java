@@ -25,7 +25,7 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 
@@ -33,7 +33,8 @@ public class ContractInternalTransaction001 {
 
   private final String testNetAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
+  private final byte[] testNetAccountAddress = PublicMethedForDailybuild
+      .getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] internalTxsAddress = ecKey1.getAddress();
@@ -63,7 +64,7 @@ public class ContractInternalTransaction001 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(testKeyForinternalTxsAddress);
+    PublicMethedForDailybuild.printAddress(testKeyForinternalTxsAddress);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -73,48 +74,50 @@ public class ContractInternalTransaction001 {
         .build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
 
-    logger.info(Long.toString(PublicMethed.queryAccount(testNetAccountKey, blockingStubFull)
-        .getBalance()));
+    logger.info(
+        Long.toString(PublicMethedForDailybuild.queryAccount(testNetAccountKey, blockingStubFull)
+            .getBalance()));
   }
 
   @Test(enabled = true, description = "Create->call.Two-level nesting")
   public void testInternalTransaction001() {
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(internalTxsAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/"
         + "contractInternalTransaction001testInternalTransaction001.sol";
     String contractName = "A";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        1000000L, 100, null, testKeyForinternalTxsAddress,
-        internalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            1000000L, 100, null, testKeyForinternalTxsAddress,
+            internalTxsAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String contractName1 = "C";
-    HashMap retMap1 = PublicMethed.getBycodeAbi(filePath, contractName1);
+    HashMap retMap1 = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName1);
     String code1 = retMap1.get("byteCode").toString();
     String abi1 = retMap1.get("abI").toString();
 
-    byte[] contractAddress1 = PublicMethed
+    byte[] contractAddress1 = PublicMethedForDailybuild
         .deployContract(contractName1, abi1, code1, "", maxFeeLimit,
             1000000L, 100, null, testKeyForinternalTxsAddress,
             internalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String txid = "";
     String initParmes = "\"" + Base58.encode58Check(contractAddress1) + "\"";
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "test1(address)", initParmes, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     int transactionsCount = infoById.get().getInternalTransactionsCount();
     Assert.assertEquals(7, transactionsCount);
@@ -123,13 +126,13 @@ public class ContractInternalTransaction001 {
       Assert.assertFalse(infoById.get().getInternalTransactions(i).getRejected());
     }
     String initParmes2 = "\"" + Base58.encode58Check(contractAddress1) + "\",\"1\"";
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "test2(address,uint256)", initParmes2, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById1 = null;
-    infoById1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
+    infoById1 = PublicMethedForDailybuild.getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     int transactionsCount1 = infoById1.get().getInternalTransactionsCount();
     Assert.assertEquals(10, transactionsCount1);
@@ -141,40 +144,41 @@ public class ContractInternalTransaction001 {
 
   @Test(enabled = true, description = "There is one internalTransaction.Only call")
   public void testInternalTransaction002() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(internalTxsAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String filePath = "src/test/resources/soliditycode/"
         + "contractInternalTransaction001testInternalTransaction002.sol";
     String contractName = "A";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        1000000L, 100, null, testKeyForinternalTxsAddress,
-        internalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            1000000L, 100, null, testKeyForinternalTxsAddress,
+            internalTxsAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String contractName1 = "C";
-    HashMap retMap1 = PublicMethed.getBycodeAbi(filePath, contractName1);
+    HashMap retMap1 = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName1);
     String code1 = retMap1.get("byteCode").toString();
     String abi1 = retMap1.get("abI").toString();
-    byte[] contractAddress1 = PublicMethed
+    byte[] contractAddress1 = PublicMethedForDailybuild
         .deployContract(contractName1, abi1, code1, "", maxFeeLimit,
             1000000L, 100, null, testKeyForinternalTxsAddress,
             internalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String initParmes2 = "\"" + Base58.encode58Check(contractAddress1) + "\",\"1\"";
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "test2(address,uint256)", initParmes2, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById1 = null;
-    infoById1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
+    infoById1 = PublicMethedForDailybuild.getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     int transactionsCount1 = infoById1.get().getInternalTransactionsCount();
     Assert.assertEquals(1, transactionsCount1);
@@ -190,28 +194,29 @@ public class ContractInternalTransaction001 {
 
   @Test(enabled = true, description = "There is one internalTransaction.Only create")
   public void testInternalTransaction003() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(internalTxsAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/"
         + "contractInternalTransaction001testInternalTransaction003.sol";
     String contractName = "A";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        1000000L, 100, null, testKeyForinternalTxsAddress,
-        internalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            1000000L, 100, null, testKeyForinternalTxsAddress,
+            internalTxsAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "transfer()", "#", false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById1 = null;
-    infoById1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
+    infoById1 = PublicMethedForDailybuild.getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     int transactionsCount1 = infoById1.get().getInternalTransactionsCount();
     Assert.assertEquals(1, transactionsCount1);
@@ -228,41 +233,42 @@ public class ContractInternalTransaction001 {
 
   @Test(enabled = true, description = "Test suicide type in internalTransaction")
   public void testInternalTransaction004() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(internalTxsAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/"
         + "contractInternalTransaction001testInternalTransaction004.sol";
     String contractName = "A";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        1000000L, 100, null, testKeyForinternalTxsAddress,
-        internalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            1000000L, 100, null, testKeyForinternalTxsAddress,
+            internalTxsAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String contractName1 = "B";
-    HashMap retMap1 = PublicMethed.getBycodeAbi(filePath, contractName1);
+    HashMap retMap1 = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName1);
     String code1 = retMap1.get("byteCode").toString();
     String abi1 = retMap1.get("abI").toString();
-    byte[] contractAddress1 = PublicMethed
+    byte[] contractAddress1 = PublicMethedForDailybuild
         .deployContract(contractName1, abi1, code1, "", maxFeeLimit,
             0, 100, null, testKeyForinternalTxsAddress,
             internalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String txid = "";
     String initParmes = "\"" + Base58.encode58Check(contractAddress)
         + "\",\"" + Base58.encode58Check(contractAddress1) + "\"";
-    txid = PublicMethed.triggerContract(contractAddress1,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress1,
         "kill(address,address)", initParmes, false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     int transactionsCount = infoById.get().getInternalTransactionsCount();
     Assert.assertEquals(2, transactionsCount);
@@ -281,13 +287,13 @@ public class ContractInternalTransaction001 {
     Assert.assertTrue(0 == vaule1);
     Assert.assertTrue(1000000L == vaule2);
 
-    String txid1 = PublicMethed.triggerContract(contractAddress1,
+    String txid1 = PublicMethedForDailybuild.triggerContract(contractAddress1,
         "kill2()", "#", false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById1 = null;
-    infoById1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
+    infoById1 = PublicMethedForDailybuild.getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     int transactionsCount1 = infoById1.get().getInternalTransactionsCount();
     Assert.assertEquals(3, transactionsCount1);
@@ -311,30 +317,31 @@ public class ContractInternalTransaction001 {
 
   @Test(enabled = true, description = "Type is create call")
   public void testInternalTransaction005() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(internalTxsAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/"
         + "contractInternalTransaction001testInternalTransaction005.sol";
     String contractName = "A";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        1000000L, 100, null, testKeyForinternalTxsAddress,
-        internalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            1000000L, 100, null, testKeyForinternalTxsAddress,
+            internalTxsAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String txid = "";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "test1()", "#", false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 1);
     int transactionsCount = infoById.get().getInternalTransactionsCount();
     Assert.assertEquals(2, transactionsCount);
@@ -353,13 +360,13 @@ public class ContractInternalTransaction001 {
     Assert.assertTrue(10 == vaule1);
     Assert.assertTrue(0 == vaule2);
 
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "test2()", "#", false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById1 = null;
-    infoById1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
+    infoById1 = PublicMethedForDailybuild.getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() == 1);
     int transactionsCount1 = infoById1.get().getInternalTransactionsCount();
     Assert.assertEquals(2, transactionsCount1);
@@ -385,29 +392,30 @@ public class ContractInternalTransaction001 {
 
   @Test(enabled = true, description = "Type is create call call")
   public void testInternalTransaction006() {
-    Assert.assertTrue(PublicMethed
+    Assert.assertTrue(PublicMethedForDailybuild
         .sendcoin(internalTxsAddress, 100000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/"
         + "contractInternalTransaction001testInternalTransaction006.sol";
     String contractName = "A";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
-        1000000L, 100, null, testKeyForinternalTxsAddress,
-        internalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    contractAddress = PublicMethedForDailybuild
+        .deployContract(contractName, abi, code, "", maxFeeLimit,
+            1000000L, 100, null, testKeyForinternalTxsAddress,
+            internalTxsAddress, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     String txid = "";
 
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "test1()", "#", false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 1);
     int transactionsCount = infoById.get().getInternalTransactionsCount();
     Assert.assertEquals(3, transactionsCount);
@@ -433,13 +441,13 @@ public class ContractInternalTransaction001 {
     Assert.assertTrue(0 == vaule2);
     Assert.assertTrue(0 == vaule3);
 
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "test2()", "#", false,
         0, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById1 = null;
-    infoById1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
+    infoById1 = PublicMethedForDailybuild.getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertTrue(infoById1.get().getResultValue() == 1);
     int transactionsCount1 = infoById1.get().getInternalTransactionsCount();
     Assert.assertEquals(3, transactionsCount1);
@@ -473,7 +481,7 @@ public class ContractInternalTransaction001 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethed
+    PublicMethedForDailybuild
         .freedResource(internalTxsAddress, testKeyForinternalTxsAddress, testNetAccountAddress,
             blockingStubFull);
     if (channelFull != null) {

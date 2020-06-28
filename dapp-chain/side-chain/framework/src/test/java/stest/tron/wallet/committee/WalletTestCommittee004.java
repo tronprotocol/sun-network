@@ -24,6 +24,7 @@ import org.tron.protos.Protocol.SideChainProposal;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 
 @Slf4j
@@ -32,7 +33,7 @@ public class WalletTestCommittee004 {
   private static final long now = System.currentTimeMillis();
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
   private final String witnessKey001 = Configuration.getByPath("testng.conf")
@@ -49,12 +50,12 @@ public class WalletTestCommittee004 {
   //Witness 47.93.184.2
   private final String witnessKey005 = Configuration.getByPath("testng.conf")
       .getString("witness.key5");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
-  private final byte[] witness001Address = PublicMethed.getFinalAddress(witnessKey001);
-  //private final byte[] witness003Address = PublicMethed.getFinalAddress(witnessKey003);
-  //private final byte[] witness004Address = PublicMethed.getFinalAddress(witnessKey004);
-  //private final byte[] witness005Address = PublicMethed.getFinalAddress(witnessKey005);
-  private final byte[] witness002Address = PublicMethed.getFinalAddress(witnessKey002);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
+  private final byte[] witness001Address = PublicMethedForDailybuild.getFinalAddress(witnessKey001);
+  //private final byte[] witness003Address = PublicMethedForDailybuild.getFinalAddress(witnessKey003);
+  //private final byte[] witness004Address = PublicMethedForDailybuild.getFinalAddress(witnessKey004);
+  //private final byte[] witness005Address = PublicMethedForDailybuild.getFinalAddress(witnessKey005);
+  private final byte[] witness002Address = PublicMethedForDailybuild.getFinalAddress(witnessKey002);
   private ManagedChannel channelFull = null;
   private ManagedChannel channelSolidity = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -89,16 +90,16 @@ public class WalletTestCommittee004 {
 
   @Test(enabled = true)
   public void test1DeleteProposal() {
-    PublicMethed.sendcoin(witness001Address, 1000000L,
+    PublicMethedForDailybuild.sendcoin(witness001Address, 1000000L,
         toAddress, testKey003, blockingStubFull);
-    PublicMethed.sendcoin(witness002Address, 1000000L,
+    PublicMethedForDailybuild.sendcoin(witness002Address, 1000000L,
         toAddress, testKey003, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
     //Create a proposal and approval it
     HashMap<Long, String> proposalMap = new HashMap<Long, String>();
-    proposalMap.put(1L, "99999");
-    Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
+    proposalMap.put(1000003L, "600");
+    Assert.assertTrue(PublicMethed.sideChainProposalCreate(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
     try {
       Thread.sleep(1000);
@@ -106,38 +107,39 @@ public class WalletTestCommittee004 {
       e.printStackTrace();
     }
     //Get proposal list
-    SideChainProposalList sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
-    Optional<SideChainProposalList> listProposals = Optional.ofNullable(sideChainProposalList);
+    SideChainProposalList proposalList = blockingStubFull
+        .listSideChainProposals(EmptyMessage.newBuilder().build());
+    Optional<SideChainProposalList> listProposals = Optional.ofNullable(proposalList);
     final Integer proposalId = listProposals.get().getProposalsCount();
-    Assert.assertTrue(PublicMethed.approveProposal(witness001Address, witnessKey001,
+    Assert.assertTrue(PublicMethed.approveSideProposal(witness001Address, witnessKey001,
         proposalId, true, blockingStubFull));
     logger.info(Integer.toString(listProposals.get().getProposals(0).getStateValue()));
     //The state is "pending", state value == 0
     Assert.assertTrue(listProposals.get().getProposals(0).getStateValue() == 0);
 
     //When the proposal isn't created by you, you can't delete it.
-    Assert.assertFalse(PublicMethed.deleteProposal(witness002Address, witnessKey002,
+    Assert.assertFalse(PublicMethed.deleteSideProposal(witness002Address, witnessKey002,
         proposalId, blockingStubFull));
     //Cancel the proposal
-    Assert.assertTrue(PublicMethed.deleteProposal(witness001Address, witnessKey001,
+    Assert.assertTrue(PublicMethed.deleteSideProposal(witness001Address, witnessKey001,
         proposalId, blockingStubFull));
     //When the state is cancel, you can't delete it again.
-    Assert.assertFalse(PublicMethed.deleteProposal(witness001Address, witnessKey001,
+    Assert.assertFalse(PublicMethed.deleteSideProposal(witness001Address, witnessKey001,
         proposalId, blockingStubFull));
     //You can't delete an invalid proposal
-    Assert.assertFalse(PublicMethed.deleteProposal(witness001Address, witnessKey001,
+    Assert.assertFalse(PublicMethed.deleteSideProposal(witness001Address, witnessKey001,
         proposalId + 100, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
-    listProposals = Optional.ofNullable(sideChainProposalList);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    listProposals = Optional.ofNullable(proposalList);
     logger.info(Integer.toString(listProposals.get().getProposals(0).getStateValue()));
     //The state is "cancel", state value == 3
     Assert.assertTrue(listProposals.get().getProposals(0).getStateValue() == 3);
 
     //When the state is cancel, you can't approval proposal
-    Assert.assertFalse(PublicMethed.approveProposal(witness001Address, witnessKey001,
+    Assert.assertFalse(PublicMethed.approveSideProposal(witness001Address, witnessKey001,
         proposalId, true, blockingStubFull));
-    Assert.assertFalse(PublicMethed.approveProposal(witness001Address, witnessKey001,
+    Assert.assertFalse(PublicMethed.approveSideProposal(witness001Address, witnessKey001,
         proposalId, false, blockingStubFull));
   }
 
@@ -145,12 +147,13 @@ public class WalletTestCommittee004 {
   public void test2GetProposal() {
     //Create a proposal and approval it
     HashMap<Long, String> proposalMap = new HashMap<Long, String>();
-    proposalMap.put(1L, "999999999");
-    Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
+    proposalMap.put(1000003L, "600");
+    Assert.assertTrue(PublicMethed.sideChainProposalCreate(witness001Address, witnessKey001,
         proposalMap, blockingStubFull));
     //Get proposal list
-    SideChainProposalList sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
-    Optional<SideChainProposalList> listProposals = Optional.ofNullable(sideChainProposalList);
+    SideChainProposalList proposalList = blockingStubFull
+        .listSideChainProposals(EmptyMessage.newBuilder().build());
+    Optional<SideChainProposalList> listProposals = Optional.ofNullable(proposalList);
     final Integer proposalId = listProposals.get().getProposalsCount();
 
     BytesMessage request = BytesMessage.newBuilder().setValue(ByteString.copyFrom(
@@ -187,21 +190,21 @@ public class WalletTestCommittee004 {
     defaultCommitteeMap.put("CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT", 0L);
     defaultCommitteeMap.put("CREATE_NEW_ACCOUNT_BANDWIDTH_RATE", 1L);
 
-    SideChainParameters sideChainParameters = blockingStubFull
+    SideChainParameters chainParameters = blockingStubFull
         .getSideChainParameters(EmptyMessage.newBuilder().build());
-    Optional<SideChainParameters> getChainParameters = Optional.ofNullable(sideChainParameters);
+    Optional<SideChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
     logger.info(Long.toString(getChainParameters.get().getChainParameterCount()));
     for (Integer i = 0; i < getChainParameters.get().getChainParameterCount(); i++) {
       logger.info(getChainParameters.get().getChainParameter(i).getKey());
       logger.info(getChainParameters.get().getChainParameter(i).getValue());
     }
     Assert.assertTrue(getChainParameters.get().getChainParameterCount() >= 10);
-    Assert.assertTrue(Long.valueOf(getChainParameters.get()
-            .getChainParameter(1).getValue()) == 9999000000L);
-    Assert.assertTrue(Long.valueOf(getChainParameters.get().getChainParameter(4)
-            .getValue()) == 1024000000L);
-    Assert.assertTrue(Integer.valueOf(getChainParameters.get().getChainParameter(7).getValue()) == 0);
-    Assert.assertTrue(Integer.valueOf(getChainParameters.get().getChainParameter(8).getValue()) == 1);
+    Assert.assertTrue(getChainParameters.get()
+        .getChainParameter(1).getValue() == "9999000000");
+    Assert.assertTrue(getChainParameters.get().getChainParameter(4)
+        .getValue() == "1024000000");
+    Assert.assertTrue(getChainParameters.get().getChainParameter(7).getValue() == "0");
+    Assert.assertTrue(getChainParameters.get().getChainParameter(8).getValue() == "1");
 
   }
 

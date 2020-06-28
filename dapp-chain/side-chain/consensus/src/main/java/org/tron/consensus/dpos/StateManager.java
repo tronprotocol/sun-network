@@ -33,6 +33,7 @@ public class StateManager {
 
   private AtomicLong dupBlockTime = new AtomicLong(0);
 
+  //init in isDupWitness(), should be init before used
   private long blockCycle;
 
 

@@ -50,8 +50,8 @@ public class WithdrawBalanceActuator extends AbstractActuator {
       throw new ContractExeException(e.getMessage());
     }
 
-    delegationService.withdrawReward(withdrawBalanceContract.getOwnerAddress()
-        .toByteArray());
+//    delegationService.withdrawReward(withdrawBalanceContract.getOwnerAddress()
+//        .toByteArray());
 
     AccountCapsule accountCapsule = accountStore.
         get(withdrawBalanceContract.getOwnerAddress().toByteArray());

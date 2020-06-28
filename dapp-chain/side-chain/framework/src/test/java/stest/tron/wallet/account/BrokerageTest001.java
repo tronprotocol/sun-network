@@ -12,7 +12,7 @@ import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol;
-import org.tron.protos.contract.StorageContract.UpdateBrokerageContract;
+//import org.tron.protos.contract.StorageContract.UpdateBrokerageContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 
@@ -57,20 +57,20 @@ public class BrokerageTest001 {
     PublicMethed.printAddress(dev001Key);
   }
 
-  @Test
-  public void updateBrokerageTest001() {
-    // witness updateBrokerage
-    Assert.assertTrue(updateBrokerage(witnessAddress001, 55, blockingStubFull));
-
-    Assert.assertTrue(updateBrokerage(witnessAddress001, 0, blockingStubFull));
-
-    Assert.assertTrue(updateBrokerage(witnessAddress001, 100, blockingStubFull));
-
-    Assert.assertFalse(updateBrokerage(witnessAddress001, -55, blockingStubFull));
-
-    // normal account updateBrokerage fail
-    Assert.assertFalse(updateBrokerage(dev001Address, 55, blockingStubFull));
-  }
+//  @Test
+//  public void updateBrokerageTest001() {
+//    // witness updateBrokerage
+//    Assert.assertTrue(updateBrokerage(witnessAddress001, 55, blockingStubFull));
+//
+//    Assert.assertTrue(updateBrokerage(witnessAddress001, 0, blockingStubFull));
+//
+//    Assert.assertTrue(updateBrokerage(witnessAddress001, 100, blockingStubFull));
+//
+//    Assert.assertFalse(updateBrokerage(witnessAddress001, -55, blockingStubFull));
+//
+//    // normal account updateBrokerage fail
+//    Assert.assertFalse(updateBrokerage(dev001Address, 55, blockingStubFull));
+//  }
 
   @Test
   public void getBrokerageTest001() {
@@ -95,28 +95,28 @@ public class BrokerageTest001 {
     Assert.assertTrue(blockingStubSolidyty.getRewardInfo(bytesMessage) != null);
   }
 
-  boolean updateBrokerage(byte[] owner, int brokerage,
-      WalletGrpc.WalletBlockingStub blockingStubFull) {
-
-    UpdateBrokerageContract.Builder updateBrokerageContract = UpdateBrokerageContract.newBuilder();
-    updateBrokerageContract.setOwnerAddress(ByteString.copyFrom(owner)).setBrokerage(brokerage);
-    TransactionExtention transactionExtention = blockingStubFull
-        .updateBrokerage(updateBrokerageContract.build());
-    Protocol.Transaction transaction = transactionExtention.getTransaction();
-    if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
-      if (transactionExtention != null) {
-        System.out.println("Code = " + transactionExtention.getResult().getCode());
-        System.out
-            .println("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
-      }
-      return false;
-    }
-    logger.info("transaction:" + transaction);
-    if (transactionExtention.getResult().getResult()) {
-      return true;
-    }
-    return true;
-  }
+//  boolean updateBrokerage(byte[] owner, int brokerage,
+//      WalletGrpc.WalletBlockingStub blockingStubFull) {
+//
+//    UpdateBrokerageContract.Builder updateBrokerageContract = UpdateBrokerageContract.newBuilder();
+//    updateBrokerageContract.setOwnerAddress(ByteString.copyFrom(owner)).setBrokerage(brokerage);
+//    TransactionExtention transactionExtention = blockingStubFull
+//        .updateBrokerage(updateBrokerageContract.build());
+//    Protocol.Transaction transaction = transactionExtention.getTransaction();
+//    if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
+//      if (transactionExtention != null) {
+//        System.out.println("Code = " + transactionExtention.getResult().getCode());
+//        System.out
+//            .println("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
+//      }
+//      return false;
+//    }
+//    logger.info("transaction:" + transaction);
+//    if (transactionExtention.getResult().getResult()) {
+//      return true;
+//    }
+//    return true;
+//  }
 
   public void getBrokerage() {
 

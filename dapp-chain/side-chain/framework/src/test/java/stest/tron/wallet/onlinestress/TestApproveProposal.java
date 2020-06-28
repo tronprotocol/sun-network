@@ -24,18 +24,18 @@ import org.tron.protos.contract.BalanceContract.TransferContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 
 @Slf4j
 public class TestApproveProposal {
 
-  private static final long now = System.currentTimeMillis();
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   private final String witnessKey001 = Configuration.getByPath("testng.conf")
       .getString("witness.key1");
   //Witness 47.93.33.201
@@ -50,15 +50,24 @@ public class TestApproveProposal {
   //Witness 47.93.184.2
   private final String witnessKey005 = Configuration.getByPath("testng.conf")
       .getString("witness.key5");
-  private final byte[] witness001Address = PublicMethed.getFinalAddress(witnessKey001);
-  private final byte[] witness002Address = PublicMethed.getFinalAddress(witnessKey002);
-  private final byte[] witness003Address = PublicMethed.getFinalAddress(witnessKey003);
-  private final byte[] witness004Address = PublicMethed.getFinalAddress(witnessKey004);
-  private final byte[] witness005Address = PublicMethed.getFinalAddress(witnessKey005);
+  String mainChainAddress = Configuration.getByPath("testng.conf")
+      .getString("gateway_address.chainIdAddress");
+
+
+  private final byte[] witness001Address = PublicMethedForDailybuild.getFinalAddress(witnessKey001);
+  private final byte[] witness002Address = PublicMethedForDailybuild.getFinalAddress(witnessKey002);
+  private final byte[] witness003Address = PublicMethedForDailybuild.getFinalAddress(witnessKey003);
+  private final byte[] witness004Address = PublicMethedForDailybuild.getFinalAddress(witnessKey004);
+  private final byte[] witness005Address = PublicMethedForDailybuild.getFinalAddress(witnessKey005);
+
+
   private ManagedChannel channelFull = null;
   private ManagedChannel channelSolidity = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
+
+  private static final long now = System.currentTimeMillis();
+
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
   private String soliditynode = Configuration.getByPath("testng.conf")
@@ -89,38 +98,37 @@ public class TestApproveProposal {
 
   @Test(enabled = true)
   public void testApproveProposal() {
+    final String mainGateWayAddress = Configuration.getByPath("testng.conf")
+        .getString("gateway_address.key1");
     HashMap<Long, String> proposalMap = new HashMap<Long, String>();
-    //proposalMap.put(25L, 1L);
-    proposalMap.put(27L, String.valueOf(0L));
-    //proposalMap.put(28L, 1L);
-    Assert.assertTrue(PublicMethed.createProposal(witness001Address, witnessKey001,
-        proposalMap, blockingStubFull));
+    proposalMap.put(1000012L, String.valueOf(1L));
+    Assert.assertTrue(
+        PublicMethed.sideChainCreateProposal(witness001Address, witnessKey001,mainChainAddress,
+            proposalMap, blockingStubFull));
     try {
       Thread.sleep(20000);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
     //Get proposal list
-    SideChainProposalList sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
-    Optional<SideChainProposalList> listProposals = Optional.ofNullable(sideChainProposalList);
+    SideChainProposalList proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    Optional<SideChainProposalList> listProposals = Optional.ofNullable(proposalList);
     final Integer proposalId = listProposals.get().getProposalsCount();
     logger.info(Integer.toString(proposalId));
 
     //Get proposal list after approve
-    sideChainProposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
-    listProposals = Optional.ofNullable(sideChainProposalList);
+    proposalList = blockingStubFull.listSideChainProposals(EmptyMessage.newBuilder().build());
+    listProposals = Optional.ofNullable(proposalList);
     logger.info(Integer.toString(listProposals.get().getProposals(0).getApprovalsCount()));
 
     String[] witnessKey = {
-
         "369F095838EB6EED45D4F6312AF962D5B9DE52927DA9F04174EE49F9AF54BC77",
         "9FD8E129DE181EA44C6129F727A6871440169568ADE002943EAD0E7A16D8EDAC",
-
     };
     byte[] witnessAddress;
     for (String key : witnessKey) {
       witnessAddress = PublicMethed.getFinalAddress(key);
-      PublicMethed.approveProposal(witnessAddress, key, proposalId,
+      PublicMethed.approveProposal(witnessAddress, key, mainChainAddress, proposalId,
           true, blockingStubFull);
       try {
         Thread.sleep(1000);
@@ -203,12 +211,11 @@ public class TestApproveProposal {
     defaultCommitteeMap.put("CREATE_NEW_ACCOUNT_FEE_IN_SYSTEM_CONTRACT", 0L);
     defaultCommitteeMap.put("CREATE_NEW_ACCOUNT_BANDWIDTH_RATE", 1L);
 
-    SideChainParameters sideChainParameters = blockingStubFull
+    SideChainParameters chainParameters = blockingStubFull
         .getSideChainParameters(EmptyMessage.newBuilder().build());
-    Optional<SideChainParameters> getChainParameters = Optional.ofNullable(sideChainParameters);
+    Optional<SideChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
     logger.info(Long.toString(getChainParameters.get().getChainParameterCount()));
     for (Integer i = 0; i < getChainParameters.get().getChainParameterCount(); i++) {
-      logger.info("Index is:" + i);
       logger.info(getChainParameters.get().getChainParameter(i).getKey());
       logger.info(getChainParameters.get().getChainParameter(i).getValue());
     }

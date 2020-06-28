@@ -130,12 +130,12 @@ public class HttpTestProposal001 {
     Assert.assertEquals("getMaintenanceTimeInterval",
         responseContent.getJSONArray("chainParameter").getJSONObject(0)
             .get("key"));
-    Assert.assertEquals(300000, responseContent.getJSONArray("chainParameter").getJSONObject(0)
+    Assert.assertEquals("300000", responseContent.getJSONArray("chainParameter").getJSONObject(0)
         .get("value"));
     Assert.assertEquals("getCreateAccountFee",
         responseContent.getJSONArray("chainParameter").getJSONObject(2)
             .get("key"));
-    Assert.assertEquals(100000, responseContent.getJSONArray("chainParameter").getJSONObject(2)
+    Assert.assertEquals("100000", responseContent.getJSONArray("chainParameter").getJSONObject(2)
         .get("value"));
   }
 

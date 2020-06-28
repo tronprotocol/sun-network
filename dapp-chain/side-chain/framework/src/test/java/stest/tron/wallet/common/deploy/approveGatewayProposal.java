@@ -31,22 +31,22 @@ public class approveGatewayProposal {
 
 
     private final String testDepositTrx = Configuration.getByPath("testng.conf")
-            .getString("witness.key2");
+        .getString("witness.key2");
     private final byte[] testDepositAddress = PublicMethed.getFinalAddress(testDepositTrx);
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] depositAddress = ecKey1.getAddress();
     String testKeyFordeposit = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
     private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-            .getLong("defaultParameter.maxFeeLimit");
+        .getLong("defaultParameter.maxFeeLimit");
     private String description = Configuration.getByPath("testng.conf")
-            .getString("defaultParameter.assetDescription");
+        .getString("defaultParameter.assetDescription");
     private String url = Configuration.getByPath("testng.conf")
-            .getString("defaultParameter.assetUrl");
+        .getString("defaultParameter.assetUrl");
     private ManagedChannel channelFull = null;
     private WalletGrpc.WalletBlockingStub blockingStubFull = null;
     private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
     private String fullnode1 = Configuration.getByPath("testng.conf")
-            .getStringList("fullnode.ip.list").get(1);
+        .getStringList("fullnode.ip.list").get(1);
 
     @BeforeSuite
     public void beforeSuite() {
@@ -62,8 +62,8 @@ public class approveGatewayProposal {
     public void beforeClass() {
 //    PublicMethed.printAddress(testKeyFordeposit);
         channelFull = ManagedChannelBuilder.forTarget(fullnode1)
-                .usePlaintext(true)
-                .build();
+            .usePlaintext(true)
+            .build();
         blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     }
 
@@ -71,7 +71,7 @@ public class approveGatewayProposal {
     @Test(enabled = true)
     public void testApproveProposal_1000001L() {
         String mainChainAddress = Configuration.getByPath("testng.conf")
-                .getString("gateway_address.chainIdAddress");
+            .getString("gateway_address.chainIdAddress");
         String sideChainAddress = "";
         try {
             File sideChainFile = new File("/home/sideChainGatewayAddress");
@@ -89,7 +89,7 @@ public class approveGatewayProposal {
         logger.info("testDepositTrx: " + testDepositTrx);
         proposalMap.put(1000001L, sideChainAddress);
         org.testng.Assert.assertTrue(PublicMethed.sideChainCreateProposal(testDepositAddress,
-                testDepositTrx, mainChainAddress, proposalMap, blockingStubFull));
+            testDepositTrx, mainChainAddress, proposalMap, blockingStubFull));
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
@@ -97,7 +97,7 @@ public class approveGatewayProposal {
         }
         //Get proposal list
         SideChainProposalList proposalList = blockingStubFull
-                .listSideChainProposals(EmptyMessage.newBuilder().build());
+            .listSideChainProposals(EmptyMessage.newBuilder().build());
         Optional<SideChainProposalList> listProposals = Optional.ofNullable(proposalList);
         final Integer proposalId = listProposals.get().getProposalsCount();
         logger.info(Integer.toString(proposalId));
@@ -108,16 +108,16 @@ public class approveGatewayProposal {
         logger.info(Integer.toString(listProposals.get().getProposals(0).getApprovalsCount()));
 
         String[] witnessKey = {
-                Configuration.getByPath("testng.conf")
-                        .getString("witness.key1"),
-                Configuration.getByPath("testng.conf")
-                        .getString("witness.key2"),
+            Configuration.getByPath("testng.conf")
+                .getString("witness.key1"),
+            Configuration.getByPath("testng.conf")
+                .getString("witness.key2"),
         };
         byte[] witnessAddress;
         for (String key : witnessKey) {
             witnessAddress = PublicMethed.getFinalAddress(key);
             PublicMethed.approveProposal(witnessAddress, key, mainChainAddress, proposalId,
-                    true, blockingStubFull);
+                true, blockingStubFull);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -132,7 +132,7 @@ public class approveGatewayProposal {
 
         for (int i = 0;i<60; i++){
             SideChainProposalList sideChainProposalList = blockingStubFull
-                    .listSideChainProposals(EmptyMessage.newBuilder().build());
+                .listSideChainProposals(EmptyMessage.newBuilder().build());
             Optional<SideChainProposalList> result = Optional.ofNullable(sideChainProposalList);
             if(result.get().getProposals(0).getState().name() == "APPROVED"){
                 logger.info("proposal 1000012L has APPROVED ");
@@ -148,13 +148,13 @@ public class approveGatewayProposal {
         }
 
         String mainChainAddress = Configuration.getByPath("testng.conf")
-                .getString("gateway_address.chainIdAddress");
+            .getString("gateway_address.chainIdAddress");
 
         HashMap<Long, String> proposalMap = new HashMap<Long, String>();
         logger.info("testDepositTrx: " + testDepositTrx);
         proposalMap.put(1000012L, String.valueOf(1L));
         org.testng.Assert.assertTrue(PublicMethed.sideChainCreateProposal(testDepositAddress,
-                testDepositTrx, mainChainAddress, proposalMap, blockingStubFull));
+            testDepositTrx, mainChainAddress, proposalMap, blockingStubFull));
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
@@ -162,7 +162,7 @@ public class approveGatewayProposal {
         }
         //Get proposal list
         SideChainProposalList proposalList = blockingStubFull
-                .listSideChainProposals(EmptyMessage.newBuilder().build());
+            .listSideChainProposals(EmptyMessage.newBuilder().build());
         Optional<SideChainProposalList> listProposals = Optional.ofNullable(proposalList);
         final Integer proposalId = listProposals.get().getProposalsCount();
         logger.info(Integer.toString(proposalId));
@@ -173,16 +173,16 @@ public class approveGatewayProposal {
         logger.info(Integer.toString(listProposals.get().getProposals(0).getApprovalsCount()));
 
         String[] witnessKey = {
-                Configuration.getByPath("testng.conf")
-                        .getString("witness.key1"),
-                Configuration.getByPath("testng.conf")
-                        .getString("witness.key2"),
+            Configuration.getByPath("testng.conf")
+                .getString("witness.key1"),
+            Configuration.getByPath("testng.conf")
+                .getString("witness.key2"),
         };
         byte[] witnessAddress;
         for (String key : witnessKey) {
             witnessAddress = PublicMethed.getFinalAddress(key);
             PublicMethed.approveProposal(witnessAddress, key, mainChainAddress, proposalId,
-                    true, blockingStubFull);
+                true, blockingStubFull);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -194,7 +194,7 @@ public class approveGatewayProposal {
     @Test(enabled = true)
     public void testListProposal() {
         SideChainProposalList sideChainProposalList = blockingStubFull
-                .listSideChainProposals(EmptyMessage.newBuilder().build());
+            .listSideChainProposals(EmptyMessage.newBuilder().build());
         Optional<SideChainProposalList> result = Optional.ofNullable(sideChainProposalList);
         if (result.isPresent()) {
             SideChainProposalList proposalList = result.get();

@@ -113,7 +113,7 @@ public class WalletTestMutiSign001 {
 //            + "{\"address\":\"" + PublicMethed.getAddressString(ownerKey)
 //            + "\",\"weight\":1}]},"
 //            + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":2,"
-//            + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
+//            + "\"operations\":\"3f3d1ec0036001000000000000000000000000000000000000000000000000c0\","
 //            + "\"keys\":["
 //            + "{\"address\":\"" + PublicMethed.getAddressString(manager1Key) + "\",\"weight\":1},"
 //            + "{\"address\":\"" + PublicMethed.getAddressString(manager2Key) + "\",\"weight\":1}"
@@ -239,7 +239,7 @@ public class WalletTestMutiSign001 {
 //            + "{\"address\":\"" + PublicMethed.getAddressString(participateKey)
 //            + "\",\"weight\":1}]},"
 //            + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":2,"
-//            + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
+//            + "\"operations\":\"3f3d1ec0036001000000000000000000000000000000000000000000000000c0\","
 //            + "\"keys\":["
 //            + "{\"address\":\"" + PublicMethed.getAddressString(manager1Key) + "\",\"weight\":1},"
 //            + "{\"address\":\"" + PublicMethed.getAddressString(manager2Key) + "\",\"weight\":1}"

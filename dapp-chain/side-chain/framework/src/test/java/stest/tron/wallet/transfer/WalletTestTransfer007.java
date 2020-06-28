@@ -19,17 +19,17 @@ import org.tron.common.utils.Utils;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class WalletTestTransfer007 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] toAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
 
 
   private ManagedChannel channelFull = null;
@@ -86,33 +86,38 @@ public class WalletTestTransfer007 {
 
   @Test
   public void testSendCoin() {
-    String transactionId = PublicMethed.sendcoinGetTransactionId(sendAccountAddress, 90000000000L,
-        fromAddress, testKey002, blockingStubFull);
-    Optional<Transaction> infoById = PublicMethed
+    String transactionId = PublicMethedForDailybuild
+        .sendcoinGetTransactionId(sendAccountAddress, 90000000000L,
+            fromAddress, testKey002, blockingStubFull);
+    Optional<Transaction> infoById = PublicMethedForDailybuild
         .getTransactionById(transactionId, blockingStubFull);
-    Long timestamptis = PublicMethed.printTransactionRow(infoById.get().getRawData());
-    Long timestamptispBlockOne = PublicMethed.getBlock(1, blockingStubFull).getBlockHeader()
+    Long timestamptis = PublicMethedForDailybuild.printTransactionRow(infoById.get().getRawData());
+    Long timestamptispBlockOne = PublicMethedForDailybuild.getBlock(1, blockingStubFull)
+        .getBlockHeader()
         .getRawData().getTimestamp();
     Assert.assertTrue(timestamptis >= timestamptispBlockOne);
   }
 
   @Test
   public void testSendCoin2() {
-    String transactionId = PublicMethed.sendcoinGetTransactionId(sendAccountAddress, 90000000000L,
-        fromAddress, testKey002, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    String transactionId = PublicMethedForDailybuild
+        .sendcoinGetTransactionId(sendAccountAddress, 90000000000L,
+            fromAddress, testKey002, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    Optional<Transaction> infoById = PublicMethed
+    Optional<Transaction> infoById = PublicMethedForDailybuild
         .getTransactionById(transactionId, blockingStubFull);
-    Long timestamptis = PublicMethed.printTransactionRow(infoById.get().getRawData());
-    Long timestampBlockOne = PublicMethed.getBlock(1, blockingStubFull).getBlockHeader()
+    Long timestamptis = PublicMethedForDailybuild.printTransactionRow(infoById.get().getRawData());
+    Long timestampBlockOne = PublicMethedForDailybuild.getBlock(1, blockingStubFull)
+        .getBlockHeader()
         .getRawData().getTimestamp();
     Assert.assertTrue(timestamptis >= timestampBlockOne);
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
+    PublicMethedForDailybuild
+        .waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
 
-    infoById = PublicMethed.getTransactionById(transactionId, blockingStubSolidity);
-    timestamptis = PublicMethed.printTransactionRow(infoById.get().getRawData());
-    timestampBlockOne = PublicMethed.getBlock(1, blockingStubFull).getBlockHeader()
+    infoById = PublicMethedForDailybuild.getTransactionById(transactionId, blockingStubSolidity);
+    timestamptis = PublicMethedForDailybuild.printTransactionRow(infoById.get().getRawData());
+    timestampBlockOne = PublicMethedForDailybuild.getBlock(1, blockingStubFull).getBlockHeader()
         .getRawData().getTimestamp();
     Assert.assertTrue(timestamptis >= timestampBlockOne);
 

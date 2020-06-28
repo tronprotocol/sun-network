@@ -672,7 +672,7 @@ public class Wallet {
                 "Signature size is " + sig.size());
           }
           String base64 = TransactionCapsule.getBase64FromByteString(sig);
-          byte[] address = SignUtils.signatureToAddress(hash, base64, Args.getInstance()
+          byte[] address = SignUtils.signatureToAddress(TransactionCapsule.getHashWithSideChainId(hash), base64, Args.getInstance()
               .isECKeyCryptoEngine());
           approveList.add(ByteString.copyFrom(address)); //out put approve list.
         }
@@ -959,12 +959,6 @@ public class Wallet {
             .build());
 
     builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
-            .setKey("getUpdateAccountPermissionFee")
-            .setValue(
-                    String.valueOf(dbManager.getDynamicPropertiesStore().getUpdateAccountPermissionFee()))
-            .build());
-
-    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
             .setKey("getAllowAccountStateRoot")
             .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowAccountStateRoot()))
             .build());
@@ -1071,6 +1065,36 @@ public class Wallet {
                     .setValue(String
                             .valueOf(dbManager.getDynamicPropertiesStore().getAllowUpdateGatewayV102()))
                     .build());
+    builder.addChainParameter(
+            Protocol.SideChainParameters.SideChainParameter.newBuilder()
+                    .setKey("getAllowTvmSolidity059")
+                    .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAllowTvmSolidity059()))
+                    .build());
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getForbidTransferToContract")
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getForbidTransferToContract()))
+            .build());
+
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getAdaptiveResourceLimitTargetRatio")
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAdaptiveResourceLimitTargetRatio() / (24 * 60)))
+            .build());
+
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getAdaptiveResourceLimitMultiplier")
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getAdaptiveResourceLimitMultiplier()))
+            .build());
+
+//    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
+//            .setKey("getChangeDelegation")
+//            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getChangeDelegation()))
+//            .build());
+
+    builder.addChainParameter(Protocol.SideChainParameters.SideChainParameter.newBuilder()
+            .setKey("getWitness127PayPerBlock")
+            .setValue(String.valueOf(dbManager.getDynamicPropertiesStore().getWitness127PayPerBlock()))
+            .build());
+
     return builder.build();
   }
 

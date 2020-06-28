@@ -18,9 +18,9 @@ public class IncentiveManager {
   private ConsensusDelegate consensusDelegate;
 
   public void reward(List<ByteString> witnesses) {
-    if (consensusDelegate.allowChangeDelegation()) {
-      return;
-    }
+//    if (consensusDelegate.allowChangeDelegation()) {
+//      return;
+//    }
     if (witnesses.size() > WITNESS_STANDBY_LENGTH) {
       witnesses = witnesses.subList(0, WITNESS_STANDBY_LENGTH);
     }

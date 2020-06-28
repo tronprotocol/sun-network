@@ -27,14 +27,14 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class MappingFixTest {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey002);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -66,7 +66,7 @@ public class MappingFixTest {
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    PublicMethed.printAddress(dev001Key);
+    PublicMethedForDailybuild.printAddress(dev001Key);
   }
 
   // after solidity version 0.5.4.
@@ -75,16 +75,16 @@ public class MappingFixTest {
 
   @Test(enabled = true, description = "Deploy contract")
   public void test01DeployContract() {
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 1000_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethedForDailybuild.sendcoin(dev001Address, 1000_000_000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 100_000_000L,
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalanceForReceiver(fromAddress, 100_000_000L,
         0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address,
         blockingStubFull);
-    Protocol.Account info = PublicMethed.queryAccount(dev001Key, blockingStubFull);
+    Protocol.Account info = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = accountResource.getEnergyUsed();
     Long beforeNetUsed = accountResource.getNetUsed();
@@ -96,20 +96,20 @@ public class MappingFixTest {
 
     String filePath = "./src/test/resources/soliditycode/SolidityMappingFix.sol";
     String contractName = "Tests";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    final String txid = PublicMethed
+    final String txid = PublicMethedForDailybuild
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
             "0", 0, null, dev001Key,
             dev001Address, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     if (infoById.get().getResultValue() != 0) {
       Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
     }
@@ -119,7 +119,7 @@ public class MappingFixTest {
     logger.info("NetUsage: " + transactionInfo.getReceipt().getNetUsage());
 
     contractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(contractAddress,
+    SmartContract smartContract = PublicMethedForDailybuild.getContract(contractAddress,
         blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
 
@@ -127,9 +127,9 @@ public class MappingFixTest {
 
   @Test(enabled = true, description = "Trigger contract,set balances[msg.sender]")
   public void test02TriggerContract() {
-    AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
+    AccountResourceMessage accountResource = PublicMethedForDailybuild.getAccountResource(dev001Address,
         blockingStubFull);
-    Protocol.Account info = PublicMethed.queryAccount(dev001Key, blockingStubFull);
+    Protocol.Account info = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyUsed = accountResource.getEnergyUsed();
     Long beforeNetUsed = accountResource.getNetUsed();
@@ -141,13 +141,13 @@ public class MappingFixTest {
 
     String methodStr = "update(uint256)";
     String argStr = "123";
-    String TriggerTxid = PublicMethed.triggerContract(contractAddress, methodStr, argStr, false,
+    String TriggerTxid = PublicMethedForDailybuild.triggerContract(contractAddress, methodStr, argStr, false,
         0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(TriggerTxid, blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(TriggerTxid, blockingStubFull);
     if (infoById.get().getResultValue() != 0) {
       Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
     }
@@ -165,7 +165,7 @@ public class MappingFixTest {
 
     methodStr = "balances(address)";
     argStr = "\"" + WalletClient.encode58Check(dev001Address) + "\"";
-    TransactionExtention return1 = PublicMethed
+    TransactionExtention return1 = PublicMethedForDailybuild
         .triggerContractForExtention(contractAddress, methodStr, argStr, false,
             0, maxFeeLimit, "0", 0L, dev001Address, dev001Key, blockingStubFull);
     logger.info("return1: " + return1);
@@ -178,8 +178,8 @@ public class MappingFixTest {
 
   @AfterClass
   public void shutdown() throws InterruptedException {
-    long balance = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
-    PublicMethed.sendcoin(fromAddress, balance, dev001Address, dev001Key,
+    long balance = PublicMethedForDailybuild.queryAccount(dev001Key, blockingStubFull).getBalance();
+    PublicMethedForDailybuild.sendcoin(fromAddress, balance, dev001Address, dev001Key,
         blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);

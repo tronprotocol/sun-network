@@ -791,11 +791,11 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       this.saveAllowProtoFilterNum(DBConfig.getAllowProtoFilterNum());
     }
 
-    try {
-      this.getChangeDelegation();
-    } catch (IllegalArgumentException e) {
-      this.saveChangeDelegation(DBConfig.getChangedDelegation());
-    }
+//    try {
+//      this.getChangeDelegation();
+//    } catch (IllegalArgumentException e) {
+//      this.saveChangeDelegation(DBConfig.getChangedDelegation());
+//    }
 
     try {
       this.getSideChainGateWayList();
@@ -2447,21 +2447,21 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     this.put(CURRENT_CYCLE_NUMBER, new BytesCapsule(ByteArray.fromLong(number)));
   }
 
-  public void saveChangeDelegation(long number) {
-    this.put(CHANGE_DELEGATION,
-        new BytesCapsule(ByteArray.fromLong(number)));
-  }
+//  public void saveChangeDelegation(long number) {
+//    this.put(CHANGE_DELEGATION,
+//        new BytesCapsule(ByteArray.fromLong(number)));
+//  }
 
-  public long getChangeDelegation() {
-    return Optional.ofNullable(getUnchecked(CHANGE_DELEGATION))
-        .map(BytesCapsule::getData)
-        .map(ByteArray::toLong)
-        .orElseThrow(() -> new IllegalArgumentException("not found CHANGE_DELEGATION"));
-  }
+//  public long getChangeDelegation() {
+//    return Optional.ofNullable(getUnchecked(CHANGE_DELEGATION))
+//        .map(BytesCapsule::getData)
+//        .map(ByteArray::toLong)
+//        .orElseThrow(() -> new IllegalArgumentException("not found CHANGE_DELEGATION"));
+//  }
 
-  public boolean allowChangeDelegation() {
-    return getChangeDelegation() == 1;
-  }
+//  public boolean allowChangeDelegation() {
+//    return getChangeDelegation() == 1;
+//  }
 
   public void saveAllowUpdateGatewayV102(long value) {
     this.put(UPDATE_GATEWAY_V_1_0_2,
@@ -2473,7 +2473,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
         .map(BytesCapsule::getData)
         .map(ByteArray::toLong)
 
-        .orElseThrow(() -> new IllegalArgumentException("not found ALLOW_TVM_SOLIDITY_059"));
+        .orElseThrow(() -> new IllegalArgumentException("not found UPDATE_GATEWAY_V_1_0_2"));
   }
 
   public void saveProposalExpireTime(long proposalExpireTime) {

@@ -62,7 +62,7 @@ public class RateLimite001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Rate limit IpQpsStrategy for ListWitness interface")
+  @Test(enabled = false, description = "Rate limit IpQpsStrategy for ListWitness interface")
   public void test1QpsStrategyForListWitnessInterface() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -77,7 +77,7 @@ public class RateLimite001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Rate limit IpQpsStrategy for ListNodes interface")
+  @Test(enabled = false, description = "Rate limit IpQpsStrategy for ListNodes interface")
   public void test2IpQpsStrategyForListNodesInterface() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -92,7 +92,7 @@ public class RateLimite001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Rate limit IpQpsStrategy for getBlockByNum2 "
+  @Test(enabled = false, description = "Rate limit IpQpsStrategy for getBlockByNum2 "
       + "interface on fullnode's solidity service")
   public void test3IpQpsStrategyForgetBlockByNum2ResourceInterfaceOnFullnodeSolidityService() {
     Long startTimeStamp = System.currentTimeMillis();
@@ -111,7 +111,7 @@ public class RateLimite001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Rate limit QpsStrategy for getBlockByNum "
+  @Test(enabled = false, description = "Rate limit QpsStrategy for getBlockByNum "
       + "interface on fullnode's solidity service")
   public void test4QpsStrategyForgetBlockByNumResourceInterfaceOnFullnodeSolidityService() {
     Long startTimeStamp = System.currentTimeMillis();
@@ -129,7 +129,7 @@ public class RateLimite001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Rate limit IpQpsStrategy for getBlockByNum2 "
+  @Test(enabled = false, description = "Rate limit IpQpsStrategy for getBlockByNum2 "
       + "interface on real solidity")
   public void test5IpQpsStrategyForgetBlockByNum2ResourceInterfaceOnFullnodeSolidityService() {
     Long startTimeStamp = System.currentTimeMillis();
@@ -148,7 +148,7 @@ public class RateLimite001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Rate limit QpsStrategy for getBlockByNum "
+  @Test(enabled = false, description = "Rate limit QpsStrategy for getBlockByNum "
       + "interface on real solidity")
   public void test6QpsStrategyForgetBlockByNumResourceInterfaceOnFullnodeSolidityService() {
     Long startTimeStamp = System.currentTimeMillis();

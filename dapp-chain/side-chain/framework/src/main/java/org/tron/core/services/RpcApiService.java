@@ -131,7 +131,7 @@ import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import org.tron.protos.contract.SmartContractOuterClass.TriggerSmartContract;
 import org.tron.protos.contract.SmartContractOuterClass.UpdateEnergyLimitContract;
 import org.tron.protos.contract.SmartContractOuterClass.UpdateSettingContract;
-import org.tron.protos.contract.StorageContract.UpdateBrokerageContract;
+//import org.tron.protos.contract.StorageContract.UpdateBrokerageContract;
 import org.tron.protos.contract.WitnessContract.VoteWitnessContract;
 import org.tron.protos.contract.WitnessContract.WitnessCreateContract;
 import org.tron.protos.contract.WitnessContract.WitnessUpdateContract;
@@ -2322,12 +2322,12 @@ public class RpcApiService implements Service {
       responseObserver.onCompleted();
     }
 
-    @Override
-    public void updateBrokerage(UpdateBrokerageContract request,
-        StreamObserver<TransactionExtention> responseObserver) {
-      createTransactionExtention(request, ContractType.UpdateBrokerageContract,
-          responseObserver);
-    }
+//    @Override
+//    public void updateBrokerage(UpdateBrokerageContract request,
+//        StreamObserver<TransactionExtention> responseObserver) {
+//      createTransactionExtention(request, ContractType.UpdateBrokerageContract,
+//          responseObserver);
+//    }
 
     @Override
     public void createCommonTransaction(Transaction request,

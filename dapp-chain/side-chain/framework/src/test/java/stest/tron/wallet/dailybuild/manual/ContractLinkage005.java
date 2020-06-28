@@ -21,14 +21,14 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForDailybuild;
 
 @Slf4j
 public class ContractLinkage005 {
 
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey003);
+  private final byte[] fromAddress = PublicMethedForDailybuild.getFinalAddress(testKey003);
   String contractName;
   String code;
   String abi;
@@ -71,7 +71,7 @@ public class ContractLinkage005 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethed.printAddress(linkage005Key);
+    PublicMethedForDailybuild.printAddress(linkage005Key);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -84,20 +84,23 @@ public class ContractLinkage005 {
 
   @Test(enabled = true, description = "Every same trigger use same energy and net")
   public void testEnergyCostDetail() {
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    Assert.assertTrue(PublicMethed.sendcoin(linkage005Address, 5000000000000L, fromAddress,
-        testKey003, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalance(linkage005Address, 250000000000L,
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
+    Assert.assertTrue(
+        PublicMethedForDailybuild.sendcoin(linkage005Address, 5000000000000L, fromAddress,
+            testKey003, blockingStubFull));
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethedForDailybuild.freezeBalance(linkage005Address, 250000000000L,
         0, linkage005Key, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(linkage005Address, 250000000000L,
-        0, 1, linkage005Key, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(
+        PublicMethedForDailybuild.freezeBalanceGetEnergy(linkage005Address, 250000000000L,
+            0, 1, linkage005Key, blockingStubFull));
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(linkage005Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo = PublicMethedForDailybuild
+        .getAccountResource(linkage005Address,
+            blockingStubFull);
     Account info;
-    info = PublicMethed.queryAccount(linkage005Address, blockingStubFull);
+    info = PublicMethedForDailybuild.queryAccount(linkage005Address, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyLimit = resourceInfo.getEnergyLimit();
     Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
@@ -115,24 +118,27 @@ public class ContractLinkage005 {
 
     String filePath = "./src/test/resources/soliditycode/contractLinkage005.sol";
     String contractName = "timeoutTest";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethedForDailybuild.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    String txid = PublicMethed.deployContractAndGetTransactionInfoById(contractName, abi, code,
-        "", maxFeeLimit, 0L, 100, null, linkage005Key,
-        linkage005Address, blockingStubFull);
+    String txid = PublicMethedForDailybuild
+        .deployContractAndGetTransactionInfoById(contractName, abi, code,
+            "", maxFeeLimit, 0L, 100, null, linkage005Key,
+            linkage005Address, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     logger.info("Deploy energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
-    Account infoafter = PublicMethed.queryAccount(linkage005Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethed.getAccountResource(linkage005Address,
-        blockingStubFull1);
+    Account infoafter = PublicMethedForDailybuild
+        .queryAccount(linkage005Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter = PublicMethedForDailybuild
+        .getAccountResource(linkage005Address,
+            blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyLimit = resourceInfoafter.getEnergyLimit();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -157,9 +163,10 @@ public class ContractLinkage005 {
     secondForCycleTimes = 1002L;
     thirdForCycleTimes = 1004L;
 
-    AccountResourceMessage resourceInfo1 = PublicMethed.getAccountResource(linkage005Address,
-        blockingStubFull);
-    Account info1 = PublicMethed.queryAccount(linkage005Address, blockingStubFull);
+    AccountResourceMessage resourceInfo1 = PublicMethedForDailybuild
+        .getAccountResource(linkage005Address,
+            blockingStubFull);
+    Account info1 = PublicMethedForDailybuild.queryAccount(linkage005Address, blockingStubFull);
     Long beforeBalance1 = info1.getBalance();
     Long beforeEnergyLimit1 = resourceInfo1.getEnergyLimit();
     Long beforeEnergyUsed1 = resourceInfo1.getEnergyUsed();
@@ -175,14 +182,16 @@ public class ContractLinkage005 {
     logger.info("beforeNetUsed1:" + beforeNetUsed1);
     logger.info("beforeFreeNetUsed1:" + beforeFreeNetUsed1);
     byte[] contractAddress = infoById.get().getContractAddress().toByteArray();
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testUseCpu(uint256)", firstForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    Account infoafter1 = PublicMethed.queryAccount(linkage005Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter1 = PublicMethed.getAccountResource(linkage005Address,
-        blockingStubFull1);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
+    Account infoafter1 = PublicMethedForDailybuild
+        .queryAccount(linkage005Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter1 = PublicMethedForDailybuild
+        .getAccountResource(linkage005Address,
+            blockingStubFull1);
     Long afterBalance1 = infoafter1.getBalance();
     Long afterEnergyLimit1 = resourceInfoafter1.getEnergyLimit();
     Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
@@ -198,7 +207,7 @@ public class ContractLinkage005 {
     logger.info("afterNetUsed1:" + afterNetUsed1);
     logger.info("afterFreeNetUsed1:" + afterFreeNetUsed1);
     logger.info("---------------:");
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     fee = infoById.get().getFee();
     firstForCycleCost = infoById.get().getReceipt().getEnergyUsageTotal();
     Assert.assertTrue((beforeBalance1 - fee) == afterBalance1);
@@ -206,19 +215,19 @@ public class ContractLinkage005 {
     Assert.assertTrue(afterNetUsed1 > beforeNetUsed1);
     //use EnergyUsed and NetUsed.balance not change
 
-    String txid6 = PublicMethed.triggerContract(contractAddress,
+    String txid6 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testUseCpu(uint256)", secondForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
-    final String txid7 = PublicMethed.triggerContract(contractAddress,
+    final String txid7 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testUseCpu(uint256)", thirdForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    infoById = PublicMethed.getTransactionInfoById(txid6, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid6, blockingStubFull);
     secondForCycleCost = infoById.get().getReceipt().getEnergyUsageTotal();
 
-    infoById = PublicMethed.getTransactionInfoById(txid7, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid7, blockingStubFull);
     thirdForCycleCost = infoById.get().getReceipt().getEnergyUsageTotal();
 
     Assert.assertTrue(thirdForCycleCost - secondForCycleCost
@@ -230,9 +239,10 @@ public class ContractLinkage005 {
     thirdForCycleTimes = 504L;
     forthForCycleTimes = 506L;
     fifthForCycleTimes = 508L;
-    AccountResourceMessage resourceInfo4 = PublicMethed.getAccountResource(linkage005Address,
-        blockingStubFull);
-    Account info4 = PublicMethed.queryAccount(linkage005Address, blockingStubFull);
+    AccountResourceMessage resourceInfo4 = PublicMethedForDailybuild
+        .getAccountResource(linkage005Address,
+            blockingStubFull);
+    Account info4 = PublicMethedForDailybuild.queryAccount(linkage005Address, blockingStubFull);
     Long beforeBalance4 = info4.getBalance();
     Long beforeEnergyLimit4 = resourceInfo4.getEnergyLimit();
     Long beforeEnergyUsed4 = resourceInfo4.getEnergyUsed();
@@ -247,16 +257,18 @@ public class ContractLinkage005 {
     logger.info("beforeNetLimit4:" + beforeNetLimit4);
     logger.info("beforeNetUsed4:" + beforeNetUsed4);
     logger.info("beforeFreeNetUsed4:" + beforeFreeNetUsed4);
-    txid = PublicMethed.triggerContract(contractAddress,
+    txid = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testUseStorage(uint256)", zeroForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     fee = infoById.get().getFee();
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    Account infoafter4 = PublicMethed.queryAccount(linkage005Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter4 = PublicMethed.getAccountResource(linkage005Address,
-        blockingStubFull1);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull1);
+    Account infoafter4 = PublicMethedForDailybuild
+        .queryAccount(linkage005Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoafter4 = PublicMethedForDailybuild
+        .getAccountResource(linkage005Address,
+            blockingStubFull1);
     Long afterBalance4 = infoafter4.getBalance();
     Long afterEnergyLimit4 = resourceInfoafter4.getEnergyLimit();
     Long afterEnergyUsed4 = resourceInfoafter4.getEnergyUsed();
@@ -276,44 +288,44 @@ public class ContractLinkage005 {
     Assert.assertTrue(afterEnergyUsed4 > beforeEnergyUsed4);
     Assert.assertTrue(afterNetUsed4 > beforeNetUsed4);
 
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid, blockingStubFull);
     zeroForCycleCost = infoById.get().getReceipt().getEnergyUsageTotal();
 
-    String txid1 = PublicMethed.triggerContract(contractAddress,
+    String txid1 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testUseStorage(uint256)", firstForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
 
-    final String txid2 = PublicMethed.triggerContract(contractAddress,
+    final String txid2 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testUseStorage(uint256)", secondForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
 
-    final String txid3 = PublicMethed.triggerContract(contractAddress,
+    final String txid3 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testUseStorage(uint256)", thirdForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
 
-    final String txid4 = PublicMethed.triggerContract(contractAddress,
+    final String txid4 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testUseStorage(uint256)", forthForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
 
-    final String txid5 = PublicMethed.triggerContract(contractAddress,
+    final String txid5 = PublicMethedForDailybuild.triggerContract(contractAddress,
         "testUseStorage(uint256)", fifthForCycleTimes.toString(), false,
         0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForDailybuild.waitProduceNextBlock(blockingStubFull);
 
-    infoById = PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid1, blockingStubFull);
     firstForCycleCost = infoById.get().getReceipt().getEnergyUsageTotal();
 
-    infoById = PublicMethed.getTransactionInfoById(txid2, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid2, blockingStubFull);
     secondForCycleCost = infoById.get().getReceipt().getEnergyUsageTotal();
 
-    infoById = PublicMethed.getTransactionInfoById(txid3, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid3, blockingStubFull);
     thirdForCycleCost = infoById.get().getReceipt().getEnergyUsageTotal();
 
-    infoById = PublicMethed.getTransactionInfoById(txid4, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid4, blockingStubFull);
     forthForCycleCost = infoById.get().getReceipt().getEnergyUsageTotal();
 
-    infoById = PublicMethed.getTransactionInfoById(txid5, blockingStubFull);
+    infoById = PublicMethedForDailybuild.getTransactionInfoById(txid5, blockingStubFull);
     fifthForCycleCost = infoById.get().getReceipt().getEnergyUsageTotal();
 
     Assert.assertTrue(thirdForCycleCost - secondForCycleCost
@@ -330,11 +342,12 @@ public class ContractLinkage005 {
 
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethed.unFreezeBalance(linkage005Address, linkage005Key, 1,
+    PublicMethedForDailybuild.unFreezeBalance(linkage005Address, linkage005Key, 1,
         linkage005Address, blockingStubFull);
-    PublicMethed.unFreezeBalance(linkage005Address, linkage005Key, 0,
+    PublicMethedForDailybuild.unFreezeBalance(linkage005Address, linkage005Key, 0,
         linkage005Address, blockingStubFull);
-    PublicMethed.freedResource(linkage005Address, linkage005Key, fromAddress, blockingStubFull);
+    PublicMethedForDailybuild
+        .freedResource(linkage005Address, linkage005Key, fromAddress, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

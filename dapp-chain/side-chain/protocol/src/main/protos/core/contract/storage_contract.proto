@@ -21,7 +21,7 @@ message SellStorageContract {
     int64 storage_bytes = 2;
 }
 
-message UpdateBrokerageContract {
-    bytes owner_address = 1;
-    int32 brokerage = 2; // 1 mean 1%
-}
+//message UpdateBrokerageContract {
+//    bytes owner_address = 1;
+//    int32 brokerage = 2; // 1 mean 1%
+//}
