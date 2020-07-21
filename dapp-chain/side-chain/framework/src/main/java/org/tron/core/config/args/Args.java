@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,13 +39,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.encoders.Hex;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.crypto.SignInterface;
 import org.tron.common.logsfilter.EventPluginConfig;
 import org.tron.common.logsfilter.FilterQuery;
 import org.tron.common.logsfilter.TriggerConfig;
+import org.tron.common.logsfilter.capsule.ContractTriggerCapsule;
+import org.tron.common.logsfilter.trigger.ContractEventTrigger;
+import org.tron.common.logsfilter.trigger.ContractLogTrigger;
 import org.tron.common.overlay.discover.node.Node;
+import org.tron.common.parameter.CommonParameter;
 import org.tron.common.storage.rocksdb.RocksDbSettings;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Sha256Hash;
@@ -66,7 +72,7 @@ import org.tron.program.Version;
 @Slf4j(topic = "app")
 @NoArgsConstructor
 @Component
-public class Args {
+public class Args extends CommonParameter {
 
   private static final Args INSTANCE = new Args();
 
@@ -594,6 +600,15 @@ public class Args {
   @Setter
   private long updateGateway_v1_0_2; //committee parameter
 
+  @Autowired(required = false)
+  @Getter
+  private static ConcurrentHashMap<Long, List<ContractLogTrigger>>
+          solidityContractLogTriggerList =  new ConcurrentHashMap<>();
+
+  @Autowired(required = false)
+  @Getter
+  private static ConcurrentHashMap<Long, List<ContractEventTrigger>>
+          solidityContractEventTriggerList =  new ConcurrentHashMap<>();
 
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
