@@ -58,6 +58,10 @@ public class VMConfig {
   @Setter
   public static boolean isAllowUpdateGateway102 = false;
 
+  @Getter
+  @Setter
+  public static boolean isAllowDapp152 = false;
+
   private VMConfig() {
   }
 
@@ -76,6 +80,7 @@ public class VMConfig {
   public static void handleProposalInVM(DynamicPropertiesStore dynamicPropertiesStore) {
     isVmResourceChargingOn = isChargingResourceProposalOn(dynamicPropertiesStore);
     isAllowUpdateGateway102 = isAllowUpdateGatewayV102(dynamicPropertiesStore);
+    isAllowDapp152 = isAllowDapp152(dynamicPropertiesStore);
   }
 
   public static void initVmHardFork(boolean pass) {
@@ -129,6 +134,10 @@ public class VMConfig {
 
   private static boolean isAllowUpdateGatewayV102(DynamicPropertiesStore dynamicPropertiesStore) {
     return dynamicPropertiesStore.getAllowUpdateGatewayV102() == 1;
+  }
+
+  private static boolean isAllowDapp152(DynamicPropertiesStore dynamicPropertiesStore) {
+    return dynamicPropertiesStore.getAllowDappV152() == 1;
   }
 
 }

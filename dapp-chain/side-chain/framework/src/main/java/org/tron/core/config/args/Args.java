@@ -600,6 +600,10 @@ public class Args extends CommonParameter {
   @Setter
   private long updateGateway_v1_0_2; //committee parameter
 
+  @Getter
+  @Setter
+  private int allowDapp_v1_0_5;
+
   @Autowired(required = false)
   @Getter
   private static ConcurrentHashMap<Long, List<ContractLogTrigger>>
@@ -708,6 +712,7 @@ public class Args extends CommonParameter {
     INSTANCE.voteSwitch = 0;
     INSTANCE.witnessMaxActiveNum = 27;
     INSTANCE.updateGateway_v1_0_2 = 0;
+    INSTANCE.allowDapp_v1_0_5 = 0;
   }
 
   /**
@@ -1212,6 +1217,10 @@ public class Args extends CommonParameter {
         config.hasPath("committee.chargingSwitchOn") ? config
             .getInt("committee.chargingSwitchOn") : 0;
 
+    INSTANCE.allowDapp_v1_0_5 =
+        config.hasPath("committee.allowDapp152") ? config
+            .getInt("committee.allowDapp152") : 0;
+
     INSTANCE.sideChainChargingType =
         config.hasPath("sidechain.chargingType") ? config
             .getInt("sidechain.chargingType") : 0;
@@ -1702,7 +1711,7 @@ public class Args extends CommonParameter {
     DBConfig.setVoteSwitch(cfgArgs.getVoteSwitch());
     DBConfig.setWitnessMaxActiveNum(cfgArgs.getWitnessMaxActiveNum());
     DBConfig.setUpdateGateway_v1_0_2(cfgArgs.getUpdateGateway_v1_0_2());
-
+    DBConfig.setAllowDapp_v1_5_2(cfgArgs.getAllowDapp_v1_0_5());
 
   }
 

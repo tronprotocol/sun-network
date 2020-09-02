@@ -275,6 +275,11 @@ public class ProposalService extends ProposalUtil {
               .savePercentToPayWitness(Long.valueOf(entry.getValue()));
           break;
         }
+        case ALLOW_DAPP_152: {
+          manager.getDynamicPropertiesStore()
+              .saveAllowDappV152(Long.valueOf(entry.getValue()));
+          break;
+        }
         case WITNESS_MAX_NUMBER: {
           int oldNum = manager.getDynamicPropertiesStore().getWitnessMaxActiveNum();
           int newNum = Integer.parseInt(entry.getValue());
