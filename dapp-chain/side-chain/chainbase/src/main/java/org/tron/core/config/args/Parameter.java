@@ -10,7 +10,8 @@ public class Parameter {
     VERSION_3_5(7),
     VERSION_3_6(8),
     DAPP_CHAIN_1_0_2(10000),
-    DAPP_CHAIN_1_5_0(10001);
+    DAPP_CHAIN_1_5_0(10001),
+    DAPP_CHAIN_1_5_2(10002);
 
     @Getter
     private int value;

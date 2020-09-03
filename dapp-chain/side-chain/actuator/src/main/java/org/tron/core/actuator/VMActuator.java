@@ -84,6 +84,9 @@ public class VMActuator implements Actuator2 {
   @Setter
   private boolean isConstantCall = false;
 
+  @Getter
+  private boolean isSideChainGateWayContractCall;
+
   @Setter
   private boolean enableEventLinstener;
 
@@ -117,6 +120,10 @@ public class VMActuator implements Actuator2 {
 
     //Load Config
     ConfigLoader.load(context.getStoreFactory());
+    if (context.getTrxCap().checkIfSideChainGateWayContractCall(context.getStoreFactory()
+        .getChainBaseManager().getDynamicPropertiesStore())) {
+      isSideChainGateWayContractCall = true;
+    }
     trx = context.getTrxCap().getInstance();
     blockCap = context.getBlockCap();
     //Route Type
@@ -490,7 +497,9 @@ public class VMActuator implements Actuator2 {
       if (isConstantCall) {
         energyLimit = Constant.ENERGY_LIMIT_IN_CONSTANT_TX;
       } else if (!VMConfig.isVmResourceChargingOn()) {
-        energyLimit = 10_000_000;
+        energyLimit = Constant.ENERGY_LIMIT_IN_CHARGING_OFF;
+      } else if (VMConfig.isAllowDapp152() && isSideChainGateWayContractCall()) {
+        energyLimit = Constant.ENERGY_LIMIT_ALLOW_DAPP_152;
       } else {
         AccountCapsule creator = repository
                 .getAccount(deployedContract.getInstance().getOriginAddress().toByteArray());
