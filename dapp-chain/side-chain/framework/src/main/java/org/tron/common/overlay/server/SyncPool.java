@@ -167,6 +167,7 @@ public class SyncPool {
     try {
       poolLoopExecutor.shutdownNow();
       logExecutor.shutdownNow();
+      peerClient.close();
     } catch (Exception e) {
       logger.warn("Problems shutting down executor", e);
     }
