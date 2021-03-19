@@ -89,7 +89,7 @@ public class AbiUtil {
       if (length == -1) {
         this.dynamic = true;
       }
-      this.dynamic = true;
+//      this.dynamic = true;
     }
 
     @Override
