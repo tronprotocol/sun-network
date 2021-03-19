@@ -104,6 +104,19 @@ public class Chain implements ChainInterface {
     return ret.success(0);
   }
 
+  public SunNetworkResponse<Integer> setPrivateKey(String priKey, String address) {
+    SunNetworkResponse<Integer> ret = new SunNetworkResponse<>();
+    byte[] temp = ByteArray.fromHexString(priKey);
+    byte[] tempAddress = AddressUtil.decodeFromBase58Check(address);
+    if (!Utils.priKeyValid(temp)) {
+      ret.failed(ErrorCodeEnum.COMMON_PARAM_ERROR);
+    }
+
+    serverApi.initPrivateKey(temp, tempAddress);
+
+    return ret.success(0);
+  }
+
   /**
    * @param request request of deploy contract
    * @return the response of deploy contract which contains the address of contract deployed
