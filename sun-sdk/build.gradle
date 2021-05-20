@@ -86,7 +86,7 @@ dependencies {
     compile "org.apache.commons:commons-collections4:4.0"
     compile "org.apache.commons:commons-lang3:3.4"
     compile group: 'com.google.api.grpc', name: 'googleapis-common-protos', version: '0.0.3'
-    compile 'com.alibaba:fastjson:1.2.47'
+    implementation group: 'com.alibaba', name: 'fastjson', version: '1.2.76'
 }
 
 protobuf {
