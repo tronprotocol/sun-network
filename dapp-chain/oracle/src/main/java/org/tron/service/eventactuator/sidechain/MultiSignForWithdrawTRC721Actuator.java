@@ -3,12 +3,14 @@ package org.tron.service.eventactuator.sidechain;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
+import org.tron.common.config.SystemSetting;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.SignUtils;
 import org.tron.common.utils.WalletUtil;
@@ -57,16 +59,27 @@ public class MultiSignForWithdrawTRC721Actuator extends MultiSignForWithdrawActu
           .encode58Check(event.getMainchainAddress().toByteArray());
       String uIdStr = event.getUId().toStringUtf8();
       String nonceStr = event.getNonce().toStringUtf8();
-      SignListParam signParam = SideChainGatewayApi.getWithdrawOracleSigns(nonceStr);
 
       logger.info(
           "MultiSignForWithdrawTRC721Actuator, from: {}, mainChainAddress: {}, uId: {}, nonce: {}",
           fromStr, mainChainAddressStr, uIdStr, nonceStr);
+
+      SignListParam signParam;
+      long delay = 0;
+      if (new BigInteger(nonceStr, 10).compareTo(new BigInteger(SystemSetting.OPERATION_BASE_VALUE))
+          < 0) {
+        signParam = SideChainGatewayApi.getWithdrawOracleSigns(nonceStr);
+        delay = getDelay(fromStr, mainChainAddressStr, uIdStr, nonceStr,
+            signParam.getOracleSigns());
+      } else {
+        signParam = SideChainGatewayApi
+            .getWithdrawTRCTokenSignParam(fromStr, mainChainAddressStr, uIdStr, nonceStr);
+      }
       Transaction tx = MainChainGatewayApi
           .multiSignForWithdrawTRC721Transaction(fromStr, mainChainAddressStr, uIdStr, nonceStr,
               signParam);
       this.transactionExtensionCapsule = new TransactionExtensionCapsule(PREFIX + nonceStr, tx,
-          getDelay(fromStr, mainChainAddressStr, uIdStr, nonceStr, signParam.getOracleSigns()));
+          delay);
       return CreateRet.SUCCESS;
     } catch (Exception e) {
       logger.error("when create transaction extension capsule", e);

@@ -367,6 +367,10 @@ public class WithdrawMinTrc20001 {
     Assert.assertTrue(afterMainTrc20Balance2 + withdrawValue == afterMainTrc20Balance3);
 
     //value <WithdrawMinTrc10
+
+    Account account = PublicMethed.queryAccount(depositAddress,blockingSideStubFull);
+    Long balanceBefore = account.getBalance();
+    logger.info("balanceBefore : " + balanceBefore);
     withdrawValue = 90;
     withdrawValueString = Long.toString(withdrawValue);
 
@@ -374,14 +378,16 @@ public class WithdrawMinTrc20001 {
         sideChainAddress, withdrawValueString,
         WalletClient.encode58Check(sideContractAddress),
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById3 = PublicMethed
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
     Assert.assertTrue(infoById3.get().getResultValue() == 1);
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById3.get().getResMessage().toByteArray()));
+
+    Long balnceAfter = PublicMethed.queryAccount(depositAddress,blockingSideStubFull).getBalance();
+    logger.info("balnceAfter : " + balnceAfter);
+    Assert.assertEquals(balanceBefore - infoById3.get().getFee(),balnceAfter.longValue());
 
   }
 

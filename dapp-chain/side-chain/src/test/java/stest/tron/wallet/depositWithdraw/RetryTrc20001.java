@@ -84,9 +84,8 @@ public class RetryTrc20001 {
       .getStringList("mainfullnode.ip.list").get(0);
   private String fullnode1 = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
-  private int depositNonce;
-  private int withdrawNonce;
-  private int mappingNonce;
+  private String depositNonce;
+  private String withdrawNonce;
 
   @BeforeSuite
   public void beforeSuite() {
@@ -184,11 +183,8 @@ public class RetryTrc20001 {
         .getTransactionInfoById(mapTxid, blockingStubFull);
     Assert.assertEquals("SUCESS", infoById1.get().getResult().name());
     Assert.assertEquals(0, infoById1.get().getResultValue());
-    Long nonceMapLong = ByteArray.toLong(ByteArray
-        .fromHexString(
-            ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
-    logger.info("nonce:" + nonceMapLong);
-    nonceMap = Long.toString(nonceMapLong);
+    nonceMap = ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray());
+    logger.info("nonce:" + nonceMap);
     String parame1 = "\"" + Base58.encode58Check(trc20Contract) + "\"";
     byte[] input2 = Hex
         .decode(AbiUtil.parseMethod("mainToSideContractMap(address)", parame1, false));
@@ -231,11 +227,8 @@ public class RetryTrc20001 {
     Optional<TransactionInfo> infodepositTrc20 = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
     Assert.assertEquals(0, infodepositTrc20.get().getResultValue());
-    Long nonceLong = ByteArray.toLong(ByteArray
-        .fromHexString(
-            ByteArray.toHexString(infodepositTrc20.get().getContractResult(0).toByteArray())));
-    logger.info("nonce:" + nonceLong);
-    nonce = Long.toString(nonceLong);
+    nonce = ByteArray.toHexString(infodepositTrc20.get().getContractResult(0).toByteArray());
+    logger.info("nonce:" + nonce);
 
     String sideChainTxid = PublicMethed
         .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1, 1000000000,
@@ -270,11 +263,8 @@ public class RetryTrc20001 {
     Optional<TransactionInfo> infoByIdwithdrawTrc20 = PublicMethed
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
     Assert.assertEquals(0, infoByIdwithdrawTrc20.get().getResultValue());
-    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
-        .fromHexString(
-            ByteArray.toHexString(infoByIdwithdrawTrc20.get().getContractResult(0).toByteArray())));
-    logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
-    nonceWithdraw = Long.toString(nonceWithdrawLong);
+    nonceWithdraw = ByteArray.toHexString(infoByIdwithdrawTrc20.get().getContractResult(0).toByteArray());
+    logger.info("nonceWithdraw:" + nonceWithdraw);
 
     byte[] input4 = Hex.decode(AbiUtil.parseMethod("balanceOf(address)", parame, false));
     String sideChainTxid1 = PublicMethed
@@ -302,8 +292,7 @@ public class RetryTrc20001 {
 
     //retry deposit trc10 with no retryfee
     String retryDepositTxid = PublicMethed.retryDeposit(mainChainAddress,
-        nonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
+        nonce, maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info("retryDepositTxid:" + retryDepositTxid);
     Optional<TransactionInfo> infoByIdretryDeposit = PublicMethed
@@ -320,8 +309,7 @@ public class RetryTrc20001 {
 
     //retry mapping trc10 with no retryfee
     String retryMaptxid = PublicMethed.retryMapping(mainChainAddress,
-        nonceMap,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
+        nonceMap, maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info("retryDepositTxid:" + retryMaptxid);
     Optional<TransactionInfo> infoByIdretryMaptxid = PublicMethed
@@ -331,8 +319,7 @@ public class RetryTrc20001 {
     //retry withdraw trc20 with no retryfee
 
     String retryWithdrawTxid = PublicMethed.retryWithdraw(chainIdAddress, sideChainAddress,
-        nonceWithdraw,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
+        nonceWithdraw, maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     logger.info("retryWithdrawTxid:" + retryWithdrawTxid);
     Optional<TransactionInfo> infoByIdretryWithdraw = PublicMethed
@@ -783,74 +770,33 @@ public class RetryTrc20001 {
     Assert.assertEquals(accountMainBeforeRetryBalance,
         accountMainAfterRetryBalance);
 
-    //Deposit noce value
-    String bigNonce = "100000";
-    String retryDepositTxid2 = PublicMethed.retryDeposit(mainChainAddress,
-        bigNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    logger.info("retryDepositTxid2:" + retryDepositTxid2);
-    Optional<TransactionInfo> infoByIdretryDepositTxid2 = PublicMethed
-        .getTransactionInfoById(retryDepositTxid2, blockingStubFull);
-    Assert.assertTrue(infoByIdretryDepositTxid2.get().getResultValue() != 0);
-    Assert.assertEquals(FAILED, infoByIdretryDepositTxid2.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryDepositTxid2.get().getResMessage().toStringUtf8());
-
-    //retry mapping trc10
-    String retryMaptxid2 = PublicMethed.retryMapping(mainChainAddress,
-        bigNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    logger.info("retryDepositTxid2:" + retryDepositTxid2);
-    Optional<TransactionInfo> infoByIdretryMaptxid2 = PublicMethed
-        .getTransactionInfoById(retryMaptxid2, blockingStubFull);
-    Assert.assertTrue(infoByIdretryMaptxid2.get().getResultValue() != 0);
-    Assert.assertEquals(FAILED, infoByIdretryMaptxid2.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryMaptxid2.get().getResMessage().toStringUtf8());
-
-    //retry withdraw trc20
-
-    String retryWithdrawTxid2 = PublicMethed.retryWithdraw(chainIdAddress,
-        sideChainAddress, bigNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
-    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
-    logger.info("retryDepositTxid2:" + retryDepositTxid2);
-    Optional<TransactionInfo> infoByIdretryWithdraw2 = PublicMethed
-        .getTransactionInfoById(retryWithdrawTxid2, blockingSideStubFull);
-    Assert.assertTrue(infoByIdretryWithdraw2.get().getResultValue() != 0);
-    Assert.assertEquals(FAILED, infoByIdretryWithdraw2.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryWithdraw2.get().getResMessage().toStringUtf8());
-
     //Deposit noce value is 0
-    String smallNonce = Long.toString(0);
+    String smallNonce = "0000000000000000000000000000000000000000000000000000000000000000";
     logger.info("smallNonce:" + smallNonce);
     String retryDepositTxid3 = PublicMethed.retryDeposit(mainChainAddress,
-        smallNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
+        smallNonce, maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     logger.info("retryDepositTxid3:" + retryDepositTxid3);
     Optional<TransactionInfo> infoByIdretryDepositTxid3 = PublicMethed
         .getTransactionInfoById(retryDepositTxid3, blockingStubFull);
-    Assert.assertTrue(infoByIdretryDepositTxid3.get().getResultValue() == 0);
+    Assert.assertTrue(infoByIdretryDepositTxid3.get().getResultValue() == 1);
+    Assert.assertEquals(FAILED, infoByIdretryDepositTxid3.get().getResult());
+    Assert.assertEquals("REVERT opcode executed",
+        infoByIdretryDepositTxid3.get().getResMessage().toStringUtf8());
 
     //Mapping noce value is 0
-
     String retryMaptxid3 = PublicMethed.retryMapping(mainChainAddress,
-        smallNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
+        smallNonce, maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info("retryMaptxid3:" + retryMaptxid3);
     Optional<TransactionInfo> infoByIdretryMaptxid3 = PublicMethed
         .getTransactionInfoById(retryMaptxid3, blockingStubFull);
-    Assert.assertTrue(infoByIdretryMaptxid3.get().getResultValue() == 0);
+    Assert.assertTrue(infoByIdretryMaptxid3.get().getResultValue() == 1);
+    Assert.assertEquals(FAILED, infoByIdretryMaptxid3.get().getResult());
+    Assert.assertEquals("REVERT opcode executed",
+        infoByIdretryMaptxid3.get().getResMessage().toStringUtf8());
 
     //retry withdraw trc20 noce value is 0
-
     String retryWithdrawTxid3 = PublicMethed.retryWithdraw(chainIdAddress,
         sideChainAddress, smallNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
@@ -858,16 +804,14 @@ public class RetryTrc20001 {
     logger.info("retryDepositTxid3:" + retryWithdrawTxid3);
     Optional<TransactionInfo> infoByIdretryWithdraw3 = PublicMethed
         .getTransactionInfoById(retryWithdrawTxid3, blockingSideStubFull);
-    Assert.assertTrue(infoByIdretryWithdraw3.get().getResultValue() == 0);
+    Assert.assertEquals(0, infoByIdretryWithdraw3.get().getResultValue());
 
-    //Deposit noce value is Long.max_value+1
-    String maxNonce = Long.toString(Long.MAX_VALUE + 1);
+    //Deposit noce value is 1*10**20+1*10**6（nonexistent）
+    String maxNonce = "0000000000000000000000000000000000000000000000056bc75e2d636b8d80";
     logger.info("maxNonce:" + maxNonce);
     String retryDepositTxid4 = PublicMethed.retryDeposit(mainChainAddress,
-        maxNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
+        maxNonce, maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     logger.info("retryDepositTxid4:" + retryDepositTxid4);
     Optional<TransactionInfo> infoByIdretryDepositTxid4 = PublicMethed
         .getTransactionInfoById(retryDepositTxid4, blockingStubFull);
@@ -876,22 +820,19 @@ public class RetryTrc20001 {
     Assert.assertEquals("REVERT opcode executed",
         infoByIdretryDepositTxid4.get().getResMessage().toStringUtf8());
 
-    //Mapping noce value is Long.max_value+1
-
+    //Mapping noce value is 1*10**20+1*10**6（nonexistent）
     String retryMaptxid4 = PublicMethed.retryMapping(mainChainAddress,
-        maxNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
+        maxNonce, maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info("retryMaptxid3:" + retryMaptxid4);
     Optional<TransactionInfo> infoByIdretryMaptxid4 = PublicMethed
         .getTransactionInfoById(retryMaptxid4, blockingStubFull);
-    Assert.assertTrue(infoByIdretryMaptxid4.get().getResultValue() != 0);
+    Assert.assertTrue(infoByIdretryMaptxid4.get().getResultValue() == 1);
     Assert.assertEquals(FAILED, infoByIdretryMaptxid4.get().getResult());
     Assert.assertEquals("REVERT opcode executed",
         infoByIdretryMaptxid4.get().getResMessage().toStringUtf8());
 
-    //retry withdraw trc20 noce value is Long.max_value+1
-
+    //retry withdraw trc20 noce value is 1*10**20+1*10**6（nonexistent）
     String retryWithdrawTxid4 = PublicMethed.retryWithdraw(chainIdAddress,
         sideChainAddress, maxNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
@@ -899,64 +840,51 @@ public class RetryTrc20001 {
     logger.info("retryWithdrawTxid4:" + retryWithdrawTxid4);
     Optional<TransactionInfo> infoByIdretryWithdraw4 = PublicMethed
         .getTransactionInfoById(retryWithdrawTxid4, blockingSideStubFull);
-    Assert.assertTrue(infoByIdretryWithdraw4.get().getResultValue() != 0);
+    Assert.assertTrue(infoByIdretryWithdraw4.get().getResultValue() == 1);
     Assert.assertEquals(FAILED, infoByIdretryWithdraw4.get().getResult());
     Assert.assertEquals("REVERT opcode executed",
         infoByIdretryWithdraw4.get().getResMessage().toStringUtf8());
 
-    //Deposit noce value is Long.min_value-1
-    String minNonce = Long.toString(Long.MIN_VALUE - 1);
-    logger.info("maxNonce:" + maxNonce);
+    //Deposit noce value is 1*10**20
+    String initialNonce = "0000000000000000000000000000000000000000000000056bc75e2d63100000";
+    logger.info("initialNonce:" + initialNonce);
     String retryDepositTxid5 = PublicMethed.retryDeposit(mainChainAddress,
-        minNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
+        initialNonce, maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     logger.info("retryDepositTxid4:" + retryDepositTxid5);
     Optional<TransactionInfo> infoByIdretryDepositTxid5 = PublicMethed
         .getTransactionInfoById(retryDepositTxid5, blockingStubFull);
-    Assert.assertTrue(infoByIdretryDepositTxid5.get().getResultValue() == 1);
-    Assert.assertEquals(FAILED, infoByIdretryDepositTxid5.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryDepositTxid5.get().getResMessage().toStringUtf8());
+    Assert.assertTrue(infoByIdretryDepositTxid5.get().getResultValue() == 0);
 
-    //Deposit noce value is Long.min_value-1
-
+    // retry mapping noce value is 1*10**20
     String retryMaptxid5 = PublicMethed.retryMapping(mainChainAddress,
-        minNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
+        initialNonce, maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info("retryMaptxid3:" + retryMaptxid5);
     Optional<TransactionInfo> infoByIdretryMaptxid5 = PublicMethed
         .getTransactionInfoById(retryMaptxid5, blockingStubFull);
-    Assert.assertTrue(infoByIdretryMaptxid5.get().getResultValue() != 0);
-    Assert.assertEquals(FAILED, infoByIdretryMaptxid5.get().getResult());
-    Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryMaptxid5.get().getResMessage().toStringUtf8());
+    Assert.assertTrue(infoByIdretryMaptxid5.get().getResultValue() == 0);
 
-    //retry withdraw trc20 noce value is Long.min_value-1
-
+    // retry withdraw trc20 noce value is 1*10**20
     String retryWithdrawTxid5 = PublicMethed.retryWithdraw(chainIdAddress,
-        sideChainAddress, bigNonce,
+        sideChainAddress, initialNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     logger.info("retryWithdrawTxid5:" + retryWithdrawTxid5);
     Optional<TransactionInfo> infoByIdretryWithdraw5 = PublicMethed
         .getTransactionInfoById(retryWithdrawTxid5, blockingSideStubFull);
-    Assert.assertTrue(infoByIdretryWithdraw5.get().getResultValue() != 0);
+    Assert.assertTrue(infoByIdretryWithdraw5.get().getResultValue() == 1);
     Assert.assertEquals(FAILED, infoByIdretryWithdraw5.get().getResult());
     Assert.assertEquals("REVERT opcode executed",
         infoByIdretryWithdraw5.get().getResMessage().toStringUtf8());
 
-    //Deposit noce value is -1
-    String minusNonce = Long.toString(-1);
+    // retry deposit noce value is -1
+    String minusNonce = PublicMethed.numToHex64(-1L);
     logger.info("minusNonce:" + minusNonce);
     String retryDepositTxid6 = PublicMethed.retryDeposit(mainChainAddress,
-        minusNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
+        minusNonce, maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    logger.info("retryDepositTxid4:" + retryDepositTxid6);
+    logger.info("retryDepositTxid6:" + retryDepositTxid6);
     Optional<TransactionInfo> infoByIdretryDepositTxid6 = PublicMethed
         .getTransactionInfoById(retryDepositTxid6, blockingStubFull);
     Assert.assertTrue(infoByIdretryDepositTxid6.get().getResultValue() == 1);
@@ -965,21 +893,18 @@ public class RetryTrc20001 {
         infoByIdretryDepositTxid6.get().getResMessage().toStringUtf8());
 
     //Mapping noce value is -1
-
     String retryMaptxid6 = PublicMethed.retryMapping(mainChainAddress,
-        minusNonce,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
+        minusNonce, maxFeeLimit, depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info("retryMaptxid6:" + retryMaptxid6);
     Optional<TransactionInfo> infoByIdretryMaptxid6 = PublicMethed
         .getTransactionInfoById(retryMaptxid6, blockingStubFull);
-    Assert.assertTrue(infoByIdretryMaptxid6.get().getResultValue() != 0);
+    Assert.assertTrue(infoByIdretryMaptxid6.get().getResultValue() == 1);
     Assert.assertEquals(FAILED, infoByIdretryMaptxid6.get().getResult());
     Assert.assertEquals("REVERT opcode executed",
-        infoByIdretryMaptxid6.get().getResMessage().toStringUtf8());
+       infoByIdretryMaptxid6.get().getResMessage().toStringUtf8());
 
     //retry withdraw trc20 noce value is -1
-
     String retryWithdrawTxid6 = PublicMethed.retryWithdraw(chainIdAddress,
         sideChainAddress, minusNonce,
         maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
@@ -987,12 +912,10 @@ public class RetryTrc20001 {
     logger.info("retryWithdrawTxid6:" + retryWithdrawTxid6);
     Optional<TransactionInfo> infoByIdretryWithdraw6 = PublicMethed
         .getTransactionInfoById(retryWithdrawTxid6, blockingSideStubFull);
-    Assert.assertTrue(infoByIdretryWithdraw6.get().getResultValue() != 0);
+    Assert.assertTrue(infoByIdretryWithdraw6.get().getResultValue() == 1);
     Assert.assertEquals(FAILED, infoByIdretryWithdraw6.get().getResult());
     Assert.assertEquals("REVERT opcode executed",
         infoByIdretryWithdraw6.get().getResMessage().toStringUtf8());
-
-
   }
 
   @Test(enabled = true, description = "Retry Deposit and Withdraw Trc20 with mainOralce value is 0")
@@ -1049,11 +972,8 @@ public class RetryTrc20001 {
     Optional<TransactionInfo> infodepositTrc20 = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
     Assert.assertEquals(0, infodepositTrc20.get().getResultValue());
-    Long nonceLong = ByteArray.toLong(ByteArray
-        .fromHexString(
-            ByteArray.toHexString(infodepositTrc20.get().getContractResult(0).toByteArray())));
-    logger.info("nonce:" + nonceLong);
-    nonce = Long.toString(nonceLong);
+    nonce = ByteArray.toHexString(infodepositTrc20.get().getContractResult(0).toByteArray());
+    logger.info("nonce:" + nonce);
 
     String sideChainTxid1 = PublicMethed
         .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1, 1000000000,
@@ -1087,11 +1007,8 @@ public class RetryTrc20001 {
     Optional<TransactionInfo> infoByIdwithdrawTrc20 = PublicMethed
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
     Assert.assertTrue(infoByIdwithdrawTrc20.get().getResultValue() == 0);
-    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
-        .fromHexString(
-            ByteArray.toHexString(infoByIdwithdrawTrc20.get().getContractResult(0).toByteArray())));
-    logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
-    nonceWithdraw = Long.toString(nonceWithdrawLong);
+    nonceWithdraw = ByteArray.toHexString(infoByIdwithdrawTrc20.get().getContractResult(0).toByteArray());
+    logger.info("nonceWithdraw:" + nonceWithdraw);
 
     String sideChainTxid2 = PublicMethed
         .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1, 1000000000,
@@ -1125,8 +1042,7 @@ public class RetryTrc20001 {
       e.printStackTrace();
     }
     String retryWithdrawTxid = PublicMethed.retryWithdraw(chainIdAddress, sideChainAddress,
-        nonceWithdraw,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
+        nonceWithdraw, maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     try {
       Thread.sleep(60000);
     } catch (InterruptedException e) {
@@ -1160,7 +1076,6 @@ public class RetryTrc20001 {
     logger.info("mainTrc20Balance4:" + mainTrc20Balance4);
     Assert.assertTrue(mainTrc20Balance3 + 100 == mainTrc20Balance4);
   }
-
 
   @Test(enabled = true, description = "Retry Deposit and Withdraw Trc20 with sideOralce value is 0")
   public void test4RetryTrc20004() {
@@ -1216,24 +1131,23 @@ public class RetryTrc20001 {
             depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
+    PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     Optional<TransactionInfo> infodepositTrc20 = PublicMethed
         .getTransactionInfoById(depositTrc20txid, blockingStubFull);
 
     // check Deposit Msg when deposit failed
-    depositNonce = ByteArray.toInt(infodepositTrc20.get().getContractResult(0).toByteArray());
+    depositNonce = ByteArray.toHexString(infodepositTrc20.get().getContractResult(0).toByteArray());
     String[] Msg = {
-        WalletClient.encode58Check(depositAddress), "" + "1000",
-        "2", WalletClient.encode58Check(trc20Contract), "0", "0", "0"
+        WalletClient.encode58Check(depositAddress), "" + "0",
+        "2", WalletClient.encode58Check(trc20Contract), "0", "0", "1000"
     };
     Assert.assertTrue(PublicMethed.checkDepositMsg(depositNonce, mainChainAddress, depositAddress,
         testKeyFordeposit, blockingStubFull, Msg));
 
     Assert.assertEquals(0, infodepositTrc20.get().getResultValue());
-    Long nonceLong = ByteArray.toLong(ByteArray
-        .fromHexString(
-            ByteArray.toHexString(infodepositTrc20.get().getContractResult(0).toByteArray())));
-    logger.info("nonce:" + nonceLong);
-    nonce = Long.toString(nonceLong);
+    nonce = ByteArray.toHexString(infodepositTrc20.get().getContractResult(0).toByteArray());
+    logger.info("nonce:" + nonce);
 
     String sideChainTxid1 = PublicMethed
         .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1, 1000000000,
@@ -1253,7 +1167,7 @@ public class RetryTrc20001 {
     Long mainTrc20Balance2 = ByteArray.toLong(ByteArray
         .fromHexString(ByteArray.toHexString(return2.getConstantResult(0).toByteArray())));
     logger.info("mainTrc20Balance2:" + mainTrc20Balance2);
-    Assert.assertTrue(mainTrc20Balance - 1000 == mainTrc20Balance2);
+    Assert.assertEquals(mainTrc20Balance - 1000, mainTrc20Balance2.longValue());
 
     Assert.assertTrue(PublicMethed
         .sendcoinForSidechain(testOracleAddress, oracleSideBeforeSendBalance - 200000,
@@ -1387,7 +1301,7 @@ public class RetryTrc20001 {
         .getTransactionInfoById(withdrawTrc20Txid, blockingSideStubFull);
 
     // check Withdraw Msg when withdraw failed
-    withdrawNonce = ByteArray.toInt(infoByIdwithdrawTrc20.get().getContractResult(0).toByteArray());
+    withdrawNonce = ByteArray.toHexString(infoByIdwithdrawTrc20.get().getContractResult(0).toByteArray());
     String[] MsgWithdraw = {
         WalletClient.encode58Check(depositAddress),
         WalletClient.encode58Check(trc20Contract), "0", "100", "2", "0"
@@ -1396,11 +1310,8 @@ public class RetryTrc20001 {
         testKeyFordeposit, blockingSideStubFull, MsgWithdraw));
 
     Assert.assertTrue(infoByIdwithdrawTrc20.get().getResultValue() == 0);
-    Long nonceWithdrawLong = ByteArray.toLong(ByteArray
-        .fromHexString(
-            ByteArray.toHexString(infoByIdwithdrawTrc20.get().getContractResult(0).toByteArray())));
-    logger.info("nonceWithdrawLong:" + nonceWithdrawLong);
-    nonceWithdraw = Long.toString(nonceWithdrawLong);
+    nonceWithdraw = ByteArray.toHexString(infoByIdwithdrawTrc20.get().getContractResult(0).toByteArray());
+    logger.info("nonceWithdraw:" + nonceWithdraw);
 
     String sideChainTxid3 = PublicMethed
         .triggerContractSideChain(sideContractAddress, chainIdAddressKey, 0l, input1, 1000000000,
@@ -1477,8 +1388,7 @@ public class RetryTrc20001 {
 
     //<setRetryFeeSide
     String retryWithdrawTxid = PublicMethed.retryWithdraw(chainIdAddress, sideChainAddress,
-        nonceWithdraw,
-        maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
+        nonceWithdraw, maxFeeLimit, depositAddress, testKeyFordeposit, blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
 

@@ -1229,7 +1229,7 @@ public class PublicMethed {
     String methodStr = "approve(address,uint256)";
     String mainGatewayAddr = mainGatewayAddress; //main gateway contract address
     String num = Long.toString(tokenValue);
-    String depositMethodStr = "depositTRC20(address,uint64)";
+    String depositMethodStr = "depositTRC20(address,uint256)";
 
     return depositTrc(contractAddrStr, mainGatewayAddr, methodStr, depositMethodStr, num, feeLimit,
         ownerAddress, priKey, blockingStubFull);
@@ -1280,6 +1280,23 @@ public class PublicMethed {
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
 
     String methodStr = "mappingTRC20(bytes)";
+    String argsStr = "\"" + trxHash + "\"";
+
+    String trxid = triggerContract(mainGatewayAddress, methodStr, argsStr, false, mappingfee,
+        feeLimit,
+        ownerAddress, priKey, blockingStubFull);
+    return trxid;
+  }
+
+  /**
+   * constructor.
+   */
+  public static String mappingTrc721fee(byte[] mainGatewayAddress,
+      String trxHash, long mappingfee, long feeLimit,
+      byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+    String methodStr = "mappingTRC721(bytes)";
     String argsStr = "\"" + trxHash + "\"";
 
     String trxid = triggerContract(mainGatewayAddress, methodStr, argsStr, false, mappingfee,
@@ -1740,6 +1757,26 @@ public class PublicMethed {
 
     TransactionExtention transactionExtention = blockingStubFull.triggerContract(triggerContract);
     return transactionExtention;
+  }
+
+  public static String withdrawTrx1(
+      byte[] sideChainId, byte[] sideGatewayAddress,
+      long callValue, long feeLimit, byte[] ownerAddress,
+      String priKey, WalletGrpc.WalletBlockingStub blockingsideStubFull) {
+    long tokenCallValue = 0;
+    String tokenId = "0";
+    String methodStr1 = "withdrawTRX()";
+
+    byte[] input1 = Hex
+        .decode(AbiUtil.parseMethod(methodStr1, "", false));
+
+    String txid1 = PublicMethed
+        .triggerContractSideChain(sideGatewayAddress, sideChainId,
+            callValue,
+            input1,
+            feeLimit, tokenCallValue, tokenId, ownerAddress, priKey, blockingsideStubFull);
+    logger.info("txid:" + txid1);
+    return txid1;
   }
 
   /**
@@ -4670,7 +4707,7 @@ public class PublicMethed {
       String nonce, long feeLimit, byte[] ownerAddress,
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     String retryMethodStr = "retryDeposit(uint256)";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
+    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, true));
 
     String txid = PublicMethed
         .triggerContract(WalletClient.decodeFromBase58Check(mainGatewayAddr),
@@ -4689,7 +4726,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey, WalletGrpc.WalletBlockingStub blockingsideStubFull) {
     String retryMethodStr = "retryWithdraw(uint256)";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
+    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, true));
 
     String txid1 = PublicMethed
         .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideGatewayAddress),
@@ -4759,7 +4796,7 @@ public class PublicMethed {
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     String retryMethodStr = "retryMapping(uint256)";
 
-    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
+    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, true));
 
     String txid = PublicMethed
         .triggerContract(WalletClient.decodeFromBase58Check(mainGatewayAddr),
@@ -5141,7 +5178,7 @@ public class PublicMethed {
   /**
    * constructor.
    */
-  public static String depositTrc20ForDepositFee(String trc20ContractAddress,
+  public static Map<String, String> depositTrc20ForDepositFee(String trc20ContractAddress,
       String mainGatewayAddress,
       long tokenValue, long callValue,
       long feeLimit, byte[] ownerAddress, String priKey,
@@ -5151,7 +5188,7 @@ public class PublicMethed {
     String methodStr = "approve(address,uint256)";
     String mainGatewayAddr = mainGatewayAddress; //main gateway contract address
     String num = Long.toString(tokenValue);
-    String depositMethodStr = "depositTRC20(address,uint64)";
+    String depositMethodStr = "depositTRC20(address,uint256)";
 
     return depositTrcForDepositFee(contractAddrStr, mainGatewayAddr, methodStr, depositMethodStr,
         num, callValue, feeLimit,
@@ -5161,10 +5198,11 @@ public class PublicMethed {
   /**
    * constructor.
    */
-  public static String depositTrcForDepositFee(
+  public static Map<String, String> depositTrcForDepositFee(
       String contractAddrStr, String mainGatewayAddr, String methodStr,
       String depositMethodStr, String num, long callValue, long feeLimit, byte[] ownerAddress,
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Map<String, String> map = new HashMap<>();
     long tokenCallValue = 0;
     String tokenId = "";
     String argsStr = "\"" + mainGatewayAddr + "\",\"" + num + "\"";
@@ -5176,6 +5214,7 @@ public class PublicMethed {
         tokenId, ownerAddress, priKey, blockingStubFull);
     boolean result = org.apache.commons.lang3.StringUtils.isNoneEmpty(trxId);
     if (result) {
+      map.put("approveId", trxId);
       System.out.println("approve successfully.\n");
 
       byte[] depositContractAddr = WalletClient.decodeFromBase58Check(mainGatewayAddr);
@@ -5187,10 +5226,11 @@ public class PublicMethed {
       String Trxid = triggerContract(depositContractAddr, callValue, depositInput, feeLimit,
           tokenCallValue,
           tokenId, ownerAddress, priKey, blockingStubFull);
-      return Trxid;
+      map.put("depositId", Trxid);
+      return map;
     } else {
       logger.info("approve failed.\n");
-      return null;
+      return map;
     }
   }
 
@@ -5198,7 +5238,7 @@ public class PublicMethed {
    * constructor.
    */
 
-  public static String depositTrc721ForDepositFee(String trc20ContractAddress,
+  public static Map<String, String> depositTrc721ForDepositFee(String trc20ContractAddress,
       String mainGatewayAddress,
       long tokenValue, long callValue,
       long feeLimit, byte[] ownerAddress, String priKey,
@@ -5222,7 +5262,7 @@ public class PublicMethed {
       String nonce, long callValue, long feeLimit, byte[] ownerAddress,
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     String retryMethodStr = "retryDeposit(uint256)";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
+    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, true));
 
     String txid = PublicMethed
         .triggerContract(WalletClient.decodeFromBase58Check(mainGatewayAddr),
@@ -5243,7 +5283,7 @@ public class PublicMethed {
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     String retryMethodStr = "retryMapping(uint256)";
 
-    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
+    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, true));
 
     String txid = PublicMethed
         .triggerContract(WalletClient.decodeFromBase58Check(mainGatewayAddr),
@@ -5262,7 +5302,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey, WalletGrpc.WalletBlockingStub blockingsideStubFull) {
     String retryMethodStr = "retryWithdraw(uint256)";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, false));
+    byte[] input = Hex.decode(AbiUtil.parseMethod(retryMethodStr, nonce, true));
 
     String txid1 = PublicMethed
         .triggerContractSideChain(WalletClient.decodeFromBase58Check(sideGatewayAddress),
@@ -5396,7 +5436,7 @@ public class PublicMethed {
    * constructor.
    */
 
-  public static boolean checkDepositMsg(int depositNonce, String mainChainAddress,
+  public static boolean checkDepositMsg(String depositNonce, String mainChainAddress,
       byte[] depositAddress, String testKeyFordeposit,
       WalletGrpc.WalletBlockingStub blockingStubFull,
       String[] Msg) {
@@ -5409,7 +5449,7 @@ public class PublicMethed {
     // get DepositMsg
     String methodStr = "getDepositMsg(uint256)";
     String parame = depositNonce + "";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     TransactionExtention return1 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress), 0, input,
@@ -5490,7 +5530,7 @@ public class PublicMethed {
   /**
    * constructor.
    */
-  public static boolean checkWithdrawMsg(int withdrawNonce, String mainChainAddress,
+  public static boolean checkWithdrawMsg(String withdrawNonce, String mainChainAddress,
       byte[] depositAddress, String testKeyFordeposit,
       WalletGrpc.WalletBlockingStub blockingStubFull,
       String[] Msg) {
@@ -5504,7 +5544,7 @@ public class PublicMethed {
     logger.info("withdrawNonce:" + withdrawNonce);
     String methodStr = "getWithdrawMsg(uint256)";
     String parame = withdrawNonce + "";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     TransactionExtention return1 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress), 0, input,
@@ -5578,7 +5618,7 @@ public class PublicMethed {
    * constructor.
    */
 
-  public static boolean checkMappingMsg(int mappingNonce, String mainChainAddress,
+  public static boolean checkMappingMsg(String mappingNonce, String mainChainAddress,
       byte[] depositAddress, String testKeyFordeposit,
       WalletGrpc.WalletBlockingStub blockingStubFull,
       String[] Msg) {
@@ -5590,8 +5630,8 @@ public class PublicMethed {
 
     // get MappingtMsg
     String methodStr = "getMappingMsg(uint256)";
-    String parame = mappingNonce + "";
-    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, false));
+    String parame = mappingNonce;
+    byte[] input = Hex.decode(AbiUtil.parseMethod(methodStr, parame, true));
     TransactionExtention return1 = PublicMethed
         .triggerContractForTransactionExtention(
             WalletClient.decodeFromBase58Check(mainChainAddress), 0, input,
@@ -5600,7 +5640,7 @@ public class PublicMethed {
     logger.info("return1: " + return1);
     logger.info(Hex.toHexString(return1.getConstantResult(0).toByteArray()));
     String ContractRestule = Hex.toHexString(return1.getConstantResult(0).toByteArray());
-
+    logger.info("ContractRestule:"+ContractRestule);
     String ownerAddress = ContractRestule.substring(24, 64);
     logger.info(ownerAddress);
     String addressHex = "41" + ownerAddress;
@@ -5737,5 +5777,59 @@ public class PublicMethed {
       //logger.info("brodacast succesfully");
       return contractAddress;
     }
+  }
+
+  public static String hexStringToString(String s) {
+    if (s == null || s.equals("")) {
+      return null;
+    }
+    s = s.replace(" ", "");
+    byte[] baKeyword = new byte[s.length() / 2];
+    for (int i = 0; i < baKeyword.length; i++) {
+      try {
+        baKeyword[i] = (byte) (0xff & Integer.parseInt(
+            s.substring(i * 2, i * 2 + 2), 16));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    try {
+      s = new String(baKeyword, "gbk");
+      new String();
+    } catch (Exception e1) {
+      e1.printStackTrace();
+    }
+    return s;
+  }
+
+  public static byte[] decode58Check(String input) {
+    byte[] decodeCheck = org.tron.common.utils.Base58.decode(input);
+    if (decodeCheck.length <= 4) {
+      return null;
+    }
+    byte[] decodeData = new byte[decodeCheck.length - 4];
+    System.arraycopy(decodeCheck, 0, decodeData, 0, decodeData.length);
+    byte[] hash0 = Sha256Hash.hash(decodeData);
+    byte[] hash1 = Sha256Hash.hash(hash0);
+    if (hash1[0] == decodeCheck[decodeData.length] &&
+        hash1[1] == decodeCheck[decodeData.length + 1] &&
+        hash1[2] == decodeCheck[decodeData.length + 2] &&
+        hash1[3] == decodeCheck[decodeData.length + 3]) {
+      return decodeData;
+    }
+    return null;
+  }
+
+  public static String hex2Str(String hex) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < hex.length() - 1; i += 2) {
+      String h = hex.substring(i, (i + 2));
+      int decimal = Integer.parseInt(h, 16);
+      sb.append((char) decimal);
+    }
+    return sb.toString();
+  }
+  public static String numToHex64(Long b) {
+    return String.format("%064x", b);//2表示需要两个16进行数
   }
 }

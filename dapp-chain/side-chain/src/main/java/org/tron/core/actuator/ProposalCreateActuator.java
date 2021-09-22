@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.spongycastle.util.encoders.Hex;
+import org.tron.common.runtime.config.GatewayCode;
 import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.Constant;
@@ -21,6 +22,7 @@ import org.tron.core.Wallet;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.capsule.TransactionResultCapsule;
 import org.tron.core.config.Parameter.ChainParameters;
+import org.tron.core.config.Parameter.ForkBlockVersionEnum;
 import org.tron.core.config.args.Args;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractExeException;
@@ -399,6 +401,9 @@ public class ProposalCreateActuator extends AbstractActuator {
         break;
       }
       case (1_000_011): {
+        if (!dbManager.getForkController().pass(ForkBlockVersionEnum.DAPP_CHAIN_1_0_2)) {
+          throw new ContractValidateException("Bad chain parameter id [WITNESS_MAX_ACTIVE_NUM]");
+        }
         if (Integer.parseInt(entry.getValue()) < 5 || Integer.parseInt(entry.getValue()) > 27) {
           throw new ContractValidateException(
               "Bad chain parameter value, valid range is [5,27]");
@@ -409,6 +414,33 @@ public class ProposalCreateActuator extends AbstractActuator {
         } else if (Integer.parseInt(entry.getValue()) <= witnessMaxActiveNum) {
           throw new ContractValidateException(
               "Bad chain parameter value, must greater than current value " + witnessMaxActiveNum);
+        }
+        break;
+      }
+      case (1_000_012): {
+        if (!dbManager.getForkController().pass(ForkBlockVersionEnum.DAPP_CHAIN_1_0_2)) {
+          throw new ContractValidateException(
+              "Bad chain parameter id [updateGateway_v1_0_2]");
+        }
+
+        if (dbManager.getDynamicPropertiesStore().getAllowUpdateGatewayV102() == 1) {
+          throw new ContractValidateException(
+              "updateGateway_v1_0_2 is only allowed to be executed once");
+        }
+
+        if (Integer.parseInt(entry.getValue()) != 1) {
+          throw new ContractValidateException(
+              "updateGateway_v1_0_2 is only allowed to be 1");
+        }
+
+        if (dbManager.getDynamicPropertiesStore().getSideChainGateWayList().isEmpty()) {
+          throw new ContractValidateException(
+              "updateGateway_v1_0_2 should set side chain gateway before");
+        }
+
+        if (!GatewayCode.codeHash().equals(Constant.GATEWAY_CODE_V_1_0_2_HASH)) {
+          throw new ContractValidateException(
+              "GatewayCode does not match updateGateway_v1_0_2");
         }
         break;
       }

@@ -33,7 +33,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import org.apache.commons.lang3.ArrayUtils;
-import org.bouncycastle.util.encoders.Hex;
 import org.tron.api.GrpcAPI.AccountNetMessage;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AssetIssueList;
@@ -65,6 +64,7 @@ import org.tron.protos.Contract.ExchangeInjectContract;
 import org.tron.protos.Contract.ExchangeTransactionContract;
 import org.tron.protos.Contract.ExchangeWithdrawContract;
 import org.tron.protos.Contract.FreezeBalanceContract;
+import org.tron.protos.Contract.FundInjectContract;
 import org.tron.protos.Contract.ParticipateAssetIssueContract;
 import org.tron.protos.Contract.ProposalApproveContract;
 import org.tron.protos.Contract.ProposalCreateContract;
@@ -1092,7 +1092,7 @@ public class Utils {
           result += newContract.getAbi().toString();
           result += "\n";
           result += "byte_code: ";
-          result += Hex.toHexString(newContract.getBytecode().toByteArray());
+          result += ByteArray.toHexString(newContract.getBytecode().toByteArray());
           result += "\n";
           result += "call_value: ";
           result += newContract.getCallValue();
@@ -1116,7 +1116,7 @@ public class Utils {
           result += triggerSmartContract.getCallValue();
           result += "\n";
           result += "data:";
-          result += Hex.toHexString(triggerSmartContract.getData().toByteArray());
+          result += ByteArray.toHexString(triggerSmartContract.getData().toByteArray());
           result += "\n";
           break;
         case ProposalCreateContract:
@@ -1302,14 +1302,28 @@ public class Utils {
         //   break;
 
         case SideChainProposalCreateContract: {
-          SideChainProposalCreateContract SideChainProposalCreateContract = contract.getParameter()
+          SideChainProposalCreateContract sideChainProposalCreateContract = contract.getParameter()
               .unpack(SideChainProposalCreateContract.class);
           result += "owner_address: ";
           result += AddressUtil
-              .encode58Check(SideChainProposalCreateContract.getOwnerAddress().toByteArray());
+              .encode58Check(sideChainProposalCreateContract.getOwnerAddress().toByteArray());
           result += "\n";
           result += "parametersMap: ";
-          result += SideChainProposalCreateContract.getParametersMap();
+          result += sideChainProposalCreateContract.getParametersMap();
+          result += "\n";
+
+          break;
+        }
+
+        case FundInjectContract: {
+          FundInjectContract fundInjectContract = contract.getParameter()
+              .unpack(FundInjectContract.class);
+          result += "owner_address: ";
+          result += AddressUtil
+              .encode58Check(fundInjectContract.getOwnerAddress().toByteArray());
+          result += "\n";
+          result += "amount: ";
+          result += fundInjectContract.getAmount();
           result += "\n";
 
           break;

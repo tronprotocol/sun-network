@@ -20,6 +20,7 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
+import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
@@ -257,6 +258,9 @@ public class Mappingfee001 {
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertNotNull(sideContractAddress);
     Assert.assertNotEquals(addressFinal, "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb");
+    SmartContract contract = PublicMethed.getContract(sideContractAddress, blockingSideStubFull);
+    Assert.assertEquals(WalletClient.encode58Check(contract.getOriginAddress().toByteArray()),
+        WalletClient.encode58Check(depositAddress));
 
     //bonus
     input4 = Hex.decode(AbiUtil.parseMethod("bonus()", "", false));
@@ -385,7 +389,7 @@ public class Mappingfee001 {
     logger.info("bonusBefore1:" + bonusBefore1);
 
     String mapTxid1 = PublicMethed
-        .mappingTrc20fee(mainChainAddressKey, deployTxid, 50, 1000000000,
+        .mappingTrc721fee(mainChainAddressKey, deployTxid, 50, 1000000000,
             depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -401,7 +405,7 @@ public class Mappingfee001 {
     long accountBeforeMapBalance1 = accountBeforeMap1.getBalance();
 
     String mapTxid2 = PublicMethed
-        .mappingTrc20fee(mainChainAddressKey, deployTxid, 200, 1000000000,
+        .mappingTrc721fee(mainChainAddressKey, deployTxid, 200, 1000000000,
             depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -452,6 +456,11 @@ public class Mappingfee001 {
     byte[] sideContractAddress = WalletClient.decodeFromBase58Check(addressFinal);
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertNotNull(sideContractAddress);
+
+    Assert.assertNotEquals(addressFinal, "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb");
+    SmartContract contract = PublicMethed.getContract(sideContractAddress, blockingSideStubFull);
+    Assert.assertEquals(WalletClient.encode58Check(contract.getOriginAddress().toByteArray()),
+        WalletClient.encode58Check(depositAddress));
 
     byte[] input19 = Hex.decode(AbiUtil.parseMethod("setMappingFee(uint256)", "0", false));
     String txid9 = PublicMethed
@@ -623,7 +632,7 @@ public class Mappingfee001 {
         .queryAccount(depositAddress, blockingStubFull);
     long accountBeforeMapBalance = accountBeforeMap.getBalance();
     String mapTxid = PublicMethed
-        .mappingTrc20fee(mainChainAddressKey, deployTxid, 300, 1000000000,
+        .mappingTrc721fee(mainChainAddressKey, deployTxid, 300, 1000000000,
             depositAddress, testKeyFordeposit, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -673,7 +682,10 @@ public class Mappingfee001 {
     Assert.assertEquals(0, infoById.get().getResultValue());
     Assert.assertNotNull(sideContractAddress);
 
-
+    Assert.assertNotEquals(addressFinal, "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb");
+    SmartContract contract = PublicMethed.getContract(sideContractAddress, blockingSideStubFull);
+    Assert.assertEquals(WalletClient.encode58Check(contract.getOriginAddress().toByteArray()),
+        WalletClient.encode58Check(depositAddress));
   }
 
   @Test(enabled = true, description = "Mapping with triggerAccount exception and "
@@ -699,6 +711,7 @@ public class Mappingfee001 {
     Assert.assertEquals("REVERT opcode executed",
         ByteArray.toStr(infoById1.get().getResMessage().toByteArray()));
 
+
     //setDepositMinTrx is -1
     parame1 = "-1";
     byte[] input2 = Hex.decode(AbiUtil.parseMethod(methodStr1, parame1, false));
@@ -712,7 +725,7 @@ public class Mappingfee001 {
     PublicMethed.waitProduceNextBlock(blockingSideStubFull);
     infoById1 = PublicMethed
         .getTransactionInfoById(txid2, blockingStubFull);
-    Assert.assertTrue(infoById1.get().getResultValue() == 1);
+    Assert.assertTrue(infoById1.get().getResultValue() == 0);
     String methodStr2 = "depositFee()";
     byte[] input4 = Hex.decode(AbiUtil.parseMethod(methodStr2, "", false));
 

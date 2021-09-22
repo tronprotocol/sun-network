@@ -262,6 +262,7 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   //for 1_000_010 proposal
   private static final byte[] PERCENT_TO_PAY_WITNESS = "PERCENT_TO_PAY_WITNESS".getBytes();
 
+
   /**
    * Used when calculating available energy limit. Similar to ENERGY_FEE in mainchain. 100 micro sun
    * token per 1 energy for its initial value
@@ -269,6 +270,11 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   private static final byte[] ENERGY_TOKEN_FEE = "ENERGY_TOKEN_FEE".getBytes();
 
   private static final byte[] WITNESS_MAX_ACTIVE_NUM = "WITNESS_MAX_ACTIVE_NUM".getBytes();
+
+  //for 1_000_012 proposal
+  private static final byte[] UPDATE_GATEWAY_V_1_0_2 = "UPDATE_GATEWAY_V_1_0_2"
+      .getBytes();
+
 
   @Autowired
   private DynamicPropertiesStore(@Value("properties") String dbName) {
@@ -838,6 +844,13 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
     } catch (IllegalArgumentException e) {
       this.savePercentToPayWitness(Args.getInstance().getPercentToPayWitness());
     }
+
+    try {
+      this.getAllowUpdateGatewayV102();
+    } catch (IllegalArgumentException e) {
+      this.saveAllowUpdateGatewayV102(Args.getInstance().getUpdateGateway_v1_0_2());
+    }
+
   }
 
   public String intArrayToString(int[] a) {
@@ -2268,6 +2281,19 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
 
   public boolean allowAccountStateRoot() {
     return getAllowAccountStateRoot() == 1;
+  }
+
+  public void saveAllowUpdateGatewayV102(long value) {
+    this.put(UPDATE_GATEWAY_V_1_0_2,
+        new BytesCapsule(ByteArray.fromLong(value)));
+  }
+
+  public long getAllowUpdateGatewayV102() {
+    return Optional.ofNullable(getUnchecked(UPDATE_GATEWAY_V_1_0_2))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+
+        .orElseThrow(() -> new IllegalArgumentException("not found ALLOW_TVM_SOLIDITY_059"));
   }
 
 }
