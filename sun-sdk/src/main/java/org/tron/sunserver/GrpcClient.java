@@ -6,7 +6,7 @@ import io.grpc.ManagedChannelBuilder;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tron.api.GrpcAPI;
@@ -53,6 +53,7 @@ import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.DelegatedResourceAccountIndex;
 import org.tron.protos.Protocol.Exchange;
 import org.tron.protos.Protocol.Proposal;
+import org.tron.protos.Protocol.SideChainParameters;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
@@ -229,6 +230,10 @@ public class GrpcClient {
     return blockingStubFull.freezeBalance(contract);
   }
 
+  public TransactionExtention createTransaction(Contract.FundInjectContract contract) {
+    return blockingStubFull.fundInject(contract);
+  }
+
   public TransactionExtention createTransaction(Contract.BuyStorageContract contract) {
     return blockingStubFull.buyStorage(contract);
   }
@@ -392,6 +397,12 @@ public class GrpcClient {
     ChainParameters chainParameters = blockingStubFull
         .getChainParameters(EmptyMessage.newBuilder().build());
     return Optional.ofNullable(chainParameters);
+  }
+
+  public Optional<SideChainParameters> getSideChainParameters() {
+    SideChainParameters sideChainParameters = blockingStubFull
+        .getSideChainParameters(EmptyMessage.newBuilder().build());
+    return Optional.ofNullable(sideChainParameters);
   }
 
   public TransactionExtention proposalApprove(Contract.ProposalApproveContract contract) {
@@ -803,6 +814,10 @@ public class GrpcClient {
 
   public TransactionExtention triggerContract(Contract.TriggerSmartContract request) {
     return blockingStubFull.triggerContract(request);
+  }
+
+  public TransactionExtention triggerConstantContract(Contract.TriggerSmartContract request) {
+    return blockingStubFull.triggerConstantContract(request);
   }
 
   public SmartContract getContract(byte[] address) {

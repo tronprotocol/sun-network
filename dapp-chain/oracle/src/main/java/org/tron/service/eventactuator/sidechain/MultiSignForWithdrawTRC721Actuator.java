@@ -3,21 +3,24 @@ package org.tron.service.eventactuator.sidechain;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.client.MainChainGatewayApi;
 import org.tron.client.SideChainGatewayApi;
+import org.tron.common.config.SystemSetting;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.SignUtils;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
+import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.protos.Sidechain.MultiSignForWithdrawTRC721Event;
-import org.tron.protos.Sidechain.TaskEnum;
 import org.tron.service.capsule.TransactionExtensionCapsule;
+import org.tron.service.eventactuator.SignListParam;
 
 @Slf4j(topic = "sideChainTask")
 public class MultiSignForWithdrawTRC721Actuator extends MultiSignForWithdrawActuator {
@@ -26,6 +29,8 @@ public class MultiSignForWithdrawTRC721Actuator extends MultiSignForWithdrawActu
   private MultiSignForWithdrawTRC721Event event;
   @Getter
   private EventType type = EventType.MULTISIGN_FOR_WITHDRAW_TRC721_EVENT;
+  @Getter
+  private TaskEnum taskEnum = TaskEnum.MAIN_CHAIN;
 
   public MultiSignForWithdrawTRC721Actuator(String from, String mainChainAddress, String uId,
       String nonce) {
@@ -54,17 +59,27 @@ public class MultiSignForWithdrawTRC721Actuator extends MultiSignForWithdrawActu
           .encode58Check(event.getMainchainAddress().toByteArray());
       String uIdStr = event.getUId().toStringUtf8();
       String nonceStr = event.getNonce().toStringUtf8();
-      List<String> oracleSigns = SideChainGatewayApi.getWithdrawOracleSigns(nonceStr);
 
       logger.info(
           "MultiSignForWithdrawTRC721Actuator, from: {}, mainChainAddress: {}, uId: {}, nonce: {}",
           fromStr, mainChainAddressStr, uIdStr, nonceStr);
+
+      SignListParam signParam;
+      long delay = 0;
+      if (new BigInteger(nonceStr, 10).compareTo(new BigInteger(SystemSetting.OPERATION_BASE_VALUE))
+          < 0) {
+        signParam = SideChainGatewayApi.getWithdrawOracleSigns(nonceStr);
+        delay = getDelay(fromStr, mainChainAddressStr, uIdStr, nonceStr,
+            signParam.getOracleSigns());
+      } else {
+        signParam = SideChainGatewayApi
+            .getWithdrawTRCTokenSignParam(fromStr, mainChainAddressStr, uIdStr, nonceStr);
+      }
       Transaction tx = MainChainGatewayApi
           .multiSignForWithdrawTRC721Transaction(fromStr, mainChainAddressStr, uIdStr, nonceStr,
-              oracleSigns);
-      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.MAIN_CHAIN,
-          PREFIX + nonceStr, tx,
-          getDelay(fromStr, mainChainAddressStr, uIdStr, nonceStr, oracleSigns));
+              signParam);
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(PREFIX + nonceStr, tx,
+          delay);
       return CreateRet.SUCCESS;
     } catch (Exception e) {
       logger.error("when create transaction extension capsule", e);
@@ -81,7 +96,8 @@ public class MultiSignForWithdrawTRC721Actuator extends MultiSignForWithdrawActu
 
   @Override
   public EventMsg getMessage() {
-    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType()).build();
+    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType())
+        .setTaskEnum(getTaskEnum()).build();
   }
 
   @Override

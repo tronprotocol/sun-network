@@ -1,7 +1,7 @@
 module.exports = {
-  base: process.env.GITHUB == 'github' ? '/sun-network/' : '/sunnetwork/',
+  base: process.env.GITHUB == 'github' ? '/sun-network/' : '/sunnetwork/doc/',
   dest: process.env.GITHUB == 'github' ? 'docs/.vuepress/github' : 'docs/.vuepress/dist',
-  title: 'Sun Network',
+  title: 'Sun Network DAppChain',
   head: [['link', { rel: 'icon', href: '/favicon.png' }]],
   locales: {
     '/': {},
@@ -12,17 +12,23 @@ module.exports = {
   },
   themeConfig: {
     repo: 'tronprotocol/sun-network',
+    sidebarDepth: 2,
+    displayAllHeaders: true,
     locales: {
       '/': {
         selectText: 'Languages',
         label: 'English',
-        sidebar: 'auto',
+        sidebar: {
+          '/guide/': ['']
+        },
         nav: [{ text: 'Guide', link: '/guide/' }]
       },
       '/zh/': {
         selectText: '选择语言',
         label: '简体中文',
-        sidebar: 'auto',
+        sidebar: {
+          '/zh/guide/': ['']
+        },
         nav: [{ text: '指南', link: '/zh/guide/' }]
       }
     }

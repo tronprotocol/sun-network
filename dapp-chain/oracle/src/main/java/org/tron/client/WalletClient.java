@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.Return;
 import org.tron.api.GrpcAPI.Return.response_code;
@@ -25,6 +26,7 @@ import org.tron.common.utils.TransactionUtils;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.AssetIssueContract;
+import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.TransactionInfo;
@@ -34,13 +36,17 @@ import org.tron.protos.Protocol.TransactionInfo.code;
 class WalletClient {
 
   private RpcClient rpcCli;
+  private SolidityRpcClient solidityRpcCli;
   private ECKey ecKey;
   private byte[] address;
   private boolean isMainChain;
 
-  WalletClient(String target, byte[] priateKey, boolean isMainChain) {
-    rpcCli = new RpcClient(target);
-    ecKey = ECKey.fromPrivate(priateKey);
+  WalletClient(String fullNode, String solidityNode, byte[] privateKey, boolean isMainChain) {
+    rpcCli = new RpcClient(fullNode);
+    if (StringUtils.isNotEmpty(solidityNode)) {
+      solidityRpcCli = new SolidityRpcClient(solidityNode);
+    }
+    ecKey = ECKey.fromPrivate(privateKey);
     address = ecKey.getAddress();
     this.isMainChain = isMainChain;
   }
@@ -191,6 +197,19 @@ class WalletClient {
     return assetIssueById;
   }
 
+  SmartContract getContract(byte[] contractAddress) {
+    SmartContract smartContract = null;
+    for (int i = SystemSetting.CLIENT_MAX_RETRY; i > 0; i--) {
+      smartContract = rpcCli.getContract(contractAddress);
+      if (smartContract != null) {
+        break;
+      }
+      sleep(SystemSetting.CLIENT_RETRY_INTERVAL);
+    }
+
+    return smartContract;
+  }
+
   private Transaction getTransaction(
       org.tron.api.GrpcAPI.TransactionExtention transactionExtention)
       throws RpcConnectException {
@@ -259,7 +278,12 @@ class WalletClient {
 
   byte[] checkTxInfo(String txId) throws TxRollbackException, TxFailException {
     for (int i = SystemSetting.CLIENT_MAX_RETRY; i > 0; i--) {
-      Optional<TransactionInfo> transactionInfo = rpcCli.getTransactionInfoById(txId);
+      Optional<TransactionInfo> transactionInfo;
+      if (solidityRpcCli != null) {
+        transactionInfo = solidityRpcCli.getTransactionInfoById(txId);
+      } else {
+        transactionInfo = rpcCli.getTransactionInfoById(txId);
+      }
       TransactionInfo info = transactionInfo.get();
       if (info.getBlockTimeStamp() == 0L) {
         logger.info("will retry {} time(s)", i + 1);
@@ -275,4 +299,11 @@ class WalletClient {
     throw new TxRollbackException(txId);
   }
 
+  public byte[] getAddress() {
+    return address;
+  }
+
+  public String getAddressStr() {
+    return WalletUtil.encode58CheckForTron(getAddress());
+  }
 }

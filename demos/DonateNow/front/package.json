@@ -1,0 +1,66 @@
+{
+  "name": "PetFront",
+  "version": "1.0.0",
+  "description": "Pet Demo for SUN Network",
+  "author": "Cathy",
+  "private": true,
+  "scripts": {
+    "dev:test": "PATH_TYPE=test nuxt",
+    "dev": "PATH_TYPE=dev nuxt build",
+    "local": "PATH_TYPE=local nuxt",
+    "start": "PATH_TYPE=pro nuxt start -p $PORT",
+    "build": "PATH_TYPE=pro nuxt build && PORT=50055 npm start"
+  },
+  "config": {
+    "nuxt": {
+      "host": "0.0.0.0",
+      "port": "2080"
+    }
+  },
+  "dependencies": {
+    "@nuxtjs/axios": "^5.0.0",
+    "bootstrap": "3.4.1",
+    "cross-env": "^5.2.0",
+    "element-ui": "^2.4.6",
+    "js-cookie": "^2.2.0",
+    "moment": "^2.22.2",
+    "node-sass": "^4.9.3",
+    "nuxt": "^2.0.0",
+    "sass-loader": "^7.1.0",
+    "sunweb": "^1.0.7",
+    "tronweb": "^2.7.1",
+    "vconsole": "^3.2.0",
+    "vue-i18n": "^8.1.0",
+    "vue-loading-template": "^1.3.0",
+    "vue-seamless-scroll": "^1.1.16",
+    "vuedraggable": "^2.16.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "chai": "^4.1.2",
+    "chalk": "^2.4.1",
+    "clipboard": "^2.0.4",
+    "eslint": "^4.0.0",
+    "eslint-loader": "^2.0.0",
+    "eslint-plugin-vue": "^4.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-proposal-numeric-separator": "^7.2.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
+    "@babel/plugin-transform-runtime": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
+    "babel-eslint": "^8.2.1",
+    "babel-loader": "^8.0.6",
+    "babel-minify-webpack-plugin": "^0.3.1",
+    "babel-plugin-istanbul": "^5.1.4",
+    "babel-plugin-source-map-support": "^2.0.1",
+    "eth-sig-util": "^2.1.0",
+    "globby": "^8.0.1",
+    "grunt": "^1.0.4",
+    "grunt-cli": "^1.3.1",
+    "grunt-karma": "^3.0.0",
+    "husky": "^1.0.0-rc.14",
+    "istanbul": "^0.4.5",
+    "nodemon": "^1.11.0",
+    "vue-count-to": "^1.0.13"
+  }
+}

@@ -18,6 +18,7 @@ public class AlertUtil {
 
 
   public static void sendAlert(String msg) {
+    msg = "oracle:" + Args.getInstance().getOracleAddress() + ". " + msg;
     logger.error("sendAlert: {} ", msg);
     if (StringUtils.isEmpty(Args.getInstance().getAlertDingWebhookToken())) {
       return;
