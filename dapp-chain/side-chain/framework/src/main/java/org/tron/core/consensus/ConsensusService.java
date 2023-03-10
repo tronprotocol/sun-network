@@ -1,16 +1,15 @@
 package org.tron.core.consensus;
 
+import static org.tron.common.utils.ByteArray.fromHexString;
+
 import com.google.protobuf.ByteString;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.tron.common.crypto.ECKey;
 import org.tron.common.crypto.SignUtils;
-import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.DBConfig;
 import org.tron.consensus.Consensus;
 import org.tron.consensus.base.Param;
 import org.tron.consensus.base.Param.Miner;
@@ -41,16 +40,34 @@ public class ConsensusService {
     param.setBlockProduceTimeoutPercent(Args.getInstance().getBlockProducedTimeOut());
     param.setNeedSyncCheck(args.isNeedSyncCheck());
     List<Miner> miners = new ArrayList<>();
-    byte[] privateKey = ByteArray
-        .fromHexString(Args.getInstance().getLocalWitnesses().getPrivateKey());
-    byte[] privateKeyAddress = SignUtils.fromPrivate(privateKey,
-        Args.getInstance().isECKeyCryptoEngine()).getAddress();
-    byte[] witnessAddress = Args.getInstance().getLocalWitnesses().getWitnessAccountAddress(
-        DBConfig.isECKeyCryptoEngine());
-    WitnessCapsule witnessCapsule = witnessStore.get(witnessAddress);
-    if (null == witnessCapsule) {
-      logger.warn("Witness {} is not in witnessStore.", Hex.encodeHexString(witnessAddress));
+    List<String> privateKeys = Args.getLocalWitnesses().getPrivateKeys();
+
+    if (privateKeys.size() > 1) {
+      for (String key : privateKeys) {
+        byte[] privateKey = fromHexString(key);
+        byte[] privateKeyAddress = SignUtils
+            .fromPrivate(privateKey, Args.getInstance().isECKeyCryptoEngine()).getAddress();
+        WitnessCapsule witnessCapsule = witnessStore.get(privateKeyAddress);
+        if (null == witnessCapsule) {
+          logger.warn("Witness {} is not in witnessStore.", Hex.toHexString(privateKeyAddress));
+        }
+        Miner miner = param.new Miner(privateKey, ByteString.copyFrom(privateKeyAddress),
+            ByteString.copyFrom(privateKeyAddress));
+        miners.add(miner);
+        logger.info("Add witness: {}, size: {}",
+            Hex.toHexString(privateKeyAddress), miners.size());
+      }
     } else {
+      byte[] privateKey =
+          fromHexString(Args.getLocalWitnesses().getPrivateKey());
+      byte[] privateKeyAddress = SignUtils.fromPrivate(privateKey,
+          Args.getInstance().isECKeyCryptoEngine()).getAddress();
+      byte[] witnessAddress = Args.getLocalWitnesses().getWitnessAccountAddress(
+          Args.getInstance().isECKeyCryptoEngine());
+      WitnessCapsule witnessCapsule = witnessStore.get(witnessAddress);
+      if (null == witnessCapsule) {
+        logger.warn("Witness {} is not in witnessStore.", Hex.toHexString(witnessAddress));
+      }
       Miner miner = param.new Miner(privateKey, ByteString.copyFrom(privateKeyAddress),
           ByteString.copyFrom(witnessAddress));
       miners.add(miner);
