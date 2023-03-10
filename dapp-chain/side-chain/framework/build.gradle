@@ -210,6 +210,10 @@ def binaryRelease(taskName, jarName, mainClass) {
                 it.isDirectory() ? it : zipTree(it)
             }
         }
+        // exclude these files for bouncycastle
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
 
         manifest {
             attributes "Main-Class": "${mainClass}"
