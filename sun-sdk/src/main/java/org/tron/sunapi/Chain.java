@@ -10,6 +10,7 @@ import java.util.Optional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.spongycastle.util.encoders.Hex;
 import org.tron.api.GrpcAPI.AccountNetMessage;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AddressPrKeyPairMessage;
@@ -1725,7 +1726,7 @@ public class Chain implements ChainInterface {
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] priKey = ecKey.getPrivKeyBytes();
     byte[] address = ecKey.getAddress();
-    String priKeyStr = org.apache.commons.codec.binary.Hex.encodeHexString(priKey);
+    String priKeyStr = Hex.toHexString(priKey);
     String base58check = AddressUtil.encode58Check(address);
     return AddressPrKeyPairMessage.newBuilder().setAddress(base58check).setPrivateKey(priKeyStr)
         .build();
