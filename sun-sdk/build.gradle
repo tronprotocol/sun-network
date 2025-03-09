@@ -67,7 +67,7 @@ dependencies {
     compile group: 'com.beust', name: 'jcommander', version: '1.72'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.25'
-    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.12'
     compile 'com.maxmind.geoip2:geoip2:4.2.1'
 // https://mvnrepository.com/artifact/org.projectlombok/lombok
     compile group: 'org.projectlombok', name: 'lombok', version: '1.18.2'
@@ -76,6 +76,7 @@ dependencies {
     compile group: 'io.grpc', name: 'grpc-netty', version: '1.60.0'
     compile group: 'io.grpc', name: 'grpc-protobuf', version: '1.60.0'
     compile group: 'io.grpc', name: 'grpc-stub', version: '1.14.0'
+    implementation group: 'io.netty', name: 'netty-handler', version: '4.1.119.Final'
 
     compile group: 'com.googlecode.protobuf-java-format', name: 'protobuf-java-format', version: '1.4'
     compile "com.madgag.spongycastle:core:1.53.0.0"
