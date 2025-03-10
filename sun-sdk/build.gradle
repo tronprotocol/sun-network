@@ -148,7 +148,5 @@ test {
 }
 
 shadowJar {
-    baseName = 'sun-sdk'
-    classifier = null
-    version = null
+    mergeServiceFiles()
 }
