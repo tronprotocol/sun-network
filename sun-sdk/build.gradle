@@ -6,7 +6,7 @@ apply plugin: 'com.google.protobuf'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: "jacoco"
 
-def grpcVersion = '1.60.0'
+def grpcVersion = '1.71.0'
 
 sourceCompatibility = 1.8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -53,7 +53,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
+        classpath 'gradle.plugin.com.github.johnrengelman:shadow:7.1.2'
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.1'
         classpath "gradle.plugin.com.liferay:gradle-plugins-node:4.3.0"
     }
@@ -148,5 +148,8 @@ test {
 }
 
 shadowJar {
+    archiveFileName.set("sun-sdk.jar")
     mergeServiceFiles()
 }
+
+processResources.dependsOn(generateProto) // explicit_dependency
