@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.encoders.Hex;
 import org.tron.common.logsfilter.trigger.ContractTrigger;
+import org.tron.common.parameter.CommonParameter;
 import org.tron.common.runtime.InternalTransaction;
 import org.tron.common.runtime.InternalTransaction.ExecutorType;
 import org.tron.common.runtime.InternalTransaction.TrxType;
@@ -659,6 +660,11 @@ public class VMActuator implements Actuator2 {
   private double getCpuLimitInUsRatio() {
 
     double cpuLimitRatio;
+
+    if (isConstantCall) {
+      cpuLimitRatio = DBConfig.getMaxTimeRatio();
+      return cpuLimitRatio;
+    }
 
     if (ExecutorType.ET_NORMAL_TYPE == executorType) {
       // self witness generates block

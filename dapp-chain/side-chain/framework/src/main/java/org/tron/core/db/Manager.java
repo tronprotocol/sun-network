@@ -19,10 +19,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -48,28 +50,39 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.spongycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.tron.common.application.ApplicationHandler;
 import org.tron.common.logsfilter.EventPluginLoader;
 import org.tron.common.logsfilter.FilterQuery;
+import org.tron.common.logsfilter.capsule.BalanceTrackerCapsule;
+import org.tron.common.logsfilter.capsule.BlockErasedTriggerCapsule;
 import org.tron.common.logsfilter.capsule.BlockLogTriggerCapsule;
 import org.tron.common.logsfilter.capsule.ContractEventTriggerCapsule;
 import org.tron.common.logsfilter.capsule.ContractLogTriggerCapsule;
 import org.tron.common.logsfilter.capsule.ContractTriggerCapsule;
+import org.tron.common.logsfilter.capsule.ShieldedTRC20SolidityTrackerCapsule;
+import org.tron.common.logsfilter.capsule.ShieldedTRC20TrackerCapsule;
 import org.tron.common.logsfilter.capsule.SolidityTriggerCapsule;
 import org.tron.common.logsfilter.capsule.TransactionLogTriggerCapsule;
 import org.tron.common.logsfilter.capsule.TriggerCapsule;
 import org.tron.common.logsfilter.trigger.ContractEventTrigger;
 import org.tron.common.logsfilter.trigger.ContractLogTrigger;
 import org.tron.common.logsfilter.trigger.ContractTrigger;
+import org.tron.common.logsfilter.trigger.ShieldedTRC20TrackerTrigger.LogPojo;
+import org.tron.common.logsfilter.trigger.ShieldedTRC20TrackerTrigger.TransactionPojo;
 import org.tron.common.overlay.discover.node.Node;
 import org.tron.common.logsfilter.trigger.Trigger;
 import org.tron.common.overlay.message.Message;
 import org.tron.common.runtime.RuntimeImpl;
+import org.tron.common.runtime.vm.DataWord;
+import org.tron.common.runtime.vm.LogInfo;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ForkController;
 import org.tron.common.utils.Pair;
 import org.tron.common.utils.SessionOptional;
 import org.tron.common.utils.Sha256Hash;
+import org.tron.common.utils.ShieldedTRC20EventsEnum;
 import org.tron.common.utils.StringUtil;
+import org.tron.common.utils.WalletUtil;
 import org.tron.common.zksnark.MerkleContainer;
 import org.tron.consensus.Consensus;
 import org.tron.consensus.base.Param.Miner;
@@ -86,6 +99,7 @@ import org.tron.core.config.args.GenesisBlock;
 import org.tron.core.config.args.Witness;
 import org.tron.core.consensus.ProposalController;
 import org.tron.core.db.KhaosDatabase.KhaosBlock;
+import org.tron.core.db.accountchange.AccountChangeRecord;
 import org.tron.core.db.accountstate.TrieService;
 import org.tron.core.db.accountstate.callback.AccountStateCallBack;
 import org.tron.core.db2.core.ISession;
@@ -143,8 +157,11 @@ import org.tron.core.vm.repository.Repository;
 import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
+import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.protos.Protocol.TransactionInfo;
+import org.tron.protos.Protocol.TransactionInfo.Log;
 import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
+import org.tron.protos.contract.SmartContractOuterClass.TriggerSmartContract;
 
 
 @Slf4j(topic = "DB")
@@ -262,6 +279,8 @@ public class Manager {
   @Autowired
   private AccountStateCallBack accountStateCallBack;
   @Autowired
+  private AccountChangeRecord accountChangeRecord;
+  @Autowired
   private TrieService trieService;
   private Set<String> ownerAddressSet = new HashSet<>();
   @Getter
@@ -287,6 +306,8 @@ public class Manager {
   private BlockingQueue<TriggerCapsule> triggerCapsuleQueue;
 
   private static final int DEFAULT_MAX_CHECK_COUNT = 30;
+
+  private long lastTrc20TrackedSolidityBlockNum = 0;
   /**
    * Cycle thread to repush Transactions
    */
@@ -1017,6 +1038,10 @@ public class Manager {
       TransactionExpirationException, TooBigTransactionException, DupTransactionException,
       TaposException, ValidateScheduleException, ReceiptCheckErrException,
       VMIllegalException, TooBigTransactionResultException, ZksnarkException, BadBlockException {
+
+    boolean record = eventPluginLoaded && EventPluginLoader.getInstance().isBalanceTrackerTriggerEnable();
+    accountChangeRecord.startRecord(record);
+
     processBlock(block);
     this.blockStore.put(block.getBlockId().getBytes(), block);
     this.blockIndexStore.put(block.getBlockId());
@@ -1060,6 +1085,7 @@ public class Manager {
           .getLatestBlockHeaderHash()
           .equals(binaryTree.getValue().peekLast().getParentHash())) {
         reorgContractTrigger();
+        postBlockErasedTrigger();
         eraseBlock();
       }
     }
@@ -1072,6 +1098,7 @@ public class Manager {
         // todo  process the exception carefully later
         try (ISession tmpSession = revokingStore.buildSession()) {
           applyBlock(item.getBlk());
+          postBalanceTrigger(item.getBlk());
           tmpSession.commit();
         } catch (AccountResourceInsufficientException
             | ValidateSignatureException
@@ -1101,6 +1128,7 @@ public class Manager {
             while (!getDynamicPropertiesStore()
                 .getLatestBlockHeaderHash()
                 .equals(binaryTree.getValue().peekLast().getParentHash())) {
+              postBlockErasedTrigger();
               eraseBlock();
             }
 
@@ -1111,6 +1139,7 @@ public class Manager {
               try (ISession tmpSession = revokingStore.buildSession()) {
                 applyBlock(khaosBlock.getBlk());
                 tmpSession.commit();
+                postBalanceTrigger(khaosBlock.getBlk());
               } catch (AccountResourceInsufficientException
                   | ValidateSignatureException
                   | ContractValidateException
@@ -1236,9 +1265,13 @@ public class Manager {
           postSolidityTrigger(getDynamicPropertiesStore().getLatestSolidifiedBlockNum());
           // if event subscribe is enabled, post block trigger to queue
           postBlockTrigger(newBlock);
+          postBalanceTrigger(newBlock);
+          postBalanceSolidityTrigger(getDynamicPropertiesStore().getLatestSolidifiedBlockNum());
         } catch (Throwable throwable) {
           logger.error(throwable.getMessage(), throwable);
           khaosDb.removeBlk(block.getBlockId());
+          // if exception, close self
+          ApplicationHandler.closeSelf();
           throw throwable;
         }
       }
@@ -1941,6 +1974,85 @@ public class Manager {
     }
   }
 
+  private void postBlockErasedTrigger() {
+    logger.info("ready to postBlockErasedTrigger");
+    if (eventPluginLoaded && EventPluginLoader.getInstance().isBlockErasedTriggerEnable()) {
+      try {
+        BlockCapsule blockCapsule = getBlockById(
+            getDynamicPropertiesStore().getLatestBlockHeaderHash());
+        BlockErasedTriggerCapsule erasedTriggerCapsule = new BlockErasedTriggerCapsule(
+            blockCapsule);
+
+        erasedTriggerCapsule.processTrigger();
+        logger.info("success to post BlockErasedTrigger ,block num:{}", blockCapsule.getNum());
+
+      } catch (BadItemException e) {
+        logger.error("BadItemException when try to get block hash {} for enrase",
+            getDynamicPropertiesStore().getLatestBlockHeaderHash());
+      } catch (ItemNotFoundException e) {
+        logger.error("ItemNotFoundException when try to get block hash {} for enrase",
+            getDynamicPropertiesStore().getLatestBlockHeaderHash());
+      }
+    }
+  }
+
+  private void postBalanceTrigger(BlockCapsule blockCapsule) {
+    if (eventPluginLoaded &&
+        EventPluginLoader.getInstance().isBalanceTrackerTriggerEnable()) {
+      BalanceTrackerCapsule balanceTrackerCapsule = new BalanceTrackerCapsule(blockCapsule,
+          accountChangeRecord.getTempAccountMap());
+      if (balanceTrackerCapsule.getTrc20TrackerTrigger() != null) {
+        balanceTrackerCapsule.processTrigger();
+        accountChangeRecord.clear();
+      }
+    }
+    if (eventPluginLoaded &&
+        EventPluginLoader.getInstance().isShieldedTRC20TrackerTriggerEnable()) {
+      ShieldedTRC20TrackerCapsule shieldedTRC20TrackerCapsule = new ShieldedTRC20TrackerCapsule(
+          blockCapsule, getTransactionPojos(blockCapsule));
+      shieldedTRC20TrackerCapsule.processTrigger();
+    }
+  }
+
+  private void postBalanceSolidityTrigger(long latestSolidifiedBlockNumber) {
+    final boolean balanceTrigger = eventPluginLoaded && EventPluginLoader.getInstance().isBalanceTrackerTriggerEnable();
+    final boolean shieldedTRC20Trigger = eventPluginLoaded && EventPluginLoader.getInstance().isShieldedTRC20TrackerSolidityTriggerEnable();
+
+    if (!balanceTrigger && !shieldedTRC20Trigger) {
+      return;
+    }
+
+    if (lastTrc20TrackedSolidityBlockNum == 0) {
+      lastTrc20TrackedSolidityBlockNum = latestSolidifiedBlockNumber - 1;
+    }
+
+    for (long i = lastTrc20TrackedSolidityBlockNum; i < latestSolidifiedBlockNumber; i++) {
+      try {
+        lastTrc20TrackedSolidityBlockNum++;
+        BlockCapsule solidBlock = getBlockByNum(lastTrc20TrackedSolidityBlockNum);
+        if (solidBlock != null) {
+//          if (balanceTrigger) {
+//            TRC20SolidityTrackerCapsule trc20SolidityTrackerCapsule = new TRC20SolidityTrackerCapsule(solidBlock);
+//            trc20SolidityTrackerCapsule.processTrigger();
+//          }
+
+          if (shieldedTRC20Trigger) {
+            ShieldedTRC20SolidityTrackerCapsule shieldedTRC20SolidityTrackerCapsule =
+                new ShieldedTRC20SolidityTrackerCapsule(solidBlock);
+            shieldedTRC20SolidityTrackerCapsule.processTrigger();
+          }
+        }
+      } catch (ItemNotFoundException e) {
+        e.printStackTrace();
+      } catch (BadItemException e) {
+        e.printStackTrace();
+      } catch (Exception ex) {
+        logger.error("", ex);
+      }
+    }
+  }
+
+
   private void postSolidityTrigger(final long latestSolidifiedBlockNumber) {
     if (eventPluginLoaded && EventPluginLoader.getInstance().isSolidityTriggerEnable()) {
       SolidityTriggerCapsule solidityTriggerCapsule
@@ -2168,6 +2280,159 @@ public class Manager {
       getDynamicPropertiesStore().saveStateFlag(1);
     } else {
       getDynamicPropertiesStore().saveStateFlag(0);
+    }
+  }
+
+
+  private List<LogInfo> getLogInfoList(List<TransactionInfo> transactionInfos) {
+    List<LogInfo> ret = new ArrayList<>();
+    for (TransactionInfo transactionInfo : transactionInfos) {
+      List<Log> logs = transactionInfo.getLogList();
+      for (Log l : logs) {
+        List<DataWord> topics = new ArrayList<>();
+        for (ByteString b : l.getTopicsList()) {
+          topics.add(new DataWord(b.toByteArray()));
+        }
+        LogInfo logInfo = new LogInfo(l.getAddress().toByteArray(), topics,
+            l.getData().toByteArray());
+        ret.add(logInfo);
+      }
+    }
+    return ret;
+  }
+
+  private Map<ByteString, byte[]> parseTransactionInputDataFromBlockDB(BlockCapsule blockCapsule) {
+    Map<ByteString, byte[]> ret = new HashMap<>();
+    for (TransactionCapsule capsule : blockCapsule.getTransactions()) {
+      ret.put(capsule.getTransactionId().getByteString(), getTriggerDataFromTransaction(capsule));
+    }
+    return ret;
+  }
+
+  private List<TransactionInfo> parseTransactionInfoFromBlockDB(BlockCapsule blockCapsule) {
+    List<TransactionInfo> ret = new ArrayList<>();
+    Map<ByteString, TransactionInfo> retMap = new HashMap<>();
+    TransactionRetCapsule retCapsule = null;
+    try {
+      retCapsule = transactionRetStore
+          .getTransactionInfoByBlockNum(ByteArray.fromLong(blockCapsule.getNum()));
+      if (retCapsule != null) {
+        for (TransactionInfo transactionResultInfo : retCapsule.getInstance()
+            .getTransactioninfoList()) {
+          ret.add(transactionResultInfo);
+          retMap.put(transactionResultInfo.getId(), transactionResultInfo);
+        }
+      }
+    } catch (BadItemException e) {
+      logger.error("TRC20Parser: block: {} parse error ", blockCapsule.getNum());
+    }
+    //front check: if ret.size == block inner tx size
+    if (blockCapsule.getTransactions().size() != ret.size()) {
+      for (TransactionCapsule capsule : blockCapsule.getTransactions()) {
+        if (retMap.get(capsule.getTransactionId().getByteString()) == null) {
+          try {
+            TransactionInfoCapsule infoCapsule = transactionHistoryStore
+                .get(capsule.getTransactionId().getBytes());
+            if (infoCapsule != null) {
+              ret.add(infoCapsule.getInstance());
+            }
+          } catch (BadItemException e) {
+            logger.error("TRC20Parser: txid: {} parse from transactionHistoryStore error ",
+                capsule.getTransactionId());
+          }
+        }
+      }
+    }
+    return ret;
+  }
+
+
+  private static void insertTransactionPojo(List<TransactionPojo> list,
+      TransactionInfo transactionInfo, Map<ByteString, byte[]> inputDataMap) {
+    List<TransactionInfo.Log> logList = transactionInfo.getLogList();
+    List<LogPojo> logPojos = new ArrayList<>();
+    for (int index = 0; index < logList.size(); index++) {
+      TransactionInfo.Log log = logList.get(index);
+      addLogPojo(logPojos, log);
+    }
+    if (logPojos.size() > 0 && list != null) {
+      TransactionPojo transactionPojo = new TransactionPojo();
+      transactionPojo.setTxId(Hex.toHexString(transactionInfo.getId().toByteArray()));
+      transactionPojo.setContractAddress(
+          WalletUtil.encode58Check(
+              TransactionTrace.convertToTronAddress(transactionInfo.getContractAddress().toByteArray())));
+      transactionPojo.setLogList(logPojos);
+      transactionPojo.setEnergyFee(transactionInfo.getReceipt().getEnergyFee());
+      transactionPojo.setEnergyUsage(transactionInfo.getReceipt().getEnergyUsage());
+      transactionPojo.setEnergyUsageTotal(transactionInfo.getReceipt().getEnergyUsageTotal());
+      transactionPojo.setOriginEnergyUsage(transactionInfo.getReceipt().getOriginEnergyUsage());
+      transactionPojo.setNetFee(transactionInfo.getReceipt().getNetFee());
+      transactionPojo.setNetUsage(transactionInfo.getReceipt().getNetUsage());
+      byte[] inputData = inputDataMap.get(transactionInfo.getId());
+      if (inputData != null) {
+        transactionPojo.setInputData(Hex.toHexString(inputData));
+      }
+      list.add(transactionPojo);
+    }
+  }
+
+
+  private static void addLogPojo(List<LogPojo> logPojos, TransactionInfo.Log log) {
+    int type = getShieldedTRC20LogType(log.getTopicsList());
+    if (type > 0) {
+      LogPojo ret = new LogPojo();
+      ret.setType(type);
+      ret.setIndex(logPojos.size());
+      ret.setAddress(WalletUtil.encode58Check(log.getAddress().toByteArray()));
+      ret.setData(Hex.toHexString(log.getData().toByteArray()));
+      for (ByteString b : log.getTopicsList()) {
+        ret.getTopics().add(Hex.toHexString(b.toByteArray()));
+      }
+      logPojos.add(ret);
+    }
+  }
+
+  private static byte[] getTriggerDataFromTransaction(TransactionCapsule transactionCapsule) {
+    ContractType contractType = transactionCapsule.getInstance().getRawData().getContract(0)
+        .getType();
+    switch (contractType.getNumber()) {
+      case ContractType.TriggerSmartContract_VALUE: {
+        TriggerSmartContract contract = ContractCapsule
+            .getTriggerContractFromTransaction(transactionCapsule.getInstance());
+        if (contract != null) {
+          return contract.getData().toByteArray();
+        }
+      }
+      //IGNORE CREATE
+/*      case ContractType.CreateSmartContract_VALUE:
+      {
+        CreateSmartContract contract = ContractCapsule.getSmartContractFromTransaction(transactionCapsule.getInstance());
+        if(contract!=null){
+          return contract.getNewContract().getBytecode().toByteArray();
+        }
+      }*/
+      default:
+        return null;
+    }
+  }
+
+  private List<TransactionPojo> getTransactionPojos(BlockCapsule blockCapsule) {
+    List<TransactionPojo> transactionPojos = new ArrayList<>();
+    List<TransactionInfo> transactionInfos = parseTransactionInfoFromBlockDB(blockCapsule);
+    Map<ByteString, byte[]> inputMap = parseTransactionInputDataFromBlockDB(blockCapsule);
+    for (TransactionInfo info : transactionInfos) {
+      insertTransactionPojo(transactionPojos, info, inputMap);
+    }
+    return transactionPojos;
+  }
+
+
+  public static int getShieldedTRC20LogType(List<ByteString> logTopicsList) {
+    if (logTopicsList != null && logTopicsList.size() > 0) {
+      return ShieldedTRC20EventsEnum
+          .getShieldedTRC20EventsTypeIdByTopicBytes(logTopicsList.get(0).toByteArray());
+    } else {
+      return 0;
     }
   }
 

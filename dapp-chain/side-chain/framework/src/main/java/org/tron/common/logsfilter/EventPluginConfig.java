@@ -15,6 +15,12 @@ public class EventPluginConfig {
   public static final String SOLIDITY_EVENT_NAME = "solidityevent";
   public static final String SOLIDITY_LOG_NAME= "soliditylog";
 
+  public static final String BALANCE_TRACKER = "balanceTracker";
+  public static final String TRC20TRACKER_SOLIDITY_TRIGGER_NAME = "trc20SolidityTracker";
+  public static final String BLOCK_ERASE_TRIGGER_NAME = "blockErased";
+  public static final String SHIELDED_TRC20_SOLIDITY_TRACKER = "shieldedTRC20SolidityTracker";
+  public static final String SHIELDED_TRC20_TRACKER = "shieldedTRC20Tracker";
+
   @Getter
   @Setter
   private String pluginPath;

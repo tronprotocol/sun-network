@@ -12,9 +12,12 @@ import org.pf4j.ManifestPluginDescriptorFinder;
 import org.pf4j.PluginManager;
 import org.springframework.util.StringUtils;
 import org.tron.common.logsfilter.nativequeue.NativeMessageQueue;
+import org.tron.common.logsfilter.trigger.BalanceTrackerTrigger;
+import org.tron.common.logsfilter.trigger.BlockErasedTrigger;
 import org.tron.common.logsfilter.trigger.BlockLogTrigger;
 import org.tron.common.logsfilter.trigger.ContractEventTrigger;
 import org.tron.common.logsfilter.trigger.ContractLogTrigger;
+import org.tron.common.logsfilter.trigger.ShieldedTRC20TrackerTrigger;
 import org.tron.common.logsfilter.trigger.SolidityTrigger;
 import org.tron.common.logsfilter.trigger.TransactionLogTrigger;
 import org.tron.common.logsfilter.trigger.Trigger;
@@ -49,6 +52,16 @@ public class EventPluginLoader {
   private boolean solidityLogTriggerEnable = false;
 
   private boolean solidityTriggerEnable = false;
+
+  private boolean balanceTrackerTriggerEnable = false;
+
+  private boolean trc20TrackerSolidityTriggerEnable = false;
+
+  private boolean blockErasedTriggerEnable = false;
+
+  private boolean shieldedTRC20TrackerTriggerEnable = false;
+
+  private boolean shieldedTRC20TrackerSolidityTriggerEnable = false;
 
   private FilterQuery filterQuery;
 
@@ -220,6 +233,56 @@ public class EventPluginLoader {
       if (!useNativeQueue) {
         setPluginTopic(Trigger.SOLIDITY_LOG_TRIGGER, triggerConfig.getTopic());
       }
+    } else if (EventPluginConfig.BLOCK_ERASE_TRIGGER_NAME
+        .equalsIgnoreCase(triggerConfig.getTriggerName())) {
+      if (triggerConfig.isEnabled()) {
+        blockErasedTriggerEnable = true;
+      } else {
+        blockErasedTriggerEnable = false;
+      }
+      if (!useNativeQueue) {
+        setPluginTopic(Trigger.BLOCK_ERASE_TRIGGER, triggerConfig.getTopic());
+      }
+    } else if (EventPluginConfig.TRC20TRACKER_SOLIDITY_TRIGGER_NAME
+        .equalsIgnoreCase(triggerConfig.getTriggerName())) {
+      if (triggerConfig.isEnabled()) {
+        trc20TrackerSolidityTriggerEnable = true;
+      } else {
+        trc20TrackerSolidityTriggerEnable = false;
+      }
+      if (!useNativeQueue) {
+        setPluginTopic(Trigger.TRC20TRACKER_SOLIDITY_TRIGGER, triggerConfig.getTopic());
+      }
+    } else if (EventPluginConfig.BALANCE_TRACKER
+        .equalsIgnoreCase(triggerConfig.getTriggerName())) {
+      if (triggerConfig.isEnabled()) {
+        balanceTrackerTriggerEnable = true;
+      } else {
+        balanceTrackerTriggerEnable = false;
+      }
+      if (!useNativeQueue) {
+        setPluginTopic(Trigger.TRC20TRACKER_TRIGGER, triggerConfig.getTopic());
+      }
+    } else if (EventPluginConfig.SHIELDED_TRC20_SOLIDITY_TRACKER
+        .equalsIgnoreCase(triggerConfig.getTriggerName())) {
+      if (triggerConfig.isEnabled()) {
+        shieldedTRC20TrackerSolidityTriggerEnable = true;
+      } else {
+        shieldedTRC20TrackerSolidityTriggerEnable = false;
+      }
+      if (!useNativeQueue) {
+        setPluginTopic(Trigger.SHIELDED_TRC20SOLIDITYTRACKER_TRIGGER, triggerConfig.getTopic());
+      }
+    } else if (EventPluginConfig.SHIELDED_TRC20_TRACKER
+        .equalsIgnoreCase(triggerConfig.getTriggerName())) {
+      if (triggerConfig.isEnabled()) {
+        shieldedTRC20TrackerTriggerEnable = true;
+      } else {
+        shieldedTRC20TrackerTriggerEnable = false;
+      }
+      if (!useNativeQueue) {
+        setPluginTopic(Trigger.SHIELDED_TRC20TRACKER_TRIGGER, triggerConfig.getTopic());
+      }
     }
   }
 
@@ -259,6 +322,26 @@ public class EventPluginLoader {
 
   public synchronized boolean isContractLogTriggerEnable() {
     return contractLogTriggerEnable;
+  }
+
+  public synchronized boolean isBalanceTrackerTriggerEnable() {
+    return balanceTrackerTriggerEnable;
+  }
+
+  public synchronized boolean isTrc20TrackerSolidityTriggerEnable() {
+    return trc20TrackerSolidityTriggerEnable;
+  }
+
+  public synchronized boolean isBlockErasedTriggerEnable() {
+    return blockErasedTriggerEnable;
+  }
+
+  public synchronized boolean isShieldedTRC20TrackerSolidityTriggerEnable() {
+    return shieldedTRC20TrackerSolidityTriggerEnable;
+  }
+
+  public synchronized boolean isShieldedTRC20TrackerTriggerEnable() {
+    return shieldedTRC20TrackerTriggerEnable;
   }
 
   private void setPluginTopic(int eventType, String topic) {
@@ -374,6 +457,37 @@ public class EventPluginLoader {
     } else {
       eventListeners.forEach(listener ->
               listener.handleContractEventTrigger(toJsonString(trigger)));
+    }
+  }
+
+  public void postBlockErasedTrigger(BlockErasedTrigger trigger) {
+    if (useNativeQueue) {
+      NativeMessageQueue.getInstance()
+          .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
+    } else {
+      eventListeners.forEach(listener ->
+          listener.handleBlockErasedEvent(toJsonString(trigger)));
+    }
+  }
+
+
+  public void postTRC20TrackerTrigger(BalanceTrackerTrigger trigger) {
+    if (useNativeQueue) {
+      NativeMessageQueue.getInstance()
+          .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
+    } else {
+      eventListeners.forEach(listener ->
+          listener.handleTRC20Event(toJsonString(trigger)));
+    }
+  }
+
+  public void postShieldedTRC20TrackerTrigger(ShieldedTRC20TrackerTrigger trigger) {
+    if (useNativeQueue) {
+      NativeMessageQueue.getInstance()
+          .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
+    } else {
+      eventListeners.forEach(listener ->
+          listener.handleShieldedTRC20Event(toJsonString(trigger)));
     }
   }
 
