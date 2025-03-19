@@ -64,4 +64,24 @@ public class Configuration {
     }
     return config;
   }
+
+  public static Config getByPathNoCache(final String configurationPath) {
+    if (isBlank(configurationPath)) {
+      throw new IllegalArgumentException("Configuration path is required!");
+    }
+    Config localConfig = null;
+    File configFile = new File(System.getProperty("user.dir")+'/'+configurationPath);
+    if(configFile.exists()){
+      try {
+        localConfig = ConfigFactory.parseReader(new InputStreamReader(new FileInputStream(configurationPath)));
+        logger.info("use user defined config file in current dir");
+      } catch (FileNotFoundException e) {
+        logger.error("load user defined config file exception: " + e.getMessage());
+      }
+    }else {
+      localConfig = ConfigFactory.load(configurationPath);
+      logger.info("user defined config file doesn't exists, use default config file in jar");
+    }
+    return localConfig;
+  }
 }
