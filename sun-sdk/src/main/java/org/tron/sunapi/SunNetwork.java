@@ -52,4 +52,17 @@ public class SunNetwork {
 
     return ret;
   }
+
+  public SunNetworkResponse<Integer> setPrivateKey(String priKey, String address) {
+    SunNetworkResponse<Integer> ret;
+
+    ret = this.mainChainService.setPrivateKey(priKey, address);
+    if (!ret.getCode().equals(ErrorCodeEnum.SUCCESS.getCode())) {
+      return ret;
+    }
+
+    ret = this.sideChainService.setPrivateKey(priKey, address);
+
+    return ret;
+  }
 }
