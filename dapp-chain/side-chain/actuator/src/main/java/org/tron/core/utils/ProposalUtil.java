@@ -302,7 +302,7 @@ public class ProposalUtil {
        *  Side Chain proposals
        */
       case ALLOW_CHARGING_FEE: {
-        if (value != 1 && Long.valueOf(value) != 0) {
+        if (value != 1 && value != 0) {
           throw new ContractValidateException(
               "this value[ENERGY_CHARGING_SWITCH] is only allowed to be 1 or 0");
         }
@@ -471,6 +471,16 @@ public class ProposalUtil {
         }
         break;
       }
+      case ALLOW_DAPP_152: {
+        if (!forkUtils.pass(ForkBlockVersionEnum.DAPP_CHAIN_1_5_2)) {
+          throw new ContractValidateException(BAD_PARAM_ID);
+        }
+        if (value != 1) {
+          throw new ContractValidateException(
+              "this value[ALLOW_DAPP_152] is only allowed to be 1");
+        }
+        break;
+      }
       default:
         break;
     }
@@ -528,7 +538,8 @@ public class ProposalUtil {
     FUND_DISTRIBUTION_DAYS(1_000_009), // 1, 1_000_009
     WITNESS_REWARD_PERCENTAGE(1_000_010), // number, 1_000_010
     WITNESS_MAX_NUMBER(1_000_011), // number, 1_000_011
-    ALLOW_UPDATE_GATEWAY102(1_000_012); // 1 (hard fork), 1_000_012
+    ALLOW_UPDATE_GATEWAY102(1_000_012), // 1 (hard fork), 1_000_012
+    ALLOW_DAPP_152(1_000_013);
     //ALLOW_UPDATE_SUN_NETWORK_150(1_000_013); // 1 (hard fork), 1_000_013
 
     private long code;
@@ -618,6 +629,7 @@ public class ProposalUtil {
         case WITNESS_REWARD_PERCENTAGE:
         case WITNESS_MAX_NUMBER:
         case ALLOW_UPDATE_GATEWAY102:
+        case ALLOW_DAPP_152:
         //case ALLOW_UPDATE_SUN_NETWORK_150:
           try {
             value = Long.valueOf(content);

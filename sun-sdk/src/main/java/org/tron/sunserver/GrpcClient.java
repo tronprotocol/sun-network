@@ -78,13 +78,13 @@ public class GrpcClient {
   public GrpcClient(String fullnode, String soliditynode) {
     if (!StringUtils.isEmpty(fullnode)) {
       channelFull = ManagedChannelBuilder.forTarget(fullnode)
-          .usePlaintext(true)
+          .usePlaintext()
           .build();
       blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     }
     if (!StringUtils.isEmpty(soliditynode)) {
       channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-          .usePlaintext(true)
+          .usePlaintext()
           .build();
       blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
       blockingStubExtension = WalletExtensionGrpc.newBlockingStub(channelSolidity);

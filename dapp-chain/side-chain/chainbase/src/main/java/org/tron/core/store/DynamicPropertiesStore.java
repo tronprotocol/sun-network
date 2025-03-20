@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
@@ -233,6 +234,9 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   //for 1_000_012 proposal
   private static final byte[] UPDATE_GATEWAY_V_1_0_2 = "UPDATE_GATEWAY_V_1_0_2"
       .getBytes();
+
+  // for 1_000_013 proposl
+  private static final byte[] ALLOW_DAPP_V_1_5_2 = "ALLOW_DAPP_V_1_5_2".getBytes();
 
   @Autowired
   private DynamicPropertiesStore(@Value("properties") String dbName) {
@@ -886,6 +890,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
       this.getAllowUpdateGatewayV102();
     } catch (IllegalArgumentException e) {
       this.saveAllowUpdateGatewayV102(DBConfig.getUpdateGateway_v1_0_2());
+    }
+
+    try {
+      this.getAllowDappV152();
+    } catch (IllegalArgumentException e) {
+      this.saveAllowDappV152(DBConfig.getAllowDapp_v1_5_2());
     }
 
   }
@@ -2470,6 +2480,19 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
 
   public long getAllowUpdateGatewayV102() {
     return Optional.ofNullable(getUnchecked(UPDATE_GATEWAY_V_1_0_2))
+        .map(BytesCapsule::getData)
+        .map(ByteArray::toLong)
+
+        .orElseThrow(() -> new IllegalArgumentException("not found UPDATE_GATEWAY_V_1_0_2"));
+  }
+
+  public void saveAllowDappV152(long value) {
+    this.put(ALLOW_DAPP_V_1_5_2,
+        new BytesCapsule(ByteArray.fromLong(value)));
+  }
+
+  public long getAllowDappV152() {
+    return Optional.ofNullable(getUnchecked(ALLOW_DAPP_V_1_5_2))
         .map(BytesCapsule::getData)
         .map(ByteArray::toLong)
 

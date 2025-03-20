@@ -35,6 +35,9 @@ public class Constant {
   public static final long MAX_RESULT_SIZE_IN_TX = 64; // max 8 * 8 items in result
   public static final long PB_DEFAULT_ENERGY_LIMIT = 0L;
   public static final long CREATOR_DEFAULT_ENERGY_LIMIT = 1000 * 10_000L;
+  public static final long ENERGY_LIMIT_IN_CHARGING_OFF = 10_000_000L;
+  public static final long ENERGY_LIMIT_ALLOW_DAPP_152 = 100 * 1_000_000L;
+
 
 
   // Numbers

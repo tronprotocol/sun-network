@@ -167,6 +167,12 @@ public class ServerApi {
     this.address = priEcKey.getAddress();
   }
 
+  public void initPrivateKey(byte[] priKey, byte[] address) {
+    this.priEcKey = ECKey.fromPrivate(priKey);
+
+    this.address = address;
+  }
+
   public ServerApi(IServerConfig config, byte[] priKey, boolean isMainChain,
       IMultiTransactionSign multiTransactionSign) {
     this.isMainChain = isMainChain;

@@ -197,6 +197,10 @@ public class DBConfig {
   @Setter
   private static long updateGateway_v1_0_2; //committee parameter
 
+  @Getter
+  @Setter
+  private static long allowDapp_v1_5_2;
+
 
   public static boolean getEnergyLimitHardFork() {
     return ENERGY_LIMIT_HARD_FORK;
