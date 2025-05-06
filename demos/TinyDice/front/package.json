@@ -29,7 +29,7 @@
     "cross-env": "^5.2.0",
     "element-ui": "^2.4.6",
     "js-cookie": "^2.2.0",
-    "moment": "^2.22.2",
+    "moment": "^2.29.4",
     "node-sass": "^4.9.3",
     "nuxt": "^2.0.0",
     "sass-loader": "^7.1.0",
