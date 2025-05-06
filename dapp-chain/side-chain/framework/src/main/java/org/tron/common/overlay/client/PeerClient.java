@@ -90,6 +90,6 @@ public class PeerClient {
 
   public void close() {
     workerGroup.shutdownGracefully();
-    workerGroup.terminationFuture().syncUninterruptibly();
+//    workerGroup.terminationFuture().syncUninterruptibly();
   }
 }

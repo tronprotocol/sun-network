@@ -9,9 +9,11 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.Commons;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.db.TronStoreWithRevoking;
+import org.tron.core.db.accountchange.AccountChangeRecord;
 import org.tron.core.db.accountstate.AccountStateCallBackUtils;
 
 @Slf4j(topic = "DB")
@@ -19,6 +21,9 @@ import org.tron.core.db.accountstate.AccountStateCallBackUtils;
 public class AccountStore extends TronStoreWithRevoking<AccountCapsule> {
 
   private static Map<String, byte[]> assertsAddress = new HashMap<>(); // key = name , value = address
+
+  @Autowired
+  private AccountChangeRecord accountChangeRecord;
 
   @Autowired
   private AccountStateCallBackUtils accountStateCallBackUtils;
@@ -46,8 +51,27 @@ public class AccountStore extends TronStoreWithRevoking<AccountCapsule> {
 
   @Override
   public void put(byte[] key, AccountCapsule item) {
+    AccountCapsule oldAccount = get(key);
     super.put(key, item);
     accountStateCallBackUtils.accountCallBack(key, item);
+
+    if (getBlackhole() == null) {
+      return;
+    }
+
+    if (!ByteUtil.equals(key, getBlackhole().getAddress().toByteArray())) {
+      accountChangeRecord.recordChangedAccount(key, oldAccount, item);
+    }
+  }
+
+  @Override
+  public void delete(byte[] key) {
+    final AccountCapsule oldAccount = get(key);
+    super.delete(key);
+
+    if (!ByteUtil.equals(key, getBlackhole().getAddress().toByteArray())) {
+      accountChangeRecord.delete(key, oldAccount);
+    }
   }
 
   /**
