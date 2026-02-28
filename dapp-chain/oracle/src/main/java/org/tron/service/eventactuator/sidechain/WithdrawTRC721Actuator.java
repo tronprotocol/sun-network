@@ -12,18 +12,19 @@ import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Sidechain.EventMsg;
 import org.tron.protos.Sidechain.EventMsg.EventType;
-import org.tron.protos.Sidechain.TaskEnum;
+import org.tron.protos.Sidechain.EventMsg.TaskEnum;
 import org.tron.protos.Sidechain.WithdrawTRC721Event;
 import org.tron.service.capsule.TransactionExtensionCapsule;
-import org.tron.service.eventactuator.Actuator;
 
 @Slf4j(topic = "sideChainTask")
-public class WithdrawTRC721Actuator extends Actuator {
+public class WithdrawTRC721Actuator extends WithdrawActuator {
 
   private static final String PREFIX = "withdraw_1_";
   private WithdrawTRC721Event event;
   @Getter
   private EventType type = EventType.WITHDRAW_TRC721_EVENT;
+  @Getter
+  private TaskEnum taskEnum = TaskEnum.SIDE_CHAIN;
 
   public WithdrawTRC721Actuator(String from, String mainChainAddress, String uId, String nonce) {
     ByteString fromBS = ByteString.copyFrom(WalletUtil.decodeFromBase58Check(from));
@@ -57,8 +58,7 @@ public class WithdrawTRC721Actuator extends Actuator {
               mainChainAddressStr, uIdStr, nonceStr);
       Transaction tx = SideChainGatewayApi
           .withdrawTRC721Transaction(fromStr, mainChainAddressStr, uIdStr, nonceStr);
-      this.transactionExtensionCapsule = new TransactionExtensionCapsule(TaskEnum.SIDE_CHAIN,
-          PREFIX + nonceStr, tx, 0);
+      this.transactionExtensionCapsule = new TransactionExtensionCapsule(PREFIX + nonceStr, tx, 0);
       return CreateRet.SUCCESS;
     } catch (Exception e) {
       logger.error("when create transaction extension capsule", e);
@@ -68,7 +68,8 @@ public class WithdrawTRC721Actuator extends Actuator {
 
   @Override
   public EventMsg getMessage() {
-    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType()).build();
+    return EventMsg.newBuilder().setParameter(Any.pack(this.event)).setType(getType())
+        .setTaskEnum(getTaskEnum()).build();
   }
 
   @Override

@@ -2,6 +2,7 @@ package org.tron.client;
 
 import static org.tron.client.SideChainGatewayApi.GatewayApi.GATEWAY_API;
 
+import com.beust.jcommander.internal.Lists;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +21,7 @@ import org.tron.common.utils.ByteUtil;
 import org.tron.common.utils.DataWord;
 import org.tron.common.utils.WalletUtil;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.service.eventactuator.SignListParam;
 
 @Slf4j(topic = "sideApi")
 public class SideChainGatewayApi {
@@ -89,6 +91,13 @@ public class SideChainGatewayApi {
         .signDigest(getWithdrawTRC10DataHash(from, tokenId, value, nonce)));
   }
 
+  public static SignListParam getWithdrawTRC10SignParam(String from, String tokenId, String value,
+      String nonce) {
+    return new SignListParam(
+        Lists.newArrayList(getWithdrawTRC10Sign(from, tokenId, value, nonce)),
+        Lists.newArrayList(GATEWAY_API.getInstance().getAddressStr()));
+  }
+
   public static byte[] getWithdrawTRC10DataHash(String from, String tokenId, String value,
       String nonce) {
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
@@ -117,6 +126,13 @@ public class SideChainGatewayApi {
       String nonce) {
     return Hex.toHexString(GATEWAY_API.getInstance()
         .signDigest(getWithdrawTRCTokenDataHash(from, mainChainAddress, value, nonce)));
+  }
+
+  public static SignListParam getWithdrawTRCTokenSignParam(String from, String mainChainAddress,
+      String value, String nonce) {
+    return new SignListParam(
+        Lists.newArrayList(getWithdrawTRCTokenSign(from, mainChainAddress, value, nonce)),
+        Lists.newArrayList(GATEWAY_API.getInstance().getAddressStr()));
   }
 
   public static byte[] getWithdrawTRCTokenDataHash(String from, String mainChainAddress,
@@ -159,6 +175,11 @@ public class SideChainGatewayApi {
         GATEWAY_API.getInstance().signDigest(getWithdrawTRXDataHash(from, value, nonce)));
   }
 
+  public static SignListParam getWithdrawTRXSignParam(String from, String value, String nonce) {
+    return new SignListParam(Lists.newArrayList(getWithdrawTRXSign(from, value, nonce)),
+        Lists.newArrayList(GATEWAY_API.getInstance().getAddressStr()));
+  }
+
   public static byte[] getWithdrawTRXDataHash(String from, String value, String nonce) {
     byte[] fromBytes = WalletUtil.decodeFromBase58Check(from);
     byte[] valueBytes = new DataWord((new BigInteger(value, 10)).toByteArray()).getData();
@@ -186,23 +207,24 @@ public class SideChainGatewayApi {
   }
 
   public static Transaction multiSignForMappingTRC20(String contractAddressStr, String trcName,
-      String trcSymbol, long trcDecimals, String nonce) throws RpcConnectException {
+      String trcSymbol, long trcDecimals, String contractOwner, String nonce)
+      throws RpcConnectException {
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "multiSignForDeployDAppTRC20AndMapping(address,string,string,uint8,uint256)";
+    String method = "multiSignForDeployDAppTRC20AndMapping(address,string,string,uint8,address,uint256)";
     List params = Arrays
-        .asList(contractAddressStr, trcName, trcSymbol, trcDecimals, nonce);
+        .asList(contractAddressStr, trcName, trcSymbol, trcDecimals, contractOwner, nonce);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
 
   public static Transaction multiSignForMappingTRC721(String contractAddressStr, String trcName,
-      String trcSymbol, String nonce) throws RpcConnectException {
+      String trcSymbol, String contractOwner, String nonce) throws RpcConnectException {
 
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
-    String method = "multiSignForDeployDAppTRC721AndMapping(address,string,string,uint256)";
+    String method = "multiSignForDeployDAppTRC721AndMapping(address,string,string,address,uint256)";
     List params = Arrays
-        .asList(contractAddressStr, trcName, trcSymbol, nonce);
+        .asList(contractAddressStr, trcName, trcSymbol, contractOwner, nonce);
     return GATEWAY_API.getInstance()
         .triggerContractTransaction(contractAddress, method, params, 0, 0, 0);
   }
@@ -212,31 +234,25 @@ public class SideChainGatewayApi {
     GATEWAY_API;
 
     private WalletClient instance;
-    private WalletClient solidityInstance;
 
     GatewayApi() {
       instance = new WalletClient(Args.getInstance().getSidechainFullNode(),
-          Args.getInstance().getOraclePrivateKey(), false);
-      solidityInstance = new WalletClient(Args.getInstance().getSidechainSolidity(),
-          Args.getInstance().getOraclePrivateKey(), false);
+          Args.getInstance().getSidechainSolidity(), Args.getInstance().getOraclePrivateKey(),
+          false);
     }
 
     public WalletClient getInstance() {
       return instance;
     }
-
-    public WalletClient getSolidityInstance() {
-      return solidityInstance;
-    }
   }
 
-  public static List<String> getWithdrawOracleSigns(String nonce) throws RpcConnectException {
+  public static SignListParam getWithdrawOracleSigns(String nonce) throws RpcConnectException {
     byte[] contractAddress = Args.getInstance().getSidechainGateway();
     String method = "getWithdrawSigns(uint256)";
     List params = Arrays.asList(nonce);
     byte[] ret = GATEWAY_API.getInstance()
         .triggerConstantContractAndReturn(contractAddress, method, params, 0, 0, 0);
-    return AbiUtil.unpackOracleSigns(ret);
+    return AbiUtil.unpackSignListParam(ret);
   }
 
   public static List<String> getMappingOracleSigns(String txId, String dataHash)
@@ -261,7 +277,7 @@ public class SideChainGatewayApi {
 
   public static byte[] checkTxInfo(String txId)
       throws TxFailException, TxRollbackException {
-    return GATEWAY_API.getSolidityInstance().checkTxInfo(txId);
+    return GATEWAY_API.getInstance().checkTxInfo(txId);
   }
 
   public static boolean broadcast(Transaction transaction)

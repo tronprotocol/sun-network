@@ -162,12 +162,13 @@ public class TransactionUtils {
     return true;
   }
 
-  public static Transaction sign(Transaction transaction, ECKey myKey, byte[] chainId, boolean isMainChain) {
+  public static Transaction sign(Transaction transaction, ECKey myKey, byte[] chainId,
+      boolean isMainChain) {
     Transaction.Builder transactionBuilderSigned = transaction.toBuilder();
     byte[] hash = Sha256Hash.hash(transaction.getRawData().toByteArray());
 
     byte[] newHash;
-    if(isMainChain) {
+    if (isMainChain) {
       newHash = hash;
     } else {
       byte[] hashWithChainId = Arrays.copyOf(hash, hash.length + chainId.length);
@@ -204,40 +205,4 @@ public class TransactionUtils {
     }
     return transaction;
   }
-
-  public static Transaction setPermissionId(Transaction transaction) {
-    if (transaction.getSignatureCount() != 0
-        || transaction.getRawData().getContract(0).getPermissionId() != 0) {
-      return transaction;
-    }
-    int permission_id = 0;
-//    if (permission_id < 0) {
-//      throw new CancelException("User cancelled");
-//    }
-    if (permission_id != 0) {
-      Transaction.raw.Builder raw = transaction.getRawData().toBuilder();
-      Transaction.Contract.Builder contract = raw.getContract(0).toBuilder()
-          .setPermissionId(permission_id);
-      raw.clearContract();
-      raw.addContract(contract);
-      transaction = transaction.toBuilder().setRawData(raw).build();
-    }
-    return transaction;
-  }
-
-//  private static int inputPermissionId() {
-//    Scanner in = new Scanner(System.in);
-//    while (true) {
-//      String input = in.nextLine().trim();
-//      String str = input.split("\\s+")[0];
-//      if ("y".equalsIgnoreCase(str)) {
-//        return 0;
-//      }
-//      try {
-//        return Integer.parseInt(str);
-//      } catch (Exception e) {
-//        return -1;
-//      }
-//    }
-//  }
 }

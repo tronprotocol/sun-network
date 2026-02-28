@@ -7,8 +7,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
-public class ProducerDemo {
+
+public abstract class ProducerDemo {
 
   @Test
   public void main() {

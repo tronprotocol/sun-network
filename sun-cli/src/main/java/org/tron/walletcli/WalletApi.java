@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
@@ -21,9 +22,10 @@ import org.tron.walletcli.utils.Utils;
 public class WalletApi {
 
   private static final Logger logger = LoggerFactory.getLogger("WalletApi");
+  private static final String FilePath = "Wallet";
+
   private List<WalletFile> walletFile = new ArrayList<>();
   private boolean loginState = false;
-  private static final String FilePath = "Wallet";
   private byte[] address;
 
   public static boolean passwordValid(char[] password) {
@@ -108,7 +110,7 @@ public class WalletApi {
     return WalletUtils.generateWalletFile(walletFile, file);
   }
 
-  public static File selcetWalletFile() {
+  public static File selectWalletFile() {
     File file = new File(FilePath);
     if (!file.exists() || !file.isDirectory()) {
       return null;
@@ -120,32 +122,34 @@ public class WalletApi {
     }
 
     File wallet;
-    if (wallets.length > 1) {
-      for (int i = 0; i < wallets.length; i++) {
-        System.out.println("The " + (i + 1) + "th keystore file name is " + wallets[i].getName());
+    for (int i = 0; i < wallets.length; i++) {
+      System.out.println("The " + (i + 1) + "th keystore file name is " + wallets[i].getName());
+    }
+    System.out.println(
+        "Please choose between 1 and " + wallets.length + " . Enter n or N to cancelled");
+    Scanner in = new Scanner(System.in);
+    while (true) {
+      String input = in.nextLine().trim();
+      String num = input.split("\\s+")[0];
+      if ("n".equalsIgnoreCase(num)) {
+        return null;
       }
-      System.out.println("Please choose between 1 and " + wallets.length);
-      Scanner in = new Scanner(System.in);
-      while (true) {
-        String input = in.nextLine().trim();
-        String num = input.split("\\s+")[0];
-        int n;
-        try {
-          n = new Integer(num);
-        } catch (NumberFormatException e) {
-          System.out.println("Invaild number of " + num);
-          System.out.println("Please choose again between 1 and " + wallets.length);
-          continue;
-        }
-        if (n < 1 || n > wallets.length) {
-          System.out.println("Please choose again between 1 and " + wallets.length);
-          continue;
-        }
-        wallet = wallets[n - 1];
-        break;
+      int n;
+      try {
+        n = new Integer(num);
+      } catch (NumberFormatException e) {
+        System.out.println("Invaild number of " + num);
+        System.out.println("Please choose again between 1 and " + wallets.length
+            + " . Enter n or N to cancelled");
+        continue;
       }
-    } else {
-      wallet = wallets[0];
+      if (n < 1 || n > wallets.length) {
+        System.out.println("Please choose again between 1 and " + wallets.length
+            + " . Enter n or N to cancelled");
+        continue;
+      }
+      wallet = wallets[n - 1];
+      break;
     }
 
     return wallet;
@@ -153,7 +157,7 @@ public class WalletApi {
 
   public static boolean changeKeystorePassword(byte[] oldPassword, byte[] newPassowrd)
       throws IOException, CipherException {
-    File wallet = selcetWalletFile();
+    File wallet = selectWalletFile();
     if (wallet == null) {
       throw new IOException(
           "No keystore file found, please use registerwallet or importwallet first!");
@@ -165,10 +169,9 @@ public class WalletApi {
 
 
   private static WalletFile loadWalletFile() throws IOException {
-    File wallet = selcetWalletFile();
+    File wallet = selectWalletFile();
     if (wallet == null) {
-      throw new IOException(
-          "No keystore file found, please use registerwallet or importwallet first!");
+      return null;
     }
     return WalletUtils.loadWalletFile(wallet);
   }
@@ -187,6 +190,9 @@ public class WalletApi {
    */
   public static WalletApi loadWalletFromKeystore() throws IOException {
     WalletFile walletFile = loadWalletFile();
+    if (Objects.isNull(walletFile)) {
+      return null;
+    }
     WalletApi walletApi = new WalletApi(walletFile);
     return walletApi;
   }

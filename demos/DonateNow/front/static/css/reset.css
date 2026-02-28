@@ -1,0 +1,527 @@
+@font-face {
+  font-family: "Arial-Black";
+  src: url("../font/Arial_Black.ttf");
+  /*字体源文件*/
+}
+
+@font-face {
+  font-family: "Arial-Bold";
+  src: url("../font/Arial_Bold.ttf");
+  /*字体源文件*/
+}
+
+@font-face {
+  font-family: "Arial";
+  src: url("../font/Arial.ttf");
+  /*字体源文件*/
+}
+
+@font-face {
+  font-family: "Arial-Bold-Italic";
+  src: url("../font/Arial_Bold_Italic.ttf");
+  /*字体源文件*/
+}
+
+@font-face {
+  font-family: "Arial-Italic";
+  src: url("../font/Arial_Italic.ttf");
+  /*字体源文件*/
+}
+
+@font-face {
+  font-family: "AvenirNext";
+  src: url("../font/AvenirNext.ttf");
+  /*字体源文件*/
+}
+
+html {
+  font-size: 100px;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.el-dialog a {
+  text-decoration: underline;
+}
+
+.el-dialog__footer {
+  display: flex;
+  justify-content: center;
+}
+
+/* .el-button{
+  width: 1.74rem;
+  height: .4rem;
+  background-image: linear-gradient(-135deg, #B643FF 0%, #FF6C81 100%);
+  border-radius: .2rem;
+  color: #fff;
+  border:none;
+} */
+
+.el-button.how {
+  width: auto;
+  height: auto;
+  background: transparent;
+  border: none;
+  font-size: 0.16rem;
+  color: #fff;
+  transition: opacity 0.2s ease-in-out;
+  padding: 0;
+}
+
+.how.el-button+.el-button {
+  margin-left: 0;
+}
+
+.img-box .el-switch__core {
+  width: 0.5rem !important;
+  height: 0.24rem;
+  border-radius: 0.415rem;
+}
+
+.img-box .el-switch__core:after {
+  width: 0.24rem;
+  height: 0.24rem;
+  top: -0.01rem;
+}
+
+.img-box .el-switch.is-checked .el-switch__core::after {
+  margin-left: -0.24rem;
+}
+
+.el-message .el-icon-success,
+.el-message--success .el-message__content {
+  color: #fff;
+}
+
+.el-message--success {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  border: none;
+}
+
+.how-dialog {
+  /* background-image: linear-gradient(-180deg, #aa57c7 3%, #472f9a 100%); */
+  /* border: 1px solid #ff68fc; */
+  border-radius: 0.03rem;
+  font-size: 0.15rem;
+}
+
+.how-dialog .el-dialog__close {
+  height: 38px;
+  width: 38px;
+  /*background-image: url('../images/close.png');*/
+  background-repeat: no-repeat;
+  /* display: none; */
+}
+
+/* .how-dialog .el-dialog__close:before {
+  content: "";
+} */
+
+.how-dialog .el-dialog__header {
+  text-align: center;
+  padding-top: 0.3rem;
+  padding-bottom: 0px;
+  font-family: PingFang-SC-Bold;
+  font-size: 0.24rem;
+}
+
+.how-dialog .el-dialog__header .el-dialog__title {
+  color: #888;
+  font-size: 26px;
+}
+
+.how-dialog .lucky-tron {
+  margin: 10px auto 0;
+  display: flex;
+  height: 60px;
+  width: 500px;
+  background: rgba(0, 0, 0, 0.45);
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  padding: 0 30px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.how-dialog .lucky-tron:first-child {
+  margin-top: 0;
+}
+
+.how-dialog .el-dialog__body {
+  font-size: 15px;
+  color: #fff;
+  padding: 0.1rem 0.3rem;
+  order: 1px solid #979797;
+  font-family: ArialMT;
+  font-size: 0.16rem;
+  /* color: #ffffff; */
+  letter-spacing: 0;
+  line-height: 0.22rem;
+}
+
+.how-dialog .el-dialog__body p {
+  margin-top: 0.05rem;
+}
+
+.how-dialog button.draw {
+  position: relative;
+  width: 160px;
+  height: 60px;
+  background-image: linear-gradient(0deg, #51b7ff 27%, #9a35ff 100%);
+  border-radius: 3px;
+  font-size: 30px;
+  line-height: 60px;
+  text-align: center;
+  color: #fff;
+  border: none;
+  margin: 0 auto;
+  display: block;
+  cursor: pointer;
+}
+
+.el-slider {
+  width: 100%;
+}
+
+/* .el-slider__runway {
+  height: 0.18rem;
+  background-color: #df4c51;
+  border-radius: 50px;
+  position: relative;
+  z-index: 1;
+} */
+
+/* .el-slider__bar {
+  background-color: #64e1f6;
+  border-radius: 50px;
+  height: 0.18rem;
+} */
+
+.el-slider__runway {
+  height: 0.18rem;
+  /* background-color: rgba(255, 255, 255, 0); */
+  /* background-color: #df4c51;
+  border-radius: 0.5rem;
+  position: relative;
+  z-index: 1; */
+  /* border: 1px solid #b8b8b8; */
+  background: #481f94;
+  box-shadow: inset 0 2px 8px 0 rgba(8, 8, 8, 0.5);
+  border-radius: 0.415rem;
+}
+
+.el-slider__bar {
+  border-radius: 0.5rem;
+  height: 0.18rem;
+  background-image: linear-gradient( -180deg, #fff16b 24%, #ffb253 73%, #f19530 100%);
+  border-radius: 41.5px;
+  background-color: none;
+}
+
+.el-slider__button-wrapper {
+  height: 0.4rem;
+  width: 0.4rem;
+  /* 圣诞老人 */
+  /* background-color: #ffffff; */
+  /* box-shadow: 0px 0px 8px 0px rgba(9, 8, 58, 0.45); */
+  border-radius: 100%;
+  /* top: -0.08rem; */
+  /* background-image: url("../../assets/images/slide.png"); */
+  /* top: 0rem; */
+  background-image: url("../../static/images/slider_normal.png");
+  background-size: 100% 100%;
+  top: -0.1rem;
+}
+
+.el-slider__button-wrapper::before {
+  position: absolute;
+  content: attr(data-before);
+  width: 0.38rem;
+  height: 0.32rem;
+  left: 0rem;
+  top: -0.3rem;
+  background-color: transparent;
+  background-image: url("../../assets/images/slide-tool.png");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  text-align: center;
+  font-size: 0.18rem;
+  color: #703dbf;
+  line-height: 0.25rem;
+  font-weight: bold;
+}
+
+.el-slider__button {
+  background-color: transparent;
+  border: none;
+}
+
+/* .el-tooltip__popper.is-is-dark1[x-placement^="top"] .popper__arrow {
+  border-top-color: rgba(0, 0, 0, 0.8);
+  display: block;
+}
+.el-tooltip__popper.is-is-dark1[x-placement^="top"] .popper__arrow:after {
+  border-top-color: rgba(0, 0, 0, 0.8);
+  display: block;
+}
+.vip1 {
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: #fff;
+  display: block;
+} */
+
+.result .el-progress-bar__outer {
+  background: #4c2b9f;
+  border: 1px solid rgba(89, 211, 33, 0.7);
+  box-shadow: inset 1px 1px 5px 0 rgba(0, 0, 0, 0.5);
+  border-radius: 0.05rem;
+  width: 1.68rem;
+  height: 0.07rem;
+}
+
+.result .win .el-progress-bar__inner {
+  background: #59d321;
+  border-radius: 5px;
+}
+
+.result .lose .el-progress-bar__inner {
+  background: #e52e2e;
+  border-radius: 5px;
+}
+
+/* 账号信息弹框 */
+
+.el-tooltip__popper.is-dark {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.el-tooltip__popper.is-dark .account {
+  padding: 0.15rem;
+  width: 3.69rem;
+}
+
+.el-tooltip__popper.is-dark .account .wallet {
+  font-size: 0.16rem;
+  line-height: 0.3rem;
+}
+
+.el-tooltip__popper.is-dark .account .progress {
+  margin-top: 0.1rem;
+}
+
+.el-tooltip__popper.is-dark .account .el-progress__text {
+  color: #fff;
+}
+
+.el-tooltip__popper.is-dark .account .tip {
+  line-height: 0.2rem;
+  margin-top: 0.1rem;
+  font-size: 0.16rem;
+}
+
+.el-tooltip__popper.is-dark .account .progress {
+  text-align: center;
+}
+
+.el-tooltip__popper.is-dark .account .text-con {
+  text-align: center;
+}
+
+.el-tooltip__popper.is-dark .account .text-con .text {
+  width: 1.26rem;
+  height: 0.3rem;
+  display: inline-block;
+  line-height: 0.3rem;
+  font-size: 0.16rem;
+}
+
+.el-tooltip__popper.is-dark .account .el-progress.el-progress--circle:first-child {
+  margin-right: 0.3rem;
+}
+
+/* 自动投注 */
+
+.el-tooltip__popper.is-dark .autoBet {
+  padding: 0.1rem;
+  line-height: 0.2rem;
+  font-size: 13px;
+}
+
+.el-tooltip__popper.is-dark .autoBet .tronPay {
+  color: #ffb253;
+}
+
+.el-tooltip__popper.is-dark .mining {
+  line-height: 0.2rem;
+}
+
+.el-tooltip__popper.is-dark .mining table td {
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  margin-bottom: 0.02rem;
+}
+
+.el-tooltip__popper.is-dark .mining table tr td:first-child {
+  width: 0.8rem;
+}
+
+.el-tooltip__popper.is-dark .mining table tr td:nth-child(2) {
+  width: 0.8rem;
+}
+
+.el-tooltip__popper.is-dark .mining table tr td:last-child {
+  width: 1.5rem;
+}
+
+.el-popper[x-placement^="bottom"] .popper__arrow {
+  border-bottom-color: rgba(0, 0, 0, 0.5);
+}
+
+/* .el-tooltip__popper.is-dark[x-placement^="right"] .popper__arrow {
+  background: rgba(0, 0, 0, 0.7);
+  display: block;
+}
+.el-tooltip__popper.is-dark[x-placement^="right"] .popper__arrow:after {
+  background: rgba(0, 0, 0, 0.7);
+  display: block;
+} */
+
+.is-dark {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.el-tooltip__popper.is-dark .recommend {
+  width: 4rem;
+}
+
+.account .el-progress-circle {
+  width: 100px !important;
+  height: 100px !important;
+}
+
+.el-dropdown-menu {
+  background: rgba(0, 0, 0, 0.8);
+  border: none;
+}
+
+.el-dropdown-menu__item {
+  color: #fff;
+}
+
+.el-dropdown-menu__item:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  color: #fff !important;
+}
+
+.el-popper[x-placement^="bottom"] .popper__arrow::after {
+  border-bottom-color: rgba(0, 0, 0, 0.8);
+}
+
+@media screen and (max-width: 1024px) {
+  .el-slider__button-wrapper::before {
+    font-size: 12px !important;
+  }
+  .how-dialog .el-dialog__body {
+    line-height: 0.35rem;
+    font-size: 12px;
+  }
+  .el-slider__button-wrapper {
+    /* 圣诞注释 */
+    /* height: 25px; */
+    /* width: 25px; */
+    /* top: -8px; */
+  }
+  .el-slider__bar,
+  .el-slider__runway {
+    height: 0.2rem;
+  }
+}
+
+@media (min-width: 320px) {
+  html {
+    font-size: 42.6667px;
+  }
+}
+
+@media (min-width: 360px) {
+  html {
+    font-size: 48px;
+  }
+}
+
+@media (min-width: 375px) {
+  html {
+    font-size: 50px;
+  }
+}
+
+@media (min-width: 384px) {
+  html {
+    font-size: 51.2px;
+  }
+}
+
+@media (min-width: 414px) {
+  html {
+    font-size: 55.2px;
+  }
+}
+
+@media (min-width: 448px) {
+  html {
+    font-size: 59.7333px;
+  }
+}
+
+@media (min-width: 480px) {
+  html {
+    font-size: 48px;
+  }
+}
+
+@media (min-width: 512px) {
+  html {
+    font-size: 68.2667px;
+  }
+}
+
+@media (min-width: 544px) {
+  html {
+    font-size: 72.5333px;
+  }
+}
+
+@media (min-width: 576px) {
+  html {
+    font-size: 76.8px;
+  }
+}
+
+@media (min-width: 608px) {
+  html {
+    font-size: 81.0667px;
+  }
+}
+
+@media (min-width: 640px) {
+  html {
+    font-size: 85.3333px;
+  }
+}
+
+@media (min-width: 750px) {
+  html {
+    font-size: 100px;
+  }
+}

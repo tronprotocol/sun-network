@@ -9,8 +9,9 @@ export default ({
   siteData // 站点元数据
 }) => {
   // ...做一些其他的应用级别的优化
-  if (typeof process === 'undefined') { // process is undefined in a browser
+  if (typeof process === 'undefined') {
+    // process is undefined in a browser
     Vue.use(VueUi);
   }
   Vue.prototype.$axios = axios;
-}
+};

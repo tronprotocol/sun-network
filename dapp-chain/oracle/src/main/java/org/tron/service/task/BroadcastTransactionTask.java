@@ -6,9 +6,8 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.MessageCode;
 import org.tron.common.config.SystemSetting;
-import org.tron.common.utils.AlertUtil;
+import org.tron.common.utils.ByteArray;
 import org.tron.db.Manager;
-import org.tron.protos.Sidechain.NonceMsg.NonceStatus;
 import org.tron.service.eventactuator.Actuator;
 import org.tron.service.eventactuator.Actuator.BroadcastRet;
 
@@ -37,28 +36,36 @@ public class BroadcastTransactionTask {
   }
 
   private void broadcastTransaction(Actuator eventActuator) {
-    BroadcastRet broadcastRet = eventActuator.broadcastTransactionExtensionCapsule();
-    Manager.getInstance().setProcessBroadcasted(eventActuator.getNonceKey());
-    String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
-    if (broadcastRet == BroadcastRet.SUCCESS) {
-      CheckTransactionTask.getInstance()
-          .submitCheck(eventActuator, 60);
-    } else {
-      String chain = eventActuator.getTransactionExtensionCapsule().getType().name();
-      if (broadcastRet == BroadcastRet.DONE) {
-        Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.SUCCESS);
-        if (logger.isInfoEnabled()) {
-          String msg = MessageCode.BROADCAST_TRANSACTION_SUCCESS
-              .getMsg(chain, transactionId);
-          logger.info(msg);
-        }
+
+    try {
+      BroadcastRet broadcastRet = eventActuator.broadcastTransactionExtensionCapsule();
+      Manager.getInstance().setProcessBroadcasted(eventActuator.getNonceKey());
+      String transactionId = eventActuator.getTransactionExtensionCapsule().getTransactionId();
+      if (broadcastRet == BroadcastRet.SUCCESS) {
+        CheckTransactionTask.getInstance().submitCheck(eventActuator, 60);
       } else {
-        Manager.getInstance().setProcessStatus(eventActuator.getNonceKey(), NonceStatus.FAIL);
-        String msg = MessageCode.BROADCAST_TRANSACTION_FAIL
-            .getMsg(chain, transactionId);
-        AlertUtil.sendAlert(msg);
+        String chain = eventActuator.getTaskEnum().name();
+        if (broadcastRet == BroadcastRet.DONE) {
+          Manager.getInstance().setProcessSuccess(eventActuator.getNonceKey());
+          if (logger.isInfoEnabled()) {
+            String msg = MessageCode.BROADCAST_TRANSACTION_SUCCESS
+                .getMsg(chain, transactionId);
+            logger.info(msg);
+          }
+        } else {
+          String msg = MessageCode.BROADCAST_TRANSACTION_FAIL
+              .getMsg(chain, transactionId);
+          RetryTransactionTask.getInstance().processAndSubmit(eventActuator, msg);
+        }
       }
+    } catch (Exception e) {
+      logger.error("broadcastTransaction catch error! nouce = {}",
+          ByteArray.toStr(eventActuator.getNonceKey()), e);
+      Manager.getInstance()
+          .setProcessFail(eventActuator.getNonceKey(), eventActuator.getRetryTimes());
     }
+
+
   }
 
 }

@@ -9,12 +9,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.encoders.Hex;
 import org.tron.common.crypto.Hash;
 import org.tron.common.exception.EncodingException;
+import org.tron.service.eventactuator.SignListParam;
 
-
+@Slf4j(topic = "abiUtil")
 public class AbiUtil {
 
   private static Pattern paramTypeBytes = Pattern.compile("^bytes([0-9]*)$");
@@ -511,13 +513,61 @@ public class AbiUtil {
     des++;
     ArrayList<String> signList = new ArrayList<>();
     indexList.forEach(index -> {
-      index += 64;
+      index += WORD_LENGTH * 2;
       int valueLength = DataWord.getDataWord(data, index / WORD_LENGTH).intValue();
-      if (valueLength > 0) {
-        byte[] range = Arrays
-            .copyOfRange(data, index + WORD_LENGTH, index + WORD_LENGTH + valueLength);
-        signList.add(ByteArray.toHexString(range));
-      }
+      byte[] range = Arrays
+          .copyOfRange(data, index + WORD_LENGTH, index + WORD_LENGTH + valueLength);
+      signList.add(ByteArray.toHexString(range));
+    });
+    return signList;
+  }
+
+  public static SignListParam unpackSignListParam(byte[] data) {
+    if (data.length % WORD_LENGTH != 0 || data.length / WORD_LENGTH < 3) {
+      logger.info("con not unpack data to SignListParam .data is {}", ByteArray.toHexString(data));
+      return new SignListParam(Lists.newArrayList(), Lists.newArrayList());
+    }
+    try {
+      ArrayList<String> signList = getSignList(data, 0);
+      ArrayList<String> addressList = getAddressList(data, 1);
+      return new SignListParam(signList, addressList);
+    } catch (Exception e) {
+      logger.error(e.getMessage(), e);
+      logger.info("con not unpack data to SignListParam .data is {}", ByteArray.toHexString(data));
+    }
+    return new SignListParam(Lists.newArrayList(), Lists.newArrayList());
+  }
+
+  private static ArrayList<String> getAddressList(byte[] data, int desIndex) {
+    int des = DataWord.getDataWord(data, desIndex).intValue() / WORD_LENGTH;
+    int length = DataWord.getDataWord(data, des).intValue();
+    length += des++;
+    ArrayList<String> addressList = new ArrayList<>();
+    do {
+      byte[] address = DataWord.getDataWord(data, des).getLast20Bytes();
+      addressList.add(WalletUtil.encode58CheckWithoutPrefix(address));
+    } while (des++ < length);
+    return addressList;
+  }
+
+  private static ArrayList<String> getSignList(byte[] data, int desIndex) {
+    ArrayList<Integer> indexList = new ArrayList<>();
+    ArrayList<String> signList = new ArrayList<>();
+    int des = DataWord.getDataWord(data, desIndex).intValue() / WORD_LENGTH;
+    int length = DataWord.getDataWord(data, des).intValue();
+
+    length += des++;
+    do {
+      indexList.add(DataWord.getDataWord(data, des).intValue());
+    } while (des++ < length);
+    des++;
+    indexList.forEach(index -> {
+      index += WORD_LENGTH * 3;
+      int valueLength = DataWord.getDataWord(data, index / WORD_LENGTH).intValue();
+      byte[] range = Arrays
+          .copyOfRange(data, index + WORD_LENGTH, index + WORD_LENGTH + valueLength);
+      signList.add(ByteArray.toHexString(range));
+
     });
     return signList;
   }
@@ -548,11 +598,12 @@ public class AbiUtil {
   public static void main(String[] args) throws EncodingException {
 
     Object[] arr = {1, 'a', "b", 3};
-    System.out.print(StringUtils.join(arr, ","));
+    System.out.println(StringUtils.join(arr, ","));
     //test();
     //test2();
     //test6();
-    test7();
+    //test7();
+    test9();
 //    String method = "test(address,string,int)";
 //    String method = "test(string,int2,string)";
 //    String params = "asdf,3123,adf";
@@ -601,6 +652,13 @@ public class AbiUtil {
     String data = "00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000051234567890000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000622222222901100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007033333338902220000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000074444444490333300000000000000000000000000000000000000000000000000";
     List<String> strings = AbiUtil.unpackOracleSigns(ByteArray.fromHexString(data));
     strings.forEach(s -> System.out.println(s));
+  }
+
+  public static void test9() {
+    String data = "000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000002600000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000001c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004323334320000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ab3536313334323166677364666773646667736466677364666773646667647366676473666766647366677364666773646667647366677364666772657772743332343533343274726577727472657772747734353234333577657274726577727435333234356577727477726572743233343533347472657772743332343533343231333432333435333234353332343533323435333234353233343533323435323334353233343334350000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008383634353433353400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004352452345324523452345234518567500000000000000000000000000000000000000000000000000001845345346750000000000000000000000000000000000000000000000019734534534534235";
+    SignListParam signListParam = AbiUtil.unpackSignListParam(ByteArray.fromHexString(data));
+    signListParam.getOracleSigns().forEach(s -> System.out.println(s));
+    signListParam.getOracleAddresses().forEach(s -> System.out.println(s));
   }
 
   public static void test7() {

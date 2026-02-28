@@ -1,0 +1,341 @@
+{
+  "SIGNIN": "登陆",
+  "RankTitle": "每日排行榜",
+  "Order": "排名",
+  "Player": "玩家",
+  "TotalMount": "总投注额",
+  "Prize": "奖励",
+  "DepositText": "质押资产",
+  "DepositTrx": "DepositTrx",
+  "DepositTrc10": "DepositTrc10",
+  "DepositTrc20": "DepositTrc20",
+  "DepositTrc721": "DepositTrc721",
+  "WithdrawText": "取回资产",
+  "WithdrawTrx": "WithdrawTrx",
+  "WithdrawTrc10": "WithdrawTrc10",
+  "WithdrawTrc20": "WithdrawTrc20",
+  "WithdrawTrc721": "WithdrawTrc721",
+  "ApplyTestCoin": "申请测试币",
+  "MappingText": "Mapping",
+  "MappingTrx": "MappingTrx",
+  "MappingTrc20": "MappingTrc20",
+  "MappingTrc721": "MappingTrc721",
+  "Withdrawal": "Withdraw",
+  "Mapping": "Mapping",
+  "OtherPrize": {
+    "Txt1": "下注可获得：",
+    "Txt2": "现在投注可获得投注货币 100% DICE"
+  },
+  "Play": {
+    "LuckNum": "幸运数",
+    "Bet": {
+      "Title": "投注数量",
+      "Left": "侧链余额",
+      "Right": "主网余额"
+    },
+    "WinTitle": "预计赢取",
+    "WinRate": "中奖概率",
+    "PayOut": "赔率",
+    "Less": "小于该数获胜",
+    "Roll": "掷骰子",
+    "diceNum": "挖矿数量",
+    "diceBanlance": "dice(TRC20)",
+    "lackOfMoneyMistakes": "投注失败，略微减少投注额度重试一次吧！",
+    "tronminer": "挖矿机器人"
+  },
+  "Result": {
+    "AllBets": "所有投注",
+    "MyBets": "我的投注",
+    "Time": "时间",
+    "Player": "玩家",
+    "Select": "小于该数获胜",
+    "Input": "投注",
+    "Result": "预测数/幸运数",
+    "Output": "收益",
+    "LessThan": "猜小于",
+    "BettingRecord": "投注结果"
+  },
+  "HowToPlay": "怎么玩",
+  "InviteLucky": "推荐有奖",
+  "Chinese": "中文",
+  "English": "英文",
+  "WinRate": "胜率",
+  "extract": "提现",
+  "PayOut": "赔率",
+  "Rule": {
+    "p1": "1. 请确保您的侧链上有 TRX，如果没有，请下载 TronLink 钱包，可在钱包上将主网资产转移到侧链。",
+    "p2": "2. 设置投注额度，即游戏下注的 TRX 数量。",
+    "p3": "3. 调整滑块至理想的数字范围。移动滑块时，最多可赢得的 TRX、胜率、奖励倍数都将自动调整。",
+    "p4": "4. 点击“摇骰子”开始游戏，智能合约随后将从 1-100 之间随机生成一个幸运数字，如果幸运数字在您的预测范围之内，您就赢了！"
+  },
+  "Confirm": "确认",
+  "LoginTipTitle": "请登录Chrome插件钱包",
+  "LoginTipContent": "如果您没有安装TRON钱包，请您点击以下链接下载（两款钱包均支持TRONdice）：<br>Tron Link:<a target='_blank' href='https://chrome.google.com/webstore/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec'>https://goo.gl/Yb4NRU</a><br/>Tron Pay:<a target='_blank' href='https://dwz.cn/FyIuFVay'>https://dwz.cn/FyIuFVay</a>",
+  "Login": "登录",
+  "loginTip": "请注意钱包使用主网节点，勿切换至测试网",
+  "BalanceNotEnough": {
+    "Title": "Insufficient wallet balance",
+    "Content": "Please check your betting amount or withdraw the funds in the prize pool to your wallet."
+  },
+  "PleaseInput": "请输入投注金额",
+  "LuckyDraw": {
+    "btn": "幸运抽奖",
+    "title": "幸运抽奖",
+    "introductions": "按下抽奖按钮抽取幸运号码，并根据号码取得对应奖励。",
+    "number": "幸运号码",
+    "reward": "幸运奖金",
+    "winText": "本次幸运抽奖数字",
+    "rewardText": "幸运奖金",
+    "times": "次抽奖机会",
+    "withdraw": "提现",
+    "supplement": {
+      "p1": "每天首次投注可以获得一次抽奖机会！",
+      "p2": "当你每次投注大于10 TRX，即可额外获得一次免费抽奖机会！",
+      "p3": "共可累积上限10次！"
+    },
+    "explanation": "活动最终解释权归 TRONDICE.ORG 所有"
+  },
+  "vip": {
+    "button": "Vip",
+    "title": "VIP特权",
+    "desc": "享受VIP的专属身份和福利，每次投注均可获特定回赠！",
+    "currentGrade": "当前等级",
+    "prize": "投注奖励",
+    "table": {
+      "level": "等级",
+      "amount": "累计投注额",
+      "prize": "奖励"
+    },
+    "remainingBet": "只需投注 {trx} TRX 即可成为VIP{level}",
+    "copyRight": "* 活动最终解释权归 TRONDICE.ORG 所有"
+  },
+  "invite": {
+    "button": "邀请",
+    "title": "邀请好友",
+    "desc": "邀请好友即可获得他们 0.2% 的投注额！ 快复制您的专属链接发出邀请吧！",
+    "prize": "邀请奖励",
+    "record": "邀请记录",
+    "prizeRule": {
+      "p1": "账户邀请返现金额每天结算一次，结算时间为4:00 AM(UTC)。",
+      "p2": "结算后金额发放到账户，同时展示对应的邀请记录。"
+    },
+    "copyButton": "复制",
+    "table": {
+      "time": "投注时间",
+      "address": "被邀请人",
+      "bet": "被邀请人的投注金额",
+      "prize": "我的奖金"
+    },
+    "result": {
+      "number": "邀请好友",
+      "prize": "获得邀请奖励"
+    },
+    "inviteTip": "邀请人和被邀请人的账号不能相同"
+  },
+  "PrizeRule": {
+    "title": "排行榜奖励",
+    "content": {
+      "rank": "排名",
+      "prize": "奖励",
+      "few": "第{no}名",
+      "total": "共",
+      "extra": "额外"
+    },
+    "footer": "奖金将在每日榜单公布后24h内（非工作日72h内），发放至您的地址。",
+    "footer2": "每日排行结果将于第二天八点结束。",
+    "copyright": "* 本活动最终解释权归trondice.org所有",
+    "holidayTitle": "庆圣诞  赢dice",
+    "holidayItem1": "总下注额排名前30的玩家，瓜分",
+    "holidayItem1Num": "15万dice",
+    "holidayItem2": "总下注额排名第12、第25的玩家，每人获得额外幸运奖",
+    "holidayItem2Num": "12250 dice",
+    "holidayItem3": "* 本活动不影响每日排名奖励",
+    "holidayIndro": "* 奖金将在活动结束后3日内发放，本活动最终解释权归trondice.org所有"
+  },
+  "totalWin": "玩家总盈利",
+  "NoWallet": "余额不足，请质押资产到侧链！",
+  "noTronweb": "您当前未下载TRON钱包,请访问<a target='_blank' href='https://chrome.google.com/webstore/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec'>https://goo.gl/Yb4NRU</a>并下载chrome扩展程序",
+  "Roadmap": {
+    "button": "路线图",
+    "content": {
+      "PhaseOne": "<span class='page'>第一阶段：</span>（已完成）TRONdice将完成发行dice 通证、开启投注挖矿、上线交易所等功能，至此发币→投注挖矿→交易的游戏闭环已初步形成，并且TRONdice还会开启一系列拉新活动，如邀请新用户奖励活动、通证空投活动等",
+      "PhaseTwo": "<span class='page'>第二阶段：</span>TRONdice将开启首次分红，持有dice币的用户将获得总计70% TRONdice平台利润的分红。同时，TRONdice将开启一系列活动如幸运抽奖、每日任务等。",
+      "PhaseThree": "<span class='page'>第三阶段：</span>TRONdice将引入新玩法，并为dice token引入其他应用场景，敬请期待！"
+    }
+  },
+  "Token": {
+    "button": "dice 通证",
+    "Dice": {
+      "head": "简介",
+      "content": {
+        "p1": "dice通证是TRON dice平台的权益体现，持有dice可以获取70% TRON dice利润的分红，并可对平台的重要事项参与投票表决。",
+        "p2": "dice通证已上线TRON DEX去中心化交易所，玩家可在tronscan（<a href='https://tronscan.org/#/exchange20?token=TRONdice/TRX&id=30' target='_blank'>https://tronscan.org/#/exchange20?token=TRONdice/TRX&id=30</a>）中进行dice交易。"
+      }
+    },
+    "Distribution": {
+      "head": "代币分配",
+      "title": "DICE（TRC20）发行总量为10,000,000,000（10B），将用于以下方面：",
+      "content": {
+        "p1": "①    投注挖矿：60%",
+        "p2": "②    私募（用于初始奖池及带宽能量费用）：5%",
+        "p3": "③    空投及推广15%",
+        "p4": "④    运营成本10%",
+        "p5": "⑤    团队和顾问：10%"
+      }
+    },
+    "Address": {
+      "head": "TRONdice平台地址公示，正如白皮书所示：",
+      "content": {
+        "p1": "1. 投注挖矿池（剩余挖矿）：<br>&nbsp;&nbsp;TDsKukoeopFBq1q9HGBXT4axDbp4mvNjcH <br> DICE提取池（当前挖矿）：<br>&nbsp;&nbsp;TW76veo5eQotWrtjP4fjDCDfBDM8fzhoC8",
+        "p2": "2. 运营成本 ：<br>&nbsp;&nbsp;TRKFhyf4rp8E1b2Z5YV7XU89A1p9wXizbc",
+        "p3": "3.团队和顾问 ：<br>&nbsp;&nbsp;TWaFwzSmqKiKUiccv4R4G4NWnFENGm9avF",
+        "p4": "4. 空投及推广 ：<br>&nbsp;&nbsp;TBy7wSrzpeqjHgUZtNTcFkazAZBeectEFY",
+        "p5": "后三项初始为全部冻结，随挖矿阶段线性解冻，参与分红"
+      }
+    }
+  },
+  "FairPlay": {
+    "button": "玩法与公平",
+    "description": {
+      "default": "当前的玩家种子(sha256):",
+      "custom": "输入您的自定义种子:",
+      "new": "新的玩家种子(sha256):",
+      "button": "生成",
+      "p1": "一次公平的下注，需要公平的随机数。",
+      "p2": "TRONdice的做法是，由玩家（Player）和智能合约（House）分别提供一个种子（House Seed和Player Seed)，然后智能合约将这两个Seed混合生成一个随机幸运值。",
+      "p3": "玩家可以输入自己的自定义种子，点击生成获得自定义的玩家种子。",
+      "p4": "如果没有进行自定义设置，那么将使用默认的玩家种子。"
+    }
+  },
+  "Recommended": {
+    "title": "新玩家通过你的分享链接注册后，你可获得其挖矿所得dice的 <span class='number'> 15%</span>额外dice奖励。",
+    "desc": "波场公链最火爆、分红最多的DApp-TRONdice已开启投注挖矿！玩游戏即可得dice，快来一起玩吧！👇",
+    "copyBtn": "分享",
+    "prize": "邀请奖励",
+    "rule": {
+      "p1": "账户邀请返现金额每天 4:00 AM（UTC）结算前一日结果",
+      "p2": "领取将直接打入当前账户地址，1分钟后待区块确认即可在tronscan.org中查到"
+    },
+    "widthDraw": "提取",
+    "explanation": "活动最终解释权归 TRONDICE.ORG 所有",
+    "sucdess": "提取成功",
+    "noDice": "无可提取",
+    "notAllowed": "邀请奖励功能暂时维护，但数据仍正常记录，待恢复后即可将原来未提取的奖励和暂停期间的奖励一起提取"
+  },
+  "account": {
+    "trxWallet": "TRX余额",
+    "diceWallet": "dice余额",
+    "bandWidth": "已用带宽",
+    "energy": "已用能量",
+    "tip": "您的带宽/能量即将耗尽，请尽快冻结TRX以获取相应资源！",
+    "resouse": {
+      "p1": "由于TRON公链机制，每次投骰子调用智能合约需消耗能量(Energy)资源：",
+      "p2": "--正常情况下，我们会帮助玩家承担100%的能量消耗。",
+      "p3": "--异常情况如同一时间用户访问量过大等，TRONdice提供的能量可能不足，此时则需要消耗玩家的能量，您可冻结TRX获取能量，或等待TRONdice能量恢复。我们强烈不建议您在没有能量时继续游戏，此时每次下注将消耗TRX"
+    }
+  },
+  "autoBet": {
+    "name": "自动投注",
+    "title": "自动投注新手引导：",
+    "content": {
+      "p1": "亲爱的玩家，现在你可以通过“自动投注”功能来便捷地参与TRONdice投骰子游戏：",
+      "p2": "-输入你期望的下注数量，点击“确认”即可开始",
+      "p3": "-我们将按照你设定的数值进行单倍循环投注，一次结果完成后立即开始第二次投注",
+      "p4": "-为了获得最好的投注效果，请将我们加入<span class='tronPay'>TronPay</span>钱包的白名单，以免不断授权",
+      "p5": "-刷新页面操作会中断您的下注及扣费，请勿在投注过程中刷新页面"
+    }
+  },
+  "Mining": {
+    "content": {
+      "p1": "时间：2018-11-15 20:11:30 UTC",
+      "p2": "挖矿阶段：第一轮",
+      "p3": "挖矿效率：1 TRX ：1 dice",
+      "p4": "本轮矿池已挖出：500,000,000（57.58%）",
+      "p5": "总矿池已挖出：6,000,000,000 （70.78%）"
+    },
+    "table": {
+      "title": "投注挖矿规则表",
+      "stage": "挖矿阶段",
+      "proportion": "dice / TRX",
+      "diceNum": "dice数量"
+    },
+    "desc1": "{date}(UTC) &nbsp;&nbsp;挖矿阶段：第{round}轮",
+    "desc2": "<span class='br'>挖矿效率：<span class='yellow'> {rate}</span> &nbsp;&nbsp;</span> <span class='br'>本阶段矿池已挖出：<span class='yellow'>{currentPool}</span>（{currentPoolRate}%）&nbsp;&nbsp;</span><span class='br'>总矿池已挖出：<span class='yellow'>{totalPool}</span> （{totalPoolRate}%）</span>"
+  },
+  "marquee": "恭喜{player}赢取<span class='num'>{trx}</span> TRX 赔率<span class='num'>{level}</span>倍",
+  "countDown": {
+    "name": "倒计时",
+    "title": "即将开启dice投注挖矿"
+  },
+  "diceWithDraw": {
+    "btn": "dice提取",
+    "desc": "将dice余额提现到玩家的钱包地址，玩家可以在tronscan.org及所有波场钱包上查询dice的到账情况。",
+    "diceNum": "dice 余额每五分钟更新一次",
+    "diceNum2": "提取数量为余额数向下取整",
+    "diceNum3": "挖矿提现每日可提取3次",
+    "notAllow": {
+      "p1": "1.所有未提取账户dice余额将自动转入新dice(TRC20)。",
+      "p2": "2.dice(TRC20)挖矿后会自动转至你的账户，无需提取。",
+      "p3": "3.该提现功能即将下线，保留一周供用户查询自己账户余额"
+    }
+  },
+  "notFindGoogle": "如果您无法访问Google 应用商店，可点击以下链接下载TRONlink安装包及安装教程。",
+  "whitePaper": "白皮书",
+  "openAuto": "您已开启自动投注",
+  "closeAuto": "您已取消自动投注",
+  "indruction": "游戏介绍",
+  "mineNum": "dice数量=挖矿效率*下注数量",
+  "diceTip": "* dice挖矿到账时间为5min左右",
+  "withDrawSuccess": "提取成功",
+  "cancel": "取消",
+  "noLogin": "请登录",
+  "loginWallet":"请登录您的TRON钱包。如果您没有安装TRON钱包，请访问<a href='https://chrome.google.com/webstore/detail/tronlink%EF%BC%88%E6%B3%A2%E5%AE%9D%E9%92%B1%E5%8C%85%EF%BC%89/ibnejdfjmmkpcnlpebklmnkoeoihofec' target='_blank'>http://u6.gg/gmc5D</a>并下载chrome扩展程序。",
+  "exchange": "交易所",
+  "timeOut": "因事件服务器卡顿，获取智能合约投注结果超时，但并不影响您的投注结果，您可在钱包里查看余额变化。",
+  "Dividend": {
+    "name": "分红",
+    "notice": "TRONdice进展突飞猛进，即将开启首次分红啦!",
+    "rules": {
+      "title": "分红规则如下：",
+      "content": {
+        "p1": "1.持有dice token即可获得TRX分红，大家请从游戏中尽快取出dice到自己钱包",
+        "p2": "2.本周六北京时间18:00，我们将对各地址dice余额进行快照，快照后24小时内分红TRX将按快照时的dice比例飞入你的钱包"
+      }
+    }
+  },
+  "day": "天",
+  "DividingPool": {
+    "name": "每日分红池",
+    "dividendTitle": "分红",
+    "diceNum": "dice流通总量",
+    "content": {
+      "p1": "1.当TRONdice平台有任何利润，其中<span>70%</span>将进入分红池，等待下次分红",
+      "p2": "2.TRONdice将于每天<span>UTC</span>时间<span>00:00</span>，进行所有<span>已质押</span>dice快照",
+      "p3": "3.分红池中TRX将按快照的质押dice等比例分配给持币者",
+      "p4": "4.分红TRX将在快照后<span>24h</span>内自动打入您的账户余额"
+    },
+    "title": "质押",
+    "pledge": "当前可质押dice余额",
+    "unfreeze": "解除质押",
+    "unfreezeInfo": "当前已质押dice总额",
+    "unfreezeBtn": "解押",
+    "unfreezeTip": "解除质押全部已质押dice，解除质押后，将不会获得分红奖励。",
+    "withdraw": "提取",
+    "withdrawInfo": "当前未提取dice总额",
+    "withdrawTip": "提取全部已解押dice，每次解押48小时后可以提取。",
+    "note": "注",
+    "sendInfo": "已向区块链广播交易，请 1 分钟后查看区块结果",
+    "numInfo": "请大于零",
+    "minInfo": "请小于当前总额",
+    "cancel": "取消",
+    "unfreezeMsg": "每次解押48小时后可以提取。解除质押后，将不会获得分红奖励",
+    "bonus": "分红记录",
+    "bonusTitle": "我的分红累计",
+    "bonusTime": "时间",
+    "bonusNum": "数量",
+    "earnings": "我的预期收益",
+    "standardNum": "每十万份dice预期TRX收益",
+    "ledgeNum": "dice质押总量,每24H更新一次",
+    "ledgeUpdate": ""
+  }
+}

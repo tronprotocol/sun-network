@@ -3,8 +3,8 @@ package org.tron.service.eventactuator;
 import org.junit.Ignore;
 
 
-@Ignore
-public class ThreadPoolDemo {
+
+public abstract class ThreadPoolDemo {
 
   static class WorkThread implements Runnable {
 

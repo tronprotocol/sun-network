@@ -32,6 +32,10 @@ public class AddressUtil {
     return true;
   }
 
+  public static boolean addressValid(String check58Address) {
+    return addressValid(decodeFromBase58Check(check58Address));
+  }
+
   public static String encode58Check(byte[] input) {
     byte[] hash0 = Sha256Hash.hash(input);
     byte[] hash1 = Sha256Hash.hash(hash0);
@@ -41,7 +45,7 @@ public class AddressUtil {
     return Base58.encode(inputCheck);
   }
 
-  private static byte[] decode58Check(String input) {
+  public static byte[] decode58Check(String input) {
     byte[] decodeCheck = Base58.decode(input);
     if (decodeCheck.length <= 4) {
       return new byte[0];
