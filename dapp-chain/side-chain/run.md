@@ -6,7 +6,7 @@ https://github.com/tronprotocol/Documentation/blob/master/TRX/Solidity_and_Full_
 
 ## Running a local node and connecting to the public testnet 
 
-* Use the [Testnet Config](https://github.com/tronprotocol/TronDeployment/blob/master/test_net_config.conf) or use the [Tron Deployment Scripts](https://github.com/tronprotocol/TronDeployment) 
+* Use the [Testnet Config](https://github.com/tron-nile-testnet/nile-testnet/blob/master/framework/src/main/resources/config-nile.conf) or use the [Tron Deployment Scripts](https://github.com/tronprotocol/TronDeployment) 
 
 
 ### Running a Super Representative Node for mainnet
